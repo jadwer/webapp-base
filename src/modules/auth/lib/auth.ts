@@ -2,8 +2,7 @@
 
 import useSWR from "swr";
 import axios from "@/lib/axiosClient";
-import { useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 import {
   UseAuthOptions,
@@ -15,10 +14,8 @@ import {
 
 export const useAuth = ({
   middleware,
-  redirectIfAuthenticated,
 }: UseAuthOptions = {}) => {
   const router = useRouter();
-  const params = useParams();
 
   const shouldFetch = middleware !== "guest";
 
