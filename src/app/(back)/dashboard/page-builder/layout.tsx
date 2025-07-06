@@ -1,3 +1,4 @@
+import AuthenticatedLayout from "@/modules/auth/components/AuthenticatedLayout"
 import 'grapesjs/dist/css/grapes.min.css';
 
 export default function PageBuilderLayout({
@@ -6,6 +7,8 @@ export default function PageBuilderLayout({
   children: React.ReactNode
 }) {
   return (
-        <main>{children}</main>
+    <AuthenticatedLayout>
+      <main>{children}</main>
+    </AuthenticatedLayout>
   )
 }
