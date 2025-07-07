@@ -1,23 +1,34 @@
-'use client';
+'use client'
 
-import { useState, forwardRef, useImperativeHandle } from 'react';
-import Toast from 'react-bootstrap/Toast';
+import { useState, forwardRef, useImperativeHandle } from 'react'
+import Toast from 'react-bootstrap/Toast'
 
 export interface ToastNotifierHandle {
-  show: (message: string) => void;
+  show: (message: string, type?: ToastType, duration?: number) => void
+}
+
+type ToastType = 'success' | 'error' | 'info' | 'warning'
+
+const bgColorMap: Record<ToastType, string> = {
+  success: 'bg-success text-white',
+  error: 'bg-danger text-white',
+  info: 'bg-info text-white',
+  warning: 'bg-warning text-dark',
 }
 
 const ToastNotifier = forwardRef<ToastNotifierHandle>((_, ref) => {
-  const [show, setShow] = useState(false);
-  const [message, setMessage] = useState('');
+  const [show, setShow] = useState(false)
+  const [message, setMessage] = useState('')
+  const [type, setType] = useState<ToastType>('success')
 
   useImperativeHandle(ref, () => ({
-    show(msg: string) {
-      setMessage(msg);
-      setShow(true);
-      setTimeout(() => setShow(false), 3000);
+    show(msg: string, toastType: ToastType = 'success', duration = 3000) {
+      setMessage(msg)
+      setType(toastType)
+      setShow(true)
+      setTimeout(() => setShow(false), duration)
     },
-  }));
+  }))
 
   return (
     <div
@@ -28,13 +39,15 @@ const ToastNotifier = forwardRef<ToastNotifierHandle>((_, ref) => {
         zIndex: 1050,
       }}
     >
-      <Toast show={show} bg="success" onClose={() => setShow(false)}>
-        <Toast.Body className="text-white">{message}</Toast.Body>
+      <Toast show={show} onClose={() => setShow(false)}>
+        <Toast.Body className={bgColorMap[type]}>
+          {message}
+        </Toast.Body>
       </Toast>
     </div>
-  );
-});
+  )
+})
 
-ToastNotifier.displayName = 'ToastNotifier';
+ToastNotifier.displayName = 'ToastNotifier'
 
-export default ToastNotifier;
+export default ToastNotifier
