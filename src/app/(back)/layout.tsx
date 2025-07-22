@@ -1,13 +1,15 @@
-import AuthenticatedLayout from "@/modules/auth/components/AuthenticatedLayout"
+"use client";
 
-export default function BackPage({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+import AuthenticatedLayout from "@/modules/auth/components/AuthenticatedLayout";
+import DashboardLayout from '@/ui/components/DashboardLayout'
+
+export default function BackPage({ children }: { children: React.ReactNode }) {
   return (
     <AuthenticatedLayout>
-      <main>{children}</main>
+          <DashboardLayout>
+
+        {children}
+        </DashboardLayout>
     </AuthenticatedLayout>
-  )
+  );
 }

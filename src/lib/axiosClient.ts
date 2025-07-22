@@ -11,7 +11,6 @@ const axios = Axios.create({
   },
 });
 
-// Interceptor para agregar token Bearer desde localStorage
 axios.interceptors.request.use((config) => {
   const token =
     typeof window !== "undefined" ? localStorage.getItem("access_token") : null;

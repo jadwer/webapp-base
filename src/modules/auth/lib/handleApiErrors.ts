@@ -1,4 +1,5 @@
 // src/modules/auth/lib/handleApiErrors.ts
+import { parseJsonApiErrors } from '@/lib/parseJsonApiErrors'
 
 export interface ErrorResponse {
   response?: {
@@ -13,15 +14,22 @@ export interface ErrorResponse {
 /**
  * Maneja errores de validación (422) de forma genérica.
  */
-export const handleApiErrors = (
-  error: ErrorResponse,
-  setErrors?: (errors: Record<string, string[]>) => void,
-  setStatus?: (status: string | null) => void
-): void => {
-  if (error.response?.status === 422) {
-    setErrors?.(error.response.data?.errors || {})
-    setStatus?.(null)
+export function handleApiErrors(
+  error: unknown,
+  setErrors: (errors: Record<string, string[]>) => void,
+  setStatus?: (msg: string | null) => void
+) {
+  if (!error || typeof error !== 'object') return
+
+  const response = (error as any).response
+
+  if (response?.status === 422 && Array.isArray(response.data?.errors)) {
+    const parsed = parseJsonApiErrors(response.data.errors)
+    setErrors(parsed)
+  } else if (response?.status === 401) {
+    setStatus?.('Credenciales inválidas')
   } else {
-    throw error
+    console.error('Error no manejado:', error)
+    setStatus?.('Ocurrió un error inesperado.')
   }
 }
