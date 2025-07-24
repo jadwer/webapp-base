@@ -1,7 +1,7 @@
 'use client'
 
 import { useAuth } from '@/modules/auth/lib/auth'
-import { getDefaultRouteForRole } from '@/hooks/useAuthRedirect'
+import { getDefaultRoute } from '@/lib/permissions'
 import UserRoleDisplay from '@/ui/components/UserRoleDisplay'
 import RoleGuard from '@/ui/components/RoleGuard'
 
@@ -28,7 +28,7 @@ export default function RoleBasedDemo() {
     )
   }
 
-  const defaultRoute = getDefaultRouteForRole(user.role)
+  const defaultRoute = getDefaultRoute(user)
 
   return (
     <div className="container mt-4">

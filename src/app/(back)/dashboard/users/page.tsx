@@ -1,7 +1,7 @@
 'use client'
 
 import dynamic from 'next/dynamic'
-import RoleGuard from '@/ui/components/RoleGuard'
+import { DynamicRoleGuard } from '@/ui/components/DynamicRoleGuard'
 
 const UsersCrudTemplate = dynamic(
   () => import('@/modules/users/templates/UsersCrudTemplate'),
@@ -10,11 +10,8 @@ const UsersCrudTemplate = dynamic(
 
 export default function Page() {
   return (
-    <RoleGuard 
-      allowedRoles={['god', 'admin', 'administrator']}
-      fallbackRoute="/dashboard/profile"
-    >
+    <DynamicRoleGuard path="/dashboard/users">
       <UsersCrudTemplate />
-    </RoleGuard>
+    </DynamicRoleGuard>
   )
 }

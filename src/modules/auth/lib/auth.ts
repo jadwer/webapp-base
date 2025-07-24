@@ -26,7 +26,7 @@ interface ApiError {
 export const useAuth = ({ middleware }: UseAuthOptions = {}) => {
   const router = useRouter();
 
- const shouldFetch = typeof window !== "undefined" && !!localStorage.getItem("access_token");
+  const shouldFetch = typeof window !== "undefined" && !!localStorage.getItem("access_token");
 
   const {
     data: user,
@@ -37,7 +37,16 @@ export const useAuth = ({ middleware }: UseAuthOptions = {}) => {
     (url) =>
       axios
         .get(url)
-        .then((res) => res.data?.data?.attributes)
+        .then((res) => {
+          console.log('🔍 API Profile Response (with roles & permissions):', res.data)
+          const userData = res.data?.data
+          const finalUser = {
+            id: parseInt(userData?.id),
+            ...userData?.attributes
+          }
+          console.log('✅ Usuario final procesado:', finalUser)
+          return finalUser
+        })
         .catch((error) => {
           if (error.response?.status === 401) {
             localStorage.removeItem("access_token");

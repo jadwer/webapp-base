@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation'
 import { LoginForm } from '@/modules/auth/components/LoginForm'
 import { useAuth } from '@/modules/auth/lib/auth'
-import { getDefaultRouteForRole } from '@/hooks/useAuthRedirect'
+import { getDefaultRoute } from '@/lib/permissions'
 import Link from 'next/link'
 
 interface Props {
@@ -22,7 +22,7 @@ export default function LoginTemplate({ redirect }: Props) {
     }
 
     // Si no hay redirect específico, usar la ruta por defecto según el rol
-    const defaultRoute = getDefaultRouteForRole(user?.role)
+    const defaultRoute = getDefaultRoute(user)
     router.replace(defaultRoute)
   }
 

@@ -1,11 +1,8 @@
 'use client'
 
-import RoleBasedDemo from '@/ui/components/RoleBasedDemo'
-
 export default function DashboardPage() {
   return (
     <main>
-
       <h2 className="mb-4">Panel de Control</h2>
 
       <div className="row g-4">
@@ -47,11 +44,6 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
-      </div>
-
-      {/* Demo del sistema de roles */}
-      <div className="mt-5">
-        <RoleBasedDemo />
       </div>
     </main>
   )

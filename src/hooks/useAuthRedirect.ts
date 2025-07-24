@@ -4,6 +4,7 @@ import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/modules/auth/lib/auth'
 import { useIsClient } from './useIsClient'
+import { getDefaultRoute } from '@/lib/permissions'
 
 /**
  * Hook para redirigir usuarios autenticados según su rol
@@ -16,24 +17,12 @@ export function useAuthRedirect() {
   useEffect(() => {
     // Solo proceder si ya estamos en el cliente, cargó y el usuario está autenticado
     if (isClient && !isLoading && isAuthenticated && user) {
-      const role = user.role?.toLowerCase()
+      console.log('🔍 useAuthRedirect - Usuario autenticado:', user)
       
-      // Redirigir según el rol del usuario
-      switch (role) {
-        case 'god':
-        case 'admin':
-        case 'administrator':
-          router.replace('/dashboard')
-          break
-        case 'customer':
-        case 'user':
-          router.replace('/dashboard/profile')
-          break
-        default:
-          // Rol desconocido, redirigir a perfil por defecto
-          router.replace('/dashboard/profile')
-          break
-      }
+      const defaultRoute = getDefaultRoute(user)
+      console.log('🔍 useAuthRedirect - Redirigiendo a:', defaultRoute)
+      
+      router.replace(defaultRoute)
     }
   }, [isClient, user, isAuthenticated, isLoading, router])
 
@@ -43,26 +32,5 @@ export function useAuthRedirect() {
     isLoading,
     // Solo mostrar login cuando estamos en cliente, no está cargando y no está autenticado
     shouldShowLogin: isClient && !isLoading && !isAuthenticated
-  }
-}
-
-/**
- * Función helper para obtener la ruta por defecto según el rol
- */
-export function getDefaultRouteForRole(role?: string): string {
-  if (!role) return '/dashboard/profile'
-  
-  const normalizedRole = role.toLowerCase()
-  
-  switch (normalizedRole) {
-    case 'god':
-    case 'admin':
-    case 'administrator':
-      return '/dashboard'
-    case 'customer':
-    case 'user':
-      return '/dashboard/profile'
-    default:
-      return '/dashboard/profile'
   }
 }

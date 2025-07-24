@@ -24,7 +24,7 @@ const ToastNotifier = forwardRef<ToastNotifierHandle>((_, ref) => {
   const [type, setType] = useState<ToastType>('success')
 
   useImperativeHandle(ref, () => ({
-    show(msg: string, toastType: ToastType = 'success', duration = 3000) {
+    show(msg: string, toastType: ToastType = 'success', duration = 6000) {
       setMessage(msg)
       setType(toastType)
       setShow(true)

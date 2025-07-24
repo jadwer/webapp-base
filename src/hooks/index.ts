@@ -1,2 +1,2 @@
 export { useIsClient } from './useIsClient'
-export { useAuthRedirect, getDefaultRouteForRole } from './useAuthRedirect'
+export { useAuthRedirect } from './useAuthRedirect'

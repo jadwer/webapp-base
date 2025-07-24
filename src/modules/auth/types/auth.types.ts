@@ -1,3 +1,5 @@
+import { User } from '@/lib/permissions'
+
 export interface UseAuthOptions {
   middleware?: "auth" | "guest"
   redirectIfAuthenticated?: string
@@ -18,3 +20,6 @@ export interface ForgotPasswordParams extends AuthStatusHandler {
 export interface ResendEmailVerificationParams {
   setStatus: (status: string) => void
 }
+
+// Re-exportar User para compatibilidad
+export type { User }
