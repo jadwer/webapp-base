@@ -8,7 +8,7 @@ export default function HeaderNavbar() {
     <header className="navbar navbar-expand-lg navbar-light bg-white border-bottom px-3">
       <div className="container-fluid">
         <Link href="/" className="navbar-brand fw-bold text-primary">
-          LaborWasser
+          AtomoSoluciones WebApp
         </Link>
 
         <div className="ms-auto">
