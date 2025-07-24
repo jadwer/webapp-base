@@ -61,6 +61,9 @@ const windowSize = window.innerWidth // ¡Error!
 if (typeof window !== 'undefined') {
   // Lógica diferente servidor vs cliente
 }
+
+// ❌ Estados que difieren entre servidor/cliente
+const shouldShow = !isLoading && !isAuthenticated // Puede diferir
 ```
 
 ### ✅ Patrones Seguros
@@ -80,6 +83,9 @@ useEffect(() => {
 <Suspense fallback={<Loading />}>
   <ComponenteConEstado />
 </Suspense>
+
+// 4. Estados consistentes en servidor/cliente
+const shouldShow = isClient && !isLoading && !isAuthenticated
 ```
 
 ## 🚀 Beneficios de la Solución
@@ -103,7 +109,22 @@ useEffect(() => {
 - `src/ui/components/HydrationSafeExamples.tsx` (ejemplo)
 
 ## 🎯 Resultado
-✅ Error de hidratación resuelto
+✅ Error de hidratación resuelto en AuthStatus
+✅ Error de hidratación resuelto en página de login  
 ✅ Patrón reutilizable implementado
 ✅ UX mejorada con loading states consistentes
 ✅ Código más mantenible y predecible
+
+## 🔄 Casos Resueltos
+
+### 1. AuthStatus Component
+**Problema**: `isLoading` diferente entre servidor/cliente
+**Solución**: `useIsClient` + estado consistente
+
+### 2. Login Page 
+**Problema**: `useAuthRedirect` causaba renders diferentes
+**Solución**: Loading state uniforme + `isClient` en hook
+
+### 3. RoleGuard Component
+**Problema**: Potencial diferencia en verificación de roles
+**Solución**: Verificación solo después de hidratación
