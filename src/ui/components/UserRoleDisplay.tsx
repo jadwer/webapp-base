@@ -20,6 +20,8 @@ export default function UserRoleDisplay() {
 
   const getRoleBadgeClass = (role?: string) => {
     switch (role?.toLowerCase()) {
+      case 'god':
+        return 'bg-dark'
       case 'admin':
       case 'administrator':
         return 'bg-danger'
@@ -33,6 +35,8 @@ export default function UserRoleDisplay() {
 
   const getRoleDisplayName = (role?: string) => {
     switch (role?.toLowerCase()) {
+      case 'god':
+        return 'Super Admin (God)'
       case 'admin':
       case 'administrator':
         return 'Administrador'

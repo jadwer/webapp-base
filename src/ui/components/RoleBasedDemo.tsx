@@ -64,8 +64,22 @@ export default function RoleBasedDemo() {
             </div>
             <div className="card-body">
               
+              {/* Contenido solo para super admins (god) */}
+              <RoleGuard allowedRoles={['god']}>
+                <div className="alert alert-dark">
+                  <h6><i className="bi bi-shield-fill me-2"></i>Solo Super Administradores (God)</h6>
+                  <p className="mb-0">Este contenido solo es visible para usuarios con rol de Super Admin.</p>
+                  <ul className="mt-2 mb-0">
+                    <li>Control total del sistema</li>
+                    <li>Gestión de otros administradores</li>
+                    <li>Configuraciones críticas</li>
+                    <li>Auditoría completa</li>
+                  </ul>
+                </div>
+              </RoleGuard>
+
               {/* Contenido solo para administradores */}
-              <RoleGuard allowedRoles={['admin', 'administrator']}>
+              <RoleGuard allowedRoles={['god', 'admin', 'administrator']}>
                 <div className="alert alert-danger">
                   <h6><i className="bi bi-shield-check me-2"></i>Solo Administradores</h6>
                   <p className="mb-0">Este contenido solo es visible para usuarios con rol de administrador.</p>
@@ -112,19 +126,25 @@ export default function RoleBasedDemo() {
           </div>
           <div className="card-body">
             <div className="row">
-              <div className="col-md-4">
+              <div className="col-md-3">
+                <h6>⚡ Super Admin</h6>
+                <p className="text-muted">Rol: <code>god</code></p>
+                <p><strong>Redirige a:</strong> <code>/dashboard</code></p>
+                <p><strong>Acceso a:</strong> Control total del sistema</p>
+              </div>
+              <div className="col-md-3">
                 <h6>👑 Administradores</h6>
                 <p className="text-muted">Rol: <code>admin</code> o <code>administrator</code></p>
                 <p><strong>Redirige a:</strong> <code>/dashboard</code></p>
-                <p><strong>Acceso a:</strong> Todas las páginas</p>
+                <p><strong>Acceso a:</strong> Gestión general</p>
               </div>
-              <div className="col-md-4">
+              <div className="col-md-3">
                 <h6>👤 Clientes</h6>
                 <p className="text-muted">Rol: <code>customer</code> o <code>user</code></p>
                 <p><strong>Redirige a:</strong> <code>/dashboard/profile</code></p>
                 <p><strong>Acceso a:</strong> Perfil y funciones básicas</p>
               </div>
-              <div className="col-md-4">
+              <div className="col-md-3">
                 <h6>❓ Sin Rol</h6>
                 <p className="text-muted">Rol: <code>undefined</code> o desconocido</p>
                 <p><strong>Redirige a:</strong> <code>/dashboard/profile</code></p>

@@ -20,6 +20,7 @@ export function useAuthRedirect() {
       
       // Redirigir según el rol del usuario
       switch (role) {
+        case 'god':
         case 'admin':
         case 'administrator':
           router.replace('/dashboard')
@@ -54,6 +55,7 @@ export function getDefaultRouteForRole(role?: string): string {
   const normalizedRole = role.toLowerCase()
   
   switch (normalizedRole) {
+    case 'god':
     case 'admin':
     case 'administrator':
       return '/dashboard'
