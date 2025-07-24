@@ -1,6 +1,6 @@
 import type { Editor } from 'grapesjs';
 import { STORAGE_KEY } from '../storage/localStorage';
-import type { ToastType } from '../components/ToastNotifier';
+import type { ToastType } from '@/ui/ToastNotifier';
 
 export default function registerEditorButtons(editor: Editor, notify: (msg: string, type?: ToastType) => void) {
   editor.Panels.addButton('options', {
@@ -31,7 +31,7 @@ export default function registerEditorButtons(editor: Editor, notify: (msg: stri
       try {
         const html = editor.getHtml();
         const css = editor.getCss();
-        const fullHtml = \`<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><style>\${css}</style></head><body>\${html}</body></html>\`;
+        const fullHtml = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><style>${css}</style></head> <body>${html}</body></html>`;
         const blob = new Blob([fullHtml], { type: 'text/html' });
         const url = URL.createObjectURL(blob);
         window.open(url, '_blank');

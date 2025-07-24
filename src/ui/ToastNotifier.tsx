@@ -9,6 +9,8 @@ export interface ToastNotifierHandle {
 
 type ToastType = 'success' | 'error' | 'info' | 'warning'
 
+export type { ToastType }
+
 const bgColorMap: Record<ToastType, string> = {
   success: 'bg-success text-white',
   error: 'bg-danger text-white',

@@ -5,17 +5,14 @@ import { fetchPageBySlug } from "@/modules/page-builder-pro/services/fetchPage";
 import { injectPageBuilderCSS } from "@/modules/page-builder-pro/styles/injectCss";
 
 type PageProps = {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 };
 
 export default async function Page({ params }: PageProps) {
-  // ⚠️ Nota: en desarrollo puede aparecer un warning visual
-  // "params.slug should be awaited before using its properties."
-  // Este es un bug conocido de Next.js (Turbopack), no afecta funcionalidad ni producción.
-
-  const page = await fetchPageBySlug(params.slug);
+  const { slug } = await params;
+  const page = await fetchPageBySlug(slug);
 
   if (!page) return notFound();
 

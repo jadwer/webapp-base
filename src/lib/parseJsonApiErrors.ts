@@ -11,6 +11,14 @@
  *   email: ['El correo no está registrado.']
  * }
  */
+
+interface JsonApiError {
+  source?: {
+    pointer?: string;
+  };
+  detail?: string;
+}
+
 export function parseJsonApiErrors(errors: unknown): Record<string, string[]> {
   if (!Array.isArray(errors)) return {}
 
@@ -24,9 +32,10 @@ export function parseJsonApiErrors(errors: unknown): Record<string, string[]> {
       !('detail' in error)
     ) continue
 
-    const pointer = (error as any).source?.pointer ?? ''
+    const typedError = error as JsonApiError
+    const pointer = typedError.source?.pointer ?? ''
     const field = pointer.replace(/^\//, '') // Ej. "/email" → "email"
-    const message = (error as any).detail ?? 'Error desconocido'
+    const message = typedError.detail ?? 'Error desconocido'
 
     if (!field) continue
 

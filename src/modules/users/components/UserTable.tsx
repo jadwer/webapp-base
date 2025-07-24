@@ -30,10 +30,10 @@ export default function UserTable({ users, onEdit, onDelete }: Props) {
                   Editar
                 </button>
               )}
-              {onDelete && (
+              {onDelete && user.id && (
                 <button
                   className="btn btn-sm btn-danger"
-                  onClick={() => onDelete(user.id)}
+                  onClick={() => onDelete(user.id!)}
                 >
                   Eliminar
                 </button>

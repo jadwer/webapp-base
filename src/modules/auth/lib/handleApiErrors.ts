@@ -21,7 +21,7 @@ export function handleApiErrors(
 ) {
   if (!error || typeof error !== 'object') return
 
-  const response = (error as any).response
+  const response = (error as ErrorResponse).response
 
   if (response?.status === 422 && Array.isArray(response.data?.errors)) {
     const parsed = parseJsonApiErrors(response.data.errors)

@@ -66,7 +66,7 @@ export function LoginForm({ redirect, onLoginSuccess }: Props) {
       }
     } catch (error: unknown) {
       handleApiErrors(
-        error as any,
+        error,
         (apiErrors) => {
           Object.entries(apiErrors).forEach(([field, messages]) => {
             const msg = Array.isArray(messages)

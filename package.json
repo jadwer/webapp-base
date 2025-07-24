@@ -8,7 +8,9 @@
     "export": "next build && next export",
     "start": "next start",
     "lint": "next lint",
-    "sass": "sass --watch src/ui/styles/sass/main.scss:src/ui/styles/main.css"
+    "sass": "sass --watch src/ui/styles/sass/main.scss:src/ui/styles/main.css --load-path=node_modules",
+    "copy-bootstrap-icons": "node scripts/copy-bootstrap-icons.js",
+    "postinstall": "npm run copy-bootstrap-icons"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.1.1",

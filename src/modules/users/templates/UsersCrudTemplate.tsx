@@ -33,7 +33,7 @@ export default function UsersCrudTemplate() {
       await deleteUser(id)
       toastRef.current?.show('Usuario eliminado con éxito', 'success')
       refetch()
-    } catch (err) {
+    } catch {
       toastRef.current?.show('Error al eliminar el usuario', 'error')
     }
   }

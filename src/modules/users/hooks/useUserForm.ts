@@ -21,7 +21,7 @@ export const useUserForm = ({ onSuccess, onError }: UseUserFormOptions = {}) => 
         await createUser(values)
       }
       onSuccess?.()
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err)
       setError('Error al guardar el usuario')
       onError?.('Error al guardar el usuario')

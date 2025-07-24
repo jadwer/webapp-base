@@ -3,16 +3,19 @@
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/modules/auth/lib/auth'
+import { useIsClient } from '@/hooks/useIsClient'
 import { useEffect } from 'react'
 
 export default function AuthStatus() {
   const { user, logout, isLoading } = useAuth()
   const router = useRouter()
+  const isClient = useIsClient()
 
   useEffect(() => {
   }, [user, isLoading])
 
-  if (isLoading) {
+  // Renderizar el mismo contenido en servidor y cliente hasta que se hidrate
+  if (!isClient || isLoading) {
     return <span className="text-muted small">Cargando sesión...</span>
   }
   
@@ -22,7 +25,6 @@ export default function AuthStatus() {
   }
 
   return (
-    
     <div className="d-flex align-items-center gap-3">
       {user ? (
         <>

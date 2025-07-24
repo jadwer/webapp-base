@@ -15,7 +15,7 @@ export function useUsers() {
       const data = await getAllUsers()
       setUsers(data)
       setError(null)
-    } catch (err: any) {
+    } catch {
       setError('Error al cargar usuarios')
     } finally {
       setLoading(false)

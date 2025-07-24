@@ -5,7 +5,7 @@ const RESOURCE = '/api/v1/users'
 
 export const getAllUsers = async (): Promise<User[]> => {
   const response = await axiosClient.get(RESOURCE)
-  return response.data.data.map((item: any) => ({
+  return response.data.data.map((item: { id: string; attributes: Omit<User, 'id'> }) => ({
     id: item.id,
     ...item.attributes
   }))

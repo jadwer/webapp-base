@@ -13,6 +13,16 @@ import {
   ResendEmailVerificationParams,
 } from "../types/auth.types";
 
+interface ApiError {
+  response?: {
+    status?: number;
+    data?: {
+      errors?: unknown[];
+      message?: string;
+    };
+  };
+}
+
 export const useAuth = ({ middleware }: UseAuthOptions = {}) => {
   const router = useRouter();
 
@@ -87,19 +97,20 @@ const isLoading = shouldFetch && !user && !error;
 
       await mutate();
       return true;
-    } catch (error: any) {
-      const status = error.response?.status;
+    } catch (error: unknown) {
+      const apiError = error as ApiError;
+      const status = apiError.response?.status;
 
       // 🔴 422 - Validación con JSON:API
-      if (status === 422 && Array.isArray(error.response.data?.errors)) {
-        const parsed = parseJsonApiErrors(error.response.data.errors);
+      if (status === 422 && Array.isArray(apiError.response?.data?.errors)) {
+        const parsed = parseJsonApiErrors(apiError.response.data.errors);
         setErrors?.(parsed);
         return false;
       }
 
       // 🔴 401 - Credenciales inválidas
       if (status === 401) {
-        const msg = error.response?.data?.message || "Credenciales inválidas";
+        const msg = apiError.response?.data?.message || "Credenciales inválidas";
         setStatus?.(msg);
         return false;
       }
@@ -111,7 +122,7 @@ const isLoading = shouldFetch && !user && !error;
       }
 
       // 🔴 500+ - Error interno
-      if (status >= 500) {
+      if (status && status >= 500) {
         setStatus?.("Error del servidor. Intenta más tarde.");
         return false;
       }

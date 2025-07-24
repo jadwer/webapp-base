@@ -1,5 +1,8 @@
 @use "custom";
 
-$bootstrap-icons-font-src: url("../../node_modules/bootstrap-icons/font/fonts/bootstrap-icons.woff2") format("woff2"), url("../../node_modules/bootstrap-icons/font/fonts/bootstrap-icons.woff") format("woff");
+// Import Bootstrap Icons con configuración personalizada
+@import "bootstrap-icons";
+
+// Import Bootstrap CSS
 @import "../../../../node_modules/bootstrap/scss/bootstrap";
 

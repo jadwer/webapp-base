@@ -1,5 +1,10 @@
 import type { Editor } from 'grapesjs';
 
+interface BlockComponent {
+  id: string;
+  set: (key: string, value: { id: string; label: string }) => void;
+}
+
 export default function organizeDefaultBlocks(editor: Editor) {
   const categoryMap: Record<string, { label: string; icon: string }> = {
     structure: { label: 'Estructura', icon: 'bi-columns' },
@@ -15,7 +20,7 @@ export default function organizeDefaultBlocks(editor: Editor) {
     elements: ['button', 'divider', 'list-items', 'grid-items', 'link'],
   };
 
-  editor.BlockManager.getAll().forEach(block => {
+  editor.BlockManager.getAll().forEach((block: BlockComponent) => {
     for (const [group, ids] of Object.entries(blockGroups)) {
       if (ids.includes(block.id)) {
         const category = categoryMap[group];

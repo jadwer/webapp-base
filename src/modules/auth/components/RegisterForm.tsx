@@ -50,7 +50,7 @@ export function RegisterForm() {
             });
           });
         },
-        setStatus: (msg) => {
+        setStatus: (msg: string | null) => {
           setStatus(msg);
           setStatusType("danger");
         },
