@@ -22,9 +22,30 @@ export const useUserForm = ({ onSuccess, onError }: UseUserFormOptions = {}) => 
       }
       onSuccess?.()
     } catch (err: unknown) {
-      console.error(err)
-      setError('Error al guardar el usuario')
-      onError?.('Error al guardar el usuario')
+      console.error('Error completo:', err)
+      
+      // Extraer mensaje de error más específico
+      let errorMessage = 'Error al guardar el usuario'
+      
+      if (err && typeof err === 'object' && 'response' in err) {
+        const axiosError = err as { response: { data?: { errors?: unknown, message?: string } } }
+        if (axiosError.response?.data?.message) {
+          errorMessage = axiosError.response.data.message
+        } else if (axiosError.response?.data?.errors) {
+          // Si son errores de validación JSON:API
+          try {
+            const errors = axiosError.response.data.errors
+            if (Array.isArray(errors) && errors.length > 0 && errors[0].detail) {
+              errorMessage = errors[0].detail
+            }
+          } catch {
+            // Si no puede parsear los errores, mantiene el mensaje genérico
+          }
+        }
+      }
+      
+      setError(errorMessage)
+      onError?.(errorMessage)
     } finally {
       setLoading(false)
     }
