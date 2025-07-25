@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { User } from "../types/user";
+import { useRoles } from "../hooks/useRoles";
 
 interface Props {
   initialValues: Partial<User>;
@@ -16,6 +17,7 @@ export default function UserForm({
   loading,
   error,
 }: Props) {
+  const { roles, loading: rolesLoading } = useRoles();
   const [formData, setFormData] = useState<
     Partial<
       User & {
@@ -29,11 +31,29 @@ export default function UserForm({
     status: "active",
     password: "",
     password_confirmation: "",
+    role: "", // Este será el ID del rol
   });
 
   useEffect(() => {
-    setFormData((prev) => ({ ...prev, ...initialValues }));
-  }, [initialValues]);
+    // Si tenemos initialValues con un role (nombre), necesitamos convertirlo a ID
+    if (initialValues && roles.length > 0) {
+      let roleId = "";
+      
+      // Si initialValues.role es un nombre de rol, buscar su ID
+      if (initialValues.role && typeof initialValues.role === 'string') {
+        const foundRole = roles.find(role => role.name === initialValues.role);
+        roleId = foundRole?.id || "";
+      }
+      
+      setFormData((prev) => ({ 
+        ...prev, 
+        ...initialValues,
+        role: roleId
+      }));
+    } else {
+      setFormData((prev) => ({ ...prev, ...initialValues }));
+    }
+  }, [initialValues, roles]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -107,15 +127,17 @@ export default function UserForm({
           className="form-select"
           value={formData.role || ""}
           onChange={handleChange}
-          required>
+          required
+          disabled={rolesLoading}
+        >
           <option value="" disabled>
-            Selecciona un rol
+            {rolesLoading ? "Cargando roles..." : "Selecciona un rol"}
           </option>
-          <option value="god">God</option>
-          <option value="admin">Admin</option>
-          <option value="tech">Tech</option>
-          <option value="customer">Cliente</option>
-          <option value="guest">Invitado</option>
+          {roles.map((role) => (
+            <option key={role.id} value={role.id}>
+              {role.name.charAt(0).toUpperCase() + role.name.slice(1)}
+            </option>
+          ))}
         </select>
       </div>
 
@@ -132,7 +154,7 @@ export default function UserForm({
         </select>
       </div>
 
-      <button type="submit" className="btn btn-success" disabled={loading}>
+      <button type="submit" className="btn btn-success" disabled={loading || rolesLoading}>
         {loading ? "Guardando..." : "Guardar"}
       </button>
     </form>

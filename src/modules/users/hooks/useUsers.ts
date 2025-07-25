@@ -12,11 +12,15 @@ export function useUsers() {
   const fetchUsers = useCallback(async () => {
     setLoading(true)
     try {
+      console.log('🔄 Cargando usuarios...')
       const data = await getAllUsers()
+      console.log('✅ Usuarios cargados:', data)
       setUsers(data)
       setError(null)
-    } catch {
-      setError('Error al cargar usuarios')
+    } catch (err) {
+      console.error('❌ Error al cargar usuarios:', err)
+      const errorMessage = err instanceof Error ? err.message : 'Error al cargar usuarios'
+      setError(errorMessage)
     } finally {
       setLoading(false)
     }

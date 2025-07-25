@@ -13,6 +13,8 @@ export default function UserTable({ users, onEdit, onDelete }: Props) {
         <tr>
           <th>Nombre</th>
           <th>Email</th>
+          <th>Rol</th>
+          <th>Estado</th>
           <th>Acciones</th>
         </tr>
       </thead>
@@ -21,6 +23,19 @@ export default function UserTable({ users, onEdit, onDelete }: Props) {
           <tr key={user.id}>
             <td>{user.name}</td>
             <td>{user.email}</td>
+            <td>
+              <span className="badge bg-secondary">
+                {user.roles && user.roles.length > 0 
+                  ? user.roles[0].name.charAt(0).toUpperCase() + user.roles[0].name.slice(1)
+                  : user.role || '-'
+                }
+              </span>
+            </td>
+            <td>
+              <span className={`badge ${user.status === 'active' ? 'bg-success' : 'bg-danger'}`}>
+                {user.status === 'active' ? 'Activo' : 'Inactivo'}
+              </span>
+            </td>
             <td>
               {onEdit && (
                 <button

@@ -25,6 +25,16 @@ export default function UsersCrudTemplate() {
     },
   })
 
+  const handleEdit = (user: User) => {
+    // Asegurarnos de que tenemos el rol correcto para editar
+    const userToEdit = {
+      ...user,
+      // Si tenemos roles en el array, usar el primero; si no, usar el campo role como fallback
+      role: user.roles && user.roles.length > 0 ? user.roles[0].name : user.role
+    }
+    setEditingUser(userToEdit)
+  }
+
   const handleDelete = async (id: string) => {
     const confirmed = await confirmRef.current?.confirm('¿Estás seguro de eliminar este usuario?')
     if (!confirmed) return
@@ -54,13 +64,21 @@ export default function UsersCrudTemplate() {
             loading={saving}
             error={saveError}
           />
+          {editingUser && (
+            <button 
+              className="btn btn-secondary mt-2" 
+              onClick={() => setEditingUser(null)}
+            >
+              Cancelar
+            </button>
+          )}
         </div>
 
         <div className="col-md-6">
           <h4>Lista de Usuarios</h4>
           {loadingUsers && <p>Cargando...</p>}
           {error && <p className="text-danger">{error}</p>}
-          <UserTable users={users} onEdit={setEditingUser} onDelete={handleDelete} />
+          <UserTable users={users} onEdit={handleEdit} onDelete={handleDelete} />
         </div>
       </div>
     </div>

@@ -5,7 +5,14 @@ export interface User {
   status?: 'active' | 'inactive'
   password?: string
   password_confirmation?: string
-  role?: string
+  role?: string // Solo lectura - primer rol del usuario
+  roles?: Role[] // Relación completa con roles
   createdAt?: string
   updatedAt?: string
+}
+
+export interface Role {
+  id: string
+  name: string
+  description?: string
 }
