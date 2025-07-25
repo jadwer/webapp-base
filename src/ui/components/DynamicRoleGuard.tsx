@@ -49,8 +49,8 @@ export function DynamicRoleGuard({
       id: user.id,
       email: user.email,
       role: user.role,
-      roles: user.roles?.map(r => r.name) || [],
-      permissions: user.permissions?.map(p => p.name) || []
+      roles: user.roles?.map((r: { name: string }) => r.name) || [],
+      permissions: user.permissions?.map((p: { name: string }) => p.name) || []
     },
     allowedRoles,
     requiredPermissions,
@@ -79,7 +79,7 @@ export function DynamicRoleGuard({
       }
       console.log('🔍 RoleGuard - Verificación de roles:', {
         allowedRoles,
-        userRoles: user.roles?.map(r => r.name) || [user.role],
+        userRoles: user.roles?.map((r: { name: string }) => r.name) || [user.role],
         requireAll,
         result: roleCheck
       })
@@ -95,7 +95,7 @@ export function DynamicRoleGuard({
       }
       console.log('🔍 RoleGuard - Verificación de permisos:', {
         requiredPermissions,
-        userPermissions: user.permissions?.map(p => p.name) || [],
+        userPermissions: user.permissions?.map((p: { name: string }) => p.name) || [],
         requireAll,
         result: permissionCheck
       })

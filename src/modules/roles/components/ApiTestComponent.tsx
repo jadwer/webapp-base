@@ -3,11 +3,16 @@
 import { useState, useEffect } from 'react'
 import axios from '@/lib/axiosClient'
 
+interface ApiData {
+  data?: unknown[]
+  [key: string]: unknown
+}
+
 export function ApiTestComponent() {
   const [testResult, setTestResult] = useState<string>('Cargando...')
   const [apiUrl, setApiUrl] = useState<string>('')
   const [authStatus, setAuthStatus] = useState<string>('')
-  const [debugData, setDebugData] = useState<unknown>(null)
+  const [debugData, setDebugData] = useState<ApiData | null>(null)
 
   useEffect(() => {
     // Mostrar la URL base que está usando

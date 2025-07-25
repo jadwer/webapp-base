@@ -6,6 +6,19 @@ Este proyecto está construido con Next.js App Router y está diseñado para ser
 
 ---
 
+## 🚀 Build de Producción
+
+El proyecto está completamente listo para producción. Para generar el build:
+
+```bash
+npm run build
+npm start
+```
+
+📖 **Guía completa de despliegue:** [`PRODUCTION_DEPLOYMENT.md`](./PRODUCTION_DEPLOYMENT.md)
+
+---
+
 ## Documentación Completa
 
 Consulta la documentación técnica completa en:
@@ -26,8 +39,10 @@ npm run dev
 
 ## Módulos incluidos
 
-- `inventory` (ejemplo funcional con componentes, hooks y servicios)
-- `page-builder` (estructura inicial vacía)
+- **`auth`** (sistema de autenticación completo con Sanctum)
+- **`roles`** (gestión de roles y permisos - Permission Manager)
+- **`page-builder`** (constructor de páginas con GrapeJS)
+- **`inventory`** (ejemplo funcional con componentes, hooks y servicios)
 
 ---
 
