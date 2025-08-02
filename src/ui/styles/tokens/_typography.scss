@@ -1,0 +1,79 @@
+// Design Tokens - Typography
+// ===========================
+// Sistema tipográfico consistente para una apariencia profesional
+
+// Font families
+$font-family-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+$font-family-mono: "JetBrains Mono", "Fira Code", "Source Code Pro", Monaco, Consolas, monospace;
+
+// Font weights
+$font-weight-light: 300;
+$font-weight-normal: 400;
+$font-weight-medium: 500;
+$font-weight-semibold: 600;
+$font-weight-bold: 700;
+
+// Font sizes - Escala tipográfica modular
+$font-size-xs: 0.75rem;    // 12px
+$font-size-sm: 0.875rem;   // 14px
+$font-size-base: 1rem;     // 16px
+$font-size-lg: 1.125rem;   // 18px
+$font-size-xl: 1.25rem;    // 20px
+$font-size-2xl: 1.5rem;    // 24px
+$font-size-3xl: 1.875rem;  // 30px
+$font-size-4xl: 2.25rem;   // 36px
+$font-size-5xl: 3rem;      // 48px
+
+// Line heights
+$line-height-tight: 1.25;
+$line-height-normal: 1.5;
+$line-height-relaxed: 1.625;
+$line-height-loose: 2;
+
+// Heading styles
+$heading-font-family: $font-family-sans;
+$heading-font-weight: $font-weight-semibold;
+$heading-line-height: $line-height-tight;
+$heading-color: $color-text-primary;
+
+// Body text styles  
+$body-font-family: $font-family-sans;
+$body-font-weight: $font-weight-normal;
+$body-line-height: $line-height-normal;
+$body-color: $color-text-primary;
+
+// Heading scale
+$h1-font-size: $font-size-4xl;
+$h1-line-height: $line-height-tight;
+$h1-font-weight: $font-weight-bold;
+
+$h2-font-size: $font-size-3xl;
+$h2-line-height: $line-height-tight;
+$h2-font-weight: $font-weight-semibold;
+
+$h3-font-size: $font-size-2xl;
+$h3-line-height: $line-height-tight;
+$h3-font-weight: $font-weight-semibold;
+
+$h4-font-size: $font-size-xl;
+$h4-line-height: $line-height-normal;
+$h4-font-weight: $font-weight-medium;
+
+$h5-font-size: $font-size-lg;
+$h5-line-height: $line-height-normal;
+$h5-font-weight: $font-weight-medium;
+
+$h6-font-size: $font-size-base;
+$h6-line-height: $line-height-normal;
+$h6-font-weight: $font-weight-medium;
+
+// Text utilities
+$text-size-small: $font-size-sm;
+$text-size-caption: $font-size-xs;
+$text-size-overline: $font-size-xs;
+
+// Letter spacing
+$letter-spacing-tight: -0.025em;
+$letter-spacing-normal: 0;
+$letter-spacing-wide: 0.025em;
+

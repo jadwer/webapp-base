@@ -1,0 +1,232 @@
+// Button Component Styles
+// ========================
+@import '../tokens/_colors.scss';
+@import '../tokens/_spacing.scss';
+@import '../tokens/_typography.scss';
+
+// Transitions (definidas localmente)
+$transition-fast: 150ms ease-in-out;
+$transition-normal: 250ms ease-in-out;
+
+.button {
+  // Base styles
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: $font-family-sans;
+  font-weight: $font-weight-medium;
+  line-height: $line-height-normal;
+  text-decoration: none;
+  border: 1px solid transparent;
+  border-radius: $border-radius;
+  transition: all $transition-fast;
+  cursor: pointer;
+  white-space: nowrap;
+  user-select: none;
+  
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba($color-primary, 0.1);
+  }
+  
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+}
+
+// Size variants
+.small {
+  padding: $spacing-2 $spacing-3;
+  font-size: $font-size-sm;
+  min-height: 2rem;
+  gap: $spacing-1;
+}
+
+.medium {
+  padding: $spacing-3 $spacing-4;
+  font-size: $font-size-base;
+  min-height: 2.5rem;
+  gap: $spacing-2;
+}
+
+.large {
+  padding: $spacing-4 $spacing-6;
+  font-size: $font-size-lg;
+  min-height: 3rem;
+  gap: $spacing-2;
+}
+
+// Color variants
+.primary {
+  background-color: $color-primary;
+  color: $color-text-inverse;
+  border-color: $color-primary;
+  
+  &:hover:not(:disabled) {
+    background-color: $primary-700;
+    border-color: $primary-700;
+  }
+  
+  &:active:not(:disabled) {
+    background-color: $primary-800;
+    border-color: $primary-800;
+  }
+}
+
+.secondary {
+  background-color: $color-surface;
+  color: $color-text-secondary;
+  border-color: $color-border;
+  
+  &:hover:not(:disabled) {
+    background-color: $neutral-50;
+    border-color: $neutral-300;
+    color: $color-text-primary;
+  }
+  
+  &:active:not(:disabled) {
+    background-color: $neutral-100;
+  }
+}
+
+.success {
+  background-color: $color-success;
+  color: $color-text-inverse;
+  border-color: $color-success;
+  
+  &:hover:not(:disabled) {
+    background-color: $success-700;
+    border-color: $success-700;
+  }
+}
+
+.warning {
+  background-color: $color-warning;
+  color: $color-text-inverse;
+  border-color: $color-warning;
+  
+  &:hover:not(:disabled) {
+    background-color: $warning-700;
+    border-color: $warning-700;
+  }
+}
+
+.danger {
+  background-color: $color-danger;
+  color: $color-text-inverse;
+  border-color: $color-danger;
+  
+  &:hover:not(:disabled) {
+    background-color: $danger-700;
+    border-color: $danger-700;
+  }
+}
+
+// Style variants
+.outline {
+  background-color: transparent;
+  
+  &.primary {
+    color: $color-primary;
+    border-color: $color-primary;
+    
+    &:hover:not(:disabled) {
+      background-color: $primary-50;
+    }
+  }
+  
+  &.secondary {
+    color: $color-text-secondary;
+    border-color: $color-border;
+    
+    &:hover:not(:disabled) {
+      background-color: $neutral-50;
+      color: $color-text-primary;
+    }
+  }
+  
+  &.success {
+    color: $color-success;
+    border-color: $color-success;
+    
+    &:hover:not(:disabled) {
+      background-color: $success-50;
+    }
+  }
+  
+  &.danger {
+    color: $color-danger;
+    border-color: $color-danger;
+    
+    &:hover:not(:disabled) {
+      background-color: $danger-50;
+    }
+  }
+}
+
+.ghost {
+  background-color: transparent;
+  border-color: transparent;
+  
+  &.primary {
+    color: $color-primary;
+    
+    &:hover:not(:disabled) {
+      background-color: $primary-50;
+    }
+  }
+  
+  &.secondary {
+    color: $color-text-secondary;
+    
+    &:hover:not(:disabled) {
+      background-color: $neutral-100;
+      color: $color-text-primary;
+    }
+  }
+}
+
+// Special states
+.loading {
+  position: relative;
+  color: transparent !important;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    border: 2px solid currentColor;
+    border-radius: 50%;
+    border-top-color: transparent;
+    animation: spin 1s linear infinite;
+    color: inherit;
+  }
+}
+
+.fullWidth {
+  width: 100%;
+}
+
+// Icon styles
+.iconOnly {
+  padding: $spacing-3;
+  
+  &.small {
+    padding: $spacing-2;
+  }
+  
+  &.large {
+    padding: $spacing-4;
+  }
+}
+
+// Animations
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
