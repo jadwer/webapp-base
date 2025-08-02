@@ -1,0 +1,349 @@
+// Radio Component Styles
+// =======================
+@use '../tokens/_colors.scss' as *;
+@use '../tokens/_spacing.scss' as *;
+@use '../tokens/_typography.scss' as *;
+
+// Transitions
+$transition-fast: 150ms ease-in-out;
+
+.radioGroup {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-2;
+  width: 100%;
+}
+
+.radioWrapper {
+  display: flex;
+  align-items: flex-start;
+  gap: $spacing-3;
+  cursor: pointer;
+  transition: all $transition-fast;
+  padding: $spacing-2;
+  border-radius: $border-radius;
+  
+  &:hover {
+    background: rgba($color-primary, 0.02);
+  }
+
+  &.disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+
+    &:hover {
+      background: transparent;
+    }
+  }
+}
+
+.radio {
+  position: relative;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  margin-top: 2px; // Align with first line of text
+}
+
+.input {
+  position: absolute;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  cursor: pointer;
+
+  &:disabled {
+    cursor: not-allowed;
+  }
+}
+
+.radiomark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.9);
+  border: 2px solid $color-border;
+  border-radius: 50%;
+  transition: all $transition-fast;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &::after {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: white;
+    transform: scale(0);
+    transition: transform $transition-fast;
+    opacity: 0;
+  }
+}
+
+.input:checked + .radiomark {
+  background: linear-gradient(135deg, $color-primary, $primary-600);
+  border-color: $color-primary;
+  box-shadow: 
+    0 2px 8px rgba($color-primary, 0.2),
+    0 1px 3px rgba(0, 0, 0, 0.02);
+
+  &::after {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.input:focus + .radiomark {
+  border-color: $color-primary;
+  box-shadow: 
+    0 0 0 3px rgba($color-primary, 0.08),
+    0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.input:hover:not(:disabled) + .radiomark {
+  border-color: $neutral-300;
+  background: rgba(255, 255, 255, 0.95);
+  transform: translateY(-1px);
+}
+
+.input:disabled + .radiomark {
+  background: $color-disabled;
+  border-color: $neutral-200;
+  cursor: not-allowed;
+
+  &::after {
+    background: $color-disabled-text;
+  }
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+}
+
+.label {
+  font-size: $font-size-base;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+  margin: 0 0 $spacing-1;
+  line-height: $line-height-tight;
+  cursor: pointer;
+
+  &.required::after {
+    content: ' *';
+    color: $color-danger;
+  }
+
+  .radioWrapper.disabled & {
+    color: $color-disabled-text;
+    cursor: not-allowed;
+  }
+}
+
+.description {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  margin: 0;
+  line-height: $line-height-normal;
+
+  .radioWrapper.disabled & {
+    color: $color-disabled-text;
+  }
+}
+
+.helpText {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  margin: 0;
+  line-height: $line-height-tight;
+}
+
+.errorText {
+  font-size: $font-size-xs;
+  color: $color-danger;
+  margin: 0;
+  line-height: $line-height-tight;
+  display: flex;
+  align-items: center;
+  gap: $spacing-1;
+
+  &::before {
+    content: '⚠';
+    font-size: $font-size-sm;
+  }
+}
+
+// Size variations
+.small {
+  .radio {
+    width: 16px;
+    height: 16px;
+  }
+
+  .radiomark::after {
+    width: 6px;
+    height: 6px;
+  }
+
+  .label {
+    font-size: $font-size-sm;
+  }
+
+  .description {
+    font-size: $font-size-xs;
+  }
+}
+
+.large {
+  .radio {
+    width: 24px;
+    height: 24px;
+  }
+
+  .radiomark::after {
+    width: 10px;
+    height: 10px;
+  }
+
+  .label {
+    font-size: $font-size-lg;
+  }
+}
+
+// Error state
+.error {
+  .radiomark {
+    border-color: $color-danger;
+  }
+
+  .input:checked + .radiomark {
+    background: linear-gradient(135deg, $color-danger, $danger-600);
+    border-color: $color-danger;
+  }
+
+  .input:focus + .radiomark {
+    border-color: $color-danger;
+    box-shadow: 
+      0 0 0 3px rgba($color-danger, 0.08),
+      0 2px 8px rgba(239, 68, 68, 0.08);
+  }
+}
+
+// Success state
+.success {
+  .radiomark {
+    border-color: $color-success;
+  }
+
+  .input:checked + .radiomark {
+    background: linear-gradient(135deg, $color-success, $success-600);
+    border-color: $color-success;
+  }
+
+  .input:focus + .radiomark {
+    border-color: $color-success;
+    box-shadow: 
+      0 0 0 3px rgba($color-success, 0.08),
+      0 2px 8px rgba(16, 185, 129, 0.08);
+  }
+}
+
+// Radio group variations
+.radioGroup {
+  &.horizontal {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: $spacing-4;
+  }
+
+  &.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: $spacing-3;
+  }
+
+  &.inline {
+    flex-direction: row;
+    gap: $spacing-6;
+    flex-wrap: wrap;
+  }
+}
+
+// Group label
+.groupLabel {
+  font-size: $font-size-base;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+  margin: 0 0 $spacing-3;
+
+  &.required::after {
+    content: ' *';
+    color: $color-danger;
+  }
+}
+
+// Card variant for radio options
+.cardVariant {
+  .radioWrapper {
+    padding: $spacing-4;
+    border: 1.5px solid $color-border;
+    border-radius: $border-radius-lg;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+    transition: all $transition-fast;
+
+    &:hover {
+      border-color: $neutral-300;
+      background: rgba(255, 255, 255, 0.95);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+    }
+
+    &.selected {
+      border-color: $color-primary;
+      background: rgba($color-primary, 0.02);
+      box-shadow: 
+        0 0 0 1px rgba($color-primary, 0.1),
+        0 4px 12px rgba(0, 0, 0, 0.04);
+    }
+
+    &.disabled {
+      background: $color-disabled;
+      border-color: $neutral-200;
+      transform: none;
+      
+      &:hover {
+        transform: none;
+        background: $color-disabled;
+        border-color: $neutral-200;
+      }
+    }
+  }
+}
+
+// Animation for radio selection
+@keyframes radioAnimation {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.input:checked + .radiomark::after {
+  animation: radioAnimation 0.2s ease-out;
+}

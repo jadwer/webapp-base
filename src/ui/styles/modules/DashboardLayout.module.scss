@@ -1,0 +1,266 @@
+// DashboardLayout Component Styles
+// =================================
+@use '../tokens/_colors.scss' as *;
+@use '../tokens/_spacing.scss' as *;
+@use '../tokens/_typography.scss' as *;
+
+.layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  position: relative;
+  
+  &::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+      radial-gradient(circle at 20% 80%, rgba(14, 165, 233, 0.05) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(14, 165, 233, 0.08) 0%, transparent 50%),
+      radial-gradient(circle at 40% 40%, rgba(14, 165, 233, 0.03) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+}
+
+.container {
+  display: flex;
+  flex: 1;
+  min-height: 0; // Important for flex children
+}
+
+.content {
+  flex: 1;
+  min-width: 0; // Prevent flex item from overflowing
+  background: transparent;
+  transition: margin-left 250ms ease-in-out;
+  position: relative;
+  z-index: 1;
+  
+  @media (max-width: 991px) {
+    margin-left: 0 !important;
+  }
+}
+
+.mainContent {
+  padding: $spacing-8;
+  max-width: 100%;
+  background: transparent;
+  min-height: calc(100vh - 80px);
+  
+  @media (max-width: 768px) {
+    padding: $spacing-6;
+  }
+}
+
+.pageHeader {
+  margin-bottom: $spacing-6;
+  padding-bottom: $spacing-4;
+  border-bottom: 1px solid $color-border;
+}
+
+.pageTitle {
+  font-size: $font-size-3xl;
+  font-weight: $font-weight-bold;
+  color: $color-text-primary;
+  margin: 0 0 $spacing-2;
+  line-height: $line-height-tight;
+}
+
+.pageDescription {
+  font-size: $font-size-lg;
+  color: $color-text-secondary;
+  margin: 0;
+  line-height: $line-height-normal;
+}
+
+.breadcrumbs {
+  display: flex;
+  align-items: center;
+  gap: $spacing-2;
+  margin-bottom: $spacing-4;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.breadcrumbItem {
+  display: flex;
+  align-items: center;
+  gap: $spacing-2;
+  
+  &:not(:last-child)::after {
+    content: '/';
+    color: $neutral-400;
+    margin-left: $spacing-2;
+  }
+}
+
+.breadcrumbLink {
+  color: $color-text-secondary;
+  text-decoration: none;
+  transition: color 150ms ease-in-out;
+  
+  &:hover {
+    color: $color-primary;
+    text-decoration: none;
+  }
+}
+
+.breadcrumbCurrent {
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+}
+
+// Utility classes for consistent spacing
+.section {
+  margin-bottom: $spacing-8;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.sectionHeader {
+  margin-bottom: $spacing-4;
+}
+
+.sectionTitle {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin: 0 0 $spacing-2;
+}
+
+.sectionDescription {
+  font-size: $font-size-base;
+  color: $color-text-secondary;
+  margin: 0;
+}
+
+// Grid utilities
+.grid {
+  display: grid;
+  gap: $spacing-6;
+  
+  &.cols1 {
+    grid-template-columns: 1fr;
+  }
+  
+  &.cols2 {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  }
+  
+  &.cols3 {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  }
+  
+  &.cols4 {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
+}
+
+// Action bars
+.actionBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-4;
+  margin-bottom: $spacing-6;
+  padding: $spacing-4;
+  background: $color-surface;
+  border: 1px solid $color-border;
+  border-radius: $border-radius-lg;
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+.actionBarLeft {
+  display: flex;
+  align-items: center;
+  gap: $spacing-3;
+  
+  @media (max-width: 768px) {
+    margin-bottom: $spacing-3;
+  }
+}
+
+.actionBarRight {
+  display: flex;
+  align-items: center;
+  gap: $spacing-2;
+  
+  @media (max-width: 768px) {
+    justify-content: stretch;
+    
+    > * {
+      flex: 1;
+    }
+  }
+}
+
+// Loading and empty states
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-8;
+  color: $color-text-secondary;
+  min-height: 200px;
+}
+
+.loadingSpinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid $neutral-200;
+  border-top: 3px solid $color-primary;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: $spacing-4;
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-8;
+  text-align: center;
+  color: $color-text-secondary;
+  min-height: 200px;
+}
+
+.emptyIcon {
+  font-size: 48px;
+  color: $neutral-300;
+  margin-bottom: $spacing-4;
+}
+
+.emptyTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+  margin: 0 0 $spacing-2;
+}
+
+.emptyDescription {
+  font-size: $font-size-base;
+  margin: 0 0 $spacing-4;
+  max-width: 400px;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}

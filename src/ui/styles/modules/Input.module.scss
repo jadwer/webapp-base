@@ -1,0 +1,390 @@
+// Input Component Styles
+// =======================
+@use '../tokens/_colors.scss' as *;
+@use '../tokens/_spacing.scss' as *;
+@use '../tokens/_typography.scss' as *;
+
+// Transitions
+$transition-fast: 150ms ease-in-out;
+
+.inputGroup {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-2;
+  width: 100%;
+}
+
+.label {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+  margin: 0;
+  transition: color $transition-fast;
+
+  &.required::after {
+    content: ' *';
+    color: $color-danger;
+  }
+}
+
+.inputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input {
+  width: 100%;
+  padding: $spacing-3 $spacing-4;
+  font-size: $font-size-base;
+  font-family: $font-family-sans;
+  color: $color-text-primary;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1.5px solid $color-border;
+  border-radius: $border-radius-lg;
+  transition: all $transition-fast;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+
+  &::placeholder {
+    color: $color-text-muted;
+    opacity: 1;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: $color-primary;
+    background: rgba(255, 255, 255, 0.95);
+    box-shadow: 
+      0 0 0 3px rgba($color-primary, 0.08),
+      0 4px 12px rgba(0, 0, 0, 0.04);
+    transform: translateY(-1px);
+  }
+
+  &:hover:not(:focus) {
+    border-color: $neutral-300;
+    background: rgba(255, 255, 255, 0.95);
+  }
+
+  &:disabled {
+    background: $color-disabled;
+    color: $color-disabled-text;
+    border-color: $neutral-200;
+    cursor: not-allowed;
+    transform: none;
+
+    &::placeholder {
+      color: $color-disabled-text;
+    }
+  }
+
+  // Size variations
+  &.small {
+    padding: $spacing-2 $spacing-3;
+    font-size: $font-size-sm;
+  }
+
+  &.large {
+    padding: $spacing-4 $spacing-5;
+    font-size: $font-size-lg;
+  }
+
+  // State variations
+  &.error {
+    border-color: $color-danger;
+    background: rgba(239, 68, 68, 0.02);
+
+    &:focus {
+      border-color: $color-danger;
+      box-shadow: 
+        0 0 0 3px rgba($color-danger, 0.08),
+        0 4px 12px rgba(239, 68, 68, 0.08);
+    }
+  }
+
+  &.success {
+    border-color: $color-success;
+    background: rgba(16, 185, 129, 0.02);
+
+    &:focus {
+      border-color: $color-success;
+      box-shadow: 
+        0 0 0 3px rgba($color-success, 0.08),
+        0 4px 12px rgba(16, 185, 129, 0.08);
+    }
+  }
+
+  // Input with icons
+  &.hasLeftIcon {
+    padding-left: calc(#{$spacing-4} + 24px + #{$spacing-2});
+  }
+
+  &.hasRightIcon {
+    padding-right: calc(#{$spacing-4} + 24px + #{$spacing-2});
+  }
+}
+
+.icon {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: $font-size-base;
+  color: $color-text-muted;
+  transition: color $transition-fast;
+  pointer-events: none;
+
+  &.left {
+    left: $spacing-4;
+  }
+
+  &.right {
+    right: $spacing-4;
+  }
+
+  .input:focus + & {
+    color: $color-primary;
+  }
+
+  .input.error + & {
+    color: $color-danger;
+  }
+
+  .input.success + & {
+    color: $color-success;
+  }
+}
+
+.helpText {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  margin: 0;
+  line-height: $line-height-tight;
+}
+
+.errorText {
+  font-size: $font-size-xs;
+  color: $color-danger;
+  margin: 0;
+  line-height: $line-height-tight;
+  display: flex;
+  align-items: center;
+  gap: $spacing-1;
+
+  &::before {
+    content: '⚠';
+    font-size: $font-size-sm;
+  }
+}
+
+.successText {
+  font-size: $font-size-xs;
+  color: $color-success;
+  margin: 0;
+  line-height: $line-height-tight;
+  display: flex;
+  align-items: center;
+  gap: $spacing-1;
+
+  &::before {
+    content: '✓';
+    font-size: $font-size-sm;
+  }
+}
+
+// Textarea specific styles
+.textarea {
+  @extend .input;
+  min-height: 120px;
+  resize: vertical;
+  padding-top: $spacing-3;
+  padding-bottom: $spacing-3;
+  line-height: $line-height-normal;
+
+  &.small {
+    min-height: 80px;
+  }
+
+  &.large {
+    min-height: 160px;
+  }
+}
+
+// Select specific styles
+.select {
+  width: 100% !important;
+  padding: $spacing-3 $spacing-4 !important;
+  font-size: $font-size-base !important;
+  font-family: $font-family-sans !important;
+  color: $color-text-primary !important;
+  background-color: rgba(255, 255, 255, 0.9) !important;
+  border: 1.5px solid $color-border !important;
+  border-radius: $border-radius-lg !important;
+  transition: all $transition-fast !important;
+  backdrop-filter: blur(8px) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02) !important;
+  cursor: pointer !important;
+  
+  // Remove default browser select arrow
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  appearance: none !important;
+  
+  // Add ONLY our custom arrow, override everything
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3e%3cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3e%3c/path%3e%3c/svg%3e") !important;
+  background-repeat: no-repeat !important;
+  background-position: right $spacing-3 center !important;
+  background-size: 16px 16px !important;
+  background-attachment: scroll !important;
+  padding-right: calc(#{$spacing-4} + 20px) !important;
+
+  &::placeholder {
+    color: $color-text-muted;
+    opacity: 1;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: $color-primary;
+    background: rgba(255, 255, 255, 0.95);
+    box-shadow: 
+      0 0 0 3px rgba($color-primary, 0.08),
+      0 4px 12px rgba(0, 0, 0, 0.04);
+    transform: translateY(-1px);
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%230ea5e9'%3e%3cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3e%3c/path%3e%3c/svg%3e");
+  }
+
+  &:hover:not(:focus) {
+    border-color: $neutral-300;
+    background: rgba(255, 255, 255, 0.95);
+  }
+
+  &:disabled {
+    background: $color-disabled;
+    color: $color-disabled-text;
+    border-color: $neutral-200;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  // Size variations
+  &.small {
+    padding: $spacing-2 $spacing-3;
+    font-size: $font-size-sm;
+    padding-right: calc(#{$spacing-3} + 20px);
+  }
+
+  &.large {
+    padding: $spacing-4 $spacing-5;
+    font-size: $font-size-lg;
+    padding-right: calc(#{$spacing-5} + 20px);
+  }
+
+  // State variations
+  &.error {
+    border-color: $color-danger;
+    background: rgba(239, 68, 68, 0.02);
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23dc2626'%3e%3cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3e%3c/path%3e%3c/svg%3e");
+
+    &:focus {
+      border-color: $color-danger;
+      box-shadow: 
+        0 0 0 3px rgba($color-danger, 0.08),
+        0 4px 12px rgba(239, 68, 68, 0.08);
+    }
+  }
+
+  &.success {
+    border-color: $color-success;
+    background: rgba(16, 185, 129, 0.02);
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23059669'%3e%3cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3e%3c/path%3e%3c/svg%3e");
+
+    &:focus {
+      border-color: $color-success;
+      box-shadow: 
+        0 0 0 3px rgba($color-success, 0.08),
+        0 4px 12px rgba(16, 185, 129, 0.08);
+    }
+  }
+}
+
+// Floating label variant
+.floatingLabel {
+  .label {
+    position: absolute;
+    top: 50%;
+    left: $spacing-4;
+    transform: translateY(-50%);
+    background: transparent;
+    padding: 0 $spacing-1;
+    color: $color-text-muted;
+    font-weight: $font-weight-normal;
+    transition: all $transition-fast;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .input:focus + .label,
+  .input:not(:placeholder-shown) + .label {
+    top: 0;
+    left: calc(#{$spacing-4} - #{$spacing-1});
+    transform: translateY(-50%);
+    font-size: $font-size-xs;
+    color: $color-primary;
+    background: linear-gradient(to bottom, transparent 40%, rgba(255, 255, 255, 0.9) 40%, rgba(255, 255, 255, 0.9) 60%, transparent 60%);
+    font-weight: $font-weight-medium;
+  }
+
+  .input.error:focus + .label,
+  .input.error:not(:placeholder-shown) + .label {
+    color: $color-danger;
+  }
+
+  .input.success:focus + .label,
+  .input.success:not(:placeholder-shown) + .label {
+    color: $color-success;
+  }
+}
+
+// Loading state
+.loading {
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: $spacing-4;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 16px;
+    border: 2px solid $neutral-200;
+    border-top: 2px solid $color-primary;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
+  .input {
+    padding-right: calc(#{$spacing-4} + 24px + #{$spacing-2});
+  }
+}
+
+@keyframes spin {
+  0% {
+    transform: translateY(-50%) rotate(0deg);
+  }
+  100% {
+    transform: translateY(-50%) rotate(360deg);
+  }
+}
+
+// Focus within for better UX
+.inputGroup:focus-within {
+  .label:not(.required)::after {
+    content: '';
+  }
+
+  .label.required::after {
+    color: $color-primary;
+  }
+}

@@ -1,0 +1,316 @@
+// Checkbox Component Styles
+// ==========================
+@use '../tokens/_colors.scss' as *;
+@use '../tokens/_spacing.scss' as *;
+@use '../tokens/_typography.scss' as *;
+
+// Transitions
+$transition-fast: 150ms ease-in-out;
+
+.checkboxGroup {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-2;
+  width: 100%;
+}
+
+.checkboxWrapper {
+  display: flex;
+  align-items: flex-start;
+  gap: $spacing-3;
+  cursor: pointer;
+  transition: all $transition-fast;
+  padding: $spacing-2;
+  border-radius: $border-radius;
+  
+  &:hover {
+    background: rgba($color-primary, 0.02);
+  }
+
+  &.disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+
+    &:hover {
+      background: transparent;
+    }
+  }
+}
+
+.checkbox {
+  position: relative;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  margin-top: 2px; // Align with first line of text
+}
+
+.input {
+  position: absolute;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  cursor: pointer;
+
+  &:disabled {
+    cursor: not-allowed;
+  }
+}
+
+.checkmark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.9);
+  border: 2px solid $color-border;
+  border-radius: $border-radius;
+  transition: all $transition-fast;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &::after {
+    content: '';
+    position: absolute;
+    width: 6px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg) scale(0);
+    transition: transform $transition-fast;
+    opacity: 0;
+  }
+}
+
+.input:checked + .checkmark {
+  background: linear-gradient(135deg, $color-primary, $primary-600);
+  border-color: $color-primary;
+  box-shadow: 
+    0 2px 8px rgba($color-primary, 0.2),
+    0 1px 3px rgba(0, 0, 0, 0.02);
+
+  &::after {
+    transform: rotate(45deg) scale(1);
+    opacity: 1;
+  }
+}
+
+.input:focus + .checkmark {
+  border-color: $color-primary;
+  box-shadow: 
+    0 0 0 3px rgba($color-primary, 0.08),
+    0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.input:hover:not(:disabled) + .checkmark {
+  border-color: $neutral-300;
+  background: rgba(255, 255, 255, 0.95);
+  transform: translateY(-1px);
+}
+
+.input:disabled + .checkmark {
+  background: $color-disabled;
+  border-color: $neutral-200;
+  cursor: not-allowed;
+
+  &::after {
+    border-color: $color-disabled-text;
+  }
+}
+
+// Indeterminate state
+.input:indeterminate + .checkmark {
+  background: linear-gradient(135deg, $color-primary, $primary-600);
+  border-color: $color-primary;
+
+  &::after {
+    width: 10px;
+    height: 2px;
+    border: none;
+    background: white;
+    transform: scale(1);
+    border-radius: 1px;
+  }
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+}
+
+.label {
+  font-size: $font-size-base;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+  margin: 0 0 $spacing-1;
+  line-height: $line-height-tight;
+  cursor: pointer;
+
+  &.required::after {
+    content: ' *';
+    color: $color-danger;
+  }
+
+  .checkboxWrapper.disabled & {
+    color: $color-disabled-text;
+    cursor: not-allowed;
+  }
+}
+
+.description {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  margin: 0;
+  line-height: $line-height-normal;
+
+  .checkboxWrapper.disabled & {
+    color: $color-disabled-text;
+  }
+}
+
+.helpText {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  margin: 0;
+  line-height: $line-height-tight;
+}
+
+.errorText {
+  font-size: $font-size-xs;
+  color: $color-danger;
+  margin: 0;
+  line-height: $line-height-tight;
+  display: flex;
+  align-items: center;
+  gap: $spacing-1;
+
+  &::before {
+    content: '⚠';
+    font-size: $font-size-sm;
+  }
+}
+
+// Size variations
+.small {
+  .checkbox {
+    width: 16px;
+    height: 16px;
+  }
+
+  .checkmark::after {
+    width: 4px;
+    height: 8px;
+  }
+
+  .input:indeterminate + .checkmark::after {
+    width: 8px;
+    height: 2px;
+  }
+
+  .label {
+    font-size: $font-size-sm;
+  }
+
+  .description {
+    font-size: $font-size-xs;
+  }
+}
+
+.large {
+  .checkbox {
+    width: 24px;
+    height: 24px;
+  }
+
+  .checkmark::after {
+    width: 8px;
+    height: 12px;
+  }
+
+  .input:indeterminate + .checkmark::after {
+    width: 12px;
+    height: 2px;
+  }
+
+  .label {
+    font-size: $font-size-lg;
+  }
+}
+
+// Error state
+.error {
+  .checkmark {
+    border-color: $color-danger;
+  }
+
+  .input:checked + .checkmark {
+    background: linear-gradient(135deg, $color-danger, $danger-600);
+    border-color: $color-danger;
+  }
+
+  .input:focus + .checkmark {
+    border-color: $color-danger;
+    box-shadow: 
+      0 0 0 3px rgba($color-danger, 0.08),
+      0 2px 8px rgba(239, 68, 68, 0.08);
+  }
+}
+
+// Success state
+.success {
+  .checkmark {
+    border-color: $color-success;
+  }
+
+  .input:checked + .checkmark {
+    background: linear-gradient(135deg, $color-success, $success-600);
+    border-color: $color-success;
+  }
+
+  .input:focus + .checkmark {
+    border-color: $color-success;
+    box-shadow: 
+      0 0 0 3px rgba($color-success, 0.08),
+      0 2px 8px rgba(16, 185, 129, 0.08);
+  }
+}
+
+// Checkbox group variations
+.checkboxGroup {
+  &.horizontal {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: $spacing-4;
+  }
+
+  &.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: $spacing-3;
+  }
+}
+
+// Animation for check mark
+@keyframes checkAnimation {
+  0% {
+    transform: rotate(45deg) scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: rotate(45deg) scale(1.1);
+    opacity: 1;
+  }
+  100% {
+    transform: rotate(45deg) scale(1);
+    opacity: 1;
+  }
+}
+
+.input:checked + .checkmark::after {
+  animation: checkAnimation 0.2s ease-out;
+}

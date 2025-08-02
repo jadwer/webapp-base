@@ -1,0 +1,205 @@
+// ToggleSwitch Component - Clean Implementation
+// ============================================
+@use '../tokens/_colors.scss' as *;
+@use '../tokens/_spacing.scss' as *;
+@use '../tokens/_typography.scss' as *;
+
+.container {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-family: $font-family-sans;
+}
+
+.switchContainer {
+  flex-shrink: 0;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+  
+  // Default size (medium)
+  width: 44px;
+  height: 24px;
+}
+
+.input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  position: absolute;
+}
+
+.slider {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: $neutral-300;
+  border-radius: 24px;
+  transition: all 0.3s ease;
+  border: 1px solid $neutral-200;
+}
+
+.knob {
+  position: absolute;
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  top: 2px;
+  background-color: white;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: $neutral-500;
+}
+
+// Checked state
+.input:checked + .slider {
+  background-color: $color-primary;
+  border-color: $color-primary;
+}
+
+.input:checked + .slider .knob {
+  transform: translateX(20px);
+  color: $color-primary;
+}
+
+// Focus state
+.input:focus + .slider {
+  box-shadow: 0 0 0 2px rgba($color-primary, 0.2);
+}
+
+// Hover states
+.switch:hover .slider {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.input:checked:hover + .slider {
+  background-color: $primary-600;
+}
+
+// Disabled state
+.disabled .switch {
+  cursor: not-allowed;
+}
+
+.disabled .slider {
+  background-color: $neutral-100;
+  border-color: $neutral-200;
+  opacity: 0.6;
+}
+
+.disabled .input:checked + .slider {
+  background-color: $neutral-300;
+  border-color: $neutral-300;
+}
+
+.disabled .knob {
+  background-color: $neutral-50;
+}
+
+// Content area
+.content {
+  flex: 1;
+  min-width: 0;
+}
+
+.label {
+  font-size: $font-size-base;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+  line-height: 1.4;
+  margin-bottom: 2px;
+}
+
+.description {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  line-height: 1.4;
+}
+
+.disabled .label {
+  color: $color-text-muted;
+}
+
+.disabled .description {
+  color: $color-text-muted;
+}
+
+// Size variations
+.small {
+  .switch {
+    width: 36px;
+    height: 20px;
+  }
+  
+  .knob {
+    height: 14px;
+    width: 14px;
+    left: 3px;
+    top: 2px;
+    font-size: 8px;
+  }
+  
+  .input:checked + .slider .knob {
+    transform: translateX(16px);
+  }
+  
+  .label {
+    font-size: $font-size-sm;
+  }
+  
+  .description {
+    font-size: $font-size-xs;
+  }
+}
+
+.large {
+  .switch {
+    width: 52px;
+    height: 28px;
+  }
+  
+  .slider {
+    border-radius: 28px;
+  }
+  
+  .knob {
+    height: 22px;
+    width: 22px;
+    left: 3px;
+    top: 2px;
+    font-size: 12px;
+  }
+  
+  .input:checked + .slider .knob {
+    transform: translateX(24px);
+  }
+  
+  .label {
+    font-size: $font-size-lg;
+  }
+}
+
+// With icons variant
+.withIcons {
+  .knob {
+    font-size: 10px;
+  }
+  
+  &.small .knob {
+    font-size: 8px;
+  }
+  
+  &.large .knob {
+    font-size: 12px;
+  }
+}
