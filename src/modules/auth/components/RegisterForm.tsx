@@ -11,6 +11,7 @@ import { handleApiErrors } from "@/modules/auth/lib/handleApiErrors";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import StatusMessage from "@/ui/StatusMessage";
+import { Input } from "@/ui/components/base";
 
 export function RegisterForm() {
   const { register: registerUser } = useAuth({
@@ -87,68 +88,52 @@ export function RegisterForm() {
       <StatusMessage message={status} type={statusType} />
 
       <div className="mb-3">
-        <label htmlFor="name" className="form-label">
-          Nombre completo
-        </label>
-        <input
+        <Input
           id="name"
           type="text"
-          className={`form-control ${errors.name ? "is-invalid" : ""}`}
-          {...register("name")}
+          label="Nombre completo"
+          placeholder="Tu nombre completo"
+          leftIcon="bi-person"
+          errorText={errors.name?.message}
           autoFocus
+          {...register("name")}
         />
-        {errors.name && (
-          <div className="invalid-feedback">{errors.name.message}</div>
-        )}
       </div>
 
       <div className="mb-3">
-        <label htmlFor="email" className="form-label">
-          Correo electrónico
-        </label>
-        <input
+        <Input
           id="email"
           type="email"
-          className={`form-control ${errors.email ? "is-invalid" : ""}`}
+          label="Correo electrónico"
+          placeholder="tu@email.com"
+          leftIcon="bi-envelope"
+          errorText={errors.email?.message}
           {...register("email")}
         />
-        {errors.email && (
-          <div className="invalid-feedback">{errors.email.message}</div>
-        )}
       </div>
 
       <div className="mb-3">
-        <label htmlFor="password" className="form-label">
-          Contraseña
-        </label>
-        <input
+        <Input
           id="password"
           type="password"
-          className={`form-control ${errors.password ? "is-invalid" : ""}`}
+          label="Contraseña"
+          placeholder="Tu contraseña"
+          leftIcon="bi-lock"
+          errorText={errors.password?.message}
           {...register("password")}
         />
-        {errors.password && (
-          <div className="invalid-feedback">{errors.password.message}</div>
-        )}
       </div>
 
       <div className="mb-3">
-        <label htmlFor="password_confirmation" className="form-label">
-          Confirmar contraseña
-        </label>
-        <input
+        <Input
           id="password_confirmation"
           type="password"
-          className={`form-control ${
-            errors.password_confirmation ? "is-invalid" : ""
-          }`}
+          label="Confirmar contraseña"
+          placeholder="Confirma tu contraseña"
+          leftIcon="bi-lock-fill"
+          errorText={errors.password_confirmation?.message}
           {...register("password_confirmation")}
         />
-        {errors.password_confirmation && (
-          <div className="invalid-feedback">
-            {errors.password_confirmation.message}
-          </div>
-        )}
       </div>
 
       <div className="d-grid">

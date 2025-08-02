@@ -4,12 +4,27 @@ import React, { useState } from 'react'
 import { Button } from '@/ui/components/base/Button'
 import { Card, CardHeader, CardContent, CardFooter } from '@/ui/components/base/Card'
 import { ToggleSwitch } from '@/ui/components/base/ToggleSwitch'
+import { Input, Checkbox, Radio } from '@/ui/components/base'
 
 export default function DesignSystemPage() {
   const [loading, setLoading] = useState(false)
   const [newsletter, setNewsletter] = useState(false)
   const [notifications, setNotifications] = useState(true)
   const [darkMode, setDarkMode] = useState(false)
+  
+  // Input states
+  const [inputValue, setInputValue] = useState('')
+  const [emailValue, setEmailValue] = useState('')
+  const [passwordValue, setPasswordValue] = useState('')
+  
+  // Checkbox states
+  const [termsAccepted, setTermsAccepted] = useState(false)
+  const [marketingEmails, setMarketingEmails] = useState(true)
+  const [dataProcessing, setDataProcessing] = useState(false)
+  
+  // Radio states
+  const [contactMethod, setContactMethod] = useState('email')
+  const [plan, setPlan] = useState('basic')
   
   const handleLoadingTest = () => {
     setLoading(true)
@@ -100,6 +115,290 @@ export default function DesignSystemPage() {
                 </Card>
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* Input Components Section */}
+        <div className="row mb-5">
+          <div className="col-12">
+            <h2 className="mb-4">📝 Input Components</h2>
+            
+            {/* Basic Inputs */}
+            <Card variant="outlined" className="mb-4">
+              <CardHeader>
+                <h5 className="mb-0">Inputs Básicos</h5>
+              </CardHeader>
+              <CardContent>
+                <div className="row g-4">
+                  <div className="col-md-4">
+                    <Input
+                      id="basic-text"
+                      type="text"
+                      label="Texto básico"
+                      placeholder="Ingresa texto aquí..."
+                      value={inputValue}
+                      onChange={(e) => setInputValue(e.target.value)}
+                    />
+                  </div>
+                  <div className="col-md-4">
+                    <Input
+                      id="email-input"
+                      type="email"
+                      label="Email"
+                      placeholder="tu@email.com"
+                      value={emailValue}
+                      onChange={(e) => setEmailValue(e.target.value)}
+                    />
+                  </div>
+                  <div className="col-md-4">
+                    <Input
+                      id="password-input"
+                      type="password"
+                      label="Contraseña"
+                      placeholder="Tu contraseña"
+                      value={passwordValue}
+                      onChange={(e) => setPasswordValue(e.target.value)}
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Inputs with Icons */}
+            <Card variant="outlined" className="mb-4">
+              <CardHeader>
+                <h5 className="mb-0">Inputs con Iconos</h5>
+              </CardHeader>
+              <CardContent>
+                <div className="row g-4">
+                  <div className="col-md-4">
+                    <Input
+                      id="icon-email"
+                      type="email"
+                      label="Email con icono"
+                      placeholder="tu@email.com"
+                      leftIcon="bi-envelope"
+                    />
+                  </div>
+                  <div className="col-md-4">
+                    <Input
+                      id="icon-phone"
+                      type="tel"
+                      label="Teléfono"
+                      placeholder="+1 234 567 8900"
+                      leftIcon="bi-telephone"
+                    />
+                  </div>
+                  <div className="col-md-4">
+                    <Input
+                      id="icon-search"
+                      type="text"
+                      label="Búsqueda"
+                      placeholder="Buscar..."
+                      leftIcon="bi-search"
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Input States */}
+            <Card variant="outlined" className="mb-4">
+              <CardHeader>
+                <h5 className="mb-0">Estados de Input</h5>
+              </CardHeader>
+              <CardContent>
+                <div className="row g-4">
+                  <div className="col-md-4">
+                    <Input
+                      id="error-input"
+                      type="text"
+                      label="Con error"
+                      placeholder="Input con error"
+                      errorText="Este campo es requerido"
+                    />
+                  </div>
+                  <div className="col-md-4">
+                    <Input
+                      id="disabled-input"
+                      type="text"
+                      label="Deshabilitado"
+                      placeholder="Input deshabilitado"
+                      disabled
+                    />
+                  </div>
+                  <div className="col-md-4">
+                    <Input
+                      id="help-input"
+                      type="text"
+                      label="Con ayuda"
+                      placeholder="Input con texto de ayuda"
+                      helpText="Texto explicativo para el usuario"
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Select Component */}
+            <Card variant="outlined" className="mb-4">
+              <CardHeader>
+                <h5 className="mb-0">Select Dropdown</h5>
+              </CardHeader>
+              <CardContent>
+                <div className="row g-4">
+                  <div className="col-md-6">
+                    <Input
+                      id="select-country"
+                      type="select"
+                      label="País"
+                      leftIcon="bi-globe"
+                      options={[
+                        { value: '', label: 'Selecciona un país...' },
+                        { value: 'mx', label: 'México' },
+                        { value: 'us', label: 'Estados Unidos' },
+                        { value: 'ca', label: 'Canadá' },
+                        { value: 'es', label: 'España' }
+                      ]}
+                    />
+                  </div>
+                  <div className="col-md-6">
+                    <Input
+                      id="select-multiple"
+                      type="select"
+                      label="Múltiple selección"
+                      multiple
+                      options={[
+                        { value: 'react', label: 'React' },
+                        { value: 'vue', label: 'Vue.js' },
+                        { value: 'angular', label: 'Angular' },
+                        { value: 'svelte', label: 'Svelte' }
+                      ]}
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+
+        {/* Checkbox Components Section */}
+        <div className="row mb-5">
+          <div className="col-12">
+            <h2 className="mb-4">☑️ Checkbox Components</h2>
+            
+            <Card variant="outlined" className="mb-4">
+              <CardHeader>
+                <h5 className="mb-0">Checkboxes Básicos</h5>
+              </CardHeader>
+              <CardContent>
+                <div className="d-flex flex-column gap-3">
+                  <Checkbox
+                    id="terms-checkbox"
+                    checked={termsAccepted}
+                    onChange={(checked) => setTermsAccepted(checked)}
+                    label="Acepto los términos y condiciones"
+                  />
+                  <Checkbox
+                    id="marketing-checkbox"
+                    checked={marketingEmails}
+                    onChange={(checked) => setMarketingEmails(checked)}
+                    label="Recibir emails de marketing"
+                    description="Te enviaremos ofertas especiales y noticias del producto"
+                  />
+                  <Checkbox
+                    id="data-checkbox"
+                    checked={dataProcessing}
+                    onChange={(checked) => setDataProcessing(checked)}
+                    label="Procesamiento de datos"
+                    description="Autorizo el procesamiento de mis datos personales"
+                    disabled
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+
+        {/* Radio Components Section */}
+        <div className="row mb-5">
+          <div className="col-12">
+            <h2 className="mb-4">🔘 Radio Components</h2>
+            
+            <Card variant="outlined" className="mb-4">
+              <CardHeader>
+                <h5 className="mb-0">Radio Groups</h5>
+              </CardHeader>
+              <CardContent>
+                <div className="row g-4">
+                  <div className="col-md-6">
+                    <h6 className="mb-3">Método de contacto (Vertical)</h6>
+                    <div className="d-flex flex-column gap-2">
+                      <Radio
+                        id="contact-email"
+                        name="contact-method"
+                        value="email"
+                        checked={contactMethod === 'email'}
+                        onChange={(value) => setContactMethod(value)}
+                        label="Email"
+                        description="Te contactaremos por correo electrónico"
+                      />
+                      <Radio
+                        id="contact-phone"
+                        name="contact-method"
+                        value="phone"
+                        checked={contactMethod === 'phone'}
+                        onChange={(value) => setContactMethod(value)}
+                        label="Teléfono"
+                        description="Te llamaremos directamente"
+                      />
+                      <Radio
+                        id="contact-sms"
+                        name="contact-method"
+                        value="sms"
+                        checked={contactMethod === 'sms'}
+                        onChange={(value) => setContactMethod(value)}
+                        label="SMS"
+                        description="Te enviaremos un mensaje de texto"
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="col-md-6">
+                    <h6 className="mb-3">Plan de suscripción (Horizontal)</h6>
+                    <div className="d-flex gap-4">
+                      <Radio
+                        id="plan-basic"
+                        name="subscription-plan"
+                        value="basic"
+                        checked={plan === 'basic'}
+                        onChange={(value) => setPlan(value)}
+                        label="Básico"
+                        layout="horizontal"
+                      />
+                      <Radio
+                        id="plan-pro"
+                        name="subscription-plan"
+                        value="pro"
+                        checked={plan === 'pro'}
+                        onChange={(value) => setPlan(value)}
+                        label="Pro"
+                        layout="horizontal"
+                      />
+                      <Radio
+                        id="plan-enterprise"
+                        name="subscription-plan"
+                        value="enterprise"
+                        checked={plan === 'enterprise'}
+                        onChange={(value) => setPlan(value)}
+                        label="Enterprise"
+                        layout="horizontal"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
 
