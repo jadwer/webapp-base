@@ -5,6 +5,8 @@ import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 
 const links = [
+  { href: '/dashboard', label: 'Panel Principal', icon: 'bi-house' },
+  { href: '/dashboard/profile', label: 'Mi perfil', icon: 'bi-person-circle' },
   { href: '/dashboard/page-builder', label: 'Page Builder', icon: 'bi-layout-text-window-reverse' },
   { href: '/dashboard/users', label: 'Usuarios', icon: 'bi-people' }
 ]

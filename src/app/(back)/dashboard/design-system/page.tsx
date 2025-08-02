@@ -3,9 +3,13 @@
 import React, { useState } from 'react'
 import { Button } from '@/ui/components/base/Button'
 import { Card, CardHeader, CardContent, CardFooter } from '@/ui/components/base/Card'
+import { ToggleSwitch } from '@/ui/components/base/ToggleSwitch'
 
 export default function DesignSystemPage() {
   const [loading, setLoading] = useState(false)
+  const [newsletter, setNewsletter] = useState(false)
+  const [notifications, setNotifications] = useState(true)
+  const [darkMode, setDarkMode] = useState(false)
   
   const handleLoadingTest = () => {
     setLoading(true)
@@ -285,6 +289,54 @@ export default function DesignSystemPage() {
                 <small className="text-muted d-block mt-3">
                   <strong>Texto pequeño:</strong> Duis aute irure dolor in reprehenderit in voluptate velit esse cillum.
                 </small>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+
+        {/* Switches Section */}
+        <div className="row mb-5">
+          <div className="col-12">
+            <h2 className="mb-4">🔘 Toggle Switches</h2>
+            <Card variant="outlined">
+              <CardContent>
+                <div className="row g-4">
+                  <div className="col-md-4">
+                    <h6 className="mb-3">Switch Básico</h6>
+                    <ToggleSwitch
+                      id="basic-switch"
+                      checked={notifications}
+                      onChange={setNotifications}
+                      label="Notificaciones"
+                      description="Recibir notificaciones del sistema"
+                    />
+                  </div>
+                  
+                  <div className="col-md-4">
+                    <h6 className="mb-3">Con Íconos</h6>
+                    <ToggleSwitch
+                      id="icon-switch"
+                      checked={darkMode}
+                      onChange={setDarkMode}
+                      label="Modo oscuro"
+                      description="Cambiar tema de la aplicación"
+                      leftIcon="bi-sun"
+                      rightIcon="bi-moon"
+                    />
+                  </div>
+                  
+                  <div className="col-md-4">
+                    <h6 className="mb-3">Newsletter</h6>
+                    <ToggleSwitch
+                      id="newsletter-switch"
+                      checked={newsletter}
+                      onChange={setNewsletter}
+                      label="Suscribirse al newsletter"
+                      description="Recibir actualizaciones por email"
+                      size="large"
+                    />
+                  </div>
+                </div>
               </CardContent>
             </Card>
           </div>

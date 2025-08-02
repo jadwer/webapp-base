@@ -28,8 +28,14 @@ export default function AuthStatus() {
     <div className="d-flex align-items-center gap-3">
       {user ? (
         <>
-          <i className="bi bi-person-circle fs-5 text-primary" aria-hidden="true"></i>
-          <span className="fw-semibold small text-muted">{user.name}</span>
+          <Link 
+            href="/dashboard/profile"
+            className="d-flex align-items-center gap-2 text-decoration-none"
+            title="Ir a mi perfil"
+          >
+            <i className="bi bi-person-circle fs-5 text-primary" aria-hidden="true"></i>
+            <span className="fw-semibold small text-muted hover-text-primary">{user.name}</span>
+          </Link>
           <button
             className="btn btn-sm btn-outline-secondary"
             onClick={handleLogout}

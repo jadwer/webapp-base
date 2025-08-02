@@ -1,8 +1,8 @@
 // Button Component Styles
 // ========================
-@import '../tokens/_colors.scss';
-@import '../tokens/_spacing.scss';
-@import '../tokens/_typography.scss';
+@use '../tokens/_colors.scss' as *;
+@use '../tokens/_spacing.scss' as *;
+@use '../tokens/_typography.scss' as *;
 
 // Transitions (definidas localmente)
 $transition-fast: 150ms ease-in-out;

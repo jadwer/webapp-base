@@ -8,6 +8,8 @@ import { handleApiErrors } from '@/modules/auth/lib/handleApiErrors'
 import { useSearchParams } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import StatusMessage from '@/ui/StatusMessage'
+import { Input } from '@/ui/components/base'
+import styles from '@/modules/auth/styles/LoginForm.module.scss'
 
 interface Props {
   redirect: string
@@ -22,6 +24,7 @@ export function LoginForm({ redirect, onLoginSuccess }: Props) {
 
   const [status, setStatus] = useState<string | null>(null)
   const [statusType, setStatusType] = useState<'success' | 'danger' | 'info' | 'warning'>('info')
+  const [showPassword, setShowPassword] = useState(false)
 
   const {
     register,
@@ -92,26 +95,38 @@ export function LoginForm({ redirect, onLoginSuccess }: Props) {
       <StatusMessage message={status} type={statusType} />
 
       <div className="mb-3">
-        <label htmlFor="email" className="form-label">Correo electrónico</label>
-        <input
+        <Input
           id="email"
           type="email"
-          className={`form-control ${errors.email ? 'is-invalid' : ''}`}
-          {...register('email')}
+          label="Correo electrónico"
+          placeholder="tu@email.com"
+          leftIcon="bi-envelope"
+          errorText={errors.email?.message}
           autoFocus
+          {...register('email')}
         />
-        {errors.email && <div className="invalid-feedback">{errors.email.message}</div>}
       </div>
 
       <div className="mb-3">
-        <label htmlFor="password" className="form-label">Contraseña</label>
-        <input
-          id="password"
-          type="password"
-          className={`form-control ${errors.password ? 'is-invalid' : ''}`}
-          {...register('password')}
-        />
-        {errors.password && <div className="invalid-feedback">{errors.password.message}</div>}
+        <div style={{ position: 'relative' }}>
+          <Input
+            id="password"
+            type={showPassword ? 'text' : 'password'}
+            label="Contraseña"
+            placeholder="Tu contraseña"
+            leftIcon="bi-lock"
+            errorText={errors.password?.message}
+            {...register('password')}
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className={styles.passwordToggle}
+            aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+          >
+            <i className={`bi ${showPassword ? 'bi-eye-slash' : 'bi-eye'}`}></i>
+          </button>
+        </div>
       </div>
 
       <div className="d-grid">
