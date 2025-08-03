@@ -24,7 +24,6 @@ export function LoginForm({ redirect, onLoginSuccess }: Props) {
 
   const [status, setStatus] = useState<string | null>(null)
   const [statusType, setStatusType] = useState<'success' | 'danger' | 'info' | 'warning'>('info')
-  const [showPassword, setShowPassword] = useState(false)
 
   const {
     register,
@@ -108,25 +107,15 @@ export function LoginForm({ redirect, onLoginSuccess }: Props) {
       </div>
 
       <div className="mb-3">
-        <div style={{ position: 'relative' }}>
-          <Input
-            id="password"
-            type={showPassword ? 'text' : 'password'}
-            label="Contraseña"
-            placeholder="Tu contraseña"
-            leftIcon="bi-lock"
-            errorText={errors.password?.message}
-            {...register('password')}
-          />
-          <button
-            type="button"
-            onClick={() => setShowPassword(!showPassword)}
-            className={styles.passwordToggle}
-            aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
-          >
-            <i className={`bi ${showPassword ? 'bi-eye-slash' : 'bi-eye'}`}></i>
-          </button>
-        </div>
+        <Input
+          id="password"
+          type="password"
+          label="Contraseña"
+          placeholder="Tu contraseña"
+          leftIcon="bi-lock"
+          errorText={errors.password?.message}
+          {...register('password')}
+        />
       </div>
 
       <div className="d-grid">

@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
+import styles from '@/ui/styles/modules/Sidebar.module.scss'
 
 const links = [
   { href: '/dashboard', label: 'Panel Principal', icon: 'bi-house' },
@@ -31,62 +32,69 @@ export default function Sidebar() {
     <>
       {/* Botón toggle en pantallas pequeñas */}
       <button
-        className="btn btn-outline-secondary d-lg-none m-2"
+        className={styles.toggleButton}
         onClick={() => setOpen(!open)}
       >
-        <i className="bi bi-list"></i> Menú
+        <i className="bi bi-list"></i>
       </button>
 
+      {/* Overlay para móvil */}
+      {open && <div className={styles.overlay} onClick={() => setOpen(false)} />}
+
       {/* Sidebar */}
-      <aside
-        className={`bg-light border-end p-3 d-lg-block ${open ? '' : 'd-none'}`}
-        style={{ width: 240, minHeight: '100vh' }}
-      >
-        <h6 className="text-uppercase fw-bold mb-4">Menú</h6>
-        <ul className="nav flex-column gap-2">
+      <aside className={`${styles.sidebar} ${open ? styles.open : ''}`}>
+        <div className={styles.header}>
+          <h6 className={styles.title}>Menú</h6>
+        </div>
+        
+        <nav className={styles.navigation}>
+          <ul className={styles.navList}>
           {/* Enlaces simples */}
           {links.map(({ href, label, icon }) => (
-            <li className="nav-item" key={href}>
+            <li className={styles.navItem} key={href}>
               <Link
                 href={href}
-                className={`nav-link d-flex align-items-center gap-2 ${
-                  pathname?.startsWith(href) ? 'active fw-semibold text-primary' : 'text-dark'
+                className={`${styles.navLink} ${
+                  (pathname === href || (href !== '/dashboard' && pathname?.startsWith(href))) ? styles.active : ''
                 }`}
               >
-                <i className={`bi ${icon}`} aria-hidden="true"></i>
+                <i className={`bi ${icon} ${styles.navIcon}`} aria-hidden="true"></i>
                 {label}
               </Link>
             </li>
           ))}
           
           {/* Grupo Permission Manager */}
-          <li className="nav-item">
+          <li className={styles.navItem}>
             <button
-              className={`nav-link d-flex align-items-center justify-content-between w-100 border-0 bg-transparent ${
-                permissionManagerOpen ? 'fw-semibold text-primary' : 'text-dark'
+              className={`${styles.groupButton} ${
+                permissionManagerOpen ? styles.groupActive : ''
               }`}
               onClick={() => setPermissionManagerOpen(!permissionManagerOpen)}
             >
-              <div className="d-flex align-items-center gap-2">
+              <div className={styles.groupContent}>
                 <i className="bi bi-shield-fill-check" aria-hidden="true"></i>
                 Permission Manager
               </div>
-              <i className={`bi ${permissionManagerOpen ? 'bi-chevron-down' : 'bi-chevron-right'}`}></i>
+              <i className={`bi bi-chevron-right ${styles.groupChevron} ${
+                permissionManagerOpen ? styles.expanded : ''
+              }`}></i>
             </button>
             
             {/* Submenú */}
-            <div className={`collapse ${permissionManagerOpen ? 'show' : ''}`}>
-              <ul className="nav flex-column ms-3 mt-2">
+            <div className={`${styles.subMenu} ${
+              permissionManagerOpen ? styles.expanded : styles.collapsed
+            }`}>
+              <ul className={styles.subNavList}>
                 {permissionManagerLinks.map(({ href, label, icon }) => (
-                  <li className="nav-item" key={href}>
+                  <li key={href}>
                     <Link
                       href={href}
-                      className={`nav-link d-flex align-items-center gap-2 py-2 ${
-                        pathname === href ? 'active fw-semibold text-primary' : 'text-dark'
+                      className={`${styles.subNavLink} ${
+                        pathname === href ? styles.active : ''
                       }`}
-                      style={{ fontSize: '0.9rem' }}
                     >
-                      <i className={`bi ${icon}`} aria-hidden="true"></i>
+                      <i className={`bi ${icon} ${styles.subNavIcon}`} aria-hidden="true"></i>
                       {label}
                     </Link>
                   </li>
@@ -95,6 +103,7 @@ export default function Sidebar() {
             </div>
           </li>
         </ul>
+        </nav>
       </aside>
     </>
   )

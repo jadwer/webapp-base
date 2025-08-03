@@ -1,8 +1,6 @@
+// Custom Bootstrap Configuration
 @use "custom";
 
-// Import Bootstrap Icons con configuración personalizada
-@use "bootstrap-icons";
-
-// Import Bootstrap CSS
+// Import Bootstrap CSS (keeping original approach but with @use)
 @use "../../../../node_modules/bootstrap/scss/bootstrap";
 

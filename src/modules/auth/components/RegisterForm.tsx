@@ -12,6 +12,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import StatusMessage from "@/ui/StatusMessage";
 import { Input } from "@/ui/components/base";
+import styles from "@/modules/auth/styles/LoginForm.module.scss";
 
 export function RegisterForm() {
   const { register: registerUser } = useAuth({
@@ -25,6 +26,8 @@ export function RegisterForm() {
   const [statusType, setStatusType] = useState<
     "success" | "danger" | "info" | "warning"
   >("info");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showPasswordConfirmation, setShowPasswordConfirmation] = useState(false);
 
   const {
     register,
@@ -113,27 +116,47 @@ export function RegisterForm() {
       </div>
 
       <div className="mb-3">
-        <Input
-          id="password"
-          type="password"
-          label="Contraseña"
-          placeholder="Tu contraseña"
-          leftIcon="bi-lock"
-          errorText={errors.password?.message}
-          {...register("password")}
-        />
+        <div style={{ position: 'relative' }}>
+          <Input
+            id="password"
+            type={showPassword ? 'text' : 'password'}
+            label="Contraseña"
+            placeholder="Tu contraseña"
+            leftIcon="bi-lock"
+            errorText={errors.password?.message}
+            {...register("password")}
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className={styles.passwordToggle}
+            aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+          >
+            <i className={`bi ${showPassword ? 'bi-eye-slash' : 'bi-eye'}`}></i>
+          </button>
+        </div>
       </div>
 
       <div className="mb-3">
-        <Input
-          id="password_confirmation"
-          type="password"
-          label="Confirmar contraseña"
-          placeholder="Confirma tu contraseña"
-          leftIcon="bi-lock-fill"
-          errorText={errors.password_confirmation?.message}
-          {...register("password_confirmation")}
-        />
+        <div style={{ position: 'relative' }}>
+          <Input
+            id="password_confirmation"
+            type={showPasswordConfirmation ? 'text' : 'password'}
+            label="Confirmar contraseña"
+            placeholder="Confirma tu contraseña"
+            leftIcon="bi-lock-fill"
+            errorText={errors.password_confirmation?.message}
+            {...register("password_confirmation")}
+          />
+          <button
+            type="button"
+            onClick={() => setShowPasswordConfirmation(!showPasswordConfirmation)}
+            className={styles.passwordToggle}
+            aria-label={showPasswordConfirmation ? "Ocultar contraseña" : "Mostrar contraseña"}
+          >
+            <i className={`bi ${showPasswordConfirmation ? 'bi-eye-slash' : 'bi-eye'}`}></i>
+          </button>
+        </div>
       </div>
 
       <div className="d-grid">

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { forwardRef, InputHTMLAttributes, TextareaHTMLAttributes, SelectHTMLAttributes } from 'react'
+import React, { forwardRef, InputHTMLAttributes, TextareaHTMLAttributes, SelectHTMLAttributes, useState } from 'react'
 import clsx from 'clsx'
 import styles from '@/ui/styles/modules/Input.module.scss'
 
@@ -10,13 +10,15 @@ interface BaseInputProps {
   helpText?: string
   errorText?: string
   successText?: string
-  size?: 'small' | 'medium' | 'large'
+  size?: 'small' | 'medium' | 'large' | 'xl'
   variant?: 'default' | 'floating'
   leftIcon?: string
   rightIcon?: string
   loading?: boolean
   required?: boolean
   className?: string
+  options?: { value: string; label: string }[]
+  multiple?: boolean
 }
 
 // Input Component
@@ -36,22 +38,32 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(({
   className,
   id,
   placeholder,
+  type = 'text',
+  options,
+  multiple,
   ...props
 }, ref) => {
   const inputId = id || `input-${Math.random().toString(36).substr(2, 9)}`
   const hasError = Boolean(errorText)
   const hasSuccess = Boolean(successText) && !hasError
   const isFloating = variant === 'floating'
+  const [showPassword, setShowPassword] = useState(false)
+  const isPassword = type === 'password'
+  const isSelect = type === 'select'
+  
+  // Determinar el tipo real del input
+  const actualType = isPassword ? (showPassword ? 'text' : 'password') : type
 
   const inputClasses = clsx(
-    styles.input,
+    isSelect ? styles.select : styles.input,
     {
       [styles.small]: size === 'small',
       [styles.large]: size === 'large',
+      [styles.xl]: size === 'xl',
       [styles.error]: hasError,
       [styles.success]: hasSuccess,
       [styles.hasLeftIcon]: leftIcon,
-      [styles.hasRightIcon]: rightIcon || loading,
+      [styles.hasRightIcon]: rightIcon || loading || isPassword,
     }
   )
 
@@ -63,6 +75,70 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(({
     },
     className
   )
+
+  // Función para toggle de password
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword)
+  }
+
+  // Renderizar select si es tipo select
+  if (isSelect) {
+    return (
+      <div className={groupClasses}>
+        {label && !isFloating && (
+          <label 
+            htmlFor={inputId} 
+            className={clsx(styles.label, { [styles.required]: required })}
+          >
+            {label}
+          </label>
+        )}
+        
+        <div className={styles.inputWrapper}>
+          {leftIcon && (
+            <span 
+              className={clsx(styles.icon, styles.left)} 
+              style={{ fontFamily: 'bootstrap-icons' }}
+              aria-hidden="true"
+            >
+              {leftIcon === 'bi-envelope' && '\uf32f'}
+              {leftIcon === 'bi-lock' && '\uf47b'}
+              {leftIcon === 'bi-search' && '\uf52a'}
+              {leftIcon === 'bi-eye' && '\uf341'}
+              {leftIcon === 'bi-user' && '\uf4da'}
+            </span>
+          )}
+          
+          <select
+            ref={ref as any}
+            id={inputId}
+            className={inputClasses}
+            required={required}
+            multiple={multiple}
+            {...(props as any)}
+          >
+            {options?.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </div>
+        
+        {helpText && !errorText && !successText && (
+          <p className={styles.helpText}>{helpText}</p>
+        )}
+        
+        {errorText && (
+          <p className={styles.errorText}>{errorText}</p>
+        )}
+        
+        {successText && !errorText && (
+          <p className={styles.successText}>{successText}</p>
+        )}
+      </div>
+    )
+  }
 
   return (
     <div className={groupClasses}>
@@ -77,12 +153,23 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(({
       
       <div className={styles.inputWrapper}>
         {leftIcon && (
-          <i className={clsx('bi', leftIcon, styles.icon, styles.left)} aria-hidden="true" />
+          <span 
+            className={clsx(styles.icon, styles.left)} 
+            style={{ fontFamily: 'bootstrap-icons' }}
+            aria-hidden="true"
+          >
+            {leftIcon === 'bi-envelope' && '\uf32f'}
+            {leftIcon === 'bi-lock' && '\uf47b'}
+            {leftIcon === 'bi-search' && '\uf52a'}
+            {leftIcon === 'bi-eye' && '\uf341'}
+            {leftIcon === 'bi-user' && '\uf4da'}
+          </span>
         )}
         
         <input
           ref={ref}
           id={inputId}
+          type={actualType}
           className={inputClasses}
           placeholder={isFloating ? ' ' : placeholder}
           required={required}
@@ -98,7 +185,21 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(({
           </label>
         )}
         
-        {rightIcon && !loading && (
+        {/* Password toggle button */}
+        {isPassword && (
+          <button
+            type="button"
+            className={clsx(styles.icon, styles.right, styles.passwordToggle)}
+            onClick={togglePasswordVisibility}
+            aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+          >
+            <span style={{ fontFamily: 'bootstrap-icons' }} aria-hidden="true">
+              {showPassword ? '\uf342' : '\uf341'}
+            </span>
+          </button>
+        )}
+        
+        {rightIcon && !loading && !isPassword && (
           <i className={clsx('bi', rightIcon, styles.icon, styles.right)} aria-hidden="true" />
         )}
       </div>
@@ -143,6 +244,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(({
     {
       [styles.small]: size === 'small',
       [styles.large]: size === 'large',
+      [styles.xl]: size === 'xl',
       [styles.error]: hasError,
       [styles.success]: hasSuccess,
     }
@@ -212,6 +314,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(({
     {
       [styles.small]: size === 'small',
       [styles.large]: size === 'large',
+      [styles.xl]: size === 'xl',
       [styles.error]: hasError,
       [styles.success]: hasSuccess,
     }

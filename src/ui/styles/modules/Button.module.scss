@@ -59,6 +59,13 @@ $transition-normal: 250ms ease-in-out;
   gap: $spacing-2;
 }
 
+.xl {
+  padding: $spacing-5 $spacing-8;
+  font-size: $font-size-xl;
+  min-height: 3.5rem;
+  gap: $spacing-3;
+}
+
 // Color variants
 .primary {
   background-color: $color-primary;
@@ -221,6 +228,10 @@ $transition-normal: 250ms ease-in-out;
   
   &.large {
     padding: $spacing-4;
+  }
+  
+  &.xl {
+    padding: $spacing-5;
   }
 }
 

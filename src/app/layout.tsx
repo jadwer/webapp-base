@@ -16,6 +16,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        <link 
+          rel="stylesheet" 
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+        />
         <Script
           async
           src="https://www.googletagmanager.com/gtag/js?id=G-M1SCXB58G4"></Script>

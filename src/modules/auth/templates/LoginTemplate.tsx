@@ -5,6 +5,7 @@ import { LoginForm } from '@/modules/auth/components/LoginForm'
 import { useAuth } from '@/modules/auth/lib/auth'
 import { getDefaultRoute } from '@/lib/permissions'
 import Link from 'next/link'
+import styles from '@/modules/auth/styles/AuthTemplate.module.scss'
 
 interface Props {
   redirect: string
@@ -27,17 +28,31 @@ export default function LoginTemplate({ redirect }: Props) {
   }
 
   return (
-    <div className="container py-5" style={{ maxWidth: 480 }}>
-      <h1 className="mb-4 text-center">Iniciar sesión</h1>
-      <LoginForm
-        redirect={redirect}
-        onLoginSuccess={handleLoginSuccess}
-      />
-      <div className="text-center mt-4">
-        ¿No tienes una cuenta?{' '}
-        <Link href="/auth/register" className="text-primary fw-semibold">
-          ¡Regístrate!
-        </Link>
+    <div className={styles.authContainer}>
+      <div className={styles.authCard}>
+        <div className={styles.authHeader}>
+          <div className={styles.brandIcon}>
+            <i className="bi bi-diagram-3" aria-hidden="true"></i>
+          </div>
+          <h1 className={styles.authTitle}>Iniciar sesión</h1>
+          <p className={styles.authSubtitle}>Bienvenido de nuevo</p>
+        </div>
+        
+        <div className={styles.authForm}>
+          <LoginForm
+            redirect={redirect}
+            onLoginSuccess={handleLoginSuccess}
+          />
+        </div>
+        
+        <div className={styles.authFooter}>
+          <p>
+            ¿No tienes una cuenta?{' '}
+            <Link href="/auth/register">
+              ¡Regístrate aquí!
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   )

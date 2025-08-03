@@ -40,12 +40,12 @@ $transition-fast: 150ms ease-in-out;
   font-size: $font-size-base;
   font-family: $font-family-sans;
   color: $color-text-primary;
-  background: rgba(255, 255, 255, 0.9);
+  background: $color-background-glass;
   border: 1.5px solid $color-border;
   border-radius: $border-radius-lg;
   transition: all $transition-fast;
   backdrop-filter: blur(8px);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  box-shadow: 0 1px 3px rgba($neutral-900, 0.02);
 
   &::placeholder {
     color: $color-text-muted;
@@ -55,16 +55,16 @@ $transition-fast: 150ms ease-in-out;
   &:focus {
     outline: none;
     border-color: $color-primary;
-    background: rgba(255, 255, 255, 0.95);
+    background: $color-background-elevated;
     box-shadow: 
       0 0 0 3px rgba($color-primary, 0.08),
-      0 4px 12px rgba(0, 0, 0, 0.04);
+      0 4px 12px rgba($neutral-900, 0.04);
     transform: translateY(-1px);
   }
 
   &:hover:not(:focus) {
     border-color: $neutral-300;
-    background: rgba(255, 255, 255, 0.95);
+    background: $color-background-elevated;
   }
 
   &:disabled {
@@ -90,28 +90,33 @@ $transition-fast: 150ms ease-in-out;
     font-size: $font-size-lg;
   }
 
+  &.xl {
+    padding: $spacing-5 $spacing-6;
+    font-size: $font-size-xl;
+  }
+
   // State variations
   &.error {
     border-color: $color-danger;
-    background: rgba(239, 68, 68, 0.02);
+    background: rgba($danger-600, 0.02);
 
     &:focus {
       border-color: $color-danger;
       box-shadow: 
         0 0 0 3px rgba($color-danger, 0.08),
-        0 4px 12px rgba(239, 68, 68, 0.08);
+        0 4px 12px rgba($danger-600, 0.08);
     }
   }
 
   &.success {
     border-color: $color-success;
-    background: rgba(16, 185, 129, 0.02);
+    background: rgba($success-600, 0.02);
 
     &:focus {
       border-color: $color-success;
       box-shadow: 
         0 0 0 3px rgba($color-success, 0.08),
-        0 4px 12px rgba(16, 185, 129, 0.08);
+        0 4px 12px rgba($success-600, 0.08);
     }
   }
 
@@ -125,13 +130,11 @@ $transition-fast: 150ms ease-in-out;
   }
 }
 
+// Posicionamiento de iconos - NO interferir con Bootstrap Icons
 .icon {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  font-size: $font-size-base;
-  color: $color-text-muted;
-  transition: color $transition-fast;
   pointer-events: none;
 
   &.left {
@@ -141,17 +144,71 @@ $transition-fast: 150ms ease-in-out;
   &.right {
     right: $spacing-4;
   }
+}
 
-  .input:focus + & {
+// FORZAR Bootstrap Icons con máxima especificidad posible
+:global(i.bi.bi-envelope[class*="Input-module-scss-module"]) {
+  font-family: bootstrap-icons !important;
+  
+  &::before {
+    content: "\f32f" !important;
+    font-family: bootstrap-icons !important;
+  }
+}
+
+:global(i.bi.bi-lock[class*="Input-module-scss-module"]) {
+  font-family: bootstrap-icons !important;
+  
+  &::before {
+    content: "\f47b" !important;
+    font-family: bootstrap-icons !important;
+  }
+}
+
+:global(i.bi.bi-search[class*="Input-module-scss-module"]) {
+  font-family: bootstrap-icons !important;
+  
+  &::before {
+    content: "\f52a" !important;
+    font-family: bootstrap-icons !important;
+  }
+}
+
+:global(i.bi.bi-eye[class*="Input-module-scss-module"]) {
+  font-family: bootstrap-icons !important;
+  
+  &::before {
+    content: "\f341" !important;
+    font-family: bootstrap-icons !important;
+  }
+}
+
+:global(i.bi.bi-eye-slash[class*="Input-module-scss-module"]) {
+  font-family: bootstrap-icons !important;
+  
+  &::before {
+    content: "\f342" !important;
+    font-family: bootstrap-icons !important;
+  }
+}
+
+.passwordToggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  color: $color-text-muted;
+  font-size: $font-size-base;
+  transition: all $transition-fast;
+  pointer-events: auto;
+  
+  &:hover {
     color: $color-primary;
   }
-
-  .input.error + & {
-    color: $color-danger;
-  }
-
-  .input.success + & {
-    color: $color-success;
+  
+  &:focus {
+    outline: none;
+    color: $color-primary;
   }
 }
 
@@ -208,6 +265,10 @@ $transition-fast: 150ms ease-in-out;
   &.large {
     min-height: 160px;
   }
+
+  &.xl {
+    min-height: 200px;
+  }
 }
 
 // Select specific styles
@@ -217,12 +278,12 @@ $transition-fast: 150ms ease-in-out;
   font-size: $font-size-base !important;
   font-family: $font-family-sans !important;
   color: $color-text-primary !important;
-  background-color: rgba(255, 255, 255, 0.9) !important;
+  background-color: $color-background-glass !important;
   border: 1.5px solid $color-border !important;
   border-radius: $border-radius-lg !important;
   transition: all $transition-fast !important;
   backdrop-filter: blur(8px) !important;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02) !important;
+  box-shadow: 0 1px 3px rgba($neutral-900, 0.02) !important;
   cursor: pointer !important;
   
   // Remove default browser select arrow
@@ -230,8 +291,8 @@ $transition-fast: 150ms ease-in-out;
   -moz-appearance: none !important;
   appearance: none !important;
   
-  // Add ONLY our custom arrow, override everything
-  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3e%3cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3e%3c/path%3e%3c/svg%3e") !important;
+  // Add ONLY our custom arrow using design system color variable
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='#{$color-primary}'%3e%3cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3e%3c/path%3e%3c/svg%3e") !important;
   background-repeat: no-repeat !important;
   background-position: right $spacing-3 center !important;
   background-size: 16px 16px !important;
@@ -246,17 +307,18 @@ $transition-fast: 150ms ease-in-out;
   &:focus {
     outline: none;
     border-color: $color-primary;
-    background: rgba(255, 255, 255, 0.95);
+    background: $color-background-elevated;
     box-shadow: 
       0 0 0 3px rgba($color-primary, 0.08),
-      0 4px 12px rgba(0, 0, 0, 0.04);
+      0 4px 12px rgba($neutral-900, 0.04);
     transform: translateY(-1px);
-    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%230ea5e9'%3e%3cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3e%3c/path%3e%3c/svg%3e");
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='#{$primary-500}'%3e%3cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3e%3c/path%3e%3c/svg%3e");
   }
 
   &:hover:not(:focus) {
     border-color: $neutral-300;
-    background: rgba(255, 255, 255, 0.95);
+    background: $color-background-elevated;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='#{$primary-700}'%3e%3cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3e%3c/path%3e%3c/svg%3e");
   }
 
   &:disabled {
@@ -280,30 +342,72 @@ $transition-fast: 150ms ease-in-out;
     padding-right: calc(#{$spacing-5} + 20px);
   }
 
+  &.xl {
+    padding: $spacing-5 $spacing-6;
+    font-size: $font-size-xl;
+    padding-right: calc(#{$spacing-6} + 20px);
+  }
+
   // State variations
   &.error {
     border-color: $color-danger;
-    background: rgba(239, 68, 68, 0.02);
-    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23dc2626'%3e%3cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3e%3c/path%3e%3c/svg%3e");
+    background: rgba($danger-600, 0.02);
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='#{$color-danger}'%3e%3cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3e%3c/path%3e%3c/svg%3e");
 
     &:focus {
       border-color: $color-danger;
       box-shadow: 
         0 0 0 3px rgba($color-danger, 0.08),
-        0 4px 12px rgba(239, 68, 68, 0.08);
+        0 4px 12px rgba($danger-600, 0.08);
     }
   }
 
   &.success {
     border-color: $color-success;
-    background: rgba(16, 185, 129, 0.02);
-    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23059669'%3e%3cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3e%3c/path%3e%3c/svg%3e");
+    background: rgba($success-600, 0.02);
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='#{$color-success}'%3e%3cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3e%3c/path%3e%3c/svg%3e");
 
     &:focus {
       border-color: $color-success;
       box-shadow: 
         0 0 0 3px rgba($color-success, 0.08),
-        0 4px 12px rgba(16, 185, 129, 0.08);
+        0 4px 12px rgba($success-600, 0.08);
+    }
+  }
+
+  // Multiple select styles
+  &[multiple] {
+    min-height: 120px;
+    height: auto;
+    background-image: none !important;
+    padding: $spacing-3;
+    overflow-y: auto;
+    
+    option {
+      padding: $spacing-2;
+      margin: $spacing-1 0;
+      border-radius: $border-radius-sm;
+      
+      &:checked {
+        background: linear-gradient(135deg, $color-primary, $primary-700);
+        color: $color-text-inverse;
+      }
+      
+      &:hover {
+        background: rgba($color-primary, 0.1);
+      }
+    }
+    
+    &.small {
+      min-height: 80px;
+    }
+    
+    &.large {
+      min-height: 160px;
+    }
+    
+    &.xl {
+      min-height: 200px;
     }
   }
 }
@@ -331,7 +435,7 @@ $transition-fast: 150ms ease-in-out;
     transform: translateY(-50%);
     font-size: $font-size-xs;
     color: $color-primary;
-    background: linear-gradient(to bottom, transparent 40%, rgba(255, 255, 255, 0.9) 40%, rgba(255, 255, 255, 0.9) 60%, transparent 60%);
+    background: linear-gradient(to bottom, transparent 40%, $color-background-glass 40%, $color-background-glass 60%, transparent 60%);
     font-weight: $font-weight-medium;
   }
 

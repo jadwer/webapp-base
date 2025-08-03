@@ -12,7 +12,7 @@ export interface ButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement
   /** Estilo del botón */
   buttonStyle?: 'filled' | 'outline' | 'ghost'
   /** Tamaño del botón */
-  size?: 'small' | 'medium' | 'large'
+  size?: 'small' | 'medium' | 'large' | 'xl'
   /** Estado de carga */
   loading?: boolean
   /** Botón de ancho completo */
