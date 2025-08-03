@@ -93,6 +93,33 @@ Located in `src/ui/`, this is the "atm-ui" design system with:
 - Authentication state managed through `useAuth` hook
 - Local state preferred for component-specific data
 
+### Bootstrap Icons Configuration
+Bootstrap Icons are configured for the Design System:
+
+**CDN Integration (Recommended):**
+- Bootstrap Icons CSS is loaded via CDN in `src/app/layout.tsx`
+- Uses official Bootstrap Icons v1.11.3 from jsdelivr CDN
+- No additional configuration needed for basic icon usage
+
+**Usage in Components:**
+```tsx
+// ✅ Correct way - Use Bootstrap Icons classes
+<i className={clsx('bi', 'bi-envelope', styles.icon)} aria-hidden="true" />
+
+// ❌ Incorrect - Don't use Unicode characters directly
+<span style={{ fontFamily: 'bootstrap-icons' }}>{'\f32f'}</span>
+```
+
+**Input Component Icons:**
+- Uses `leftIcon` prop with Bootstrap Icons class names (e.g., `bi-envelope`, `bi-lock`)
+- Password toggle automatically uses `bi-eye` and `bi-eye-slash`
+- Select boxes use contextual icons: chevron-down (normal), exclamation-triangle (error), check-circle-fill (success)
+
+**SVG Documentation:**
+- All custom SVGs are documented in `SVG_DOCUMENTATION.md`
+- Prefer Bootstrap Icons over custom SVGs for consistency
+- SVGs in select boxes are documented with inline comments in `Input.module.scss`
+
 ### Environment Variables
 Required environment variables:
 - `NEXT_PUBLIC_BACKEND_URL` - Backend API base URL

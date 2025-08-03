@@ -9,7 +9,6 @@ import { useSearchParams } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import StatusMessage from '@/ui/StatusMessage'
 import { Input } from '@/ui/components/base'
-import styles from '@/modules/auth/styles/LoginForm.module.scss'
 
 interface Props {
   redirect: string

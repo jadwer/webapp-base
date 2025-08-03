@@ -77,7 +77,7 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
             ? (e) => {
                 if ((e.key === 'Enter' || e.key === ' ') && !disabled) {
                   e.preventDefault()
-                  handleClick(e as any)
+                  handleClick(e as unknown as React.MouseEvent<HTMLDivElement>)
                 }
               }
             : undefined

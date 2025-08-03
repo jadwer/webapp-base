@@ -96,26 +96,19 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(({
         
         <div className={styles.inputWrapper}>
           {leftIcon && (
-            <span 
-              className={clsx(styles.icon, styles.left)} 
-              style={{ fontFamily: 'bootstrap-icons' }}
+            <i 
+              className={clsx('bi', leftIcon, styles.icon, styles.left)} 
               aria-hidden="true"
-            >
-              {leftIcon === 'bi-envelope' && '\uf32f'}
-              {leftIcon === 'bi-lock' && '\uf47b'}
-              {leftIcon === 'bi-search' && '\uf52a'}
-              {leftIcon === 'bi-eye' && '\uf341'}
-              {leftIcon === 'bi-user' && '\uf4da'}
-            </span>
+            />
           )}
           
           <select
-            ref={ref as any}
+            ref={ref as React.Ref<HTMLSelectElement>}
             id={inputId}
             className={inputClasses}
             required={required}
             multiple={multiple}
-            {...(props as any)}
+            {...(props as React.SelectHTMLAttributes<HTMLSelectElement>)}
           >
             {options?.map((option) => (
               <option key={option.value} value={option.value}>
@@ -153,17 +146,10 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(({
       
       <div className={styles.inputWrapper}>
         {leftIcon && (
-          <span 
-            className={clsx(styles.icon, styles.left)} 
-            style={{ fontFamily: 'bootstrap-icons' }}
+          <i 
+            className={clsx('bi', leftIcon, styles.icon, styles.left)} 
             aria-hidden="true"
-          >
-            {leftIcon === 'bi-envelope' && '\uf32f'}
-            {leftIcon === 'bi-lock' && '\uf47b'}
-            {leftIcon === 'bi-search' && '\uf52a'}
-            {leftIcon === 'bi-eye' && '\uf341'}
-            {leftIcon === 'bi-user' && '\uf4da'}
-          </span>
+          />
         )}
         
         <input
@@ -193,9 +179,10 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(({
             onClick={togglePasswordVisibility}
             aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
           >
-            <span style={{ fontFamily: 'bootstrap-icons' }} aria-hidden="true">
-              {showPassword ? '\uf342' : '\uf341'}
-            </span>
+            <i 
+              className={clsx('bi', showPassword ? 'bi-eye-slash' : 'bi-eye')} 
+              aria-hidden="true" 
+            />
           </button>
         )}
         

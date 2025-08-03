@@ -411,7 +411,7 @@ export default function DesignSystemPage() {
                   <Checkbox
                     id="checkbox-small"
                     checked={termsAccepted}
-                    onChange={(checked) => setTermsAccepted(checked)}
+                    onChange={(e) => setTermsAccepted(e.target.checked)}
                     label="Checkbox Pequeño"
                     description="Ideal para opciones secundarias en listas compactas"
                     size="small"
@@ -419,7 +419,7 @@ export default function DesignSystemPage() {
                   <Checkbox
                     id="checkbox-medium"
                     checked={marketingEmails}
-                    onChange={(checked) => setMarketingEmails(checked)}
+                    onChange={(e) => setMarketingEmails(e.target.checked)}
                     label="Checkbox Mediano (Predeterminado)"
                     description="Tamaño estándar para formularios y configuraciones"
                     size="medium"
@@ -427,7 +427,7 @@ export default function DesignSystemPage() {
                   <Checkbox
                     id="checkbox-large"
                     checked={dataProcessing}
-                    onChange={(checked) => setDataProcessing(checked)}
+                    onChange={(e) => setDataProcessing(e.target.checked)}
                     label="Checkbox Grande"
                     description="Para opciones importantes y destacadas"
                     size="large"
@@ -449,20 +449,20 @@ export default function DesignSystemPage() {
                       <Checkbox
                         id="terms-checkbox"
                         checked={termsAccepted}
-                        onChange={(checked) => setTermsAccepted(checked)}
+                        onChange={(e) => setTermsAccepted(e.target.checked)}
                         label="Acepto los términos y condiciones"
                       />
                       <Checkbox
                         id="marketing-checkbox"
                         checked={marketingEmails}
-                        onChange={(checked) => setMarketingEmails(checked)}
+                        onChange={(e) => setMarketingEmails(e.target.checked)}
                         label="Recibir emails de marketing"
                         description="Te enviaremos ofertas especiales y noticias del producto"
                       />
                       <Checkbox
                         id="data-checkbox"
                         checked={dataProcessing}
-                        onChange={(checked) => setDataProcessing(checked)}
+                        onChange={(e) => setDataProcessing(e.target.checked)}
                         label="Procesamiento de datos"
                         description="Autorizo el procesamiento de mis datos personales"
                         disabled
@@ -606,7 +606,7 @@ export default function DesignSystemPage() {
                         name="contact-method"
                         value="email"
                         checked={contactMethod === 'email'}
-                        onChange={(value) => setContactMethod(value)}
+                        onChange={(e) => setContactMethod(e.target.value)}
                         label="Email"
                         description="Te contactaremos por correo electrónico"
                       />
@@ -615,7 +615,7 @@ export default function DesignSystemPage() {
                         name="contact-method"
                         value="phone"
                         checked={contactMethod === 'phone'}
-                        onChange={(value) => setContactMethod(value)}
+                        onChange={(e) => setContactMethod(e.target.value)}
                         label="Teléfono"
                         description="Te llamaremos directamente"
                       />
@@ -624,7 +624,7 @@ export default function DesignSystemPage() {
                         name="contact-method"
                         value="sms"
                         checked={contactMethod === 'sms'}
-                        onChange={(value) => setContactMethod(value)}
+                        onChange={(e) => setContactMethod(e.target.value)}
                         label="SMS"
                         description="Te enviaremos un mensaje de texto"
                       />
@@ -639,27 +639,24 @@ export default function DesignSystemPage() {
                         name="subscription-plan"
                         value="basic"
                         checked={plan === 'basic'}
-                        onChange={(value) => setPlan(value)}
+                        onChange={(e) => setPlan(e.target.value)}
                         label="Básico"
-                        layout="horizontal"
                       />
                       <Radio
                         id="plan-pro"
                         name="subscription-plan"
                         value="pro"
                         checked={plan === 'pro'}
-                        onChange={(value) => setPlan(value)}
+                        onChange={(e) => setPlan(e.target.value)}
                         label="Pro"
-                        layout="horizontal"
                       />
                       <Radio
                         id="plan-enterprise"
                         name="subscription-plan"
                         value="enterprise"
                         checked={plan === 'enterprise'}
-                        onChange={(value) => setPlan(value)}
+                        onChange={(e) => setPlan(e.target.value)}
                         label="Enterprise"
-                        layout="horizontal"
                       />
                     </div>
                   </div>
@@ -1180,7 +1177,7 @@ export default function DesignSystemPage() {
                         <Checkbox
                           id="terms"
                           checked={termsAccepted}
-                          onChange={(checked) => setTermsAccepted(checked)}
+                          onChange={(e) => setTermsAccepted(e.target.checked)}
                           label="Acepto los términos y condiciones"
                           description="He leído y acepto los términos del servicio y la política de privacidad"
                         />
@@ -1188,7 +1185,7 @@ export default function DesignSystemPage() {
                         <Checkbox
                           id="newsletter"
                           checked={marketingEmails}
-                          onChange={(checked) => setMarketingEmails(checked)}
+                          onChange={(e) => setMarketingEmails(e.target.checked)}
                           label="Recibir newsletter"
                           description="Mantente al día con nuestras últimas noticias y actualizaciones"
                         />
@@ -1225,28 +1222,25 @@ export default function DesignSystemPage() {
                           name="contact-method-form"
                           value="email"
                           checked={contactMethod === 'email'}
-                          onChange={(value) => setContactMethod(value)}
+                          onChange={(e) => setContactMethod(e.target.value)}
                           label="Email"
-                          layout="horizontal"
-                        />
+                          />
                         <Radio
                           id="contact-phone-form"
                           name="contact-method-form"
                           value="phone"
                           checked={contactMethod === 'phone'}
-                          onChange={(value) => setContactMethod(value)}
+                          onChange={(e) => setContactMethod(e.target.value)}
                           label="Teléfono"
-                          layout="horizontal"
-                        />
+                          />
                         <Radio
                           id="contact-sms-form"
                           name="contact-method-form"
                           value="sms"
                           checked={contactMethod === 'sms'}
-                          onChange={(value) => setContactMethod(value)}
+                          onChange={(e) => setContactMethod(e.target.value)}
                           label="SMS"
-                          layout="horizontal"
-                        />
+                          />
                       </div>
                     </div>
                     

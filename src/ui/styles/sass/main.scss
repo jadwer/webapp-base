@@ -1,6 +1,5 @@
-// Custom Bootstrap Configuration
-@use "custom";
-
-// Import Bootstrap CSS (keeping original approach but with @use)
+// Import Bootstrap CSS with modern @use syntax
 @use "../../../../node_modules/bootstrap/scss/bootstrap";
+
+// Bootstrap Icons se importa desde CDN en layout.tsx
 

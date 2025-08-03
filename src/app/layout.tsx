@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import '@/ui/styles/main.css';
 import Script from "next/script";
-// Bootstrap Icons se importa ahora desde SASS
+// BootStrapClient no es necesario para los íconos
 
 export const metadata: Metadata = {
   title: "WebApp Base",

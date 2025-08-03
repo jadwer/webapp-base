@@ -3,7 +3,9 @@
     "allow": [
       "Bash(curl:*)",
       "Bash(ls:*)",
-      "WebFetch(domain:32e0b82ae9ff.ngrok-free.app)"
+      "WebFetch(domain:32e0b82ae9ff.ngrok-free.app)",
+      "Bash(npm run build:*)",
+      "Bash(rm:*)"
     ],
     "deny": []
   }

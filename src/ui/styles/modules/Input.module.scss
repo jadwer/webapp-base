@@ -136,6 +136,12 @@ $transition-fast: 150ms ease-in-out;
   top: 50%;
   transform: translateY(-50%);
   pointer-events: none;
+  z-index: 2;
+  font-size: 16px;
+  color: $color-text-muted;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
   &.left {
     left: $spacing-4;
@@ -146,51 +152,7 @@ $transition-fast: 150ms ease-in-out;
   }
 }
 
-// FORZAR Bootstrap Icons con máxima especificidad posible
-:global(i.bi.bi-envelope[class*="Input-module-scss-module"]) {
-  font-family: bootstrap-icons !important;
-  
-  &::before {
-    content: "\f32f" !important;
-    font-family: bootstrap-icons !important;
-  }
-}
-
-:global(i.bi.bi-lock[class*="Input-module-scss-module"]) {
-  font-family: bootstrap-icons !important;
-  
-  &::before {
-    content: "\f47b" !important;
-    font-family: bootstrap-icons !important;
-  }
-}
-
-:global(i.bi.bi-search[class*="Input-module-scss-module"]) {
-  font-family: bootstrap-icons !important;
-  
-  &::before {
-    content: "\f52a" !important;
-    font-family: bootstrap-icons !important;
-  }
-}
-
-:global(i.bi.bi-eye[class*="Input-module-scss-module"]) {
-  font-family: bootstrap-icons !important;
-  
-  &::before {
-    content: "\f341" !important;
-    font-family: bootstrap-icons !important;
-  }
-}
-
-:global(i.bi.bi-eye-slash[class*="Input-module-scss-module"]) {
-  font-family: bootstrap-icons !important;
-  
-  &::before {
-    content: "\f342" !important;
-    font-family: bootstrap-icons !important;
-  }
-}
+// Bootstrap Icons work properly with global font-family, these overrides are not needed
 
 .passwordToggle {
   background: none;
@@ -201,6 +163,12 @@ $transition-fast: 150ms ease-in-out;
   font-size: $font-size-base;
   transition: all $transition-fast;
   pointer-events: auto;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
   
   &:hover {
     color: $color-primary;
@@ -291,8 +259,9 @@ $transition-fast: 150ms ease-in-out;
   -moz-appearance: none !important;
   appearance: none !important;
   
-  // Add ONLY our custom arrow using design system color variable
-  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='#{$color-primary}'%3e%3cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3e%3c/path%3e%3c/svg%3e") !important;
+  // 🔽 Bootstrap Icons chevron-down (flecha hacia abajo)
+  // Indica que el select es desplegable - color primario (#2563eb)
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z' fill='%232563eb'/%3e%3c/svg%3e") !important;
   background-repeat: no-repeat !important;
   background-position: right $spacing-3 center !important;
   background-size: 16px 16px !important;
@@ -312,13 +281,17 @@ $transition-fast: 150ms ease-in-out;
       0 0 0 3px rgba($color-primary, 0.08),
       0 4px 12px rgba($neutral-900, 0.04);
     transform: translateY(-1px);
-    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='#{$primary-500}'%3e%3cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3e%3c/path%3e%3c/svg%3e");
+    // 🔽 Bootstrap Icons chevron-down (flecha hacia abajo) - estado focus
+    // Mantiene el color primario (#2563eb) en estado activo
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z' fill='%232563eb'/%3e%3c/svg%3e");
   }
 
   &:hover:not(:focus) {
     border-color: $neutral-300;
     background: $color-background-elevated;
-    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='#{$primary-700}'%3e%3cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3e%3c/path%3e%3c/svg%3e");
+    // 🔽 Bootstrap Icons chevron-down (flecha hacia abajo) - estado hover
+    // Color primario más oscuro (#1d4ed8) para indicar interactividad
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708 0l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z' fill='%231d4ed8'/%3e%3c/svg%3e");
   }
 
   &:disabled {
@@ -352,7 +325,9 @@ $transition-fast: 150ms ease-in-out;
   &.error {
     border-color: $color-danger;
     background: rgba($danger-600, 0.02);
-    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='#{$color-danger}'%3e%3cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3e%3c/path%3e%3c/svg%3e");
+    // ⚠️ Bootstrap Icons exclamation-triangle (triángulo de advertencia)
+    // Color de error (#dc2626) para indicar problema de validación
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath d='M7.938 2.016A.13.13 0 0 1 8.002 2a.13.13 0 0 1 .063.016.146.146 0 0 1 .054.057l6.857 11.667c.036.06.035.124.002.183a.163.163 0 0 1-.054.06.116.116 0 0 1-.066.017H1.146a.115.115 0 0 1-.066-.017.163.163 0 0 1-.054-.06.176.176 0 0 1 .002-.183L7.884 2.073a.147.147 0 0 1 .054-.057zm1.044-.45a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566z'/%3e%3cpath d='M7.002 12a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 5.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995z' fill='%23dc2626'/%3e%3c/svg%3e");
 
     &:focus {
       border-color: $color-danger;
@@ -365,7 +340,9 @@ $transition-fast: 150ms ease-in-out;
   &.success {
     border-color: $color-success;
     background: rgba($success-600, 0.02);
-    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='#{$color-success}'%3e%3cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3e%3c/path%3e%3c/svg%3e");
+    // ✅ Bootstrap Icons check-circle-fill (círculo con check)
+    // Color de éxito (#059669) para indicar validación exitosa
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath d='M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.061L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z' fill='%23059669'/%3e%3c/svg%3e");
 
     &:focus {
       border-color: $color-success;
