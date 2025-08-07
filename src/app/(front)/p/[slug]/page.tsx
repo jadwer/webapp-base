@@ -16,7 +16,7 @@ export default async function Page({ params }: PageProps) {
 
   if (!page) return notFound();
 
-  const html = injectPageBuilderCSS(page.html);
+  const html = injectPageBuilderCSS(page.html, page.css);
 
   return (
     <main className="pb-10">

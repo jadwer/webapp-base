@@ -8,12 +8,33 @@ export default function PageBuilderEditor() {
   const toastRef = useRef<ToastNotifierHandle>(null);
 
   useEffect(() => {
-    if (editorRef.current) {
-      initPageBuilder(editorRef.current, (msg: string, type?: ToastType) => {
-        toastRef.current?.show(msg, type);
-      });
+    if (!editorRef.current) return
+
+    let editor: any
+
+    const initAsync = async () => {
+      try {
+        editor = await initPageBuilder(editorRef.current!, (msg: string, type?: ToastType) => {
+          toastRef.current?.show(msg, type);
+        })
+        console.log('Main page builder initialized successfully:', editor)
+      } catch (error) {
+        console.error('Error initializing page builder:', error)
+      }
     }
-  }, []);
+
+    initAsync()
+
+    return () => {
+      try {
+        if (editor && typeof editor.destroy === 'function') {
+          editor.destroy()
+        }
+      } catch (error) {
+        console.warn('Error destroying main page builder:', error)
+      }
+    }
+  }, [])
 
   return (
     <div className="p-4">

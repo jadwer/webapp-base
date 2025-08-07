@@ -5,7 +5,10 @@
       "Bash(ls:*)",
       "WebFetch(domain:32e0b82ae9ff.ngrok-free.app)",
       "Bash(npm run build:*)",
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "Bash(npm run lint)",
+      "Bash(pkill:*)",
+      "Bash(node:*)"
     ],
     "deny": []
   }

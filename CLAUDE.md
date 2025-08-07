@@ -47,7 +47,7 @@ import { useInventory } from '@/modules/inventory';
 - **roles** - Role and permission management (Permission Manager)
 - **users** - User CRUD operations
 - **permissions** - Permission management
-- **page-builder-pro** - GrapeJS-based page builder
+- **page-builder-pro** - GrapeJS-based visual page builder with full CRUD operations
 
 ### Authentication Flow
 - Uses Laravel Sanctum with Bearer tokens stored in localStorage
@@ -70,8 +70,42 @@ Located in `src/ui/`, this is the "atm-ui" design system with:
 
 ### App Router Structure
 - `(back)/dashboard/` - Protected admin panel routes
+- `(back)/dashboard/pages/` - Page builder administration interface
+- `(back)/dashboard/page-builder/` - Visual page editor interface
 - `(front)/` - Public routes including auth pages
-- `(front)/p/[slug]/` - Dynamic page rendering from page-builder
+- `(front)/p/[slug]/` - Dynamic page rendering from page-builder-pro
+
+### Page Builder Pro Module
+The `page-builder-pro` module provides a complete visual page building solution:
+
+**Features:**
+- Visual drag-and-drop page editor using GrapeJS
+- Complete CRUD operations for pages (Create, Read, Update, Delete, Duplicate)
+- Real-time slug generation and validation
+- Page status management (draft, published)
+- Bootstrap-based component library
+- Custom blocks and templates
+- CSS injection and styling system
+- Navigation progress indicators
+
+**Key Components:**
+- `PagesAdminTemplate` - Main administration interface with data table
+- `PageEditorTemplate` - Visual page editor with GrapeJS integration
+- `PageForm` - Form component for page metadata (title, slug, status)
+- `PagesTable` - Data table with search, filter, and pagination
+- Various utility components (StatusBadge, ToastNotifier, etc.)
+
+**Technical Implementation:**
+- Uses SWR for efficient data fetching and caching
+- Robust editor initialization with race condition protection
+- Proper cleanup and memory management
+- Bootstrap CSS integration for consistent styling
+- Hydration-safe content rendering for public pages
+
+**Usage:**
+- Admin interface: `/dashboard/pages` - List and manage all pages
+- Page editor: `/dashboard/page-builder/{id}` - Edit specific page
+- Public view: `/p/{slug}` - Rendered page content
 
 ## Development Guidelines
 
@@ -92,6 +126,31 @@ Located in `src/ui/`, this is the "atm-ui" design system with:
 - Zustand available for client-side global state
 - Authentication state managed through `useAuth` hook
 - Local state preferred for component-specific data
+
+### Navigation Progress System
+The application includes a navigation progress indicator for better UX:
+
+**Components:**
+- `NavigationProgress` - Global progress bar component (included in root layout)
+- `useNavigationProgress` - Custom hook providing navigation methods with automatic progress indication
+
+**Usage:**
+```tsx
+import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
+
+const Component = () => {
+  const navigation = useNavigationProgress()
+  
+  // Automatic progress indication on navigation
+  navigation.push('/some-path')
+  navigation.back()
+}
+```
+
+**Integration:**
+- Automatically shows progress bar during route transitions
+- Custom NProgress styling with dark mode support
+- Used throughout page-builder-pro module for seamless navigation
 
 ### Bootstrap Icons Configuration
 Bootstrap Icons are configured for the Design System:

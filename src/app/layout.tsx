@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import '@/ui/styles/main.css';
+import '@/ui/styles/nprogress.css';
 import Script from "next/script";
+import NavigationProgress from '@/ui/components/NavigationProgress';
 // BootStrapClient no es necesario para los íconos
 
 export const metadata: Metadata = {
@@ -18,6 +20,10 @@ export default function RootLayout({
       <head>
         <link 
           rel="stylesheet" 
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        />
+        <link 
+          rel="stylesheet" 
           href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
         />
         <Script
@@ -33,6 +39,7 @@ export default function RootLayout({
         </Script>
       </head>
       <body>
+        <NavigationProgress />
         {children}
       </body>
 
