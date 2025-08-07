@@ -1,5 +1,6 @@
 import type { Editor } from 'grapesjs';
 import type { ToastType } from '../types/ToastType';
+import { getCleanHtmlFromEditor } from '../utils/htmlCleaner';
 
 export default function pluginUiEditorPlus(
   editor: Editor,
@@ -99,7 +100,7 @@ export default function pluginUiEditorPlus(
   editor.Commands.add('download-component-command', {
     run(editor) {
       try {
-        const html = editor.getHtml();
+        const html = getCleanHtmlFromEditor(editor); // Clean HTML without body tags
         const css = editor.getCss();
         const componentCode = `
 import './page.module.scss';

@@ -6,7 +6,7 @@ import { es } from 'date-fns/locale'
 import clsx from 'clsx'
 import { Button } from '@/ui/components/base'
 import ConfirmModal, { ConfirmModalHandle } from '@/ui/ConfirmModal'
-import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
+// import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress' // TODO: Use for navigation
 import StatusBadge from './StatusBadge'
 import type { Page } from '../types/page'
 
@@ -29,7 +29,7 @@ export const PagesTable: React.FC<PagesTableProps> = ({
 }) => {
   const [loadingStates, setLoadingStates] = useState<Record<string, boolean>>({})
   const confirmModalRef = useRef<ConfirmModalHandle>(null)
-  const navigation = useNavigationProgress()
+  // const navigation = useNavigationProgress() // TODO: Use for navigation
 
   const setPageLoading = (pageId: string, loading: boolean) => {
     setLoadingStates(prev => ({ ...prev, [pageId]: loading }))
@@ -70,7 +70,7 @@ export const PagesTable: React.FC<PagesTableProps> = ({
       const date = new Date(dateString)
       if (isNaN(date.getTime())) return 'Fecha inválida'
       return format(date, 'dd/MM/yyyy HH:mm', { locale: es })
-    } catch (error) {
+    } catch {
       return 'Fecha inválida'
     }
   }
@@ -127,7 +127,7 @@ export const PagesTable: React.FC<PagesTableProps> = ({
                     <code className="small">{truncateText(page.slug, 30)}</code>
                   </td>
                   <td>
-                    <StatusBadge publishedAt={page.publishedAt} />
+                    <StatusBadge status={page.status} />
                   </td>
                   <td className="text-muted small">
                     {formatDate(page.createdAt)}

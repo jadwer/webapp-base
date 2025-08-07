@@ -1,12 +1,15 @@
 'use client'
 
-import React, { useRef, useEffect, useState } from 'react'
+import React, { useRef, useEffect, useState, useMemo } from 'react'
+import { Editor } from 'grapesjs'
 import { Button, Card } from '@/ui/components/base'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
+import { useAuth } from '@/modules/auth/lib/auth'
 import { usePage, usePageActions } from '../hooks/usePages'
 import PageForm from '../components/PageForm'
-import ToastNotifier, { ToastNotifierHandle } from '../components/ToastNotifier'
+import ToastNotifierDS, { ToastNotifierHandle } from '../components/ToastNotifierDS'
 import initPageBuilder from '../index'
+import { getCleanHtmlFromEditor } from '../utils/htmlCleaner'
 import type { CreatePageData, UpdatePageData } from '../types/page'
 
 interface PageEditorTemplateProps {
@@ -25,15 +28,27 @@ export const PageEditorTemplate: React.FC<PageEditorTemplateProps> = ({
   const navigation = useNavigationProgress()
   const editorRef = useRef<HTMLDivElement>(null)
   const toastRef = useRef<ToastNotifierHandle>(null)
-  const [grapesjsEditor, setGrapesjsEditor] = useState<any>(null) // eslint-disable-line @typescript-eslint/no-explicit-any
+  const [grapesjsEditor, setGrapesjsEditor] = useState<Editor | null>(null)
   const initializingRef = useRef(false) // Prevent double initialization
   const cleanupRef = useRef<(() => void) | null>(null)
 
+  const { user } = useAuth()
   const { page, isLoading: pageLoading } = usePage(pageId)
   const { createPage, updatePage, isLoading: actionLoading } = usePageActions()
   
   const isEditing = Boolean(pageId && page)
   const isLoading = pageLoading || actionLoading
+
+  // Memoize page properties to avoid infinite loops in useEffect
+  const pageContent = useMemo(() => {
+    if (!page) return null
+    return {
+      id: page.id,
+      html: page.html,
+      css: page.css,
+      json: page.json
+    }
+  }, [page?.id, page?.html, page?.css, page?.json]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Initialize GrapeJS editor - single effect
   useEffect(() => {
@@ -72,7 +87,7 @@ export const PageEditorTemplate: React.FC<PageEditorTemplateProps> = ({
         toastRef.current?.show(msg, type)
       }
 
-      let editor: any = null
+      let editor: Editor | null = null
 
       const initAsync = async () => {
         try {
@@ -161,13 +176,13 @@ export const PageEditorTemplate: React.FC<PageEditorTemplateProps> = ({
       }
       setGrapesjsEditor(null)
     }
-  }, [pageId]) // Only re-initialize when pageId changes, not page data
+  }, [pageId]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Separate effect for loading content when page data becomes available
   useEffect(() => {
-    console.log('Content loading effect - grapesjsEditor:', !!grapesjsEditor, 'page:', !!page, 'page.html:', !!(page && page.html))
+    console.log('Content loading effect - grapesjsEditor:', !!grapesjsEditor, 'pageContent:', !!pageContent, 'pageContent.html:', !!(pageContent && pageContent.html))
     
-    if (!grapesjsEditor || !page || !page.html) {
+    if (!grapesjsEditor || !pageContent || !pageContent.html) {
       console.log('Not ready to load content yet')
       return
     }
@@ -177,11 +192,11 @@ export const PageEditorTemplate: React.FC<PageEditorTemplateProps> = ({
     const loadContent = () => {
       console.log('🔄 Starting content load process...')
       console.log('Page data:', { 
-        hasHtml: !!page.html, 
-        hasCSS: !!page.css, 
-        hasJSON: !!(page.json && typeof page.json === 'object' && Object.keys(page.json).length > 0),
-        htmlLength: page.html?.length,
-        cssLength: page.css?.length 
+        hasHtml: !!pageContent.html, 
+        hasCSS: !!pageContent.css, 
+        hasJSON: !!(pageContent.json && typeof pageContent.json === 'object' && Object.keys(pageContent.json).length > 0),
+        htmlLength: pageContent.html?.length,
+        cssLength: pageContent.css?.length 
       })
       
       // Listen for when canvas is ready to receive content
@@ -191,7 +206,7 @@ export const PageEditorTemplate: React.FC<PageEditorTemplateProps> = ({
         // First, let's see what's currently in the editor (with safety check)
         let currentBefore = ''
         try {
-          if (grapesjsEditor && !grapesjsEditor.destroyed) {
+          if (grapesjsEditor) {
             currentBefore = grapesjsEditor.getHtml()
             console.log('📄 Current content BEFORE loading:', {
               hasContent: currentBefore.length > 0,
@@ -199,7 +214,7 @@ export const PageEditorTemplate: React.FC<PageEditorTemplateProps> = ({
             })
           }
         } catch (beforeError) {
-          console.log('⚠️ Could not get current content (editor may be destroyed):', beforeError.message)
+          console.log('⚠️ Could not get current content (editor may be destroyed):', beforeError instanceof Error ? beforeError.message : beforeError)
         }
         
         try {
@@ -207,22 +222,22 @@ export const PageEditorTemplate: React.FC<PageEditorTemplateProps> = ({
           console.log('Loading page content...')
           
           // Check if editor is still valid before proceeding
-          if (!grapesjsEditor || grapesjsEditor.destroyed) {
+          if (!grapesjsEditor) {
             console.log('🛑 Editor is destroyed, aborting content loading')
             return
           }
 
           // Load the actual page content directly
           try {
-            console.log('Setting page content:', page.html.substring(0, 100) + '...')
-            grapesjsEditor.setComponents(page.html)
-            if (page.css) {
-              grapesjsEditor.setStyle(page.css)
+            console.log('Setting page content:', pageContent.html.substring(0, 100) + '...')
+            grapesjsEditor.setComponents(pageContent.html)
+            if (pageContent.css) {
+              grapesjsEditor.setStyle(pageContent.css)
             }
             console.log('✅ Page content loaded successfully')
             
             // Final refresh
-            if (grapesjsEditor && !grapesjsEditor.destroyed) {
+            if (grapesjsEditor) {
               grapesjsEditor.refresh()
             }
           } catch (error) {
@@ -282,17 +297,22 @@ export const PageEditorTemplate: React.FC<PageEditorTemplateProps> = ({
     // Return cleanup function for this effect
     return cleanup
     
-  }, [grapesjsEditor, page?.id, page?.html, page?.css, page?.json])
+  }, [grapesjsEditor, pageContent])
 
   const handleFormSubmit = async (formData: CreatePageData | UpdatePageData) => {
     try {
       let pageData = { ...formData }
 
+      // Add current user ID for relationship tracking
+      if (user?.id) {
+        pageData.userId = user.id.toString()
+      }
+
       // If we have an editor instance, get the current content
       if (grapesjsEditor) {
         pageData = {
           ...pageData,
-          html: grapesjsEditor.getHtml(),
+          html: getCleanHtmlFromEditor(grapesjsEditor),
           css: grapesjsEditor.getCss(),
           json: grapesjsEditor.getProjectData()
         }
@@ -335,9 +355,11 @@ export const PageEditorTemplate: React.FC<PageEditorTemplateProps> = ({
 
     try {
       const pageData: UpdatePageData = {
-        html: grapesjsEditor.getHtml(),
+        html: getCleanHtmlFromEditor(grapesjsEditor),
         css: grapesjsEditor.getCss(),
-        json: grapesjsEditor.getProjectData()
+        json: grapesjsEditor.getProjectData(),
+        // Add current user ID for relationship tracking
+        ...(user?.id && { userId: user.id.toString() })
       }
 
       await updatePage(pageId, pageData)
@@ -350,7 +372,7 @@ export const PageEditorTemplate: React.FC<PageEditorTemplateProps> = ({
   const handlePreview = () => {
     if (!grapesjsEditor) return
     
-    const html = grapesjsEditor.getHtml()
+    const html = getCleanHtmlFromEditor(grapesjsEditor)
     const css = grapesjsEditor.getCss()
     const fullHtml = `<!DOCTYPE html><html><head><style>${css}</style></head><body>${html}</body></html>`
     
@@ -460,7 +482,7 @@ export const PageEditorTemplate: React.FC<PageEditorTemplateProps> = ({
         />
       </Card>
 
-      <ToastNotifier ref={toastRef} />
+      <ToastNotifierDS ref={toastRef} />
     </div>
   )
 }

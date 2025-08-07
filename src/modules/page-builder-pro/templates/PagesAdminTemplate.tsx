@@ -5,7 +5,7 @@ import { Card } from '@/ui/components/base'
 import { Button } from '@/ui/components/base'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
 import { usePages, usePageActions } from '../hooks/usePages'
-import PagesTable from '../components/PagesTable'
+import PagesTableDS from '../components/PagesTableDS'
 import PagesFilters from '../components/PagesFilters'
 import PaginationControls from '../components/PaginationControls'
 import type { PageFilters } from '../types/page'
@@ -128,7 +128,7 @@ export const PagesAdminTemplate: React.FC<PagesAdminTemplateProps> = ({
         </div>
 
         {/* Table */}
-        <PagesTable
+        <PagesTableDS
           pages={pages}
           isLoading={isLoading}
           onEdit={handleEditPage}

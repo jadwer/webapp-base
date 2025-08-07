@@ -17,7 +17,7 @@ interface PageFormProps {
 interface FormData {
   title: string
   slug: string
-  status: 'draft' | 'published'
+  status: 'draft' | 'published' | 'archived'
 }
 
 export const PageForm: React.FC<PageFormProps> = ({
@@ -42,7 +42,7 @@ export const PageForm: React.FC<PageFormProps> = ({
     defaultValues: {
       title: page?.title || '',
       slug: page?.slug || '',
-      status: page?.publishedAt ? 'published' : 'draft'
+      status: page?.status || 'draft'
     }
   })
 
@@ -103,7 +103,7 @@ export const PageForm: React.FC<PageFormProps> = ({
       const submitData: CreatePageData | UpdatePageData = {
         title: formData.title,
         slug: formData.slug,
-        publishedAt: formData.status === 'published' ? new Date().toISOString() : null,
+        status: formData.status,
         // For new pages, include default content
         ...(!isEditing && {
           html: '<div class="container"><h1>Nueva página</h1><p>Contenido inicial</p></div>',
@@ -181,6 +181,7 @@ export const PageForm: React.FC<PageFormProps> = ({
           >
             <option value="draft">Borrador</option>
             <option value="published">Publicado</option>
+            <option value="archived">Archivado</option>
           </select>
           {errors.status && (
             <div className="text-danger small mt-1">{errors.status.message}</div>

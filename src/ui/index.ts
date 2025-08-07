@@ -1,6 +1,8 @@
-export * from './Input';
-export * from './Button';
+// Design System Components (includes Button, Input, and all base components)
+export * from './components/base';
 
-// Navigation with progress
-export { useNavigationProgress } from './hooks/useNavigationProgress';
+// Hooks
+export * from './hooks';
+
+// Navigation with progress  
 export { default as NavigationProgress } from './components/NavigationProgress';

@@ -1,6 +1,7 @@
 'use client'
 
 import { useRef, useEffect } from 'react'
+import { Editor } from 'grapesjs'
 import initPageBuilder from '@/modules/page-builder-pro'
 import ToastNotifier, { ToastNotifierHandle } from '@/modules/page-builder-pro/components/ToastNotifier'
 import { ToastType } from '@/modules/page-builder-pro/types/ToastType'
@@ -12,7 +13,7 @@ export default function PageBuilderTestPage() {
   useEffect(() => {
     if (!editorRef.current) return
 
-    let editor: any
+    let editor: Editor
 
     const initAsync = async () => {
       try {

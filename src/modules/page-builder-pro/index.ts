@@ -1,4 +1,4 @@
-import grapesjs from "grapesjs";
+import grapesjs, { Editor } from "grapesjs";
 import presetWebpage from "grapesjs-preset-webpage";
 import blocksBasic from "grapesjs-blocks-basic";
 import presetNewsletter from "grapesjs-preset-newsletter";
@@ -20,6 +20,7 @@ export { default as PagesAdminTemplate } from './templates/PagesAdminTemplate'
 export { default as PageEditorTemplate } from './templates/PageEditorTemplate'
 export { default as StatusBadge } from './components/StatusBadge'
 export { default as PagesTable } from './components/PagesTable'
+export { default as PagesTableDS } from './components/PagesTableDS'
 export { default as PageForm } from './components/PageForm'
 export { default as PagesFilters } from './components/PagesFilters'
 export { default as PaginationControls } from './components/PaginationControls'
@@ -29,7 +30,7 @@ export default async function initPageBuilder(
   container: HTMLElement,
   onNotify?: (msg: string, type?: ToastType) => void,
   options: { disableAutoLoad?: boolean } = {}
-): Promise<any> { // eslint-disable-line @typescript-eslint/no-explicit-any
+): Promise<Editor> {
   // Ensure global dependencies are loaded first
   try {
     await ensureGrapeJSGlobalInit()

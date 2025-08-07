@@ -1,16 +1,17 @@
 // Page types for Page Builder Pro module
-export interface Page {
+export interface Page extends Record<string, unknown> {
   id: string
   title: string
   slug: string
   html: string
-  css: string
-  json: object // GrapeJS data
-  publishedAt: string | null // API uses published_at, mapped to publishedAt
+  css?: string
+  json?: object // GrapeJS data
+  status: 'draft' | 'published' | 'archived' // New status field
+  publishedAt: string | null // Keep for compatibility, but status is now primary
   createdAt: string // API uses created_at, mapped to createdAt  
   updatedAt: string // API uses updated_at, mapped to updatedAt
   user?: {
-    id: number
+    id: string
     name: string
     email: string
   }
@@ -20,9 +21,10 @@ export interface CreatePageData {
   title: string
   slug: string
   html: string
-  css: string
-  json: object
-  publishedAt?: string | null // null = draft, date = published
+  css?: string
+  json?: object
+  status: 'draft' | 'published' | 'archived' // Use status instead of publishedAt
+  userId?: string // For relationships
 }
 
 export interface UpdatePageData extends Partial<CreatePageData> {

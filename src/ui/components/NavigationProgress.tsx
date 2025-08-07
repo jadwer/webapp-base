@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, Suspense } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
 import NProgress from 'nprogress'
 
@@ -13,16 +13,11 @@ NProgress.configure({
   speed: 300,
 })
 
-export default function NavigationProgress() {
+function NavigationProgressInner() {
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
   useEffect(() => {
-    // Start progress when navigation begins
-    const handleStart = () => {
-      NProgress.start()
-    }
-
     // Complete progress when navigation ends
     const handleComplete = () => {
       NProgress.done()
@@ -37,4 +32,12 @@ export default function NavigationProgress() {
   }, [pathname, searchParams])
 
   return null // This component doesn't render anything
+}
+
+export default function NavigationProgress() {
+  return (
+    <Suspense fallback={null}>
+      <NavigationProgressInner />
+    </Suspense>
+  )
 }

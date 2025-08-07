@@ -2,6 +2,24 @@
 
 const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
 
+// JSON:API response type for pages
+interface JsonApiPageResource {
+  id: string
+  attributes: {
+    title: string
+    html: string
+    css?: string
+    slug: string
+    status: 'draft' | 'published' | 'archived'
+    publishedAt?: string | null
+    published_at?: string | null // snake_case compatibility
+  }
+}
+
+interface JsonApiResponse {
+  data: JsonApiPageResource[]
+}
+
 export async function fetchPageBySlug(slug: string) {
   try {
     const res = await fetch(`${API_URL}/api/v1/pages?filter[slug]=${slug}`, {
@@ -11,14 +29,12 @@ export async function fetchPageBySlug(slug: string) {
 
     if (!res.ok) return null;
 
-    const json = await res.json();
+    const json: JsonApiResponse = await res.json();
     const pages = json.data || [];
     
-    // Filter for published pages only (where publishedAt is not null)
-    // Check both camelCase and snake_case for compatibility
-    const publishedPages = pages.filter((page: any) => {
-      const publishedAt = page.attributes.publishedAt || page.attributes.published_at;
-      return publishedAt !== null && publishedAt !== undefined;
+    // Filter for published pages only
+    const publishedPages = pages.filter((page: JsonApiPageResource) => {
+      return page.attributes.status === 'published';
     });
     
     const data = publishedPages[0];
@@ -30,6 +46,7 @@ export async function fetchPageBySlug(slug: string) {
       html: data.attributes.html,
       css: data.attributes.css,
       slug: data.attributes.slug,
+      status: data.attributes.status,
       publishedAt: data.attributes.publishedAt || data.attributes.published_at,
     };
   } catch (err) {

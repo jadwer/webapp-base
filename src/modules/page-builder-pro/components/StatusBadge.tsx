@@ -1,31 +1,42 @@
 'use client'
 
 import React from 'react'
-import clsx from 'clsx'
+import { Badge } from '@/ui/components/base'
 
 interface StatusBadgeProps {
-  publishedAt: string | null
+  status: 'draft' | 'published' | 'archived'
   className?: string
 }
 
-export const StatusBadge: React.FC<StatusBadgeProps> = ({ publishedAt, className }) => {
-  const isDraft = publishedAt === null
-  
-  const config = isDraft ? {
-    label: 'Borrador',
-    className: 'bg-warning text-dark',
-    icon: 'bi-pencil'
-  } : {
-    label: 'Publicado',
-    className: 'bg-success text-white',
-    icon: 'bi-check-circle-fill'
+export const StatusBadge: React.FC<StatusBadgeProps> = ({ status, className }) => {
+  const configs = {
+    draft: {
+      label: 'Borrador',
+      variant: 'warning' as const,
+      icon: <i className="bi bi-pencil" />
+    },
+    published: {
+      label: 'Publicado', 
+      variant: 'success' as const,
+      icon: <i className="bi bi-check-circle-fill" />
+    },
+    archived: {
+      label: 'Archivado',
+      variant: 'secondary' as const,
+      icon: <i className="bi bi-archive" />
+    }
   }
+  
+  const config = configs[status]
 
   return (
-    <span className={clsx('badge d-inline-flex align-items-center gap-1', config.className, className)}>
-      <i className={clsx('bi', config.icon)} aria-hidden="true" />
+    <Badge
+      variant={config.variant}
+      startIcon={config.icon}
+      className={className}
+    >
       {config.label}
-    </span>
+    </Badge>
   )
 }
 

@@ -3,20 +3,19 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
+import NavigationProgress from './NavigationProgress'
 import styles from '@/ui/styles/modules/Sidebar.module.scss'
 
 const links = [
   { href: '/dashboard', label: 'Panel Principal', icon: 'bi-house' },
   { href: '/dashboard/profile', label: 'Mi perfil', icon: 'bi-person-circle' },
   { href: '/dashboard/design-system', label: 'Design System', icon: 'bi-palette' },
-  { href: '/dashboard/page-builder', label: 'Page Builder', icon: 'bi-layout-text-window-reverse' },
-  { href: '/dashboard/page-builder-test', label: 'PB Test', icon: 'bi-bug' },
   { href: '/dashboard/pages', label: 'Gestión de Páginas', icon: 'bi-file-earmark-text' },
   { href: '/dashboard/users', label: 'Usuarios', icon: 'bi-people' }
 ]
 
-const permissionManagerLinks = [
-  { href: '/dashboard/permission-manager', label: 'Permission Manager', icon: 'bi-grid' },
+const rcrudLinks = [
+  { href: '/dashboard/permission-manager', label: 'RCRUD', icon: 'bi-layout-text-window-reverse' }, // Usando el ícono del Page Builder
   { href: '/dashboard/roles', label: 'Roles', icon: 'bi-person-badge' },
   { href: '/dashboard/permissions', label: 'Permisos', icon: 'bi-shield-lock' }
 ]
@@ -24,7 +23,7 @@ const permissionManagerLinks = [
 export default function Sidebar() {
   const pathname = usePathname()
   const [open, setOpen] = useState(false)
-  const [permissionManagerOpen, setPermissionManagerOpen] = useState(
+  const [rcrudOpen, setRcrudOpen] = useState(
     pathname?.startsWith('/dashboard/permission-manager') || 
     pathname?.startsWith('/dashboard/roles') || 
     pathname?.startsWith('/dashboard/permissions')
@@ -32,6 +31,9 @@ export default function Sidebar() {
 
   return (
     <>
+      {/* Navigation Progress */}
+      <NavigationProgress />
+      
       {/* Botón toggle en pantallas pequeñas */}
       <button
         className={styles.toggleButton}
@@ -66,29 +68,29 @@ export default function Sidebar() {
             </li>
           ))}
           
-          {/* Grupo Permission Manager */}
+          {/* Grupo RCRUD */}
           <li className={styles.navItem}>
             <button
               className={`${styles.groupButton} ${
-                permissionManagerOpen ? styles.groupActive : ''
+                rcrudOpen ? styles.groupActive : ''
               }`}
-              onClick={() => setPermissionManagerOpen(!permissionManagerOpen)}
+              onClick={() => setRcrudOpen(!rcrudOpen)}
             >
               <div className={styles.groupContent}>
                 <i className="bi bi-shield-fill-check" aria-hidden="true"></i>
-                Permission Manager
+                RCRUD
               </div>
               <i className={`bi bi-chevron-right ${styles.groupChevron} ${
-                permissionManagerOpen ? styles.expanded : ''
+                rcrudOpen ? styles.expanded : ''
               }`}></i>
             </button>
             
             {/* Submenú */}
             <div className={`${styles.subMenu} ${
-              permissionManagerOpen ? styles.expanded : styles.collapsed
+              rcrudOpen ? styles.expanded : styles.collapsed
             }`}>
               <ul className={styles.subNavList}>
-                {permissionManagerLinks.map(({ href, label, icon }) => (
+                {rcrudLinks.map(({ href, label, icon }) => (
                   <li key={href}>
                     <Link
                       href={href}

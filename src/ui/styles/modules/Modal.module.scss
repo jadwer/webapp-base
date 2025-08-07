@@ -1,0 +1,200 @@
+// Modal Component Styles
+// ======================
+
+.modalBackdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1050;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.15s ease-in-out;
+  
+  &.show {
+    opacity: 1;
+  }
+  
+  &.hide {
+    opacity: 0;
+  }
+}
+
+.modalDialog {
+  position: relative;
+  margin: 1rem;
+  transform: translateY(-50px);
+  transition: transform 0.15s ease-in-out;
+  
+  // Sizes
+  &.small {
+    max-width: 400px;
+    width: 100%;
+  }
+  
+  &.medium {
+    max-width: 500px;
+    width: 100%;
+  }
+  
+  &.large {
+    max-width: 800px;
+    width: 100%;
+  }
+  
+  &.xl {
+    max-width: 1200px;
+    width: 100%;
+  }
+  
+  &.centered {
+    display: flex;
+    align-items: center;
+    min-height: calc(100vh - 2rem);
+  }
+  
+  .modalBackdrop.show & {
+    transform: translateY(0);
+  }
+}
+
+.modalContent {
+  position: relative;
+  background-color: #fff;
+  border-radius: 0.5rem;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-height: calc(100vh - 2rem);
+  overflow: hidden;
+}
+
+.modalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem 1rem;
+  border-bottom: 1px solid #e9ecef;
+  
+  .modalTitle {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #212529;
+    line-height: 1.2;
+  }
+}
+
+.modalBody {
+  flex: 1 1 auto;
+  padding: 1.5rem;
+  overflow-y: auto;
+  color: #6c757d;
+  line-height: 1.5;
+}
+
+.modalFooter {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding: 1rem 1.5rem 1.25rem;
+  border-top: 1px solid #e9ecef;
+  flex-wrap: wrap;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  color: #6c757d;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.25rem;
+  transition: all 0.15s ease-in-out;
+  
+  &:hover {
+    color: #495057;
+    background-color: rgba(0, 0, 0, 0.1);
+  }
+  
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.25);
+  }
+}
+
+// Dark mode support
+@media (prefers-color-scheme: dark) {
+  .modalContent {
+    background-color: #212529;
+    border-color: rgba(255, 255, 255, 0.2);
+    color: #f8f9fa;
+    
+    .modalHeader {
+      border-bottom-color: rgba(255, 255, 255, 0.2);
+      
+      .modalTitle {
+        color: #f8f9fa;
+      }
+    }
+    
+    .modalBody {
+      color: #adb5bd;
+    }
+    
+    .modalFooter {
+      border-top-color: rgba(255, 255, 255, 0.2);
+    }
+    
+    .closeButton {
+      color: #adb5bd;
+      
+      &:hover {
+        color: #f8f9fa;
+        background-color: rgba(255, 255, 255, 0.1);
+      }
+    }
+  }
+}
+
+// Responsive
+@media (max-width: 576px) {
+  .modalDialog {
+    margin: 0.5rem;
+    
+    &.small,
+    &.medium,
+    &.large,
+    &.xl {
+      max-width: none;
+    }
+  }
+  
+  .modalHeader,
+  .modalBody,
+  .modalFooter {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  .modalFooter {
+    flex-direction: column-reverse;
+    
+    * {
+      width: 100%;
+    }
+  }
+}
