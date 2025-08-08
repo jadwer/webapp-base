@@ -4,7 +4,7 @@ import React from 'react'
 import { Badge } from '@/ui/components/base'
 
 interface StatusBadgeProps {
-  status: 'draft' | 'published' | 'archived'
+  status: 'draft' | 'published' | 'archived' | 'deleted'
   className?: string
 }
 
@@ -24,6 +24,11 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({ status, className }) =
       label: 'Archivado',
       variant: 'secondary' as const,
       icon: <i className="bi bi-archive" />
+    },
+    deleted: {
+      label: 'Eliminado',
+      variant: 'danger' as const,
+      icon: <i className="bi bi-trash" />
     }
   }
   

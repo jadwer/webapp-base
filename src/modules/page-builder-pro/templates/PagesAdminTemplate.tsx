@@ -4,10 +4,11 @@ import React, { useState } from 'react'
 import { Card } from '@/ui/components/base'
 import { Button } from '@/ui/components/base'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
-import { usePages, usePageActions } from '../hooks/usePages'
+import { usePages, usePageActions, useSoftDeleteActions } from '../hooks/usePages'
 import PagesTableDS from '../components/PagesTableDS'
 import PagesFilters from '../components/PagesFilters'
 import PaginationControls from '../components/PaginationControls'
+import DeletedPagesPanel from '../components/DeletedPagesPanel'
 import type { PageFilters } from '../types/page'
 
 interface PagesAdminTemplateProps {
@@ -25,13 +26,15 @@ export const PagesAdminTemplate: React.FC<PagesAdminTemplateProps> = ({
 }) => {
   const navigation = useNavigationProgress()
   const [currentPage, setCurrentPage] = useState(1)
+  const [activeTab, setActiveTab] = useState<'active' | 'deleted'>('active')
   const [filters, setFilters] = useState<PageFilters>({
     sortBy: 'created_at',
     sortOrder: 'desc'
   })
 
   const { pages, meta, isLoading, error, refreshPages } = usePages(filters, currentPage)
-  const { deletePage, duplicatePage, error: actionError } = usePageActions()
+  const { duplicatePage, error: actionError } = usePageActions()
+  const { softDeletePage, error: softDeleteError } = useSoftDeleteActions()
 
   const handleFiltersChange = (newFilters: PageFilters) => {
     setFilters(newFilters)
@@ -64,9 +67,9 @@ export const PagesAdminTemplate: React.FC<PagesAdminTemplateProps> = ({
     }
   }
 
-  const handleDeletePage = async (pageId: string) => {
-    const success = await deletePage(pageId)
-    if (success) {
+  const handleSoftDeletePage = async (pageId: string) => {
+    const result = await softDeletePage(pageId)
+    if (result) {
       refreshPages()
       
       // If we're on a page with no results after deletion, go back to page 1
@@ -110,39 +113,71 @@ export const PagesAdminTemplate: React.FC<PagesAdminTemplateProps> = ({
       </div>
 
       {/* Error Messages */}
-      {(error || actionError) && (
+      {(error || actionError || softDeleteError) && (
         <div className="alert alert-danger" role="alert">
           <i className="bi bi-exclamation-triangle-fill me-2" />
-          {error?.message || actionError || 'Ha ocurrido un error'}
+          {error?.message || actionError || softDeleteError || 'Ha ocurrido un error'}
         </div>
       )}
 
+      {/* Tabs */}
+      <div className="d-flex align-items-center gap-3 mb-4">
+        <Button
+          variant={activeTab === 'active' ? 'primary' : 'secondary'}
+          buttonStyle={activeTab === 'active' ? 'filled' : 'outline'}
+          onClick={() => setActiveTab('active')}
+          startIcon={<i className="bi bi-file-text" />}
+        >
+          Páginas Activas
+        </Button>
+        <Button
+          variant={activeTab === 'deleted' ? 'primary' : 'secondary'}
+          buttonStyle={activeTab === 'deleted' ? 'filled' : 'outline'}
+          onClick={() => setActiveTab('deleted')}
+          startIcon={<i className="bi bi-trash" />}
+        >
+          Páginas Eliminadas
+        </Button>
+      </div>
+
       <Card>
-        {/* Filters */}
-        <div className="p-3 border-bottom">
-          <PagesFilters
-            filters={filters}
-            onFiltersChange={handleFiltersChange}
-            onClearFilters={handleClearFilters}
-          />
-        </div>
+        {activeTab === 'active' ? (
+          <>
+            {/* Filters */}
+            <div className="p-3 border-bottom">
+              <PagesFilters
+                filters={filters}
+                onFiltersChange={handleFiltersChange}
+                onClearFilters={handleClearFilters}
+              />
+            </div>
 
-        {/* Table */}
-        <PagesTableDS
-          pages={pages}
-          isLoading={isLoading}
-          onEdit={handleEditPage}
-          onDelete={handleDeletePage}
-          onDuplicate={handleDuplicatePage}
-          onViewPage={handleViewPage}
-        />
+            {/* Table */}
+            <PagesTableDS
+              pages={pages}
+              isLoading={isLoading}
+              onEdit={handleEditPage}
+              onDelete={handleSoftDeletePage}
+              onDuplicate={handleDuplicatePage}
+              onViewPage={handleViewPage}
+            />
 
-        {/* Pagination */}
-        {meta && meta.last_page > 1 && (
-          <div className="p-3 border-top">
-            <PaginationControls
-              meta={meta}
-              onPageChange={handlePageChange}
+            {/* Pagination */}
+            {meta && meta.last_page > 1 && (
+              <div className="p-3 border-top">
+                <PaginationControls
+                  meta={meta}
+                  onPageChange={handlePageChange}
+                />
+              </div>
+            )}
+          </>
+        ) : (
+          /* Deleted Pages Panel */
+          <div className="p-3">
+            <DeletedPagesPanel
+              onPageRestored={refreshPages}
+              onPagePermanentlyDeleted={refreshPages}
             />
           </div>
         )}

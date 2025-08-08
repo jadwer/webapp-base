@@ -1,9 +1,17 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import useSWR, { mutate } from 'swr'
 import { PagesService } from '../services/pagesService'
-import type { Page, CreatePageData, UpdatePageData, PageFilters } from '../types/page'
+import type { 
+  Page, 
+  CreatePageData, 
+  UpdatePageData, 
+  PageFilters, 
+  SlugCheckResult,
+  SoftDeleteResult,
+  RestorePageOptions 
+} from '../types/page'
 
 export function usePages(filters: PageFilters = {}, page = 1, perPage = 15) {
   const cacheKey = `pages-${JSON.stringify(filters)}-${page}-${perPage}`
@@ -136,5 +144,186 @@ export function usePageActions() {
     duplicatePage,
     isLoading,
     error
+  }
+}
+
+// ============================================
+// SOFT DELETE HOOKS
+// ============================================
+
+export function useSoftDeleteActions() {
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const softDeletePage = async (id: string): Promise<SoftDeleteResult | null> => {
+    try {
+      setIsLoading(true)
+      setError(null)
+      const result = await PagesService.softDeletePage(id)
+      
+      // Invalidate caches
+      await mutate((key: string) => key.startsWith('pages-'))
+      await mutate(`page-${id}`)
+      
+      return result
+    } catch (err) {
+      console.error('Error soft deleting page:', err)
+      const errorMessage = err instanceof Error ? err.message : 'Error al eliminar la página'
+      setError(errorMessage)
+      return null
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const restorePage = async (id: string, options: RestorePageOptions = {}): Promise<Page | null> => {
+    try {
+      setIsLoading(true)
+      setError(null)
+      const page = await PagesService.restorePage(id, options)
+      
+      // Invalidate caches
+      await mutate((key: string) => key.startsWith('pages-'))
+      await mutate(`page-${id}`)
+      
+      return page
+    } catch (err) {
+      console.error('Error restoring page:', err)
+      const errorMessage = err instanceof Error ? err.message : 'Error al restaurar la página'
+      setError(errorMessage)
+      return null
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const permanentlyDeletePage = async (id: string): Promise<boolean> => {
+    try {
+      setIsLoading(true)
+      setError(null)
+      await PagesService.permanentlyDeletePage(id)
+      
+      // Invalidate caches
+      mutate((key: string) => key.startsWith('pages-') || key === `page-${id}`)
+      
+      return true
+    } catch (err) {
+      console.error('Error permanently deleting page:', err)
+      setError(err instanceof Error ? err.message : 'Error al eliminar permanentemente la página')
+      return false
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  return {
+    softDeletePage,
+    restorePage,
+    permanentlyDeletePage,
+    isLoading,
+    error
+  }
+}
+
+export function useDeletedPages() {
+  const { data, error, isLoading } = useSWR(
+    'deleted-pages',
+    async () => {
+      try {
+        return await PagesService.getDeletedPages()
+      } catch (err) {
+        console.error('Error fetching deleted pages:', err)
+        throw err
+      }
+    },
+    {
+      revalidateOnFocus: false,
+      dedupingInterval: 30000,
+      onError: (error) => {
+        console.error('SWR error in useDeletedPages:', error)
+      }
+    }
+  )
+
+  const refreshDeletedPages = () => mutate('deleted-pages')
+
+  return {
+    deletedPages: data || [],
+    isLoading,
+    error,
+    refreshDeletedPages
+  }
+}
+
+// ============================================
+// SLUG VALIDATION HOOKS  
+// ============================================
+
+export function useSlugValidation(initialSlug = '', excludeId?: string) {
+  const [slug, setSlug] = useState(initialSlug)
+  const [slugResult, setSlugResult] = useState<SlugCheckResult>({ exists: false })
+  const [isChecking, setIsChecking] = useState(false)
+  const timerRef = useRef<NodeJS.Timeout | null>(null)
+
+  const checkSlugAvailability = useCallback(async (slugToCheck: string) => {
+    if (!slugToCheck.trim()) {
+      setSlugResult({ exists: false })
+      return
+    }
+
+    setIsChecking(true)
+    try {
+      const result = await PagesService.checkSlugAvailability(slugToCheck, excludeId)
+      setSlugResult(result)
+    } catch (error) {
+      console.error('Error checking slug availability:', error)
+      setSlugResult({ exists: false })
+    } finally {
+      setIsChecking(false)
+    }
+  }, [excludeId])
+
+  // Debounced slug checking using ref instead of state
+  useEffect(() => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current)
+    }
+
+    timerRef.current = setTimeout(() => {
+      checkSlugAvailability(slug)
+    }, 300) // 300ms debounce
+
+    return () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current)
+      }
+    }
+  }, [slug, checkSlugAvailability])
+
+  const updateSlug = (newSlug: string) => {
+    setSlug(newSlug)
+  }
+
+  const generateUniqueSlug = async (baseSlug: string): Promise<string> => {
+    try {
+      return await PagesService.generateUniqueSlug({ 
+        baseSlug, 
+        excludeId,
+        includeDeleted: false 
+      })
+    } catch (error) {
+      console.error('Error generating unique slug:', error)
+      return baseSlug
+    }
+  }
+
+  return {
+    slug,
+    updateSlug,
+    slugResult,
+    isChecking,
+    generateUniqueSlug,
+    isAvailable: !slugResult.exists && !isChecking,
+    suggestions: slugResult.suggestions || []
   }
 }

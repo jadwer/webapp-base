@@ -6,7 +6,7 @@ export interface Page extends Record<string, unknown> {
   html: string
   css?: string
   json?: object // GrapeJS data
-  status: 'draft' | 'published' | 'archived' // New status field
+  status: 'draft' | 'published' | 'archived' | 'deleted' // New status field with soft delete support
   publishedAt: string | null // Keep for compatibility, but status is now primary
   createdAt: string // API uses created_at, mapped to createdAt  
   updatedAt: string // API uses updated_at, mapped to updatedAt
@@ -23,7 +23,8 @@ export interface CreatePageData {
   html: string
   css?: string
   json?: object
-  status: 'draft' | 'published' | 'archived' // Use status instead of publishedAt
+  status: 'draft' | 'published' | 'archived' | 'deleted' // Use status instead of publishedAt
+  publishedAt?: string | null // Automatically managed, but included for API compatibility
   userId?: string // For relationships
 }
 
@@ -52,4 +53,28 @@ export interface PaginatedPages {
     prev: string | null
     next: string | null
   }
+}
+
+// Slug management types
+export interface SlugCheckResult {
+  exists: boolean
+  suggestions?: string[]
+}
+
+export interface SlugGenerationOptions {
+  baseSlug: string
+  excludeId?: string
+  includeDeleted?: boolean
+}
+
+// Soft delete related types
+export interface SoftDeleteResult {
+  page: Page
+  originalSlug: string
+  deletedSlug: string
+}
+
+export interface RestorePageOptions {
+  newSlug?: string
+  newTitle?: string
 }

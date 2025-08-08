@@ -1,5 +1,15 @@
 import axios from '@/lib/axiosClient'
-import type { Page, CreatePageData, UpdatePageData, PageFilters, PaginatedPages } from '../types/page'
+import type { 
+  Page, 
+  CreatePageData, 
+  UpdatePageData, 
+  PageFilters, 
+  PaginatedPages,
+  SlugCheckResult,
+  SlugGenerationOptions,
+  SoftDeleteResult,
+  RestorePageOptions
+} from '../types/page'
 
 const API_BASE = '/api/v1/pages'
 
@@ -12,7 +22,7 @@ interface JsonApiPageResource {
     html: string
     css?: string
     json?: string | object // API might return string or parsed object
-    status: 'draft' | 'published' | 'archived'
+    status: 'draft' | 'published' | 'archived' | 'deleted'
     publishedAt: string | null // Keep for compatibility
     createdAt: string
     updatedAt: string
@@ -226,10 +236,16 @@ export class PagesService {
   static async createPage(data: CreatePageData): Promise<Page> {
     const { userId, ...attributes } = data
     
+    // Handle publishedAt logic: set it if page is created as 'published'
+    const finalAttributes = { ...attributes }
+    if (data.status === 'published') {
+      finalAttributes.publishedAt = new Date().toISOString()
+    }
+    
     const payload: JsonApiCreatePagePayload = {
       data: {
         type: 'pages',
-        attributes
+        attributes: finalAttributes
       }
     }
     
@@ -249,11 +265,31 @@ export class PagesService {
   static async updatePage(id: string, data: UpdatePageData): Promise<Page> {
     const { userId, ...attributes } = data
     
+    // Handle publishedAt logic: set it only once when status changes to 'published'
+    const finalAttributes = { ...attributes }
+    
+    // If status is being changed to 'published', we need to check if publishedAt should be set
+    if (data.status === 'published') {
+      try {
+        // Get current page to check if publishedAt is already set
+        const currentPage = await this.getPage(id)
+        
+        // Only set publishedAt if it's not already set (first time publishing)
+        if (!currentPage.publishedAt) {
+          finalAttributes.publishedAt = new Date().toISOString()
+        }
+      } catch (error) {
+        console.error('Error checking current page for publishedAt logic:', error)
+        // If we can't get the current page, set publishedAt anyway for safety
+        finalAttributes.publishedAt = new Date().toISOString()
+      }
+    }
+    
     const payload: JsonApiUpdatePagePayload = {
       data: {
         type: 'pages',
         id,
-        attributes
+        attributes: finalAttributes
       }
     }
     
@@ -296,5 +332,156 @@ export class PagesService {
     }
 
     return this.createPage(duplicatedData)
+  }
+
+  // ============================================
+  // SOFT DELETE & SLUG MANAGEMENT METHODS
+  // ============================================
+
+  /**
+   * Soft delete a page by changing its status to 'deleted' and transforming its slug
+   */
+  static async softDeletePage(id: string): Promise<SoftDeleteResult> {
+    const page = await this.getPage(id)
+    const originalSlug = page.slug
+    
+    // Generate deleted slug: original-slug-deleted-{timestamp}
+    const timestamp = Date.now()
+    const deletedSlug = `${originalSlug}-deleted-${timestamp}`
+    
+    // Update page with deleted status and transformed slug
+    const updatedPage = await this.updatePage(id, {
+      status: 'deleted',
+      slug: deletedSlug
+    })
+    
+    return {
+      page: updatedPage,
+      originalSlug,
+      deletedSlug
+    }
+  }
+
+  /**
+   * Restore a soft-deleted page
+   */
+  static async restorePage(id: string, options: RestorePageOptions = {}): Promise<Page> {
+    const page = await this.getPage(id)
+    
+    if (page.status !== 'deleted') {
+      throw new Error('Page is not deleted')
+    }
+    
+    // Extract original slug from deleted slug or use provided slug
+    const originalSlug = this.extractOriginalSlugFromDeleted(page.slug)
+    let newSlug = options.newSlug || originalSlug
+    
+    // Ensure slug is unique
+    newSlug = await this.generateUniqueSlug({ baseSlug: newSlug, excludeId: id })
+    
+    return this.updatePage(id, {
+      status: 'draft', // Restore as draft by default
+      slug: newSlug,
+      title: options.newTitle || page.title
+    })
+  }
+
+  /**
+   * Get all deleted pages
+   */
+  static async getDeletedPages(): Promise<Page[]> {
+    try {
+      const allPages = await this.getPages({ status: 'deleted' }, 1, 1000)
+      return allPages.data.filter(page => page.status === 'deleted')
+    } catch (error) {
+      console.error('Error in getDeletedPages:', error)
+      // Return empty array instead of throwing to prevent UI errors
+      return []
+    }
+  }
+
+  /**
+   * Generate a unique slug by auto-incrementing if necessary
+   */
+  static async generateUniqueSlug(options: SlugGenerationOptions): Promise<string> {
+    const { baseSlug, excludeId, includeDeleted = false } = options
+    let slug = baseSlug
+    let counter = 1
+    
+    // Keep checking until we find a unique slug
+    while (await this.isSlugTaken(slug, excludeId, includeDeleted)) {
+      slug = `${baseSlug}-${counter}`
+      counter++
+    }
+    
+    return slug
+  }
+
+  /**
+   * Check if a slug is taken, with options to exclude certain pages and include deleted ones
+   */
+  static async isSlugTaken(slug: string, excludeId?: string, includeDeleted = false): Promise<boolean> {
+    try {
+      const response = await axios.get<JsonApiResponse>(`${API_BASE}?filter[slug]=${slug}`)
+      const pages = response.data.data
+      
+      if (!pages || pages.length === 0) return false
+      
+      // Filter out excluded page and optionally deleted pages
+      const filteredPages = pages.filter((page: JsonApiPageResource) => {
+        if (excludeId && page.id === excludeId) return false
+        if (!includeDeleted && page.attributes.status === 'deleted') return false
+        return true
+      })
+      
+      return filteredPages.length > 0
+    } catch (error) {
+      console.error('Error checking if slug is taken:', error)
+      return false
+    }
+  }
+
+  /**
+   * Advanced slug checking with suggestions
+   */
+  static async checkSlugAvailability(slug: string, excludeId?: string): Promise<SlugCheckResult> {
+    const exists = await this.isSlugTaken(slug, excludeId, false)
+    
+    if (!exists) {
+      return { exists: false }
+    }
+    
+    // Generate suggestions if slug exists
+    const suggestions: string[] = []
+    for (let i = 1; i <= 5; i++) {
+      const suggestion = `${slug}-${i}`
+      if (!(await this.isSlugTaken(suggestion, excludeId, false))) {
+        suggestions.push(suggestion)
+      }
+    }
+    
+    return { exists: true, suggestions }
+  }
+
+  /**
+   * Extract original slug from a deleted slug
+   * Example: "my-page-deleted-1641234567890" -> "my-page"
+   */
+  private static extractOriginalSlugFromDeleted(deletedSlug: string): string {
+    const match = deletedSlug.match(/^(.+)-deleted-\d+$/)
+    return match ? match[1] : deletedSlug
+  }
+
+  /**
+   * Permanently delete a page (hard delete)
+   */
+  static async permanentlyDeletePage(id: string): Promise<void> {
+    const page = await this.getPage(id)
+    
+    if (page.status !== 'deleted') {
+      throw new Error('Page must be soft deleted first')
+    }
+    
+    await axios.delete(`${API_BASE}/${id}`)
   }
 }

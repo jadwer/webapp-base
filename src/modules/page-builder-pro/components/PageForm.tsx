@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Button, Input } from '@/ui/components/base'
 import { PagesService } from '../services/pagesService'
@@ -17,7 +17,7 @@ interface PageFormProps {
 interface FormData {
   title: string
   slug: string
-  status: 'draft' | 'published' | 'archived'
+  status: 'draft' | 'published' | 'archived' | 'deleted'
 }
 
 export const PageForm: React.FC<PageFormProps> = ({
@@ -28,8 +28,6 @@ export const PageForm: React.FC<PageFormProps> = ({
   className
 }) => {
   const [isGeneratingSlug, setIsGeneratingSlug] = useState(false)
-  const [isCheckingSlug, setIsCheckingSlug] = useState(false)
-  const [slugExists, setSlugExists] = useState(false)
   const isEditing = Boolean(page)
 
   const {
@@ -42,40 +40,49 @@ export const PageForm: React.FC<PageFormProps> = ({
     defaultValues: {
       title: page?.title || '',
       slug: page?.slug || '',
-      status: page?.status || 'draft'
+      status: page?.status === 'deleted' ? 'draft' : (page?.status || 'draft') // Never allow deleted in form
     }
   })
 
-  const watchedTitle = watch('title')
   const watchedSlug = watch('slug')
 
-  // Auto-generate slug from title (works for both create and edit)
-  useEffect(() => {
-    if (watchedTitle && !isGeneratingSlug) {
-      const slug = generateSlug(watchedTitle)
-      setValue('slug', slug)
+  // Auto-generate slug in real-time as user types
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const title = e.target.value
+    setValue('title', title)
+    
+    // Generate slug in real-time
+    if (title) {
+      const generatedSlug = generateSlug(title)
+      setValue('slug', generatedSlug)
+    } else {
+      setValue('slug', '')
     }
-  }, [watchedTitle, setValue, isGeneratingSlug])
+  }
 
-  // Validate slug uniqueness with debounce
-  useEffect(() => {
-    if (!watchedSlug || isGeneratingSlug) return
-
-    const timeoutId = setTimeout(async () => {
-      setIsCheckingSlug(true)
+  // Check and auto-increment slug when user leaves title field
+  const handleTitleBlur = async () => {
+    const currentSlug = watchedSlug
+    if (currentSlug) {
+      setIsGeneratingSlug(true)
       try {
-        const exists = await PagesService.checkSlugExists(watchedSlug, page?.id)
-        setSlugExists(exists)
+        const uniqueSlug = await PagesService.generateUniqueSlug({
+          baseSlug: currentSlug,
+          excludeId: page?.id,
+          includeDeleted: false
+        })
+        
+        // Only update if the slug changed (means it was taken)
+        if (uniqueSlug !== currentSlug) {
+          setValue('slug', uniqueSlug)
+        }
       } catch (error) {
-        console.error('Error checking slug:', error)
-        setSlugExists(false)
+        console.error('Error generating unique slug:', error)
       } finally {
-        setIsCheckingSlug(false)
+        setIsGeneratingSlug(false)
       }
-    }, 500) // 500ms debounce
-
-    return () => clearTimeout(timeoutId)
-  }, [watchedSlug, isGeneratingSlug, page?.id])
+    }
+  }
 
   const generateSlug = (title: string): string => {
     return title
@@ -98,6 +105,7 @@ export const PageForm: React.FC<PageFormProps> = ({
       .replace(/^-|-$/g, '')
   }
 
+
   const handleFormSubmit = async (formData: FormData) => {
     try {
       const submitData: CreatePageData | UpdatePageData = {
@@ -118,12 +126,6 @@ export const PageForm: React.FC<PageFormProps> = ({
     }
   }
 
-  const handleSlugChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setIsGeneratingSlug(true)
-    const cleanSlug = generateSlug(e.target.value)
-    setValue('slug', cleanSlug)
-    setTimeout(() => setIsGeneratingSlug(false), 100)
-  }
 
   return (
     <form onSubmit={handleSubmit(handleFormSubmit)} className={className}>
@@ -145,6 +147,8 @@ export const PageForm: React.FC<PageFormProps> = ({
                 message: 'El título no puede exceder 200 caracteres'
               }
             })}
+            onChange={handleTitleChange}
+            onBlur={handleTitleBlur}
           />
         </div>
 
@@ -154,9 +158,9 @@ export const PageForm: React.FC<PageFormProps> = ({
             placeholder="url-amigable"
             helpText="Se genera automáticamente desde el título. Solo se permiten letras, números y guiones."
             required
-            errorText={errors.slug?.message || (slugExists ? 'Este slug ya está en uso' : '')}
+            errorText={errors.slug?.message}
             leftIcon="bi-link-45deg"
-            rightIcon={isCheckingSlug ? 'bi-hourglass-split' : slugExists ? 'bi-exclamation-triangle' : watchedSlug ? 'bi-check-circle' : undefined}
+            rightIcon={isGeneratingSlug ? 'bi-hourglass-split' : watchedSlug ? 'bi-check-circle' : undefined}
             {...register('slug', {
               required: 'El slug es obligatorio',
               pattern: {
@@ -166,10 +170,8 @@ export const PageForm: React.FC<PageFormProps> = ({
               minLength: {
                 value: 3,
                 message: 'El slug debe tener al menos 3 caracteres'
-              },
-              validate: () => !slugExists || 'Este slug ya está en uso'
+              }
             })}
-            onChange={handleSlugChange}
           />
         </div>
 

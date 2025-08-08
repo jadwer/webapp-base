@@ -12,10 +12,27 @@ import { ensureGrapeJSGlobalInit } from "./globalInit";
 import type { ToastType } from "./types/ToastType";
 
 // Export types and services
-export type { Page, CreatePageData, UpdatePageData, PageFilters, PaginatedPages } from './types/page'
+export type { 
+  Page, 
+  CreatePageData, 
+  UpdatePageData, 
+  PageFilters, 
+  PaginatedPages,
+  SlugCheckResult,
+  SlugGenerationOptions,
+  SoftDeleteResult,
+  RestorePageOptions 
+} from './types/page'
 export type { ToastType } from './types/ToastType'
 export { PagesService } from './services/pagesService'
-export { usePages, usePage, usePageActions } from './hooks/usePages'
+export { 
+  usePages, 
+  usePage, 
+  usePageActions,
+  useSoftDeleteActions,
+  useDeletedPages,
+  useSlugValidation 
+} from './hooks/usePages'
 export { default as PagesAdminTemplate } from './templates/PagesAdminTemplate'
 export { default as PageEditorTemplate } from './templates/PageEditorTemplate'
 export { default as StatusBadge } from './components/StatusBadge'
@@ -25,6 +42,7 @@ export { default as PageForm } from './components/PageForm'
 export { default as PagesFilters } from './components/PagesFilters'
 export { default as PaginationControls } from './components/PaginationControls'
 export { default as ToastNotifier } from './components/ToastNotifier'
+export { default as DeletedPagesPanel } from './components/DeletedPagesPanel'
 
 export default async function initPageBuilder(
   container: HTMLElement,
