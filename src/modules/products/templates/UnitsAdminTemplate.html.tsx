@@ -58,7 +58,7 @@ export const UnitsAdminTemplate: React.FC<UnitsAdminTemplateProps> = ({
     }
   }
 
-  const totalUnits = meta?.total || 0
+  const totalUnits = meta?.page?.total || 0
   const hasUnits = units.length > 0
 
   return (

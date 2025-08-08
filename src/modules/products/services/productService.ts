@@ -28,11 +28,14 @@ export const productService = {
     
     if (params?.filters) {
       queryParams.filter = {}
-      if (params.filters.name) queryParams.filter.name = params.filters.name
-      if (params.filters.sku) queryParams.filter.sku = params.filters.sku
-      if (params.filters.unitId) queryParams.filter.unitId = params.filters.unitId
-      if (params.filters.categoryId) queryParams.filter.categoryId = params.filters.categoryId
-      if (params.filters.brandId) queryParams.filter.brandId = params.filters.brandId
+      // Usar search_name y search_sku para búsquedas parciales
+      if (params.filters.name) queryParams.filter.search_name = params.filters.name
+      if (params.filters.sku) queryParams.filter.search_sku = params.filters.sku
+      // Usar snake_case para filtros por ID individuales
+      if (params.filters.unitId) queryParams.filter.unit_id = params.filters.unitId
+      if (params.filters.categoryId) queryParams.filter.category_id = params.filters.categoryId
+      if (params.filters.brandId) queryParams.filter.brand_id = params.filters.brandId
+      // Filtros múltiples (usar nombres en plural con delimitador de coma)
       if (params.filters.brands) queryParams.filter.brands = params.filters.brands.join(',')
       if (params.filters.categories) queryParams.filter.categories = params.filters.categories.join(',')
     }
@@ -47,9 +50,6 @@ export const productService = {
     }
 
     const response = await axios.get(PRODUCTS_ENDPOINT, { params: queryParams })
-    console.log('🔍 Products API Request URL:', response.config?.url)
-    console.log('🔍 Products API Response:', response.data)
-    console.log('🔍 Products Raw Data:', JSON.stringify(response.data, null, 2))
     
     const jsonApiResponse = response.data as JsonApiResponse<JsonApiResource[]>
     
@@ -61,7 +61,6 @@ export const productService = {
         ))
       : []
     
-    console.log('🔄 Transformed Products:', transformedData)
     
     return {
       data: transformedData,
@@ -78,7 +77,20 @@ export const productService = {
     }
 
     const response = await axios.get(`${PRODUCTS_ENDPOINT}/${id}`, { params })
-    return response.data
+    
+    const jsonApiResponse = response.data as JsonApiResponse<JsonApiResource>
+    
+    // Transform the single product response
+    const transformedProduct = transformJsonApiProduct(
+      jsonApiResponse.data as JsonApiResource,
+      (jsonApiResponse.included || []) as JsonApiResource[]
+    )
+    
+    return {
+      data: transformedProduct,
+      meta: jsonApiResponse.meta,
+      links: jsonApiResponse.links
+    }
   },
 
   async createProduct(data: CreateProductRequest): Promise<ProductResponse> {

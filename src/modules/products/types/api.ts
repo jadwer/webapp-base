@@ -4,13 +4,14 @@ import { Category, CreateCategoryData, UpdateCategoryData } from './category'
 import { Brand, CreateBrandData, UpdateBrandData } from './brand'
 
 export interface PaginationMeta {
-  currentPage: number
-  from: number
-  lastPage: number
-  path: string
-  perPage: number
-  to: number
-  total: number
+  page: {
+    currentPage: number
+    from: number
+    lastPage: number
+    perPage: number
+    to: number
+    total: number
+  }
 }
 
 export interface JsonApiLinks {

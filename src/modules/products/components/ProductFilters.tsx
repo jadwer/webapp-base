@@ -25,6 +25,10 @@ export const ProductFiltersComponent: React.FC<ProductFiltersProps> = ({
   const [localFilters, setLocalFilters] = useState<ProductFiltersType>(filters)
   const [showAdvanced, setShowAdvanced] = useState(false)
   const debounceTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined)
+  const nameInputRef = useRef<HTMLInputElement>(null)
+  const skuInputRef = useRef<HTMLInputElement>(null)
+  const lastFocusedField = useRef<string | null>(null)
+  const cursorPosition = useRef<number>(0)
 
   const { units } = useUnits()
   const { categories } = useCategories()
@@ -32,6 +36,22 @@ export const ProductFiltersComponent: React.FC<ProductFiltersProps> = ({
 
   useEffect(() => {
     setLocalFilters(filters)
+    
+    // Restaurar foco después del re-render
+    if (lastFocusedField.current) {
+      const focusedField = lastFocusedField.current
+      const savedCursorPos = cursorPosition.current
+      setTimeout(() => {
+        if (focusedField === 'name' && nameInputRef.current) {
+          nameInputRef.current.focus()
+          nameInputRef.current.setSelectionRange(savedCursorPos, savedCursorPos)
+        } else if (focusedField === 'sku' && skuInputRef.current) {
+          skuInputRef.current.focus()
+          skuInputRef.current.setSelectionRange(savedCursorPos, savedCursorPos)
+        }
+        lastFocusedField.current = null
+      }, 0)
+    }
   }, [filters])
 
   // Debounced filter application for name search
@@ -51,9 +71,15 @@ export const ProductFiltersComponent: React.FC<ProductFiltersProps> = ({
     const newFilters = { ...localFilters, [key]: value }
     setLocalFilters(newFilters)
     
-    // Auto-apply name filter when user types 3+ characters with debounce
-    if (key === 'name' && typeof value === 'string') {
+    // Auto-apply name and SKU filters when user types 3+ characters with debounce
+    if ((key === 'name' || key === 'sku') && typeof value === 'string') {
       if (value.length >= 3 || value.length === 0) {
+        // Recordar qué campo tiene el foco y posición del cursor antes de aplicar filtros
+        lastFocusedField.current = key
+        const inputRef = key === 'name' ? nameInputRef : skuInputRef
+        if (inputRef.current) {
+          cursorPosition.current = inputRef.current.selectionStart || 0
+        }
         debouncedApplyFilters(newFilters)
       }
     }
@@ -117,6 +143,7 @@ export const ProductFiltersComponent: React.FC<ProductFiltersProps> = ({
         <div className="row mb-3">
           <div className="col-md-4">
             <Input
+              ref={nameInputRef}
               label="Buscar por nombre"
               type="text"
               value={localFilters.name || ''}
@@ -128,6 +155,7 @@ export const ProductFiltersComponent: React.FC<ProductFiltersProps> = ({
           </div>
           <div className="col-md-4">
             <Input
+              ref={skuInputRef}
               label="Buscar por SKU"
               type="text"
               value={localFilters.sku || ''}

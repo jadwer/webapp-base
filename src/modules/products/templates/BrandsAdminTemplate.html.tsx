@@ -56,7 +56,7 @@ export const BrandsAdminTemplate: React.FC<BrandsAdminTemplateProps> = ({
     }
   }
 
-  const totalBrands = meta?.total || 0
+  const totalBrands = meta?.page?.total || 0
   const hasBrands = brands.length > 0
 
   return (

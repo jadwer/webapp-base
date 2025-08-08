@@ -97,7 +97,7 @@ export const ProductsAdminTemplate: React.FC<ProductsAdminTemplateProps> = ({
     }
   }
 
-  const totalProducts = meta?.total || 0
+  const totalProducts = meta?.page?.total || 0
   const hasProducts = products.length > 0
 
   return (
@@ -222,9 +222,9 @@ export const ProductsAdminTemplate: React.FC<ProductsAdminTemplateProps> = ({
               <i className="bi bi-box-seam me-2" />
               Productos
             </h5>
-            {meta && (
+            {meta?.page && (
               <small className="text-muted">
-                Mostrando {((currentPage - 1) * (meta.perPage || 20)) + 1} a {Math.min(currentPage * (meta.perPage || 20), totalProducts)} de {totalProducts} productos
+                Mostrando {((currentPage - 1) * (meta.page.perPage || 20)) + 1} a {Math.min(currentPage * (meta.page.perPage || 20), totalProducts)} de {totalProducts} productos
               </small>
             )}
           </div>
@@ -258,11 +258,11 @@ export const ProductsAdminTemplate: React.FC<ProductsAdminTemplateProps> = ({
         </div>
 
         {/* Pagination */}
-        {meta && meta.lastPage > 1 && (
+        {meta?.page && meta.page.lastPage > 1 && (
           <div className="card-footer">
             <div className="d-flex justify-content-between align-items-center">
               <div className="text-muted">
-                Página {currentPage} de {meta.lastPage}
+                Página {currentPage} de {meta.page.lastPage}
               </div>
               
               <div className="btn-group">
@@ -282,7 +282,7 @@ export const ProductsAdminTemplate: React.FC<ProductsAdminTemplateProps> = ({
                   variant="secondary"
                   buttonStyle="outline"
                   onClick={() => handlePageChange(currentPage + 1)}
-                  disabled={currentPage >= meta.lastPage || isLoading}
+                  disabled={currentPage >= meta.page.lastPage || isLoading}
                 >
                   Siguiente
                   <i className="bi bi-chevron-right ms-1" />

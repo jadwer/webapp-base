@@ -56,7 +56,7 @@ export const CategoriesAdminTemplate: React.FC<CategoriesAdminTemplateProps> = (
     }
   }
 
-  const totalCategories = meta?.total || 0
+  const totalCategories = meta?.page?.total || 0
   const hasCategories = categories.length > 0
 
   return (
