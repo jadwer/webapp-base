@@ -11,16 +11,19 @@ Este proyecto es una base moderna, ultra modular y escalable con Next.js App Rou
 webapp-base/
 ├── src/
 │   ├── modules/                    # Módulos aislados y portables
-│   │   ├── inventory/
+│   │   ├── auth/                   # Sistema de autenticación completo
+│   │   ├── roles/                  # Gestión de roles y permisos
+│   │   ├── users/                  # Gestión de usuarios
+│   │   ├── products/               # Sistema completo de productos
 │   │   │   ├── components/         # Componentes internos (.html.tsx para diseñador)
-│   │   │   ├── hooks/              # Hooks específicos
-│   │   │   ├── types/              # Tipado local
-│   │   │   ├── pages/              # Rutas internas
-│   │   │   ├── services/           # API Layer
+│   │   │   ├── hooks/              # Hooks específicos (useProducts, useUnits, etc.)
+│   │   │   ├── types/              # Tipado local (Product, Unit, Category, Brand)
+│   │   │   ├── services/           # API Layer con JSON:API
 │   │   │   ├── templates/          # Plantillas visuales (*.html.tsx)
+│   │   │   ├── utils/              # Transformadores y utilidades
 │   │   │   └── index.ts            # Autoloader
-│   │   ├── sales/
-│   │   └── page-builder/
+│   │   ├── page-builder-pro/       # Constructor visual de páginas
+│   │   └── inventory/              # Ejemplo de módulo
 │   ├── app/
 │   │   ├── (back)/dashboard/        # Panel privado
 │   │   ├── (front)/p/[slug]/       # Render de PageBuilder
@@ -96,7 +99,93 @@ import { useInventory } from '@/modules/inventory';
 
 ---
 
-## 5. Integración con Backend
+## 5. Módulo Products - Sistema Completo de Gestión
+
+El módulo `products` es un sistema completo de gestión de productos con 4 entidades relacionadas.
+
+### 5.1 Arquitectura del Módulo
+
+```bash
+src/modules/products/
+├── components/
+│   ├── ProductsTable.tsx           # Tabla principal de productos
+│   ├── UnitsTable.tsx              # Tabla de unidades de medida
+│   ├── CategoriesTable.tsx         # Tabla de categorías
+│   ├── BrandsTable.tsx             # Tabla de marcas
+│   ├── ProductFilters.tsx          # Filtros de búsqueda
+│   └── ProductForm.tsx             # Formulario de productos
+├── hooks/
+│   ├── useProducts.ts              # Hook para productos
+│   ├── useUnits.ts                 # Hook para unidades
+│   ├── useCategories.ts            # Hook para categorías
+│   ├── useBrands.ts                # Hook para marcas
+│   └── useProductMutations.ts      # Mutaciones CRUD
+├── services/
+│   ├── productService.ts           # API de productos
+│   ├── unitService.ts              # API de unidades
+│   ├── categoryService.ts          # API de categorías
+│   └── brandService.ts             # API de marcas
+├── types/
+│   ├── product.ts                  # Tipos de productos
+│   ├── unit.ts                     # Tipos de unidades
+│   ├── category.ts                 # Tipos de categorías
+│   ├── brand.ts                    # Tipos de marcas
+│   └── api.ts                      # Tipos de API
+├── utils/
+│   ├── transformers.ts             # Transformadores JSON:API
+│   ├── api.ts                      # Utilidades de API
+│   ├── validation.ts               # Validaciones
+│   └── formatting.ts               # Formateo de datos
+├── templates/
+│   ├── ProductsAdminTemplate.html.tsx    # Plantilla principal
+│   └── ProductFormTemplate.html.tsx      # Plantilla de formulario
+└── index.ts                        # Exports del módulo
+```
+
+### 5.2 Entidades del Sistema
+
+| Entidad | Descripción | Campos Principales |
+|---------|-------------|-------------------|
+| **Product** | Producto principal | name, sku, description, price, cost, iva |
+| **Unit** | Unidad de medida | name, code, unitType |
+| **Category** | Categoría de producto | name, description, slug |
+| **Brand** | Marca del producto | name, description, slug |
+
+### 5.3 Características Técnicas
+
+**JSON:API Integration:**
+- Cumple con especificación JSON:API 1.0
+- Transformadores automáticos camelCase ↔ snake_case
+- Soporte para relaciones incluidas (`include=unit,category,brand`)
+- Manejo de errores estándar JSON:API
+
+**SWR Data Fetching:**
+- Cache automático y revalidación
+- Optimistic updates
+- Error boundary integration
+- Suspense support
+
+**API Endpoints:**
+- `GET /api/v1/products` - Lista de productos
+- `GET /api/v1/units` - Lista de unidades
+- `GET /api/v1/categories` - Lista de categorías  
+- `GET /api/v1/brands` - Lista de marcas
+- Soporte para `sort`, `filter`, `include`
+
+### 5.4 Debugging y Troubleshooting
+
+**Console Logging:**
+- 🔍 API request URLs
+- 🔄 JSON:API transformation steps
+- Raw API responses para inspección
+
+**Limitaciones Conocidas:**
+- No soporta paginación `page[number]` y `page[size]`
+- Algunos campos de sort pueden no estar disponibles
+
+---
+
+## 6. Integración con Backend
 
 - El backend Laravel expone `/api/modules`
 - El frontend consulta esta lista y muestra/oculta vistas o rutas según los módulos activos
@@ -104,7 +193,7 @@ import { useInventory } from '@/modules/inventory';
 
 ---
 
-## 6. Instrucciones para diseñadores y desarrolladores
+## 7. Instrucciones para diseñadores y desarrolladores
 
 - Los archivos `*.html.tsx` son los únicos que deben ser editados por diseñadores
 - No modificar hooks ni lógica sin coordinación
@@ -113,7 +202,7 @@ import { useInventory } from '@/modules/inventory';
 
 ---
 
-## 7. Cómo iniciar nuevos proyectos a partir de esta base
+## 8. Cómo iniciar nuevos proyectos a partir de esta base
 
 ```bash
 git clone https://github.com/atomo-soluciones/base-webapp.git my-new-project

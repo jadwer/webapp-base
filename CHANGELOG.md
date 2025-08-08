@@ -1,6 +1,34 @@
 # Changelog
 
-## [Unreleased] - 2025-08-02
+## [Unreleased] - 2025-08-08
+
+### Added
+- **Complete Products Module** - Full CRUD system for product management
+  - Product, Unit, Category, Brand entities with complete relationships
+  - JSON:API integration with transformers for data mapping
+  - SWR-powered hooks for efficient data fetching and caching
+  - Bootstrap-integrated UI components and tables
+  - Collapsible navigation group in sidebar
+  - Complete CRUD operations: Create, Read, Update, Delete, Duplicate
+  - Advanced filtering and sorting capabilities
+  - Relationship handling for included JSON:API resources
+
+### Fixed
+- **API Integration Issues**
+  - Fixed 400 Bad Request error caused by unsupported pagination parameters
+  - Implemented proper JSON:API to TypeScript object transformation
+  - Corrected camelCase/snake_case field mapping between frontend and backend
+  - Added comprehensive debug logging for API diagnostics
+  - Resolved data display issues in Units/Categories/Brands tables
+
+### Technical Improvements
+- Added `transformJsonApiProduct/Unit/Category/Brand` functions
+- Implemented detailed API request/response logging
+- Fixed sort field mappings (`created_at`, `unit_type`, etc.)
+- Enhanced error handling and debugging capabilities
+- Proper relationship resolution for JSON:API included resources
+
+## [Previous] - 2025-08-02
 
 ### Added
 - **Design System v2.0** - Complete modernization of UI components

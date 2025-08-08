@@ -8,7 +8,12 @@
       "Bash(rm:*)",
       "Bash(npm run lint)",
       "Bash(pkill:*)",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "Bash(mkdir:*)",
+      "Bash(npm run lint:*)",
+      "Bash(npx tsc:*)",
+      "Bash(find:*)",
+      "Bash(sed:*)"
     ],
     "deny": []
   }

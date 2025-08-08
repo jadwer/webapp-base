@@ -20,6 +20,13 @@ const rcrudLinks = [
   { href: '/dashboard/permissions', label: 'Permisos', icon: 'bi-shield-lock' }
 ]
 
+const productsLinks = [
+  { href: '/dashboard/products', label: 'Productos', icon: 'bi-box-seam' },
+  { href: '/dashboard/products/categories', label: 'Categorías', icon: 'bi-tags' },
+  { href: '/dashboard/products/brands', label: 'Marcas', icon: 'bi-award' },
+  { href: '/dashboard/products/units', label: 'Unidades', icon: 'bi-rulers' }
+]
+
 export default function Sidebar() {
   const pathname = usePathname()
   const [open, setOpen] = useState(false)
@@ -27,6 +34,9 @@ export default function Sidebar() {
     pathname?.startsWith('/dashboard/permission-manager') || 
     pathname?.startsWith('/dashboard/roles') || 
     pathname?.startsWith('/dashboard/permissions')
+  )
+  const [productsOpen, setProductsOpen] = useState(
+    pathname?.startsWith('/dashboard/products')
   )
 
   return (
@@ -91,6 +101,45 @@ export default function Sidebar() {
             }`}>
               <ul className={styles.subNavList}>
                 {rcrudLinks.map(({ href, label, icon }) => (
+                  <li key={href}>
+                    <Link
+                      href={href}
+                      className={`${styles.subNavLink} ${
+                        pathname === href ? styles.active : ''
+                      }`}
+                    >
+                      <i className={`bi ${icon} ${styles.subNavIcon}`} aria-hidden="true"></i>
+                      {label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </li>
+          
+          {/* Grupo Productos */}
+          <li className={styles.navItem}>
+            <button
+              className={`${styles.groupButton} ${
+                productsOpen ? styles.groupActive : ''
+              }`}
+              onClick={() => setProductsOpen(!productsOpen)}
+            >
+              <div className={styles.groupContent}>
+                <i className="bi bi-box-seam" aria-hidden="true"></i>
+                Productos
+              </div>
+              <i className={`bi bi-chevron-right ${styles.groupChevron} ${
+                productsOpen ? styles.expanded : ''
+              }`}></i>
+            </button>
+            
+            {/* Submenú */}
+            <div className={`${styles.subMenu} ${
+              productsOpen ? styles.expanded : styles.collapsed
+            }`}>
+              <ul className={styles.subNavList}>
+                {productsLinks.map(({ href, label, icon }) => (
                   <li key={href}>
                     <Link
                       href={href}

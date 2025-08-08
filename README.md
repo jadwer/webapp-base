@@ -42,6 +42,7 @@ npm run dev
 - **`auth`** (sistema de autenticación completo con Sanctum)
 - **`roles`** (gestión de roles y permisos - Permission Manager)
 - **`page-builder-pro`** (constructor visual de páginas con GrapeJS - CRUD completo)
+- **`products`** (gestión completa de productos con 4 entidades: Product, Unit, Category, Brand - CRUD completo con JSON:API)
 - **`inventory`** (ejemplo funcional con componentes, hooks y servicios)
 
 ---

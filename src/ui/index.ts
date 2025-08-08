@@ -1,6 +1,9 @@
 // Design System Components (includes Button, Input, and all base components)
 export * from './components/base';
 
+// Module-specific Components
+export * from './components/products';
+
 // Hooks
 export * from './hooks';
 

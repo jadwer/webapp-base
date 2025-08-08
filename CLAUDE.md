@@ -47,6 +47,7 @@ import { useInventory } from '@/modules/inventory';
 - **roles** - Role and permission management (Permission Manager)
 - **users** - User CRUD operations
 - **permissions** - Permission management
+- **products** - Complete product management system with 4 entities (Product, Unit, Category, Brand)
 - **page-builder-pro** - GrapeJS-based visual page builder with full CRUD operations
 
 ### Authentication Flow
@@ -72,6 +73,10 @@ Located in `src/ui/`, this is the "atm-ui" design system with:
 - `(back)/dashboard/` - Protected admin panel routes
 - `(back)/dashboard/pages/` - Page builder administration interface
 - `(back)/dashboard/page-builder/` - Visual page editor interface
+- `(back)/dashboard/products/` - Products management interface
+- `(back)/dashboard/products/units/` - Units management
+- `(back)/dashboard/products/categories/` - Categories management
+- `(back)/dashboard/products/brands/` - Brands management
 - `(front)/` - Public routes including auth pages
 - `(front)/p/[slug]/` - Dynamic page rendering from page-builder-pro
 
@@ -106,6 +111,52 @@ The `page-builder-pro` module provides a complete visual page building solution:
 - Admin interface: `/dashboard/pages` - List and manage all pages
 - Page editor: `/dashboard/page-builder/{id}` - Edit specific page
 - Public view: `/p/{slug}` - Rendered page content
+
+### Products Module
+The `products` module provides a complete product management system with 4 entities:
+
+**Entities:**
+- **Product** - Main product entity with relationships to Unit, Category, and Brand
+- **Unit** - Units of measurement (pieces, kg, liters, etc.)
+- **Category** - Product categories with hierarchical support
+- **Brand** - Product brands with descriptions and slugs
+
+**Features:**
+- Complete CRUD operations for all entities
+- JSON:API integration with proper data transformation
+- SWR-powered data fetching with caching
+- Advanced filtering and sorting capabilities
+- Relationship handling and included resources
+- Bootstrap-integrated responsive UI
+- Real-time search and pagination
+- Comprehensive error handling
+
+**Key Components:**
+- `ProductsAdminTemplate` - Main products administration interface
+- `ProductForm` - Product creation/editing form
+- `ProductsTable` - Data table with sorting and filtering
+- `UnitsTable/CategoriesTable/BrandsTable` - Management tables for auxiliary entities
+- Various utility components (filters, status badges, etc.)
+
+**Technical Implementation:**
+- Uses SWR for efficient data fetching and caching
+- JSON:API transformers for correct data mapping (camelCase ↔ snake_case)
+- Comprehensive debug logging for API diagnostics
+- Proper relationship resolution for included resources
+- Error handling with user-friendly messages
+
+**API Integration:**
+- Full JSON:API compliance with Laravel JSON:API backend
+- Automatic Bearer token injection via axios interceptors
+- Proper handling of relationships and included resources
+- Support for filtering, sorting, and search operations
+- Comprehensive error handling and validation
+
+**Usage:**
+- Products interface: `/dashboard/products` - List and manage all products
+- Units management: `/dashboard/products/units` - Manage measurement units
+- Categories management: `/dashboard/products/categories` - Manage product categories
+- Brands management: `/dashboard/products/brands` - Manage product brands
 
 ## Development Guidelines
 
@@ -185,6 +236,40 @@ Required environment variables:
 
 ### Testing
 Currently no specific test framework configured. Check for test scripts in package.json before implementing tests.
+
+### Debugging and Troubleshooting
+
+#### Products Module Debugging
+The Products module includes comprehensive debugging capabilities:
+
+**Console Logging:**
+- All API requests and responses are logged to browser console
+- JSON:API transformation steps are logged with 🔄 prefix
+- API request URLs logged with 🔍 prefix
+- Raw API data logged for inspection
+
+**Common Issues:**
+- **400 Bad Request on Products**: Usually caused by unsupported pagination parameters
+- **Empty data in tables**: Check browser console for transformation errors
+- **Authentication errors**: Verify `NEXT_PUBLIC_BACKEND_URL` and token validity
+
+**API Testing:**
+Use curl to test backend endpoints directly:
+```bash
+# Test products endpoint
+curl -H "Authorization: Bearer YOUR_TOKEN" \
+     -H "Accept: application/vnd.api+json" \
+     "http://127.0.0.1:8000/api/v1/products"
+
+# Test with sorting
+curl -H "Authorization: Bearer YOUR_TOKEN" \
+     -H "Accept: application/vnd.api+json" \
+     "http://127.0.0.1:8000/api/v1/products?sort=name&include=unit,category,brand"
+```
+
+**Known Limitations:**
+- Products pagination is not implemented on backend (avoid `page[number]` and `page[size]`)
+- Some sort fields may not be supported on all endpoints
 
 ## Integration Notes
 

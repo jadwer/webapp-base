@@ -1,0 +1,5 @@
+export * from './ProductsAdminTemplate.html'
+export * from './ProductFormTemplate.html'
+export * from './BrandsAdminTemplate.html'
+export * from './CategoriesAdminTemplate.html'
+export * from './UnitsAdminTemplate.html'

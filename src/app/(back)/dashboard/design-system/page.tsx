@@ -1263,6 +1263,137 @@ export default function DesignSystemPage() {
           </div>
         </div>
 
+        {/* Products Module Components */}
+        <div className="row mb-5">
+          <div className="col-12">
+            <h2 className="mb-4">📦 Componentes del Módulo Products</h2>
+            
+            {/* Status Badge */}
+            <Card variant="outlined" className="mb-4">
+              <CardHeader>
+                <h5 className="mb-0">Status Badge</h5>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted mb-3">Badge especializado para mostrar el estado de productos</p>
+                <div className="d-flex gap-3 align-items-center mb-3">
+                  <span className="badge bg-success text-white">
+                    <i className="bi bi-check-circle-fill me-1" />
+                    Activo
+                  </span>
+                  <span className="badge bg-secondary text-white">
+                    <i className="bi bi-pause-circle-fill me-1" />
+                    Inactivo
+                  </span>
+                  <span className="badge bg-warning text-dark">
+                    <i className="bi bi-exclamation-triangle-fill me-1" />
+                    Sin Stock
+                  </span>
+                </div>
+                <pre className="bg-light p-3 rounded">
+                  <code>{`import { StatusBadge } from '@/modules/products/components'
+
+<StatusBadge status="active" />
+<StatusBadge status="inactive" />
+<StatusBadge status="out_of_stock" />`}</code>
+                </pre>
+              </CardContent>
+            </Card>
+
+            {/* Product Card */}
+            <Card variant="outlined" className="mb-4">
+              <CardHeader>
+                <h5 className="mb-0">Product Card</h5>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted mb-3">Tarjeta especializada para mostrar productos en vista de cuadrícula</p>
+                <div className="row">
+                  <div className="col-md-6">
+                    <Card className="h-100">
+                      <div className="position-relative">
+                        <div className="bg-light d-flex align-items-center justify-content-center" style={{ height: 200 }}>
+                          <i className="bi bi-image display-4 text-muted" />
+                        </div>
+                        <div className="position-absolute top-0 end-0 p-2">
+                          <span className="badge bg-success text-white">
+                            <i className="bi bi-check-circle-fill me-1" />
+                            Activo
+                          </span>
+                        </div>
+                      </div>
+                      <div className="card-body">
+                        <h5 className="card-title">Laptop Gaming</h5>
+                        <div className="mb-2">
+                          <small className="text-muted">SKU: </small>
+                          <code className="small">GAME001</code>
+                        </div>
+                        <p className="card-text text-muted">High-performance gaming laptop</p>
+                        <div className="row mb-3">
+                          <div className="col-6">
+                            <div className="fw-bold text-primary">$1,299.99</div>
+                          </div>
+                        </div>
+                        <div className="d-flex gap-1">
+                          <Button size="small" variant="secondary" buttonStyle="outline" className="flex-fill">
+                            <i className="bi bi-eye me-1" />
+                            Ver
+                          </Button>
+                          <Button size="small" variant="primary" buttonStyle="outline" className="flex-fill">
+                            <i className="bi bi-pencil me-1" />
+                            Editar
+                          </Button>
+                        </div>
+                      </div>
+                    </Card>
+                  </div>
+                  <div className="col-md-6">
+                    <pre className="bg-light p-3 rounded h-100">
+                      <code>{`import { ProductCard } from '@/modules/products/components'
+
+<ProductCard 
+  product={product}
+  onEdit={handleEdit}
+  onDelete={handleDelete}
+  onView={handleView}
+/>`}</code>
+                    </pre>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Tables */}
+            <Card variant="outlined">
+              <CardHeader>
+                <h5 className="mb-0">Tablas Especializadas</h5>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted mb-3">Tablas optimizadas para mostrar diferentes entidades del módulo Products</p>
+                <div className="row">
+                  <div className="col-md-4 mb-3">
+                    <h6>ProductsTable</h6>
+                    <small className="text-muted">Tabla completa de productos con filtros y acciones</small>
+                  </div>
+                  <div className="col-md-4 mb-3">
+                    <h6>UnitsTable</h6>
+                    <small className="text-muted">Tabla de unidades de medida</small>
+                  </div>
+                  <div className="col-md-4 mb-3">
+                    <h6>CategoriesTable</h6>
+                    <small className="text-muted">Tabla de categorías de productos</small>
+                  </div>
+                </div>
+                <pre className="bg-light p-3 rounded">
+                  <code>{`import { ProductsTable, UnitsTable, CategoriesTable } from '@/modules/products/components'
+
+<ProductsTable products={products} onEdit={handleEdit} />
+<UnitsTable units={units} onEdit={handleEdit} />
+<CategoriesTable categories={categories} onEdit={handleEdit} />`}</code>
+                </pre>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+
         {/* Usage Guidelines */}
         <div className="row">
           <div className="col-12">
@@ -1276,12 +1407,20 @@ export default function DesignSystemPage() {
                   <li><strong>Accesibilidad:</strong> Todos los componentes incluyen estados focus y son navegables por teclado</li>
                   <li><strong>Responsive:</strong> Los componentes se adaptan automáticamente a diferentes tamaños de pantalla</li>
                   <li><strong>Performance:</strong> CSS Modules aseguran que solo se carguen los estilos necesarios</li>
+                  <li><strong>Modularidad:</strong> Componentes especializados por módulo mantienen la escalabilidad</li>
                 </ul>
                 
                 <h6 className="mt-4">Importación de Componentes</h6>
                 <pre className="bg-light p-3 rounded mt-2">
-                  <code>{`import { Button } from '@/ui/components/base/Button'
-import { Card, CardHeader, CardContent } from '@/ui/components/base/Card'`}</code>
+                  <code>{`// Componentes base del Design System
+import { Button } from '@/ui/components/base/Button'
+import { Card, CardHeader, CardContent } from '@/ui/components/base/Card'
+
+// Componentes especializados del módulo Products
+import { StatusBadge, ProductCard, ProductsTable } from '@/modules/products/components'
+
+// Templates para diseñadores
+import { ProductsAdminTemplate, ProductFormTemplate } from '@/modules/products/templates'`}</code>
                 </pre>
               </CardContent>
             </Card>
