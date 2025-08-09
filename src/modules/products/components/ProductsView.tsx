@@ -6,11 +6,12 @@ import ProductsTable from './ProductsTable'
 import ProductsGrid from './ProductsGrid'
 import ProductsList from './ProductsList'
 import ProductsCompact from './ProductsCompact'
+import ProductsShowcase from './ProductsShowcase'
 import PaginationControls from './PaginationControls'
 import ProductsStats from './ProductsStats'
 import type { Product, PaginationMeta } from '../types'
 
-type ViewMode = 'table' | 'grid' | 'list' | 'compact'
+type ViewMode = 'table' | 'grid' | 'list' | 'compact' | 'showcase'
 
 interface ProductsViewProps {
   products: Product[]
@@ -162,6 +163,16 @@ export const ProductsView: React.FC<ProductsViewProps> = ({
                     if (action === 'view' && onView) onView(product)
                     if (action === 'add' && onEdit) onEdit(product)
                   }}
+                />
+              )}
+
+              {viewMode === 'showcase' && (
+                <ProductsShowcase
+                  products={products}
+                  isLoading={isLoading}
+                  onEdit={onEdit}
+                  onDelete={onDelete ? (product) => onDelete(product.id) : undefined}
+                  onView={onView}
                 />
               )}
             </>

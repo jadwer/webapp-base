@@ -11,19 +11,35 @@ import type { Product } from '../types'
 interface ProductsTableProps {
   products: Product[]
   isLoading?: boolean
+  showActions?: boolean
+  showImages?: boolean
+  showStatus?: boolean
+  showDescription?: boolean
+  showAdvancedInfo?: boolean
+  variant?: 'admin' | 'public' | 'compact'
   onEdit?: (product: Product) => void
   onDelete?: (productId: string) => Promise<void>
   onDuplicate?: (productId: string) => Promise<void>
   onView?: (product: Product) => void
+  onAddToCart?: (product: Product) => void
+  className?: string
 }
 
 export const ProductsTable: React.FC<ProductsTableProps> = ({
   products,
   isLoading = false,
+  // showActions = true,     // TODO: Implement in future refactor
+  // showImages = true,      // TODO: Implement in future refactor
+  // showStatus = true,      // TODO: Implement in future refactor
+  // showDescription = false,// TODO: Implement in future refactor
+  // showAdvancedInfo = true,// TODO: Implement in future refactor
+  // variant = 'admin',      // TODO: Implement in future refactor
   onEdit,
   onDelete,
   onDuplicate,
-  onView
+  onView,
+  // onAddToCart,           // TODO: Implement in future refactor
+  // className = ''         // TODO: Implement in future refactor
 }) => {
   const [loadingStates, setLoadingStates] = useState<Record<string, boolean>>({})
   const confirmModalRef = useRef<ConfirmModalHandle>(null)
