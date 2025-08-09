@@ -194,9 +194,9 @@ export const CategoriesAdminTemplate: React.FC<CategoriesAdminTemplateProps> = (
               <i className="bi bi-grid-3x3-gap me-2" />
               Categorías
             </h5>
-            {meta && (
+            {meta?.page && (
               <small className="text-muted">
-                Mostrando {((currentPage - 1) * (meta.perPage || 10)) + 1} a {Math.min(currentPage * (meta.perPage || 10), totalCategories)} de {totalCategories} categorías
+                Mostrando {((currentPage - 1) * (meta.page.perPage || 10)) + 1} a {Math.min(currentPage * (meta.page.perPage || 10), totalCategories)} de {totalCategories} categorías
               </small>
             )}
           </div>
@@ -228,11 +228,11 @@ export const CategoriesAdminTemplate: React.FC<CategoriesAdminTemplateProps> = (
         </div>
 
         {/* Pagination */}
-        {meta && meta.lastPage > 1 && (
+        {meta?.page && meta.page.lastPage > 1 && (
           <div className="card-footer">
             <div className="d-flex justify-content-between align-items-center">
               <div className="text-muted">
-                Página {currentPage} de {meta.lastPage}
+                Página {currentPage} de {meta.page.lastPage}
               </div>
               
               <div className="btn-group">
@@ -252,7 +252,7 @@ export const CategoriesAdminTemplate: React.FC<CategoriesAdminTemplateProps> = (
                   variant="secondary"
                   buttonStyle="outline"
                   onClick={() => handlePageChange(currentPage + 1)}
-                  disabled={currentPage >= meta.lastPage || isLoading}
+                  disabled={currentPage >= meta.page.lastPage || isLoading}
                 >
                   Siguiente
                   <i className="bi bi-chevron-right ms-1" />

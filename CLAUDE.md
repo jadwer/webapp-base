@@ -275,6 +275,25 @@ curl -H "Authorization: Bearer YOUR_TOKEN" \
 
 This frontend is designed to work with `api-base`, the official modular backend from Atomo Soluciones. The backend exposes available modules via `/api/modules` endpoint for dynamic feature detection.
 
+## ⚠️ IMPORTANT GIT COMMIT GUIDELINES
+
+**CRITICAL:** Claude Code should NEVER execute git commits directly. Always provide commit text for manual execution by the developer.
+
+**Reasoning:** Previous incidents have resulted in work loss when Claude Code executed commits directly. To prevent data loss and maintain developer control:
+
+- ❌ **NEVER use:** `git commit` commands via Bash tool
+- ❌ **NEVER use:** `git push` commands via Bash tool  
+- ✅ **ALWAYS provide:** Commit message text for manual copy-paste
+- ✅ **ALWAYS provide:** Clear instructions for staging and committing
+
+**Proper workflow:**
+1. Claude Code stages changes with `git add .` if needed
+2. Claude Code provides formatted commit message text
+3. Developer manually executes: `git commit -m "message"`
+4. Developer handles push and any merge conflicts
+
+This ensures developer maintains full control over git history and prevents accidental work loss.
+
 ## Documentation References
 
 - Complete project documentation: `docs/README.PROYECTO_BASE_ATM_WEBAPP.md`
