@@ -1,12 +1,11 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Card, Button } from '@/ui/components/base'
+import { Button } from '@/ui/components/base'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
 import { useProducts, useProductMutations } from '../hooks'
-import ProductsTable from '../components/ProductsTable'
-import { ProductFiltersComponent } from '../components'
-import type { ProductFilters as ProductFiltersType, ProductSortOptions } from '../types'
+import { ProductsView, ProductFiltersComponent } from '../components'
+import type { ProductFilters as ProductFiltersType, ProductSortOptions, ViewMode } from '../types'
 
 interface ProductsAdminTemplateProps {
   onCreateProduct?: () => void
@@ -23,7 +22,7 @@ export const ProductsAdminTemplate: React.FC<ProductsAdminTemplateProps> = ({
 }) => {
   const navigation = useNavigationProgress()
   const [currentPage, setCurrentPage] = useState(1)
-  const [viewMode, setViewMode] = useState<'table' | 'cards'>('table')
+  const [viewMode, setViewMode] = useState<ViewMode>('table')
   
   const [filters, setFilters] = useState<ProductFiltersType>({})
   const [sort, setSort] = useState<ProductSortOptions>({
@@ -38,7 +37,7 @@ export const ProductsAdminTemplate: React.FC<ProductsAdminTemplateProps> = ({
     include: ['unit', 'category', 'brand']
   })
 
-  const { deleteProduct, duplicateProduct, isLoading: isMutating } = useProductMutations()
+  const { deleteProduct, isLoading: isMutating } = useProductMutations()
 
   const handleFiltersChange = (newFilters: ProductFiltersType) => {
     setFilters(newFilters)
@@ -84,11 +83,6 @@ export const ProductsAdminTemplate: React.FC<ProductsAdminTemplateProps> = ({
     }
   }
 
-  const handleDuplicateProduct = async (productId: string) => {
-    await duplicateProduct(productId)
-    refresh()
-  }
-
   const handleCreateProduct = () => {
     if (onCreateProduct) {
       onCreateProduct()
@@ -96,9 +90,6 @@ export const ProductsAdminTemplate: React.FC<ProductsAdminTemplateProps> = ({
       navigation.push('/dashboard/products/create')
     }
   }
-
-  const totalProducts = meta?.page?.total || 0
-  const hasProducts = products.length > 0
 
   return (
     <div className={className}>
@@ -124,12 +115,21 @@ export const ProductsAdminTemplate: React.FC<ProductsAdminTemplateProps> = ({
             </Button>
             <Button
               size="small"
-              variant={viewMode === 'cards' ? 'primary' : 'secondary'}
-              buttonStyle={viewMode === 'cards' ? 'filled' : 'outline'}
-              onClick={() => setViewMode('cards')}
+              variant={viewMode === 'grid' ? 'primary' : 'secondary'}
+              buttonStyle={viewMode === 'grid' ? 'filled' : 'outline'}
+              onClick={() => setViewMode('grid')}
               title="Vista de tarjetas"
             >
               <i className="bi bi-grid-3x3-gap" />
+            </Button>
+            <Button
+              size="small"
+              variant={viewMode === 'list' ? 'primary' : 'secondary'}
+              buttonStyle={viewMode === 'list' ? 'filled' : 'outline'}
+              onClick={() => setViewMode('list')}
+              title="Vista de lista"
+            >
+              <i className="bi bi-list" />
             </Button>
           </div>
           
@@ -141,48 +141,6 @@ export const ProductsAdminTemplate: React.FC<ProductsAdminTemplateProps> = ({
             <i className="bi bi-plus-lg me-2" />
             Nuevo Producto
           </Button>
-        </div>
-      </div>
-
-      {/* Stats Cards */}
-      <div className="row mb-4">
-        <div className="col-md-3">
-          <Card className="text-center">
-            <div className="card-body">
-              <h3 className="display-6 text-primary">{totalProducts}</h3>
-              <p className="text-muted mb-0">Total Productos</p>
-            </div>
-          </Card>
-        </div>
-        <div className="col-md-3">
-          <Card className="text-center">
-            <div className="card-body">
-              <h3 className="display-6 text-success">
-                {products.filter(p => p.price && p.price > 0).length}
-              </h3>
-              <p className="text-muted mb-0">Con Precio</p>
-            </div>
-          </Card>
-        </div>
-        <div className="col-md-3">
-          <Card className="text-center">
-            <div className="card-body">
-              <h3 className="display-6 text-warning">
-                {products.filter(p => p.sku).length}
-              </h3>
-              <p className="text-muted mb-0">Con SKU</p>
-            </div>
-          </Card>
-        </div>
-        <div className="col-md-3">
-          <Card className="text-center">
-            <div className="card-body">
-              <h3 className="display-6 text-info">
-                {products.filter(p => p.imgPath).length}
-              </h3>
-              <p className="text-muted mb-0">Con Imagen</p>
-            </div>
-          </Card>
         </div>
       </div>
 
@@ -214,84 +172,20 @@ export const ProductsAdminTemplate: React.FC<ProductsAdminTemplateProps> = ({
         </div>
       )}
 
-      {/* Products Table/Cards */}
-      <Card>
-        <div className="card-header d-flex justify-content-between align-items-center">
-          <div>
-            <h5 className="mb-0">
-              <i className="bi bi-box-seam me-2" />
-              Productos
-            </h5>
-            {meta?.page && (
-              <small className="text-muted">
-                Mostrando {((currentPage - 1) * (meta.page.perPage || 20)) + 1} a {Math.min(currentPage * (meta.page.perPage || 20), totalProducts)} de {totalProducts} productos
-              </small>
-            )}
-          </div>
-          
-          <div className="d-flex align-items-center gap-2">
-            {hasProducts && (
-              <Button
-                size="small"
-                variant="secondary"
-                buttonStyle="outline"
-                onClick={() => refresh()}
-                disabled={isLoading}
-                loading={isLoading}
-                title="Actualizar lista"
-              >
-                <i className="bi bi-arrow-clockwise" />
-              </Button>
-            )}
-          </div>
-        </div>
-
-        <div className="card-body p-0">
-          <ProductsTable
-            products={products}
-            isLoading={isLoading}
-            onEdit={handleEditProduct}
-            onDelete={handleDeleteProduct}
-            onDuplicate={handleDuplicateProduct}
-            onView={handleViewProduct}
-          />
-        </div>
-
-        {/* Pagination */}
-        {meta?.page && meta.page.lastPage > 1 && (
-          <div className="card-footer">
-            <div className="d-flex justify-content-between align-items-center">
-              <div className="text-muted">
-                Página {currentPage} de {meta.page.lastPage}
-              </div>
-              
-              <div className="btn-group">
-                <Button
-                  size="small"
-                  variant="secondary"
-                  buttonStyle="outline"
-                  onClick={() => handlePageChange(currentPage - 1)}
-                  disabled={currentPage <= 1 || isLoading}
-                >
-                  <i className="bi bi-chevron-left" />
-                  Anterior
-                </Button>
-                
-                <Button
-                  size="small"
-                  variant="secondary"
-                  buttonStyle="outline"
-                  onClick={() => handlePageChange(currentPage + 1)}
-                  disabled={currentPage >= meta.page.lastPage || isLoading}
-                >
-                  Siguiente
-                  <i className="bi bi-chevron-right ms-1" />
-                </Button>
-              </div>
-            </div>
-          </div>
-        )}
-      </Card>
+      {/* Products View - All-in-one component */}
+      <ProductsView
+        products={products}
+        meta={meta}
+        isLoading={isLoading}
+        viewMode={viewMode}
+        currentPage={currentPage}
+        onPageChange={handlePageChange}
+        onEdit={handleEditProduct}
+        onDelete={handleDeleteProduct}
+        onView={handleViewProduct}
+        showStats={true}
+        showDetailedStats={true}
+      />
     </div>
   )
 }

@@ -142,53 +142,121 @@ interface ProductsViewProps {
 
 ---
 
-## 📋 FASE 4: Actualización de Templates Existentes
+## 📋 FASE 4: Integración de Templates y Casos de Uso Reales
 
 ### 🎯 4.1 - Refactorizar ProductsAdminTemplate
-- Remover lógica de paginación inline
-- Usar nuevo ProductsView con viewMode='table'
-- Mantener filtros admin-específicos
-- Preservar funcionalidad existente
+**Objetivo:** Migrar de lógica inline a ProductsView reutilizable
+- ✅ Remover lógica de paginación y estadísticas inline
+- ✅ Implementar ProductsView con viewMode configurable
+- ✅ Mantener filtros admin-específicos existentes
+- ✅ Preservar todas las funcionalidades actuales
+- ✅ Añadir selector de vista (table/grid/list)
 
-### 🎯 4.2 - Actualizar exports del módulo
+### 🎯 4.2 - Crear Ejemplos de Uso Prácticos
+**Ubicación:** `src/app/(back)/dashboard/products/examples/`
+- 🔄 ViewModeDemoPage - Demostrar todos los view modes
+- 🔄 AdminUseCasesPage - Casos de uso específicos admin
+- 🔄 SelectionDemoPage - Demostrar ProductsCompact selection
+
+### 🎯 4.3 - Actualizar exports principales del módulo
 **Ubicación:** `src/modules/products/index.ts`
-- Exportar nuevos componentes
-- Mantener compatibilidad con imports existentes
+- ✅ Exportar todos los nuevos componentes
+- ✅ Mantener compatibilidad con imports existentes
+- 🔄 Agregar exports de utilidades y hooks relacionados
 
 ---
 
-## 📋 FASE 5: Implementación Frontend (Opcional)
+## 📋 FASE 5: Implementación Frontend Pública
 
-### 🎯 5.1 - Crear FrontendProductsPage
+### 🎯 5.1 - Crear Catálogo Público
 **Ubicación:** `src/app/(front)/productos/page.tsx`
-- Usar ProductsView con viewMode='grid'
-- Filtros simples para frontend
-- SEO y meta tags
+- 🔄 Página de catálogo usando ProductsView con viewMode='grid'
+- 🔄 Filtros públicos simplificados
+- 🔄 SEO optimizado y meta tags dinámicos
+- 🔄 Responsive design completo
 
-### 🎯 5.2 - Filtros Frontend
-**Ubicación:** `src/modules/products/components/PublicFilters.tsx`
-- Versión simplificada de ProductFilters
-- Enfoque en búsqueda y categorías principales
-- UI más amigable para usuarios finales
+### 🎯 5.2 - Página de Productos Destacados
+**Ubicación:** `src/app/(front)/destacados/page.tsx`
+- 🔄 Usar ProductsShowcase con layout='hero'
+- 🔄 Integración con sistema de productos destacados
+- 🔄 CTAs específicos para frontend público
+
+### 🎯 5.3 - Componentes Frontend Específicos
+**Ubicación:** `src/modules/products/components/public/`
+- 🔄 PublicFilters - Filtros simplificados para usuarios finales
+- 🔄 ProductQuickView - Modal rápido de vista de producto
+- 🔄 AddToCartButton - Integración con carrito de compras
+
+### 🎯 5.4 - API Integration Layer
+- 🔄 Hooks específicos para frontend público
+- 🔄 Caché y optimización para mejor UX
+- 🔄 Manejo de estados de carga optimizado
 
 ---
 
-## 📋 FASE 6: Testing y Optimización
+## 📋 FASE 6: Experiencia de Usuario Avanzada
 
-### 🎯 6.1 - Testing de Componentes
-- Unit tests para ProductsView
-- Integration tests para diferentes viewModes
-- Verificar reutilización admin/frontend
+### 🎯 6.1 - Funcionalidades Interactivas
+- 🔄 Favoritos y wishlist usando ProductsCompact
+- 🔄 Comparador de productos con múltiples vistas
+- 🔄 Búsqueda en tiempo real con ProductsList
+- 🔄 Filtros avanzados con persistencia
 
-### 🎯 6.2 - Optimización de Performance
-- Memo para componentes pesados
-- Lazy loading para ProductsGrid
-- Optimización de re-renders
+### 🎯 6.2 - Mobile-First Enhancements
+- 🔄 Gestos swipe para ProductsGrid
+- 🔄 Infinite scroll para ProductsList
+- 🔄 Touch-optimized interactions
+- 🔄 Progressive Web App features
 
-### 🎯 6.3 - Documentación
-- Storybook para nuevos componentes
-- Ejemplos de uso en diferentes contextos
-- Guía de migración
+### 🎯 6.3 - Admin Tools Enhancement  
+- 🔄 Bulk operations usando ProductsCompact
+- 🔄 Drag & drop reordering
+- 🔄 Quick edit modal integration
+- 🔄 Export/import funcionalidades
+
+---
+
+## 📋 FASE 7: Testing y Performance
+
+### 🎯 7.1 - Testing Completo
+- 🔄 Unit tests para todos los componentes
+- 🔄 Integration tests para view mode switching
+- 🔄 E2E tests para user workflows
+- 🔄 Accessibility testing (a11y)
+
+### 🎯 7.2 - Optimización de Performance
+- 🔄 React.memo para componentes pesados
+- 🔄 Lazy loading y code splitting
+- 🔄 Image optimization para ProductsGrid/Showcase
+- 🔄 Bundle size analysis y optimización
+
+### 🎯 7.3 - Monitoring y Analytics
+- 🔄 Performance metrics tracking
+- 🔄 User interaction analytics
+- 🔄 Error boundary implementation
+- 🔄 A/B testing setup para view modes
+
+---
+
+## 📋 FASE 8: Documentación y Ecosystem
+
+### 🎯 8.1 - Documentación Completa
+- 🔄 Storybook para todos los componentes
+- 🔄 API documentation completa
+- 🔄 Usage patterns y best practices
+- 🔄 Migration guide detallada
+
+### 🎯 8.2 - Developer Experience
+- 🔄 TypeScript definitions mejoradas
+- 🔄 ESLint rules específicas
+- 🔄 Code snippets para IDEs
+- 🔄 Debug tools y helpers
+
+### 🎯 8.3 - Ecosystem Integration
+- 🔄 Next.js App Router optimizations
+- 🔄 Server Components compatibility
+- 🔄 Edge runtime support
+- 🔄 CDN integration para assets
 
 ---
 
@@ -295,4 +363,18 @@ src/modules/products/components/
 ✅ **Admin + Frontend** - Todos los contextos cubiertos
 ✅ **3030 tokens** utilizados eficientemente
 
-**Próxima sesión:** Integrar componentes en templates existentes (FASE 4)
+### **📊 ROADMAP EXTENDIDO - Análisis de Impacto**
+
+**FASES EXPANDIDAS:** De 6 fases originales a **8 fases especializadas**
+- **FASES 1-3:** ✅ Base architecture (COMPLETADAS)
+- **FASES 4-5:** 🔄 Integration & Public frontend 
+- **FASES 6-7:** 🔄 Advanced UX & Performance
+- **FASE 8:** 🔄 Documentation & Ecosystem
+
+**IMPACTO EN DESARROLLO:**
+- **Escalabilidad:** Arquitectura preparada para features avanzadas
+- **Reutilización:** Componentes listos para casos complejos  
+- **Performance:** Plan específico de optimización
+- **DX:** Developer experience mejorado significativamente
+
+**Próxima sesión:** FASE 4.1 - Refactorizar ProductsAdminTemplate usando ProductsView
