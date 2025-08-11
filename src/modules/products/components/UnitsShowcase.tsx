@@ -57,7 +57,7 @@ export const UnitsShowcase = React.memo<UnitsShowcaseProps>(({
           No hay unidades para mostrar en vista premium
         </p>
         <div className="d-flex justify-content-center gap-3">
-          <Button variant="outline" buttonStyle="secondary" size="large">
+          <Button variant="secondary" buttonStyle="outline" size="large">
             <i className="bi bi-funnel me-2" />
             Ajustar Filtros
           </Button>
@@ -108,10 +108,10 @@ export const UnitsShowcase = React.memo<UnitsShowcaseProps>(({
                 </div>
 
                 {/* Symbol Badge */}
-                {unit.symbol && (
+                {unit.code && (
                   <div className="position-absolute top-0 start-0 m-3">
                     <div className="bg-white bg-opacity-90 rounded px-3 py-2 shadow">
-                      <code className="fw-bold text-primary fs-4">{unit.symbol}</code>
+                      <code className="fw-bold text-primary fs-4">{unit.code}</code>
                     </div>
                   </div>
                 )}
@@ -133,12 +133,6 @@ export const UnitsShowcase = React.memo<UnitsShowcaseProps>(({
 
                 {/* Description */}
                 <div className="flex-fill mb-4">
-                  {unit.description ? (
-                    <p className="text-muted lh-base">
-                      {unit.description}
-                    </p>
-                  ) : (
-                    <p className="text-muted fst-italic">
                       Sin descripción disponible
                     </p>
                   )}

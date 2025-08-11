@@ -5,6 +5,7 @@ export interface Category {
   slug: string
   createdAt: string
   updatedAt: string
+  productsCount?: number // TODO: Backend needs to provide this count
 }
 
 export interface CreateCategoryData {

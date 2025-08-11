@@ -5,12 +5,13 @@ import { UnitFormWrapper } from '@/modules/products/components/UnitFormWrapper'
 import { useRouter } from 'next/navigation'
 
 interface EditUnitPageProps {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
 export default function EditUnitPage({ params }: EditUnitPageProps) {
+  const resolvedParams = React.use(params)
   const router = useRouter()
 
   const handleSuccess = () => {
@@ -50,7 +51,7 @@ export default function EditUnitPage({ params }: EditUnitPageProps) {
               <div className="card shadow-sm border-0">
                 <div className="card-body p-4">
                   <UnitFormWrapper
-                    unitId={params.id}
+                    unitId={resolvedParams.id}
                     onSuccess={handleSuccess}
                     onCancel={handleCancel}
                   />

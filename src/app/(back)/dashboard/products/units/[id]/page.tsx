@@ -5,16 +5,17 @@ import { UnitView } from '@/modules/products'
 import { useRouter } from 'next/navigation'
 
 interface UnitViewPageProps {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
 export default function UnitViewPage({ params }: UnitViewPageProps) {
+  const resolvedParams = React.use(params)
   const router = useRouter()
 
   const handleEdit = () => {
-    router.push(`/dashboard/products/units/${params.id}/edit`)
+    router.push(`/dashboard/products/units/${resolvedParams.id}/edit`)
   }
 
   const handleBack = () => {
@@ -48,7 +49,7 @@ export default function UnitViewPage({ params }: UnitViewPageProps) {
           <div className="row justify-content-center">
             <div className="col-lg-10 col-xl-8">
               <UnitView
-                unitId={params.id}
+                unitId={resolvedParams.id}
                 onEdit={handleEdit}
                 onBack={handleBack}
               />

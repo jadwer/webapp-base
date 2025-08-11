@@ -48,7 +48,7 @@ export const CategoriesList = React.memo<CategoriesListProps>(({ categories, isL
         <h3 className="text-muted mb-2">Sin resultados</h3>
         <p className="text-muted mb-4">No se encontraron categorías que coincidan con los filtros aplicados</p>
         <div className="d-flex justify-content-center gap-2">
-          <Button variant="outline" buttonStyle="secondary"><i className="bi bi-funnel me-2" />Limpiar Filtros</Button>
+          <Button variant="secondary" buttonStyle="outline"><i className="bi bi-funnel me-2" />Limpiar Filtros</Button>
           <Button variant="primary"><i className="bi bi-plus-lg me-2" />Nueva Categoría</Button>
         </div>
       </div>

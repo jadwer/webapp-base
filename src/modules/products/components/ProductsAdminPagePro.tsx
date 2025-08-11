@@ -194,7 +194,7 @@ export const ProductsAdminPagePro = React.memo(() => {
             <Button
               variant="secondary"
               buttonStyle="outline"
-              onClick={refresh}
+              onClick={() => refresh()}
               disabled={isLoading}
             >
               <i className="bi bi-arrow-clockwise me-2" />
@@ -236,7 +236,7 @@ export const ProductsAdminPagePro = React.memo(() => {
             <Button
               variant="danger"
               buttonStyle="outline"
-              onClick={refresh}
+              onClick={() => refresh()}
             >
               <i className="bi bi-arrow-clockwise me-1" />
               Reintentar

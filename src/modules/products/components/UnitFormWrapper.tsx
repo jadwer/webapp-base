@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { UnitForm } from './UnitForm'
 import { useUnit, useUnitMutations } from '../hooks'
 import { useToast } from '@/ui/hooks/useToast'
+import type { CreateUnitData, UpdateUnitData } from '../types'
 
 interface UnitFormWrapperProps {
   unitId?: string
@@ -24,15 +25,15 @@ export const UnitFormWrapper: React.FC<UnitFormWrapperProps> = ({
   const { unit, isLoading: unitLoading, error: unitError } = useUnit(unitId)
   const { createUnit, updateUnit, isLoading: mutationLoading } = useUnitMutations()
 
-  const handleSubmit = async (formData: any) => {
+  const handleSubmit = async (formData: CreateUnitData | UpdateUnitData) => {
     try {
       if (unitId && unit) {
         console.log('📝 Updating unit:', unitId, formData)
-        await updateUnit(unitId, { data: formData })
+        await updateUnit(unitId, formData as UpdateUnitData)
         toast.success('Unidad actualizada exitosamente')
       } else {
         console.log('🆕 Creating unit:', formData)
-        await createUnit({ data: formData })
+        await createUnit(formData as CreateUnitData)
         toast.success('Unidad creada exitosamente')
       }
       

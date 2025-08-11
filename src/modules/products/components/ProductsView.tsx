@@ -140,7 +140,7 @@ export const ProductsView: React.FC<ProductsViewProps> = ({
                   products={products}
                   isLoading={isLoading}
                   onEdit={onEdit}
-                  onDelete={onDelete ? (product) => onDelete(product.id) : undefined}
+                  onDelete={onDelete ? (productId: string) => onDelete(productId) : undefined}
                   onView={onView}
                 />
               )}
@@ -150,7 +150,7 @@ export const ProductsView: React.FC<ProductsViewProps> = ({
                   products={products}
                   isLoading={isLoading}
                   onEdit={onEdit}
-                  onDelete={onDelete ? (product) => onDelete(product.id) : undefined}
+                  onDelete={onDelete ? (productId: string) => onDelete(productId) : undefined}
                   onView={onView}
                 />
               )}
@@ -159,10 +159,9 @@ export const ProductsView: React.FC<ProductsViewProps> = ({
                 <ProductsCompact
                   products={products}
                   isLoading={isLoading}
-                  onQuickAction={(action, product) => {
-                    if (action === 'view' && onView) onView(product)
-                    if (action === 'add' && onEdit) onEdit(product)
-                  }}
+                  onEdit={onEdit}
+                  onDelete={onDelete ? (productId: string) => onDelete(productId) : undefined}
+                  onView={onView}
                 />
               )}
 
@@ -171,7 +170,7 @@ export const ProductsView: React.FC<ProductsViewProps> = ({
                   products={products}
                   isLoading={isLoading}
                   onEdit={onEdit}
-                  onDelete={onDelete ? (product) => onDelete(product.id) : undefined}
+                  onDelete={onDelete ? (productId: string) => onDelete(productId) : undefined}
                   onView={onView}
                 />
               )}

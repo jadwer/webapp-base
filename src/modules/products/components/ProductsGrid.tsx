@@ -3,7 +3,6 @@
 import React from 'react'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { Button } from '@/ui/components/base'
-import { StatusBadge } from './StatusBadge'
 import type { Product } from '../types'
 
 interface ProductsGridProps {
@@ -26,7 +25,7 @@ const ProductCard = React.memo<{
       {/* Product Image */}
       <div className="position-relative">
         <img
-          src={product.image || '/images/product-placeholder.jpg'}
+          src={product.imgPath || '/images/product-placeholder.jpg'}
           alt={product.name}
           className="card-img-top"
           style={{ height: '200px', objectFit: 'cover' }}
@@ -37,7 +36,7 @@ const ProductCard = React.memo<{
           }}
         />
         <div className="position-absolute top-0 end-0 m-2">
-          <StatusBadge status={product.status || 'active'} />
+          <span className="badge bg-success rounded-pill small">Activo</span>
         </div>
       </div>
 
@@ -68,7 +67,7 @@ const ProductCard = React.memo<{
           </div>
           <div className="col-6">
             <div className="text-center">
-              <div className="fw-bold">{product.stock || 0}</div>
+              <div className="fw-bold">{"N/A"}</div>
               <small className="text-muted">{product.unit?.name}</small>
             </div>
           </div>

@@ -26,6 +26,9 @@ export type { ToggleSwitchProps } from './ToggleSwitch'
 export { Badge } from './Badge'
 export type { BadgeProps } from './Badge'
 
+export { Alert } from './Alert'
+export type { AlertProps } from './Alert'
+
 export { Toast } from './Toast'
 export type { ToastProps, ToastType } from './Toast'
 

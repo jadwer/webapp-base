@@ -5,12 +5,13 @@ import { CategoryFormWrapper } from '@/modules/products/components/CategoryFormW
 import { useRouter } from 'next/navigation'
 
 interface EditCategoryPageProps {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
 export default function EditCategoryPage({ params }: EditCategoryPageProps) {
+  const resolvedParams = React.use(params)
   const router = useRouter()
 
   const handleSuccess = () => {
@@ -50,7 +51,7 @@ export default function EditCategoryPage({ params }: EditCategoryPageProps) {
               <div className="card shadow-sm border-0">
                 <div className="card-body p-4">
                   <CategoryFormWrapper
-                    categoryId={params.id}
+                    categoryId={resolvedParams.id}
                     onSuccess={handleSuccess}
                     onCancel={handleCancel}
                   />

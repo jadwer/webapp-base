@@ -157,7 +157,10 @@ The `products` module is a **enterprise-level administration system** with 4 ent
 - JSON:API transformers for correct data mapping (camelCase ↔ snake_case)
 - Comprehensive debug logging for API diagnostics
 - Proper relationship resolution for included resources
-- Error handling with user-friendly messages
+- **Enterprise Error Handling:** Robust system with relationship constraint detection
+- **ConfirmModal Integration:** Professional replacement for window.confirm()
+- **FormWrapper Pattern:** SWR data loading + mutation hooks integration
+- **CRUD Routes Complete:** All auxiliary entities with create/edit/view pages
 
 **API Integration:**
 - Full JSON:API compliance with Laravel JSON:API backend
@@ -167,10 +170,16 @@ The `products` module is a **enterprise-level administration system** with 4 ent
 - Comprehensive error handling and validation
 
 **Usage:**
-- Products interface: `/dashboard/products` - List and manage all products
-- Units management: `/dashboard/products/units` - Manage measurement units
-- Categories management: `/dashboard/products/categories` - Manage product categories
-- Brands management: `/dashboard/products/brands` - Manage product brands
+- **Products interface:** `/dashboard/products` - List and manage all products
+- **Units management:** `/dashboard/products/units` - Complete CRUD for measurement units
+- **Categories management:** `/dashboard/products/categories` - Complete CRUD for product categories  
+- **Brands management:** `/dashboard/products/brands` - Complete CRUD for product brands
+
+**✅ CRUD Operations Available:**
+- **Create:** `/dashboard/products/{entity}/create` - New entity creation
+- **Read:** `/dashboard/products/{entity}/[id]` - View entity details
+- **Update:** `/dashboard/products/{entity}/[id]/edit` - Edit existing entity
+- **Delete:** Via AdminPagePro with professional ConfirmModal and relationship error handling
 
 ## Development Guidelines
 
@@ -206,8 +215,14 @@ const { products, isLoading } = useProducts({ filters })
 // Performance: Zero re-renders on filter changes
 ```
 
+**🆕 New Patterns - Enero 2025:**
+- **Error Handling:** Robust system with relationship constraint detection (`errorHandling.ts`)
+- **ConfirmModal:** Professional async/await replacement for window.confirm()
+- **FormWrapper:** SWR data loading integrated with mutation hooks
+- **CRUD Routes:** Complete create/read/update/delete for all entities
+
 **📋 Architecture Documentation:**
-- `MODULE_ARCHITECTURE_BLUEPRINT.md` - Complete implementation guide
+- `MODULE_ARCHITECTURE_BLUEPRINT.md` - Complete implementation guide (UPDATED)
 - `DESIGN_SYSTEM_REGISTRY.md` - All components documented
 - `CURRENT_ROADMAP.md` - Development roadmap and status
 
@@ -293,6 +308,10 @@ The Products module includes **comprehensive debugging and performance monitorin
 - ✅ **Focus loss in search**: Fixed with local state + debounce pattern  
 - ✅ **Performance with large datasets**: Fixed with TanStack Virtual
 - ✅ **Filter dependencies**: Fixed with independent UI state
+- ✅ **Button variant errors**: Fixed info -> primary globally
+- ✅ **StatusBadge errors**: Removed from auxiliary entities
+- ✅ **window.confirm() UX**: Replaced with professional ConfirmModal
+- ✅ **Delete constraint errors**: Added relationship error detection
 - **400 Bad Request on Products**: Usually caused by unsupported pagination parameters
 - **Authentication errors**: Verify `NEXT_PUBLIC_BACKEND_URL` and token validity
 
@@ -316,9 +335,18 @@ curl -H "Authorization: Bearer YOUR_TOKEN" \
      "http://127.0.0.1:8000/api/v1/products?sort=name&include=unit,category,brand"
 ```
 
+**✅ Recent Improvements (Enero 2025):**
+- **CRUD Routes:** Complete create/edit/view pages for Units, Categories, Brands
+- **Error Handling:** Professional relationship constraint detection
+- **ConfirmModal:** Replaced all window.confirm() with async modal
+- **Focus Preservation:** Fixed input focus loss during filter operations
+- **TypeScript:** Fixed button variant errors (info -> primary)
+
 **Known Limitations:**
 - Products pagination is not implemented on backend (avoid `page[number]` and `page[size]`)
 - Some sort fields may not be supported on all endpoints
+- Alert component needs to be created and registered in Design System
+- FormWrapper data loading issues in edit mode (under investigation)
 
 ## Integration Notes
 

@@ -14,7 +14,8 @@
       "Bash(npx tsc:*)",
       "Bash(find:*)",
       "Bash(sed:*)",
-      "Bash(npm run dev:*)"
+      "Bash(npm run dev:*)",
+      "Bash(npm run sass:*)"
     ],
     "deny": []
   }

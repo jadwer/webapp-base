@@ -5,12 +5,13 @@ import { BrandFormWrapper } from '@/modules/products/components/BrandFormWrapper
 import { useRouter } from 'next/navigation'
 
 interface EditBrandPageProps {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
 export default function EditBrandPage({ params }: EditBrandPageProps) {
+  const resolvedParams = React.use(params)
   const router = useRouter()
 
   const handleSuccess = () => {
@@ -50,7 +51,7 @@ export default function EditBrandPage({ params }: EditBrandPageProps) {
               <div className="card shadow-sm border-0">
                 <div className="card-body p-4">
                   <BrandFormWrapper
-                    brandId={params.id}
+                    brandId={resolvedParams.id}
                     onSuccess={handleSuccess}
                     onCancel={handleCancel}
                   />

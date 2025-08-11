@@ -99,9 +99,9 @@ export const UnitsCompact = React.memo<UnitsCompactProps>(({
                   <span className="fw-semibold me-2 text-truncate" title={unit.name}>
                     {unit.name}
                   </span>
-                  {unit.symbol && (
+                  {unit.code && (
                     <code className="bg-light px-2 py-1 rounded me-2 small">
-                      {unit.symbol}
+                      {unit.code}
                     </code>
                   )}
                 </div>

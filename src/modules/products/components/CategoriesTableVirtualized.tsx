@@ -125,7 +125,7 @@ export const CategoriesTableVirtualized = React.memo<CategoriesTableVirtualizedP
             No se encontraron categorías con los filtros aplicados
           </p>
           <div className="d-flex justify-content-center gap-2">
-            <Button variant="outline" buttonStyle="secondary">
+            <Button variant="secondary" buttonStyle="outline">
               <i className="bi bi-funnel me-2" />
               Limpiar Filtros
             </Button>
@@ -159,6 +159,7 @@ export const CategoriesTableVirtualized = React.memo<CategoriesTableVirtualizedP
               <th style={{ width: '50px' }}></th>
               <th style={{ width: '300px' }}>Categoría</th>
               <th>Descripción</th>
+              <th style={{ width: '100px' }}>Productos</th>
               <th style={{ width: '120px' }}>Estado</th>
               <th style={{ width: '180px' }}>Fecha Creación</th>
               <th style={{ width: '150px' }}>Acciones</th>
@@ -218,6 +219,22 @@ export const CategoriesTableVirtualized = React.memo<CategoriesTableVirtualizedP
                         <div className="text-truncate-lines-2 small">
                           {category.description || (
                             <span className="text-muted fst-italic">Sin descripción</span>
+                          )}
+                        </div>
+                      </td>
+                      
+                      {/* Products Count */}
+                      <td style={{ width: '100px' }}>
+                        <div className="d-flex align-items-center justify-content-center">
+                          {category.productsCount !== undefined ? (
+                            <span className="badge bg-secondary rounded-pill">
+                              {category.productsCount}
+                            </span>
+                          ) : (
+                            <span className="badge bg-warning rounded-pill" title="Conteo no disponible - requiere actualización del backend">
+                              <i className="bi bi-hourglass-split me-1" />
+                              N/A
+                            </span>
                           )}
                         </div>
                       </td>

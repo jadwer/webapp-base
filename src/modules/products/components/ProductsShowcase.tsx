@@ -3,7 +3,6 @@
 import React from 'react'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { Button } from '@/ui/components/base'
-import { StatusBadge } from './StatusBadge'
 import type { Product } from '../types'
 
 interface ProductsShowcaseProps {
@@ -26,7 +25,7 @@ const ProductShowcaseCard = React.memo<{
       {/* Hero Product Image */}
       <div className="position-relative">
         <img
-          src={product.image || '/images/product-placeholder.jpg'}
+          src={product.imgPath || '/images/product-placeholder.jpg'}
           alt={product.name}
           className="card-img-top"
           style={{ height: '400px', objectFit: 'cover' }}
@@ -39,7 +38,7 @@ const ProductShowcaseCard = React.memo<{
         
         {/* Status and Category Overlays */}
         <div className="position-absolute top-0 end-0 m-3">
-          <StatusBadge status={product.status || 'active'} />
+          <span className="badge bg-success rounded-pill small">Activo</span>
         </div>
         
         <div className="position-absolute top-0 start-0 m-3">
@@ -82,7 +81,7 @@ const ProductShowcaseCard = React.memo<{
           <div className="row g-2 text-center">
             <div className="col-6">
               <small className="text-muted">Stock</small>
-              <div className="fw-bold">{product.stock || 0}</div>
+              <div className="fw-bold">{"N/A"}</div>
             </div>
             <div className="col-6">
               <small className="text-muted">Costo</small>

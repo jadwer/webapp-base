@@ -3,7 +3,6 @@
 import React from 'react'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { Button } from '@/ui/components/base'
-import { StatusBadge } from './StatusBadge'
 import type { Product } from '../types'
 
 interface ProductsCompactProps {
@@ -25,7 +24,7 @@ const ProductCompactRow = React.memo<{
     {/* Image */}
     <div className="flex-shrink-0 me-2">
       <img
-        src={product.image || '/images/product-placeholder.jpg'}
+        src={product.imgPath || '/images/product-placeholder.jpg'}
         alt={product.name}
         className="rounded"
         style={{ width: '32px', height: '32px', objectFit: 'cover' }}
@@ -60,8 +59,8 @@ const ProductCompactRow = React.memo<{
 
     {/* Stock */}
     <div className="text-center me-2" style={{ width: '50px' }}>
-      <div className="fw-bold small">{product.stock || 0}</div>
-      <StatusBadge status={product.status || 'active'} />
+      <div className="fw-bold small">N/A</div>
+      <span className="badge bg-success rounded-pill small">Activo</span>
     </div>
 
     {/* Actions */}

@@ -5,6 +5,7 @@ export interface Unit {
   name: string
   createdAt: string
   updatedAt: string
+  productsCount?: number // TODO: Backend needs to provide this count
 }
 
 export interface CreateUnitData {

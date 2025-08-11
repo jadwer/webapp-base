@@ -3,7 +3,6 @@
 import React from 'react'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { Button } from '@/ui/components/base'
-import { StatusBadge } from './StatusBadge'
 import type { Product } from '../types'
 
 interface ProductsListProps {
@@ -25,7 +24,7 @@ const ProductListItem = React.memo<{
     {/* Image */}
     <div className="flex-shrink-0 me-3">
       <img
-        src={product.image || '/images/product-placeholder.jpg'}
+        src={product.imgPath || '/images/product-placeholder.jpg'}
         alt={product.name}
         className="rounded border"
         style={{ width: '80px', height: '80px', objectFit: 'cover' }}
@@ -45,7 +44,7 @@ const ProductListItem = React.memo<{
           <h6 className="fw-bold text-dark mb-0">{product.name}</h6>
           <small className="text-muted">SKU: {product.sku}</small>
         </div>
-        <StatusBadge status={product.status || 'active'} />
+        <span className="badge bg-success rounded-pill small">Activo</span>
       </div>
 
       {/* Category, Brand and Unit */}
@@ -72,7 +71,7 @@ const ProductListItem = React.memo<{
         <div className="col-sm-6">
           <div className="d-flex justify-content-between">
             <span className="text-muted small">Stock:</span>
-            <span className="fw-bold">{product.stock || 0}</span>
+            <span className="fw-bold">{"N/A"}</span>
           </div>
         </div>
       </div>

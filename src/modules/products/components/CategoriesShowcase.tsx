@@ -46,7 +46,7 @@ export const CategoriesShowcase = React.memo<CategoriesShowcaseProps>(({ categor
         <h2 className="text-muted mb-3">Showcase Vacío</h2>
         <p className="text-muted mb-4 lead">No hay categorías para mostrar en vista premium</p>
         <div className="d-flex justify-content-center gap-3">
-          <Button variant="outline" buttonStyle="secondary" size="large"><i className="bi bi-funnel me-2" />Ajustar Filtros</Button>
+          <Button variant="secondary" buttonStyle="outline" size="large"><i className="bi bi-funnel me-2" />Ajustar Filtros</Button>
           <Button variant="primary" size="large"><i className="bi bi-plus-lg me-2" />Crear Nueva Categoría</Button>
         </div>
       </div>

@@ -4,7 +4,6 @@ import React, { useState, useRef } from 'react'
 import clsx from 'clsx'
 import { Button } from '@/ui/components/base'
 import ConfirmModal, { ConfirmModalHandle } from '@/ui/ConfirmModal'
-import StatusBadge from './StatusBadge'
 import { formatDate, formatPrice } from '../utils'
 import type { Product } from '../types'
 
@@ -81,9 +80,6 @@ export const ProductsTable: React.FC<ProductsTableProps> = ({
     return text.length > maxLength ? `${text.substring(0, maxLength)}...` : text
   }
 
-  const getProductStatus = (): 'active' | 'inactive' | 'out_of_stock' => {
-    return 'active'
-  }
 
   if (isLoading) {
     return (
@@ -172,7 +168,7 @@ export const ProductsTable: React.FC<ProductsTableProps> = ({
                     </span>
                   </td>
                   <td>
-                    <StatusBadge status={getProductStatus()} />
+                    <span className="badge bg-success rounded-pill">Activo</span>
                   </td>
                   <td className="text-muted small">
                     {formatDate(product.createdAt)}

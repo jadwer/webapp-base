@@ -114,6 +114,76 @@ export function createErrorMessage(error: unknown): string {
   return getFirstErrorMessage(error)
 }
 
+/**
+ * Create enhanced error message with additional context
+ */
+export function createEnhancedErrorMessage(error: unknown): {
+  message: string
+  details?: {
+    type: 'relationship' | 'validation' | 'network' | 'auth' | 'unknown'
+    canRetry: boolean
+    hasActions: boolean
+    relationshipDetails?: ReturnType<typeof getRelationshipErrorDetails>
+  }
+} {
+  const baseMessage = createErrorMessage(error)
+  
+  if (isRelationshipError(error)) {
+    const relationshipDetails = getRelationshipErrorDetails(error)
+    return {
+      message: baseMessage,
+      details: {
+        type: 'relationship',
+        canRetry: false,
+        hasActions: relationshipDetails.hasDetails,
+        relationshipDetails
+      }
+    }
+  }
+  
+  if (isNetworkError(error)) {
+    return {
+      message: baseMessage,
+      details: {
+        type: 'network',
+        canRetry: true,
+        hasActions: false
+      }
+    }
+  }
+  
+  if (isValidationError(error)) {
+    return {
+      message: baseMessage,
+      details: {
+        type: 'validation',
+        canRetry: true,
+        hasActions: false
+      }
+    }
+  }
+  
+  if (isAuthError(error)) {
+    return {
+      message: baseMessage,
+      details: {
+        type: 'auth',
+        canRetry: false,
+        hasActions: false
+      }
+    }
+  }
+  
+  return {
+    message: baseMessage,
+    details: {
+      type: 'unknown',
+      canRetry: true,
+      hasActions: false
+    }
+  }
+}
+
 export function isRelationshipError(error: unknown): boolean {
   if (error && typeof error === 'object' && 'response' in error) {
     const axiosError = error as { response?: { status?: number, data?: { errors?: JsonApiError[] } } }
@@ -157,11 +227,78 @@ export function getRelationshipErrorMessage(error: unknown): string {
       }
     }
     
-    // Generic relationship error
-    if (message.includes('foreign key') || message.includes('constraint')) {
+    // Check for other common relationship patterns
+    if (message.includes('cannot delete') || message.includes('no se puede eliminar')) {
+      return 'No se puede completar la eliminación debido a dependencias existentes. Verifique que no haya registros relacionados.'
+    }
+    
+    if (message.includes('integrity constraint') || message.includes('violación de integridad')) {
+      return 'No se puede eliminar porque violaría la integridad de los datos. Existen registros dependientes que deben eliminarse primero.'
+    }
+    
+    if (message.includes('referenced') || message.includes('referenciado')) {
+      return 'Este elemento está siendo referenciado por otros registros y no puede eliminarse. Elimine las referencias primero.'
+    }
+    
+    // Generic foreign key error
+    if (message.includes('foreign key') || message.includes('constraint') || message.includes('clave foránea')) {
       return 'No se puede eliminar este registro porque está siendo utilizado por otros elementos. Primero elimine las referencias antes de continuar.'
     }
   }
   
   return 'No se puede eliminar este elemento porque está relacionado con otros registros del sistema.'
+}
+
+/**
+ * Extract additional information from relationship errors
+ */
+export function getRelationshipErrorDetails(error: unknown): {
+  hasDetails: boolean
+  affectedEntity?: string
+  count?: number
+  suggestion?: string
+} {
+  const parsedErrors = parseJsonApiErrors(error)
+  
+  for (const err of parsedErrors) {
+    const message = err.message.toLowerCase()
+    
+    // Try to extract count information
+    const countMatch = message.match(/(\d+)\s*(product|producto|item|registro)/)
+    if (countMatch) {
+      const count = parseInt(countMatch[1])
+      return {
+        hasDetails: true,
+        count,
+        suggestion: `Hay ${count} ${count === 1 ? 'registro relacionado' : 'registros relacionados'}. ¿Desea ver la lista para gestionarlos?`
+      }
+    }
+    
+    // Try to extract entity information
+    if (message.includes('category') || message.includes('categoría')) {
+      return {
+        hasDetails: true,
+        affectedEntity: 'products',
+        suggestion: '¿Desea ir al módulo de productos para reasignar las categorías?'
+      }
+    }
+    
+    if (message.includes('brand') || message.includes('marca')) {
+      return {
+        hasDetails: true,
+        affectedEntity: 'products',
+        suggestion: '¿Desea ir al módulo de productos para reasignar las marcas?'
+      }
+    }
+    
+    if (message.includes('unit') || message.includes('unidad')) {
+      return {
+        hasDetails: true,
+        affectedEntity: 'products',
+        suggestion: '¿Desea ir al módulo de productos para reasignar las unidades?'
+      }
+    }
+  }
+  
+  return { hasDetails: false }
 }

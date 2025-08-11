@@ -58,7 +58,20 @@ export const brandService = {
 
   async getBrand(id: string): Promise<BrandResponse> {
     const response = await axios.get(`${BRANDS_ENDPOINT}/${id}`)
-    return response.data
+    console.log('🔍 Single Brand API Response:', response.data)
+    
+    const jsonApiResponse = response.data as JsonApiResponse<JsonApiResource>
+    
+    // Transform the single resource response
+    const transformedBrand = transformJsonApiBrand(jsonApiResponse.data)
+    
+    console.log('🔄 Transformed Brand:', transformedBrand)
+    
+    return {
+      data: transformedBrand,
+      meta: jsonApiResponse.meta,
+      links: jsonApiResponse.links
+    }
   },
 
   async createBrand(data: CreateBrandRequest): Promise<BrandResponse> {

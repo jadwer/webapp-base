@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { BrandForm } from './BrandForm'
 import { useBrand, useBrandMutations } from '../hooks'
 import { useToast } from '@/ui/hooks/useToast'
+import type { CreateBrandData, UpdateBrandData } from '../types'
 
 interface BrandFormWrapperProps {
   brandId?: string
@@ -24,15 +25,15 @@ export const BrandFormWrapper: React.FC<BrandFormWrapperProps> = ({
   const { brand, isLoading: brandLoading, error: brandError } = useBrand(brandId)
   const { createBrand, updateBrand, isLoading: mutationLoading } = useBrandMutations()
 
-  const handleSubmit = async (formData: any) => {
+  const handleSubmit = async (formData: CreateBrandData | UpdateBrandData) => {
     try {
       if (brandId && brand) {
         console.log('📝 Updating brand:', brandId, formData)
-        await updateBrand(brandId, { data: formData })
+        await updateBrand(brandId, formData as UpdateBrandData)
         toast.success('Marca actualizada exitosamente')
       } else {
         console.log('🆕 Creating brand:', formData)
-        await createBrand({ data: formData })
+        await createBrand(formData as CreateBrandData)
         toast.success('Marca creada exitosamente')
       }
       

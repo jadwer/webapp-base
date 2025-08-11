@@ -102,22 +102,16 @@ export const UnitsGrid = React.memo<UnitsGridProps>(({
                 </div>
 
                 {/* Symbol */}
-                {unit.symbol && (
+                {unit.code && (
                   <div className="mb-2">
                     <small className="text-muted d-block">Símbolo:</small>
                     <div className="fs-4 fw-bold text-primary">
-                      {unit.symbol}
+                      {unit.code}
                     </div>
                   </div>
                 )}
 
                 {/* Description */}
-                {unit.description && (
-                  <div className="mb-3">
-                    <small className="text-muted d-block mb-1">Descripción:</small>
-                    <p className="small mb-0 text-truncate-lines-2" title={unit.description}>
-                      {unit.description}
-                    </p>
                   </div>
                 )}
               </div>

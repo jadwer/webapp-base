@@ -40,7 +40,7 @@ export const BrandsViewModeSelector = React.memo(() => {
                 <Button
                   key={option.id}
                   variant={viewMode === option.id ? 'primary' : 'secondary'}
-                  buttonStyle={viewMode === option.id ? 'solid' : 'outline'}
+                  buttonStyle={viewMode === option.id ? 'filled' : 'outline'}
                   size="small"
                   onClick={() => setViewMode(option.id)}
                   title={option.description}

@@ -3,7 +3,7 @@
 import React from 'react'
 import { Button } from '@/ui/components/base'
 import { useUnit } from '../hooks'
-import type { Unit } from '../types'
+// import type { Unit } from '../types' // Unused but may be needed later
 
 interface UnitViewProps {
   unitId: string

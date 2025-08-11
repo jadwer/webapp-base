@@ -59,7 +59,20 @@ export const unitService = {
 
   async getUnit(id: string): Promise<UnitResponse> {
     const response = await axios.get(`${UNITS_ENDPOINT}/${id}`)
-    return response.data
+    console.log('🔍 Single Unit API Response:', response.data)
+    
+    const jsonApiResponse = response.data as JsonApiResponse<JsonApiResource>
+    
+    // Transform the single resource response
+    const transformedUnit = transformJsonApiUnit(jsonApiResponse.data)
+    
+    console.log('🔄 Transformed Unit:', transformedUnit)
+    
+    return {
+      data: transformedUnit,
+      meta: jsonApiResponse.meta,
+      links: jsonApiResponse.links
+    }
   },
 
   async createUnit(data: CreateUnitRequest): Promise<UnitResponse> {

@@ -3,7 +3,7 @@
 import React from 'react'
 import { Button } from '@/ui/components/base'
 import { useCategory } from '../hooks'
-import type { Category } from '../types'
+// import type { Category } from '../types' // Unused but may be needed later
 
 interface CategoryViewProps {
   categoryId: string

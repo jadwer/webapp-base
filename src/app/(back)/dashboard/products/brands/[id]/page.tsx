@@ -5,16 +5,17 @@ import { BrandView } from '@/modules/products'
 import { useRouter } from 'next/navigation'
 
 interface BrandViewPageProps {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
 export default function BrandViewPage({ params }: BrandViewPageProps) {
+  const resolvedParams = React.use(params)
   const router = useRouter()
 
   const handleEdit = () => {
-    router.push(`/dashboard/products/brands/${params.id}/edit`)
+    router.push(`/dashboard/products/brands/${resolvedParams.id}/edit`)
   }
 
   const handleBack = () => {
@@ -48,7 +49,7 @@ export default function BrandViewPage({ params }: BrandViewPageProps) {
           <div className="row justify-content-center">
             <div className="col-lg-10 col-xl-8">
               <BrandView
-                brandId={params.id}
+                brandId={resolvedParams.id}
                 onEdit={handleEdit}
                 onBack={handleBack}
               />

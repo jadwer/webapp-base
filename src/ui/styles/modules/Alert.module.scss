@@ -1,0 +1,238 @@
+// Alert Component Styles
+// ======================
+
+.alert {
+  display: flex;
+  align-items: flex-start;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border: 1px solid transparent;
+  border-radius: 0.375rem;
+  font-family: inherit;
+  line-height: 1.5;
+  transition: all 0.15s ease-in-out;
+  position: relative;
+
+  // Layout with icon
+  .iconContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 0.75rem;
+    flex-shrink: 0;
+    font-size: 1.125rem;
+    line-height: 1;
+  }
+
+  .content {
+    flex: 1;
+    min-width: 0; // Prevent text overflow
+
+    .title {
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+      font-size: 0.95rem;
+    }
+
+    .message {
+      margin: 0;
+    }
+  }
+
+  .closeButton {
+    background: none;
+    border: none;
+    padding: 0.25rem;
+    margin-left: 0.75rem;
+    cursor: pointer;
+    font-size: 1.125rem;
+    line-height: 1;
+    color: inherit;
+    opacity: 0.7;
+    transition: opacity 0.15s ease-in-out;
+    flex-shrink: 0;
+
+    &:hover {
+      opacity: 1;
+    }
+
+    &:focus {
+      outline: 2px solid;
+      outline-offset: 2px;
+      border-radius: 0.25rem;
+    }
+  }
+
+  // Sizes
+  &.small {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+
+    .iconContainer {
+      margin-right: 0.5rem;
+      font-size: 1rem;
+    }
+
+    .title {
+      font-size: 0.875rem;
+      margin-bottom: 0.125rem;
+    }
+
+    .closeButton {
+      padding: 0.125rem;
+      margin-left: 0.5rem;
+      font-size: 1rem;
+    }
+  }
+
+  &.medium {
+    padding: 0.75rem 1rem;
+    font-size: 0.925rem;
+  }
+
+  &.large {
+    padding: 1.25rem 1.5rem;
+    font-size: 1rem;
+
+    .iconContainer {
+      margin-right: 1rem;
+      font-size: 1.25rem;
+    }
+
+    .title {
+      font-size: 1.125rem;
+      margin-bottom: 0.375rem;
+    }
+
+    .closeButton {
+      padding: 0.375rem;
+      margin-left: 1rem;
+      font-size: 1.25rem;
+    }
+  }
+
+  // Variants - Using Bootstrap semantic colors
+  &.primary {
+    color: #084298;
+    background-color: #cfe2ff;
+    border-color: #b6d4fe;
+
+    .closeButton:focus {
+      outline-color: #084298;
+    }
+  }
+
+  &.secondary {
+    color: #41464b;
+    background-color: #e2e3e5;
+    border-color: #d3d6d8;
+
+    .closeButton:focus {
+      outline-color: #41464b;
+    }
+  }
+
+  &.success {
+    color: #0f5132;
+    background-color: #d1e7dd;
+    border-color: #badbcc;
+
+    .closeButton:focus {
+      outline-color: #0f5132;
+    }
+  }
+
+  &.warning {
+    color: #664d03;
+    background-color: #fff3cd;
+    border-color: #ffecb5;
+
+    .closeButton:focus {
+      outline-color: #664d03;
+    }
+  }
+
+  &.danger {
+    color: #842029;
+    background-color: #f8d7da;
+    border-color: #f5c2c7;
+
+    .closeButton:focus {
+      outline-color: #842029;
+    }
+  }
+
+  &.info {
+    color: #055160;
+    background-color: #d1ecf1;
+    border-color: #b8dadf;
+
+    .closeButton:focus {
+      outline-color: #055160;
+    }
+  }
+
+  // States
+  &.dismissible {
+    padding-right: 3rem;
+
+    &.small {
+      padding-right: 2.5rem;
+    }
+
+    &.large {
+      padding-right: 3.5rem;
+    }
+  }
+
+  // Without icon adjustments
+  &:not(.withIcon) {
+    .content {
+      margin-left: 0;
+    }
+  }
+
+  // Accessibility
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+
+  // Dark mode support (if needed)
+  @media (prefers-color-scheme: dark) {
+    &.primary {
+      color: #6ea8fe;
+      background-color: #031633;
+      border-color: #084298;
+    }
+
+    &.secondary {
+      color: #adb5bd;
+      background-color: #2d3133;
+      border-color: #41464b;
+    }
+
+    &.success {
+      color: #75b798;
+      background-color: #051b11;
+      border-color: #0f5132;
+    }
+
+    &.warning {
+      color: #ffda6a;
+      background-color: #332701;
+      border-color: #664d03;
+    }
+
+    &.danger {
+      color: #ea868f;
+      background-color: #2c0b0e;
+      border-color: #842029;
+    }
+
+    &.info {
+      color: #6edff6;
+      background-color: #032830;
+      border-color: #055160;
+    }
+  }
+}

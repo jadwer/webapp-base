@@ -35,22 +35,28 @@ export function useCategoryMutations() {
   }
 
   const updateCategory = async (id: string, data: UpdateCategoryRequest) => {
+    console.log('🔄 useCategoryMutations.updateCategory called', { id, data })
     setIsLoading(true)
     setError(null)
     
     try {
+      console.log('📞 Calling categoryService.updateCategory...')
       const response = await categoryService.updateCategory(id, data)
+      console.log('✅ categoryService.updateCategory returned:', response)
       
       // Invalidate specific category and categories list
+      console.log('🔄 Invalidating SWR cache...')
       await mutate(['category', id], response, { revalidate: false })
       await mutate(
         (key) => Array.isArray(key) && key[0] === 'categories',
         undefined,
         { revalidate: true }
       )
+      console.log('✅ Cache invalidated successfully')
       
       return response
     } catch (err) {
+      console.error('❌ useCategoryMutations.updateCategory failed:', err)
       const error = err as Error
       setError(error)
       throw error
@@ -79,9 +85,9 @@ export function useCategoryMutations() {
       
       // Add additional metadata for relationship errors
       if (isRelationshipError(err)) {
-        // @ts-ignore - Adding custom property
+        // @ts-expect-error - Adding custom property
         error.isRelationshipError = true
-        // @ts-ignore - Adding custom property  
+        // @ts-expect-error - Adding custom property
         error.originalError = err
       }
       

@@ -32,12 +32,6 @@ const UnitRow = React.memo<{
 
     {/* Description */}
     <div className="flex-fill me-3" style={{ minWidth: '300px' }}>
-      <div className="text-muted">{unit.description || 'Sin descripción'}</div>
-    </div>
-
-    {/* Usage Count (if available) */}
-    <div className="text-center me-3" style={{ width: '80px' }}>
-      <div className="fw-bold">{unit.products_count || 0}</div>
       <small className="text-muted">productos</small>
     </div>
 

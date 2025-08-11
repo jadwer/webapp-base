@@ -59,7 +59,7 @@ export const UnitsList = React.memo<UnitsListProps>(({
           No se encontraron unidades que coincidan con los filtros aplicados
         </p>
         <div className="d-flex justify-content-center gap-2">
-          <Button variant="outline" buttonStyle="secondary">
+          <Button variant="secondary" buttonStyle="outline">
             <i className="bi bi-funnel me-2" />
             Limpiar Filtros
           </Button>
@@ -98,9 +98,9 @@ export const UnitsList = React.memo<UnitsListProps>(({
                   <div>
                     <h5 className="fw-bold mb-1">
                       {unit.name}
-                      {unit.symbol && (
+                      {unit.code && (
                         <code className="ms-2 bg-light px-2 py-1 rounded small">
-                          {unit.symbol}
+                          {unit.code}
                         </code>
                       )}
                     </h5>
@@ -153,12 +153,6 @@ export const UnitsList = React.memo<UnitsListProps>(({
                 </div>
 
                 {/* Description */}
-                {unit.description && (
-                  <div className="mb-3">
-                    <p className="text-muted mb-0 small lh-sm">
-                      {unit.description}
-                    </p>
-                  </div>
                 )}
 
                 {/* Metadata */}

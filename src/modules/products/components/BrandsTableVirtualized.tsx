@@ -79,7 +79,7 @@ export const BrandsTableVirtualized = React.memo<BrandsTableVirtualizedProps>(({
           <h3 className="text-muted mb-2">Sin marcas</h3>
           <p className="text-muted mb-4">No se encontraron marcas con los filtros aplicados</p>
           <div className="d-flex justify-content-center gap-2">
-            <Button variant="outline" buttonStyle="secondary"><i className="bi bi-funnel me-2" />Limpiar Filtros</Button>
+            <Button variant="secondary" buttonStyle="outline"><i className="bi bi-funnel me-2" />Limpiar Filtros</Button>
             <Button variant="primary"><i className="bi bi-plus-lg me-2" />Nueva Marca</Button>
           </div>
         </div>

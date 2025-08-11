@@ -9,7 +9,7 @@ export interface UnitFilters {
 }
 
 export interface UnitSortOptions {
-  field: 'name' | 'symbol' | 'createdAt' | 'updatedAt'
+  field: 'name' | 'code' | 'unitType' | 'createdAt' | 'updatedAt'
   direction: 'asc' | 'desc'
 }
 

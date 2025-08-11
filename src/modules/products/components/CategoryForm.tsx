@@ -91,11 +91,16 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    console.log('📝 CategoryForm handleSubmit called', { formData, category })
     
     const allTouched = Object.keys(formData).reduce((acc, key) => ({ ...acc, [key]: true }), {})
     setTouched(allTouched)
 
-    if (!validateForm()) return
+    console.log('🔍 Validating form...')
+    if (!validateForm()) {
+      console.log('❌ Form validation failed', { errors })
+      return
+    }
 
     const submitData = {
       name: formData.name.trim(),
@@ -103,7 +108,13 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
       ...(formData.slug && { slug: formData.slug.trim() })
     }
 
-    await onSubmit(submitData)
+    console.log('📤 Submitting data:', submitData)
+    try {
+      await onSubmit(submitData)
+      console.log('✅ Form submitted successfully')
+    } catch (error) {
+      console.error('❌ Form submission failed:', error)
+    }
   }
 
   return (

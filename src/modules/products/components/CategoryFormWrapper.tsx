@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation'
 import { CategoryForm } from './CategoryForm'
 import { useCategory, useCategoryMutations } from '../hooks'
 import { useToast } from '@/ui/hooks/useToast'
+import { Alert } from '@/ui/components/base'
+import type { CreateCategoryData, UpdateCategoryData } from '../types'
 
 interface CategoryFormWrapperProps {
   categoryId?: string
@@ -24,15 +26,15 @@ export const CategoryFormWrapper: React.FC<CategoryFormWrapperProps> = ({
   const { category, isLoading: categoryLoading, error: categoryError } = useCategory(categoryId)
   const { createCategory, updateCategory, isLoading: mutationLoading } = useCategoryMutations()
 
-  const handleSubmit = async (formData: any) => {
+  const handleSubmit = async (formData: CreateCategoryData | UpdateCategoryData) => {
     try {
       if (categoryId && category) {
         console.log('📝 Updating category:', categoryId, formData)
-        await updateCategory(categoryId, { data: formData })
+        await updateCategory(categoryId, formData as UpdateCategoryData)
         toast.success('Categoría actualizada exitosamente')
       } else {
         console.log('🆕 Creating category:', formData)
-        await createCategory({ data: formData })
+        await createCategory(formData as CreateCategoryData)
         toast.success('Categoría creada exitosamente')
       }
       
@@ -68,15 +70,13 @@ export const CategoryFormWrapper: React.FC<CategoryFormWrapperProps> = ({
     return (
       <div className="card">
         <div className="card-body">
-          <div className="alert alert-danger d-flex align-items-start">
-            <i className="bi bi-exclamation-triangle-fill me-2 mt-1" />
-            <div>
-              <strong>Error al cargar la categoría</strong>
-              <div className="small mt-1">
-                {categoryError.message || 'No se pudo obtener la información de la categoría'}
-              </div>
-            </div>
-          </div>
+          <Alert 
+            variant="danger" 
+            title="Error al cargar la categoría"
+            showIcon={true}
+          >
+            {categoryError.message || 'No se pudo obtener la información de la categoría'}
+          </Alert>
         </div>
       </div>
     )

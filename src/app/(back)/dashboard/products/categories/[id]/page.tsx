@@ -5,16 +5,17 @@ import { CategoryView } from '@/modules/products'
 import { useRouter } from 'next/navigation'
 
 interface CategoryViewPageProps {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
 export default function CategoryViewPage({ params }: CategoryViewPageProps) {
+  const resolvedParams = React.use(params)
   const router = useRouter()
 
   const handleEdit = () => {
-    router.push(`/dashboard/products/categories/${params.id}/edit`)
+    router.push(`/dashboard/products/categories/${resolvedParams.id}/edit`)
   }
 
   const handleBack = () => {
@@ -48,7 +49,7 @@ export default function CategoryViewPage({ params }: CategoryViewPageProps) {
           <div className="row justify-content-center">
             <div className="col-lg-10 col-xl-8">
               <CategoryView
-                categoryId={params.id}
+                categoryId={resolvedParams.id}
                 onEdit={handleEdit}
                 onBack={handleBack}
               />

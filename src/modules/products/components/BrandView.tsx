@@ -3,7 +3,7 @@
 import React from 'react'
 import { Button } from '@/ui/components/base'
 import { useBrand } from '../hooks'
-import type { Brand } from '../types'
+// import type { Brand } from '../types' // Unused but may be needed later
 
 interface BrandViewProps {
   brandId: string

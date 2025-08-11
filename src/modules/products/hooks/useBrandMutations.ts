@@ -79,9 +79,9 @@ export function useBrandMutations() {
       
       // Add additional metadata for relationship errors
       if (isRelationshipError(err)) {
-        // @ts-ignore - Adding custom property
+        // @ts-expect-error - Adding custom property
         error.isRelationshipError = true
-        // @ts-ignore - Adding custom property  
+        // @ts-expect-error - Adding custom property
         error.originalError = err
       }
       

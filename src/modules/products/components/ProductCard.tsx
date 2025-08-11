@@ -2,7 +2,6 @@
 
 import React from 'react'
 import { Button, Card } from '@/ui/components/base'
-import StatusBadge from './StatusBadge'
 import type { Product } from '../types'
 
 interface ProductCardProps {
@@ -33,9 +32,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     return text.length > maxLength ? `${text.substring(0, maxLength)}...` : text
   }
 
-  const getProductStatus = (): 'active' | 'inactive' | 'out_of_stock' => {
-    return 'active'
-  }
 
   return (
     <Card className={className}>
@@ -50,7 +46,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         )}
         
         <div className="position-absolute top-0 end-0 p-2">
-          <StatusBadge status={getProductStatus()} />
+          <span className="badge bg-success rounded-pill">Activo</span>
         </div>
       </div>
 
