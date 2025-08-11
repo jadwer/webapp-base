@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { mutate } from 'swr'
 import { brandService } from '../services'
 import { CreateBrandRequest, UpdateBrandRequest } from '../types'
+import { createErrorMessage, isRelationshipError } from '../utils/errorHandling'
 
 export function useBrandMutations() {
   const [isLoading, setIsLoading] = useState(false)
@@ -73,7 +74,17 @@ export function useBrandMutations() {
         { revalidate: true }
       )
     } catch (err) {
-      const error = err as Error
+      const errorMessage = createErrorMessage(err)
+      const error = new Error(errorMessage)
+      
+      // Add additional metadata for relationship errors
+      if (isRelationshipError(err)) {
+        // @ts-ignore - Adding custom property
+        error.isRelationshipError = true
+        // @ts-ignore - Adding custom property  
+        error.originalError = err
+      }
+      
       setError(error)
       throw error
     } finally {

@@ -1,7 +1,8 @@
 'use client'
 
-import React from 'react'
-import { Button } from '@/ui/components/base'
+import React, { useRef } from 'react'
+import { Button, ConfirmModal } from '@/ui/components/base'
+import type { ConfirmModalHandle } from '@/ui/components/base'
 import { ProductsTableVirtualized } from './ProductsTableVirtualized'
 import { ProductsGrid } from './ProductsGrid'
 import { ProductsList } from './ProductsList'
@@ -13,6 +14,7 @@ import { PaginationPro } from './PaginationPro'
 import { useProducts, useProductMutations } from '../hooks'
 import { useProductsUIStore, useProductsFilters, useProductsSort, useProductsPage, useProductsViewMode } from '../store/productsUIStore'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
+import { useToast } from '@/ui/hooks/useToast'
 
 const ProductsStatsBar = React.memo<{ 
   total: number
@@ -75,6 +77,8 @@ export const ProductsAdminPagePro = React.memo(() => {
   console.log('🔄 ProductsAdminPagePro render') // Should be minimal
 
   const navigation = useNavigationProgress()
+  const confirmModalRef = useRef<ConfirmModalHandle>(null)
+  const toast = useToast()
 
   // Get UI state from Zustand store
   const filters = useProductsFilters()
@@ -91,7 +95,7 @@ export const ProductsAdminPagePro = React.memo(() => {
     include: ['unit', 'category', 'brand']
   })
 
-  const { deleteProduct, duplicateProduct, isLoading: isMutating } = useProductMutations()
+  const { deleteProduct, isLoading: isMutating } = useProductMutations()
 
   // Handlers
   const handlePageChange = React.useCallback((page: number) => {
@@ -110,9 +114,27 @@ export const ProductsAdminPagePro = React.memo(() => {
   }, [])
 
   const handleDelete = React.useCallback(async (productId: string) => {
-    if (window.confirm('¿Estás seguro de eliminar este producto?')) {
-      await deleteProduct(productId)
-      refresh()
+    const confirmed = await confirmModalRef.current?.confirm(
+      '¿Estás seguro de eliminar este producto? Esta acción no se puede deshacer.',
+      {
+        title: 'Eliminar Producto',
+        confirmText: 'Eliminar',
+        cancelText: 'Cancelar',
+        confirmVariant: 'danger',
+        icon: <i className="bi bi-exclamation-triangle-fill text-danger" />
+      }
+    )
+    
+    if (confirmed) {
+      try {
+        await deleteProduct(productId)
+        refresh()
+        toast.success('Producto eliminado exitosamente')
+      } catch (error) {
+        console.error('❌ Error deleting product:', error)
+        // The error message is already handled by the mutation hook
+        toast.error((error as Error).message)
+      }
     }
   }, [deleteProduct, refresh])
 
@@ -274,6 +296,9 @@ export const ProductsAdminPagePro = React.memo(() => {
           </div>
         </div>
       </div>
+      
+      {/* Confirm Modal */}
+      <ConfirmModal ref={confirmModalRef} />
     </div>
   )
 })

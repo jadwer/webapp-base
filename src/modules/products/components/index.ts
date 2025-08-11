@@ -21,20 +21,47 @@ export * from './ProductsList'
 export * from './ProductsCompact'
 export * from './ProductsShowcase'
 
-// FASE 4.6: Implementación limpia
-export * from './ProductsPageClean'
-export * from './ProductsFiltersClean'
-export * from './ProductsViewControls'
+// REMOVED: Implementaciones experimentales y obsoletas eliminadas
 
-// EXPERIMENTAL: Sin re-renders
-export * from './ProductsPageClean2'
-
-// ZUSTAND IMPLEMENTATION
-export * from './ProductsPageCleanZustand'
-
-// PROFESSIONAL ENTERPRISE IMPLEMENTATION
+// PROFESSIONAL ENTERPRISE IMPLEMENTATION - PRODUCTS
 export * from './ProductsTableVirtualized'
 export * from './ProductsFiltersSimple'
 export * from './PaginationPro'
 export * from './ProductsAdminPagePro'
 export * from './ViewModeSelector'
+
+// PROFESSIONAL ENTERPRISE IMPLEMENTATION - UNITS
+export * from './UnitsTableVirtualized'
+export * from './UnitsGrid'
+export * from './UnitsList'
+export * from './UnitsCompact'
+export * from './UnitsShowcase'
+export * from './UnitsFiltersSimple'
+export * from './UnitsViewModeSelector'
+export * from './UnitsAdminPagePro'
+export * from './UnitView'
+export * from './UnitFormWrapper'
+
+// PROFESSIONAL ENTERPRISE IMPLEMENTATION - CATEGORIES  
+export * from './CategoriesTableVirtualized'
+export * from './CategoriesGrid'
+export * from './CategoriesList'
+export * from './CategoriesCompact'
+export * from './CategoriesShowcase'
+export * from './CategoriesFiltersSimple'
+export * from './CategoriesViewModeSelector'
+export * from './CategoriesAdminPagePro'
+export * from './CategoryView'
+export * from './CategoryFormWrapper'
+
+// PROFESSIONAL ENTERPRISE IMPLEMENTATION - BRANDS
+export * from './BrandsTableVirtualized'
+export * from './BrandsGrid'
+export * from './BrandsList'
+export * from './BrandsCompact'
+export * from './BrandsShowcase'
+export * from './BrandsFiltersSimple'
+export * from './BrandsViewModeSelector'
+export * from './BrandsAdminPagePro'
+export * from './BrandView'
+export * from './BrandFormWrapper'

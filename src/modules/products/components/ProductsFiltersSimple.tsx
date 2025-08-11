@@ -46,7 +46,7 @@ export const ProductsFiltersSimple = React.memo(() => {
 
   // Update filters when debounced search or selects change
   useEffect(() => {
-    const newFilters: any = {}
+    const newFilters: Record<string, unknown> = {}
     
     if (debouncedSearchTerm.trim()) {
       newFilters.name = debouncedSearchTerm.trim()
@@ -174,7 +174,7 @@ export const ProductsFiltersSimple = React.memo(() => {
               {searchTerm && (
                 <span className="badge bg-primary">
                   <i className="bi bi-search me-1" />
-                  "{searchTerm}"
+                  &ldquo;{searchTerm}&rdquo;
                 </span>
               )}
               

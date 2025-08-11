@@ -28,7 +28,7 @@ export const useProductsUIStore = create<ProductsUIState>((set) => ({
   // Acciones que NO causan re-renders porque no están en React state
   setFilters: (filters) => {
     console.log('🔍 Zustand: Setting filters (NO RERENDER)', filters)
-    set((state) => ({ 
+    set(() => ({ 
       filters,
       currentPage: 1 // Reset page when filters change
     }))
@@ -36,7 +36,7 @@ export const useProductsUIStore = create<ProductsUIState>((set) => ({
   
   setSort: (sort) => {
     console.log('📊 Zustand: Setting sort (NO RERENDER)', sort)
-    set((state) => ({ 
+    set(() => ({ 
       sort,
       currentPage: 1 // Reset page when sort changes  
     }))

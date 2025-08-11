@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { mutate } from 'swr'
 import { unitService } from '../services'
 import { CreateUnitRequest, UpdateUnitRequest } from '../types'
+import { createErrorMessage, isRelationshipError } from '../utils/errorHandling'
 
 export function useUnitMutations() {
   const [isLoading, setIsLoading] = useState(false)
@@ -73,7 +74,17 @@ export function useUnitMutations() {
         { revalidate: true }
       )
     } catch (err) {
-      const error = err as Error
+      const errorMessage = createErrorMessage(err)
+      const error = new Error(errorMessage)
+      
+      // Add additional metadata for relationship errors
+      if (isRelationshipError(err)) {
+        // @ts-ignore - Adding custom property
+        error.isRelationshipError = true
+        // @ts-ignore - Adding custom property  
+        error.originalError = err
+      }
+      
       setError(error)
       throw error
     } finally {

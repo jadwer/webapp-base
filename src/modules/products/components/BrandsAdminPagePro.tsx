@@ -3,20 +3,20 @@
 import React, { useRef } from 'react'
 import { Button, ConfirmModal } from '@/ui/components/base'
 import type { ConfirmModalHandle } from '@/ui/components/base'
-import { UnitsTableVirtualized } from './UnitsTableVirtualized'
-import { UnitsGrid } from './UnitsGrid'
-import { UnitsList } from './UnitsList'
-import { UnitsCompact } from './UnitsCompact'
-import { UnitsShowcase } from './UnitsShowcase'
-import { UnitsFiltersSimple } from './UnitsFiltersSimple'
-import { UnitsViewModeSelector } from './UnitsViewModeSelector'
+import { BrandsTableVirtualized } from './BrandsTableVirtualized'
+import { BrandsGrid } from './BrandsGrid'
+import { BrandsList } from './BrandsList'
+import { BrandsCompact } from './BrandsCompact'
+import { BrandsShowcase } from './BrandsShowcase'
+import { BrandsFiltersSimple } from './BrandsFiltersSimple'
+import { BrandsViewModeSelector } from './BrandsViewModeSelector'
 import { PaginationPro } from './PaginationPro'
-import { useUnits, useUnitMutations } from '../hooks'
-import { useUnitsUIStore, useUnitsFilters, useUnitsSort, useUnitsPage, useUnitsViewMode } from '../store/unitsUIStore'
+import { useBrands, useBrandMutations } from '../hooks'
+import { useBrandsUIStore, useBrandsFilters, useBrandsSort, useBrandsPage, useBrandsViewMode } from '../store/brandsUIStore'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
 import { useToast } from '@/ui/hooks/useToast'
 
-const UnitsStatsBar = React.memo<{ 
+const BrandsStatsBar = React.memo<{ 
   total: number
   loading?: boolean
 }>(({ total, loading }) => (
@@ -31,7 +31,7 @@ const UnitsStatsBar = React.memo<{
               total.toLocaleString()
             )}
           </div>
-          <div className="text-muted small">Total Unidades</div>
+          <div className="text-muted small">Total Marcas</div>
         </div>
       </div>
     </div>
@@ -39,9 +39,9 @@ const UnitsStatsBar = React.memo<{
       <div className="card border-0 shadow-sm h-100">
         <div className="card-body text-center">
           <div className="display-4 text-success fw-bold">
-            <i className="bi bi-rulers" />
+            <i className="bi bi-award" />
           </div>
-          <div className="text-muted small">Sistema de Medidas</div>
+          <div className="text-muted small">Sistema de Marcas</div>
           <div className="text-success small">Gestión completa</div>
         </div>
       </div>
@@ -60,30 +60,30 @@ const UnitsStatsBar = React.memo<{
   </div>
 ))
 
-UnitsStatsBar.displayName = 'UnitsStatsBar'
+BrandsStatsBar.displayName = 'BrandsStatsBar'
 
-export const UnitsAdminPagePro = React.memo(() => {
-  console.log('🔄 UnitsAdminPagePro render')
+export const BrandsAdminPagePro = React.memo(() => {
+  console.log('🔄 BrandsAdminPagePro render')
 
   const navigation = useNavigationProgress()
   const confirmModalRef = useRef<ConfirmModalHandle>(null)
   const toast = useToast()
 
   // Get UI state from Zustand store
-  const filters = useUnitsFilters()
-  const sort = useUnitsSort()
-  const currentPage = useUnitsPage()
-  const viewMode = useUnitsViewMode()
-  const { setPage } = useUnitsUIStore()
+  const filters = useBrandsFilters()
+  const sort = useBrandsSort()
+  const currentPage = useBrandsPage()
+  const viewMode = useBrandsViewMode()
+  const { setPage } = useBrandsUIStore()
 
-  // Get units data using existing hooks
-  const { units, meta, isLoading, error, refresh } = useUnits({
+  // Get brands data using existing hooks
+  const { brands, meta, isLoading, error, refresh } = useBrands({
     page: { number: currentPage, size: 20 },
     filter: filters.search ? { name: filters.search } : {},
     sort,
   })
 
-  const { deleteUnit, isLoading: isMutating } = useUnitMutations()
+  const { deleteBrand, isLoading: isMutating } = useBrandMutations()
 
   // Handlers
   const handlePageChange = React.useCallback((page: number) => {
@@ -91,19 +91,19 @@ export const UnitsAdminPagePro = React.memo(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }, [setPage])
 
-  const handleEdit = React.useCallback((unit: { id: string }) => {
-    navigation.push(`/dashboard/products/units/${unit.id}/edit`)
+  const handleEdit = React.useCallback((brand: { id: string }) => {
+    navigation.push(`/dashboard/products/brands/${brand.id}/edit`)
   }, [navigation])
 
-  const handleView = React.useCallback((unit: { id: string }) => {
-    window.open(`/dashboard/products/units/${unit.id}`, '_blank')
+  const handleView = React.useCallback((brand: { id: string }) => {
+    window.open(`/dashboard/products/brands/${brand.id}`, '_blank')
   }, [])
 
-  const handleDelete = React.useCallback(async (unitId: string) => {
+  const handleDelete = React.useCallback(async (brandId: string) => {
     const confirmed = await confirmModalRef.current?.confirm(
-      '¿Estás seguro de eliminar esta unidad? Esta acción no se puede deshacer.',
+      '¿Estás seguro de eliminar esta marca? Esta acción no se puede deshacer.',
       {
-        title: 'Eliminar Unidad',
+        title: 'Eliminar Marca',
         confirmText: 'Eliminar',
         cancelText: 'Cancelar',
         confirmVariant: 'danger',
@@ -113,19 +113,19 @@ export const UnitsAdminPagePro = React.memo(() => {
     
     if (confirmed) {
       try {
-        await deleteUnit(unitId)
+        await deleteBrand(brandId)
         refresh()
-        toast.success('Unidad eliminada exitosamente')
+        toast.success('Marca eliminada exitosamente')
       } catch (error) {
-        console.error('❌ Error deleting unit:', error)
+        console.error('❌ Error deleting brand:', error)
         // The error message is already handled by the mutation hook
         toast.error((error as Error).message)
       }
     }
-  }, [deleteUnit, refresh])
+  }, [deleteBrand, refresh])
 
   const handleCreateNew = React.useCallback(() => {
-    navigation.push('/dashboard/products/units/create')
+    navigation.push('/dashboard/products/brands/create')
   }, [navigation])
 
   const handleBackToProducts = React.useCallback(() => {
@@ -133,9 +133,9 @@ export const UnitsAdminPagePro = React.memo(() => {
   }, [navigation])
 
   // Dynamic view rendering based on viewMode
-  const renderUnitsView = React.useCallback(() => {
+  const renderBrandsView = React.useCallback(() => {
     const props = {
-      units,
+      brands,
       isLoading,
       onEdit: handleEdit,
       onView: handleView,
@@ -144,19 +144,19 @@ export const UnitsAdminPagePro = React.memo(() => {
 
     switch (viewMode) {
       case 'table':
-        return <UnitsTableVirtualized {...props} />
+        return <BrandsTableVirtualized {...props} />
       case 'grid':
-        return <UnitsGrid {...props} />
+        return <BrandsGrid {...props} />
       case 'list':
-        return <UnitsList {...props} />
+        return <BrandsList {...props} />
       case 'compact':
-        return <UnitsCompact {...props} />
+        return <BrandsCompact {...props} />
       case 'showcase':
-        return <UnitsShowcase {...props} />
+        return <BrandsShowcase {...props} />
       default:
-        return <UnitsTableVirtualized {...props} />
+        return <BrandsTableVirtualized {...props} />
     }
-  }, [viewMode, units, isLoading, handleEdit, handleView, handleDelete])
+  }, [viewMode, brands, isLoading, handleEdit, handleView, handleDelete])
 
   return (
     <div className="container-fluid py-4">
@@ -175,15 +175,15 @@ export const UnitsAdminPagePro = React.memo(() => {
               Productos
             </Button>
             <div className="bg-primary rounded-circle p-3 me-3">
-              <i className="bi bi-rulers text-white display-6" />
+              <i className="bi bi-award text-white display-6" />
             </div>
             <div>
               <h1 className="display-5 fw-bold mb-0">
-                Gestión de Unidades
+                Gestión de Marcas
                 <span className="badge bg-success ms-3">PRO</span>
               </h1>
               <p className="text-muted lead mb-0">
-                Sistema de unidades de medida con virtualización
+                Sistema de marcas con virtualización
               </p>
             </div>
           </div>
@@ -204,14 +204,14 @@ export const UnitsAdminPagePro = React.memo(() => {
               onClick={handleCreateNew}
             >
               <i className="bi bi-plus-lg me-2" />
-              Nueva Unidad
+              Nueva Marca
             </Button>
           </div>
         </div>
       </div>
 
       {/* Stats */}
-      <UnitsStatsBar 
+      <BrandsStatsBar 
         total={meta?.page?.total || 0}
         loading={isLoading}
       />
@@ -219,10 +219,10 @@ export const UnitsAdminPagePro = React.memo(() => {
       {/* Filters & View Mode */}
       <div className="row mb-4">
         <div className="col-lg-8">
-          <UnitsFiltersSimple />
+          <BrandsFiltersSimple />
         </div>
         <div className="col-lg-4 d-flex align-items-end justify-content-end">
-          <UnitsViewModeSelector />
+          <BrandsViewModeSelector />
         </div>
       </div>
 
@@ -232,7 +232,7 @@ export const UnitsAdminPagePro = React.memo(() => {
           <div className="d-flex align-items-center">
             <i className="bi bi-exclamation-triangle-fill me-3 text-danger fs-4" />
             <div className="flex-fill">
-              <h6 className="mb-1">Error al cargar unidades</h6>
+              <h6 className="mb-1">Error al cargar marcas</h6>
               <p className="mb-0 small">{error.message}</p>
             </div>
             <Button
@@ -250,8 +250,8 @@ export const UnitsAdminPagePro = React.memo(() => {
       {/* Main Content */}
       <div className="row">
         <div className="col">
-          {/* Units Table */}
-          {renderUnitsView()}
+          {/* Brands View */}
+          {renderBrandsView()}
 
           {/* Pagination */}
           {meta && (
@@ -275,11 +275,11 @@ export const UnitsAdminPagePro = React.memo(() => {
               <div className="row align-items-center">
                 <div className="col-md-8">
                   <h6 className="mb-1">
-                    <i className="bi bi-rulers me-2 text-primary" />
-                    Unidades de Medida
+                    <i className="bi bi-award me-2 text-primary" />
+                    Marcas de Productos
                   </h6>
                   <div className="d-flex flex-wrap gap-3 small text-muted">
-                    <span><i className="bi bi-check-circle text-success me-1" />Tabla virtualizada</span>
+                    <span><i className="bi bi-check-circle text-success me-1" />5 vistas virtualizadas</span>
                     <span><i className="bi bi-check-circle text-success me-1" />Filtros con debounce</span>
                     <span><i className="bi bi-check-circle text-success me-1" />Performance optimizado</span>
                   </div>
@@ -302,6 +302,6 @@ export const UnitsAdminPagePro = React.memo(() => {
   )
 })
 
-UnitsAdminPagePro.displayName = 'UnitsAdminPagePro'
+BrandsAdminPagePro.displayName = 'BrandsAdminPagePro'
 
-export default UnitsAdminPagePro
+export default BrandsAdminPagePro

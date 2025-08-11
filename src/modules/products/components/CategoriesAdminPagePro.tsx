@@ -3,20 +3,20 @@
 import React, { useRef } from 'react'
 import { Button, ConfirmModal } from '@/ui/components/base'
 import type { ConfirmModalHandle } from '@/ui/components/base'
-import { UnitsTableVirtualized } from './UnitsTableVirtualized'
-import { UnitsGrid } from './UnitsGrid'
-import { UnitsList } from './UnitsList'
-import { UnitsCompact } from './UnitsCompact'
-import { UnitsShowcase } from './UnitsShowcase'
-import { UnitsFiltersSimple } from './UnitsFiltersSimple'
-import { UnitsViewModeSelector } from './UnitsViewModeSelector'
+import { CategoriesTableVirtualized } from './CategoriesTableVirtualized'
+import { CategoriesGrid } from './CategoriesGrid'
+import { CategoriesList } from './CategoriesList'
+import { CategoriesCompact } from './CategoriesCompact'
+import { CategoriesShowcase } from './CategoriesShowcase'
+import { CategoriesFiltersSimple } from './CategoriesFiltersSimple'
+import { CategoriesViewModeSelector } from './CategoriesViewModeSelector'
 import { PaginationPro } from './PaginationPro'
-import { useUnits, useUnitMutations } from '../hooks'
-import { useUnitsUIStore, useUnitsFilters, useUnitsSort, useUnitsPage, useUnitsViewMode } from '../store/unitsUIStore'
+import { useCategories, useCategoryMutations } from '../hooks'
+import { useCategoriesUIStore, useCategoriesFilters, useCategoriesSort, useCategoriesPage, useCategoriesViewMode } from '../store/categoriesUIStore'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
 import { useToast } from '@/ui/hooks/useToast'
 
-const UnitsStatsBar = React.memo<{ 
+const CategoriesStatsBar = React.memo<{ 
   total: number
   loading?: boolean
 }>(({ total, loading }) => (
@@ -31,7 +31,7 @@ const UnitsStatsBar = React.memo<{
               total.toLocaleString()
             )}
           </div>
-          <div className="text-muted small">Total Unidades</div>
+          <div className="text-muted small">Total Categorías</div>
         </div>
       </div>
     </div>
@@ -39,10 +39,10 @@ const UnitsStatsBar = React.memo<{
       <div className="card border-0 shadow-sm h-100">
         <div className="card-body text-center">
           <div className="display-4 text-success fw-bold">
-            <i className="bi bi-rulers" />
+            <i className="bi bi-tags" />
           </div>
-          <div className="text-muted small">Sistema de Medidas</div>
-          <div className="text-success small">Gestión completa</div>
+          <div className="text-muted small">Sistema de Categorización</div>
+          <div className="text-success small">Organización completa</div>
         </div>
       </div>
     </div>
@@ -60,30 +60,30 @@ const UnitsStatsBar = React.memo<{
   </div>
 ))
 
-UnitsStatsBar.displayName = 'UnitsStatsBar'
+CategoriesStatsBar.displayName = 'CategoriesStatsBar'
 
-export const UnitsAdminPagePro = React.memo(() => {
-  console.log('🔄 UnitsAdminPagePro render')
+export const CategoriesAdminPagePro = React.memo(() => {
+  console.log('🔄 CategoriesAdminPagePro render')
 
   const navigation = useNavigationProgress()
   const confirmModalRef = useRef<ConfirmModalHandle>(null)
   const toast = useToast()
 
   // Get UI state from Zustand store
-  const filters = useUnitsFilters()
-  const sort = useUnitsSort()
-  const currentPage = useUnitsPage()
-  const viewMode = useUnitsViewMode()
-  const { setPage } = useUnitsUIStore()
+  const filters = useCategoriesFilters()
+  const sort = useCategoriesSort()
+  const currentPage = useCategoriesPage()
+  const viewMode = useCategoriesViewMode()
+  const { setPage } = useCategoriesUIStore()
 
-  // Get units data using existing hooks
-  const { units, meta, isLoading, error, refresh } = useUnits({
+  // Get categories data using existing hooks
+  const { categories, meta, isLoading, error, refresh } = useCategories({
     page: { number: currentPage, size: 20 },
     filter: filters.search ? { name: filters.search } : {},
     sort,
   })
 
-  const { deleteUnit, isLoading: isMutating } = useUnitMutations()
+  const { deleteCategory, isLoading: isMutating } = useCategoryMutations()
 
   // Handlers
   const handlePageChange = React.useCallback((page: number) => {
@@ -91,19 +91,19 @@ export const UnitsAdminPagePro = React.memo(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }, [setPage])
 
-  const handleEdit = React.useCallback((unit: { id: string }) => {
-    navigation.push(`/dashboard/products/units/${unit.id}/edit`)
+  const handleEdit = React.useCallback((category: { id: string }) => {
+    navigation.push(`/dashboard/products/categories/${category.id}/edit`)
   }, [navigation])
 
-  const handleView = React.useCallback((unit: { id: string }) => {
-    window.open(`/dashboard/products/units/${unit.id}`, '_blank')
+  const handleView = React.useCallback((category: { id: string }) => {
+    window.open(`/dashboard/products/categories/${category.id}`, '_blank')
   }, [])
 
-  const handleDelete = React.useCallback(async (unitId: string) => {
+  const handleDelete = React.useCallback(async (categoryId: string) => {
     const confirmed = await confirmModalRef.current?.confirm(
-      '¿Estás seguro de eliminar esta unidad? Esta acción no se puede deshacer.',
+      '¿Estás seguro de eliminar esta categoría? Esta acción no se puede deshacer.',
       {
-        title: 'Eliminar Unidad',
+        title: 'Eliminar Categoría',
         confirmText: 'Eliminar',
         cancelText: 'Cancelar',
         confirmVariant: 'danger',
@@ -113,19 +113,19 @@ export const UnitsAdminPagePro = React.memo(() => {
     
     if (confirmed) {
       try {
-        await deleteUnit(unitId)
+        await deleteCategory(categoryId)
         refresh()
-        toast.success('Unidad eliminada exitosamente')
+        toast.success('Categoría eliminada exitosamente')
       } catch (error) {
-        console.error('❌ Error deleting unit:', error)
+        console.error('❌ Error deleting category:', error)
         // The error message is already handled by the mutation hook
         toast.error((error as Error).message)
       }
     }
-  }, [deleteUnit, refresh])
+  }, [deleteCategory, refresh])
 
   const handleCreateNew = React.useCallback(() => {
-    navigation.push('/dashboard/products/units/create')
+    navigation.push('/dashboard/products/categories/create')
   }, [navigation])
 
   const handleBackToProducts = React.useCallback(() => {
@@ -133,9 +133,9 @@ export const UnitsAdminPagePro = React.memo(() => {
   }, [navigation])
 
   // Dynamic view rendering based on viewMode
-  const renderUnitsView = React.useCallback(() => {
+  const renderCategoriesView = React.useCallback(() => {
     const props = {
-      units,
+      categories,
       isLoading,
       onEdit: handleEdit,
       onView: handleView,
@@ -144,19 +144,19 @@ export const UnitsAdminPagePro = React.memo(() => {
 
     switch (viewMode) {
       case 'table':
-        return <UnitsTableVirtualized {...props} />
+        return <CategoriesTableVirtualized {...props} />
       case 'grid':
-        return <UnitsGrid {...props} />
+        return <CategoriesGrid {...props} />
       case 'list':
-        return <UnitsList {...props} />
+        return <CategoriesList {...props} />
       case 'compact':
-        return <UnitsCompact {...props} />
+        return <CategoriesCompact {...props} />
       case 'showcase':
-        return <UnitsShowcase {...props} />
+        return <CategoriesShowcase {...props} />
       default:
-        return <UnitsTableVirtualized {...props} />
+        return <CategoriesTableVirtualized {...props} />
     }
-  }, [viewMode, units, isLoading, handleEdit, handleView, handleDelete])
+  }, [viewMode, categories, isLoading, handleEdit, handleView, handleDelete])
 
   return (
     <div className="container-fluid py-4">
@@ -175,15 +175,15 @@ export const UnitsAdminPagePro = React.memo(() => {
               Productos
             </Button>
             <div className="bg-primary rounded-circle p-3 me-3">
-              <i className="bi bi-rulers text-white display-6" />
+              <i className="bi bi-tags text-white display-6" />
             </div>
             <div>
               <h1 className="display-5 fw-bold mb-0">
-                Gestión de Unidades
+                Gestión de Categorías
                 <span className="badge bg-success ms-3">PRO</span>
               </h1>
               <p className="text-muted lead mb-0">
-                Sistema de unidades de medida con virtualización
+                Sistema de categorización con virtualización
               </p>
             </div>
           </div>
@@ -204,14 +204,14 @@ export const UnitsAdminPagePro = React.memo(() => {
               onClick={handleCreateNew}
             >
               <i className="bi bi-plus-lg me-2" />
-              Nueva Unidad
+              Nueva Categoría
             </Button>
           </div>
         </div>
       </div>
 
       {/* Stats */}
-      <UnitsStatsBar 
+      <CategoriesStatsBar 
         total={meta?.page?.total || 0}
         loading={isLoading}
       />
@@ -219,10 +219,10 @@ export const UnitsAdminPagePro = React.memo(() => {
       {/* Filters & View Mode */}
       <div className="row mb-4">
         <div className="col-lg-8">
-          <UnitsFiltersSimple />
+          <CategoriesFiltersSimple />
         </div>
         <div className="col-lg-4 d-flex align-items-end justify-content-end">
-          <UnitsViewModeSelector />
+          <CategoriesViewModeSelector />
         </div>
       </div>
 
@@ -232,7 +232,7 @@ export const UnitsAdminPagePro = React.memo(() => {
           <div className="d-flex align-items-center">
             <i className="bi bi-exclamation-triangle-fill me-3 text-danger fs-4" />
             <div className="flex-fill">
-              <h6 className="mb-1">Error al cargar unidades</h6>
+              <h6 className="mb-1">Error al cargar categorías</h6>
               <p className="mb-0 small">{error.message}</p>
             </div>
             <Button
@@ -250,8 +250,8 @@ export const UnitsAdminPagePro = React.memo(() => {
       {/* Main Content */}
       <div className="row">
         <div className="col">
-          {/* Units Table */}
-          {renderUnitsView()}
+          {/* Categories View */}
+          {renderCategoriesView()}
 
           {/* Pagination */}
           {meta && (
@@ -275,11 +275,11 @@ export const UnitsAdminPagePro = React.memo(() => {
               <div className="row align-items-center">
                 <div className="col-md-8">
                   <h6 className="mb-1">
-                    <i className="bi bi-rulers me-2 text-primary" />
-                    Unidades de Medida
+                    <i className="bi bi-tags me-2 text-primary" />
+                    Categorías de Productos
                   </h6>
                   <div className="d-flex flex-wrap gap-3 small text-muted">
-                    <span><i className="bi bi-check-circle text-success me-1" />Tabla virtualizada</span>
+                    <span><i className="bi bi-check-circle text-success me-1" />5 vistas virtualizadas</span>
                     <span><i className="bi bi-check-circle text-success me-1" />Filtros con debounce</span>
                     <span><i className="bi bi-check-circle text-success me-1" />Performance optimizado</span>
                   </div>
@@ -302,6 +302,6 @@ export const UnitsAdminPagePro = React.memo(() => {
   )
 })
 
-UnitsAdminPagePro.displayName = 'UnitsAdminPagePro'
+CategoriesAdminPagePro.displayName = 'CategoriesAdminPagePro'
 
-export default UnitsAdminPagePro
+export default CategoriesAdminPagePro
