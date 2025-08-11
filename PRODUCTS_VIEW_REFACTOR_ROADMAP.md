@@ -164,6 +164,46 @@ interface ProductsViewProps {
 - ✅ Mantener compatibilidad con imports existentes
 - ✅ Exports de utilidades y hooks ya están correctos
 
+### 🔄 4.4 - Refinar Integración Real de ProductsView 🔄 **PENDIENTE**
+**Problema identificado:** Los filtros siguen actualizando toda la página, falta paginador integrado
+**Objetivo:** Separar completamente la lógica de filtros de la vista de productos
+
+**Tareas críticas:**
+- 🔄 Verificar paginador en ProductsView funciona correctamente
+- 🔄 Desacoplar filtros de la vista de productos completamente
+- 🔄 Optimizar re-renders innecesarios en filtros
+- 🔄 Validar que ProductFiltersComponent no cause refresh completo
+- 🔄 Implementar debounce correcto en filtros de búsqueda
+- 🔄 Testear navegación de página sin perder filtros
+- 🔄 Verificar que todas las vistas (table/grid/list) respetan filtros
+
+### 🔄 4.5 - Optimización de Performance Filtros 🔄 **PENDIENTE**  
+**Objetivo:** Eliminar dependencias innecesarias entre filtros y vistas
+- 🔄 Implementar React.memo en ProductFiltersComponent
+- 🔄 Optimizar useProducts hook para evitar re-fetch innecesarios
+- 🔄 Separar estado de filtros del estado de vista
+- 🔄 Implementar useMemo para cálculos pesados de filtros
+
+### 🆕 4.6 - ALTERNATIVA: Crear Página Limpia Desde Cero 🆕 **OPCIÓN RECOMENDADA**
+**Enfoque:** Crear nueva página usando hooks/services existentes, arquitectura limpia desde cero
+**Ventajas:** Menos tokens, sin legacy, implementación ideal de la nueva arquitectura
+
+**Estrategia:**
+- 🔄 Crear `src/app/(back)/dashboard/products/clean/page.tsx` - Página completamente nueva
+- 🔄 Usar hooks existentes: `useProducts`, `useProductMutations` sin modificar
+- 🔄 Usar services existentes sin tocar código legacy
+- 🔄 Implementar ProductsView + filtros desde cero con arquitectura ideal
+- 🔄 Filtros independientes de vista, paginación integrada, performance optimizado
+- 🔄 Una vez probada, reemplazar página principal
+- 🔄 Comparar tokens: refactor vs crear nuevo
+
+**Beneficios vs Refactor:**
+✅ **Menos tokens** - No hay que desenredar dependencias legacy
+✅ **Código limpio** - Arquitectura ideal desde el inicio  
+✅ **Sin riesgo** - Página actual sigue funcionando
+✅ **Test A/B** - Comparar ambas implementaciones
+✅ **Mejor UX** - Filtros y paginación diseñados correctamente desde cero
+
 ---
 
 ## 📋 FASE 5: Implementación Frontend Pública
@@ -352,14 +392,17 @@ src/modules/products/components/
   - ✅ **ProductsTable** - Refactorizado con props adicionales preparadas
   - ✅ **ProductsView** - Extendido para soportar 5 view modes
   - ✅ **Build verificado** - Todos los componentes integrados exitosamente
-- ✅ **FASE 4: COMPLETADA** - Templates integrados y ejemplos prácticos funcionando:
+- 🔄 **FASE 4: EN PROGRESO** - Templates y casos de uso:
   - ✅ ProductsAdminTemplate refactorizado con ProductsView
   - ✅ 3 páginas de demo creadas con casos de uso reales
   - ✅ Build verificado - todas las páginas funcionando correctamente
-- 🔄 **PRÓXIMA SESIÓN: FASE 5** - Implementación de páginas frontend públicas
+  - 🔄 **4.4-4.5 CRÍTICOS:** Refinar integración real de filtros y paginación
+- 🔄 **PRÓXIMA SESIÓN: FASE 4.6** - Crear página limpia desde cero (RECOMENDADO)
+- ⏳ **Alternativa: FASE 4.4-4.5** - Refactorizar página existente (más tokens)
+- ⏳ **Después: FASE 5** - Frontend público
 - ⏳ **Pendientes:** FASES 5-8
 
-### **🎉 FASE 4 - RESUMEN DE LOGROS**
+### **🎉 FASE 4.1-4.3 - LOGROS COMPLETADOS**
 ✅ **Template refactorizado** - ProductsAdminTemplate migrado exitosamente
 ✅ **3 páginas de demo** creadas con casos de uso reales:
   - ViewModeDemoPage: Selector interactivo de 5 view modes
@@ -369,6 +412,11 @@ src/modules/products/components/
 ✅ **Arquitectura probada** - Todos los componentes funcionando en conjunto
 ✅ **Documentación práctica** - Ejemplos listos para desarrolladores
 ✅ **Rutas configuradas** - Accesibles desde `/dashboard/products/examples/`
+
+### **⚠️ FASE 4.4-4.5 - TAREAS CRÍTICAS PENDIENTES**
+🔄 **Problema identificado:** Filtros aún causan refresh de página completa
+🔄 **Objetivo principal:** Desacoplar filtros de vista completamente
+🔄 **Crítico para UX:** Eliminar dependencias innecesarias filtros ↔ vista
 
 ### **🎉 FASE 3 - RESUMEN DE LOGROS**
 ✅ **5 componentes nuevos** creados y completamente funcionales
@@ -392,4 +440,129 @@ src/modules/products/components/
 - **Performance:** Plan específico de optimización
 - **DX:** Developer experience mejorado significativamente
 
-**Próxima sesión:** FASE 4.1 - Refactorizar ProductsAdminTemplate usando ProductsView
+---
+
+## 📝 DOCUMENTACIÓN PARA PRÓXIMA SESIÓN
+
+### **🎯 FASE 4.6: Crear Página Products Limpia Desde Cero**
+
+**Contexto del problema:**
+- ProductsAdminTemplate actual tiene filtros que causan refresh completo
+- Paginador no completamente integrado  
+- Dependencias legacy entre filtros y vista
+- Refactorizar sería costoso en tokens
+
+**Solución recomendada: CREAR DESDE CERO**
+
+#### **📋 Plan de implementación detallado:**
+
+1. **Crear nueva ruta:**
+   ```
+   src/app/(back)/dashboard/products/clean/page.tsx
+   ```
+
+2. **Componentes a crear:**
+   ```
+   src/modules/products/components/
+   ├── ProductsPageClean.tsx      # Página principal limpia
+   ├── ProductsFiltersClean.tsx   # Filtros independientes optimizados  
+   └── ProductsViewControls.tsx   # Controles de vista y acciones
+   ```
+
+3. **Arquitectura ideal:**
+   ```tsx
+   // Estado completamente separado
+   - filtersState (independiente)
+   - viewState (independiente)  
+   - paginationState (independiente)
+   - productsData (derivado de los anteriores)
+   ```
+
+4. **Hooks a reutilizar SIN modificar:**
+   - `useProducts` - Mantener tal como está
+   - `useProductMutations` - Mantener tal como está
+   - `useUnits`, `useCategories`, `useBrands` - Para filtros
+
+5. **Features críticos a implementar:**
+   - ✅ Filtros con debounce independientes de vista
+   - ✅ Paginación integrada en ProductsView  
+   - ✅ Cambio de vista sin perder filtros
+   - ✅ Performance optimizado con React.memo
+   - ✅ Estados de loading granulares
+
+#### **🔧 Especificaciones técnicas:**
+
+**ProductsPageClean.tsx:**
+```tsx
+// Separación clara de responsabilidades:
+- Estado de filtros local con useState
+- Estado de vista local con useState  
+- Estado de paginación local con useState
+- useProducts que recibe parámetros combinados
+- ProductsView completamente independiente
+```
+
+**ProductsFiltersClean.tsx:**
+```tsx
+// Filtros completamente independientes:
+- No sabe nada sobre vistas
+- Debounce propio para búsquedas
+- Callbacks simples onChange
+- React.memo para evitar re-renders
+```
+
+**ProductsViewControls.tsx:**
+```tsx
+// Controles de vista y acciones:
+- Selector de view mode
+- Botón crear producto  
+- Acciones batch (si hay selección)
+- Stats y contadores
+```
+
+#### **📊 Beneficios esperados:**
+
+✅ **Performance:** Sin re-renders innecesarios
+✅ **UX:** Filtros instantáneos, paginación fluida
+✅ **Arquitectura:** Separación limpia de responsabilidades
+✅ **Mantenibilidad:** Código nuevo sin legacy
+✅ **Testing:** Fácil de testear cada parte por separado
+✅ **Tokens:** Menos tokens que refactorizar código existente
+
+#### **🚀 Plan de migración:**
+
+1. Crear `/products/clean/` con implementación ideal
+2. Testear completamente la nueva implementación  
+3. Comparar UX entre página actual vs limpia
+4. Si la limpia es superior, reemplazar `/products/page.tsx`
+5. Mantener página actual como backup por si acaso
+
+#### **📁 Estructura de archivos esperada:**
+
+```
+src/app/(back)/dashboard/products/
+├── page.tsx                    # Página actual (backup)
+├── clean/
+│   └── page.tsx               # Nueva implementación limpia
+└── examples/                  # Demos existentes ✅
+    ├── page.tsx              
+    ├── admin-cases/page.tsx   
+    └── selection-demo/page.tsx
+
+src/modules/products/components/
+├── ProductsView.tsx           # Reutilizar ✅
+├── ProductsPageClean.tsx      # NUEVO - Página limpia
+├── ProductsFiltersClean.tsx   # NUEVO - Filtros optimizados
+├── ProductsViewControls.tsx   # NUEVO - Controles de vista
+└── [otros componentes existentes]
+```
+
+#### **⚡ Comandos de inicio para próxima sesión:**
+
+1. `npm run dev` - Verificar que todo sigue funcionando
+2. Crear `/dashboard/products/clean/page.tsx`
+3. Implementar ProductsPageClean con arquitectura ideal
+4. Testear filtros independientes + paginación integrada  
+5. Comparar vs página actual
+
+**Próxima sesión objetivo:** Implementar Fase 4.6 completa en una sesión, demostrar filtros + paginación funcionando perfectamente, preparar para Fase 5.

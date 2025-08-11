@@ -1,310 +1,239 @@
 'use client'
 
 import React from 'react'
-import clsx from 'clsx'
+import { useVirtualizer } from '@tanstack/react-virtual'
 import { Button } from '@/ui/components/base'
-import StatusBadge from './StatusBadge'
-import { formatPrice } from '../utils'
+import { StatusBadge } from './StatusBadge'
 import type { Product } from '../types'
 
 interface ProductsListProps {
   products: Product[]
   isLoading?: boolean
-  showImages?: boolean
-  showPricing?: boolean
-  showStatus?: boolean
-  showDescription?: boolean
-  showActions?: boolean
-  maxDescriptionLength?: number
-  imageSize?: number
   onEdit?: (product: Product) => void
-  onDelete?: (product: Product) => void
+  onDelete?: (productId: string) => void
   onView?: (product: Product) => void
-  onSelect?: (product: Product) => void
-  className?: string
 }
 
-interface ProductListItemProps {
+const ProductListItem = React.memo<{
   product: Product
-  showImages?: boolean
-  showPricing?: boolean
-  showStatus?: boolean
-  showDescription?: boolean
-  showActions?: boolean
-  maxDescriptionLength?: number
-  imageSize?: number
+  style: React.CSSProperties
   onEdit?: (product: Product) => void
-  onDelete?: (product: Product) => void
+  onDelete?: (productId: string) => void
   onView?: (product: Product) => void
-  onSelect?: (product: Product) => void
-}
+}>(({ product, style, onEdit, onDelete, onView }) => (
+  <div style={style} className="d-flex align-items-center border-bottom bg-white hover-bg-light py-3 px-3">
+    {/* Image */}
+    <div className="flex-shrink-0 me-3">
+      <img
+        src={product.image || '/images/product-placeholder.jpg'}
+        alt={product.name}
+        className="rounded border"
+        style={{ width: '80px', height: '80px', objectFit: 'cover' }}
+        onError={(e) => {
+          const target = e.target as HTMLImageElement
+          if (target.src.includes('product-placeholder.jpg')) return
+          target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjgwIiBoZWlnaHQ9IjgwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik00MCAzMkM0Mi42NTY5IDMyIDQ0IDMzLjM0MzEgNDQgMzZDNDQgMzguNjU2OSA0Mi42NTY5IDQwIDQwIDQwQzM3LjM0MzEgNDAgMzYgMzguNjU2OSAzNiAzNkMzNiAzMy4zNDMxIDM3LjM0MzEgMzIgNDAgMzJaIiBmaWxsPSIjOUIxQjI2Ii8+CjxwYXRoIGQ9Ik0yOCA0OEw1MiA0OEM1My4xMDQ2IDQ4IDU0IDQ3LjEwNDYgNTQgNDZDNTQgNDQuODk1NCA1My4xMDQ2IDQ0IDUyIDQ0TDI4IDQ0QzI2Ljg5NTQgNDQgMjYgNDQuODk1NCAyNiA0NkMyNiA0Ny4xMDQ2IDI2Ljg5NTQgNDggMjggNDhaIiBmaWxsPSIjOUIxQjI2Ii8+Cjwvc3ZnPgo='
+        }}
+      />
+    </div>
 
-const ProductListItem: React.FC<ProductListItemProps> = ({
-  product,
-  showImages = true,
-  showPricing = true,
-  showStatus = true,
-  showDescription = false,
-  showActions = true,
-  maxDescriptionLength = 60,
-  imageSize = 60,
-  onEdit,
-  onDelete,
-  onView,
-  onSelect
-}) => {
-  const truncateText = (text: string | null | undefined, maxLength: number) => {
-    if (!text) return ''
-    return text.length > maxLength ? `${text.substring(0, maxLength)}...` : text
-  }
-
-  const getProductStatus = (): 'active' | 'inactive' | 'out_of_stock' => {
-    return 'active'
-  }
-
-  return (
-    <div 
-      className={clsx(
-        'list-group-item list-group-item-action d-flex align-items-start gap-3 py-3',
-        onSelect && 'cursor-pointer'
-      )}
-      onClick={onSelect ? () => onSelect(product) : undefined}
-    >
-      {/* Product Image */}
-      {showImages && (
-        <div className="flex-shrink-0 position-relative">
-          {product.imgPath ? (
-            <img 
-              src={product.imgPath} 
-              alt={product.name}
-              className="rounded"
-              style={{ 
-                width: imageSize, 
-                height: imageSize, 
-                objectFit: 'cover'
-              }}
-            />
-          ) : (
-            <div 
-              className="d-flex align-items-center justify-content-center bg-light text-muted rounded"
-              style={{ width: imageSize, height: imageSize }}
-            >
-              <i className="bi bi-image" />
-            </div>
-          )}
-          
-          {/* Status Indicator */}
-          {showStatus && (
-            <div className="position-absolute top-0 end-0 translate-middle">
-              <StatusBadge status={getProductStatus()} />
-            </div>
-          )}
+    {/* Product Details */}
+    <div className="flex-fill me-3">
+      {/* Name and Status */}
+      <div className="d-flex justify-content-between align-items-start mb-2">
+        <div>
+          <h6 className="fw-bold text-dark mb-0">{product.name}</h6>
+          <small className="text-muted">SKU: {product.sku}</small>
         </div>
-      )}
+        <StatusBadge status={product.status || 'active'} />
+      </div>
 
-      {/* Product Info */}
-      <div className="flex-grow-1 min-w-0">
-        <div className="d-flex justify-content-between align-items-start mb-1">
-          <h6 className="mb-0 text-truncate pe-2" title={product.name}>
-            {product.name}
-          </h6>
-          
-          {/* Price */}
-          {showPricing && (
-            <div className="text-end flex-shrink-0">
-              <div className="fw-bold text-primary">
-                {formatPrice(product.price)}
-              </div>
-              {product.iva && (
-                <small className="badge bg-info text-dark">IVA</small>
-              )}
+      {/* Category, Brand and Unit */}
+      <div className="d-flex flex-wrap gap-2 mb-2">
+        <span className="badge bg-secondary">{product.category?.name}</span>
+        <span className="badge bg-primary">{product.brand?.name}</span>
+        <small className="text-muted align-self-center">
+          <i className="bi bi-rulers me-1" />
+          {product.unit?.name}
+        </small>
+      </div>
+
+      {/* Price and Stock Row */}
+      <div className="row g-2">
+        <div className="col-sm-6">
+          <div className="d-flex justify-content-between">
+            <span className="text-muted small">Precio:</span>
+            <div>
+              <span className="fw-bold text-success">${product.price?.toFixed(2)}</span>
+              <small className="text-muted ms-1">+IVA</small>
             </div>
-          )}
-        </div>
-
-        {/* SKU and Meta info */}
-        <div className="d-flex flex-wrap align-items-center gap-2 mb-2">
-          {product.sku && (
-            <span className="badge bg-dark">
-              <i className="bi bi-upc-scan me-1" />
-              {product.sku}
-            </span>
-          )}
-          
-          {product.category && (
-            <span className="badge bg-secondary">
-              {product.category.name}
-            </span>
-          )}
-          
-          {product.brand && (
-            <span className="badge bg-primary">
-              {product.brand.name}
-            </span>
-          )}
-          
-          {product.unit && (
-            <small className="text-muted">
-              <i className="bi bi-rulers me-1" />
-              {product.unit.name}
-            </small>
-          )}
-        </div>
-
-        {/* Description */}
-        {showDescription && product.description && (
-          <p className="text-muted small mb-2">
-            {truncateText(product.description, maxDescriptionLength)}
-          </p>
-        )}
-
-        {/* Additional Info */}
-        <div className="d-flex justify-content-between align-items-center">
-          <div className="d-flex gap-2">
-            {showPricing && product.cost && (
-              <small className="text-muted">
-                Costo: {formatPrice(product.cost)}
-              </small>
-            )}
-            
-            {product.datasheetPath && (
-              <a
-                href={product.datasheetPath}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-decoration-none small"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <i className="bi bi-file-earmark-pdf me-1" />
-                PDF
-              </a>
-            )}
           </div>
-
-          {/* Actions */}
-          {showActions && (
-            <div className="btn-group btn-group-sm">
-              {onView && (
-                <Button
-                  size="small"
-                  variant="secondary"
-                  buttonStyle="outline"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    onView(product)
-                  }}
-                  title="Ver producto"
-                >
-                  <i className="bi bi-eye" />
-                </Button>
-              )}
-              
-              {onEdit && (
-                <Button
-                  size="small"
-                  variant="primary"
-                  buttonStyle="outline"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    onEdit(product)
-                  }}
-                  title="Editar producto"
-                >
-                  <i className="bi bi-pencil" />
-                </Button>
-              )}
-              
-              {onDelete && (
-                <Button
-                  size="small"
-                  variant="danger"
-                  buttonStyle="outline"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    onDelete(product)
-                  }}
-                  title="Eliminar producto"
-                >
-                  <i className="bi bi-trash" />
-                </Button>
-              )}
-            </div>
-          )}
+        </div>
+        <div className="col-sm-6">
+          <div className="d-flex justify-content-between">
+            <span className="text-muted small">Stock:</span>
+            <span className="fw-bold">{product.stock || 0}</span>
+          </div>
         </div>
       </div>
     </div>
-  )
-}
 
-export const ProductsList: React.FC<ProductsListProps> = ({
+    {/* Actions */}
+    <div className="d-flex flex-column gap-1" style={{ width: '50px' }}>
+      {onView && (
+        <Button
+          size="small"
+          variant="primary"
+          buttonStyle="outline"
+          onClick={() => onView(product)}
+          title="Ver detalles"
+        >
+          <i className="bi bi-eye" />
+        </Button>
+      )}
+      {onEdit && (
+        <Button
+          size="small"
+          variant="secondary"
+          buttonStyle="outline"
+          onClick={() => onEdit(product)}
+          title="Editar"
+        >
+          <i className="bi bi-pencil" />
+        </Button>
+      )}
+      {onDelete && (
+        <Button
+          size="small"
+          variant="danger"
+          buttonStyle="outline"
+          onClick={() => onDelete(product.id)}
+          title="Eliminar"
+        >
+          <i className="bi bi-trash" />
+        </Button>
+      )}
+    </div>
+  </div>
+))
+
+ProductListItem.displayName = 'ProductListItem'
+
+export const ProductsList = React.memo<ProductsListProps>(({
   products,
   isLoading = false,
-  showImages = true,
-  showPricing = true,
-  showStatus = true,
-  showDescription = false,
-  showActions = true,
-  maxDescriptionLength = 60,
-  imageSize = 60,
   onEdit,
   onDelete,
-  onView,
-  onSelect,
-  className = ''
+  onView
 }) => {
-  if (isLoading) {
+  console.log('🔄 ProductsList render:', products.length, 'products')
+
+  const parentRef = React.useRef<HTMLDivElement>(null)
+
+  const virtualizer = useVirtualizer({
+    count: products.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 120, // Height per row for list view
+    overscan: 10,
+  })
+
+  const virtualItems = virtualizer.getVirtualItems()
+
+  if (isLoading && products.length === 0) {
     return (
-      <div className={clsx('list-group', className)}>
-        {Array.from({ length: 6 }).map((_, index) => (
-          <div key={index} className="list-group-item d-flex align-items-start gap-3 py-3">
-            {showImages && (
-              <div 
-                className="bg-light animate-pulse rounded flex-shrink-0"
-                style={{ width: imageSize, height: imageSize }}
-              />
-            )}
-            <div className="flex-grow-1">
-              <div className="bg-light animate-pulse rounded mb-2" style={{ height: 18 }} />
-              <div className="bg-light animate-pulse rounded mb-2" style={{ height: 14, width: '60%' }} />
-              <div className="bg-light animate-pulse rounded" style={{ height: 12, width: '40%' }} />
-            </div>
+      <div className="card">
+        <div className="card-body text-center py-5">
+          <div className="spinner-border text-primary mb-3" role="status">
+            <span className="visually-hidden">Cargando...</span>
           </div>
-        ))}
+          <p className="text-muted">Cargando productos...</p>
+        </div>
       </div>
     )
   }
 
   if (products.length === 0) {
     return (
-      <div className={clsx('text-center py-5', className)}>
-        <i className="bi bi-list display-1 text-muted mb-3" />
-        <h3 className="text-muted">No hay productos</h3>
-        <p className="text-muted">No se encontraron productos para mostrar.</p>
+      <div className="card">
+        <div className="card-body text-center py-5">
+          <i className="bi bi-list-ul display-1 text-muted mb-3"></i>
+          <h5 className="text-muted">No se encontraron productos</h5>
+          <p className="text-muted">Intenta cambiar los filtros de búsqueda.</p>
+        </div>
       </div>
     )
   }
 
   return (
-    <div className={clsx('list-group list-group-flush', className)}>
-      {products.map((product) => (
-        <ProductListItem
-          key={product.id}
-          product={product}
-          showImages={showImages}
-          showPricing={showPricing}
-          showStatus={showStatus}
-          showDescription={showDescription}
-          showActions={showActions}
-          maxDescriptionLength={maxDescriptionLength}
-          imageSize={imageSize}
-          onEdit={onEdit}
-          onDelete={onDelete}
-          onView={onView}
-          onSelect={onSelect}
-        />
-      ))}
+    <div className="card">
+      {/* Header */}
+      <div className="card-header bg-light">
+        <div className="d-flex align-items-center justify-content-between">
+          <div className="d-flex align-items-center">
+            <i className="bi bi-list-ul me-2 text-primary" />
+            <h6 className="mb-0 fw-bold">Vista de Lista</h6>
+          </div>
+          <small className="text-muted">
+            <i className="bi bi-lightning me-1"></i>
+            Virtualizada para máximo rendimiento
+          </small>
+        </div>
+      </div>
+
+      {/* Virtualized List Content */}
+      <div
+        ref={parentRef}
+        style={{
+          height: '600px',
+          overflow: 'auto'
+        }}
+      >
+        <div
+          style={{
+            height: virtualizer.getTotalSize(),
+            width: '100%',
+            position: 'relative'
+          }}
+        >
+          {virtualItems.map((virtualRow) => {
+            const product = products[virtualRow.index]
+            return (
+              <ProductListItem
+                key={product.id}
+                product={product}
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  height: `${virtualRow.size}px`,
+                  transform: `translateY(${virtualRow.start}px)`
+                }}
+                onEdit={onEdit}
+                onDelete={onDelete}
+                onView={onView}
+              />
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Footer */}
+      <div className="card-footer bg-light">
+        <div className="d-flex justify-content-between align-items-center">
+          <small className="text-muted">
+            Mostrando {products.length} productos en lista
+          </small>
+          <small className="text-muted">
+            <i className="bi bi-list-ul me-1"></i>
+            Detalles expandidos
+          </small>
+        </div>
+      </div>
     </div>
   )
-}
+})
+
+ProductsList.displayName = 'ProductsList'
 
 export default ProductsList

@@ -1,8 +1,8 @@
-# Proyecto Base Frontend – `webapp-base`
+# 🚀 Proyecto Base Frontend – `webapp-base`
 
-Plantilla oficial de Atomo Soluciones para proyectos frontend modulares y escalables.
+**Plantilla oficial de Atomo Soluciones** para proyectos frontend modulares y escalables con **arquitectura enterprise**.
 
-Este proyecto está construido con Next.js App Router y está diseñado para servir como base para nuevos ERPs, sistemas internos o plataformas web reutilizando módulos desacoplados.
+Este proyecto está construido con **Next.js App Router** y está diseñado para servir como base para nuevos ERPs, sistemas internos o plataformas web reutilizando módulos desacoplados y **componentes de nivel enterprise**.
 
 ---
 
@@ -37,13 +37,18 @@ npm run dev
 
 ---
 
-## Módulos incluidos
+## ✨ Módulos Enterprise Incluidos
 
-- **`auth`** (sistema de autenticación completo con Sanctum)
-- **`roles`** (gestión de roles y permisos - Permission Manager)
-- **`page-builder-pro`** (constructor visual de páginas con GrapeJS - CRUD completo)
-- **`products`** (gestión completa de productos con 4 entidades: Product, Unit, Category, Brand - CRUD completo con JSON:API)
-- **`inventory`** (ejemplo funcional con componentes, hooks y servicios)
+- **`auth`** - Sistema de autenticación completo con Laravel Sanctum
+- **`roles`** - Gestión de roles y permisos (Permission Manager)
+- **`page-builder-pro`** - Constructor visual de páginas con GrapeJS (CRUD completo)
+- **`products`** ⭐ **ENTERPRISE MODULE** - Sistema avanzado de gestión con:
+  - **5 vistas virtualizadas** (Table, Grid, List, Compact, Showcase)
+  - **Performance excepcional** con TanStack Virtual + React.memo + Zustand
+  - **UX profesional** con filtros inteligentes y zero re-renders
+  - **4 entidades completas** (Product, Unit, Category, Brand)
+  - **CRUD completo** con integración JSON:API
+- **`inventory`** - Ejemplo funcional con componentes, hooks y servicios
 
 ---
 

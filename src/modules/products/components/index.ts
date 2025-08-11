@@ -20,3 +20,21 @@ export * from './ProductsGrid'
 export * from './ProductsList'
 export * from './ProductsCompact'
 export * from './ProductsShowcase'
+
+// FASE 4.6: Implementación limpia
+export * from './ProductsPageClean'
+export * from './ProductsFiltersClean'
+export * from './ProductsViewControls'
+
+// EXPERIMENTAL: Sin re-renders
+export * from './ProductsPageClean2'
+
+// ZUSTAND IMPLEMENTATION
+export * from './ProductsPageCleanZustand'
+
+// PROFESSIONAL ENTERPRISE IMPLEMENTATION
+export * from './ProductsTableVirtualized'
+export * from './ProductsFiltersSimple'
+export * from './PaginationPro'
+export * from './ProductsAdminPagePro'
+export * from './ViewModeSelector'

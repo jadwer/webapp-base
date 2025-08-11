@@ -1,12 +1,12 @@
 'use client'
 
-import React from 'react'
+import React, { useMemo } from 'react'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { Button } from '@/ui/components/base'
 import { StatusBadge } from './StatusBadge'
 import type { Product } from '../types'
 
-interface ProductsCompactProps {
+interface ProductsTableVirtualizedProps {
   products: Product[]
   isLoading?: boolean
   onEdit?: (product: Product) => void
@@ -14,58 +14,63 @@ interface ProductsCompactProps {
   onView?: (product: Product) => void
 }
 
-const ProductCompactRow = React.memo<{
+const ProductRow = React.memo<{
   product: Product
   style: React.CSSProperties
   onEdit?: (product: Product) => void
   onDelete?: (productId: string) => void
   onView?: (product: Product) => void
 }>(({ product, style, onEdit, onDelete, onView }) => (
-  <div style={style} className="d-flex align-items-center border-bottom bg-white hover-bg-light py-2 px-3">
+  <div 
+    style={style} 
+    className="d-flex align-items-center border-bottom bg-white hover-bg-light transition-all"
+  >
     {/* Image */}
-    <div className="flex-shrink-0 me-2">
+    <div className="flex-shrink-0 me-3" style={{ width: '60px' }}>
       <img
         src={product.image || '/images/product-placeholder.jpg'}
         alt={product.name}
-        className="rounded"
-        style={{ width: '32px', height: '32px', objectFit: 'cover' }}
+        className="rounded border"
+        style={{ width: '50px', height: '50px', objectFit: 'cover' }}
         onError={(e) => {
           const target = e.target as HTMLImageElement
-          if (target.src.includes('product-placeholder.jpg')) return
-          target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0xNiAxMkMxNy4xMDQ2IDEyIDE4IDEyLjg5NTQgMTggMTRDMTggMTUuMTA0NiAxNy4xMDQ2IDE2IDE2IDE2QzE0Ljg5NTQgMTYgMTQgMTUuMTA0NiAxNCAxNEMxNCAxMi44OTU0IDE0Ljg5NTQgMTIgMTYgMTJaIiBmaWxsPSIjOUIxQjI2Ii8+CjxwYXRoIGQ9Ik0xMiAxOEwyMCAxOEMyMC41NTIzIDE4IDIxIDE3LjU1MjMgMjEgMTdDMjEgMTYuNDQ3NyAyMC41NTIzIDE2IDIwIDE2TDEyIDE2QzExLjQ0NzcgMTYgMTEgMTYuNDQ3NyAxMSAxN0MxMSAxNy41NTIzIDExLjQ0NzcgMTggMTIgMThaIiBmaWxsPSIjOUIxQjI2Ii8+Cjwvc3ZnPgo='
+          if (target.src.includes('product-placeholder.jpg')) return // Prevent infinite loop
+          target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAiIGhlaWdodD0iNTAiIHZpZXdCb3g9IjAgMCA1MCA1MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjUwIiBoZWlnaHQ9IjUwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0yNSAyMEMyNi42NTY5IDIwIDI4IDIxLjM0MzEgMjggMjNDMjggMjQuNjU2OSAyNi42NTY5IDI2IDI1IDI2QzIzLjM0MzEgMjYgMjIgMjQuNjU2OSAyMiAyM0MyMiAyMS4zNDMxIDIzLjM0MzEgMjAgMjUgMjBaIiBmaWxsPSIjOUIxQjI2Ii8+CjxwYXRoIGQ9Ik0xOCAzMEwzMiAzMEMzMi41NTIzIDMwIDMzIDI5LjU1MjMgMzMgMjlDMzMgMjguNDQ3NyAzMi41NTIzIDI4IDMyIDI4TDE4IDI4QzE3LjQ0NzcgMjggMTcgMjguNDQ3NyAxNyAyOUMxNyAyOS41NTIzIDE3LjQ0NzcgMzAgMTggMzBaIiBmaWxsPSIjOUIxQjI2Ii8+Cjwvc3ZnPgo='
         }}
       />
     </div>
 
     {/* Name & SKU */}
-    <div className="flex-fill me-2" style={{ minWidth: '150px' }}>
-      <div className="fw-bold text-dark text-truncate small">{product.name}</div>
-      <small className="text-muted">SKU: {product.sku}</small>
-    </div>
-
-    {/* Category */}
-    <div className="me-2" style={{ width: '80px' }}>
-      <span className="badge bg-secondary text-truncate small" style={{ maxWidth: '75px' }}>
-        {product.category?.name || '-'}
-      </span>
+    <div className="flex-fill me-3" style={{ minWidth: '200px' }}>
+      <div className="fw-bold text-dark mb-1">{product.name}</div>
+      <div className="small text-muted">SKU: {product.sku}</div>
+      <div className="small text-info">
+        {product.category?.name} • {product.brand?.name}
+      </div>
     </div>
 
     {/* Price */}
-    <div className="text-end me-2" style={{ width: '80px' }}>
-      <div className="fw-bold text-success small">
+    <div className="text-end me-3" style={{ width: '120px' }}>
+      <div className="fw-bold text-success">
         ${product.price?.toFixed(2)}
+        <span className="small text-muted ms-1">+IVA</span>
       </div>
-      <small className="text-muted">+IVA</small>
+      <div className="small text-muted">Costo: ${product.cost?.toFixed(2)}</div>
     </div>
 
     {/* Stock */}
-    <div className="text-center me-2" style={{ width: '50px' }}>
-      <div className="fw-bold small">{product.stock || 0}</div>
+    <div className="text-center me-3" style={{ width: '80px' }}>
+      <div className="fw-bold">{product.stock || 0}</div>
+      <div className="small text-muted">{product.unit?.name}</div>
+    </div>
+
+    {/* Status */}
+    <div className="me-3" style={{ width: '100px' }}>
       <StatusBadge status={product.status || 'active'} />
     </div>
 
     {/* Actions */}
-    <div className="d-flex gap-1" style={{ width: '90px' }}>
+    <div className="d-flex gap-1" style={{ width: '140px' }}>
       {onView && (
         <Button
           size="small"
@@ -103,24 +108,24 @@ const ProductCompactRow = React.memo<{
   </div>
 ))
 
-ProductCompactRow.displayName = 'ProductCompactRow'
+ProductRow.displayName = 'ProductRow'
 
-export const ProductsCompact = React.memo<ProductsCompactProps>(({
-  products,
+export const ProductsTableVirtualized = React.memo<ProductsTableVirtualizedProps>(({ 
+  products, 
   isLoading = false,
   onEdit,
   onDelete,
-  onView
+  onView 
 }) => {
-  console.log('🔄 ProductsCompact render:', products.length, 'products')
+  console.log('🔄 ProductsTableVirtualized render:', products.length, 'products')
 
   const parentRef = React.useRef<HTMLDivElement>(null)
 
   const virtualizer = useVirtualizer({
     count: products.length,
     getScrollElement: () => parentRef.current,
-    estimateSize: () => 50, // Height per row for compact view
-    overscan: 15,
+    estimateSize: () => 80, // Height per row
+    overscan: 10, // Render extra rows for smooth scrolling
   })
 
   const virtualItems = virtualizer.getVirtualItems()
@@ -142,7 +147,7 @@ export const ProductsCompact = React.memo<ProductsCompactProps>(({
     return (
       <div className="card">
         <div className="card-body text-center py-5">
-          <i className="bi bi-list display-1 text-muted mb-3"></i>
+          <i className="bi bi-box-seam display-1 text-muted mb-3"></i>
           <h5 className="text-muted">No se encontraron productos</h5>
           <p className="text-muted">Intenta cambiar los filtros de búsqueda.</p>
         </div>
@@ -154,45 +159,33 @@ export const ProductsCompact = React.memo<ProductsCompactProps>(({
     <div className="card">
       {/* Header */}
       <div className="card-header bg-light">
-        <div className="d-flex align-items-center justify-content-between">
-          <div className="d-flex align-items-center">
-            <i className="bi bi-list me-2 text-primary" />
-            <h6 className="mb-0 fw-bold">Vista Compacta</h6>
-          </div>
-          <small className="text-muted">
-            <i className="bi bi-lightning me-1"></i>
-            Virtualizada para máximo rendimiento
-          </small>
-        </div>
-      </div>
-
-      {/* Header with column labels */}
-      <div className="border-bottom bg-light text-muted small py-2 px-3">
         <div className="d-flex align-items-center">
-          <div style={{ width: '40px' }}></div>
-          <div className="flex-fill me-2" style={{ minWidth: '150px' }}>
-            <strong>PRODUCTO</strong>
+          <div className="flex-shrink-0 me-3" style={{ width: '60px' }}>
+            <small className="fw-bold text-uppercase text-muted">Imagen</small>
           </div>
-          <div className="me-2" style={{ width: '80px' }}>
-            <strong>CATEGORÍA</strong>
+          <div className="flex-fill me-3" style={{ minWidth: '200px' }}>
+            <small className="fw-bold text-uppercase text-muted">Producto</small>
           </div>
-          <div className="text-end me-2" style={{ width: '80px' }}>
-            <strong>PRECIO</strong>
+          <div className="text-center me-3" style={{ width: '120px' }}>
+            <small className="fw-bold text-uppercase text-muted">Precio</small>
           </div>
-          <div className="text-center me-2" style={{ width: '50px' }}>
-            <strong>STOCK</strong>
+          <div className="text-center me-3" style={{ width: '80px' }}>
+            <small className="fw-bold text-uppercase text-muted">Stock</small>
           </div>
-          <div style={{ width: '90px' }}>
-            <strong>ACCIONES</strong>
+          <div className="me-3" style={{ width: '100px' }}>
+            <small className="fw-bold text-uppercase text-muted">Estado</small>
+          </div>
+          <div className="text-center" style={{ width: '140px' }}>
+            <small className="fw-bold text-uppercase text-muted">Acciones</small>
           </div>
         </div>
       </div>
 
-      {/* Virtualized Compact Content */}
-      <div
+      {/* Virtualized Content */}
+      <div 
         ref={parentRef}
         style={{
-          height: '600px',
+          height: '600px', // Fixed height for virtualization
           overflow: 'auto'
         }}
       >
@@ -206,7 +199,7 @@ export const ProductsCompact = React.memo<ProductsCompactProps>(({
           {virtualItems.map((virtualRow) => {
             const product = products[virtualRow.index]
             return (
-              <ProductCompactRow
+              <ProductRow
                 key={product.id}
                 product={product}
                 style={{
@@ -215,7 +208,8 @@ export const ProductsCompact = React.memo<ProductsCompactProps>(({
                   left: 0,
                   width: '100%',
                   height: `${virtualRow.size}px`,
-                  transform: `translateY(${virtualRow.start}px)`
+                  transform: `translateY(${virtualRow.start}px)`,
+                  padding: '12px 16px'
                 }}
                 onEdit={onEdit}
                 onDelete={onDelete}
@@ -226,15 +220,15 @@ export const ProductsCompact = React.memo<ProductsCompactProps>(({
         </div>
       </div>
 
-      {/* Footer */}
+      {/* Footer with count */}
       <div className="card-footer bg-light">
         <div className="d-flex justify-content-between align-items-center">
           <small className="text-muted">
-            Mostrando {products.length} productos en vista compacta
+            Mostrando {products.length} productos
           </small>
           <small className="text-muted">
-            <i className="bi bi-layers me-1"></i>
-            Información esencial únicamente
+            <i className="bi bi-lightning me-1"></i>
+            Tabla virtualizada para máximo rendimiento
           </small>
         </div>
       </div>
@@ -242,6 +236,6 @@ export const ProductsCompact = React.memo<ProductsCompactProps>(({
   )
 })
 
-ProductsCompact.displayName = 'ProductsCompact'
+ProductsTableVirtualized.displayName = 'ProductsTableVirtualized'
 
-export default ProductsCompact
+export default ProductsTableVirtualized
