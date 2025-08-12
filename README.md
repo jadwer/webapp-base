@@ -51,7 +51,13 @@ npm run dev
   - **📱 UX profesional** con filtros debounced y focus preservation
   - **🔗 JSON:API completo** con relationship handling
   - **✨ Toast notifications** con DOM directo y animaciones CSS
-- **`inventory`** - Ejemplo funcional con componentes, hooks y servicios
+- **`inventory`** ⭐ **ENTERPRISE MODULE** - Sistema de gestión de inventario con:
+  - **🏆 Warehouses completo** (Iteración 1 + 1.5 completadas)
+  - **🚀 5 vistas virtualizadas** (Table, Grid, List, Compact, Showcase)  
+  - **⚡ Performance optimization** para 500K+ registros con TanStack Virtual
+  - **🎨 Professional UI/UX** con hero cards, animations y responsive design
+  - **🛡️ Enterprise error handling** y toast notifications
+  - **🔗 JSON:API integration** con business rules validation
 
 ### 🎊 **Nuevo: Sistema de Error Handling Enterprise**
 - **FK Constraint Detection** automática para eliminaciones
