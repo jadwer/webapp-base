@@ -34,7 +34,7 @@ export const BrandsFiltersSimple = React.memo(() => {
     useCallback((searchValue: string) => {
       console.log('🔍 Applying debounced brand search:', searchValue)
       setFilters({ ...filters, search: searchValue || undefined })
-    }, [filters, setFilters]),
+    }, [setFilters]),
     300
   )
   

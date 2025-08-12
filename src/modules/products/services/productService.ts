@@ -27,17 +27,19 @@ export const productService = {
     }
     
     if (params?.filters) {
-      queryParams.filter = {}
-      // Usar search_name y search_sku para búsquedas parciales
-      if (params.filters.name) queryParams.filter.search_name = params.filters.name
-      if (params.filters.sku) queryParams.filter.search_sku = params.filters.sku
-      // Usar snake_case para filtros por ID individuales
-      if (params.filters.unitId) queryParams.filter.unit_id = params.filters.unitId
-      if (params.filters.categoryId) queryParams.filter.category_id = params.filters.categoryId
-      if (params.filters.brandId) queryParams.filter.brand_id = params.filters.brandId
-      // Filtros múltiples (usar nombres en plural con delimitador de coma)
-      if (params.filters.brands) queryParams.filter.brands = params.filters.brands.join(',')
-      if (params.filters.categories) queryParams.filter.categories = params.filters.categories.join(',')
+      // Usar el nuevo filtro unificado search que busca en nombre, SKU y descripción con OR
+      if (params.filters.name || params.filters.sku) {
+        // Usar el primer valor disponible (ambos deberían ser iguales desde ProductsFiltersSimple)
+        const searchTerm = params.filters.name || params.filters.sku
+        queryParams['filter[search]'] = searchTerm
+      }
+      // Filtros por ID individuales
+      if (params.filters.unitId) queryParams['filter[unit_id]'] = params.filters.unitId
+      if (params.filters.categoryId) queryParams['filter[category_id]'] = params.filters.categoryId
+      if (params.filters.brandId) queryParams['filter[brand_id]'] = params.filters.brandId
+      // Filtros múltiples
+      if (params.filters.brands) queryParams['filter[brands]'] = params.filters.brands.join(',')
+      if (params.filters.categories) queryParams['filter[categories]'] = params.filters.categories.join(',')
     }
     
     if (params?.sort) {
@@ -49,7 +51,13 @@ export const productService = {
       queryParams.include = params.include.join(',')
     }
 
+    console.log('📡 Products API Request URL:', PRODUCTS_ENDPOINT)
+    console.log('📡 Products API Query Params:', JSON.stringify(queryParams, null, 2))
+    
     const response = await axios.get(PRODUCTS_ENDPOINT, { params: queryParams })
+    
+    console.log('📡 Products API Full URL:', response.config?.url)
+    console.log('📡 Products API Response Data Count:', Array.isArray(response.data?.data) ? response.data.data.length : 'No data')
     
     const jsonApiResponse = response.data as JsonApiResponse<JsonApiResource[]>
     

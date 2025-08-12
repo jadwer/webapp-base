@@ -12,6 +12,7 @@ export function parseJsonApiErrors(error: unknown): ParsedError[] {
   // Handle Axios errors
   if (error && typeof error === 'object' && 'response' in error) {
     const axiosError = error as { response?: { data?: { errors?: JsonApiError[] } } }
+    
     if (axiosError.response?.data?.errors) {
       const apiErrors: JsonApiError[] = axiosError.response.data.errors
       
@@ -19,7 +20,7 @@ export function parseJsonApiErrors(error: unknown): ParsedError[] {
         errors.push({
           message: apiError.detail || apiError.title || 'Error desconocido',
           field: apiError.source?.pointer?.replace('/data/attributes/', ''),
-          code: apiError.status
+          code: apiError.code
         })
       })
     }
@@ -94,6 +95,39 @@ export function isAuthError(error: unknown): boolean {
   return false
 }
 
+export function isForeignKeyConstraintError(error: unknown): boolean {
+  if (error && typeof error === 'object' && 'response' in error) {
+    const axiosError = error as { response?: { status?: number } }
+    
+    // Check if it's a 409 Conflict status (common for constraint violations)
+    if (axiosError.response?.status === 409) {
+      // Try to parse JSON:API errors for specific constraint code
+      const parsedErrors = parseJsonApiErrors(error)
+      const hasConstraintCode = parsedErrors.some(err => err.code === 'FOREIGN_KEY_CONSTRAINT')
+      
+      if (hasConstraintCode) {
+        return true
+      }
+      
+      // Fallback: 409 status typically indicates constraint violations
+      // even if the specific error format is not what we expect
+      return true
+    }
+  }
+  return false
+}
+
+export function getForeignKeyConstraintMessage(error: unknown): string {
+  const parsedErrors = parseJsonApiErrors(error)
+  const constraintError = parsedErrors.find(err => err.code === 'FOREIGN_KEY_CONSTRAINT')
+  
+  if (constraintError?.detail) {
+    return constraintError.detail
+  }
+  
+  return 'No se puede eliminar este elemento porque tiene elementos relacionados. Elimine o reasigne primero los elementos relacionados.'
+}
+
 export function createErrorMessage(error: unknown): string {
   if (isNetworkError(error)) {
     return 'Sin conexión a internet. Verifique su conexión.'
@@ -101,6 +135,10 @@ export function createErrorMessage(error: unknown): string {
   
   if (isAuthError(error)) {
     return 'No tiene permisos para realizar esta acción.'
+  }
+  
+  if (isForeignKeyConstraintError(error)) {
+    return getForeignKeyConstraintMessage(error)
   }
   
   if (isValidationError(error)) {

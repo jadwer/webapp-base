@@ -152,8 +152,22 @@ export const UnitsList = React.memo<UnitsListProps>(({
                   </div>
                 </div>
 
-                {/* Description */}
-                )}
+                {/* Description & Products Count */}
+                <div className="mb-3">
+                  <div className="row g-3">
+                    <div className="col-md-8">
+                      <div className="small text-muted">
+                        {unit.description || <span className="fst-italic">Sin descripción</span>}
+                      </div>
+                    </div>
+                    <div className="col-md-4 text-end">
+                      <span className="badge bg-secondary rounded-pill">
+                        <i className="bi bi-box-seam me-1" />
+                        {unit.productsCount ?? 0} productos
+                      </span>
+                    </div>
+                  </div>
+                </div>
 
                 {/* Metadata */}
                 <div className="row g-3 text-muted small">

@@ -111,7 +111,16 @@ export const UnitsGrid = React.memo<UnitsGridProps>(({
                   </div>
                 )}
 
-                {/* Description */}
+                {/* Products Count */}
+                {unit.productsCount !== undefined && (
+                  <div className="mb-2">
+                    <small className="text-muted d-block">Productos:</small>
+                    <div className="d-flex align-items-center">
+                      <span className="badge bg-secondary rounded-pill me-2">
+                        {unit.productsCount}
+                      </span>
+                      <small className="text-muted">productos usando esta unidad</small>
+                    </div>
                   </div>
                 )}
               </div>

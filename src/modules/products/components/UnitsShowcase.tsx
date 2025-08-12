@@ -131,11 +131,30 @@ export const UnitsShowcase = React.memo<UnitsShowcaseProps>(({
                   )}
                 </div>
 
-                {/* Description */}
+                {/* Description & Products Count */}
                 <div className="flex-fill mb-4">
-                      Sin descripción disponible
-                    </p>
-                  )}
+                  <div className="mb-3">
+                    <div className="small text-muted lh-lg">
+                      {unit.description || (
+                        <span className="fst-italic">Sin descripción disponible</span>
+                      )}
+                    </div>
+                  </div>
+                  
+                  {/* Products Count Badge */}
+                  <div className="d-flex align-items-center justify-content-center mb-3">
+                    <div className="bg-light rounded-pill px-4 py-2">
+                      <div className="d-flex align-items-center">
+                        <i className="bi bi-box-seam text-primary me-2" />
+                        <div>
+                          <div className="fw-bold fs-4 text-primary mb-0">
+                            {unit.productsCount ?? 0}
+                          </div>
+                          <small className="text-muted">Productos</small>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Metadata */}

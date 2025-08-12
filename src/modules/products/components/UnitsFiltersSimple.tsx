@@ -34,14 +34,12 @@ export const UnitsFiltersSimple = React.memo(() => {
 
   // Actualizar filtros cuando cambia el debounced search
   useEffect(() => {
-    if (debouncedSearch !== filters.search) {
-      console.log('🔍 Updating search filter:', debouncedSearch)
-      setFilters({
-        ...filters,
-        search: debouncedSearch || undefined
-      })
-    }
-  }, [debouncedSearch, filters, setFilters])
+    console.log('🔍 Updating search filter:', debouncedSearch)
+    setFilters({
+      ...filters,
+      search: debouncedSearch || undefined
+    })
+  }, [debouncedSearch]) // Solo depend de debouncedSearch
 
   const handleClearFilters = React.useCallback(() => {
     setSearchTerm('')

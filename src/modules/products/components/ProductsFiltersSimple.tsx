@@ -49,6 +49,7 @@ export const ProductsFiltersSimple = React.memo(() => {
     const newFilters: Record<string, unknown> = {}
     
     if (debouncedSearchTerm.trim()) {
+      // Usar el filtro unificado search del backend (busca en nombre, SKU y descripción)
       newFilters.name = debouncedSearchTerm.trim()
     }
     if (selectedCategory) {

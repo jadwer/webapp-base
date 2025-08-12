@@ -41,7 +41,7 @@ export const CategoriesFiltersSimple = React.memo(() => {
         ...filters,
         search: searchValue || undefined 
       })
-    }, [filters, setFilters]),
+    }, [setFilters]),
     300
   )
   

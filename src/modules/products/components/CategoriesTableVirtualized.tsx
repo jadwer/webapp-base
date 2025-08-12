@@ -226,16 +226,9 @@ export const CategoriesTableVirtualized = React.memo<CategoriesTableVirtualizedP
                       {/* Products Count */}
                       <td style={{ width: '100px' }}>
                         <div className="d-flex align-items-center justify-content-center">
-                          {category.productsCount !== undefined ? (
-                            <span className="badge bg-secondary rounded-pill">
-                              {category.productsCount}
-                            </span>
-                          ) : (
-                            <span className="badge bg-warning rounded-pill" title="Conteo no disponible - requiere actualización del backend">
-                              <i className="bi bi-hourglass-split me-1" />
-                              N/A
-                            </span>
-                          )}
+                          <span className="badge bg-secondary rounded-pill">
+                            {category.productsCount ?? 0}
+                          </span>
                         </div>
                       </td>
                       

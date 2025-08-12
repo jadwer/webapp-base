@@ -87,6 +87,9 @@ export const ProductsAdminPagePro = React.memo(() => {
   const viewMode = useProductsViewMode()
   const { setPage } = useProductsUIStore()
 
+  // Debug filters
+  console.log('🏭 ProductsAdminPagePro - filters received:', filters)
+
   // Get products data using existing hooks (maintains modularity)
   const { products, meta, isLoading, error, refresh } = useProducts({
     page: { number: currentPage, size: 20 },

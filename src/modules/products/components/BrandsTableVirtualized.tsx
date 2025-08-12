@@ -46,6 +46,7 @@ export const BrandsTableVirtualized = React.memo<BrandsTableVirtualizedProps>(({
                 <th style={{ width: '50px' }}></th>
                 <th style={{ width: '300px' }}>Marca</th>
                 <th>Descripción</th>
+                <th style={{ width: '100px' }}>Productos</th>
                 <th style={{ width: '120px' }}>Estado</th>
                 <th style={{ width: '180px' }}>Fecha Creación</th>
                 <th style={{ width: '150px' }}>Acciones</th>
@@ -57,6 +58,7 @@ export const BrandsTableVirtualized = React.memo<BrandsTableVirtualizedProps>(({
                   <td><div className="placeholder-glow"><div className="placeholder rounded-circle" style={{ width: '32px', height: '32px' }}></div></div></td>
                   <td><div className="placeholder-glow"><div className="placeholder col-8 mb-1"></div><div className="placeholder col-6"></div></div></td>
                   <td><div className="placeholder-glow"><div className="placeholder col-12 mb-1"></div><div className="placeholder col-8"></div></div></td>
+                  <td><div className="placeholder-glow"><div className="placeholder col-5"></div></div></td>
                   <td><div className="placeholder-glow"><div className="placeholder col-5"></div></div></td>
                   <td><div className="placeholder-glow"><div className="placeholder col-9"></div></div></td>
                   <td><div className="placeholder-glow"><div className="placeholder col-12"></div></div></td>
@@ -107,6 +109,7 @@ export const BrandsTableVirtualized = React.memo<BrandsTableVirtualizedProps>(({
               <th style={{ width: '50px' }}></th>
               <th style={{ width: '300px' }}>Marca</th>
               <th>Descripción</th>
+              <th style={{ width: '100px' }}>Productos</th>
               <th style={{ width: '120px' }}>Estado</th>
               <th style={{ width: '180px' }}>Fecha Creación</th>
               <th style={{ width: '150px' }}>Acciones</th>
@@ -149,6 +152,15 @@ export const BrandsTableVirtualized = React.memo<BrandsTableVirtualizedProps>(({
                       <td>
                         <div className="text-truncate-lines-2 small">
                           {brand.description || <span className="text-muted fst-italic">Sin descripción</span>}
+                        </div>
+                      </td>
+                      
+                      {/* Products Count */}
+                      <td style={{ width: '100px' }}>
+                        <div className="d-flex align-items-center justify-content-center">
+                          <span className="badge bg-secondary rounded-pill">
+                            {brand.productsCount ?? 0}
+                          </span>
                         </div>
                       </td>
                       

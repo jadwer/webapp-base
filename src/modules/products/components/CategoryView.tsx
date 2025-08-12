@@ -236,8 +236,12 @@ export const CategoryView: React.FC<CategoryViewProps> = ({
           <div className="card-body">
             <div className="text-center">
               <div className="text-muted small mb-2">Productos en esta categoría</div>
-              <div className="display-4 fw-bold text-primary">0</div>
-              <div className="text-muted small">Próximamente disponible</div>
+              <div className="display-4 fw-bold text-primary">
+                {category.productsCount ?? 0}
+              </div>
+              <div className="text-muted small">
+                {category.productsCount !== undefined ? 'Conteo actual' : 'Conteo no disponible'}
+              </div>
             </div>
           </div>
         </div>

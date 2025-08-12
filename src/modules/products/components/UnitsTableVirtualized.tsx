@@ -27,12 +27,23 @@ const UnitRow = React.memo<{
     {/* Name & Abbreviation */}
     <div className="flex-fill me-3" style={{ minWidth: '200px' }}>
       <div className="fw-bold text-dark mb-1">{unit.name}</div>
-      <small className="text-muted">Abrev: {unit.abbreviation}</small>
+      <small className="text-muted">
+        {unit.code ? `Código: ${unit.code}` : unit.unitType || 'Sin tipo'}
+      </small>
     </div>
 
     {/* Description */}
     <div className="flex-fill me-3" style={{ minWidth: '300px' }}>
-      <small className="text-muted">productos</small>
+      <div className="small text-muted">
+        {unit.description || <span className="fst-italic">Sin descripción</span>}
+      </div>
+    </div>
+
+    {/* Products Count */}
+    <div className="text-center me-3" style={{ width: '100px' }}>
+      <span className="badge bg-secondary rounded-pill">
+        {unit.productsCount ?? 0}
+      </span>
     </div>
 
     {/* Actions */}
@@ -132,8 +143,8 @@ export const UnitsTableVirtualized = React.memo<UnitsTableVirtualizedProps>(({
           <div className="flex-fill me-3" style={{ minWidth: '300px' }}>
             <small className="fw-bold text-uppercase text-muted">Descripción</small>
           </div>
-          <div className="text-center me-3" style={{ width: '80px' }}>
-            <small className="fw-bold text-uppercase text-muted">Uso</small>
+          <div className="text-center me-3" style={{ width: '100px' }}>
+            <small className="fw-bold text-uppercase text-muted">Productos</small>
           </div>
           <div className="text-center" style={{ width: '140px' }}>
             <small className="fw-bold text-uppercase text-muted">Acciones</small>

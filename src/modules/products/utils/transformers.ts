@@ -15,8 +15,10 @@ export function transformJsonApiUnit(resource: JsonApiResource): Unit {
     unitType: (resource.attributes.unitType || '') as string,
     code: (resource.attributes.code || '') as string,
     name: (resource.attributes.name || '') as string,
+    description: resource.attributes.description as string | undefined,
     createdAt: (resource.attributes.createdAt || '') as string,
-    updatedAt: (resource.attributes.updatedAt || '') as string
+    updatedAt: (resource.attributes.updatedAt || '') as string,
+    productsCount: resource.attributes.productsCount as number | undefined
   }
 }
 
@@ -28,7 +30,8 @@ export function transformJsonApiCategory(resource: JsonApiResource): Category {
     description: resource.attributes.description as string | undefined,
     slug: (resource.attributes.slug || '') as string,
     createdAt: (resource.attributes.createdAt || '') as string,
-    updatedAt: (resource.attributes.updatedAt || '') as string
+    updatedAt: (resource.attributes.updatedAt || '') as string,
+    productsCount: resource.attributes.productsCount as number | undefined
   }
 }
 
@@ -40,7 +43,8 @@ export function transformJsonApiBrand(resource: JsonApiResource): Brand {
     description: resource.attributes.description as string | undefined,
     slug: (resource.attributes.slug || '') as string,
     createdAt: (resource.attributes.createdAt || '') as string,
-    updatedAt: (resource.attributes.updatedAt || '') as string
+    updatedAt: (resource.attributes.updatedAt || '') as string,
+    productsCount: resource.attributes.productsCount as number | undefined
   }
 }
 

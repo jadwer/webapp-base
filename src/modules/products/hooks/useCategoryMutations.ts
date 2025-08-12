@@ -80,19 +80,9 @@ export function useCategoryMutations() {
         { revalidate: true }
       )
     } catch (err) {
-      const errorMessage = createErrorMessage(err)
-      const error = new Error(errorMessage)
-      
-      // Add additional metadata for relationship errors
-      if (isRelationshipError(err)) {
-        // @ts-expect-error - Adding custom property
-        error.isRelationshipError = true
-        // @ts-expect-error - Adding custom property
-        error.originalError = err
-      }
-      
-      setError(error)
-      throw error
+      // Keep the original error for proper error handling
+      setError(err as Error)
+      throw err
     } finally {
       setIsLoading(false)
     }

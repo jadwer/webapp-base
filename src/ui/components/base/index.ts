@@ -29,6 +29,9 @@ export type { BadgeProps } from './Badge'
 export { Alert } from './Alert'
 export type { AlertProps } from './Alert'
 
+export { ErrorAlert } from './ErrorAlert'
+export type { ErrorAlertProps } from './ErrorAlert'
+
 export { Toast } from './Toast'
 export type { ToastProps, ToastType } from './Toast'
 

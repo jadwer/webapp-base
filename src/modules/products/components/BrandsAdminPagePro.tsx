@@ -11,10 +11,9 @@ import { BrandsShowcase } from './BrandsShowcase'
 import { BrandsFiltersSimple } from './BrandsFiltersSimple'
 import { BrandsViewModeSelector } from './BrandsViewModeSelector'
 import { PaginationPro } from './PaginationPro'
-import { useBrands, useBrandMutations } from '../hooks'
+import { useBrands, useBrandMutations, useErrorHandler } from '../hooks'
 import { useBrandsUIStore, useBrandsFilters, useBrandsSort, useBrandsPage, useBrandsViewMode } from '../store/brandsUIStore'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
-import { useToast } from '@/ui/hooks/useToast'
 
 const BrandsStatsBar = React.memo<{ 
   total: number
@@ -63,11 +62,57 @@ const BrandsStatsBar = React.memo<{
 BrandsStatsBar.displayName = 'BrandsStatsBar'
 
 export const BrandsAdminPagePro = React.memo(() => {
-  console.log('🔄 BrandsAdminPagePro render')
-
   const navigation = useNavigationProgress()
   const confirmModalRef = useRef<ConfirmModalHandle>(null)
-  const toast = useToast()
+  const { handleError } = useErrorHandler()
+  
+  // Función simple de toast usando DOM directo
+  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+    // Crear toast elemento directamente
+    const toast = document.createElement('div')
+    toast.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: ${type === 'success' ? '#28a745' : '#dc3545'};
+      color: white;
+      padding: 16px 24px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      z-index: 9999;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      animation: slideIn 0.3s ease-out;
+      max-width: 400px;
+    `
+    toast.textContent = message
+    
+    // Agregar animación CSS si no existe
+    if (!document.getElementById('toast-animations')) {
+      const style = document.createElement('style')
+      style.id = 'toast-animations'
+      style.textContent = `
+        @keyframes slideIn {
+          from { transform: translateX(100%); opacity: 0; }
+          to { transform: translateX(0); opacity: 1; }
+        }
+      `
+      document.head.appendChild(style)
+    }
+    
+    // Mostrar toast
+    document.body.appendChild(toast)
+    
+    // Remover después de 4 segundos
+    setTimeout(() => {
+      if (toast.parentNode) {
+        toast.style.animation = 'slideIn 0.3s ease-out reverse'
+        setTimeout(() => {
+          toast.remove()
+        }, 300)
+      }
+    }, 4000)
+  }
 
   // Get UI state from Zustand store
   const filters = useBrandsFilters()
@@ -115,14 +160,12 @@ export const BrandsAdminPagePro = React.memo(() => {
       try {
         await deleteBrand(brandId)
         refresh()
-        toast.success('Marca eliminada exitosamente')
+        showToast('Marca eliminada exitosamente', 'success')
       } catch (error) {
-        console.error('❌ Error deleting brand:', error)
-        // The error message is already handled by the mutation hook
-        toast.error((error as Error).message)
+        handleError(error, 'Error al eliminar marca')
       }
     }
-  }, [deleteBrand, refresh])
+  }, [deleteBrand, refresh, showToast, handleError])
 
   const handleCreateNew = React.useCallback(() => {
     navigation.push('/dashboard/products/brands/create')

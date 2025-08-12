@@ -2,9 +2,13 @@
 
 import Sidebar from '@/ui/components/Sidebar'
 import HeaderNavbar from '@/ui/components/HeaderNavbar'
+import { ToastContainer } from '@/ui/components/base/ToastContainer'
+import { useToastStore } from '@/ui/stores/toastStore'
 import styles from '@/ui/styles/modules/DashboardLayout.module.scss'
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+  const { toasts, hideToast } = useToastStore()
+
   return (
     <div className={styles.layout}>
       <HeaderNavbar />
@@ -16,6 +20,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </main>
         </div>
       </div>
+      
+      {/* Global toast container for the dashboard */}
+      <ToastContainer 
+        toasts={toasts}
+        onClose={hideToast}
+        position="top-right"
+      />
     </div>
   )
 }

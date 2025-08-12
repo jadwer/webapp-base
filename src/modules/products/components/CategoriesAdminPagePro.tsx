@@ -11,10 +11,9 @@ import { CategoriesShowcase } from './CategoriesShowcase'
 import { CategoriesFiltersSimple } from './CategoriesFiltersSimple'
 import { CategoriesViewModeSelector } from './CategoriesViewModeSelector'
 import { PaginationPro } from './PaginationPro'
-import { useCategories, useCategoryMutations } from '../hooks'
+import { useCategories, useCategoryMutations, useErrorHandler } from '../hooks'
 import { useCategoriesUIStore, useCategoriesFilters, useCategoriesSort, useCategoriesPage, useCategoriesViewMode } from '../store/categoriesUIStore'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
-import { useToast } from '@/ui/hooks/useToast'
 
 const CategoriesStatsBar = React.memo<{ 
   total: number
@@ -63,11 +62,54 @@ const CategoriesStatsBar = React.memo<{
 CategoriesStatsBar.displayName = 'CategoriesStatsBar'
 
 export const CategoriesAdminPagePro = React.memo(() => {
-  console.log('🔄 CategoriesAdminPagePro render')
-
   const navigation = useNavigationProgress()
   const confirmModalRef = useRef<ConfirmModalHandle>(null)
-  const toast = useToast()
+  // Función simple de toast usando DOM directo
+  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+    // Crear toast elemento directamente
+    const toast = document.createElement('div')
+    toast.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: ${type === 'success' ? '#28a745' : '#dc3545'};
+      color: white;
+      padding: 16px 24px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      z-index: 9999;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      animation: slideIn 0.3s ease-out;
+      max-width: 400px;
+    `
+    toast.textContent = message
+    
+    // Agregar animación CSS
+    const style = document.createElement('style')
+    style.textContent = `
+      @keyframes slideIn {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+      }
+    `
+    document.head.appendChild(style)
+    
+    // Mostrar toast
+    document.body.appendChild(toast)
+    
+    // Remover después de 4 segundos
+    setTimeout(() => {
+      if (toast.parentNode) {
+        toast.style.animation = 'slideIn 0.3s ease-out reverse'
+        setTimeout(() => {
+          toast.remove()
+          style.remove()
+        }, 300)
+      }
+    }, 4000)
+  }
+  const { handleError } = useErrorHandler()
 
   // Get UI state from Zustand store
   const filters = useCategoriesFilters()
@@ -115,11 +157,9 @@ export const CategoriesAdminPagePro = React.memo(() => {
       try {
         await deleteCategory(categoryId)
         refresh()
-        toast.success('Categoría eliminada exitosamente')
+        showToast('Categoría eliminada exitosamente', 'success')
       } catch (error) {
-        console.error('❌ Error deleting category:', error)
-        // The error message is already handled by the mutation hook
-        toast.error((error as Error).message)
+        handleError(error, 'Error al eliminar categoría')
       }
     }
   }, [deleteCategory, refresh])

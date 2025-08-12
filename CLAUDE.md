@@ -155,12 +155,15 @@ The `products` module is a **enterprise-level administration system** with 4 ent
 **Technical Implementation:**
 - Uses SWR for efficient data fetching and caching
 - JSON:API transformers for correct data mapping (camelCase ↔ snake_case)
-- Comprehensive debug logging for API diagnostics
 - Proper relationship resolution for included resources
-- **Enterprise Error Handling:** Robust system with relationship constraint detection
+- **Enterprise Error Handling System:** Complete FK constraint detection
+- **Professional Toast Notifications:** DOM-direct rendering with animations
 - **ConfirmModal Integration:** Professional replacement for window.confirm()
 - **FormWrapper Pattern:** SWR data loading + mutation hooks integration
 - **CRUD Routes Complete:** All auxiliary entities with create/edit/view pages
+- **ProductsCount Integration:** Real-time counting of associated products
+- **Unified Search:** filter[search] parameter for cross-field search
+- **Next.js 15 Compatibility:** Proper Promise params handling
 
 **API Integration:**
 - Full JSON:API compliance with Laravel JSON:API backend
@@ -180,6 +183,45 @@ The `products` module is a **enterprise-level administration system** with 4 ent
 - **Read:** `/dashboard/products/{entity}/[id]` - View entity details
 - **Update:** `/dashboard/products/{entity}/[id]/edit` - Edit existing entity
 - **Delete:** Via AdminPagePro with professional ConfirmModal and relationship error handling
+
+### Enterprise Error Handling System ✨ **NUEVO**
+Complete professional error handling system implemented across all entities:
+
+**🎯 FK Constraint Detection:**
+- **Automatic Detection:** Status 409 + JSON:API error codes
+- **User-friendly Messages:** Entity-specific constraint messages
+- **Graceful Degradation:** No application crashes
+- **Professional UX:** Toast notifications instead of alerts
+
+**🎨 Toast Notification System:**
+- **DOM Direct Rendering:** Bypasses React state complexity 
+- **Professional Animations:** CSS keyframe animations
+- **Consistent Styling:** Green (success) / Red (error)
+- **Auto Removal:** 4-6 second duration based on error type
+- **Positioning:** Top-right corner, z-index 9999
+
+**📱 Implementation Details:**
+```typescript
+// Error Detection Example
+if (axiosError.response?.status === 409) {
+  const hasConstraintCode = parsedErrors.some(err => 
+    err.code === 'FOREIGN_KEY_CONSTRAINT'
+  )
+  return true  // Detected FK constraint violation
+}
+
+// User-friendly Messages
+"No se puede eliminar la categoría porque tiene productos asociados"
+"No se puede eliminar la marca porque tiene productos asociados"  
+"No se puede eliminar la unidad porque tiene productos asociados"
+```
+
+**🔧 Components Updated:**
+- ✅ **Categories:** Complete error handling with toast notifications
+- ✅ **Brands:** Complete error handling with toast notifications
+- ✅ **Units:** Complete error handling with toast notifications
+- ✅ **useErrorHandler:** Centralized error management hook
+- ✅ **Error Utilities:** FK detection and message generation
 
 ## Development Guidelines
 

@@ -3,15 +3,17 @@ export interface Unit {
   unitType: string
   code: string
   name: string
+  description?: string
   createdAt: string
   updatedAt: string
-  productsCount?: number // TODO: Backend needs to provide this count
+  productsCount?: number
 }
 
 export interface CreateUnitData {
   unitType: string
   code: string
   name: string
+  description?: string
 }
 
 export type UpdateUnitData = Partial<CreateUnitData>
