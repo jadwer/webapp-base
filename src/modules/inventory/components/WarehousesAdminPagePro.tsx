@@ -13,7 +13,7 @@
 
 'use client'
 
-import React, { memo, useCallback, useMemo, useEffect } from 'react'
+import React, { memo, useCallback, useMemo, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useWarehouses } from '../hooks'
 import { 
@@ -35,8 +35,8 @@ import WarehousesShowcase from './WarehousesShowcase'
 import WarehousesFiltersSimple from './WarehousesFiltersSimple'
 import { ViewModeSelector } from '@/modules/products/components' // Reutilizar del products module
 import { PaginationPro } from '@/modules/products/components' // Reutilizar del products module
-import { Button } from '@/ui/components/base/Button'
-import { ConfirmModal } from '@/ui/components/base/ConfirmModal'
+import { Button, ConfirmModal } from '@/ui/components/base'
+import type { ConfirmModalHandle } from '@/ui/components/base'
 
 // ===== COMPONENT PROPS =====
 
@@ -57,6 +57,10 @@ const WarehousesAdminPagePro: React.FC<WarehousesAdminPageProProps> = memo(({
   showBulkActions = true,
   enableSelection = true,
 }) => {
+  
+  // ===== REFS =====
+  
+  const confirmModalRef = useRef<ConfirmModalHandle>(null)
   
   // ===== STORE STATE =====
   
@@ -95,13 +99,15 @@ const WarehousesAdminPagePro: React.FC<WarehousesAdminPageProProps> = memo(({
   // ===== HANDLERS =====
   
   const handleDelete = useCallback(async (warehouse: Warehouse) => {
-    const confirmed = await ConfirmModal.confirm({
-      title: 'Confirmar Eliminación',
-      message: `¿Estás seguro que deseas eliminar el almacén "${warehouse.name}"?`,
-      confirmText: 'Eliminar',
-      cancelText: 'Cancelar',
-      type: 'danger'
-    })
+    const confirmed = await confirmModalRef.current?.confirm(
+      `¿Estás seguro que deseas eliminar el almacén "${warehouse.name}"?`,
+      {
+        title: 'Confirmar Eliminación',
+        confirmText: 'Eliminar',
+        cancelText: 'Cancelar',
+        confirmVariant: 'danger'
+      }
+    )
     
     if (!confirmed) return
     
@@ -127,13 +133,15 @@ const WarehousesAdminPagePro: React.FC<WarehousesAdminPageProProps> = memo(({
     
     if (selectedWarehouses.length === 0) return
     
-    const confirmed = await ConfirmModal.confirm({
-      title: 'Confirmar Eliminación Masiva',
-      message: `¿Estás seguro que deseas eliminar ${selectedWarehouses.length} almacenes seleccionados?`,
-      confirmText: 'Eliminar Todos',
-      cancelText: 'Cancelar',
-      type: 'danger'
-    })
+    const confirmed = await confirmModalRef.current?.confirm(
+      `¿Estás seguro que deseas eliminar ${selectedWarehouses.length} almacenes seleccionados?`,
+      {
+        title: 'Confirmar Eliminación Masiva',
+        confirmText: 'Eliminar Todos',
+        cancelText: 'Cancelar',
+        confirmVariant: 'danger'
+      }
+    )
     
     if (!confirmed) return
     
@@ -527,6 +535,9 @@ const WarehousesAdminPagePro: React.FC<WarehousesAdminPageProProps> = memo(({
           </div>
         </div>
       )}
+      
+      {/* Confirm Modal */}
+      <ConfirmModal ref={confirmModalRef} />
     </div>
   )
 })

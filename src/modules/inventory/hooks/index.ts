@@ -18,10 +18,24 @@ export {
   useWarehouseSlugValidation,
 } from './useWarehousesMutations'
 
-// ===== FUTURE HOOKS (PRÓXIMAS ITERACIONES) =====
+// ===== LOCATION HOOKS (ITERACIÓN 2) ✅ =====
+export {
+  useLocations,
+  useLocationsByWarehouse,
+  useLocation,
+  useLocationHierarchy,
+  useLocationCodeValidation,
+  useLocationOptions,
+  useLocationMetrics,
+  useLocationsSearch,
+} from './useLocations'
 
-// Iteración 2: WarehouseLocation hooks
-// export { useLocations, useLocation, useLocationsMutations } from './useLocations'
+export {
+  useLocationsMutations,
+  useLocationHierarchyValidation,
+} from './useLocationsMutations'
+
+// ===== FUTURE HOOKS (PRÓXIMAS ITERACIONES) =====
 
 // Iteración 3: Stock hooks
 // export { useStock, useStockMutations, useStockAlerts } from './useStock'

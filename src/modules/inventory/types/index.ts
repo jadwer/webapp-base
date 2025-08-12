@@ -36,6 +36,7 @@ export type {
 
 // ===== BUSINESS RULES CONSTANTS =====
 export { WAREHOUSE_BUSINESS_RULES } from './warehouse'
+export { LOCATION_BUSINESS_RULES } from './location'
 
 // ===== RE-EXPORTS FROM OTHER MODULES =====
 // Para coordination, re-exportamos tipos necesarios de otros módulos
@@ -63,8 +64,30 @@ export type {
  * Se implementarán en iteraciones 2 y 3
  */
 
-// Iteración 2: WarehouseLocation types
-// export type { LocationHierarchy, LocationFilters } from './location'
+// Iteración 2: WarehouseLocation types ✅
+export type {
+  // Core location types
+  WarehouseLocation,
+  LocationType,
+  LocationStatus,
+  PickingPriority,
+  
+  // Location DTOs
+  CreateWarehouseLocationData,
+  UpdateWarehouseLocationData,
+  WarehouseLocationFilters,
+  PaginatedWarehouseLocationsResponse,
+  WarehouseLocationResponse,
+  WarehouseLocationResource,
+  
+  // UI State types
+  LocationLoadingState,
+  LocationMetrics,
+  
+  // Hierarchy helpers
+  LocationHierarchy,
+  LocationTreeNode,
+} from './location'
 
 // Iteración 3: Stock types  
 // export type { StockMovement, StockAlert, StockDashboard } from './stock'

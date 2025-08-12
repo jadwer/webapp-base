@@ -14,10 +14,18 @@ export {
   loadWarehouseViewPreferences,
 } from './warehousesUIStore'
 
-// ===== FUTURE STORES (PRÓXIMAS ITERACIONES) =====
+// ===== LOCATION UI STORE (ITERACIÓN 2) ✅ =====
+export {
+  useLocationsUIStore,
+  useLocationsFilters,
+  useLocationsView,
+  useLocationsSelection,
+  useLocationsFocus,
+  saveLocationViewPreferences,
+  loadLocationViewPreferences,
+} from './locationsUIStore'
 
-// Iteración 2: WarehouseLocation UI Store
-// export { useLocationsUIStore } from './locationsUIStore'
+// ===== FUTURE STORES (PRÓXIMAS ITERACIONES) =====
 
 // Iteración 3: Stock UI Store
 // export { useStockUIStore } from './stockUIStore'

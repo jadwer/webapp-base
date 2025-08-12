@@ -17,12 +17,13 @@ export { default as WarehouseForm } from './WarehouseForm'
 // Nota: Estos se importan desde otros módulos, aquí solo re-exportamos para conveniencia
 export { ViewModeSelector, PaginationPro } from '@/modules/products/components'
 
-// ===== FUTURE COMPONENTS (PRÓXIMAS ITERACIONES) =====
-
-// Iteración 2: WarehouseLocation components
-// export { default as LocationsAdminPagePro } from './LocationsAdminPagePro'
-// export { default as LocationsTableVirtualized } from './LocationsTableVirtualized'
+// ===== LOCATIONS COMPONENTS (ITERACIÓN 2) ✅ =====
+export { default as LocationsAdminPagePro } from './LocationsAdminPagePro'
+export { default as LocationsFiltersSimple } from './LocationsFiltersSimple'
+export { default as LocationsTableVirtualized } from './LocationsTableVirtualized'
 // export { default as LocationForm } from './LocationForm'
+
+// ===== FUTURE COMPONENTS (PRÓXIMAS ITERACIONES) =====
 
 // Iteración 3: Stock components
 // export { default as StockAdminPagePro } from './StockAdminPagePro'

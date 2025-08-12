@@ -20,8 +20,24 @@ export {
 
 // ===== FUTURE SERVICES (PRÓXIMAS ITERACIONES) =====
 
-// Iteración 2: Warehouse Locations Service
-// export { locationsService } from './locationsService'
+// Iteración 2: Warehouse Locations Service ✅
+export {
+  locationsService,
+  getWarehouseLocations,
+  getLocationsByWarehouse,
+  getWarehouseLocation,
+  createWarehouseLocation,
+  updateWarehouseLocation,
+  deleteWarehouseLocation,
+  checkLocationCodeAvailable,
+  getLocationHierarchy,
+  formatLocationHierarchy,
+  getLocationTypeLabel,
+  getLocationStatusLabel,
+  getPickingPriorityColor,
+  formatLocationCode,
+  getLocationHierarchyDisplay,
+} from './locationsService'
 
 // Iteración 3: Stock Service
 // export { stockService } from './stockService'
