@@ -15,8 +15,22 @@
       "Bash(find:*)",
       "Bash(sed:*)",
       "Bash(npm run dev:*)",
-      "Bash(npm run sass:*)"
+      "Bash(npm run sass:*)",
+      "Bash(mv:*)",
+      "Bash(grep:*)",
+      "Bash(export TOKEN=\"2|UjbIq04xLgkvbdiqBvVBA2HckqtKNiIcasaUxIp91722a4cf\")",
+      "Bash(npm run test:run:*)",
+      "Bash(for:*)",
+      "Bash(do mv \"$file\" \"$file%x.tsx\")",
+      "Bash(done)",
+      "Bash(do if [ -f \"$file\" ])",
+      "Bash(fi)",
+      "Bash(TEST_AUTH_TOKEN=\"2|UjbIq04xLgkvbdiqBvVBA2HckqtKNiIcasaUxIp91722a4cf\" npm run test:integration)",
+      "Bash(npm run test:integration:*)",
+      "Bash(npm run vitest run:*)",
+      "Bash(npx vitest run:*)"
     ],
-    "deny": []
+    "deny": [],
+    "defaultMode": "acceptEdits"
   }
 }

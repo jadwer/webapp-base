@@ -1,22 +1,15 @@
 /**
- * 📦 WAREHOUSES LIST PAGE - INVENTORY MODULE
- * Página principal de gestión de almacenes
+ * WAREHOUSES PAGE
+ * Gestión completa de almacenes
  */
 
-import { WarehousesAdminPagePro } from '@/modules/inventory'
+import { WarehousesAdminPage } from '@/modules/inventory'
 
 export default function WarehousesPage() {
-  return (
-    <WarehousesAdminPagePro 
-      title="Gestión de Almacenes"
-      showCreateButton={true}
-      showBulkActions={true}
-      enableSelection={true}
-    />
-  )
+  return <WarehousesAdminPage />
 }
 
 export const metadata = {
-  title: 'Almacenes - Sistema de Inventario',
-  description: 'Gestión enterprise de almacenes con 5 vistas virtualizadas y performance optimizada',
+  title: 'Almacenes - Gestión de Inventario',
+  description: 'Gestión completa de almacenes y ubicaciones'
 }

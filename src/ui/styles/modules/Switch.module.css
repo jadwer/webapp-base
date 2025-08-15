@@ -1,0 +1,315 @@
+@charset "UTF-8";
+.switchGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.switchWrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  transition: all 150ms ease-in-out;
+  padding: 0.5rem;
+  border-radius: 0.375rem;
+}
+.switchWrapper:hover {
+  background: rgba(37, 99, 235, 0.02);
+}
+.switchWrapper.disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+.switchWrapper.disabled:hover {
+  background: transparent;
+}
+
+.switch {
+  position: relative;
+  flex-shrink: 0;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+}
+
+.input {
+  position: absolute;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  cursor: pointer;
+  z-index: 2;
+}
+.input:disabled {
+  cursor: not-allowed;
+}
+
+.track {
+  position: relative;
+  background: #e2e8f0;
+  border-radius: 50px;
+  transition: all 150ms ease-in-out;
+  cursor: pointer;
+  -webkit-backdrop-filter: blur(8px);
+          backdrop-filter: blur(8px);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.1);
+  z-index: 1;
+  width: 44px;
+  height: 24px;
+}
+.track::before {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: white;
+  transition: all 150ms ease-in-out;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.input:checked + .track {
+  background: linear-gradient(135deg, #2563eb, #2563eb);
+  box-shadow: inset 0 1px 3px rgba(37, 99, 235, 0.2), 0 2px 8px rgba(37, 99, 235, 0.15);
+}
+.input:checked + .track::before {
+  transform: translateX(20px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.input:focus + .track {
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1), 0 0 0 3px rgba(37, 99, 235, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.input:hover:not(:disabled) + .track {
+  background: #f1f5f9;
+  transform: translateY(-1px);
+}
+.input:hover:not(:disabled) + .track::before {
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.12);
+}
+
+.input:checked:hover:not(:disabled) + .track {
+  background: linear-gradient(135deg, #60a5fa, #2563eb);
+}
+
+.input:disabled + .track {
+  background: #f1f5f9;
+  cursor: not-allowed;
+  transform: none;
+}
+.input:disabled + .track::before {
+  background: #f1f5f9;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.input:checked:disabled + .track {
+  background: #cbd5e1;
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+}
+
+.label {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #0f172a;
+  margin: 0 0 0.25rem;
+  line-height: 1.25;
+  cursor: pointer;
+}
+.label.required::after {
+  content: " *";
+  color: #dc2626;
+}
+.switchWrapper.disabled .label {
+  color: #94a3b8;
+  cursor: not-allowed;
+}
+
+.description {
+  font-size: 0.875rem;
+  color: #475569;
+  margin: 0;
+  line-height: 1.5;
+}
+.switchWrapper.disabled .description {
+  color: #94a3b8;
+}
+
+.helpText {
+  font-size: 0.75rem;
+  color: #475569;
+  margin: 0;
+  line-height: 1.25;
+}
+
+.errorText {
+  font-size: 0.75rem;
+  color: #dc2626;
+  margin: 0;
+  line-height: 1.25;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+.errorText::before {
+  content: "⚠";
+  font-size: 0.875rem;
+}
+
+.small .switch {
+  width: 36px;
+  height: 20px;
+}
+.small .track {
+  width: 36px;
+  height: 20px;
+}
+.small .track::before {
+  width: 16px;
+  height: 16px;
+}
+.small .input:checked + .track::before {
+  transform: translateX(16px);
+}
+.small .label {
+  font-size: 0.875rem;
+}
+.small .description {
+  font-size: 0.75rem;
+}
+
+.large .switch {
+  width: 52px;
+  height: 28px;
+}
+.large .track {
+  width: 52px;
+  height: 28px;
+}
+.large .track::before {
+  width: 24px;
+  height: 24px;
+}
+.large .input:checked + .track::before {
+  transform: translateX(24px);
+}
+.large .label {
+  font-size: 1.125rem;
+}
+
+.error .track {
+  border: 1px solid #dc2626;
+}
+.error .input:checked + .track {
+  background: linear-gradient(135deg, #dc2626, #dc2626);
+  border-color: #dc2626;
+}
+.error .input:focus + .track {
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1), 0 0 0 3px rgba(220, 38, 38, 0.08), 0 2px 8px rgba(239, 68, 68, 0.08);
+}
+
+.success .track {
+  border: 1px solid #059669;
+}
+.success .input:checked + .track {
+  background: linear-gradient(135deg, #059669, #059669);
+  border-color: #059669;
+}
+.success .input:focus + .track {
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1), 0 0 0 3px rgba(5, 150, 105, 0.08), 0 2px 8px rgba(16, 185, 129, 0.08);
+}
+
+.loading .track::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 12px;
+  height: 12px;
+  border: 2px solid transparent;
+  border-top: 2px solid currentColor;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  opacity: 0.6;
+}
+.loading .track::before {
+  opacity: 0.5;
+}
+
+.switchWrapper.alignEnd {
+  flex-direction: row-reverse;
+}
+.switchWrapper.alignCenter {
+  align-items: center;
+}
+.switchWrapper.alignStart {
+  align-items: flex-start;
+}
+
+.withIcons .track {
+  padding: 0 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.withIcons .track::before {
+  z-index: 2;
+}
+.withIcons .track::after {
+  display: none;
+}
+.withIcons .onIcon,
+.withIcons .offIcon {
+  position: absolute;
+  font-size: 10px;
+  color: white;
+  z-index: 1;
+  transition: opacity 150ms ease-in-out;
+}
+.withIcons .onIcon {
+  right: 6px;
+  opacity: 0;
+}
+.withIcons .offIcon {
+  left: 6px;
+  opacity: 1;
+}
+.withIcons .input:checked + .track .onIcon {
+  opacity: 1;
+}
+.withIcons .input:checked + .track .offIcon {
+  opacity: 0;
+}
+
+@keyframes spin {
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+@keyframes switchAnimation {
+  0% {
+    transform: translateX(0) scale(1);
+  }
+  50% {
+    transform: translateX(10px) scale(1.1);
+  }
+  100% {
+    transform: translateX(20px) scale(1);
+  }
+}
+.input:checked + .track::before {
+  animation: switchAnimation 0.2s ease-out;
+}/*# sourceMappingURL=Switch.module.css.map */

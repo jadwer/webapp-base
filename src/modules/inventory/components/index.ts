@@ -1,39 +1,60 @@
 /**
- * 📦 INVENTORY COMPONENTS - INDEX
- * Exports centralizados para todos los componentes del módulo inventory
+ * INVENTORY SIMPLE - COMPONENTS INDEX
+ * Exports centralizados para todos los componentes del módulo
  */
 
-// ===== WAREHOUSES COMPONENTS =====
-export { default as WarehousesAdminPagePro } from './WarehousesAdminPagePro'
-export { default as WarehousesTableVirtualized } from './WarehousesTableVirtualized'
-export { default as WarehousesGrid } from './WarehousesGrid'
-export { default as WarehousesList } from './WarehousesList'
-export { default as WarehousesCompact } from './WarehousesCompact'
-export { default as WarehousesShowcase } from './WarehousesShowcase'
-export { default as WarehousesFiltersSimple } from './WarehousesFiltersSimple'
-export { default as WarehouseForm } from './WarehouseForm'
+// Warehouses Components
+export { WarehousesAdminPagePro } from './WarehousesAdminPagePro'
+export { WarehousesAdminPage } from './WarehousesAdminPage'
+export { WarehousesTable } from './WarehousesTable'
+export { WarehousesTableSimple } from './WarehousesTableSimple'
+export { WarehousesFilters } from './WarehousesFilters'
+export { WarehouseForm } from './WarehouseForm'
+export { WarehouseFormModal } from './WarehouseFormModal'
+export { WarehouseDetail } from './WarehouseDetail'
+export { CreateWarehouseWrapper } from './CreateWarehouseWrapper'
+export { EditWarehouseWrapper } from './EditWarehouseWrapper'
+export { FilterBar } from './FilterBar'
+export { PaginationSimple } from './PaginationSimple'
 
-// ===== SHARED COMPONENTS (REUTILIZADOS) =====
-// Nota: Estos se importan desde otros módulos, aquí solo re-exportamos para conveniencia
-export { ViewModeSelector, PaginationPro } from '@/modules/products/components'
+// Main Pages - Real Implementations
+export { LocationsAdminPageReal } from './LocationsAdminPageReal'
+export { LocationsTableSimple } from './LocationsTableSimple'
+export { StockAdminPageReal } from './StockAdminPageReal'
+export { StockTableSimple } from './StockTableSimple'
+export { MovementsAdminPageReal } from './MovementsAdminPageReal'
+export { MovementsTableSimple } from './MovementsTableSimple'
 
-// ===== LOCATIONS COMPONENTS (ITERACIÓN 2) ✅ =====
-export { default as LocationsAdminPagePro } from './LocationsAdminPagePro'
-export { default as LocationsFiltersSimple } from './LocationsFiltersSimple'
-export { default as LocationsTableVirtualized } from './LocationsTableVirtualized'
-// export { default as LocationForm } from './LocationForm'
+// Legacy/Preview Pages (deprecated)
+export { InventoryMainPage } from './InventoryMainPage'
+export { InventoryNavigation } from './InventoryNavigation'
+export { LocationsSimplePage } from './LocationsSimplePage'
+export { StockSimplePage } from './StockSimplePage'
+export { MovementsSimplePage } from './MovementsSimplePage'
 
-// ===== FUTURE COMPONENTS (PRÓXIMAS ITERACIONES) =====
+// Locations Components
+export { LocationsAdminPagePro } from './LocationsAdminPagePro'
+export { LocationsTable } from './LocationsTable'
+export { LocationsFilters } from './LocationsFilters'
+export { LocationForm } from './LocationForm'
+export { LocationDetail } from './LocationDetail'
+export { CreateLocationWrapper } from './CreateLocationWrapper'
+export { EditLocationWrapper } from './EditLocationWrapper'
 
-// Iteración 3: Stock components
-// export { default as StockAdminPagePro } from './StockAdminPagePro'
-// export { default as StockTableVirtualized } from './StockTableVirtualized'
-// export { default as StockForm } from './StockForm'
+// Stock Components
+export { StockAdminPagePro } from './StockAdminPagePro'
+export { StockTable } from './StockTable'
+export { StockFilters } from './StockFilters'
+export { StockForm } from './StockForm'
+export { StockDetail } from './StockDetail'
+export { CreateStockWrapper } from './CreateStockWrapper'
+export { EditStockWrapper } from './EditStockWrapper'
 
-// Specialized components
-// export { default as StockLevelIndicator } from './StockLevelIndicator'
-// export { default as StockAlerts } from './StockAlerts'
-// export { default as LocationHierarchy } from './LocationHierarchy'
-
-// Coordinación con Products module
-// export { default as ProductStockInfo } from './ProductStockInfo'
+// Inventory Movements Components
+export { InventoryMovementsAdminPagePro } from './InventoryMovementsAdminPagePro'
+export { InventoryMovementsTable } from './InventoryMovementsTable'
+export { InventoryMovementsFilters } from './InventoryMovementsFilters'
+export { InventoryMovementForm } from './InventoryMovementForm'
+export { MovementDetail } from './MovementDetail'
+export { CreateMovementWrapper } from './CreateMovementWrapper'
+export { EditMovementWrapper } from './EditMovementWrapper'

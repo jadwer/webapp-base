@@ -1,0 +1,249 @@
+.layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  position: relative;
+}
+.layout::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 20% 80%, rgba(59, 130, 246, 0.05) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(59, 130, 246, 0.08) 0%, transparent 50%), radial-gradient(circle at 40% 40%, rgba(59, 130, 246, 0.03) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.container {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  transition: margin-left 250ms ease-in-out;
+  position: relative;
+  z-index: 1;
+}
+@media (max-width: 991px) {
+  .content {
+    margin-left: 0 !important;
+  }
+}
+
+.mainContent {
+  padding: 2rem;
+  max-width: 100%;
+  background: transparent;
+  min-height: calc(100vh - 80px);
+}
+@media (max-width: 768px) {
+  .mainContent {
+    padding: 1.5rem;
+  }
+}
+
+.pageHeader {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.pageTitle {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 0.5rem;
+  line-height: 1.25;
+}
+
+.pageDescription {
+  font-size: 1.125rem;
+  color: #475569;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.breadcrumbs {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+  color: #475569;
+}
+
+.breadcrumbItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.breadcrumbItem:not(:last-child)::after {
+  content: "/";
+  color: #94a3b8;
+  margin-left: 0.5rem;
+}
+
+.breadcrumbLink {
+  color: #475569;
+  text-decoration: none;
+  transition: color 150ms ease-in-out;
+}
+.breadcrumbLink:hover {
+  color: #2563eb;
+  text-decoration: none;
+}
+
+.breadcrumbCurrent {
+  color: #0f172a;
+  font-weight: 500;
+}
+
+.section {
+  margin-bottom: 2rem;
+}
+.section:last-child {
+  margin-bottom: 0;
+}
+
+.sectionHeader {
+  margin-bottom: 1rem;
+}
+
+.sectionTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #0f172a;
+  margin: 0 0 0.5rem;
+}
+
+.sectionDescription {
+  font-size: 1rem;
+  color: #475569;
+  margin: 0;
+}
+
+.grid {
+  display: grid;
+  gap: 1.5rem;
+}
+.grid.cols1 {
+  grid-template-columns: 1fr;
+}
+.grid.cols2 {
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+.grid.cols3 {
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
+.grid.cols4 {
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+.actionBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+}
+@media (max-width: 768px) {
+  .actionBar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+.actionBarLeft {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+@media (max-width: 768px) {
+  .actionBarLeft {
+    margin-bottom: 0.75rem;
+  }
+}
+
+.actionBarRight {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+@media (max-width: 768px) {
+  .actionBarRight {
+    justify-content: stretch;
+  }
+  .actionBarRight > * {
+    flex: 1;
+  }
+}
+
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  color: #475569;
+  min-height: 200px;
+}
+
+.loadingSpinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #e2e8f0;
+  border-top: 3px solid #2563eb;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
+  color: #475569;
+  min-height: 200px;
+}
+
+.emptyIcon {
+  font-size: 48px;
+  color: #cbd5e1;
+  margin-bottom: 1rem;
+}
+
+.emptyTitle {
+  font-size: 1.125rem;
+  font-weight: 500;
+  color: #0f172a;
+  margin: 0 0 0.5rem;
+}
+
+.emptyDescription {
+  font-size: 1rem;
+  margin: 0 0 1rem;
+  max-width: 400px;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}/*# sourceMappingURL=DashboardLayout.module.css.map */

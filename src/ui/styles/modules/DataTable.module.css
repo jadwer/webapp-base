@@ -1,0 +1,172 @@
+.tableContainer {
+  overflow-x: auto;
+  border-radius: 0.5rem;
+  border: 1px solid #e9ecef;
+}
+
+.table {
+  width: 100%;
+  margin-bottom: 0;
+  color: #212529;
+  vertical-align: middle;
+  border-collapse: collapse;
+}
+.table th,
+.table td {
+  padding: 0.75rem;
+  border-bottom: 1px solid #e9ecef;
+  vertical-align: middle;
+}
+.table th {
+  font-weight: 600;
+  color: #495057;
+  background-color: #f8f9fa;
+  border-bottom: 2px solid #dee2e6;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+.table.small th,
+.table.small td {
+  padding: 0.5rem;
+  font-size: 0.875rem;
+}
+.table.large th,
+.table.large td {
+  padding: 1rem;
+  font-size: 1.1rem;
+}
+.table.bordered th,
+.table.bordered td {
+  border: 1px solid #e9ecef;
+}
+.table.striped tbody tr:nth-child(odd) {
+  background-color: rgba(0, 0, 0, 0.025);
+}
+.table.hoverable tbody tr {
+  transition: background-color 0.15s ease-in-out;
+}
+.table.hoverable tbody tr:hover {
+  background-color: rgba(0, 0, 0, 0.075);
+}
+.table .clickableRow {
+  cursor: pointer;
+}
+.table .sortable {
+  cursor: pointer;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+          user-select: none;
+  transition: background-color 0.15s ease-in-out;
+}
+.table .sortable:hover {
+  background-color: #e9ecef;
+}
+.table .sortable i {
+  opacity: 0.5;
+  font-size: 0.75rem;
+}
+
+.alignLeft {
+  text-align: left;
+}
+
+.alignCenter {
+  text-align: center;
+}
+
+.alignRight {
+  text-align: right;
+}
+
+.emptyCell {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #6c757d;
+}
+
+.emptyContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  opacity: 0.7;
+}
+
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.spinner {
+  width: 2rem;
+  height: 2rem;
+  border: 3px solid #e9ecef;
+  border-top: 3px solid #0d6efd;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-color-scheme: dark) {
+  .tableContainer {
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+  .table {
+    color: #f8f9fa;
+  }
+  .table th {
+    color: #f8f9fa;
+    background-color: #343a40;
+    border-bottom-color: rgba(255, 255, 255, 0.2);
+  }
+  .table td {
+    border-bottom-color: rgba(255, 255, 255, 0.2);
+  }
+  .table.bordered th,
+  .table.bordered td {
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+  .table.striped tbody tr:nth-child(odd) {
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+  .table.hoverable tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+  .table .sortable:hover {
+    background-color: #495057;
+  }
+  .table .emptyCell {
+    color: #adb5bd;
+  }
+  .table .spinner {
+    border-color: rgba(255, 255, 255, 0.2);
+    border-top-color: #0d6efd;
+  }
+}
+@media (max-width: 768px) {
+  .table {
+    font-size: 0.875rem;
+  }
+  .table th,
+  .table td {
+    padding: 0.5rem 0.25rem;
+  }
+  .table.large th,
+  .table.large td {
+    padding: 0.75rem 0.5rem;
+    font-size: 1rem;
+  }
+}/*# sourceMappingURL=DataTable.module.css.map */

@@ -27,6 +27,14 @@ const productsLinks = [
   { href: '/dashboard/products/units', label: 'Unidades', icon: 'bi-rulers' }
 ]
 
+const inventoryLinks = [
+  { href: '/dashboard/inventory', label: 'Dashboard', icon: 'bi-speedometer2' },
+  { href: '/dashboard/inventory/warehouses', label: 'Almacenes', icon: 'bi-building' },
+  { href: '/dashboard/inventory/locations', label: 'Ubicaciones', icon: 'bi-geo-alt' },
+  { href: '/dashboard/inventory/stock', label: 'Control de Stock', icon: 'bi-boxes' },
+  { href: '/dashboard/inventory/movements', label: 'Movimientos', icon: 'bi-arrow-left-right' }
+]
+
 export default function Sidebar() {
   const pathname = usePathname()
   const [open, setOpen] = useState(false)
@@ -37,6 +45,9 @@ export default function Sidebar() {
   )
   const [productsOpen, setProductsOpen] = useState(
     pathname?.startsWith('/dashboard/products')
+  )
+  const [inventoryOpen, setInventoryOpen] = useState(
+    pathname?.startsWith('/dashboard/inventory')
   )
 
   return (
@@ -140,6 +151,45 @@ export default function Sidebar() {
             }`}>
               <ul className={styles.subNavList}>
                 {productsLinks.map(({ href, label, icon }) => (
+                  <li key={href}>
+                    <Link
+                      href={href}
+                      className={`${styles.subNavLink} ${
+                        pathname === href ? styles.active : ''
+                      }`}
+                    >
+                      <i className={`bi ${icon} ${styles.subNavIcon}`} aria-hidden="true"></i>
+                      {label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </li>
+          
+          {/* Grupo Inventario */}
+          <li className={styles.navItem}>
+            <button
+              className={`${styles.groupButton} ${
+                inventoryOpen ? styles.groupActive : ''
+              }`}
+              onClick={() => setInventoryOpen(!inventoryOpen)}
+            >
+              <div className={styles.groupContent}>
+                <i className="bi bi-archive" aria-hidden="true"></i>
+                Inventario
+              </div>
+              <i className={`bi bi-chevron-right ${styles.groupChevron} ${
+                inventoryOpen ? styles.expanded : ''
+              }`}></i>
+            </button>
+            
+            {/* Submenú */}
+            <div className={`${styles.subMenu} ${
+              inventoryOpen ? styles.expanded : styles.collapsed
+            }`}>
+              <ul className={styles.subNavList}>
+                {inventoryLinks.map(({ href, label, icon }) => (
                   <li key={href}>
                     <Link
                       href={href}

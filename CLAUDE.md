@@ -324,8 +324,63 @@ Bootstrap Icons are configured for the Design System:
 Required environment variables:
 - `NEXT_PUBLIC_BACKEND_URL` - Backend API base URL
 
-### Testing
-Currently no specific test framework configured. Check for test scripts in package.json before implementing tests.
+### Testing - ⚡ **OBLIGATORIO DESDE ENERO 2025**
+
+**🚨 POLÍTICA CRÍTICA:** Después de 2 módulos fallidos, el testing con **Vitest** es **OBLIGATORIO** para todos los módulos nuevos.
+
+#### **Configuración Vitest:**
+- **Framework:** Vitest (10x más rápido que Jest)
+- **Environment:** happy-dom (performance optimizada)
+- **Coverage:** Mínimo 70% en functions, lines, branches, statements
+- **Ubicación:** Tests deben estar en `src/modules/{module}/tests/` 
+- **Patrón:** `*.test.ts` o `*.spec.ts`
+
+#### **Scripts Disponibles:**
+- `npm run test` - Run tests in watch mode
+- `npm run test:run` - Run all tests once
+- `npm run test:ui` - Run tests with UI interface
+- `npm run test:coverage` - Run tests with coverage report
+- `npm run test:watch` - Run tests in watch mode
+
+#### **Estructura de Testing por Módulo:**
+```
+src/modules/{module}/tests/
+├── utils/
+│   ├── test-utils.ts        # Mock factories, utilities
+│   └── index.ts             # Exports centralizados
+├── services/
+│   ├── {service}.test.ts    # Unit tests para services
+│   └── index.ts
+├── hooks/
+│   ├── {hook}.test.ts       # Unit tests para hooks
+│   └── index.ts
+└── components/
+    ├── {component}.test.tsx  # Integration tests para components
+    └── index.ts
+```
+
+#### **Patrones de Testing Implementados:**
+- **✅ AAA Pattern:** Arrange, Act, Assert
+- **✅ Mock Factories:** Para crear datos de prueba consistentes
+- **✅ Service Layer Testing:** Tests unitarios completos para API layer
+- **✅ Hook Testing:** Tests para SWR hooks con mocks
+- **✅ Component Testing:** Integration tests con React Testing Library
+- **✅ Coverage Thresholds:** Enforcement automático de cobertura
+
+#### **Testing Guidelines:**
+1. **OBLIGATORIO:** Crear tests para todos los services, hooks principales y componentes
+2. **Mock Strategy:** Usar mocks para axios, Next.js router, external dependencies
+3. **Test Organization:** Tests organizados por módulo, no globalmente
+4. **Coverage Enforcement:** CI/CD fallará si coverage < 70%
+5. **Performance:** Tests deben ejecutarse en < 5 segundos por módulo
+
+#### **Quality Gates:**
+- ❌ **NO SE PERMITE** código sin tests en módulos nuevos
+- ❌ **NO SE PERMITE** coverage < 70%
+- ❌ **NO SE PERMITE** tests lentos (> 10s por suite)
+- ✅ **OBLIGATORIO** tests passing 100% antes de commit
+
+**Razón:** Prevenir pérdida de trabajo como en los 2 módulos anteriores que se tuvieron que borrar.
 
 ### Debugging and Troubleshooting
 
