@@ -15,6 +15,20 @@ export const StockDetail = ({ stockId }: StockDetailProps) => {
   const { deleteStock } = useStockMutations()
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
+
+  // Debug: Log the stock data received
+  console.log('🔍 [StockDetail] Component state:', {
+    stockId,
+    stock,
+    isLoading,
+    error,
+    hasProduct: !!stock?.product,
+    hasWarehouse: !!stock?.warehouse,
+    hasLocation: !!stock?.location,
+    productName: stock?.product?.name,
+    warehouseName: stock?.warehouse?.name,
+    locationName: stock?.location?.name
+  })
   
   const getStatusLabel = (status: string) => {
     const statuses = {

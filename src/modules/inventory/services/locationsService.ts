@@ -29,30 +29,34 @@ export const locationsService = {
     
     const queryParams: Record<string, any> = {}
     
-    // Filtros
+    // Filtros con nombres exactos de columnas de base de datos
     if (filters.search) {
-      queryParams['filter[search]'] = filters.search
+      queryParams['filter[search_name]'] = filters.search // LIKE search en nombre
+    }
+    if (filters.code) {
+      queryParams['filter[search_code]'] = filters.code // LIKE search en código
+    }
+    // Filtros exactos (si se necesitan)
+    if (filters.exactName) {
+      queryParams['filter[name]'] = filters.exactName // Búsqueda exacta por nombre
+    }
+    if (filters.exactCode) {
+      queryParams['filter[code]'] = filters.exactCode // Búsqueda exacta por código
     }
     if (filters.warehouseId) {
-      queryParams['filter[warehouseId]'] = filters.warehouseId
+      queryParams['filter[warehouse_id]'] = filters.warehouseId
     }
     if (filters.locationType) {
-      queryParams['filter[locationType]'] = filters.locationType
+      queryParams['filter[location_type]'] = filters.locationType
     }
     if (filters.isActive !== undefined) {
-      queryParams['filter[isActive]'] = filters.isActive
+      queryParams['filter[is_active]'] = filters.isActive ? 1 : 0
     }
     if (filters.isPickable !== undefined) {
-      queryParams['filter[isPickable]'] = filters.isPickable
+      queryParams['filter[is_pickable]'] = filters.isPickable ? 1 : 0
     }
     if (filters.isReceivable !== undefined) {
-      queryParams['filter[isReceivable]'] = filters.isReceivable
-    }
-    if (filters.aisle) {
-      queryParams['filter[aisle]'] = filters.aisle
-    }
-    if (filters.rack) {
-      queryParams['filter[rack]'] = filters.rack
+      queryParams['filter[is_receivable]'] = filters.isReceivable ? 1 : 0
     }
     
     // Sorting

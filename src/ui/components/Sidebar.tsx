@@ -1,9 +1,9 @@
 'use client'
 
-import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 import NavigationProgress from './NavigationProgress'
+import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
 import styles from '@/ui/styles/modules/Sidebar.module.scss'
 
 const links = [
@@ -37,6 +37,7 @@ const inventoryLinks = [
 
 export default function Sidebar() {
   const pathname = usePathname()
+  const navigation = useNavigationProgress()
   const [open, setOpen] = useState(false)
   const [rcrudOpen, setRcrudOpen] = useState(
     pathname?.startsWith('/dashboard/permission-manager') || 
@@ -77,15 +78,15 @@ export default function Sidebar() {
           {/* Enlaces simples */}
           {links.map(({ href, label, icon }) => (
             <li className={styles.navItem} key={href}>
-              <Link
-                href={href}
+              <button
+                onClick={() => navigation.push(href)}
                 className={`${styles.navLink} ${
                   (pathname === href || (href !== '/dashboard' && pathname?.startsWith(href))) ? styles.active : ''
                 }`}
               >
                 <i className={`bi ${icon} ${styles.navIcon}`} aria-hidden="true"></i>
                 {label}
-              </Link>
+              </button>
             </li>
           ))}
           
@@ -113,15 +114,15 @@ export default function Sidebar() {
               <ul className={styles.subNavList}>
                 {rcrudLinks.map(({ href, label, icon }) => (
                   <li key={href}>
-                    <Link
-                      href={href}
+                    <button
+                      onClick={() => navigation.push(href)}
                       className={`${styles.subNavLink} ${
                         pathname === href ? styles.active : ''
                       }`}
                     >
                       <i className={`bi ${icon} ${styles.subNavIcon}`} aria-hidden="true"></i>
                       {label}
-                    </Link>
+                    </button>
                   </li>
                 ))}
               </ul>
@@ -152,15 +153,15 @@ export default function Sidebar() {
               <ul className={styles.subNavList}>
                 {productsLinks.map(({ href, label, icon }) => (
                   <li key={href}>
-                    <Link
-                      href={href}
+                    <button
+                      onClick={() => navigation.push(href)}
                       className={`${styles.subNavLink} ${
                         pathname === href ? styles.active : ''
                       }`}
                     >
                       <i className={`bi ${icon} ${styles.subNavIcon}`} aria-hidden="true"></i>
                       {label}
-                    </Link>
+                    </button>
                   </li>
                 ))}
               </ul>
@@ -191,15 +192,15 @@ export default function Sidebar() {
               <ul className={styles.subNavList}>
                 {inventoryLinks.map(({ href, label, icon }) => (
                   <li key={href}>
-                    <Link
-                      href={href}
+                    <button
+                      onClick={() => navigation.push(href)}
                       className={`${styles.subNavLink} ${
                         pathname === href ? styles.active : ''
                       }`}
                     >
                       <i className={`bi ${icon} ${styles.subNavIcon}`} aria-hidden="true"></i>
                       {label}
-                    </Link>
+                    </button>
                   </li>
                 ))}
               </ul>

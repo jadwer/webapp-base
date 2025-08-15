@@ -2,20 +2,59 @@
 
 import { InventoryMovementForm } from './InventoryMovementForm'
 import { useInventoryMovement, useInventoryMovementsMutations } from '../hooks'
+import { useWarehouses, useLocations } from '../hooks'
+import { useProducts } from '@/modules/products'
+import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
 
 interface EditMovementWrapperProps {
   movementId: string
 }
 
 export const EditMovementWrapper = ({ movementId }: EditMovementWrapperProps) => {
+  const navigation = useNavigationProgress()
   const { movement, isLoading: isLoadingMovement, error } = useInventoryMovement(movementId, ['product', 'warehouse', 'location'])
   const { updateMovement } = useInventoryMovementsMutations()
   
+  // Cargar datos para los selects
+  const { warehouses, isLoading: isLoadingWarehouses } = useWarehouses()
+  const { locations, isLoading: isLoadingLocations } = useLocations()
+  const { products, isLoading: isLoadingProducts } = useProducts()
+  
   const handleSubmit = async (data: any) => {
-    await updateMovement(movementId, data)
+    try {
+      const result = await updateMovement(movementId, data)
+      
+      // Show success toast
+      const toastElement = document.createElement('div')
+      toastElement.className = 'position-fixed top-0 end-0 p-3'
+      toastElement.style.zIndex = '9999'
+      toastElement.innerHTML = `
+        <div class="toast show" role="alert">
+          <div class="toast-header bg-success text-white">
+            <strong class="me-auto">Éxito</strong>
+          </div>
+          <div class="toast-body">
+            Movimiento actualizado correctamente
+          </div>
+        </div>
+      `
+      document.body.appendChild(toastElement)
+      
+      // Navigate to movement detail after brief delay
+      setTimeout(() => {
+        document.body.removeChild(toastElement)
+        navigation.push(`/dashboard/inventory/movements/${movementId}`)
+      }, 2000)
+      
+    } catch (error) {
+      console.error('Error updating movement:', error)
+      throw error // Let form handle the error display
+    }
   }
   
-  if (isLoadingMovement) {
+  const isLoading = isLoadingMovement || isLoadingWarehouses || isLoadingLocations || isLoadingProducts
+  
+  if (isLoading) {
     return (
       <div className="container-fluid py-4">
         <div className="row justify-content-center">
@@ -70,17 +109,17 @@ export const EditMovementWrapper = ({ movementId }: EditMovementWrapperProps) =>
     )
   }
   
-  // Convert JSON:API format to form format  
-  const movementForForm = {
-    ...movement.attributes,
-    id: movement.id
-  }
+  // Movement data already processed by JSON:API parser in hook
+  const movementForForm = movement
   
   return (
     <InventoryMovementForm
       movement={movementForForm}
       onSubmit={handleSubmit}
-      isEditing={true}
+      isLoading={isLoading}
+      warehouses={warehouses}
+      products={products}
+      locations={locations}
     />
   )
 }

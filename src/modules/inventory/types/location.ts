@@ -3,7 +3,7 @@
  * Basado en API responses reales de Fase 1 testing
  */
 
-import type { Warehouse } from './warehouse'
+import type { Warehouse, WarehouseParsed } from './warehouse'
 
 export interface WarehouseLocation {
   id: string
@@ -30,6 +30,12 @@ export interface WarehouseLocation {
   
   // Relationships
   warehouse?: Warehouse
+}
+
+// After JSON:API parsing
+export interface WarehouseLocationParsed extends Omit<WarehouseLocation, 'warehouse'> {
+  // Relationships (después de JSON:API parsing)
+  warehouse?: WarehouseParsed
 }
 
 export interface CreateLocationData {
@@ -78,14 +84,15 @@ export interface UpdateLocationData {
 }
 
 export interface LocationFilters {
-  search?: string
+  search?: string // LIKE search en nombre
+  code?: string // LIKE search en código
+  exactName?: string // Búsqueda exacta por nombre
+  exactCode?: string // Búsqueda exacta por código
   warehouseId?: string
   locationType?: string
   isActive?: boolean
   isPickable?: boolean
   isReceivable?: boolean
-  aisle?: string
-  rack?: string
 }
 
 export interface LocationSortOptions {

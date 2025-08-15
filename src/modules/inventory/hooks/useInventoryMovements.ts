@@ -9,6 +9,7 @@
 import { useCallback } from 'react'
 import useSWR, { useSWRConfig } from 'swr'
 import { inventoryMovementsService } from '../services'
+import { processJsonApiResponse } from '../utils/jsonApi'
 import type {
   InventoryMovement,
   CreateMovementData,
@@ -31,7 +32,10 @@ export const useInventoryMovements = (params: {
   
   const { data, error, isLoading, mutate } = useSWR(
     key,
-    () => inventoryMovementsService.getAll(params),
+    async () => {
+      const response = await inventoryMovementsService.getAll(params)
+      return processJsonApiResponse<InventoryMovement[]>(response)
+    },
     {
       keepPreviousData: true,
       revalidateOnFocus: false,
@@ -57,7 +61,10 @@ export const useInventoryMovement = (id: string | null, include?: string[]) => {
   
   const { data, error, isLoading, mutate } = useSWR(
     key,
-    () => inventoryMovementsService.getById(id!, include),
+    async () => {
+      const response = await inventoryMovementsService.getById(id!, include)
+      return processJsonApiResponse<InventoryMovement>(response)
+    },
     {
       revalidateOnFocus: false,
     }

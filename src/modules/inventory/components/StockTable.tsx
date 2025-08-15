@@ -211,7 +211,8 @@ export const StockTable = memo<StockTableProps>(({
           </thead>
           <tbody>
             {stock.map((stockItem) => {
-              const warehouse = warehouseMap[stockItem.warehouseId]
+              // Use processed relationships instead of warehouseMap lookup
+              const warehouse = stockItem.warehouse
               const stockLevel = getStockLevel(stockItem)
               
               return (
@@ -231,7 +232,7 @@ export const StockTable = memo<StockTableProps>(({
                         <div className="small text-muted">{stockItem.product.sku}</div>
                       </div>
                     ) : (
-                      <div className="small text-muted">Product ID: {stockItem.productId}</div>
+                      <div className="small text-muted">Producto sin datos</div>
                     )}
                   </td>
                   <td>
@@ -241,7 +242,7 @@ export const StockTable = memo<StockTableProps>(({
                         <div className="small text-muted">{warehouse.code}</div>
                       </div>
                     ) : (
-                      <div className="small text-muted">ID: {stockItem.warehouseId}</div>
+                      <div className="small text-muted">Almacén sin datos</div>
                     )}
                   </td>
                   <td>
@@ -251,7 +252,7 @@ export const StockTable = memo<StockTableProps>(({
                         <code className="small text-muted">{stockItem.location.code}</code>
                       </div>
                     ) : (
-                      <div className="small text-muted">ID: {stockItem.warehouseLocationId}</div>
+                      <div className="small text-muted">Ubicación sin datos</div>
                     )}
                   </td>
                   <td>

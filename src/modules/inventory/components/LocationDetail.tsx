@@ -413,6 +413,50 @@ export const LocationDetail = ({ locationId }: LocationDetailProps) => {
               </div>
             </div>
             
+            {/* Warehouse Information */}
+            <div className="col-md-6">
+              <div className="card h-100">
+                <div className="card-header bg-dark text-white">
+                  <h5 className="card-title mb-0">
+                    <i className="bi bi-building me-2"></i>
+                    Almacén
+                  </h5>
+                </div>
+                <div className="card-body">
+                  <dl className="row">
+                    <dt className="col-sm-4">Almacén:</dt>
+                    <dd className="col-sm-8">
+                      {location.warehouse?.name || 'No especificado'}
+                      {location.warehouse?.code && (
+                        <>
+                          <br />
+                          <small className="text-muted">Código: {location.warehouse.code}</small>
+                        </>
+                      )}
+                    </dd>
+                    
+                    {location.warehouse?.warehouseType && (
+                      <>
+                        <dt className="col-sm-4">Tipo:</dt>
+                        <dd className="col-sm-8">
+                          <span className="badge bg-info">
+                            {location.warehouse.warehouseType}
+                          </span>
+                        </dd>
+                      </>
+                    )}
+                    
+                    {location.warehouse?.address && (
+                      <>
+                        <dt className="col-sm-4">Dirección:</dt>
+                        <dd className="col-sm-8">{location.warehouse.address}</dd>
+                      </>
+                    )}
+                  </dl>
+                </div>
+              </div>
+            </div>
+            
             {/* Timestamps */}
             <div className="col-md-6">
               <div className="card h-100">

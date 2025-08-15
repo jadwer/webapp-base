@@ -3,16 +3,19 @@
  * Basado en API responses reales de Fase 1 testing
  */
 
-import type { Warehouse } from './warehouse'
-import type { WarehouseLocation } from './location'
+import type { WarehouseParsed } from './warehouse'
+import type { WarehouseLocationParsed } from './location'
 
-// Product type básico (existe en products module)
-interface ProductBasic {
+// Product type básico después de JSON:API parsing
+interface ProductParsed {
   id: string
+  type: 'products'
   name: string
   sku: string
+  description?: string
   price: number
   cost: number
+  // Otros campos que pueda tener
 }
 
 export interface Stock {
@@ -25,6 +28,7 @@ export interface Stock {
   reorderPoint?: number
   unitCost?: number
   totalValue?: number
+  currency?: 'MXN' | 'USD' | 'CAD' | 'EUR' // Multi-currency support
   status: string
   lastMovementDate?: string
   lastMovementType?: string
@@ -33,10 +37,10 @@ export interface Stock {
   createdAt: string
   updatedAt: string
   
-  // Relationships
-  product?: ProductBasic
-  warehouse?: Warehouse
-  location?: WarehouseLocation
+  // Relationships (después de JSON:API parsing)
+  product?: ProductParsed
+  warehouse?: WarehouseParsed
+  location?: WarehouseLocationParsed
 }
 
 export interface CreateStockData {

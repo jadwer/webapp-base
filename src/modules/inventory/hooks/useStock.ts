@@ -9,6 +9,7 @@
 import { useCallback } from 'react'
 import useSWR, { useSWRConfig } from 'swr'
 import { stockService } from '../services'
+import { processJsonApiResponse } from '../utils/jsonApi'
 import type {
   Stock,
   CreateStockData,
@@ -31,7 +32,10 @@ export const useStock = (params: {
   
   const { data, error, isLoading, mutate } = useSWR(
     key,
-    () => stockService.getAll(params),
+    async () => {
+      const response = await stockService.getAll(params)
+      return processJsonApiResponse<Stock[]>(response)
+    },
     {
       keepPreviousData: true,
       revalidateOnFocus: false,
@@ -57,7 +61,27 @@ export const useStockItem = (id: string | null, include?: string[]) => {
   
   const { data, error, isLoading, mutate } = useSWR(
     key,
-    () => stockService.getById(id!, include),
+    async () => {
+      const response = await stockService.getById(id!, include)
+      const processed = processJsonApiResponse<Stock>(response)
+      
+      // Debug logging
+      console.log('🔄 [useStockItem] Debug info:', {
+        stockId: id,
+        rawResponse: response,
+        rawResponseIncluded: response.included,
+        processedData: processed,
+        processedDataData: processed.data,
+        hasProduct: processed.data?.product,
+        hasWarehouse: processed.data?.warehouse,
+        hasLocation: processed.data?.location,
+        productName: processed.data?.product?.name,
+        warehouseName: processed.data?.warehouse?.name,
+        locationName: processed.data?.location?.name
+      })
+      
+      return processed
+    },
     {
       revalidateOnFocus: false,
     }

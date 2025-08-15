@@ -15,6 +15,7 @@ import { PaginationSimple } from './PaginationSimple'
 import { Button } from '@/ui/components/base/Button'
 import { Alert } from '@/ui/components/base/Alert'
 import { Modal } from '@/ui/components/base/Modal'
+import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
 import type { Warehouse, CreateWarehouseData, UpdateWarehouseData } from '../types'
 
 export const WarehousesAdminPage = () => {
@@ -26,6 +27,7 @@ export const WarehousesAdminPage = () => {
   const [deletingWarehouse, setDeletingWarehouse] = useState<Warehouse | null>(null)
 
   const pageSize = 20
+  const navigation = useNavigationProgress()
 
   // Hooks - Backend DOES support pagination with correct format
   const { warehouses, meta, isLoading, error, mutate } = useWarehouses({
@@ -147,7 +149,7 @@ export const WarehousesAdminPage = () => {
         <div className="d-flex gap-2">
           <Button
             variant="primary"
-            href="/dashboard/inventory/warehouses/create"
+            onClick={() => navigation.push('/dashboard/inventory/warehouses/create')}
           >
             <i className="bi bi-plus-circle me-2" />
             Crear Nuevo

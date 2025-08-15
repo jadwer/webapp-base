@@ -21,3 +21,6 @@ export * from './store'
 
 // Components - ✅ COMPLETED
 export * from './components'
+
+// Utils
+export * from './utils'

@@ -29,24 +29,25 @@ export const warehousesService = {
     
     const queryParams: Record<string, any> = {}
     
-    // Filtros - Try different search parameter formats
+    // Filtros con nombres exactos de columnas de base de datos
     if (filters.search) {
-      // Try multiple search formats to see which one works
-      queryParams.search = filters.search // Simple search
-      // queryParams['filter[search]'] = filters.search // JSON:API style
-      // queryParams.q = filters.search // Query style
+      queryParams['filter[search_name]'] = filters.search // LIKE search en nombre
+    }
+    if (filters.code) {
+      queryParams['filter[search_code]'] = filters.code // LIKE search en código
+    }
+    // Filtros exactos (si se necesitan)
+    if (filters.exactName) {
+      queryParams['filter[name]'] = filters.exactName // Búsqueda exacta por nombre
+    }
+    if (filters.exactCode) {
+      queryParams['filter[code]'] = filters.exactCode // Búsqueda exacta por código
     }
     if (filters.warehouseType) {
-      queryParams['filter[warehouseType]'] = filters.warehouseType
+      queryParams['filter[warehouse_type]'] = filters.warehouseType
     }
     if (filters.isActive !== undefined) {
-      queryParams['filter[isActive]'] = filters.isActive
-    }
-    if (filters.city) {
-      queryParams['filter[city]'] = filters.city
-    }
-    if (filters.state) {
-      queryParams['filter[state]'] = filters.state
+      queryParams['filter[is_active]'] = filters.isActive ? 1 : 0
     }
     
     // Sorting

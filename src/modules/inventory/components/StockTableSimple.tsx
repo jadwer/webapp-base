@@ -8,6 +8,7 @@
 
 import React from 'react'
 import Link from 'next/link'
+import { formatCurrency, formatQuantity } from '@/lib/formatters'
 import type { Stock } from '../types'
 
 interface StockTableSimpleProps {
@@ -41,14 +42,6 @@ export const StockTableSimple = ({
     }
   }
 
-  const formatCurrency = (value?: number) => {
-    if (value == null) return '-'
-    return new Intl.NumberFormat('es-ES', {
-      style: 'currency',
-      currency: 'EUR',
-      minimumFractionDigits: 2
-    }).format(value)
-  }
 
   const getStockStatusColor = (quantity: number, reorderPoint?: number) => {
     if (quantity === 0) return 'danger'
@@ -97,55 +90,55 @@ export const StockTableSimple = ({
             <tr key={item.id}>
               <td>
                 <div className="fw-semibold">
-                  {item.attributes.product?.name || `Producto ID: ${item.attributes.productId}`}
+                  {item.product?.name || 'Producto sin datos'}
                 </div>
-                {item.attributes.product?.code && (
-                  <small className="text-muted">Código: {item.attributes.product.code}</small>
+                {item.product?.sku && (
+                  <small className="text-muted">SKU: {item.product.sku}</small>
                 )}
               </td>
               <td>
                 <div>
                   <span className="fw-semibold">
-                    {item.attributes.warehouse?.name || `Almacén ID: ${item.attributes.warehouseId}`}
+                    {item.warehouse?.name || 'Almacén sin datos'}
                   </span>
                 </div>
-                {item.attributes.location?.name && (
-                  <small className="text-muted">{item.attributes.location.name}</small>
+                {item.location?.name && (
+                  <small className="text-muted">{item.location.name}</small>
                 )}
               </td>
               <td>
                 <div className="d-flex flex-column">
-                  <span className="fw-semibold">{item.attributes.quantity}</span>
-                  {item.attributes.reservedQuantity > 0 && (
+                  <span className="fw-semibold">{formatQuantity(item.quantity)}</span>
+                  {parseFloat(item.reservedQuantity || '0') > 0 && (
                     <small className="text-warning">
-                      {item.attributes.reservedQuantity} reservado
+                      {formatQuantity(item.reservedQuantity)} reservado
                     </small>
                   )}
                 </div>
               </td>
               <td>
-                <span className={`badge bg-${getStockStatusColor(item.attributes.availableQuantity, item.attributes.reorderPoint)}`}>
-                  {item.attributes.availableQuantity}
+                <span className={`badge bg-${getStockStatusColor(parseFloat(item.availableQuantity || '0'), parseFloat(item.reorderPoint || '0'))}`}>
+                  {formatQuantity(item.availableQuantity)}
                 </span>
               </td>
               <td>
                 <div className="d-flex flex-column">
-                  <span>{formatCurrency(item.attributes.totalValue)}</span>
-                  {item.attributes.unitCost && (
+                  <span>{formatCurrency(parseFloat(item.totalValue || '0'))}</span>
+                  {item.unitCost && (
                     <small className="text-muted">
-                      {formatCurrency(item.attributes.unitCost)} / unidad
+                      {formatCurrency(parseFloat(item.unitCost || '0'))} / unidad
                     </small>
                   )}
                 </div>
               </td>
               <td>
-                <span className={`badge bg-${item.attributes.status === 'active' ? 'success' : 'secondary'}`}>
-                  {item.attributes.status === 'active' ? 'Activo' : 'Inactivo'}
+                <span className={`badge bg-${item.status === 'available' ? 'success' : 'secondary'}`}>
+                  {item.status === 'available' ? 'Activo' : 'Inactivo'}
                 </span>
               </td>
               <td>
                 <small className="text-muted">
-                  {formatDate(item.attributes.updatedAt)}
+                  {formatDate(item.updatedAt)}
                 </small>
               </td>
               <td>
@@ -154,6 +147,8 @@ export const StockTableSimple = ({
                     href={`/dashboard/inventory/stock/${item.id}`}
                     className="btn btn-outline-info"
                     title="Ver detalles"
+                    target="_blank"
+                    rel="noopener noreferrer"
                   >
                     <i className="bi bi-eye" />
                   </Link>

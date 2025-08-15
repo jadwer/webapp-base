@@ -13,17 +13,20 @@ import { FilterBar } from './FilterBar'
 import { PaginationSimple } from './PaginationSimple'
 import { Button } from '@/ui/components/base/Button'
 import { Alert } from '@/ui/components/base/Alert'
+import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
 import type { InventoryMovement } from '../types'
 
 export const MovementsAdminPageReal = () => {
   const [searchTerm, setSearchTerm] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
   const pageSize = 20
+  const navigation = useNavigationProgress()
 
   // Hooks con paginación real del backend
   const { movements, meta, isLoading, error, mutate } = useInventoryMovements({
     filters: searchTerm ? { search: searchTerm } : undefined,
-    pagination: { page: currentPage, size: pageSize }
+    pagination: { page: currentPage, size: pageSize },
+    include: ['product', 'warehouse', 'location'] // ¡Esto faltaba!
   })
 
   // Paginación desde meta.page structure
@@ -31,6 +34,23 @@ export const MovementsAdminPageReal = () => {
   const totalPages = paginationInfo?.lastPage || 1
   const totalItems = paginationInfo?.total || 0
   const currentBackendPage = paginationInfo?.currentPage || currentPage
+
+  // Calculate movement metrics dynamically
+  const movementMetrics = React.useMemo(() => {
+    const today = new Date().toISOString().split('T')[0] // YYYY-MM-DD format
+    
+    return {
+      entriesToday: movements.filter(m => {
+        const movementDate = m.movementDate?.split('T')[0]
+        return movementDate === today && (m.movementType === 'entry' || m.movementType === 'in')
+      }).length,
+      exitsToday: movements.filter(m => {
+        const movementDate = m.movementDate?.split('T')[0]
+        return movementDate === today && (m.movementType === 'exit' || m.movementType === 'out')
+      }).length,
+      transfers: movements.filter(m => m.movementType === 'transfer').length
+    }
+  }, [movements])
 
   // Reset to page 1 when search changes
   const handleSearchChange = (newSearchTerm: string) => {
@@ -76,7 +96,7 @@ export const MovementsAdminPageReal = () => {
           </Button>
           <Button 
             variant="primary" 
-            href="/dashboard/inventory/movements/create"
+            onClick={() => navigation.push('/dashboard/inventory/movements/create')}
           >
             <i className="bi bi-plus-lg me-2" />
             Nuevo Movimiento
@@ -92,7 +112,7 @@ export const MovementsAdminPageReal = () => {
               <div className="d-flex justify-content-between align-items-center">
                 <div>
                   <h6 className="card-title text-white-50">Entradas Hoy</h6>
-                  <h3 className="mb-0">--</h3>
+                  <h3 className="mb-0">{movementMetrics.entriesToday}</h3>
                 </div>
                 <i className="bi bi-box-arrow-in-down" style={{ fontSize: '2rem', opacity: 0.7 }} />
               </div>
@@ -105,7 +125,7 @@ export const MovementsAdminPageReal = () => {
               <div className="d-flex justify-content-between align-items-center">
                 <div>
                   <h6 className="card-title text-white-50">Salidas Hoy</h6>
-                  <h3 className="mb-0">--</h3>
+                  <h3 className="mb-0">{movementMetrics.exitsToday}</h3>
                 </div>
                 <i className="bi bi-box-arrow-up" style={{ fontSize: '2rem', opacity: 0.7 }} />
               </div>
@@ -118,7 +138,7 @@ export const MovementsAdminPageReal = () => {
               <div className="d-flex justify-content-between align-items-center">
                 <div>
                   <h6 className="card-title text-white-50">Transferencias</h6>
-                  <h3 className="mb-0">--</h3>
+                  <h3 className="mb-0">{movementMetrics.transfers}</h3>
                 </div>
                 <i className="bi bi-arrow-left-right" style={{ fontSize: '2rem', opacity: 0.7 }} />
               </div>

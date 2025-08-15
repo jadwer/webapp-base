@@ -29,42 +29,42 @@ export const inventoryMovementsService = {
     
     const queryParams: Record<string, any> = {}
     
-    // Filtros
+    // Filtros con nombres exactos de columnas de base de datos
     if (filters.search) {
       queryParams['filter[search]'] = filters.search
     }
     if (filters.movementType) {
-      queryParams['filter[movementType]'] = filters.movementType
+      queryParams['filter[movement_type]'] = filters.movementType
     }
     if (filters.referenceType) {
-      queryParams['filter[referenceType]'] = filters.referenceType
+      queryParams['filter[reference_type]'] = filters.referenceType
+    }
+    if (filters.referenceId) {
+      queryParams['filter[reference_id]'] = filters.referenceId
     }
     if (filters.status) {
       queryParams['filter[status]'] = filters.status
     }
     if (filters.productId) {
-      queryParams['filter[productId]'] = filters.productId
+      queryParams['filter[product_id]'] = filters.productId
     }
     if (filters.warehouseId) {
-      queryParams['filter[warehouseId]'] = filters.warehouseId
+      queryParams['filter[warehouse_id]'] = filters.warehouseId
     }
-    if (filters.locationId) {
-      queryParams['filter[locationId]'] = filters.locationId
+    if (filters.destinationWarehouseId) {
+      queryParams['filter[destination_warehouse_id]'] = filters.destinationWarehouseId
     }
     if (filters.userId) {
-      queryParams['filter[userId]'] = filters.userId
+      queryParams['filter[user_id]'] = filters.userId
+    }
+    if (filters.movementDate) {
+      queryParams['filter[movement_date]'] = filters.movementDate
     }
     if (filters.dateFrom) {
       queryParams['filter[dateFrom]'] = filters.dateFrom
     }
     if (filters.dateTo) {
       queryParams['filter[dateTo]'] = filters.dateTo
-    }
-    if (filters.minQuantity !== undefined) {
-      queryParams['filter[minQuantity]'] = filters.minQuantity
-    }
-    if (filters.maxQuantity !== undefined) {
-      queryParams['filter[maxQuantity]'] = filters.maxQuantity
     }
     
     // Sorting (default: más recientes primero)
@@ -115,48 +115,39 @@ export const inventoryMovementsService = {
    * Nota: La creación puede fallar si la API no permite POST (Fase 1 no confirmada)
    */
   create: async (data: CreateMovementData): Promise<JsonApiResponse<InventoryMovement>> => {
-    const { productId, warehouseId, locationId, destinationWarehouseId, destinationLocationId, userId, ...attributes } = data
-    
-    const relationships: any = {
-      product: {
-        data: { type: 'products', id: productId }
-      },
-      warehouse: {
-        data: { type: 'warehouses', id: warehouseId }
-      }
-    }
-    
-    if (locationId) {
-      relationships.location = {
-        data: { type: 'warehouse-locations', id: locationId }
-      }
-    }
-    
-    if (destinationWarehouseId) {
-      relationships.destinationWarehouse = {
-        data: { type: 'warehouses', id: destinationWarehouseId }
-      }
-    }
-    
-    if (destinationLocationId) {
-      relationships.destinationLocation = {
-        data: { type: 'warehouse-locations', id: destinationLocationId }
-      }
-    }
-    
-    if (userId) {
-      relationships.user = {
-        data: { type: 'users', id: userId }
-      }
-    }
-    
+    // Backend expects all IDs in attributes, not relationships
     const payload = {
       data: {
         type: 'inventory-movements',
-        attributes,
-        relationships
+        attributes: {
+          productId: Number(data.productId),
+          warehouseId: Number(data.warehouseId),
+          locationId: data.locationId ? Number(data.locationId) : undefined,
+          movementType: data.movementType,
+          referenceType: data.referenceType,
+          referenceId: data.referenceId ? Number(data.referenceId) : undefined,
+          movementDate: data.movementDate,
+          description: data.description,
+          quantity: Number(data.quantity),
+          unitCost: data.unitCost ? Number(data.unitCost) : undefined,
+          status: data.status,
+          userId: Number(data.userId || 1), // TODO: Get from auth context
+          destinationWarehouseId: data.destinationWarehouseId ? Number(data.destinationWarehouseId) : undefined,
+          destinationLocationId: data.destinationLocationId ? Number(data.destinationLocationId) : undefined,
+          batchInfo: data.batchInfo || undefined,
+          metadata: data.metadata || undefined
+        }
       }
     }
+    
+    // Remove undefined values to keep payload clean
+    Object.keys(payload.data.attributes).forEach(key => {
+      if (payload.data.attributes[key] === undefined) {
+        delete payload.data.attributes[key]
+      }
+    })
+    
+    console.log('📤 [inventoryMovementsService] Creating movement with payload:', JSON.stringify(payload, null, 2))
     
     const response = await axiosClient.post('/api/v1/inventory-movements', payload)
     return response.data
@@ -164,19 +155,41 @@ export const inventoryMovementsService = {
 
   /**
    * Actualizar movimiento existente
-   * Nota: Puede no estar permitido según la lógica de negocio
+   * Usa el mismo formato que CREATE - todos los campos en attributes
    */
   update: async (
     id: string,
     data: UpdateMovementData
   ): Promise<JsonApiResponse<InventoryMovement>> => {
+    // Convert string IDs to numbers like in CREATE
+    const attributes: any = { ...data }
+    
+    if (attributes.productId) attributes.productId = Number(attributes.productId)
+    if (attributes.warehouseId) attributes.warehouseId = Number(attributes.warehouseId)
+    if (attributes.locationId) attributes.locationId = Number(attributes.locationId)
+    if (attributes.destinationWarehouseId) attributes.destinationWarehouseId = Number(attributes.destinationWarehouseId)
+    if (attributes.destinationLocationId) attributes.destinationLocationId = Number(attributes.destinationLocationId)
+    if (attributes.userId) attributes.userId = Number(attributes.userId)
+    if (attributes.referenceId) attributes.referenceId = Number(attributes.referenceId)
+    if (attributes.quantity) attributes.quantity = Number(attributes.quantity)
+    if (attributes.unitCost) attributes.unitCost = Number(attributes.unitCost)
+    
+    // Remove undefined values to keep payload clean
+    Object.keys(attributes).forEach(key => {
+      if (attributes[key] === undefined) {
+        delete attributes[key]
+      }
+    })
+    
     const payload = {
       data: {
         type: 'inventory-movements',
         id,
-        attributes: data
+        attributes
       }
     }
+    
+    console.log('📤 [inventoryMovementsService] Updating movement with payload:', JSON.stringify(payload, null, 2))
     
     const response = await axiosClient.patch(`/api/v1/inventory-movements/${id}`, payload)
     return response.data
@@ -198,7 +211,7 @@ export const inventoryMovementsService = {
     include?: string[]
   ): Promise<JsonApiResponse<InventoryMovement[]>> => {
     const queryParams: Record<string, any> = {
-      'filter[productId]': productId,
+      'filter[product_id]': productId,
       sort: '-movementDate'
     }
     
@@ -218,7 +231,7 @@ export const inventoryMovementsService = {
     include?: string[]
   ): Promise<JsonApiResponse<InventoryMovement[]>> => {
     const queryParams: Record<string, any> = {
-      'filter[warehouseId]': warehouseId,
+      'filter[warehouse_id]': warehouseId,
       sort: '-movementDate'
     }
     
@@ -235,7 +248,7 @@ export const inventoryMovementsService = {
    */
   getEntries: async (include?: string[]): Promise<JsonApiResponse<InventoryMovement[]>> => {
     const queryParams: Record<string, any> = {
-      'filter[movementType]': 'entry',
+      'filter[movement_type]': 'entry',
       sort: '-movementDate'
     }
     
@@ -252,7 +265,7 @@ export const inventoryMovementsService = {
    */
   getExits: async (include?: string[]): Promise<JsonApiResponse<InventoryMovement[]>> => {
     const queryParams: Record<string, any> = {
-      'filter[movementType]': 'exit',
+      'filter[movement_type]': 'exit',
       sort: '-movementDate'
     }
     

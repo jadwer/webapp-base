@@ -8,6 +8,7 @@
 
 import React from 'react'
 import Link from 'next/link'
+import { formatCurrency, formatQuantity } from '@/lib/formatters'
 import type { InventoryMovement } from '../types'
 
 interface MovementsTableSimpleProps {
@@ -45,14 +46,6 @@ export const MovementsTableSimple = ({
     }
   }
 
-  const formatCurrency = (value?: number) => {
-    if (value == null) return '-'
-    return new Intl.NumberFormat('es-ES', {
-      style: 'currency',
-      currency: 'EUR',
-      minimumFractionDigits: 2
-    }).format(value)
-  }
 
   const getMovementTypeIcon = (type: string) => {
     switch (type) {
@@ -146,56 +139,56 @@ export const MovementsTableSimple = ({
             <tr key={movement.id}>
               <td>
                 <small className="text-muted">
-                  {formatDate(movement.attributes.movementDate)}
+                  {formatDate(movement.movementDate)}
                 </small>
               </td>
               <td>
                 <div className="d-flex align-items-center">
-                  <i className={`bi ${getMovementTypeIcon(movement.attributes.movementType)} me-2`} />
-                  <span className={`badge bg-${getMovementTypeBadgeColor(movement.attributes.movementType)}`}>
-                    {getMovementTypeLabel(movement.attributes.movementType)}
+                  <i className={`bi ${getMovementTypeIcon(movement.movementType)} me-2`} />
+                  <span className={`badge bg-${getMovementTypeBadgeColor(movement.movementType)}`}>
+                    {getMovementTypeLabel(movement.movementType)}
                   </span>
                 </div>
               </td>
               <td>
                 <div className="fw-semibold">
-                  {movement.attributes.product?.name || `Producto ID: ${movement.attributes.productId}`}
+                  {movement.product?.name || 'Producto sin datos'}
                 </div>
-                {movement.attributes.description && (
-                  <small className="text-muted">{movement.attributes.description}</small>
+                {movement.description && (
+                  <small className="text-muted">{movement.description}</small>
                 )}
               </td>
               <td>
                 <div className="d-flex flex-column">
-                  <span className="fw-semibold">{movement.attributes.quantity}</span>
-                  {movement.attributes.referenceType && (
-                    <small className="text-muted">{movement.attributes.referenceType}</small>
+                  <span className="fw-semibold">{formatQuantity(movement.quantity)}</span>
+                  {movement.referenceType && (
+                    <small className="text-muted">{movement.referenceType}</small>
                   )}
                 </div>
               </td>
               <td>
                 <div>
                   <span className="fw-semibold">
-                    {movement.attributes.warehouse?.name || `Almacén ID: ${movement.attributes.warehouseId}`}
+                    {movement.warehouse?.name || 'Almacén sin datos'}
                   </span>
                 </div>
-                {movement.attributes.location?.name && (
-                  <small className="text-muted">{movement.attributes.location.name}</small>
+                {movement.location?.name && (
+                  <small className="text-muted">{movement.location.name}</small>
                 )}
               </td>
               <td>
                 <div className="d-flex flex-column">
-                  <span>{formatCurrency(movement.attributes.totalValue)}</span>
-                  {movement.attributes.unitCost && (
+                  <span>{formatCurrency(parseFloat(movement.totalValue || '0'))}</span>
+                  {movement.unitCost && (
                     <small className="text-muted">
-                      {formatCurrency(movement.attributes.unitCost)} / unidad
+                      {formatCurrency(parseFloat(movement.unitCost || '0'))} / unidad
                     </small>
                   )}
                 </div>
               </td>
               <td>
-                <span className={`badge bg-${movement.attributes.status === 'completed' ? 'success' : 'warning'}`}>
-                  {movement.attributes.status === 'completed' ? 'Completado' : movement.attributes.status}
+                <span className={`badge bg-${movement.status === 'completed' ? 'success' : 'warning'}`}>
+                  {movement.status === 'completed' ? 'Completado' : movement.status}
                 </span>
               </td>
               <td>
@@ -204,6 +197,8 @@ export const MovementsTableSimple = ({
                     href={`/dashboard/inventory/movements/${movement.id}`}
                     className="btn btn-outline-info"
                     title="Ver detalles"
+                    target="_blank"
+                    rel="noopener noreferrer"
                   >
                     <i className="bi bi-eye" />
                   </Link>

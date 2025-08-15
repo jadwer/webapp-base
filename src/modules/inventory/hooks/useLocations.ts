@@ -9,6 +9,7 @@
 import { useCallback } from 'react'
 import useSWR, { useSWRConfig } from 'swr'
 import { locationsService } from '../services'
+import { processJsonApiResponse } from '../utils/jsonApi'
 import type {
   WarehouseLocation,
   CreateLocationData,
@@ -31,7 +32,10 @@ export const useLocations = (params: {
   
   const { data, error, isLoading, mutate } = useSWR(
     key,
-    () => locationsService.getAll(params),
+    async () => {
+      const response = await locationsService.getAll(params)
+      return processJsonApiResponse<WarehouseLocation[]>(response)
+    },
     {
       keepPreviousData: true,
       revalidateOnFocus: false,
@@ -57,7 +61,10 @@ export const useLocation = (id: string | null, include?: string[]) => {
   
   const { data, error, isLoading, mutate } = useSWR(
     key,
-    () => locationsService.getById(id!, include),
+    async () => {
+      const response = await locationsService.getById(id!, include)
+      return processJsonApiResponse<WarehouseLocation>(response)
+    },
     {
       revalidateOnFocus: false,
     }

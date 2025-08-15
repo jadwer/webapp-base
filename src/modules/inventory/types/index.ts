@@ -6,6 +6,7 @@
 // Warehouse types
 export type {
   Warehouse,
+  WarehouseParsed,
   CreateWarehouseData,
   UpdateWarehouseData,
   WarehouseFilters,
@@ -15,6 +16,7 @@ export type {
 // Location types
 export type {
   WarehouseLocation,
+  WarehouseLocationParsed,
   CreateLocationData,
   UpdateLocationData,
   LocationFilters,

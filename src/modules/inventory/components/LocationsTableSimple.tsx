@@ -80,32 +80,32 @@ export const LocationsTableSimple = ({
           {locations.map((location) => (
             <tr key={location.id}>
               <td>
-                <div className="fw-semibold">{location.attributes.name}</div>
-                {location.attributes.description && (
-                  <small className="text-muted">{location.attributes.description}</small>
+                <div className="fw-semibold">{location.name}</div>
+                {location.description && (
+                  <small className="text-muted">{location.description}</small>
                 )}
               </td>
               <td>
-                <code className="text-primary">{location.attributes.code}</code>
+                <code className="text-primary">{location.code}</code>
               </td>
               <td>
                 <span className="badge bg-info text-dark">
-                  {location.attributes.locationType || 'general'}
+                  {location.locationType || 'general'}
                 </span>
               </td>
               <td>
                 <span className="text-muted">
-                  {location.attributes.warehouse?.name || `ID: ${location.attributes.warehouseId}`}
+                  {location.warehouse?.name || 'Almacén sin datos'}
                 </span>
               </td>
               <td>
-                <span className={`badge bg-${location.attributes.isActive ? 'success' : 'secondary'}`}>
-                  {location.attributes.isActive ? 'Activo' : 'Inactivo'}
+                <span className={`badge bg-${location.isActive ? 'success' : 'secondary'}`}>
+                  {location.isActive ? 'Activo' : 'Inactivo'}
                 </span>
               </td>
               <td>
                 <small className="text-muted">
-                  {formatDate(location.attributes.createdAt)}
+                  {formatDate(location.createdAt)}
                 </small>
               </td>
               <td>
@@ -114,6 +114,8 @@ export const LocationsTableSimple = ({
                     href={`/dashboard/inventory/locations/${location.id}`}
                     className="btn btn-outline-info"
                     title="Ver detalles"
+                    target="_blank"
+                    rel="noopener noreferrer"
                   >
                     <i className="bi bi-eye" />
                   </Link>

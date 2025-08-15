@@ -1,8 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { Button } from '@/ui/components/base/Button'
+import { formatCurrency, formatQuantity } from '@/lib/formatters'
+import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
 import { useInventoryMovement, useInventoryMovementsMutations } from '../hooks'
 
 interface MovementDetailProps {
@@ -10,7 +11,7 @@ interface MovementDetailProps {
 }
 
 export const MovementDetail = ({ movementId }: MovementDetailProps) => {
-  const router = useRouter()
+  const navigation = useNavigationProgress()
   const { movement, isLoading, error } = useInventoryMovement(movementId, ['product', 'warehouse', 'location', 'user'])
   const { deleteMovement } = useInventoryMovementsMutations()
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false)
@@ -60,7 +61,7 @@ export const MovementDetail = ({ movementId }: MovementDetailProps) => {
   }
   
   const handleEdit = () => {
-    router.push(`/dashboard/inventory/movements/${movementId}/edit`)
+    navigation.push(`/dashboard/inventory/movements/${movementId}/edit`)
   }
   
   const handleDelete = async () => {
@@ -90,7 +91,7 @@ export const MovementDetail = ({ movementId }: MovementDetailProps) => {
       document.body.appendChild(toastElement)
       setTimeout(() => {
         document.body.removeChild(toastElement)
-        router.push('/dashboard/inventory/movements')
+        navigation.push('/dashboard/inventory/movements')
       }, 2000)
       
     } catch (error: any) {
@@ -120,7 +121,7 @@ export const MovementDetail = ({ movementId }: MovementDetailProps) => {
   }
   
   const handleBack = () => {
-    router.push('/dashboard/inventory/movements')
+    navigation.push('/dashboard/inventory/movements')
   }
   
   if (isLoading) {
@@ -283,7 +284,7 @@ export const MovementDetail = ({ movementId }: MovementDetailProps) => {
                     <dt className="col-sm-4">Cantidad:</dt>
                     <dd className="col-sm-8">
                       <span className="fw-bold text-primary">
-                        {movement.quantity?.toLocaleString() || 0}
+                        {formatQuantity(movement.quantity)}
                       </span>
                     </dd>
                     
@@ -374,7 +375,7 @@ export const MovementDetail = ({ movementId }: MovementDetailProps) => {
                       <>
                         <dt className="col-sm-6">Costo Unitario:</dt>
                         <dd className="col-sm-6">
-                          ${movement.unitCost.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                          {formatCurrency(movement.unitCost)}
                         </dd>
                       </>
                     )}
@@ -384,7 +385,7 @@ export const MovementDetail = ({ movementId }: MovementDetailProps) => {
                         <dt className="col-sm-6">Valor Total:</dt>
                         <dd className="col-sm-6">
                           <span className="fw-bold text-success">
-                            ${movement.totalValue.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            {formatCurrency(movement.totalValue)}
                           </span>
                         </dd>
                       </>

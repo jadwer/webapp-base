@@ -132,15 +132,15 @@ export interface MovementFilters {
   search?: string
   movementType?: 'entry' | 'exit' | 'transfer' | 'adjustment'
   referenceType?: string
+  referenceId?: string
   status?: string
   productId?: string
   warehouseId?: string
-  locationId?: string
+  destinationWarehouseId?: string
   userId?: string
+  movementDate?: string
   dateFrom?: string
   dateTo?: string
-  minQuantity?: number
-  maxQuantity?: number
 }
 
 export interface MovementSortOptions {

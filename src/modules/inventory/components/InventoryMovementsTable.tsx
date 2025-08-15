@@ -7,6 +7,7 @@
 'use client'
 
 import React, { memo } from 'react'
+import { formatCurrency, formatQuantity } from '@/lib/formatters'
 import type { InventoryMovement, MovementSortOptions, Warehouse } from '../types'
 
 interface InventoryMovementsTableProps {
@@ -96,13 +97,6 @@ export const InventoryMovementsTable = memo<InventoryMovementsTableProps>(({
     }
   }
   
-  const formatCurrency = (value?: number) => {
-    if (!value) return '-'
-    return value.toLocaleString('es-ES', {
-      style: 'currency',
-      currency: 'USD'
-    })
-  }
   
   const getMovementTypeIcon = (type: string) => {
     const icons: Record<string, string> = {
@@ -288,7 +282,7 @@ export const InventoryMovementsTable = memo<InventoryMovementsTableProps>(({
                         <i className="bi bi-dash-circle text-danger me-1" />
                       )}
                       <span className="fw-semibold">
-                        {movement.quantity.toLocaleString()}
+                        {formatQuantity(movement.quantity)}
                       </span>
                     </div>
                   </td>
@@ -332,15 +326,15 @@ export const InventoryMovementsTable = memo<InventoryMovementsTableProps>(({
                     {(movement.previousStock !== undefined && movement.newStock !== undefined) && (
                       <div className="small">
                         <div className="d-flex align-items-center">
-                          <span className="text-muted">{movement.previousStock.toLocaleString()}</span>
+                          <span className="text-muted">{formatQuantity(movement.previousStock)}</span>
                           <i className="bi bi-arrow-right mx-1 text-muted" />
-                          <span className="fw-semibold">{movement.newStock.toLocaleString()}</span>
+                          <span className="fw-semibold">{formatQuantity(movement.newStock)}</span>
                         </div>
                         <div className={`small ${
                           movement.newStock > movement.previousStock ? 'text-success' : 'text-danger'
                         }`}>
                           {movement.newStock > movement.previousStock ? '+' : ''}
-                          {(movement.newStock - movement.previousStock).toLocaleString()}
+                          {formatQuantity(movement.newStock - movement.previousStock)}
                         </div>
                       </div>
                     )}

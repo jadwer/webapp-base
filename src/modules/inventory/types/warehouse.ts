@@ -32,6 +32,12 @@ export interface Warehouse {
   attributes: WarehouseAttributes
 }
 
+// After JSON:API parsing
+export interface WarehouseParsed extends WarehouseAttributes {
+  id: string
+  type: 'warehouses'
+}
+
 export interface CreateWarehouseData {
   name: string
   slug: string
@@ -75,11 +81,12 @@ export interface UpdateWarehouseData {
 }
 
 export interface WarehouseFilters {
-  search?: string
+  search?: string // LIKE search en nombre
+  code?: string // LIKE search en código
+  exactName?: string // Búsqueda exacta por nombre
+  exactCode?: string // Búsqueda exacta por código
   warehouseType?: string
   isActive?: boolean
-  city?: string
-  state?: string
 }
 
 export interface WarehouseSortOptions {

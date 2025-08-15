@@ -42,3 +42,10 @@ export {
   useEntryMovements,
   useExitMovements
 } from './useInventoryMovements'
+
+// Dashboard hooks
+export {
+  useInventoryDashboard,
+  useStockAlerts,
+  useRecentActivity
+} from './useDashboard'

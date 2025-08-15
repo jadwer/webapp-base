@@ -29,33 +29,34 @@ export const stockService = {
     
     const queryParams: Record<string, any> = {}
     
-    // Filtros
+    // Filtros con nombres exactos de columnas de base de datos
+    // Nueva búsqueda general que busca en: producto (nombre, SKU, descripción), almacén (nombre, código), ubicación (nombre, código)
     if (filters.search) {
       queryParams['filter[search]'] = filters.search
     }
     if (filters.productId) {
-      queryParams['filter[productId]'] = filters.productId
+      queryParams['filter[product_id]'] = filters.productId
     }
     if (filters.warehouseId) {
-      queryParams['filter[warehouseId]'] = filters.warehouseId
+      queryParams['filter[warehouse_id]'] = filters.warehouseId
     }
     if (filters.locationId) {
-      queryParams['filter[locationId]'] = filters.locationId
+      queryParams['filter[location_id]'] = filters.locationId
     }
     if (filters.status) {
       queryParams['filter[status]'] = filters.status
     }
     if (filters.lowStock !== undefined) {
-      queryParams['filter[lowStock]'] = filters.lowStock
+      queryParams['filter[low_stock]'] = filters.lowStock ? 1 : 0
     }
     if (filters.outOfStock !== undefined) {
-      queryParams['filter[outOfStock]'] = filters.outOfStock
+      queryParams['filter[out_of_stock]'] = filters.outOfStock ? 1 : 0
     }
     if (filters.minQuantity !== undefined) {
-      queryParams['filter[minQuantity]'] = filters.minQuantity
+      queryParams['filter[min_quantity]'] = filters.minQuantity
     }
     if (filters.maxQuantity !== undefined) {
-      queryParams['filter[maxQuantity]'] = filters.maxQuantity
+      queryParams['filter[max_quantity]'] = filters.maxQuantity
     }
     
     // Sorting
@@ -178,7 +179,7 @@ export const stockService = {
     include?: string[]
   ): Promise<JsonApiResponse<Stock[]>> => {
     const queryParams: Record<string, any> = {
-      'filter[productId]': productId
+      'filter[product_id]': productId
     }
     
     if (include && include.length > 0) {

@@ -13,17 +13,20 @@ import { FilterBar } from './FilterBar'
 import { PaginationSimple } from './PaginationSimple'
 import { Button } from '@/ui/components/base/Button'
 import { Alert } from '@/ui/components/base/Alert'
+import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
 import type { Stock } from '../types'
 
 export const StockAdminPageReal = () => {
   const [searchTerm, setSearchTerm] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
   const pageSize = 20
+  const navigation = useNavigationProgress()
 
   // Hooks con paginación real del backend
   const { stock, meta, isLoading, error, mutate } = useStock({
     filters: searchTerm ? { search: searchTerm } : undefined,
-    pagination: { page: currentPage, size: pageSize }
+    pagination: { page: currentPage, size: pageSize },
+    include: ['product', 'warehouse', 'location'] // ¡Esto faltaba!
   })
 
   // Paginación desde meta.page structure
@@ -42,10 +45,26 @@ export const StockAdminPageReal = () => {
     setCurrentPage(page)
   }
 
+  // Calcular métricas de stock (API devuelve strings, convertir a números)
+  const stockMetrics = React.useMemo(() => {
+    if (!stock) return { availableStock: 0, lowStock: 0, outOfStock: 0 }
+    
+    return {
+      availableStock: stock.filter(s => parseFloat(s.quantity || '0') > 0).length,
+      lowStock: stock.filter(s => {
+        const quantity = parseFloat(s.quantity || '0')
+        const minStock = parseFloat(s.minimumStock || '0')
+        return minStock > 0 && quantity <= minStock
+      }).length,
+      outOfStock: stock.filter(s => parseFloat(s.quantity || '0') <= 0).length
+    }
+  }, [stock])
+
   // Debug logs para desarrollo
   console.log('📦 [StockAdminPageReal] Debug info:', {
     stock,
     stockLength: stock?.length,
+    stockMetrics,
     meta,
     paginationInfo,
     currentPage,
@@ -72,7 +91,7 @@ export const StockAdminPageReal = () => {
           </Button>
           <Button 
             variant="primary" 
-            href="/dashboard/inventory/stock/create"
+            onClick={() => navigation.push('/dashboard/inventory/stock/create')}
           >
             <i className="bi bi-plus-lg me-2" />
             Nuevo Stock
@@ -101,7 +120,7 @@ export const StockAdminPageReal = () => {
               <div className="d-flex justify-content-between align-items-center">
                 <div>
                   <h6 className="card-title text-white-50">Stock Disponible</h6>
-                  <h3 className="mb-0">--</h3>
+                  <h3 className="mb-0">{isLoading ? '--' : stockMetrics.availableStock}</h3>
                 </div>
                 <i className="bi bi-check-circle" style={{ fontSize: '2rem', opacity: 0.7 }} />
               </div>
@@ -114,7 +133,7 @@ export const StockAdminPageReal = () => {
               <div className="d-flex justify-content-between align-items-center">
                 <div>
                   <h6 className="card-title text-white-50">Stock Bajo</h6>
-                  <h3 className="mb-0">--</h3>
+                  <h3 className="mb-0">{isLoading ? '--' : stockMetrics.lowStock}</h3>
                 </div>
                 <i className="bi bi-exclamation-triangle" style={{ fontSize: '2rem', opacity: 0.7 }} />
               </div>
@@ -127,7 +146,7 @@ export const StockAdminPageReal = () => {
               <div className="d-flex justify-content-between align-items-center">
                 <div>
                   <h6 className="card-title text-white-50">Sin Stock</h6>
-                  <h3 className="mb-0">--</h3>
+                  <h3 className="mb-0">{isLoading ? '--' : stockMetrics.outOfStock}</h3>
                 </div>
                 <i className="bi bi-x-circle" style={{ fontSize: '2rem', opacity: 0.7 }} />
               </div>

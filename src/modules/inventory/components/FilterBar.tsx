@@ -9,6 +9,15 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Input } from '@/ui/components/base/Input'
 
+// Simple debounce function
+function debounce<T extends (...args: any[]) => any>(func: T, wait: number): T {
+  let timeout: NodeJS.Timeout
+  return ((...args: any[]) => {
+    clearTimeout(timeout)
+    timeout = setTimeout(() => func(...args), wait)
+  }) as T
+}
+
 interface FilterBarProps {
   searchTerm: string
   onSearchChange: (value: string) => void
@@ -58,7 +67,7 @@ export const FilterBar = ({
               <Input
                 type="text"
                 value={localSearch}
-                onChange={handleSearchChange}
+                onChange={(e) => handleSearchChange(e.target.value)}
                 placeholder={placeholder}
                 leftIcon="bi-search"
                 className="pe-5"
@@ -88,22 +97,4 @@ export const FilterBar = ({
       </div>
     </div>
   )
-}
-
-// Debounce utility function
-function debounce<T extends (...args: any[]) => any>(
-  func: T,
-  wait: number
-): (...args: Parameters<T>) => void {
-  let timeout: NodeJS.Timeout | null = null
-  
-  return (...args: Parameters<T>) => {
-    if (timeout) {
-      clearTimeout(timeout)
-    }
-    
-    timeout = setTimeout(() => {
-      func(...args)
-    }, wait)
-  }
 }

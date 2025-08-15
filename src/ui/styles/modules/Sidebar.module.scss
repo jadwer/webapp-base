@@ -108,6 +108,11 @@ $transition-normal: 250ms ease-in-out;
   font-weight: $font-weight-normal;
   transition: all $transition-fast;
   position: relative;
+  width: 100%;
+  border: none;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
   
   &:hover {
     background: rgba($color-primary, 0.06);
@@ -221,6 +226,11 @@ $transition-normal: 250ms ease-in-out;
   font-weight: $font-weight-normal;
   transition: all $transition-fast;
   position: relative;
+  width: 100%;
+  border: none;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
   
   &:hover {
     background: rgba($color-primary, 0.06);

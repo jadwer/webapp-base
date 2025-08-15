@@ -13,17 +13,20 @@ import { FilterBar } from './FilterBar'
 import { PaginationSimple } from './PaginationSimple'
 import { Button } from '@/ui/components/base/Button'
 import { Alert } from '@/ui/components/base/Alert'
+import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
 import type { WarehouseLocation } from '../types'
 
 export const LocationsAdminPageReal = () => {
   const [searchTerm, setSearchTerm] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
   const pageSize = 20
+  const navigation = useNavigationProgress()
 
   // Hooks con paginación real del backend
   const { locations, meta, isLoading, error, mutate } = useLocations({
     filters: searchTerm ? { search: searchTerm } : undefined,
-    pagination: { page: currentPage, size: pageSize }
+    pagination: { page: currentPage, size: pageSize },
+    include: ['warehouse'] // Incluir warehouse para mostrar nombre
   })
 
   // Paginación desde meta.page structure
@@ -67,7 +70,7 @@ export const LocationsAdminPageReal = () => {
         </div>
         <Button 
           variant="primary" 
-          href="/dashboard/inventory/locations/create"
+          onClick={() => navigation.push('/dashboard/inventory/locations/create')}
         >
           <i className="bi bi-plus-lg me-2" />
           Crear Nueva
