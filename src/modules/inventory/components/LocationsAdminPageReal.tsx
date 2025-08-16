@@ -23,10 +23,10 @@ export const LocationsAdminPageReal = () => {
   const navigation = useNavigationProgress()
 
   // Hooks con paginación real del backend
-  const { locations, meta, isLoading, error, mutate } = useLocations({
+  const { locations, meta, isLoading, error } = useLocations({
     filters: searchTerm ? { search: searchTerm } : undefined,
     pagination: { page: currentPage, size: pageSize },
-    include: ['warehouse'] // Incluir warehouse para mostrar nombre
+    include: ['warehouse']
   })
 
   // Paginación desde meta.page structure

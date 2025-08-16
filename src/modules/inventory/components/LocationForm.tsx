@@ -11,10 +11,10 @@ import { useRouter } from 'next/navigation'
 import { Button } from '@/ui/components/base/Button'
 import { Input } from '@/ui/components/base/Input'
 import { useWarehouses } from '../hooks'
-import type { WarehouseLocation, CreateLocationData, UpdateLocationData, Warehouse } from '../types'
+import type { WarehouseLocationParsed, CreateLocationData, UpdateLocationData } from '../types'
 
 interface LocationFormProps {
-  location?: WarehouseLocation // For edit mode
+  location?: WarehouseLocationParsed // For edit mode
   onSubmit: (data: CreateLocationData | UpdateLocationData) => Promise<void>
   isLoading?: boolean
 }
@@ -476,13 +476,40 @@ export const LocationForm = memo<LocationFormProps>(({
                       </div>
                     </div>
                   </div>
+                  
+                  {/* Metadata */}
+                  <div className="col-12 mt-4">
+                    <h5 className="card-title border-bottom pb-2">Additional Metadata</h5>
+                  </div>
+                  
+                  <div className="col-12">
+                    <label className="form-label">Metadata (JSON)</label>
+                    <textarea
+                      className="form-control"
+                      rows={3}
+                      value={formData.metadata ? JSON.stringify(formData.metadata, null, 2) : ''}
+                      onChange={(e) => {
+                        try {
+                          const parsed = e.target.value ? JSON.parse(e.target.value) : undefined
+                          setFormData(prev => ({ ...prev, metadata: parsed }))
+                        } catch {
+                          // Invalid JSON, keep the string for now
+                        }
+                      }}
+                      placeholder='{"storage_conditions": "dry", "special_handling": "fragile"}'
+                    />
+                    <div className="form-text">
+                      Enter additional metadata as JSON (storage conditions, special handling, etc.)
+                    </div>
+                  </div>
                 </div>
               </div>
               
               <div className="card-footer d-flex justify-content-end gap-2">
                 <Button
                   type="button"
-                  variant="outline-secondary"
+                  variant="secondary"
+                  buttonStyle="outline"
                   onClick={() => router.back()}
                   disabled={isSubmitting}
                 >

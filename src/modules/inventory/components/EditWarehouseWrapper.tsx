@@ -2,6 +2,7 @@
 
 import { WarehouseForm } from './WarehouseForm'
 import { useWarehouse, useWarehousesMutations } from '../hooks'
+import type { UpdateWarehouseData } from '../types'
 
 interface EditWarehouseWrapperProps {
   warehouseId: string
@@ -11,7 +12,7 @@ export const EditWarehouseWrapper = ({ warehouseId }: EditWarehouseWrapperProps)
   const { warehouse, isLoading: isLoadingWarehouse, error } = useWarehouse(warehouseId)
   const { updateWarehouse, isLoading: isUpdating } = useWarehousesMutations()
   
-  const handleSubmit = async (data: any) => {
+  const handleSubmit = async (data: UpdateWarehouseData) => {
     await updateWarehouse(warehouseId, data)
   }
   
@@ -70,15 +71,12 @@ export const EditWarehouseWrapper = ({ warehouseId }: EditWarehouseWrapperProps)
     )
   }
   
-  // Convert JSON:API format to form format
-  const warehouseForForm = {
-    ...warehouse.attributes,
-    id: warehouse.id
-  }
+  // Warehouse is already parsed, so just use it directly
+  const warehouseForForm = warehouse
   
   return (
     <WarehouseForm
-      warehouse={warehouseForForm}
+      warehouse={warehouseForForm as unknown}
       onSubmit={handleSubmit}
       isLoading={isUpdating}
     />

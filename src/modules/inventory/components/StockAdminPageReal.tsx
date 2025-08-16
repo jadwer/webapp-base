@@ -23,10 +23,10 @@ export const StockAdminPageReal = () => {
   const navigation = useNavigationProgress()
 
   // Hooks con paginación real del backend
-  const { stock, meta, isLoading, error, mutate } = useStock({
+  const { stock, meta, isLoading, error } = useStock({
     filters: searchTerm ? { search: searchTerm } : undefined,
     pagination: { page: currentPage, size: pageSize },
-    include: ['product', 'warehouse', 'location'] // ¡Esto faltaba!
+    include: ['product', 'warehouse', 'location']
   })
 
   // Paginación desde meta.page structure

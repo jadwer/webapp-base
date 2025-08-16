@@ -15,6 +15,8 @@ export interface ButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement
   size?: 'small' | 'medium' | 'large' | 'xl'
   /** Estado de carga */
   loading?: boolean
+  /** Estado de carga (alias para loading) */
+  isLoading?: boolean
   /** Botón de ancho completo */
   fullWidth?: boolean
   /** Solo icono (sin texto) */
@@ -33,6 +35,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       buttonStyle = 'filled',
       size = 'medium',
       loading = false,
+      isLoading = false,
       fullWidth = false,
       iconOnly = false,
       startIcon,
@@ -43,6 +46,8 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     },
     ref
   ) => {
+    // isLoading is an alias for loading
+    const isLoadingState = loading || isLoading
     const buttonClassName = clsx(
       styles.button,
       styles[size],
@@ -50,7 +55,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       {
         [styles.outline]: buttonStyle === 'outline',
         [styles.ghost]: buttonStyle === 'ghost',
-        [styles.loading]: loading,
+        [styles.loading]: isLoadingState,
         [styles.fullWidth]: fullWidth,
         [styles.iconOnly]: iconOnly,
       },
@@ -61,10 +66,10 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       <button
         ref={ref}
         className={buttonClassName}
-        disabled={disabled || loading}
+        disabled={disabled || isLoadingState}
         {...props}
       >
-        {startIcon && !loading && (
+        {startIcon && !isLoadingState && (
           <span className={styles.icon}>{startIcon}</span>
         )}
         
@@ -72,9 +77,9 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           <span className={styles.content}>{children}</span>
         )}
         
-        {iconOnly && !loading && children}
+        {iconOnly && !isLoadingState && children}
         
-        {endIcon && !loading && (
+        {endIcon && !isLoadingState && (
           <span className={styles.icon}>{endIcon}</span>
         )}
       </button>

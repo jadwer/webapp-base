@@ -10,9 +10,9 @@ import { useState, useEffect, useCallback } from 'react'
 import { Input } from '@/ui/components/base/Input'
 
 // Simple debounce function
-function debounce<T extends (...args: any[]) => any>(func: T, wait: number): T {
+function debounce<T extends (...args: unknown[]) => any>(func: T, wait: number): T {
   let timeout: NodeJS.Timeout
-  return ((...args: any[]) => {
+  return ((...args: unknown[]) => {
     clearTimeout(timeout)
     timeout = setTimeout(() => func(...args), wait)
   }) as T

@@ -106,3 +106,15 @@ export interface InventoryUIPagination {
 }
 
 export type ViewMode = 'table' | 'grid' | 'list' | 'compact' | 'showcase'
+
+// Common types
+export type {
+  ApiResponse,
+  FormData,
+  TableProps,
+  FilterProps,
+  MutationHandlers,
+  ComponentProps,
+  EventHandlers,
+  GenericState
+} from './common'

@@ -34,6 +34,9 @@ export interface WarehouseLocation {
 
 // After JSON:API parsing
 export interface WarehouseLocationParsed extends Omit<WarehouseLocation, 'warehouse'> {
+  // ID fields for form compatibility
+  warehouseId?: string
+  
   // Relationships (después de JSON:API parsing)
   warehouse?: WarehouseParsed
 }

@@ -101,20 +101,13 @@ export const locationsService = {
 
   /**
    * Crear nueva location
-   * Nota: Requiere relationship con warehouse
+   * Formato corregido según API spec: warehouseId va en attributes
    */
   create: async (data: CreateLocationData): Promise<JsonApiResponse<WarehouseLocation>> => {
-    const { warehouseId, ...attributes } = data
-    
     const payload = {
       data: {
         type: 'warehouse-locations',
-        attributes,
-        relationships: {
-          warehouse: {
-            data: { type: 'warehouses', id: warehouseId }
-          }
-        }
+        attributes: data
       }
     }
     

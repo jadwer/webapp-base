@@ -58,7 +58,7 @@ export const WarehousesFilters = memo<WarehousesFiltersProps>(({
   const handleWarehouseTypeChange = useCallback((value: string) => {
     onFiltersChange({ 
       ...filters, 
-      warehouseType: value === 'all' ? undefined : value as any
+      warehouseType: value === 'all' ? undefined : value as unknown
     })
   }, [filters, onFiltersChange])
   

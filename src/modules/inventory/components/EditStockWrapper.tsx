@@ -2,6 +2,7 @@
 
 import { StockForm } from './StockForm'
 import { useStockItem, useStockMutations } from '../hooks'
+import type { UpdateStockData } from '../types'
 
 interface EditStockWrapperProps {
   stockId: string
@@ -11,7 +12,7 @@ export const EditStockWrapper = ({ stockId }: EditStockWrapperProps) => {
   const { stockItem: stock, isLoading: isLoadingStock, error } = useStockItem(stockId, ['product', 'warehouse', 'location'])
   const { updateStock } = useStockMutations()
   
-  const handleSubmit = async (data: any) => {
+  const handleSubmit = async (data: UpdateStockData) => {
     await updateStock(stockId, data)
   }
   
@@ -70,17 +71,13 @@ export const EditStockWrapper = ({ stockId }: EditStockWrapperProps) => {
     )
   }
   
-  // Convert JSON:API format to form format  
-  const stockForForm = {
-    ...stock.attributes,
-    id: stock.id
-  }
+  // Stock is already parsed, so just use it directly
+  const stockForForm = stock
   
   return (
     <StockForm
       stock={stockForForm}
       onSubmit={handleSubmit}
-      isEditing={true}
     />
   )
 }

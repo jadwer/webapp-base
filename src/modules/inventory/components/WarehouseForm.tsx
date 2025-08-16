@@ -10,10 +10,10 @@ import React, { memo, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/ui/components/base/Button'
 import { Input } from '@/ui/components/base/Input'
-import type { Warehouse, CreateWarehouseData, UpdateWarehouseData } from '../types'
+import type { WarehouseParsed, CreateWarehouseData, UpdateWarehouseData } from '../types'
 
 interface WarehouseFormProps {
-  warehouse?: Warehouse // For edit mode
+  warehouse?: WarehouseParsed // For edit mode
   onSubmit: (data: CreateWarehouseData | UpdateWarehouseData) => Promise<void>
   isLoading?: boolean
 }

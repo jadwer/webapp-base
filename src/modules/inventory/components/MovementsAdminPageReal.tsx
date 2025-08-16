@@ -23,7 +23,7 @@ export const MovementsAdminPageReal = () => {
   const navigation = useNavigationProgress()
 
   // Hooks con paginación real del backend
-  const { movements, meta, isLoading, error, mutate } = useInventoryMovements({
+  const { movements, meta, isLoading, error } = useInventoryMovements({
     filters: searchTerm ? { search: searchTerm } : undefined,
     pagination: { page: currentPage, size: pageSize },
     include: ['product', 'warehouse', 'location'] // ¡Esto faltaba!

@@ -7,13 +7,13 @@
 'use client'
 
 import React, { memo, useCallback, useState, useEffect } from 'react'
-import type { MovementFiltersData, Warehouse, Product } from '../types'
+import type { MovementFilters, WarehouseParsed } from '../types'
 
 interface InventoryMovementsFiltersProps {
-  filters: MovementFiltersData
-  onFiltersChange: (filters: MovementFiltersData) => void
-  warehouses: Warehouse[]
-  products: Product[]
+  filters: MovementFilters
+  onFiltersChange: (filters: MovementFilters) => void
+  warehouses: WarehouseParsed[]
+  products: unknown[]
   isLoading?: boolean
 }
 
@@ -52,7 +52,7 @@ export const InventoryMovementsFilters = memo<InventoryMovementsFiltersProps>(({
     return () => clearTimeout(timer)
   }, [referenceIdTerm, filters, onFiltersChange])
   
-  const handleFilterChange = useCallback((field: keyof MovementFiltersData, value: any) => {
+  const handleFilterChange = useCallback((field: keyof MovementFilters, value: any) => {
     onFiltersChange({ ...filters, [field]: value })
   }, [filters, onFiltersChange])
   

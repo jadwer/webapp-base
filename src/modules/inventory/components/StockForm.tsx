@@ -45,6 +45,8 @@ export const StockForm = memo<StockFormProps>(({
     unitCost: stock?.unitCost || undefined,
     totalValue: stock?.totalValue || undefined,
     status: stock?.status || 'active',
+    lastMovementDate: stock?.lastMovementDate || '',
+    lastMovementType: stock?.lastMovementType || '',
     batchInfo: stock?.batchInfo || undefined,
     metadata: stock?.metadata || undefined,
     productId: stock?.productId || '',
@@ -457,6 +459,39 @@ export const StockForm = memo<StockFormProps>(({
                       helpText="Calculated: Unit Cost × Quantity"
                       disabled
                     />
+                  </div>
+                  
+                  {/* Movement Information */}
+                  <div className="col-12 mt-4">
+                    <h5 className="card-title border-bottom pb-2">Last Movement Information</h5>
+                  </div>
+                  
+                  <div className="col-md-6">
+                    <Input
+                      label="Last Movement Date"
+                      type="datetime-local"
+                      value={formData.lastMovementDate}
+                      onChange={handleInputChange('lastMovementDate')}
+                      helpText="Date of the last stock movement (usually auto-calculated)"
+                    />
+                  </div>
+                  
+                  <div className="col-md-6">
+                    <label className="form-label">Last Movement Type</label>
+                    <select
+                      className="form-select"
+                      value={formData.lastMovementType}
+                      onChange={handleInputChange('lastMovementType')}
+                    >
+                      <option value="">No movement</option>
+                      <option value="in">In</option>
+                      <option value="out">Out</option>
+                      <option value="adjustment">Adjustment</option>
+                      <option value="transfer">Transfer</option>
+                    </select>
+                    <div className="form-text">
+                      Type of the last stock movement (usually auto-calculated)
+                    </div>
                   </div>
                   
                   {/* Additional Information */}

@@ -7,16 +7,16 @@
 'use client'
 
 import React, { memo, useCallback, useState, useEffect } from 'react'
-import type { InventoryMovement, CreateInventoryMovementData, UpdateInventoryMovementData, Warehouse, Product, WarehouseLocation } from '../types'
+import type { InventoryMovement, CreateMovementData, UpdateMovementData, WarehouseParsed, WarehouseLocationParsed } from '../types'
 
 interface InventoryMovementFormProps {
   movement?: InventoryMovement
-  onSubmit: (data: CreateInventoryMovementData | UpdateInventoryMovementData) => Promise<void>
+  onSubmit: (data: CreateMovementData | UpdateMovementData) => Promise<void>
   onCancel?: () => void
   isLoading?: boolean
-  warehouses: Warehouse[]
-  products: Product[]
-  locations: WarehouseLocation[]
+  warehouses: WarehouseParsed[]
+  products: unknown[] // Using any for now since Product type isn't exported
+  locations: WarehouseLocationParsed[]
 }
 
 export const InventoryMovementForm = memo<InventoryMovementFormProps>(({
@@ -51,8 +51,8 @@ export const InventoryMovementForm = memo<InventoryMovementFormProps>(({
   
   const [errors, setErrors] = useState<Record<string, string>>({})
   
-  const [availableLocations, setAvailableLocations] = useState<WarehouseLocation[]>([])
-  const [availableDestinationLocations, setAvailableDestinationLocations] = useState<WarehouseLocation[]>([])
+  const [availableLocations, setAvailableLocations] = useState<WarehouseLocationParsed[]>([])
+  const [availableDestinationLocations, setAvailableDestinationLocations] = useState<WarehouseLocationParsed[]>([])
   
   // TEMPORAL: Filter locations client-side until backend supports warehouseId filter
   useEffect(() => {

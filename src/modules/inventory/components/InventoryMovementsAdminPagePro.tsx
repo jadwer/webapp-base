@@ -28,7 +28,6 @@ export const InventoryMovementsAdminPagePro: React.FC = () => {
     selectedIds,
     setFilters,
     setSort,
-    setPagination,
     setViewMode,
     setSelectedIds
   } = useMovementUIStore()
@@ -41,7 +40,7 @@ export const InventoryMovementsAdminPagePro: React.FC = () => {
     mutate
   } = useInventoryMovements({
     filters,
-    sort,
+    sort: sort || undefined,
     pagination,
     include: ['product', 'warehouse', 'location', 'destinationWarehouse', 'destinationLocation', 'user']
   })
@@ -156,7 +155,7 @@ export const InventoryMovementsAdminPagePro: React.FC = () => {
           {selectedIds.length > 0 && (
             <Button 
               variant="danger" 
-              size="sm"
+              size="small"
               onClick={handleBulkDelete}
             >
               Delete Selected ({selectedIds.length})
@@ -241,7 +240,8 @@ export const InventoryMovementsAdminPagePro: React.FC = () => {
         <div className="card-body">
           <InventoryMovementsFilters 
             filters={filters}
-            warehouses={warehousesData}
+            warehouses={warehousesData as unknown}
+            products={[]} 
             onFiltersChange={setFilters}
           />
         </div>

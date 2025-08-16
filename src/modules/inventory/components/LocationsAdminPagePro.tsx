@@ -28,7 +28,6 @@ export const LocationsAdminPagePro: React.FC = () => {
     selectedIds,
     setFilters,
     setSort,
-    setPagination,
     setViewMode,
     setSelectedIds
   } = useLocationUIStore()

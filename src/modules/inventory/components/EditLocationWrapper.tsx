@@ -2,6 +2,7 @@
 
 import { LocationForm } from './LocationForm'
 import { useLocation, useLocationsMutations } from '../hooks'
+import type { UpdateLocationData } from '../types'
 
 interface EditLocationWrapperProps {
   locationId: string
@@ -11,7 +12,7 @@ export const EditLocationWrapper = ({ locationId }: EditLocationWrapperProps) =>
   const { location, isLoading: isLoadingLocation, error } = useLocation(locationId, ['warehouse'])
   const { updateLocation } = useLocationsMutations()
   
-  const handleSubmit = async (data: any) => {
+  const handleSubmit = async (data: UpdateLocationData) => {
     await updateLocation(locationId, data)
   }
   
@@ -70,17 +71,13 @@ export const EditLocationWrapper = ({ locationId }: EditLocationWrapperProps) =>
     )
   }
   
-  // Convert JSON:API format to form format  
-  const locationForForm = {
-    ...location.attributes,
-    id: location.id
-  }
+  // Location is already parsed, so just use it directly
+  const locationForForm = location
   
   return (
     <LocationForm
       location={locationForForm}
       onSubmit={handleSubmit}
-      isEditing={true}
     />
   )
 }

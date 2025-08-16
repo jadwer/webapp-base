@@ -53,6 +53,14 @@ export interface InventoryMovement {
   createdAt: string
   updatedAt: string
   
+  // ID fields for form compatibility
+  productId?: string
+  warehouseId?: string
+  locationId?: string
+  destinationWarehouseId?: string
+  destinationLocationId?: string
+  userId?: string
+  
   // Relationships
   product?: ProductBasic
   warehouse?: Warehouse

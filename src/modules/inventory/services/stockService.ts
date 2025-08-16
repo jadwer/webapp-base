@@ -40,8 +40,8 @@ export const stockService = {
     if (filters.warehouseId) {
       queryParams['filter[warehouse_id]'] = filters.warehouseId
     }
-    if (filters.locationId) {
-      queryParams['filter[location_id]'] = filters.locationId
+    if (filters.warehouseLocationId) {
+      queryParams['filter[warehouse_location_id]'] = filters.warehouseLocationId
     }
     if (filters.status) {
       queryParams['filter[status]'] = filters.status
@@ -101,26 +101,13 @@ export const stockService = {
 
   /**
    * Crear nuevo stock entry
-   * Nota: Requiere relationships con product, warehouse, location
+   * Formato corregido según API spec: IDs van en attributes
    */
   create: async (data: CreateStockData): Promise<JsonApiResponse<Stock>> => {
-    const { productId, warehouseId, locationId, ...attributes } = data
-    
     const payload = {
       data: {
         type: 'stocks',
-        attributes,
-        relationships: {
-          product: {
-            data: { type: 'products', id: productId }
-          },
-          warehouse: {
-            data: { type: 'warehouses', id: warehouseId }
-          },
-          location: {
-            data: { type: 'warehouse-locations', id: locationId }
-          }
-        }
+        attributes: data
       }
     }
     

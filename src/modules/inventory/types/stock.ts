@@ -37,6 +37,11 @@ export interface Stock {
   createdAt: string
   updatedAt: string
   
+  // ID fields for form compatibility
+  productId?: string
+  warehouseId?: string
+  warehouseLocationId?: string
+  
   // Relationships (después de JSON:API parsing)
   product?: ProductParsed
   warehouse?: WarehouseParsed
@@ -53,13 +58,15 @@ export interface CreateStockData {
   unitCost?: number
   totalValue?: number
   status: string
+  lastMovementDate?: string
+  lastMovementType?: string
   batchInfo?: any
   metadata?: any
   
   // Relationship IDs for creation
   productId: string
   warehouseId: string
-  locationId: string
+  warehouseLocationId: string
 }
 
 export interface UpdateStockData {
@@ -80,7 +87,7 @@ export interface StockFilters {
   search?: string
   productId?: string
   warehouseId?: string
-  locationId?: string
+  warehouseLocationId?: string
   status?: string
   lowStock?: boolean // quantity <= minimumStock
   outOfStock?: boolean // quantity <= 0
