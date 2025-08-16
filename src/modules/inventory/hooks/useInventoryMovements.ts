@@ -12,6 +12,7 @@ import { inventoryMovementsService } from '../services'
 import { processJsonApiResponse } from '../utils/jsonApi'
 import type {
   InventoryMovement,
+  InventoryMovementParsed,
   CreateMovementData,
   UpdateMovementData,
   MovementFilters,
@@ -34,7 +35,7 @@ export const useInventoryMovements = (params: {
     key,
     async () => {
       const response = await inventoryMovementsService.getAll(params)
-      return processJsonApiResponse<InventoryMovement[]>(response)
+      return processJsonApiResponse<InventoryMovementParsed[]>(response)
     },
     {
       keepPreviousData: true,
@@ -63,7 +64,7 @@ export const useInventoryMovement = (id: string | null, include?: string[]) => {
     key,
     async () => {
       const response = await inventoryMovementsService.getById(id!, include)
-      return processJsonApiResponse<InventoryMovement>(response)
+      return processJsonApiResponse<InventoryMovementParsed>(response)
     },
     {
       revalidateOnFocus: false,

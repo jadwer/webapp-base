@@ -119,5 +119,5 @@ export interface ApiResponse<T> {
     prev?: string
     next?: string
   }
-  included?: any[]
+  included?: import('../utils/jsonApi').JsonApiResource[]
 }

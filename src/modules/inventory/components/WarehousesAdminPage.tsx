@@ -16,15 +16,15 @@ import { Button } from '@/ui/components/base/Button'
 import { Alert } from '@/ui/components/base/Alert'
 import { Modal } from '@/ui/components/base/Modal'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
-import type { Warehouse, CreateWarehouseData, UpdateWarehouseData } from '../types'
+import type { WarehouseParsed, CreateWarehouseData, UpdateWarehouseData } from '../types'
 
 export const WarehousesAdminPage = () => {
   // State
   const [searchTerm, setSearchTerm] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
-  const [editingWarehouse, setEditingWarehouse] = useState<Warehouse | null>(null)
-  const [deletingWarehouse, setDeletingWarehouse] = useState<Warehouse | null>(null)
+  const [editingWarehouse, setEditingWarehouse] = useState<WarehouseParsed | null>(null)
+  const [deletingWarehouse, setDeletingWarehouse] = useState<WarehouseParsed | null>(null)
 
   const pageSize = 20
   const navigation = useNavigationProgress()

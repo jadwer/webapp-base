@@ -10,7 +10,7 @@ import { useState, useEffect } from 'react'
 import { Modal } from '@/ui/components/base/Modal'
 import { Button } from '@/ui/components/base/Button'
 import { Input } from '@/ui/components/base/Input'
-import type { Warehouse, CreateWarehouseData, UpdateWarehouseData } from '../types'
+import type { WarehouseParsed, CreateWarehouseData, UpdateWarehouseData } from '../types'
 
 interface WarehouseFormModalProps {
   isOpen: boolean
@@ -18,7 +18,7 @@ interface WarehouseFormModalProps {
   onSubmit: (data: CreateWarehouseData | UpdateWarehouseData) => Promise<void>
   title: string
   isLoading: boolean
-  initialData?: Warehouse
+  initialData?: WarehouseParsed
 }
 
 export const WarehouseFormModal = ({
@@ -122,13 +122,13 @@ export const WarehouseFormModal = ({
     try {
       await onSubmit(formData)
       onClose()
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Form submission error:', error)
       
       // Handle validation errors from server
       if (error?.response?.status === 422 && error?.response?.data?.errors) {
         const serverErrors: Record<string, string> = {}
-        error.response.data.errors.forEach((err: any) => {
+        error.response.data.errors.forEach((err: { field?: string; message?: string }) => {
           if (err.field) {
             serverErrors[err.field] = err.message
           }

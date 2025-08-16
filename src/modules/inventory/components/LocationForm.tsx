@@ -166,7 +166,7 @@ export const LocationForm = memo<LocationFormProps>(({
         router.push('/dashboard/inventory/locations')
       }, 2000)
       
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error submitting location:', error)
       
       // Show error message

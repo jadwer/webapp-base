@@ -7,16 +7,16 @@
 'use client'
 
 import React, { memo } from 'react'
-import type { Warehouse, WarehouseSortOptions } from '../types'
+import type { WarehouseParsed, WarehouseSortOptions } from '../types'
 
 interface WarehousesTableProps {
-  warehouses: Warehouse[]
+  warehouses: WarehouseParsed[]
   isLoading: boolean
   selectedIds: string[]
   onSelectionChange: (ids: string[]) => void
-  onEdit: (warehouse: Warehouse) => void
-  onView: (warehouse: Warehouse) => void
-  onDelete: (warehouse: Warehouse) => void
+  onEdit: (warehouse: WarehouseParsed) => void
+  onView: (warehouse: WarehouseParsed) => void
+  onDelete: (warehouse: WarehouseParsed) => void
   sort: WarehouseSortOptions | null
   onSortChange: (sort: WarehouseSortOptions | null) => void
 }

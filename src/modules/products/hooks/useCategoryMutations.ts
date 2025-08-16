@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { mutate } from 'swr'
 import { categoryService } from '../services'
 import { CreateCategoryRequest, UpdateCategoryRequest } from '../types'
-import { createErrorMessage, isRelationshipError } from '../utils/errorHandling'
+// Removed unused imports
 
 export function useCategoryMutations() {
   const [isLoading, setIsLoading] = useState(false)

@@ -4,10 +4,54 @@
  * Basado en el patrón exitoso del módulo Products
  */
 
+// JSON:API type definitions
+export interface JsonApiResource {
+  id: string
+  type: string
+  attributes?: Record<string, unknown>
+  relationships?: Record<string, JsonApiRelationship>
+}
+
+export interface JsonApiRelationship {
+  data?: JsonApiResourceIdentifier | JsonApiResourceIdentifier[]
+  links?: Record<string, string>
+  meta?: Record<string, unknown>
+}
+
+export interface JsonApiResourceIdentifier {
+  id: string
+  type: string
+}
+
+export interface JsonApiResponse<T = unknown> {
+  data: T
+  included?: JsonApiResource[]
+  meta?: Record<string, unknown>
+  links?: Record<string, string>
+}
+
+export interface JsonApiErrorObject {
+  id?: string
+  status?: string
+  code?: string
+  title?: string
+  detail?: string
+  source?: {
+    pointer?: string
+    parameter?: string
+  }
+  meta?: Record<string, unknown>
+}
+
+export interface JsonApiErrorResponse {
+  errors: JsonApiErrorObject[]
+  meta?: Record<string, unknown>
+}
+
 /**
  * Parsea relaciones incluidas y las agrega a los objetos principales
  */
-export function parseJsonApiIncludes<T>(data: any, included: any[] = []): T {
+export function parseJsonApiIncludes<T>(data: JsonApiResource | JsonApiResource[] | T, included: JsonApiResource[] = []): T {
   if (!data) return data
 
   // Si es un array, procesamos cada elemento
@@ -16,29 +60,30 @@ export function parseJsonApiIncludes<T>(data: any, included: any[] = []): T {
   }
 
   // Si no es un objeto JSON:API, lo devolvemos tal como está
-  if (!data.type || !data.id) {
+  if (typeof data !== 'object' || !('type' in data) || !('id' in data)) {
     return data as T
   }
 
+  const jsonApiData = data as JsonApiResource
 
   // Crear el objeto resultado con los attributes flattened
-  const result: any = {
-    id: data.id,
-    type: data.type,
-    ...data.attributes,
+  const result: Record<string, unknown> = {
+    id: jsonApiData.id,
+    type: jsonApiData.type,
+    ...jsonApiData.attributes,
     // También mantener la estructura original para compatibilidad
-    attributes: data.attributes
+    attributes: jsonApiData.attributes
   }
 
   // Procesar relationships si existen
-  if (data.relationships && included?.length > 0) {
-    Object.keys(data.relationships).forEach(relationKey => {
-      const relationship = data.relationships[relationKey]
+  if (jsonApiData.relationships && included?.length > 0) {
+    Object.keys(jsonApiData.relationships).forEach(relationKey => {
+      const relationship = jsonApiData.relationships![relationKey]
       
       if (relationship.data) {
         if (Array.isArray(relationship.data)) {
           // Relación uno-a-muchos
-          result[relationKey] = relationship.data.map((relData: any) => {
+          result[relationKey] = relationship.data.map((relData: JsonApiResourceIdentifier) => {
             const includedItem = included.find(inc => 
               inc.type === relData.type && inc.id === relData.id
             )
@@ -46,10 +91,11 @@ export function parseJsonApiIncludes<T>(data: any, included: any[] = []): T {
           })
         } else {
           // Relación uno-a-uno
+          const relationshipData = relationship.data as JsonApiResourceIdentifier
           const includedItem = included.find(inc => 
-            inc.type === relationship.data.type && inc.id === relationship.data.id
+            inc.type === relationshipData.type && inc.id === relationshipData.id
           )
-          result[relationKey] = includedItem ? parseJsonApiIncludes(includedItem, included) : relationship.data
+          result[relationKey] = includedItem ? parseJsonApiIncludes(includedItem, included) : relationshipData
         }
       }
     })
@@ -61,17 +107,7 @@ export function parseJsonApiIncludes<T>(data: any, included: any[] = []): T {
 /**
  * Procesa una respuesta completa JSON:API
  */
-export function processJsonApiResponse<T>(response: {
-  data: any
-  included?: any[]
-  meta?: any
-  links?: any
-}): {
-  data: T
-  included?: any[]
-  meta?: any
-  links?: any
-} {
+export function processJsonApiResponse<T>(response: JsonApiResponse): JsonApiResponse<T> {
   return {
     ...response,
     data: parseJsonApiIncludes<T>(response.data, response.included)
@@ -81,11 +117,11 @@ export function processJsonApiResponse<T>(response: {
 /**
  * Helper para obtener un objeto relacionado específico
  */
-export function getRelatedObject(
-  data: any,
+export function getRelatedObject<T = unknown>(
+  data: JsonApiResource,
   relationshipKey: string,
-  included: any[] = []
-): any | null {
+  included: JsonApiResource[] = []
+): T | null {
   if (!data?.relationships?.[relationshipKey]?.data || !included?.length) {
     return null
   }
@@ -101,17 +137,17 @@ export function getRelatedObject(
     inc.type === relData.type && inc.id === relData.id
   )
 
-  return includedItem ? parseJsonApiIncludes(includedItem, included) : null
+  return includedItem ? parseJsonApiIncludes<T>(includedItem, included) : null
 }
 
 /**
  * Helper para obtener múltiples objetos relacionados
  */
-export function getRelatedObjects(
-  data: any,
+export function getRelatedObjects<T = unknown>(
+  data: JsonApiResource,
   relationshipKey: string,
-  included: any[] = []
-): any[] {
+  included: JsonApiResource[] = []
+): T[] {
   if (!data?.relationships?.[relationshipKey]?.data || !included?.length) {
     return []
   }
@@ -119,14 +155,14 @@ export function getRelatedObjects(
   const relationshipData = data.relationships[relationshipKey].data
   
   if (!Array.isArray(relationshipData)) {
-    const singleItem = getRelatedObject(data, relationshipKey, included)
+    const singleItem = getRelatedObject<T>(data, relationshipKey, included)
     return singleItem ? [singleItem] : []
   }
 
-  return relationshipData.map((relData: any) => {
+  return relationshipData.map((relData: JsonApiResourceIdentifier) => {
     const includedItem = included.find(inc => 
       inc.type === relData.type && inc.id === relData.id
     )
-    return includedItem ? parseJsonApiIncludes(includedItem, included) : relData
-  }).filter(Boolean)
+    return includedItem ? parseJsonApiIncludes<T>(includedItem, included) : relData
+  }).filter(Boolean) as T[]
 }

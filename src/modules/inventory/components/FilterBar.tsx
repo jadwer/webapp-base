@@ -10,9 +10,9 @@ import { useState, useEffect, useCallback } from 'react'
 import { Input } from '@/ui/components/base/Input'
 
 // Simple debounce function
-function debounce<T extends (...args: unknown[]) => any>(func: T, wait: number): T {
+function debounce<T extends (...args: Parameters<T>) => ReturnType<T>>(func: T, wait: number): T {
   let timeout: NodeJS.Timeout
-  return ((...args: unknown[]) => {
+  return ((...args: Parameters<T>) => {
     clearTimeout(timeout)
     timeout = setTimeout(() => func(...args), wait)
   }) as T
@@ -38,7 +38,8 @@ export const FilterBar = ({
     debounce((value: string) => {
       onSearchChange(value)
     }, 300),
-    [onSearchChange]
+     
+    []
   )
 
   // Update local search when external searchTerm changes

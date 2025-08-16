@@ -7,14 +7,13 @@
 'use client'
 
 import React, { useState } from 'react'
-import { useStock, useStockMutations } from '../hooks'
+import { useStock } from '../hooks'
 import { StockTableSimple } from './StockTableSimple'
 import { FilterBar } from './FilterBar'
 import { PaginationSimple } from './PaginationSimple'
 import { Button } from '@/ui/components/base/Button'
 import { Alert } from '@/ui/components/base/Alert'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
-import type { Stock } from '../types'
 
 export const StockAdminPageReal = () => {
   const [searchTerm, setSearchTerm] = useState('')
@@ -176,8 +175,8 @@ export const StockAdminPageReal = () => {
           <StockTableSimple
             stock={stock}
             isLoading={isLoading}
-            onEdit={() => {}}
-            onAdjust={() => {}}
+            onEdit={(stockItem) => navigation.push(`/dashboard/inventory/stock/${stockItem.id}/edit`)}
+            onAdjust={(stockItem) => navigation.push(`/dashboard/inventory/stock/${stockItem.id}/adjust`)}
           />
           
           {/* Paginación - Show if we have more than 1 page */}

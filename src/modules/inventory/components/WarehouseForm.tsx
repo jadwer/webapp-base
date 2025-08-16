@@ -11,6 +11,7 @@ import { useRouter } from 'next/navigation'
 import { Button } from '@/ui/components/base/Button'
 import { Input } from '@/ui/components/base/Input'
 import type { WarehouseParsed, CreateWarehouseData, UpdateWarehouseData } from '../types'
+import { handleComponentError } from '../types/errors'
 
 interface WarehouseFormProps {
   warehouse?: WarehouseParsed // For edit mode
@@ -150,11 +151,11 @@ export const WarehouseForm = memo<WarehouseFormProps>(({
         router.push('/dashboard/inventory/warehouses')
       }, 2000)
       
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error submitting warehouse:', error)
       
-      // Show error message
-      const message = error.response?.data?.message || 'Error saving warehouse'
+      // Handle error with proper typing
+      const errorResult = handleComponentError(error)
       const toastElement = document.createElement('div')
       toastElement.className = 'position-fixed top-0 end-0 p-3'
       toastElement.style.zIndex = '9999'
@@ -164,7 +165,8 @@ export const WarehouseForm = memo<WarehouseFormProps>(({
             <strong class="me-auto">Error</strong>
           </div>
           <div class="toast-body">
-            ${message}
+            ${errorResult.message}
+            ${errorResult.details ? '<br><small>' + errorResult.details.join(', ') + '</small>' : ''}
           </div>
         </div>
       `

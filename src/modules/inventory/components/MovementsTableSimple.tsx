@@ -9,12 +9,12 @@
 import React from 'react'
 import Link from 'next/link'
 import { formatCurrency, formatQuantity } from '@/lib/formatters'
-import type { InventoryMovement } from '../types'
+import type { InventoryMovementParsed } from '../types'
 
 interface MovementsTableSimpleProps {
-  movements?: InventoryMovement[]
+  movements?: InventoryMovementParsed[]
   isLoading?: boolean
-  onView?: (movement: InventoryMovement) => void
+  onView?: (movement: InventoryMovementParsed) => void
 }
 
 export const MovementsTableSimple = ({

@@ -4,7 +4,7 @@
  * Sin mocks de DOM, solo configuración para HTTP requests reales
  */
 
-import { vi } from 'vitest'
+// Removed unused vi import
 
 // =================
 // CONSOLE CONTROL
@@ -44,20 +44,27 @@ global.integrationTestUtils = {
   createTestId: () => `test-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
   
   // Validate JSON:API response
-  validateJsonApiResponse: (data: any) => {
+  validateJsonApiResponse: (data: unknown) => {
     return (
       data &&
       typeof data === 'object' &&
+      data &&
+      'jsonapi' in data &&
+      typeof data.jsonapi === 'object' &&
       data.jsonapi &&
-      data.jsonapi.version &&
+      'version' in data.jsonapi &&
+      'data' in data &&
       Array.isArray(data.data)
     )
   },
   
   // Extract token from login response
-  extractToken: (loginResponse: any) => {
-    if (loginResponse.data && loginResponse.data.access_token) {
-      return loginResponse.data.access_token
+  extractToken: (loginResponse: unknown) => {
+    if (loginResponse && typeof loginResponse === 'object' && 'data' in loginResponse) {
+      const data = loginResponse.data as { access_token?: string }
+      if (data && data.access_token) {
+        return data.access_token
+      }
     }
     throw new Error('No access token found in login response')
   }
@@ -71,7 +78,7 @@ declare global {
   var integrationTestUtils: {
     waitFor: (ms: number) => Promise<void>
     createTestId: () => string
-    validateJsonApiResponse: (data: any) => boolean
-    extractToken: (loginResponse: any) => string
+    validateJsonApiResponse: (data: unknown) => boolean
+    extractToken: (loginResponse: unknown) => string
   }
 }

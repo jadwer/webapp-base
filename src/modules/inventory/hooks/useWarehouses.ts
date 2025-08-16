@@ -12,6 +12,7 @@ import { warehousesService } from '../services'
 import { processJsonApiResponse } from '../utils/jsonApi'
 import type {
   Warehouse,
+  WarehouseParsed,
   CreateWarehouseData,
   UpdateWarehouseData,
   WarehouseFilters,
@@ -34,7 +35,7 @@ export const useWarehouses = (params: {
     key,
     async () => {
       const response = await warehousesService.getAll(params)
-      return processJsonApiResponse<Warehouse[]>(response)
+      return processJsonApiResponse<WarehouseParsed[]>(response)
     },
     {
       keepPreviousData: true,
@@ -73,7 +74,7 @@ export const useWarehouse = (id: string | null, include?: string[]) => {
     key,
     async () => {
       const response = await warehousesService.getById(id!, include)
-      return processJsonApiResponse<Warehouse>(response)
+      return processJsonApiResponse<WarehouseParsed>(response)
     },
     {
       revalidateOnFocus: false,

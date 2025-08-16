@@ -20,7 +20,7 @@ export const productService = {
     sort?: ProductSortOptions
     include?: string[]
   }): Promise<ProductsResponse> {
-    const queryParams: QueryParams = {}
+    const queryParams: Record<string, unknown> = {}
     
     if (params?.page) {
       queryParams.page = params.page

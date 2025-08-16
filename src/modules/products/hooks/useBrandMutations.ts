@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { mutate } from 'swr'
 import { brandService } from '../services'
 import { CreateBrandRequest, UpdateBrandRequest } from '../types'
-import { createErrorMessage, isRelationshipError } from '../utils/errorHandling'
+// Removed unused imports
 
 export function useBrandMutations() {
   const [isLoading, setIsLoading] = useState(false)

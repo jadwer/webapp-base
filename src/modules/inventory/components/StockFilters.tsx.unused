@@ -8,11 +8,11 @@
 
 import React, { memo, useState, useEffect, useCallback } from 'react'
 import { Input } from '@/ui/components/base/Input'
-import type { StockFilters, Warehouse } from '../types'
+import type { StockFilters, WarehouseParsed } from '../types'
 
 interface StockFiltersProps {
   filters: StockFilters
-  warehouses: Warehouse[]
+  warehouses: WarehouseParsed[]
   onFiltersChange: (filters: StockFilters) => void
 }
 

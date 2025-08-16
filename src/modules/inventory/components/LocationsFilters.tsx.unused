@@ -8,11 +8,11 @@
 
 import React, { memo, useState, useEffect, useCallback } from 'react'
 import { Input } from '@/ui/components/base/Input'
-import type { LocationFilters, Warehouse } from '../types'
+import type { LocationFilters, WarehouseParsed } from '../types'
 
 interface LocationsFiltersProps {
   filters: LocationFilters
-  warehouses: Warehouse[]
+  warehouses: WarehouseParsed[]
   onFiltersChange: (filters: LocationFilters) => void
 }
 

@@ -94,7 +94,7 @@ export const MovementDetail = ({ movementId }: MovementDetailProps) => {
         navigation.push('/dashboard/inventory/movements')
       }, 2000)
       
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error deleting movement:', error)
       
       // Show error toast

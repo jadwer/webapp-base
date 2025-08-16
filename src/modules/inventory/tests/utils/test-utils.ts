@@ -149,8 +149,8 @@ export const createMockMovement = (overrides: Partial<InventoryMovement> = {}): 
  */
 export const createMockJsonApiResponse = <T>(
   data: T,
-  included?: any[],
-  meta?: any
+  included?: import('../../utils/jsonApi').JsonApiResource[],
+  meta?: Record<string, unknown>
 ): JsonApiResponse<T> => ({
   data,
   included,
@@ -167,8 +167,8 @@ export const createMockJsonApiResponse = <T>(
  */
 export const createMockJsonApiListResponse = <T>(
   items: T[],
-  included?: any[],
-  meta?: any
+  included?: import('../../utils/jsonApi').JsonApiResource[],
+  meta?: Record<string, unknown>
 ): JsonApiResponse<T[]> => createMockJsonApiResponse(
   items,
   included,

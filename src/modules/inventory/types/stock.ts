@@ -6,6 +6,39 @@
 import type { WarehouseParsed } from './warehouse'
 import type { WarehouseLocationParsed } from './location'
 
+// Strong typing for batch info
+export interface BatchInfo {
+  batchNumber?: string
+  expirationDate?: string
+  lotNumber?: string
+  manufactureDate?: string
+  supplier?: string
+  notes?: string
+}
+
+// Strong typing for metadata
+export interface StockMetadata {
+  tags?: string[]
+  location?: {
+    zone?: string
+    aisle?: string
+    shelf?: string
+    bin?: string
+  }
+  handling?: {
+    temperature?: 'ambient' | 'cold' | 'frozen'
+    humidity?: number
+    fragile?: boolean
+    hazardous?: boolean
+  }
+  tracking?: {
+    serialNumbers?: string[]
+    rfidTags?: string[]
+    barcodes?: string[]
+  }
+  customFields?: Record<string, string | number | boolean>
+}
+
 // Product type básico después de JSON:API parsing
 interface ProductParsed {
   id: string
@@ -32,8 +65,8 @@ export interface Stock {
   status: string
   lastMovementDate?: string
   lastMovementType?: string
-  batchInfo?: any
-  metadata?: any
+  batchInfo?: BatchInfo
+  metadata?: StockMetadata
   createdAt: string
   updatedAt: string
   
@@ -60,8 +93,8 @@ export interface CreateStockData {
   status: string
   lastMovementDate?: string
   lastMovementType?: string
-  batchInfo?: any
-  metadata?: any
+  batchInfo?: BatchInfo
+  metadata?: StockMetadata
   
   // Relationship IDs for creation
   productId: string
@@ -79,8 +112,8 @@ export interface UpdateStockData {
   unitCost?: number
   totalValue?: number
   status?: string
-  batchInfo?: any
-  metadata?: any
+  batchInfo?: BatchInfo
+  metadata?: StockMetadata
 }
 
 export interface StockFilters {

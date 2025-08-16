@@ -121,8 +121,8 @@ export function getForeignKeyConstraintMessage(error: unknown): string {
   const parsedErrors = parseJsonApiErrors(error)
   const constraintError = parsedErrors.find(err => err.code === 'FOREIGN_KEY_CONSTRAINT')
   
-  if (constraintError?.detail) {
-    return constraintError.detail
+  if (constraintError?.message) {
+    return constraintError.message
   }
   
   return 'No se puede eliminar este elemento porque tiene elementos relacionados. Elimine o reasigne primero los elementos relacionados.'

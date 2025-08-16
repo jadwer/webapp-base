@@ -185,7 +185,7 @@ export const StockForm = memo<StockFormProps>(({
         router.push('/dashboard/inventory/stock')
       }, 2000)
       
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error submitting stock:', error)
       
       // Show error message

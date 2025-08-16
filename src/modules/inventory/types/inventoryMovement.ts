@@ -3,8 +3,46 @@
  * Basado en API responses reales de Fase 1 testing
  */
 
-import type { Warehouse } from './warehouse'
-import type { WarehouseLocation } from './location'
+import type { Warehouse, WarehouseParsed } from './warehouse'
+import type { WarehouseLocation, WarehouseLocationParsed } from './location'
+
+// Strong typing for movement batch info
+export interface MovementBatchInfo {
+  expiry_date?: string
+  batch_number?: string
+  manufacturing_date?: string
+  lot_number?: string
+  supplier_id?: string
+  quality_status?: 'approved' | 'rejected' | 'pending'
+  inspector_notes?: string
+  temperature_log?: number[]
+  humidity_log?: number[]
+  customFields?: Record<string, string | number | boolean>
+}
+
+// Strong typing for movement metadata
+export interface MovementMetadata {
+  notes?: string
+  source?: string
+  temperature?: number
+  humidity?: number
+  reason?: string
+  condition?: string
+  document_references?: string[]
+  approval_workflow?: {
+    status: 'pending' | 'approved' | 'rejected'
+    approver_id?: string
+    approval_date?: string
+    rejection_reason?: string
+  }
+  audit_trail?: {
+    created_by: string
+    modified_by?: string
+    ip_address?: string
+    user_agent?: string
+  }
+  customFields?: Record<string, string | number | boolean>
+}
 
 // Product type básico (existe en products module)
 interface ProductBasic {
@@ -35,21 +73,8 @@ export interface InventoryMovement {
   status: string
   previousStock?: number
   newStock?: number
-  batchInfo?: {
-    expiry_date?: string
-    batch_number?: string
-    manufacturing_date?: string
-    [key: string]: any
-  }
-  metadata?: {
-    notes?: string
-    source?: string
-    temperature?: number
-    humidity?: number
-    reason?: string
-    condition?: string
-    [key: string]: any
-  }
+  batchInfo?: MovementBatchInfo
+  metadata?: MovementMetadata
   createdAt: string
   updatedAt: string
   
@@ -70,6 +95,15 @@ export interface InventoryMovement {
   user?: UserBasic
 }
 
+// After JSON:API parsing
+export interface InventoryMovementParsed extends Omit<InventoryMovement, 'warehouse' | 'location' | 'destinationWarehouse' | 'destinationLocation'> {
+  // Relationships (después de JSON:API parsing)
+  warehouse?: WarehouseParsed
+  location?: WarehouseLocationParsed
+  destinationWarehouse?: WarehouseParsed
+  destinationLocation?: WarehouseLocationParsed
+}
+
 export interface CreateMovementData {
   movementType: 'entry' | 'exit' | 'transfer' | 'adjustment'
   referenceType: string
@@ -82,21 +116,8 @@ export interface CreateMovementData {
   status: string
   previousStock?: number
   newStock?: number
-  batchInfo?: {
-    expiry_date?: string
-    batch_number?: string
-    manufacturing_date?: string
-    [key: string]: any
-  }
-  metadata?: {
-    notes?: string
-    source?: string
-    temperature?: number
-    humidity?: number
-    reason?: string
-    condition?: string
-    [key: string]: any
-  }
+  batchInfo?: MovementBatchInfo
+  metadata?: MovementMetadata
   
   // Relationship IDs for creation
   productId: string
@@ -119,21 +140,8 @@ export interface UpdateMovementData {
   status?: string
   previousStock?: number
   newStock?: number
-  batchInfo?: {
-    expiry_date?: string
-    batch_number?: string
-    manufacturing_date?: string
-    [key: string]: any
-  }
-  metadata?: {
-    notes?: string
-    source?: string
-    temperature?: number
-    humidity?: number
-    reason?: string
-    condition?: string
-    [key: string]: any
-  }
+  batchInfo?: MovementBatchInfo
+  metadata?: MovementMetadata
 }
 
 export interface MovementFilters {

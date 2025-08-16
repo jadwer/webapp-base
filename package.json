@@ -9,6 +9,8 @@
     "export": "next build && next export",
     "start": "next start",
     "lint": "next lint",
+    "lint:prod": "next lint --ignore-path .eslintignore-tests",
+    "lint:tests": "next lint '**/tests/**' '**/*.test.{ts,tsx}' '**/*.spec.{ts,tsx}'",
     "sass": "sass --watch src/ui/styles/sass/main.scss:src/ui/styles/main.css --load-path=node_modules --quiet",
     "copy-bootstrap-icons": "node scripts/copy-bootstrap-icons.js",
     "postinstall": "npm run copy-bootstrap-icons",

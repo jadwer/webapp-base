@@ -131,7 +131,7 @@ global.testUtils = {
 declare global {
   var testUtils: {
     waitForNextTick: () => Promise<void>
-    createMockEvent: (type: string, properties?: any) => any
-    mockLocalStorage: () => any
+    createMockEvent: (type: string, properties?: Record<string, unknown>) => Event
+    mockLocalStorage: () => Storage
   }
 }

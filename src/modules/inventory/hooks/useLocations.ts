@@ -12,6 +12,7 @@ import { locationsService } from '../services'
 import { processJsonApiResponse } from '../utils/jsonApi'
 import type {
   WarehouseLocation,
+  WarehouseLocationParsed,
   CreateLocationData,
   UpdateLocationData,
   LocationFilters,
@@ -34,7 +35,7 @@ export const useLocations = (params: {
     key,
     async () => {
       const response = await locationsService.getAll(params)
-      return processJsonApiResponse<WarehouseLocation[]>(response)
+      return processJsonApiResponse<WarehouseLocationParsed[]>(response)
     },
     {
       keepPreviousData: true,
@@ -63,7 +64,7 @@ export const useLocation = (id: string | null, include?: string[]) => {
     key,
     async () => {
       const response = await locationsService.getById(id!, include)
-      return processJsonApiResponse<WarehouseLocation>(response)
+      return processJsonApiResponse<WarehouseLocationParsed>(response)
     },
     {
       revalidateOnFocus: false,

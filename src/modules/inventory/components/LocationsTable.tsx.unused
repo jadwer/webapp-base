@@ -7,11 +7,11 @@
 'use client'
 
 import React, { memo } from 'react'
-import type { WarehouseLocation, LocationSortOptions, Warehouse } from '../types'
+import type { WarehouseLocation, LocationSortOptions, WarehouseParsed } from '../types'
 
 interface LocationsTableProps {
   locations: WarehouseLocation[]
-  warehouses: Warehouse[]
+  warehouses: WarehouseParsed[]
   isLoading: boolean
   selectedIds: string[]
   onSelectionChange: (ids: string[]) => void
@@ -41,7 +41,7 @@ export const LocationsTable = memo<LocationsTableProps>(({
     return warehouses.reduce((acc, warehouse) => {
       acc[warehouse.id] = warehouse
       return acc
-    }, {} as Record<string, Warehouse>)
+    }, {} as Record<string, WarehouseParsed>)
   }, [warehouses])
   
   const handleSelectAll = (checked: boolean) => {

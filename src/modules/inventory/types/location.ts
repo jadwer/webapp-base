@@ -5,6 +5,30 @@
 
 import type { Warehouse, WarehouseParsed } from './warehouse'
 
+// Strong typing for location metadata
+export interface LocationMetadata {
+  tags?: string[]
+  restrictions?: {
+    temperatureMin?: number
+    temperatureMax?: number
+    humidityMax?: number
+    accessLevel?: 'public' | 'restricted' | 'secure'
+    hazardousAllowed?: boolean
+  }
+  equipment?: {
+    hasForkliftAccess?: boolean
+    hasPalletRacking?: boolean
+    hasConveyorAccess?: boolean
+    hasLoadingDock?: boolean
+  }
+  automation?: {
+    isAutomated?: boolean
+    sortingSystem?: boolean
+    pickingRobot?: boolean
+  }
+  customFields?: Record<string, string | number | boolean>
+}
+
 export interface WarehouseLocation {
   id: string
   name: string
@@ -24,7 +48,7 @@ export interface WarehouseLocation {
   isPickable: boolean
   isReceivable: boolean
   priority: number
-  metadata?: any
+  metadata?: LocationMetadata
   createdAt: string
   updatedAt: string
   
@@ -59,7 +83,7 @@ export interface CreateLocationData {
   isPickable: boolean
   isReceivable: boolean
   priority?: number
-  metadata?: any
+  metadata?: LocationMetadata
   
   // Relationship IDs for creation
   warehouseId: string
@@ -83,7 +107,7 @@ export interface UpdateLocationData {
   isPickable?: boolean
   isReceivable?: boolean
   priority?: number
-  metadata?: any
+  metadata?: LocationMetadata
 }
 
 export interface LocationFilters {

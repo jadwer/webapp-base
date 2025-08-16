@@ -1,0 +1,19 @@
+# Ignorar archivos de test para linting de producción
+**/*.test.ts
+**/*.test.tsx
+**/*.spec.ts
+**/*.spec.tsx
+**/tests/**/*
+**/test/**/*
+**/__tests__/**/*
+**/test-utils.ts
+**/setup.ts
+**/integration-setup.ts
+src/test/**/*
+
+# También ignorar node_modules y archivos de build
+node_modules/
+.next/
+out/
+dist/
+build/

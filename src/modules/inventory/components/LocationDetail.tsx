@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/ui/components/base/Button'
 import { useLocation, useLocationsMutations } from '../hooks'
+import { getErrorMessage } from '../types/errors'
 
 interface LocationDetailProps {
   locationId: string
@@ -50,11 +51,11 @@ export const LocationDetail = ({ locationId }: LocationDetailProps) => {
         router.push('/dashboard/inventory/locations')
       }, 2000)
       
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error deleting location:', error)
       
       // Show error toast
-      const message = error.response?.data?.message || 'Error al eliminar la ubicación'
+      const message = getErrorMessage(error)
       const toastElement = document.createElement('div')
       toastElement.className = 'position-fixed top-0 end-0 p-3'
       toastElement.style.zIndex = '9999'

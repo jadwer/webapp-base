@@ -26,11 +26,11 @@ export default function InventoryDashboardPage() {
           </p>
         </div>
         <div className="d-flex gap-2">
-          <Button variant="outline-primary" size="sm">
+          <Button variant="primary" size="small">
             <i className="bi bi-download me-2" />
             Exportar Reporte
           </Button>
-          <Button variant="primary" size="sm">
+          <Button variant="primary" size="small">
             <i className="bi bi-plus-lg me-2" />
             Nuevo Movimiento
           </Button>
@@ -189,7 +189,7 @@ export default function InventoryDashboardPage() {
                           </p>
                           <small className="text-muted">
                             Cantidad: {movement.quantity?.toLocaleString() || 0} •{' '}
-                            {movement.warehouse?.name || 'Almacén N/A'}
+                            {movement.warehouse?.attributes?.name || 'Almacén N/A'}
                           </small>
                         </div>
                       </div>

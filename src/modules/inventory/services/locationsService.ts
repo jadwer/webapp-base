@@ -27,7 +27,7 @@ export const locationsService = {
   } = {}): Promise<JsonApiResponse<WarehouseLocation[]>> => {
     const { filters = {}, sort, pagination, include } = params
     
-    const queryParams: Record<string, any> = {}
+    const queryParams: Record<string, string | number> = {}
     
     // Filtros con nombres exactos de columnas de base de datos
     if (filters.search) {
@@ -89,7 +89,7 @@ export const locationsService = {
     id: string,
     include?: string[]
   ): Promise<JsonApiResponse<WarehouseLocation>> => {
-    const queryParams: Record<string, any> = {}
+    const queryParams: Record<string, string | number> = {}
     
     if (include && include.length > 0) {
       queryParams.include = include.join(',')
@@ -148,8 +148,8 @@ export const locationsService = {
   getStock: async (
     locationId: string,
     include?: string[]
-  ): Promise<JsonApiResponse<any[]>> => {
-    const queryParams: Record<string, any> = {}
+  ): Promise<JsonApiResponse<unknown[]>> => {
+    const queryParams: Record<string, string | number> = {}
     
     if (include && include.length > 0) {
       queryParams.include = include.join(',')

@@ -8,11 +8,11 @@
 
 import React, { memo } from 'react'
 import { formatCurrency, formatQuantity } from '@/lib/formatters'
-import type { InventoryMovement, MovementSortOptions, Warehouse } from '../types'
+import type { InventoryMovement, MovementSortOptions, WarehouseParsed } from '../types'
 
 interface InventoryMovementsTableProps {
   movements: InventoryMovement[]
-  warehouses: Warehouse[]
+  warehouses: WarehouseParsed[]
   isLoading: boolean
   selectedIds: string[]
   onSelectionChange: (ids: string[]) => void
@@ -42,7 +42,7 @@ export const InventoryMovementsTable = memo<InventoryMovementsTableProps>(({
     return warehouses.reduce((acc, warehouse) => {
       acc[warehouse.id] = warehouse
       return acc
-    }, {} as Record<string, Warehouse>)
+    }, {} as Record<string, WarehouseParsed>)
   }, [warehouses])
   
   const handleSelectAll = (checked: boolean) => {

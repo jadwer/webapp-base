@@ -27,7 +27,7 @@ export const warehousesService = {
   } = {}): Promise<ApiResponse<Warehouse>> => {
     const { filters = {}, sort, pagination, include } = params
     
-    const queryParams: Record<string, any> = {}
+    const queryParams: Record<string, string | number> = {}
     
     // Filtros con nombres exactos de columnas de base de datos
     if (filters.search) {
@@ -82,7 +82,7 @@ export const warehousesService = {
     id: string,
     include?: string[]
   ): Promise<ApiResponse<Warehouse>> => {
-    const queryParams: Record<string, any> = {}
+    const queryParams: Record<string, string | number> = {}
     
     if (include && include.length > 0) {
       queryParams.include = include.join(',')
@@ -140,8 +140,8 @@ export const warehousesService = {
   getLocations: async (
     warehouseId: string,
     include?: string[]
-  ): Promise<ApiResponse<any>> => {
-    const queryParams: Record<string, any> = {}
+  ): Promise<ApiResponse<unknown>> => {
+    const queryParams: Record<string, string | number> = {}
     
     if (include && include.length > 0) {
       queryParams.include = include.join(',')
@@ -157,8 +157,8 @@ export const warehousesService = {
   getStock: async (
     warehouseId: string,
     include?: string[]
-  ): Promise<ApiResponse<any>> => {
-    const queryParams: Record<string, any> = {}
+  ): Promise<ApiResponse<unknown>> => {
+    const queryParams: Record<string, string | number> = {}
     
     if (include && include.length > 0) {
       queryParams.include = include.join(',')

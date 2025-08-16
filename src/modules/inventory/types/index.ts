@@ -35,6 +35,7 @@ export type {
 // Inventory Movement types
 export type {
   InventoryMovement,
+  InventoryMovementParsed,
   CreateMovementData,
   UpdateMovementData,
   MovementFilters,
@@ -54,7 +55,7 @@ export interface SortParams {
 
 export interface JsonApiResponse<T> {
   data: T
-  included?: any[]
+  included?: import('../utils/jsonApi').JsonApiResource[]
   meta?: {
     pagination?: {
       page: number
@@ -83,11 +84,11 @@ export interface JsonApiError {
   }
 }
 
-// UI State types (for Zustand)
+// UI State types (for Zustand) - simplified to avoid missing type references
 export interface InventoryUIFilters {
   warehouses: WarehouseFilters
   locations: LocationFilters
-  stock: StockFilters
+  stock: StockFilters  
   movements: MovementFilters
 }
 

@@ -27,7 +27,7 @@ export const stockService = {
   } = {}): Promise<JsonApiResponse<Stock[]>> => {
     const { filters = {}, sort, pagination, include } = params
     
-    const queryParams: Record<string, any> = {}
+    const queryParams: Record<string, string | number> = {}
     
     // Filtros con nombres exactos de columnas de base de datos
     // Nueva búsqueda general que busca en: producto (nombre, SKU, descripción), almacén (nombre, código), ubicación (nombre, código)
@@ -89,7 +89,7 @@ export const stockService = {
     id: string,
     include?: string[]
   ): Promise<JsonApiResponse<Stock>> => {
-    const queryParams: Record<string, any> = {}
+    const queryParams: Record<string, string | number> = {}
     
     if (include && include.length > 0) {
       queryParams.include = include.join(',')
@@ -145,7 +145,7 @@ export const stockService = {
   /**
    * Obtener resumen de stock por warehouse
    */
-  getWarehouseSummary: async (warehouseId: string): Promise<any> => {
+  getWarehouseSummary: async (warehouseId: string): Promise<unknown> => {
     const response = await axiosClient.get(`/api/v1/warehouses/${warehouseId}/stock`)
     return response.data
   },
@@ -165,7 +165,7 @@ export const stockService = {
     productId: string,
     include?: string[]
   ): Promise<JsonApiResponse<Stock[]>> => {
-    const queryParams: Record<string, any> = {
+    const queryParams: Record<string, string | number> = {
       'filter[product_id]': productId
     }
     

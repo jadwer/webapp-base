@@ -48,7 +48,7 @@ export const WarehouseDetail = ({ warehouseId }: WarehouseDetailProps) => {
         router.push('/dashboard/inventory/warehouses')
       }, 2000)
       
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error deleting warehouse:', error)
       
       // Show error toast

@@ -8,13 +8,13 @@
 
 import React from 'react'
 import Link from 'next/link'
-import type { WarehouseLocation } from '../types'
+import type { WarehouseLocationParsed } from '../types'
 
 interface LocationsTableSimpleProps {
-  locations?: WarehouseLocation[]
+  locations?: WarehouseLocationParsed[]
   isLoading?: boolean
-  onEdit?: (location: WarehouseLocation) => void
-  onDelete?: (location: WarehouseLocation) => void
+  onEdit?: (location: WarehouseLocationParsed) => void
+  onDelete?: (location: WarehouseLocationParsed) => void
 }
 
 export const LocationsTableSimple = ({
