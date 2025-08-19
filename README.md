@@ -1,6 +1,6 @@
 # 🚀 Proyecto Base Frontend – `webapp-base`
 
-**Plantilla oficial de Atomo Soluciones** para proyectos frontend modulares y escalables con **arquitectura enterprise**.
+**Plantilla oficial de Labor Wasser de México** para proyectos frontend modulares y escalables con **arquitectura enterprise**.
 
 Este proyecto está construido con **Next.js App Router** y está diseñado para servir como base para nuevos ERPs, sistemas internos o plataformas web reutilizando módulos desacoplados y **componentes de nivel enterprise**.
 
@@ -89,4 +89,4 @@ npm run dev
 
 ## Recomendación
 
-Este proyecto está diseñado para integrarse con `api-base`, el backend modular de Atomo Soluciones.
+Este proyecto está diseñado para integrarse con `api-base`, el backend modular de Labor Wasser de México.

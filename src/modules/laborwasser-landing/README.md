@@ -218,4 +218,4 @@ Este módulo sigue las convenciones del proyecto:
 
 ---
 
-**Desarrollado para Atomo Soluciones** - Base template para ERPs y sistemas web empresariales.
+**Desarrollado para Labor Wasser de México** - Base template para ERPs y sistemas web empresariales.

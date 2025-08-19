@@ -197,12 +197,12 @@ export const Footer: React.FC = () => {
                 <p className={styles.developedBy}>
                   Diseñado y desarrollado por{' '}
                   <Link 
-                    href="https://atomosoluciones.com" 
+                    href="https://laborwassermexico.com" 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className={styles.devLink}
                   >
-                    AtomoSoluciones.com
+                    Labor Wasser de México
                   </Link>
                 </p>
               </div>

@@ -7,7 +7,7 @@ import NavigationProgress from '@/ui/components/NavigationProgress';
 
 export const metadata: Metadata = {
   title: "WebApp Base",
-  description: "By AtomoSoluciones.com",
+  description: "By Labor Wasser de México",
 };
 
 export default function RootLayout({

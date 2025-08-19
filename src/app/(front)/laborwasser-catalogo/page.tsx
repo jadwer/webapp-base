@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   description: 'Catálogo completo de productos para laboratorio con filtros avanzados, búsqueda en tiempo real y múltiples vistas. Reactivos, equipos y material científico certificado.',
   keywords: 'catálogo laboratorio, reactivos químicos, equipos científicos, material de laboratorio, productos químicos, México, distribuidora, filtros avanzados',
   authors: [{ name: 'Labor Wasser de México' }],
-  creator: 'AtomoSoluciones.com',
+  creator: 'Labor Wasser de México',
   publisher: 'Labor Wasser de México',
   robots: {
     index: true,

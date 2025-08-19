@@ -1,5 +1,5 @@
 # Proyecto Base Frontend – `webapp-base`  
-Plantilla oficial de Atomo Soluciones
+Plantilla oficial de Labor Wasser de México
 
 Este proyecto es una base moderna, ultra modular y escalable con Next.js App Router. Permite desarrollar rápidamente interfaces desacopladas, exportar/importar módulos entre proyectos, y trabajar con diseñadores y clientes de forma fluida.
 
@@ -205,7 +205,7 @@ src/modules/products/
 ## 8. Cómo iniciar nuevos proyectos a partir de esta base
 
 ```bash
-git clone https://github.com/atomo-soluciones/base-webapp.git my-new-project
+git clone https://github.com/labor-wasser-mexico/base-webapp.git my-new-project
 cd my-new-project
 npm install
 cp .env.local.example .env.local
@@ -227,6 +227,6 @@ npm dev
 
 ## Notas finales
 
-Este proyecto base está alineado con `api-base`, el backend oficial de Atomo Soluciones.  
+Este proyecto base está alineado con `api-base`, el backend oficial de Labor Wasser de México.  
 Permite importar módulos entre proyectos, mantener consistencia en estructura y escalar sin acoplamientos.
 

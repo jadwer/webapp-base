@@ -13,7 +13,7 @@ export default function HeaderNavbar() {
             <i className="bi bi-diagram-3" aria-hidden="true"></i>
           </div>
           <span className={styles.brandText}>
-            AtomoSoluciones WebApp
+            Labor Wasser de México WebApp
           </span>
         </Link>
 

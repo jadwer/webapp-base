@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a Next.js App Router application serving as the official frontend template for Atomo Soluciones. It's designed as a modular, scalable base for ERPs, internal systems, and web platforms with decoupled, reusable modules.
+This is a Next.js App Router application serving as the official frontend template for Labor Wasser de México. It's designed as a modular, scalable base for ERPs, internal systems, and web platforms with decoupled, reusable modules.
 
 ## Development Commands
 
@@ -511,7 +511,7 @@ curl -H "Authorization: Bearer YOUR_TOKEN" \
 
 ## Integration Notes
 
-This frontend is designed to work with `api-base`, the official modular backend from Atomo Soluciones. The backend exposes available modules via `/api/modules` endpoint for dynamic feature detection.
+This frontend is designed to work with `api-base`, the official modular backend from Labor Wasser de México. The backend exposes available modules via `/api/modules` endpoint for dynamic feature detection.
 
 ## ⚠️ IMPORTANT GIT COMMIT GUIDELINES
 
