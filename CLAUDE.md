@@ -53,6 +53,13 @@ import { useInventory } from '@/modules/inventory';
   - Professional UX with debounced filters and focus preservation
   - Complete CRUD operations with JSON:API integration
 - **page-builder-pro** - GrapeJS-based visual page builder with full CRUD operations
+- **contacts** - Full-featured contact management system with:
+  - Complete CRUD for 4 entities (Contacts, Addresses, Documents, People)
+  - Document management with upload, view, download, and verification
+  - Professional modal system replacing window.confirm() with ConfirmModal
+  - Advanced error handling with type guards and user-friendly messages
+  - Tabbed interface for complete entity relationship visualization
+  - JSON:API includes for efficient relationship loading
 
 ### Authentication Flow
 - Uses Laravel Sanctum with Bearer tokens stored in localStorage
@@ -81,6 +88,9 @@ Located in `src/ui/`, this is the "atm-ui" design system with:
 - `(back)/dashboard/products/units/` - Units management
 - `(back)/dashboard/products/categories/` - Categories management
 - `(back)/dashboard/products/brands/` - Brands management
+- `(back)/dashboard/contacts/` - Contact management interface
+- `(back)/dashboard/contacts/create/` - Contact creation
+- `(back)/dashboard/contacts/[id]/` - Contact view and edit
 - `(front)/` - Public routes including auth pages
 - `(front)/p/[slug]/` - Dynamic page rendering from page-builder-pro
 
@@ -222,6 +232,60 @@ if (axiosError.response?.status === 409) {
 - ✅ **Units:** Complete error handling with toast notifications
 - ✅ **useErrorHandler:** Centralized error management hook
 - ✅ **Error Utilities:** FK detection and message generation
+
+### Contacts Module ✨ **FULL-CRUD IMPLEMENTATION**
+The `contacts` module is a comprehensive contact management system with advanced features:
+
+**Entities:**
+- **Contact** - Main contact entity with support for individuals and companies
+- **ContactAddress** - Multiple addresses per contact with type classification
+- **ContactDocument** - Document management with upload, verification, and viewing
+- **ContactPerson** - People associated with company contacts
+
+**🚀 Advanced Features:**
+- **Complete CRUD operations** for all entities
+- **Document management system** with upload, download, view, and verification
+- **Professional modal system** replacing window.confirm() with elegant ConfirmModal
+- **Advanced error handling** with TypeScript type guards and user-friendly messages
+- **Tabbed interface** for organized entity relationship visualization
+- **JSON:API includes strategy** for efficient data loading with relationships
+- **Authentication consistency** with robust token management
+- **Real-time verification system** with verify/unverify endpoints
+
+**🎨 Professional UI Components:**
+- `ContactsAdminPageReal` - Main contact management interface
+- `ContactFormTabs` - Tabbed form for contact creation/editing with related entities
+- `ContactViewTabs` - Comprehensive view with all related data in organized tabs
+- `ContactsTableSimple` - Professional data table with actions
+- Document management components with professional modals for all operations
+
+**Technical Implementation:**
+- Uses SWR for efficient data fetching and caching with includes
+- JSON:API transformers for correct data mapping between camelCase and snake_case
+- Professional error handling with popup blocker detection for document viewing
+- **Authentication token consistency** ensuring proper token key usage
+- **TypeScript strict compliance** with zero any types and proper error typing
+- **Professional UX patterns** with loading states and user feedback
+
+**API Integration:**
+- Full JSON:API compliance with Laravel backend
+- Automatic Bearer token injection via axios interceptors  
+- Proper handling of relationships and included resources
+- Document endpoints for upload, download, view, and verification operations
+- Comprehensive error handling and validation with user-friendly messages
+
+**Usage:**
+- **Contacts interface:** `/dashboard/contacts` - List and manage all contacts
+- **Contact creation:** `/dashboard/contacts/create` - Create new contacts with related entities
+- **Contact viewing:** `/dashboard/contacts/[id]` - View complete contact information
+- **Contact editing:** `/dashboard/contacts/[id]/edit` - Edit contacts and relationships
+
+**✅ CRUD Operations Available:**
+- **Create:** Complete contact creation with addresses, documents, and people
+- **Read:** Comprehensive view with all related entities using JSON:API includes
+- **Update:** Full contact editing with relationship management
+- **Delete:** Contact deletion with proper cascade handling and user confirmation
+- **Document Management:** Upload, view, download, verify, and unverify documents
 
 ## Development Guidelines
 

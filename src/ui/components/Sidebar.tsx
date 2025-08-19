@@ -18,9 +18,16 @@ const pageBuilderLinks = [
 ]
 
 const rcrudLinks = [
-  { href: '/dashboard/permission-manager', label: 'RCRUD', icon: 'bi-layout-text-window-reverse' }, // Usando el ícono del Page Builder
+  { href: '/dashboard/permission-manager', label: 'Permission Manager', icon: 'bi-layout-text-window-reverse' }, // Usando el ícono del Page Builder
   { href: '/dashboard/roles', label: 'Roles', icon: 'bi-person-badge' },
   { href: '/dashboard/permissions', label: 'Permisos', icon: 'bi-shield-lock' }
+]
+
+const contactsLinks = [
+  { href: '/dashboard/contacts', label: 'Gestión', icon: 'bi-person-lines-fill' },
+  { href: '/dashboard/contacts/customers', label: 'Clientes', icon: 'bi-person-check' },
+  { href: '/dashboard/contacts/suppliers', label: 'Proveedores', icon: 'bi-building' },
+  { href: '/dashboard/contacts/create', label: 'Crear Contacto', icon: 'bi-person-plus' }
 ]
 
 const productsLinks = [
@@ -47,6 +54,9 @@ export default function Sidebar() {
     pathname?.startsWith('/dashboard/permission-manager') || 
     pathname?.startsWith('/dashboard/roles') || 
     pathname?.startsWith('/dashboard/permissions')
+  )
+  const [contactsOpen, setContactsOpen] = useState(
+    pathname?.startsWith('/dashboard/contacts')
   )
   const [productsOpen, setProductsOpen] = useState(
     pathname?.startsWith('/dashboard/products')
@@ -147,7 +157,7 @@ export default function Sidebar() {
             >
               <div className={styles.groupContent}>
                 <i className="bi bi-shield-fill-check" aria-hidden="true"></i>
-                RCRUD
+                Permission Manager
               </div>
               <i className={`bi bi-chevron-right ${styles.groupChevron} ${
                 rcrudOpen ? styles.expanded : ''
@@ -199,6 +209,45 @@ export default function Sidebar() {
             }`}>
               <ul className={styles.subNavList}>
                 {productsLinks.map(({ href, label, icon }) => (
+                  <li key={href}>
+                    <button
+                      onClick={() => navigation.push(href)}
+                      className={`${styles.subNavLink} ${
+                        pathname === href ? styles.active : ''
+                      }`}
+                    >
+                      <i className={`bi ${icon} ${styles.subNavIcon}`} aria-hidden="true"></i>
+                      {label}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </li>
+          
+          {/* Grupo Contactos */}
+          <li className={styles.navItem}>
+            <button
+              className={`${styles.groupButton} ${
+                contactsOpen ? styles.groupActive : ''
+              }`}
+              onClick={() => setContactsOpen(!contactsOpen)}
+            >
+              <div className={styles.groupContent}>
+                <i className="bi bi-person-rolodex" aria-hidden="true"></i>
+                Contactos
+              </div>
+              <i className={`bi bi-chevron-right ${styles.groupChevron} ${
+                contactsOpen ? styles.expanded : ''
+              }`}></i>
+            </button>
+            
+            {/* Submenú */}
+            <div className={`${styles.subMenu} ${
+              contactsOpen ? styles.expanded : styles.collapsed
+            }`}>
+              <ul className={styles.subNavList}>
+                {contactsLinks.map(({ href, label, icon }) => (
                   <li key={href}>
                     <button
                       onClick={() => navigation.push(href)}
