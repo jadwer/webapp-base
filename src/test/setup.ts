@@ -8,6 +8,20 @@ import '@testing-library/jest-dom'
 import { beforeAll, afterAll, afterEach, vi } from 'vitest'
 import { cleanup } from '@testing-library/react'
 
+// Global type extensions
+declare global {
+  var testUtils: {
+    waitForNextTick: () => Promise<void>
+    createMockEvent: (type: string, properties?: Record<string, unknown>) => Record<string, unknown>
+    mockLocalStorage: () => {
+      getItem: ReturnType<typeof vi.fn>
+      setItem: ReturnType<typeof vi.fn>
+      removeItem: ReturnType<typeof vi.fn>
+      clear: ReturnType<typeof vi.fn>
+    }
+  }
+}
+
 // =================
 // CLEANUP
 // =================
@@ -127,11 +141,3 @@ global.testUtils = {
 // =================
 // TYPE DECLARATIONS
 // =================
-
-declare global {
-  var testUtils: {
-    waitForNextTick: () => Promise<void>
-    createMockEvent: (type: string, properties?: Record<string, unknown>) => Event
-    mockLocalStorage: () => Storage
-  }
-}

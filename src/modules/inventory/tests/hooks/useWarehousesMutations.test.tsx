@@ -161,10 +161,9 @@ describe('useWarehousesMutations Hook', () => {
 
       // Act
       const { result } = renderHook(() => useWarehousesMutations())
-      let updateResult: any
 
       await act(async () => {
-        updateResult = await result.current.updateWarehouse('1', updateData)
+        await result.current.updateWarehouse('1', updateData)
       })
 
       // Assert

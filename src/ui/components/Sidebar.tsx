@@ -10,8 +10,11 @@ const links = [
   { href: '/dashboard', label: 'Panel Principal', icon: 'bi-house' },
   { href: '/dashboard/profile', label: 'Mi perfil', icon: 'bi-person-circle' },
   { href: '/dashboard/design-system', label: 'Design System', icon: 'bi-palette' },
-  { href: '/dashboard/pages', label: 'Gestión de Páginas', icon: 'bi-file-earmark-text' },
   { href: '/dashboard/users', label: 'Usuarios', icon: 'bi-people' }
+]
+const pageBuilderLinks = [
+  { href: '/dashboard/pages', label: 'Gestión de Páginas', icon: 'bi-file-earmark-text' },
+  { href: '/dashboard/pages/templates', label: 'Galería de Templates', icon: 'bi-layout-text-window-reverse' }
 ]
 
 const rcrudLinks = [
@@ -32,7 +35,8 @@ const inventoryLinks = [
   { href: '/dashboard/inventory/warehouses', label: 'Almacenes', icon: 'bi-building' },
   { href: '/dashboard/inventory/locations', label: 'Ubicaciones', icon: 'bi-geo-alt' },
   { href: '/dashboard/inventory/stock', label: 'Control de Stock', icon: 'bi-boxes' },
-  { href: '/dashboard/inventory/movements', label: 'Movimientos', icon: 'bi-arrow-left-right' }
+  { href: '/dashboard/inventory/movements', label: 'Movimientos', icon: 'bi-arrow-left-right' },
+  { href: '/dashboard/inventory/product-batch', label: 'Lotes de Productos', icon: 'bi-calendar-check' }
 ]
 
 export default function Sidebar() {
@@ -49,6 +53,10 @@ export default function Sidebar() {
   )
   const [inventoryOpen, setInventoryOpen] = useState(
     pathname?.startsWith('/dashboard/inventory')
+  )
+  const [pageBuilderOpen, setPageBuilderOpen] = useState(
+    pathname?.startsWith('/dashboard/pages') || 
+    pathname?.startsWith('/dashboard/page-builder')
   )
 
   return (
@@ -89,6 +97,45 @@ export default function Sidebar() {
               </button>
             </li>
           ))}
+          
+          {/* Grupo Page Builder */}
+          <li className={styles.navItem}>
+            <button
+              className={`${styles.groupButton} ${
+                pageBuilderOpen ? styles.groupActive : ''
+              }`}
+              onClick={() => setPageBuilderOpen(!pageBuilderOpen)}
+            >
+              <div className={styles.groupContent}>
+                <i className="bi bi-brush" aria-hidden="true"></i>
+                Page Builder
+              </div>
+              <i className={`bi bi-chevron-right ${styles.groupChevron} ${
+                pageBuilderOpen ? styles.expanded : ''
+              }`}></i>
+            </button>
+            
+            {/* Submenú */}
+            <div className={`${styles.subMenu} ${
+              pageBuilderOpen ? styles.expanded : styles.collapsed
+            }`}>
+              <ul className={styles.subNavList}>
+                {pageBuilderLinks.map(({ href, label, icon }) => (
+                  <li key={href}>
+                    <button
+                      onClick={() => navigation.push(href)}
+                      className={`${styles.subNavLink} ${
+                        pathname === href ? styles.active : ''
+                      }`}
+                    >
+                      <i className={`bi ${icon} ${styles.subNavIcon}`} aria-hidden="true"></i>
+                      {label}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </li>
           
           {/* Grupo RCRUD */}
           <li className={styles.navItem}>

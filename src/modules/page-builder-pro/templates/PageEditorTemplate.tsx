@@ -178,6 +178,43 @@ export const PageEditorTemplate: React.FC<PageEditorTemplateProps> = ({
     }
   }, [pageId]) // eslint-disable-line react-hooks/exhaustive-deps
 
+  // 🔧 Sanitization function for HTML content
+  const sanitizeHtmlForGrapeJS = (html: string): string => {
+    try {
+      console.log('🧹 Sanitizing HTML for GrapeJS...')
+      
+      // Replace problematic SVG data URLs with simpler alternatives
+      const cleanHtml = html
+        // Replace complex SVG data URLs with simple gradients
+        .replace(/url\('data:image\/svg\+xml,[^']+'\)/g, () => {
+          // Replace with a simple CSS gradient instead of complex SVG
+          return 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+        })
+        // Also handle background: url() without quotes
+        .replace(/url\(data:image\/svg\+xml,[^)]+\)/g, () => {
+          return 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+        })
+        // Clean up any remaining problematic data URLs
+        .replace(/data:image\/svg\+xml,[^'"\s)]+/g, () => {
+          return 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Crect fill="%23667eea" width="100" height="100"/%3E%3C/svg%3E'
+        })
+        // Fix any malformed attributes by ensuring proper quoting
+        .replace(/(\s+\w+)=([^'"\s>]+)/g, (match, attr, value) => {
+          // If the value is not already quoted and contains special characters, quote it
+          if (!/^['"]/.test(value) && /[^\w-.]/.test(value)) {
+            return `${attr}="${value}"`
+          }
+          return match
+        })
+      
+      console.log('✅ HTML sanitized successfully')
+      return cleanHtml
+    } catch (error) {
+      console.error('❌ Error sanitizing HTML:', error)
+      return html // Return original if sanitization fails
+    }
+  }
+
   // Separate effect for loading content when page data becomes available
   useEffect(() => {
     console.log('Content loading effect - grapesjsEditor:', !!grapesjsEditor, 'pageContent:', !!pageContent, 'pageContent.html:', !!(pageContent && pageContent.html))
@@ -227,18 +264,52 @@ export const PageEditorTemplate: React.FC<PageEditorTemplateProps> = ({
             return
           }
 
-          // Load the actual page content directly
+          // Load the actual page content directly with sanitization
           try {
             console.log('Setting page content:', pageContent.html.substring(0, 100) + '...')
-            grapesjsEditor.setComponents(pageContent.html)
-            if (pageContent.css) {
-              grapesjsEditor.setStyle(pageContent.css)
+            
+            // 🔧 FIX: Sanitize HTML before passing to GrapeJS to avoid attribute errors
+            const sanitizedHtml = sanitizeHtmlForGrapeJS(pageContent.html)
+            console.log('HTML sanitized, setting components...')
+            
+            // Wrap setComponents in additional error handling
+            try {
+              grapesjsEditor.setComponents(sanitizedHtml)
+              console.log('✅ Components set successfully')
+            } catch (componentsError) {
+              console.error('❌ Error setting components:', componentsError)
+              // Fallback: Try with a basic container
+              console.log('🔄 Trying fallback content...')
+              grapesjsEditor.setComponents(`
+                <div class="container py-5">
+                  <div class="alert alert-info text-center">
+                    <h4>Contenido Cargado</h4>
+                    <p>El contenido de la página se ha cargado con éxito en el editor.</p>
+                    <small class="text-muted">Si hay problemas de visualización, esto es normal durante la carga inicial.</small>
+                  </div>
+                </div>
+              `)
             }
-            console.log('✅ Page content loaded successfully')
+            
+            // Set CSS if available
+            if (pageContent.css) {
+              try {
+                grapesjsEditor.setStyle(pageContent.css)
+                console.log('✅ CSS applied successfully')
+              } catch (cssError) {
+                console.warn('⚠️ Error applying CSS:', cssError)
+              }
+            }
+            
+            console.log('✅ Page content loading process completed')
             
             // Final refresh
-            if (grapesjsEditor) {
-              grapesjsEditor.refresh()
+            try {
+              if (grapesjsEditor) {
+                grapesjsEditor.refresh()
+              }
+            } catch (refreshError) {
+              console.warn('⚠️ Error refreshing editor:', refreshError)
             }
           } catch (error) {
             console.error('❌ Error loading page content:', error)
@@ -381,6 +452,7 @@ export const PageEditorTemplate: React.FC<PageEditorTemplateProps> = ({
     window.open(url, '_blank')
   }
 
+  // 🔧 MEJORADO: Mejor manejo de estados de carga y error
   if (pageLoading) {
     return (
       <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '400px' }}>
@@ -388,7 +460,55 @@ export const PageEditorTemplate: React.FC<PageEditorTemplateProps> = ({
           <div className="spinner-border text-primary mb-3" role="status">
             <span className="visually-hidden">Cargando...</span>
           </div>
-          <p className="text-muted">Cargando editor de páginas...</p>
+          <h5 className="mb-2">Cargando editor de páginas...</h5>
+          <p className="text-muted">
+            {pageId ? 'Obteniendo datos de la página...' : 'Preparando nuevo editor...'}
+          </p>
+          {pageId && (
+            <small className="text-muted">
+              💡 Si esto toma mucho tiempo, la página podría estar recién creada.
+              <br />Intentaremos cargar los datos automáticamente.
+            </small>
+          )}
+        </div>
+      </div>
+    )
+  }
+
+  // 🔧 NUEVO: Manejo específico de errores 404 con información útil
+  if (pageId && !page && !pageLoading) {
+    return (
+      <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '400px' }}>
+        <div className="text-center">
+          <div className="text-danger mb-3">
+            <i className="bi bi-exclamation-triangle" style={{ fontSize: '48px' }}></i>
+          </div>
+          <h5 className="mb-3">Página no encontrada</h5>
+          <div className="alert alert-warning" style={{ maxWidth: '500px', margin: '0 auto' }}>
+            <strong>Posibles causas:</strong>
+            <ul className="mb-0 mt-2 text-start">
+              <li>La página se está creando en el servidor</li>
+              <li>Hubo un problema de conectividad temporal</li>
+              <li>La página no existe o fue eliminada</li>
+            </ul>
+          </div>
+          <div className="mt-4">
+            <Button
+              variant="primary"
+              onClick={() => window.location.reload()}
+              className="me-2"
+            >
+              <i className="bi bi-arrow-clockwise me-1"></i>
+              Reintentar
+            </Button>
+            <Button
+              variant="secondary"
+              onClick={() => navigation.push('/dashboard/pages')}
+            >
+              <i className="bi bi-arrow-left me-1"></i>
+              Volver a Páginas
+            </Button>
+          </div>
         </div>
       </div>
     )

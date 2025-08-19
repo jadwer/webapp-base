@@ -7,14 +7,13 @@
 'use client'
 
 import React, { useState } from 'react'
-import { useLocations, useLocationsMutations } from '../hooks'
+import { useLocations } from '../hooks'
 import { LocationsTableSimple } from './LocationsTableSimple'
 import { FilterBar } from './FilterBar'
 import { PaginationSimple } from './PaginationSimple'
 import { Button } from '@/ui/components/base/Button'
 import { Alert } from '@/ui/components/base/Alert'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
-import type { WarehouseLocation } from '../types'
 
 export const LocationsAdminPageReal = () => {
   const [searchTerm, setSearchTerm] = useState('')
@@ -30,7 +29,7 @@ export const LocationsAdminPageReal = () => {
   })
 
   // Paginación desde meta.page structure
-  const paginationInfo = meta?.page
+  const paginationInfo = meta?.page as { lastPage?: number; total?: number; currentPage?: number; perPage?: number } | undefined
   const totalPages = paginationInfo?.lastPage || 1
   const totalItems = paginationInfo?.total || 0
   const currentBackendPage = paginationInfo?.currentPage || currentPage

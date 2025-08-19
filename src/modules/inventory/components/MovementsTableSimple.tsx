@@ -14,13 +14,13 @@ import type { InventoryMovementParsed } from '../types'
 interface MovementsTableSimpleProps {
   movements?: InventoryMovementParsed[]
   isLoading?: boolean
-  onView?: (movement: InventoryMovementParsed) => void
+  _onView?: (movement: InventoryMovementParsed) => void
 }
 
 export const MovementsTableSimple = ({
   movements = [],
   isLoading = false,
-  onView
+  _onView // eslint-disable-line @typescript-eslint/no-unused-vars
 }: MovementsTableSimpleProps) => {
   // Debug logs
   console.log('📊 [MovementsTableSimple] Debug info:', {
@@ -131,7 +131,7 @@ export const MovementsTableSimple = ({
             <th scope="col">Ubicación</th>
             <th scope="col">Valor</th>
             <th scope="col">Estado</th>
-            <th scope="col" width="150">Acciones</th>
+            <th scope="col" style={{ width: '150px' }}>Acciones</th>
           </tr>
         </thead>
         <tbody>
@@ -178,10 +178,10 @@ export const MovementsTableSimple = ({
               </td>
               <td>
                 <div className="d-flex flex-column">
-                  <span>{formatCurrency(parseFloat(movement.totalValue || '0'))}</span>
+                  <span>{formatCurrency(parseFloat(String(movement.totalValue || '0')))}</span>
                   {movement.unitCost && (
                     <small className="text-muted">
-                      {formatCurrency(parseFloat(movement.unitCost || '0'))} / unidad
+                      {formatCurrency(parseFloat(String(movement.unitCost || '0')))} / unidad
                     </small>
                   )}
                 </div>

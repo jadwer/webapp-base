@@ -7,15 +7,17 @@
 'use client'
 
 import React, { memo, useCallback, useState, useEffect } from 'react'
-import type { InventoryMovement, CreateMovementData, UpdateMovementData, WarehouseParsed, WarehouseLocationParsed } from '../types'
+import type { InventoryMovement, InventoryMovementParsed, CreateMovementData, UpdateMovementData, WarehouseParsed, WarehouseLocationParsed } from '../types'
+import type { Product } from '@/modules/products/types'
+import { useProductBatches } from '../hooks'
 
 interface InventoryMovementFormProps {
-  movement?: InventoryMovement
+  movement?: InventoryMovement | InventoryMovementParsed
   onSubmit: (data: CreateMovementData | UpdateMovementData) => Promise<void>
   onCancel?: () => void
   isLoading?: boolean
   warehouses: WarehouseParsed[]
-  products: unknown[] // Using any for now since Product type isn't exported
+  products: Product[]
   locations: WarehouseLocationParsed[]
 }
 
@@ -46,13 +48,23 @@ export const InventoryMovementForm = memo<InventoryMovementFormProps>(({
     destinationWarehouseId: movement?.destinationWarehouseId || '',
     destinationLocationId: movement?.destinationLocationId || '',
     batchInfo: JSON.stringify(movement?.batchInfo || {}, null, 2),
-    metadata: JSON.stringify(movement?.metadata || {}, null, 2)
+    metadata: JSON.stringify(movement?.metadata || {}, null, 2),
+    selectedBatchId: '' // New field for batch selection
   })
   
   const [errors, setErrors] = useState<Record<string, string>>({})
   
   const [availableLocations, setAvailableLocations] = useState<WarehouseLocationParsed[]>([])
   const [availableDestinationLocations, setAvailableDestinationLocations] = useState<WarehouseLocationParsed[]>([])
+  
+  // Get product batches for selected product
+  const { productBatches: availableBatches, isLoading: isBatchesLoading } = useProductBatches({
+    filters: {
+      productId: formData.productId,
+      status: ['active'] // Only active batches for movements
+    },
+    enabled: !!formData.productId
+  })
   
   // TEMPORAL: Filter locations client-side until backend supports warehouseId filter
   useEffect(() => {
@@ -90,7 +102,7 @@ export const InventoryMovementForm = memo<InventoryMovementFormProps>(({
       setAvailableLocations([])
       setFormData(prev => ({ ...prev, locationId: '' }))
     }
-  }, [formData.warehouseId, locations])
+  }, [formData.warehouseId, formData.locationId, locations])
   
   // Similar for destination locations
   useEffect(() => {
@@ -108,7 +120,7 @@ export const InventoryMovementForm = memo<InventoryMovementFormProps>(({
       setAvailableDestinationLocations([])
       setFormData(prev => ({ ...prev, destinationLocationId: '' }))
     }
-  }, [formData.destinationWarehouseId, locations])
+  }, [formData.destinationWarehouseId, formData.destinationLocationId, locations])
   
   const handleInputChange = useCallback((field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }))
@@ -118,7 +130,36 @@ export const InventoryMovementForm = memo<InventoryMovementFormProps>(({
     }
   }, [errors])
   
-  const validateForm = useCallback(() => {
+  // Handle batch selection
+  const handleBatchSelect = useCallback((batchId: string) => {
+    const selectedBatch = availableBatches.find(batch => batch.id === batchId)
+    
+    if (selectedBatch) {
+      // Update batchInfo with selected batch data
+      const batchInfo = {
+        batchId: selectedBatch.id,
+        batchNumber: selectedBatch.batchNumber,
+        lotNumber: selectedBatch.lotNumber,
+        expirationDate: selectedBatch.expirationDate,
+        currentQuantity: selectedBatch.currentQuantity
+      }
+      
+      setFormData(prev => ({
+        ...prev,
+        selectedBatchId: batchId,
+        batchInfo: JSON.stringify(batchInfo, null, 2)
+      }))
+    } else {
+      // Clear batch info if no batch selected
+      setFormData(prev => ({
+        ...prev,
+        selectedBatchId: '',
+        batchInfo: '{}'
+      }))
+    }
+  }, [availableBatches])
+  
+  const validateForm = useCallback((): boolean => {
     const newErrors: Record<string, string> = {}
     
     // Required fields
@@ -374,6 +415,38 @@ export const InventoryMovementForm = memo<InventoryMovementFormProps>(({
                     <div className="invalid-feedback">{errors.productId}</div>
                   )}
                 </div>
+                
+                {/* ProductBatch Selection - Only show if product selected and batches available */}
+                {formData.productId && (
+                  <div className="col-md-6">
+                    <label className="form-label fw-semibold">
+                      <i className="bi bi-calendar-check me-1" />
+                      Lote de Producto
+                    </label>
+                    <select
+                      className="form-select"
+                      value={formData.selectedBatchId}
+                      onChange={(e) => handleBatchSelect(e.target.value)}
+                      disabled={isLoading || isBatchesLoading}
+                    >
+                      <option value="">Sin lote específico</option>
+                      {availableBatches?.map(batch => (
+                        <option key={batch.id} value={batch.id}>
+                          {batch.batchNumber} 
+                          {batch.lotNumber && ` (${batch.lotNumber})`}
+                          {` - Stock: ${batch.currentQuantity}`}
+                          {batch.expirationDate && ` - Vence: ${new Date(batch.expirationDate).toLocaleDateString()}`}
+                        </option>
+                      )) || []}
+                    </select>
+                    {isBatchesLoading && (
+                      <small className="text-muted">Cargando lotes...</small>
+                    )}
+                    {formData.productId && !isBatchesLoading && availableBatches?.length === 0 && (
+                      <small className="text-muted">No hay lotes activos para este producto</small>
+                    )}
+                  </div>
+                )}
                 
                 <div className="col-md-6">
                   <label className="form-label fw-semibold">

@@ -11,7 +11,6 @@ import useSWR, { useSWRConfig } from 'swr'
 import { warehousesService } from '../services'
 import { processJsonApiResponse } from '../utils/jsonApi'
 import type {
-  Warehouse,
   WarehouseParsed,
   CreateWarehouseData,
   UpdateWarehouseData,
@@ -57,7 +56,7 @@ export const useWarehouses = (params: {
     warehouses: data?.data || [],
     meta: data?.meta,
     links: data?.links,
-    included: data?.included,
+    included: (data as { included?: unknown[] })?.included,
     isLoading,
     error,
     mutate
@@ -83,7 +82,7 @@ export const useWarehouse = (id: string | null, include?: string[]) => {
   
   return {
     warehouse: data?.data,
-    included: data?.included,
+    included: (data as { included?: unknown[] })?.included,
     isLoading,
     error,
     mutate
@@ -173,7 +172,7 @@ export const useWarehouseLocations = (warehouseId: string | null, include?: stri
   
   return {
     locations: data?.data || [],
-    included: data?.included,
+    included: (data as { included?: unknown[] })?.included,
     isLoading,
     error,
     mutate
@@ -196,7 +195,7 @@ export const useWarehouseStock = (warehouseId: string | null, include?: string[]
   
   return {
     stock: data?.data || [],
-    included: data?.included,
+    included: (data as { included?: unknown[] })?.included,
     isLoading,
     error,
     mutate

@@ -6,6 +6,19 @@
 
 // Removed unused vi import
 
+// Global type extension
+declare global {
+  var integrationTestUtils: {
+    waitFor: (ms: number) => Promise<void>
+    createTestId: () => string
+    validateJsonApiResponse: (data: unknown) => boolean
+    extractToken: (loginResponse: unknown) => string
+  }
+}
+
+// This makes the file a module
+export {}
+
 // =================
 // CONSOLE CONTROL
 // =================
@@ -44,17 +57,17 @@ global.integrationTestUtils = {
   createTestId: () => `test-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
   
   // Validate JSON:API response
-  validateJsonApiResponse: (data: unknown) => {
-    return (
+  validateJsonApiResponse: (data: unknown): boolean => {
+    return Boolean(
       data &&
       typeof data === 'object' &&
-      data &&
+      data !== null &&
       'jsonapi' in data &&
-      typeof data.jsonapi === 'object' &&
-      data.jsonapi &&
-      'version' in data.jsonapi &&
+      typeof (data as Record<string, unknown>).jsonapi === 'object' &&
+      (data as Record<string, unknown>).jsonapi &&
+      'version' in ((data as Record<string, unknown>).jsonapi as Record<string, unknown>) &&
       'data' in data &&
-      Array.isArray(data.data)
+      Array.isArray((data as Record<string, unknown>).data)
     )
   },
   

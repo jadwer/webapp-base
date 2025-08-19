@@ -1,0 +1,218 @@
+// HERO COMPONENT STYLES
+// Main banner section with gradient background and call-to-action
+
+.hero {
+  position: relative;
+  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+  color: white;
+  padding: 80px 0;
+  overflow: hidden;
+  min-height: 500px;
+  display: flex;
+  align-items: center;
+}
+
+.heroContent {
+  position: relative;
+  z-index: 2;
+}
+
+.heroTitle {
+  font-size: 3.5rem;
+  font-weight: bold;
+  line-height: 1.2;
+  margin-bottom: 24px;
+  
+  @media (max-width: 991px) {
+    font-size: 2.5rem;
+  }
+  
+  @media (max-width: 767px) {
+    font-size: 2rem;
+    text-align: center;
+  }
+}
+
+.heroTitleHighlight {
+  color: #28a745;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.heroDescription {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin-bottom: 32px;
+  opacity: 0.95;
+  
+  @media (max-width: 767px) {
+    text-align: center;
+    font-size: 1rem;
+  }
+}
+
+.heroActions {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  
+  @media (max-width: 767px) {
+    justify-content: center;
+  }
+}
+
+.heroCta {
+  padding: 12px 32px;
+  font-weight: 600;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(40, 167, 69, 0.3);
+  }
+  
+  i {
+    transition: transform 0.3s ease;
+  }
+  
+  &:hover i {
+    transform: translateX(4px);
+  }
+}
+
+.heroSecondary {
+  padding: 12px 32px;
+  font-weight: 600;
+  border-radius: 8px;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  transition: all 0.3s ease;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: white;
+    transform: translateY(-2px);
+  }
+}
+
+// Hero image section
+.heroImage {
+  position: relative;
+  z-index: 2;
+  
+  @media (max-width: 991px) {
+    margin-top: 40px;
+  }
+}
+
+.heroImagePlaceholder {
+  width: 100%;
+  height: 300px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.heroImageContent {
+  text-align: center;
+  color: white;
+  
+  i {
+    font-size: 4rem;
+    margin-bottom: 16px;
+    display: block;
+    opacity: 0.8;
+  }
+  
+  span {
+    font-size: 1.2rem;
+    font-weight: 500;
+    opacity: 0.9;
+  }
+}
+
+// Background decorative shapes
+.heroBackground {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.heroShape1 {
+  position: absolute;
+  width: 400px;
+  height: 400px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 50%;
+  top: -200px;
+  right: -100px;
+  animation: float 6s ease-in-out infinite;
+}
+
+.heroShape2 {
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  background: rgba(40, 167, 69, 0.1);
+  border-radius: 50%;
+  bottom: -150px;
+  left: -100px;
+  animation: float 8s ease-in-out infinite reverse;
+}
+
+// Animations
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 767px) {
+  .hero {
+    padding: 60px 0;
+    text-align: center;
+  }
+  
+  .heroActions {
+    flex-direction: column;
+    align-items: center;
+    
+    .heroCta,
+    .heroSecondary {
+      width: 100%;
+      max-width: 280px;
+    }
+  }
+  
+  .heroImagePlaceholder {
+    height: 240px;
+  }
+  
+  .heroImageContent {
+    i {
+      font-size: 3rem;
+    }
+    
+    span {
+      font-size: 1rem;
+    }
+  }
+}
+
+// Dark mode compatibility
+@media (prefers-color-scheme: dark) {
+  .hero {
+    background: linear-gradient(135deg, #1a365d 0%, #2c5282 100%);
+  }
+}

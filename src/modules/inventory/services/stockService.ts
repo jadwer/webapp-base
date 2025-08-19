@@ -153,7 +153,7 @@ export const stockService = {
   /**
    * Obtener resumen de stock por location
    */
-  getLocationSummary: async (locationId: string): Promise<any> => {
+  getLocationSummary: async (locationId: string): Promise<unknown> => {
     const response = await axiosClient.get(`/api/v1/warehouse-locations/${locationId}/stock`)
     return response.data
   },

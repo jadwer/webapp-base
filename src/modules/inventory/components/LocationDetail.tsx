@@ -144,7 +144,7 @@ export const LocationDetail = ({ locationId }: LocationDetailProps) => {
     )
   }
   
-  const attrs = location.attributes
+  const attrs = location
   
   const getTypeLabel = (type: string) => {
     const types = {

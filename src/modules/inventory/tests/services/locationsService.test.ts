@@ -59,8 +59,8 @@ describe('locationsService', () => {
       // Assert
       expect(mockedAxiosClient.get).toHaveBeenCalledWith('/api/v1/warehouse-locations', { 
         params: { 
-          'filter[warehouseId]': '1',
-          'filter[isActive]': true
+          'filter[warehouse_id]': '1',
+          'filter[is_active]': 1
         } 
       })
     })
@@ -199,12 +199,8 @@ describe('locationsService', () => {
             code: 'NEW001',
             aisle: 'A',
             rack: '1',
-            shelf: '2'
-          },
-          relationships: {
-            warehouse: {
-              data: { type: 'warehouses', id: '1' }
-            }
+            shelf: '2',
+            warehouseId: '1'
           }
         }
       })

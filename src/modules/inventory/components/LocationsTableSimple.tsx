@@ -20,7 +20,7 @@ interface LocationsTableSimpleProps {
 export const LocationsTableSimple = ({
   locations = [],
   isLoading = false,
-  onEdit,
+  onEdit: _onEdit, // eslint-disable-line @typescript-eslint/no-unused-vars
   onDelete
 }: LocationsTableSimpleProps) => {
   // Debug logs
@@ -73,7 +73,7 @@ export const LocationsTableSimple = ({
             <th scope="col">Almacén</th>
             <th scope="col">Estado</th>
             <th scope="col">Creado</th>
-            <th scope="col" width="150">Acciones</th>
+            <th scope="col" style={{ width: '150px' }}>Acciones</th>
           </tr>
         </thead>
         <tbody>

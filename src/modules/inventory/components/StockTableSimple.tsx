@@ -21,7 +21,7 @@ interface StockTableSimpleProps {
 export const StockTableSimple = ({
   stock = [],
   isLoading = false,
-  onEdit,
+  onEdit: _unused, // eslint-disable-line @typescript-eslint/no-unused-vars
   onAdjust
 }: StockTableSimpleProps) => {
   // Debug logs
@@ -82,7 +82,7 @@ export const StockTableSimple = ({
             <th scope="col">Valor</th>
             <th scope="col">Estado</th>
             <th scope="col">Actualizado</th>
-            <th scope="col" width="150">Acciones</th>
+            <th scope="col" style={{ width: '150px' }}>Acciones</th>
           </tr>
         </thead>
         <tbody>
@@ -109,7 +109,7 @@ export const StockTableSimple = ({
               <td>
                 <div className="d-flex flex-column">
                   <span className="fw-semibold">{formatQuantity(item.quantity)}</span>
-                  {parseFloat(item.reservedQuantity || '0') > 0 && (
+                  {parseFloat(String(item.reservedQuantity || '0')) > 0 && (
                     <small className="text-warning">
                       {formatQuantity(item.reservedQuantity)} reservado
                     </small>
@@ -117,16 +117,16 @@ export const StockTableSimple = ({
                 </div>
               </td>
               <td>
-                <span className={`badge bg-${getStockStatusColor(parseFloat(item.availableQuantity || '0'), parseFloat(item.reorderPoint || '0'))}`}>
+                <span className={`badge bg-${getStockStatusColor(parseFloat(String(item.availableQuantity || '0')), parseFloat(String(item.reorderPoint || '0')))}`}>
                   {formatQuantity(item.availableQuantity)}
                 </span>
               </td>
               <td>
                 <div className="d-flex flex-column">
-                  <span>{formatCurrency(parseFloat(item.totalValue || '0'))}</span>
+                  <span>{formatCurrency(parseFloat(String(item.totalValue || '0')))}</span>
                   {item.unitCost && (
                     <small className="text-muted">
-                      {formatCurrency(parseFloat(item.unitCost || '0'))} / unidad
+                      {formatCurrency(parseFloat(String(item.unitCost || '0')))} / unidad
                     </small>
                   )}
                 </div>

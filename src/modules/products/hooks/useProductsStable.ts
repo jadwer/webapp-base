@@ -83,18 +83,7 @@ export function useProductsStable(params?: UseProductsStableParams) {
         currentRequestRef.current.abort()
       }
     }
-  }, [
-    params?.page?.number,
-    params?.page?.size, 
-    params?.filters?.name,
-    params?.filters?.sku,
-    params?.filters?.categoryId,
-    params?.filters?.brandId,
-    params?.filters?.unitId,
-    params?.sort?.field,
-    params?.sort?.direction,
-    JSON.stringify(params?.include?.sort())
-  ]) // Stable primitive dependencies
+  }, [fetchProducts, params]) // Simplified dependencies
   
   const refresh = useCallback(() => {
     console.log('🔄 Manual refresh triggered') // Debug log

@@ -58,3 +58,13 @@ export { InventoryMovementForm } from './InventoryMovementForm'
 export { MovementDetail } from './MovementDetail'
 export { CreateMovementWrapper } from './CreateMovementWrapper'
 export { EditMovementWrapper } from './EditMovementWrapper'
+
+// Product Batch Components ✨ **NEW** - Phase 3.1, 3.2 & 3.3 Complete
+export { ProductBatchForm } from './ProductBatchForm'
+export { ProductBatchTableSimple } from './ProductBatchTableSimple'
+export { ProductBatchDetail } from './ProductBatchDetail'
+export { ProductBatchesAdminPageReal } from './ProductBatchesAdminPageReal'
+export { CreateProductBatchWrapper } from './CreateProductBatchWrapper'
+export { EditProductBatchWrapper } from './EditProductBatchWrapper'
+export { ProductBatchStatusBadge } from './ProductBatchStatusBadge'
+export { ProductBatchFiltersSimple } from './ProductBatchFiltersSimple'

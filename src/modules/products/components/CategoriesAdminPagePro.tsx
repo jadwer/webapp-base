@@ -162,7 +162,7 @@ export const CategoriesAdminPagePro = React.memo(() => {
         handleError(error, 'Error al eliminar categoría')
       }
     }
-  }, [deleteCategory, refresh])
+  }, [deleteCategory, refresh, handleError])
 
   const handleCreateNew = React.useCallback(() => {
     navigation.push('/dashboard/products/categories/create')

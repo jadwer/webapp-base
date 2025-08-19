@@ -1,6 +1,7 @@
 'use client'
 
 import React from 'react'
+import Image from 'next/image'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { Button } from '@/ui/components/base'
 import type { Product } from '../types'
@@ -24,16 +25,13 @@ const ProductCard = React.memo<{
     <div className="card h-100 shadow-sm border-0 hover-shadow-lg transition-all">
       {/* Product Image */}
       <div className="position-relative">
-        <img
+        <Image
           src={product.imgPath || '/images/product-placeholder.jpg'}
           alt={product.name}
+          width={200}
+          height={200}
           className="card-img-top"
           style={{ height: '200px', objectFit: 'cover' }}
-          onError={(e) => {
-            const target = e.target as HTMLImageElement
-            if (target.src.includes('product-placeholder.jpg')) return
-            target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0xMDAgODBDMTA2LjYyNyA4MCAxMTIgODUuMzczIDExMiA5MkMxMTIgOTguNjI3IDEwNi42MjcgMTA0IDEwMCAxMDRDOTMuMzczIDEwNCA4OCA5OC42MjcgODggOTJDODggODUuMzczIDkzLjM3MyA4MCAxMDAgODBaIiBmaWxsPSIjOUIxQjI2Ii8+CjxwYXRoIGQ9Ik03MiAxMjBMMTI4IDEyMEMxMzAuMjA5IDEyMCAxMzIgMTE4LjIwOSAxMzIgMTE2QzEzMiAxMTMuNzkxIDEzMC4yMDkgMTEyIDEyOCAxMTJMNzIgMTEyQzY5Ljc5MSAxMTIgNjggMTEzLjc5MSA2OCAxMTZDNjggMTE4LjIwOSA2OS43OTEgMTIwIDcyIDEyMFoiIGZpbGw9IiM5QjFCMjYiLz4KPC9zdmc+Cg=='
-          }}
         />
         <div className="position-absolute top-0 end-0 m-2">
           <span className="badge bg-success rounded-pill small">Activo</span>

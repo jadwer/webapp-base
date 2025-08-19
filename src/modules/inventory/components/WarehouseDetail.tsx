@@ -12,8 +12,9 @@ interface WarehouseDetailProps {
 export const WarehouseDetail = ({ warehouseId }: WarehouseDetailProps) => {
   const router = useRouter()
   const { warehouse, isLoading, error } = useWarehouse(warehouseId)
-  const { deleteWarehouse, isDeleting } = useWarehousesMutations()
+  const { deleteWarehouse } = useWarehousesMutations()
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
   
   const handleEdit = () => {
     router.push(`/dashboard/inventory/warehouses/${warehouseId}/edit`)
@@ -24,6 +25,8 @@ export const WarehouseDetail = ({ warehouseId }: WarehouseDetailProps) => {
       setIsConfirmingDelete(true)
       return
     }
+    
+    setIsDeleting(true)
     
     try {
       await deleteWarehouse(warehouseId)
@@ -52,7 +55,7 @@ export const WarehouseDetail = ({ warehouseId }: WarehouseDetailProps) => {
       console.error('Error deleting warehouse:', error)
       
       // Show error toast
-      const message = error.response?.data?.message || 'Error al eliminar el almacén'
+      const message = (error as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Error al eliminar el almacén'
       const toastElement = document.createElement('div')
       toastElement.className = 'position-fixed top-0 end-0 p-3'
       toastElement.style.zIndex = '9999'
@@ -68,9 +71,10 @@ export const WarehouseDetail = ({ warehouseId }: WarehouseDetailProps) => {
       `
       document.body.appendChild(toastElement)
       setTimeout(() => document.body.removeChild(toastElement), 4000)
+    } finally {
+      setIsDeleting(false)
+      setIsConfirmingDelete(false)
     }
-    
-    setIsConfirmingDelete(false)
   }
   
   const handleBack = () => {
@@ -140,7 +144,7 @@ export const WarehouseDetail = ({ warehouseId }: WarehouseDetailProps) => {
     )
   }
   
-  const attrs = warehouse.attributes
+  const attrs = warehouse
   
   const getTypeLabel = (type: string) => {
     const types = {

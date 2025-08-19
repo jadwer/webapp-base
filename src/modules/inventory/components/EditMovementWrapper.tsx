@@ -118,9 +118,9 @@ export const EditMovementWrapper = ({ movementId }: EditMovementWrapperProps) =>
       movement={movementForForm}
       onSubmit={handleSubmit}
       isLoading={isLoading}
-      warehouses={warehouses as unknown}
+      warehouses={warehouses}
       products={products}
-      locations={locations as unknown}
+      locations={locations}
     />
   )
 }

@@ -1,6 +1,7 @@
 'use client'
 
 import React from 'react'
+import Image from 'next/image'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { Button } from '@/ui/components/base'
 import type { Product } from '../types'
@@ -23,16 +24,13 @@ const ProductListItem = React.memo<{
   <div style={style} className="d-flex align-items-center border-bottom bg-white hover-bg-light py-3 px-3">
     {/* Image */}
     <div className="flex-shrink-0 me-3">
-      <img
+      <Image
         src={product.imgPath || '/images/product-placeholder.jpg'}
         alt={product.name}
+        width={80}
+        height={80}
         className="rounded border"
         style={{ width: '80px', height: '80px', objectFit: 'cover' }}
-        onError={(e) => {
-          const target = e.target as HTMLImageElement
-          if (target.src.includes('product-placeholder.jpg')) return
-          target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjgwIiBoZWlnaHQ9IjgwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik00MCAzMkM0Mi42NTY5IDMyIDQ0IDMzLjM0MzEgNDQgMzZDNDQgMzguNjU2OSA0Mi42NTY5IDQwIDQwIDQwQzM3LjM0MzEgNDAgMzYgMzguNjU2OSAzNiAzNkMzNiAzMy4zNDMxIDM3LjM0MzEgMzIgNDAgMzJaIiBmaWxsPSIjOUIxQjI2Ii8+CjxwYXRoIGQ9Ik0yOCA0OEw1MiA0OEM1My4xMDQ2IDQ4IDU0IDQ3LjEwNDYgNTQgNDZDNTQgNDQuODk1NCA1My4xMDQ2IDQ0IDUyIDQ0TDI4IDQ0QzI2Ljg5NTQgNDQgMjYgNDQuODk1NCAyNiA0NkMyNiA0Ny4xMDQ2IDI2Ljg5NTQgNDggMjggNDhaIiBmaWxsPSIjOUIxQjI2Ii8+Cjwvc3ZnPgo='
-        }}
       />
     </div>
 

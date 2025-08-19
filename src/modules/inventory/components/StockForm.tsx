@@ -11,7 +11,7 @@ import { useRouter } from 'next/navigation'
 import { Button } from '@/ui/components/base/Button'
 import { Input } from '@/ui/components/base/Input'
 import { useWarehouses, useLocations } from '../hooks'
-import type { Stock, CreateStockData, UpdateStockData, Warehouse, WarehouseLocation } from '../types'
+import type { Stock, CreateStockData, UpdateStockData } from '../types'
 
 interface StockFormProps {
   stock?: Stock // For edit mode
@@ -66,11 +66,11 @@ export const StockForm = memo<StockFormProps>(({
   // Auto-calculate values when relevant fields change
   useEffect(() => {
     // Auto-calculate available quantity
-    const available = formData.quantity - formData.reservedQuantity
+    const available = (formData.quantity || 0) - (formData.reservedQuantity || 0)
     if (available !== formData.availableQuantity) {
       setFormData(prev => ({ ...prev, availableQuantity: Math.max(0, available) }))
     }
-  }, [formData.quantity, formData.reservedQuantity])
+  }, [formData.quantity, formData.reservedQuantity, formData.availableQuantity])
   
   useEffect(() => {
     // Auto-calculate total value
@@ -80,7 +80,7 @@ export const StockForm = memo<StockFormProps>(({
         setFormData(prev => ({ ...prev, totalValue }))
       }
     }
-  }, [formData.unitCost, formData.quantity])
+  }, [formData.unitCost, formData.quantity, formData.totalValue])
   
   // Clear location when warehouse changes
   useEffect(() => {
@@ -107,7 +107,7 @@ export const StockForm = memo<StockFormProps>(({
     }
   }, [errors])
   
-  const validateForm = (): boolean => {
+  const validateForm = useCallback((): boolean => {
     const newErrors: Record<string, string> = {}
     
     // Required fields
@@ -122,13 +122,13 @@ export const StockForm = memo<StockFormProps>(({
     }
     
     // Numeric validations
-    if (formData.quantity < 0) {
+    if ((formData.quantity || 0) < 0) {
       newErrors.quantity = 'Quantity cannot be negative'
     }
-    if (formData.reservedQuantity < 0) {
+    if ((formData.reservedQuantity || 0) < 0) {
       newErrors.reservedQuantity = 'Reserved quantity cannot be negative'
     }
-    if (formData.reservedQuantity > formData.quantity) {
+    if ((formData.reservedQuantity || 0) > (formData.quantity || 0)) {
       newErrors.reservedQuantity = 'Reserved quantity cannot exceed total quantity'
     }
     if (formData.minimumStock && formData.minimumStock < 0) {
@@ -143,7 +143,7 @@ export const StockForm = memo<StockFormProps>(({
     
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
-  }
+  }, [formData])
   
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault()
@@ -156,12 +156,15 @@ export const StockForm = memo<StockFormProps>(({
     
     try {
       // Clean up data - remove undefined values
-      const cleanData = Object.entries(formData).reduce((acc, [key, value]) => {
-        if (value !== undefined && value !== null && value !== '') {
-          acc[key as keyof CreateStockData] = value
+      const cleanData = {...formData}
+      
+      // Remove empty values
+      Object.keys(cleanData).forEach(key => {
+        const value = cleanData[key as keyof CreateStockData]
+        if (value === '' || value === undefined || value === null) {
+          delete cleanData[key as keyof CreateStockData]
         }
-        return acc
-      }, {} as CreateStockData)
+      })
       
       await onSubmit(cleanData)
       
@@ -189,7 +192,7 @@ export const StockForm = memo<StockFormProps>(({
       console.error('Error submitting stock:', error)
       
       // Show error message
-      const message = error.response?.data?.message || 'Error saving stock'
+      const message = (error as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Error saving stock'
       const toastElement = document.createElement('div')
       toastElement.className = 'position-fixed top-0 end-0 p-3'
       toastElement.style.zIndex = '9999'
@@ -209,7 +212,7 @@ export const StockForm = memo<StockFormProps>(({
     } finally {
       setIsSubmitting(false)
     }
-  }, [formData, onSubmit, stock, router])
+  }, [formData, onSubmit, stock, router, validateForm])
   
   const selectedWarehouse = warehouses?.find(w => w.id === formData.warehouseId)
   const selectedLocation = filteredLocations?.find(l => l.id === formData.warehouseLocationId)
@@ -232,7 +235,7 @@ export const StockForm = memo<StockFormProps>(({
               </p>
             </div>
             <Button
-              variant="outline-secondary"
+              variant="secondary"
               onClick={() => router.back()}
             >
               <i className="bi bi-arrow-left me-2" />
@@ -255,7 +258,7 @@ export const StockForm = memo<StockFormProps>(({
                       type="text"
                       value={formData.productId}
                       onChange={handleInputChange('productId')}
-                      error={errors.productId}
+                      errorText={errors.productId}
                       placeholder="Product ID"
                       required
                       helpText="Enter the product ID to associate with this stock"
@@ -330,7 +333,7 @@ export const StockForm = memo<StockFormProps>(({
                       type="number"
                       value={formData.quantity.toString()}
                       onChange={handleInputChange('quantity')}
-                      error={errors.quantity}
+                      errorText={errors.quantity}
                       placeholder="0"
                       min="0"
                       step="0.01"
@@ -342,9 +345,9 @@ export const StockForm = memo<StockFormProps>(({
                     <Input
                       label="Reserved Quantity"
                       type="number"
-                      value={formData.reservedQuantity.toString()}
+                      value={formData.reservedQuantity?.toString() || ''}
                       onChange={handleInputChange('reservedQuantity')}
-                      error={errors.reservedQuantity}
+                      errorText={errors.reservedQuantity}
                       placeholder="0"
                       min="0"
                       step="0.01"
@@ -391,7 +394,7 @@ export const StockForm = memo<StockFormProps>(({
                       type="number"
                       value={formData.minimumStock?.toString() || ''}
                       onChange={handleInputChange('minimumStock')}
-                      error={errors.minimumStock}
+                      errorText={errors.minimumStock}
                       placeholder="0"
                       min="0"
                       step="0.01"
@@ -405,7 +408,7 @@ export const StockForm = memo<StockFormProps>(({
                       type="number"
                       value={formData.maximumStock?.toString() || ''}
                       onChange={handleInputChange('maximumStock')}
-                      error={errors.maximumStock}
+                      errorText={errors.maximumStock}
                       placeholder="0"
                       min="0"
                       step="0.01"
@@ -437,7 +440,7 @@ export const StockForm = memo<StockFormProps>(({
                       type="number"
                       value={formData.unitCost?.toString() || ''}
                       onChange={handleInputChange('unitCost')}
-                      error={errors.unitCost}
+                      errorText={errors.unitCost}
                       placeholder="0.00"
                       min="0"
                       step="0.01"
@@ -546,7 +549,7 @@ export const StockForm = memo<StockFormProps>(({
               <div className="card-footer d-flex justify-content-end gap-2">
                 <Button
                   type="button"
-                  variant="outline-secondary"
+                  variant="secondary"
                   onClick={() => router.back()}
                   disabled={isSubmitting}
                 >

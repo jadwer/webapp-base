@@ -9,7 +9,7 @@
 import { useState, useEffect } from 'react'
 import { Modal } from '@/ui/components/base/Modal'
 import { Button } from '@/ui/components/base/Button'
-import { Input } from '@/ui/components/base/Input'
+import { Input, Textarea } from '@/ui/components/base/Input'
 import type { WarehouseParsed, CreateWarehouseData, UpdateWarehouseData } from '../types'
 
 interface WarehouseFormModalProps {
@@ -31,12 +31,16 @@ export const WarehouseFormModal = ({
 }: WarehouseFormModalProps) => {
   const [formData, setFormData] = useState<CreateWarehouseData>({
     name: '',
+    slug: '',
     description: '',
+    code: '',
+    warehouseType: 'main',
     address: '',
-    phone: '',
-    email: '',
-    status: 'active',
-    capacity: 0
+    city: '',
+    state: '',
+    country: '',
+    postalCode: '',
+    isActive: true
   })
   
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -48,22 +52,30 @@ export const WarehouseFormModal = ({
       if (initialData) {
         setFormData({
           name: initialData.name || '',
+          slug: initialData.slug || '',
           description: initialData.description || '',
+          code: initialData.code || '',
+          warehouseType: initialData.warehouseType || 'main',
           address: initialData.address || '',
-          phone: initialData.phone || '',
-          email: initialData.email || '',
-          status: initialData.status || 'active',
-          capacity: initialData.capacity || 0
+          city: initialData.city || '',
+          state: initialData.state || '',
+          country: initialData.country || '',
+          postalCode: initialData.postalCode || '',
+          isActive: initialData.isActive ?? true
         })
       } else {
         setFormData({
           name: '',
+          slug: '',
           description: '',
+          code: '',
+          warehouseType: 'main',
           address: '',
-          phone: '',
-          email: '',
-          status: 'active',
-          capacity: 0
+          city: '',
+          state: '',
+          country: '',
+          postalCode: '',
+          isActive: true
         })
       }
       setErrors({})
@@ -71,7 +83,7 @@ export const WarehouseFormModal = ({
     }
   }, [isOpen, initialData])
 
-  const handleInputChange = (field: keyof CreateWarehouseData, value: string | number) => {
+  const handleInputChange = (field: keyof CreateWarehouseData, value: string | number | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }))
     
     // Clear error for this field
@@ -104,8 +116,8 @@ export const WarehouseFormModal = ({
     }
 
     // Capacity validation
-    if (formData.capacity && formData.capacity < 0) {
-      newErrors.capacity = 'Capacity cannot be negative'
+    if (formData.maxCapacity && formData.maxCapacity < 0) {
+      newErrors.maxCapacity = 'Capacity cannot be negative'
     }
 
     setErrors(newErrors)
@@ -126,16 +138,20 @@ export const WarehouseFormModal = ({
       console.error('Form submission error:', error)
       
       // Handle validation errors from server
-      if (error?.response?.status === 422 && error?.response?.data?.errors) {
-        const serverErrors: Record<string, string> = {}
-        error.response.data.errors.forEach((err: { field?: string; message?: string }) => {
-          if (err.field) {
-            serverErrors[err.field] = err.message
-          }
-        })
-        setErrors(serverErrors)
+      if (error && typeof error === 'object' && 'response' in error) {
+        const axiosError = error as { response?: { status?: number; data?: { errors?: Array<{ field?: string; message?: string }> } } }
+        if (axiosError.response?.status === 422 && axiosError.response?.data?.errors) {
+          const serverErrors: Record<string, string> = {}
+          axiosError.response.data.errors.forEach((err: { field?: string; message?: string }) => {
+            if (err.field) {
+              serverErrors[err.field] = err.message || 'Validation error'
+            }
+          })
+          setErrors(serverErrors)
+        }
       } else {
-        setSubmitError(error?.message || 'Failed to save warehouse')
+        const errorMessage = error instanceof Error ? error.message : 'Failed to save warehouse'
+        setSubmitError(errorMessage)
       }
     }
   }
@@ -147,7 +163,7 @@ export const WarehouseFormModal = ({
   }
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} title={title} size="lg">
+    <Modal show={isOpen} onHide={handleClose} title={title} size="large">
       <form onSubmit={handleSubmit}>
         <div className="modal-body">
           {submitError && (
@@ -163,8 +179,8 @@ export const WarehouseFormModal = ({
                   label="Name *"
                   type="text"
                   value={formData.name}
-                  onChange={(value) => handleInputChange('name', value)}
-                  error={errors.name}
+                  onChange={(e) => handleInputChange('name', e.target.value)}
+                  errorText={errors.name}
                   placeholder="Enter warehouse name"
                   disabled={isLoading}
                   required
@@ -175,9 +191,9 @@ export const WarehouseFormModal = ({
               <div className="mb-3">
                 <label className="form-label">Status *</label>
                 <select
-                  className={`form-select ${errors.status ? 'is-invalid' : ''}`}
-                  value={formData.status}
-                  onChange={(e) => handleInputChange('status', e.target.value)}
+                  className={`form-select ${errors.isActive ? 'is-invalid' : ''}`}
+                  value={formData.isActive ? 'active' : 'inactive'}
+                  onChange={(e) => handleInputChange('isActive', e.target.value === 'active')}
                   disabled={isLoading}
                   required
                 >
@@ -185,20 +201,19 @@ export const WarehouseFormModal = ({
                   <option value="inactive">Inactive</option>
                   <option value="maintenance">Maintenance</option>
                 </select>
-                {errors.status && (
-                  <div className="invalid-feedback">{errors.status}</div>
+                {errors.isActive && (
+                  <div className="invalid-feedback">{errors.isActive}</div>
                 )}
               </div>
             </div>
           </div>
 
           <div className="mb-3">
-            <Input
+            <Textarea
               label="Description"
-              type="textarea"
-              value={formData.description}
-              onChange={(value) => handleInputChange('description', value)}
-              error={errors.description}
+              value={formData.description || ''}
+              onChange={(e) => handleInputChange('description', e.target.value)}
+              errorText={errors.description}
               placeholder="Enter warehouse description"
               disabled={isLoading}
               rows={3}
@@ -210,8 +225,8 @@ export const WarehouseFormModal = ({
               label="Address"
               type="text"
               value={formData.address}
-              onChange={(value) => handleInputChange('address', value)}
-              error={errors.address}
+              onChange={(e) => handleInputChange('address', e.target.value)}
+              errorText={errors.address}
               placeholder="Enter warehouse address"
               disabled={isLoading}
             />
@@ -224,8 +239,8 @@ export const WarehouseFormModal = ({
                   label="Phone"
                   type="tel"
                   value={formData.phone}
-                  onChange={(value) => handleInputChange('phone', value)}
-                  error={errors.phone}
+                  onChange={(e) => handleInputChange('phone', e.target.value)}
+                  errorText={errors.phone}
                   placeholder="Enter phone number"
                   disabled={isLoading}
                 />
@@ -237,8 +252,8 @@ export const WarehouseFormModal = ({
                   label="Email"
                   type="email"
                   value={formData.email}
-                  onChange={(value) => handleInputChange('email', value)}
-                  error={errors.email}
+                  onChange={(e) => handleInputChange('email', e.target.value)}
+                  errorText={errors.email}
                   placeholder="Enter email address"
                   disabled={isLoading}
                 />
@@ -250,9 +265,9 @@ export const WarehouseFormModal = ({
             <Input
               label="Capacity"
               type="number"
-              value={formData.capacity.toString()}
-              onChange={(value) => handleInputChange('capacity', parseInt(value) || 0)}
-              error={errors.capacity}
+              value={formData.maxCapacity?.toString() || ''}
+              onChange={(e) => handleInputChange('maxCapacity', parseInt(e.target.value) || 0)}
+              errorText={errors.maxCapacity}
               placeholder="Enter warehouse capacity"
               disabled={isLoading}
               min="0"

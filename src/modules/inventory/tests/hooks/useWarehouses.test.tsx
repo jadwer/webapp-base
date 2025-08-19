@@ -55,7 +55,7 @@ describe('useWarehouses - API Calls', () => {
     // Assert
     await waitFor(() => {
       expect(mockedAxiosClient.get).toHaveBeenCalledWith('/api/v1/warehouses', {
-        params: { 'search': 'test warehouse' }
+        params: { 'filter[search_name]': 'test warehouse' }
       })
     })
   })

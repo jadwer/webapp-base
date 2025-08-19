@@ -29,7 +29,7 @@ export const StockAdminPageReal = () => {
   })
 
   // Paginación desde meta.page structure
-  const paginationInfo = meta?.page
+  const paginationInfo = meta?.page as { lastPage?: number; total?: number; currentPage?: number; perPage?: number } | undefined
   const totalPages = paginationInfo?.lastPage || 1
   const totalItems = paginationInfo?.total || 0
   const currentBackendPage = paginationInfo?.currentPage || currentPage
@@ -49,13 +49,13 @@ export const StockAdminPageReal = () => {
     if (!stock) return { availableStock: 0, lowStock: 0, outOfStock: 0 }
     
     return {
-      availableStock: stock.filter(s => parseFloat(s.quantity || '0') > 0).length,
+      availableStock: stock.filter(s => parseFloat(String(s.quantity || '0')) > 0).length,
       lowStock: stock.filter(s => {
-        const quantity = parseFloat(s.quantity || '0')
-        const minStock = parseFloat(s.minimumStock || '0')
+        const quantity = parseFloat(String(s.quantity || '0'))
+        const minStock = parseFloat(String(s.minimumStock || '0'))
         return minStock > 0 && quantity <= minStock
       }).length,
-      outOfStock: stock.filter(s => parseFloat(s.quantity || '0') <= 0).length
+      outOfStock: stock.filter(s => parseFloat(String(s.quantity || '0')) <= 0).length
     }
   }, [stock])
 
@@ -84,7 +84,7 @@ export const StockAdminPageReal = () => {
           </p>
         </div>
         <div className="d-flex gap-2">
-          <Button variant="outline-primary" onClick={() => {}}>
+          <Button variant="primary" onClick={() => {}}>
             <i className="bi bi-download me-2" />
             Exportar
           </Button>

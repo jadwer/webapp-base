@@ -4,24 +4,44 @@
  * Incluye mocks, factories y helpers
  */
 
-import { vi } from 'vitest'
+import { vi, expect } from 'vitest'
 import type { 
-  Warehouse, 
+  WarehouseParsed, 
   WarehouseLocation, 
   Stock, 
   InventoryMovement,
+  ProductBatch,
   JsonApiResponse 
 } from '../../types'
+import type { Product } from '@/modules/products/types'
 
 // =================
 // MOCK FACTORIES
 // =================
 
 /**
- * Factory para crear mock de Warehouse
+ * Factory para crear mock de Product (from products module)
  */
-export const createMockWarehouse = (overrides: Partial<Warehouse> = {}): Warehouse => ({
+export const createMockProduct = (overrides: Partial<Product> = {}): Product => ({
   id: '1',
+  name: 'Test Product',
+  sku: 'TEST-001',
+  price: 99.99,
+  iva: false,
+  unitId: '1',
+  categoryId: '1',
+  brandId: '1',
+  createdAt: '2025-01-14T10:00:00.000Z',
+  updatedAt: '2025-01-14T10:00:00.000Z',
+  ...overrides
+})
+
+/**
+ * Factory para crear mock de WarehouseParsed
+ */
+export const createMockWarehouse = (overrides: Partial<WarehouseParsed> = {}): WarehouseParsed => ({
+  id: '1',
+  type: 'warehouses',
   name: 'Test Warehouse',
   slug: 'test-warehouse', 
   description: 'Test warehouse description',
@@ -65,8 +85,7 @@ export const createMockLocation = (overrides: Partial<WarehouseLocation> = {}): 
   isPickable: true,
   isReceivable: true,
   priority: 1,
-  warehouseId: '1',
-  metadata: null,
+  metadata: undefined,
   createdAt: '2025-01-14T10:00:00.000Z',
   updatedAt: '2025-01-14T10:00:00.000Z',
   ...overrides
@@ -90,12 +109,14 @@ export const createMockStock = (overrides: Partial<Stock> = {}): Stock => ({
   lastMovementType: 'entry',
   batchInfo: {
     batchNumber: 'BATCH-001',
-    expiryDate: '2025-12-31',
-    manufacturingDate: '2025-01-01'
+    expirationDate: '2025-12-31',
+    manufactureDate: '2025-01-01'
   },
   metadata: {
-    temperature: 'room',
-    humidity: '50%'
+    handling: {
+      temperature: 'ambient',
+      humidity: 50
+    }
   },
   productId: '1',
   warehouseId: '1',
@@ -122,8 +143,8 @@ export const createMockMovement = (overrides: Partial<InventoryMovement> = {}): 
   previousStock: 50,
   newStock: 100,
   batchInfo: {
-    batchNumber: 'BATCH-001',
-    expiryDate: '2025-12-31'
+    batch_number: 'BATCH-001',
+    expiry_date: '2025-12-31'
   },
   metadata: {
     source: 'purchase_order',
@@ -137,6 +158,61 @@ export const createMockMovement = (overrides: Partial<InventoryMovement> = {}): 
   userId: 'user1',
   createdAt: '2025-01-14T10:00:00.000Z',
   updatedAt: '2025-01-14T10:00:00.000Z',
+  ...overrides
+})
+
+/**
+ * Factory para crear mock de ProductBatch
+ */
+export const createMockProductBatch = (overrides: Partial<ProductBatch> = {}): ProductBatch => ({
+  id: '1',
+  batchNumber: 'BATCH-202505-001-01',
+  lotNumber: 'LOT24321196',
+  manufacturingDate: '2024-02-20T00:00:00.000000Z',
+  expirationDate: '2028-03-31T00:00:00.000000Z',
+  bestBeforeDate: '2024-10-10T00:00:00.000000Z',
+  initialQuantity: 437,
+  currentQuantity: 127,
+  reservedQuantity: 2,
+  availableQuantity: 125,
+  unitCost: 449.06,
+  totalValue: 57030.62,
+  status: 'active',
+  supplierName: 'Test Supplier',
+  supplierBatch: 'SUP52779610',
+  qualityNotes: 'Good quality batch',
+  testResults: {
+    ph: 7.2,
+    moisture: 6.5,
+    quality_grade: 'A'
+  },
+  certifications: {
+    HACCP: true,
+    ISO9001: true,
+    Organic: false
+  },
+  metadata: {
+    inspector: 'Test Inspector',
+    inspection_date: '2025-01-14',
+    temperature_log: 'maintained'
+  },
+  createdAt: '2025-01-14T10:00:00.000000Z',
+  updatedAt: '2025-01-14T10:00:00.000000Z',
+  product: {
+    id: '1',
+    name: 'Test Product',
+    sku: 'TEST-001'
+  },
+  warehouse: {
+    id: '1',
+    name: 'Test Warehouse',
+    code: 'WH-001'
+  },
+  warehouseLocation: {
+    id: '1',
+    name: 'Zone A - Aisle 1',
+    code: 'A-1-1'
+  },
   ...overrides
 })
 
@@ -156,7 +232,6 @@ export const createMockJsonApiResponse = <T>(
   included,
   meta,
   links: {
-    self: 'http://localhost:8000/api/v1/test',
     first: 'http://localhost:8000/api/v1/test?page[number]=1',
     last: 'http://localhost:8000/api/v1/test?page[number]=10'
   }
@@ -253,6 +328,17 @@ export const createMockMovementsService = () => ({
   getByWarehouse: vi.fn(),
   getEntries: vi.fn(),
   getExits: vi.fn()
+})
+
+/**
+ * Mock para productBatchService
+ */
+export const createMockProductBatchService = () => ({
+  getAll: vi.fn(),
+  getById: vi.fn(),
+  create: vi.fn(),
+  update: vi.fn(),
+  delete: vi.fn()
 })
 
 // =================
@@ -369,3 +455,12 @@ export const expectTableWithData = (container: HTMLElement, rowCount: number) =>
   const rows = container.querySelectorAll('tbody tr')
   expect(rows).toHaveLength(rowCount)
 }
+
+// =================
+// ALIASES FOR BACKWARD COMPATIBILITY
+// =================
+
+/**
+ * Alias for createMockLocation (backward compatibility)
+ */
+export const createMockWarehouseLocation = createMockLocation

@@ -110,7 +110,7 @@ export function parseJsonApiIncludes<T>(data: JsonApiResource | JsonApiResource[
 export function processJsonApiResponse<T>(response: JsonApiResponse): JsonApiResponse<T> {
   return {
     ...response,
-    data: parseJsonApiIncludes<T>(response.data, response.included)
+    data: parseJsonApiIncludes<T>(response.data as T | JsonApiResource | JsonApiResource[], response.included)
   }
 }
 

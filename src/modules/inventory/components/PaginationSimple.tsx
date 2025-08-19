@@ -56,8 +56,8 @@ export const PaginationSimple = ({
       {/* Controles de paginación */}
       <div className="d-flex gap-1">
         <Button
-          variant="outline-secondary"
-          size="sm"
+          variant="secondary"
+          size="small"
           onClick={() => onPageChange(safeCurrentPage - 1)}
           disabled={safeCurrentPage === 1 || isLoading}
           title="Página anterior"
@@ -69,8 +69,8 @@ export const PaginationSimple = ({
         {renderPageNumbers(safeCurrentPage, safeTotalPages, onPageChange, isLoading)}
 
         <Button
-          variant="outline-secondary"
-          size="sm"
+          variant="secondary"
+          size="small"
           onClick={() => onPageChange(safeCurrentPage + 1)}
           disabled={safeCurrentPage === safeTotalPages || isLoading}
           title="Página siguiente"
@@ -134,8 +134,8 @@ function renderPageNumbers(
     return (
       <Button
         key={page}
-        variant={page === currentPage ? 'primary' : 'outline-secondary'}
-        size="sm"
+        variant={page === currentPage ? 'primary' : 'secondary'}
+        size="small"
         onClick={() => onPageChange(page)}
         disabled={isLoading}
         style={{ minWidth: '32px' }}

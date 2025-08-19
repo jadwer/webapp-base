@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useRef } from 'react'
+import React, { useRef, useCallback } from 'react'
 import { Button, ConfirmModal } from '@/ui/components/base'
 import type { ConfirmModalHandle } from '@/ui/components/base'
 import { BrandsTableVirtualized } from './BrandsTableVirtualized'
@@ -67,7 +67,7 @@ export const BrandsAdminPagePro = React.memo(() => {
   const { handleError } = useErrorHandler()
   
   // Función simple de toast usando DOM directo
-  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+  const showToast = useCallback((message: string, type: 'success' | 'error' = 'success') => {
     // Crear toast elemento directamente
     const toast = document.createElement('div')
     toast.style.cssText = `
@@ -112,7 +112,7 @@ export const BrandsAdminPagePro = React.memo(() => {
         }, 300)
       }
     }, 4000)
-  }
+  }, [])
 
   // Get UI state from Zustand store
   const filters = useBrandsFilters()

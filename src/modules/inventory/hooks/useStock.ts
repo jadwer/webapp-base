@@ -109,7 +109,7 @@ export const useStockMutations = () => {
       // Invalidar cache de stocks y entidades relacionadas
       mutate(key => Array.isArray(key) && key[0] === 'stocks')
       mutate(['warehouses', data.warehouseId, 'stock'])
-      mutate(['warehouse-locations', data.locationId, 'stock'])
+      mutate(['warehouse-locations', data.warehouseLocationId, 'stock'])
       
       return result
     } catch (error) {
@@ -192,7 +192,7 @@ export const useWarehouseStockSummary = (warehouseId: string | null) => {
   )
   
   return {
-    summary: data?.data || [],
+    summary: (data as { data?: unknown[] })?.data || [],
     isLoading,
     error,
     mutate
@@ -214,7 +214,7 @@ export const useLocationStockSummary = (locationId: string | null) => {
   )
   
   return {
-    summary: data?.data || [],
+    summary: (data as { data?: unknown[] })?.data || [],
     isLoading,
     error,
     mutate

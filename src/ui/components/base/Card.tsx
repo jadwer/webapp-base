@@ -1,6 +1,7 @@
 'use client'
 
 import React, { HTMLAttributes, ReactNode } from 'react'
+import Image from 'next/image'
 import clsx from 'clsx'
 import styles from '@/ui/styles/modules/Card.module.scss'
 
@@ -115,12 +116,15 @@ const CardFooter = React.forwardRef<HTMLDivElement, CardSectionProps>(
 )
 
 const CardMedia = React.forwardRef<HTMLImageElement, React.ImgHTMLAttributes<HTMLImageElement>>(
-  ({ className, alt, ...props }, ref) => (
+  ({ className, alt, width = 400, height = 300, src = '', ...props }, ref) => (
     <div className={styles.mediaContainer}>
-      <img 
+      <Image 
         ref={ref} 
         className={clsx(styles.media, className)} 
-        alt={alt}
+        alt={alt || ''}
+        src={typeof src === 'string' ? src : ''}
+        width={typeof width === 'string' ? parseInt(width, 10) || 400 : width}
+        height={typeof height === 'string' ? parseInt(height, 10) || 300 : height}
         {...props}
       />
     </div>

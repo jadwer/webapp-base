@@ -139,13 +139,13 @@ export const ProductsAdminPagePro = React.memo(() => {
         toast.error((error as Error).message)
       }
     }
-  }, [deleteProduct, refresh])
+  }, [deleteProduct, refresh, toast])
 
   const handleCreateNew = React.useCallback(() => {
     navigation.push('/dashboard/products/create')
   }, [navigation])
 
-  const lastUpdated = React.useMemo(() => new Date(), [products])
+  const lastUpdated = React.useMemo(() => new Date(), [])
 
   // Render different view components based on view mode
   const renderProductView = React.useCallback(() => {

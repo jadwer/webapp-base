@@ -1,6 +1,7 @@
 'use client'
 
 import React from 'react'
+import Image from 'next/image'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { Button } from '@/ui/components/base'
 import type { Product } from '../types'
@@ -24,16 +25,13 @@ const ProductShowcaseCard = React.memo<{
     <div className="card h-100 shadow-lg border-0 showcase-card overflow-hidden">
       {/* Hero Product Image */}
       <div className="position-relative">
-        <img
+        <Image
           src={product.imgPath || '/images/product-placeholder.jpg'}
           alt={product.name}
+          width={400}
+          height={400}
           className="card-img-top"
           style={{ height: '400px', objectFit: 'cover' }}
-          onError={(e) => {
-            const target = e.target as HTMLImageElement
-            if (target.src.includes('product-placeholder.jpg')) return
-            target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjQwMCIgdmlld0JveD0iMCAwIDQwMCA0MDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iNDAwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0yMDAgMTYwQzIxMy4yNTUgMTYwIDIyNCAxNzAuNzQ1IDIyNCAxODRDMjI0IDE5Ny4yNTUgMjEzLjI1NSAyMDggMjAwIDIwOEMxODYuNzQ1IDIwOCAxNzYgMTk3LjI1NSAxNzYgMTg0QzE3NiAxNzAuNzQ1IDE4Ni43NDUgMTYwIDIwMCAxNjBaIiBmaWxsPSIjOUIxQjI2Ii8+CjxwYXRoIGQ9Ik0xNDQgMjQwTDI1NiAyNDBDMjYwLjQxOCAyNDAgMjY0IDIzNi40MTggMjY0IDIzMkMyNjQgMjI3LjU4MiAyNjAuNDE4IDIyNCAyNTYgMjI0TDE0NCAyMjRDMTM5LjU4MiAyMjQgMTM2IDIyNy41ODIgMTM2IDIzMkMxMzYgMjM2LjQxOCAxMzkuNTgyIDI0MCAxNDQgMjQwWiIgZmlsbD0iIzlCMUIyNiIvPgo8L3N2Zz4K'
-          }}
         />
         
         {/* Status and Category Overlays */}

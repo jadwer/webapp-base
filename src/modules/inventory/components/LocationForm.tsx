@@ -94,7 +94,7 @@ export const LocationForm = memo<LocationFormProps>(({
     }
   }, [errors])
   
-  const validateForm = (): boolean => {
+  const validateForm = useCallback((): boolean => {
     const newErrors: Record<string, string> = {}
     
     // Required fields
@@ -124,7 +124,7 @@ export const LocationForm = memo<LocationFormProps>(({
     
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
-  }
+  }, [formData])
   
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault()
@@ -137,12 +137,15 @@ export const LocationForm = memo<LocationFormProps>(({
     
     try {
       // Clean up data - remove empty strings and undefined values
-      const cleanData = Object.entries(formData).reduce((acc, [key, value]) => {
-        if (value !== '' && value !== undefined && value !== null) {
-          acc[key as keyof CreateLocationData] = value
+      const cleanData = {...formData}
+      
+      // Remove empty values
+      Object.keys(cleanData).forEach(key => {
+        const value = cleanData[key as keyof CreateLocationData]
+        if (value === '' || value === undefined || value === null) {
+          delete cleanData[key as keyof CreateLocationData]
         }
-        return acc
-      }, {} as CreateLocationData)
+      })
       
       await onSubmit(cleanData)
       
@@ -170,7 +173,7 @@ export const LocationForm = memo<LocationFormProps>(({
       console.error('Error submitting location:', error)
       
       // Show error message
-      const message = error.response?.data?.message || 'Error saving location'
+      const message = (error as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Error saving location'
       const toastElement = document.createElement('div')
       toastElement.className = 'position-fixed top-0 end-0 p-3'
       toastElement.style.zIndex = '9999'
@@ -190,7 +193,7 @@ export const LocationForm = memo<LocationFormProps>(({
     } finally {
       setIsSubmitting(false)
     }
-  }, [formData, onSubmit, location, router])
+  }, [formData, onSubmit, location, router, validateForm])
   
   const selectedWarehouse = warehouses?.find(w => w.id === formData.warehouseId)
   
@@ -212,7 +215,7 @@ export const LocationForm = memo<LocationFormProps>(({
               </p>
             </div>
             <Button
-              variant="outline-secondary"
+              variant="secondary"
               onClick={() => router.back()}
             >
               <i className="bi bi-arrow-left me-2" />
@@ -235,7 +238,7 @@ export const LocationForm = memo<LocationFormProps>(({
                       type="text"
                       value={formData.name}
                       onChange={handleInputChange('name')}
-                      error={errors.name}
+                      errorText={errors.name}
                       placeholder="e.g., Zone A - Aisle 1 - Rack 1"
                       required
                     />
@@ -247,7 +250,7 @@ export const LocationForm = memo<LocationFormProps>(({
                       type="text"
                       value={formData.code}
                       onChange={handleInputChange('code')}
-                      error={errors.code}
+                      errorText={errors.code}
                       placeholder="e.g., A-1-1"
                       required
                     />
@@ -385,7 +388,7 @@ export const LocationForm = memo<LocationFormProps>(({
                       type="number"
                       value={formData.maxWeight?.toString() || ''}
                       onChange={handleInputChange('maxWeight')}
-                      error={errors.maxWeight}
+                      errorText={errors.maxWeight}
                       placeholder="1000"
                       min="0"
                       step="0.01"
@@ -398,7 +401,7 @@ export const LocationForm = memo<LocationFormProps>(({
                       type="number"
                       value={formData.maxVolume?.toString() || ''}
                       onChange={handleInputChange('maxVolume')}
-                      error={errors.maxVolume}
+                      errorText={errors.maxVolume}
                       placeholder="100"
                       min="0"
                       step="0.01"
@@ -426,7 +429,7 @@ export const LocationForm = memo<LocationFormProps>(({
                       type="number"
                       value={formData.priority?.toString() || ''}
                       onChange={handleInputChange('priority')}
-                      error={errors.priority}
+                      errorText={errors.priority}
                       placeholder="1"
                       min="1"
                       max="10"

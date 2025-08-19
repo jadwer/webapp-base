@@ -39,7 +39,7 @@ export const UnitsFiltersSimple = React.memo(() => {
       ...filters,
       search: debouncedSearch || undefined
     })
-  }, [debouncedSearch]) // Solo depend de debouncedSearch
+  }, [debouncedSearch, filters, setFilters])
 
   const handleClearFilters = React.useCallback(() => {
     setSearchTerm('')

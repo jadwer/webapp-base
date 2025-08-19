@@ -76,7 +76,7 @@ export const EditWarehouseWrapper = ({ warehouseId }: EditWarehouseWrapperProps)
   
   return (
     <WarehouseForm
-      warehouse={warehouseForForm as unknown}
+      warehouse={warehouseForForm}
       onSubmit={handleSubmit}
       isLoading={isUpdating}
     />

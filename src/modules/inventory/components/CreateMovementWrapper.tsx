@@ -5,7 +5,7 @@ import { useInventoryMovementsMutations } from '../hooks'
 import { useWarehouses, useLocations } from '../hooks'
 import { useProducts } from '@/modules/products'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
-import type { CreateMovementData } from '../types'
+import type { CreateMovementData, UpdateMovementData } from '../types'
 
 export const CreateMovementWrapper = () => {
   const navigation = useNavigationProgress()
@@ -18,9 +18,9 @@ export const CreateMovementWrapper = () => {
   
   const isLoading = isLoadingWarehouses || isLoadingLocations || isLoadingProducts
   
-  const handleSubmit = async (data: CreateMovementData) => {
+  const handleSubmit = async (data: CreateMovementData | UpdateMovementData) => {
     try {
-      await createMovement(data)
+      await createMovement(data as CreateMovementData)
       
       // Show success toast
       const toastElement = document.createElement('div')
@@ -73,9 +73,9 @@ export const CreateMovementWrapper = () => {
     <InventoryMovementForm
       onSubmit={handleSubmit}
       isLoading={isLoading}
-      warehouses={warehouses as unknown}
+      warehouses={warehouses}
       products={products}
-      locations={locations as unknown}
+      locations={locations}
     />
   )
 }

@@ -11,7 +11,6 @@ import useSWR, { useSWRConfig } from 'swr'
 import { inventoryMovementsService } from '../services'
 import { processJsonApiResponse } from '../utils/jsonApi'
 import type {
-  InventoryMovement,
   InventoryMovementParsed,
   CreateMovementData,
   UpdateMovementData,

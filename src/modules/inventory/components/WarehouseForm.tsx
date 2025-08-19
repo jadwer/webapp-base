@@ -78,7 +78,7 @@ export const WarehouseForm = memo<WarehouseFormProps>(({
     }
   }, [errors, warehouse])
   
-  const validateForm = (): boolean => {
+  const validateForm = useCallback((): boolean => {
     const newErrors: Record<string, string> = {}
     
     // Required fields
@@ -109,7 +109,7 @@ export const WarehouseForm = memo<WarehouseFormProps>(({
     
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
-  }
+  }, [formData])
   
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault()
@@ -122,12 +122,15 @@ export const WarehouseForm = memo<WarehouseFormProps>(({
     
     try {
       // Clean up data - remove empty strings and undefined values
-      const cleanData = Object.entries(formData).reduce((acc, [key, value]) => {
-        if (value !== '' && value !== undefined && value !== null) {
-          acc[key as keyof CreateWarehouseData] = value
+      const cleanData = {...formData}
+      
+      // Remove empty values
+      Object.keys(cleanData).forEach(key => {
+        const value = cleanData[key as keyof CreateWarehouseData]
+        if (value === '' || value === undefined || value === null) {
+          delete cleanData[key as keyof CreateWarehouseData]
         }
-        return acc
-      }, {} as CreateWarehouseData)
+      })
       
       await onSubmit(cleanData)
       
@@ -176,7 +179,7 @@ export const WarehouseForm = memo<WarehouseFormProps>(({
     } finally {
       setIsSubmitting(false)
     }
-  }, [formData, onSubmit, warehouse, router])
+  }, [formData, onSubmit, warehouse, router, validateForm])
   
   return (
     <div className="container-fluid py-4">
@@ -196,7 +199,7 @@ export const WarehouseForm = memo<WarehouseFormProps>(({
               </p>
             </div>
             <Button
-              variant="outline-secondary"
+              variant="secondary"
               onClick={() => router.back()}
             >
               <i className="bi bi-arrow-left me-2" />
@@ -219,7 +222,7 @@ export const WarehouseForm = memo<WarehouseFormProps>(({
                       type="text"
                       value={formData.name}
                       onChange={handleInputChange('name')}
-                      error={errors.name}
+                      errorText={errors.name}
                       placeholder="e.g., Main Warehouse"
                       required
                     />
@@ -231,7 +234,7 @@ export const WarehouseForm = memo<WarehouseFormProps>(({
                       type="text"
                       value={formData.code}
                       onChange={handleInputChange('code')}
-                      error={errors.code}
+                      errorText={errors.code}
                       placeholder="e.g., WH-001"
                       required
                     />
@@ -243,7 +246,7 @@ export const WarehouseForm = memo<WarehouseFormProps>(({
                       type="text"
                       value={formData.slug}
                       onChange={handleInputChange('slug')}
-                      error={errors.slug}
+                      errorText={errors.slug}
                       placeholder="e.g., main-warehouse"
                       helpText="URL-friendly version of the name"
                       required
@@ -352,7 +355,7 @@ export const WarehouseForm = memo<WarehouseFormProps>(({
                       type="tel"
                       value={formData.phone}
                       onChange={handleInputChange('phone')}
-                      error={errors.phone}
+                      errorText={errors.phone}
                       placeholder="+1 (555) 123-4567"
                     />
                   </div>
@@ -363,7 +366,7 @@ export const WarehouseForm = memo<WarehouseFormProps>(({
                       type="email"
                       value={formData.email}
                       onChange={handleInputChange('email')}
-                      error={errors.email}
+                      errorText={errors.email}
                       placeholder="warehouse@company.com"
                     />
                   </div>
@@ -379,7 +382,7 @@ export const WarehouseForm = memo<WarehouseFormProps>(({
                       type="number"
                       value={formData.maxCapacity?.toString() || ''}
                       onChange={handleInputChange('maxCapacity')}
-                      error={errors.maxCapacity}
+                      errorText={errors.maxCapacity}
                       placeholder="10000"
                       min="0"
                       step="0.01"
@@ -426,7 +429,7 @@ export const WarehouseForm = memo<WarehouseFormProps>(({
               <div className="card-footer d-flex justify-content-end gap-2">
                 <Button
                   type="button"
-                  variant="outline-secondary"
+                  variant="secondary"
                   onClick={() => router.back()}
                   disabled={isSubmitting}
                 >

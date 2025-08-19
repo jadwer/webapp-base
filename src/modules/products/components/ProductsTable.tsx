@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useRef } from 'react'
+import Image from 'next/image'
 import clsx from 'clsx'
 import { Button } from '@/ui/components/base'
 import ConfirmModal, { ConfirmModalHandle } from '@/ui/ConfirmModal'
@@ -126,9 +127,11 @@ export const ProductsTable: React.FC<ProductsTableProps> = ({
                   <td>
                     <div className="d-flex align-items-center">
                       {product.imgPath && (
-                        <img 
+                        <Image 
                           src={product.imgPath} 
                           alt={product.name}
+                          width={40}
+                          height={40}
                           className="me-3 rounded"
                           style={{ width: 40, height: 40, objectFit: 'cover' }}
                         />

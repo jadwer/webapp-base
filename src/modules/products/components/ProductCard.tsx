@@ -1,6 +1,7 @@
 'use client'
 
 import React from 'react'
+import Image from 'next/image'
 import { Button, Card } from '@/ui/components/base'
 import type { Product } from '../types'
 
@@ -37,9 +38,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     <Card className={className}>
       <div className="position-relative">
         {product.imgPath && (
-          <img 
+          <Image 
             src={product.imgPath} 
             alt={product.name}
+            width={400}
+            height={200}
             className="card-img-top"
             style={{ height: 200, objectFit: 'cover' }}
           />

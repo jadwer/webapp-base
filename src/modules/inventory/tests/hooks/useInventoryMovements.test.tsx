@@ -57,9 +57,7 @@ describe('useInventoryMovements Hook', () => {
       productId: '2',
       referenceType: 'purchase',
       dateFrom: '2025-01-01',
-      dateTo: '2025-01-31',
-      minQuantity: 10,
-      maxQuantity: 1000
+      dateTo: '2025-01-31'
     }
 
     // Act
@@ -70,15 +68,13 @@ describe('useInventoryMovements Hook', () => {
       expect(mockedAxiosClient.get).toHaveBeenCalledWith('/api/v1/inventory-movements', {
         params: {
           'filter[search]': 'purchase order',
-          'filter[movementType]': 'entry',
+          'filter[movement_type]': 'entry',
           'filter[status]': 'completed',
-          'filter[warehouseId]': '1',
-          'filter[productId]': '2',
-          'filter[referenceType]': 'purchase',
+          'filter[warehouse_id]': '1',
+          'filter[product_id]': '2',
+          'filter[reference_type]': 'purchase',
           'filter[dateFrom]': '2025-01-01',
           'filter[dateTo]': '2025-01-31',
-          'filter[minQuantity]': 10,
-          'filter[maxQuantity]': 1000,
           sort: '-movementDate'
         }
       })
@@ -174,7 +170,7 @@ describe('useInventoryMovements Hook', () => {
       await waitFor(() => {
         expect(mockedAxiosClient.get).toHaveBeenCalledWith('/api/v1/inventory-movements', {
           params: {
-            'filter[movementType]': testCase.movementType,
+            'filter[movement_type]': testCase.movementType,
             sort: '-movementDate'
           }
         })
@@ -208,32 +204,6 @@ describe('useInventoryMovements Hook', () => {
     })
   })
 
-  it('should handle quantity range filtering correctly', async () => {
-    // Arrange
-    const mockMovements = [createMockMovement()]
-    const mockResponse = createMockJsonApiListResponse(mockMovements)
-    mockedAxiosClient.get.mockResolvedValueOnce(createMockAxiosSuccess(mockResponse))
-
-    const filters = {
-      minQuantity: 50,
-      maxQuantity: 500
-    }
-
-    // Act
-    renderHook(() => useInventoryMovements({ filters }))
-
-    // Assert
-    await waitFor(() => {
-      expect(mockedAxiosClient.get).toHaveBeenCalledWith('/api/v1/inventory-movements', {
-        params: {
-          'filter[minQuantity]': 50,
-          'filter[maxQuantity]': 500,
-          sort: '-movementDate'
-        }
-      })
-    })
-  })
-
   it('should handle reference type filtering correctly', async () => {
     // Arrange
     const mockMovements = [createMockMovement()]
@@ -254,7 +224,7 @@ describe('useInventoryMovements Hook', () => {
       await waitFor(() => {
         expect(mockedAxiosClient.get).toHaveBeenCalledWith('/api/v1/inventory-movements', {
           params: {
-            'filter[referenceType]': referenceType,
+            'filter[reference_type]': referenceType,
             sort: '-movementDate'
           }
         })
@@ -274,8 +244,7 @@ describe('useInventoryMovements Hook', () => {
         movementType: 'adjustment' as const,
         status: 'completed' as const,
         warehouseId: '1',
-        dateFrom: '2025-01-01',
-        minQuantity: 1
+        dateFrom: '2025-01-01'
       },
       sort: { field: 'movementDate' as const, direction: 'desc' as const },
       pagination: { page: 1, size: 25 },
@@ -290,11 +259,10 @@ describe('useInventoryMovements Hook', () => {
       expect(mockedAxiosClient.get).toHaveBeenCalledWith('/api/v1/inventory-movements', {
         params: {
           'filter[search]': 'inventory adjustment',
-          'filter[movementType]': 'adjustment',
+          'filter[movement_type]': 'adjustment',
           'filter[status]': 'completed',
-          'filter[warehouseId]': '1',
+          'filter[warehouse_id]': '1',
           'filter[dateFrom]': '2025-01-01',
-          'filter[minQuantity]': 1,
           sort: '-movementDate',
           'page[number]': 1,
           'page[size]': 25,
@@ -346,8 +314,8 @@ describe('useInventoryMovements Hook', () => {
     await waitFor(() => {
       expect(mockedAxiosClient.get).toHaveBeenCalledWith('/api/v1/inventory-movements', {
         params: {
-          'filter[warehouseId]': '1',
-          'filter[movementType]': 'entry',
+          'filter[warehouse_id]': '1',
+          'filter[movement_type]': 'entry',
           sort: '-movementDate'
         }
       })

@@ -6,17 +6,9 @@
 
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { Input } from '@/ui/components/base/Input'
 
-// Simple debounce function
-function debounce<T extends (...args: Parameters<T>) => ReturnType<T>>(func: T, wait: number): T {
-  let timeout: NodeJS.Timeout
-  return ((...args: Parameters<T>) => {
-    clearTimeout(timeout)
-    timeout = setTimeout(() => func(...args), wait)
-  }) as T
-}
 
 interface FilterBarProps {
   searchTerm: string
@@ -34,13 +26,15 @@ export const FilterBar = ({
   const [localSearch, setLocalSearch] = useState(searchTerm)
 
   // Debounced search with 300ms delay
-  const debouncedSearch = useCallback(
-    debounce((value: string) => {
+  const debouncedSearchRef = useRef<NodeJS.Timeout | null>(null)
+  const debouncedSearch = useCallback((value: string) => {
+    if (debouncedSearchRef.current) {
+      clearTimeout(debouncedSearchRef.current)
+    }
+    debouncedSearchRef.current = setTimeout(() => {
       onSearchChange(value)
-    }, 300),
-     
-    []
-  )
+    }, 300)
+  }, [onSearchChange])
 
   // Update local search when external searchTerm changes
   useEffect(() => {

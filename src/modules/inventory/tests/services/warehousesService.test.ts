@@ -69,10 +69,9 @@ describe('warehousesService', () => {
       // Assert
       expect(mockedAxios.get).toHaveBeenCalledWith('/api/v1/warehouses', {
         params: {
-          'search': 'test',
-          'filter[warehouseType]': 'main',
-          'filter[isActive]': true,
-          'filter[city]': 'Madrid'
+          'filter[search_name]': 'test',
+          'filter[warehouse_type]': 'main',
+          'filter[is_active]': 1
         }
       })
     })

@@ -9,12 +9,16 @@
 import React from 'react'
 import Link from 'next/link'
 import { Button } from '@/ui/components/base/Button'
-import { useInventoryDashboard, useStockAlerts, useRecentActivity } from '@/modules/inventory'
+import { useInventoryDashboard, useStockAlerts, useRecentActivity, useProductBatches } from '@/modules/inventory'
+import { useExpiringProductBatches } from '@/modules/inventory/hooks/useExpiringProductBatches'
 
 export default function InventoryDashboardPage() {
   const { metrics, isLoading } = useInventoryDashboard()
   const { alerts, totalAlerts } = useStockAlerts()
   const { recentMovements } = useRecentActivity(5)
+  const { meta: batchMeta, isLoading: isBatchLoading } = useProductBatches({ enabled: true })
+  const expiringBatchData = useExpiringProductBatches({ days: 30 })
+  const { stats: expiringStats, totalExpiring, isLoading: isExpiringLoading } = expiringBatchData
   return (
     <div className="container-fluid py-4">
       {/* Header */}
@@ -37,9 +41,9 @@ export default function InventoryDashboardPage() {
         </div>
       </div>
 
-      {/* Métricas Principales */}
+      {/* Métricas Principales - Fila 1 */}
       <div className="row g-4 mb-4">
-        <div className="col-md-3">
+        <div className="col-lg-3 col-md-6">
           <div className="card border-0 bg-primary text-white">
             <div className="card-body">
               <div className="d-flex justify-content-between align-items-center">
@@ -53,7 +57,7 @@ export default function InventoryDashboardPage() {
             </div>
           </div>
         </div>
-        <div className="col-md-3">
+        <div className="col-lg-3 col-md-6">
           <div className="card border-0 bg-info text-white">
             <div className="card-body">
               <div className="d-flex justify-content-between align-items-center">
@@ -67,7 +71,7 @@ export default function InventoryDashboardPage() {
             </div>
           </div>
         </div>
-        <div className="col-md-3">
+        <div className="col-lg-3 col-md-6">
           <div className="card border-0 bg-success text-white">
             <div className="card-body">
               <div className="d-flex justify-content-between align-items-center">
@@ -81,7 +85,7 @@ export default function InventoryDashboardPage() {
             </div>
           </div>
         </div>
-        <div className="col-md-3">
+        <div className="col-lg-3 col-md-6">
           <div className="card border-0 bg-warning text-white">
             <div className="card-body">
               <div className="d-flex justify-content-between align-items-center">
@@ -91,6 +95,58 @@ export default function InventoryDashboardPage() {
                   <small className="text-white-75">Recientes</small>
                 </div>
                 <i className="bi bi-arrow-left-right" style={{ fontSize: '2.5rem', opacity: 0.7 }} />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Métricas Secundarias - ProductBatch */}
+      <div className="row g-4 mb-4">
+        <div className="col-lg-8 col-md-7">
+          <div className="card border-0 bg-gradient" style={{ background: 'linear-gradient(135deg, #6f42c1, #e83e8c)' }}>
+            <div className="card-body text-white">
+              <div className="row">
+                <div className="col-sm-8">
+                  <div className="d-flex align-items-center h-100">
+                    <div>
+                      <h6 className="card-title text-white-50 mb-2">Lotes de Productos</h6>
+                      <h2 className="mb-2">{isBatchLoading ? '--' : (batchMeta?.total || 0)}</h2>
+                      <p className="mb-0 text-white-75">
+                        <i className="bi bi-calendar-check me-2" />
+                        Control de trazabilidad y fechas de vencimiento
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div className="col-sm-4 d-flex align-items-center justify-content-end">
+                  <i className="bi bi-calendar-check" style={{ fontSize: '4rem', opacity: 0.3 }} />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="col-lg-4 col-md-5">
+          <div className="card border-0 bg-dark text-white">
+            <div className="card-body">
+              <div className="text-center">
+                <i className="bi bi-clock-history mb-3" style={{ 
+                  fontSize: '2.5rem', 
+                  opacity: 0.7,
+                  color: totalExpiring > 0 ? '#ffc107' : 'inherit'
+                }} />
+                <h6 className="card-title text-white-50">Próximos a Vencer</h6>
+                <h2 className={`mb-2 ${totalExpiring > 0 ? 'text-warning' : ''}`}>
+                  {isExpiringLoading ? '--' : totalExpiring}
+                </h2>
+                <small className="text-white-75">En los próximos 30 días</small>
+                {totalExpiring > 0 && expiringStats.critical > 0 && (
+                  <div className="mt-2">
+                    <span className="badge bg-danger text-white">
+                      {expiringStats.critical} críticos
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -109,7 +165,7 @@ export default function InventoryDashboardPage() {
             </div>
             <div className="card-body">
               <div className="row g-3">
-                <div className="col-6">
+                <div className="col-lg-4 col-md-6">
                   <Link 
                     href="/dashboard/inventory/warehouses" 
                     className="btn btn-outline-primary btn-lg w-100 d-flex flex-column align-items-center py-3"
@@ -118,7 +174,7 @@ export default function InventoryDashboardPage() {
                     <span>Almacenes</span>
                   </Link>
                 </div>
-                <div className="col-6">
+                <div className="col-lg-4 col-md-6">
                   <Link 
                     href="/dashboard/inventory/locations" 
                     className="btn btn-outline-info btn-lg w-100 d-flex flex-column align-items-center py-3"
@@ -127,7 +183,7 @@ export default function InventoryDashboardPage() {
                     <span>Ubicaciones</span>
                   </Link>
                 </div>
-                <div className="col-6">
+                <div className="col-lg-4 col-md-6">
                   <Link 
                     href="/dashboard/inventory/stock" 
                     className="btn btn-outline-success btn-lg w-100 d-flex flex-column align-items-center py-3"
@@ -136,13 +192,23 @@ export default function InventoryDashboardPage() {
                     <span>Stock</span>
                   </Link>
                 </div>
-                <div className="col-6">
+                <div className="col-lg-4 col-md-6">
                   <Link 
                     href="/dashboard/inventory/movements" 
                     className="btn btn-outline-warning btn-lg w-100 d-flex flex-column align-items-center py-3"
                   >
                     <i className="bi bi-arrow-left-right mb-2" style={{ fontSize: '2rem' }} />
                     <span>Movimientos</span>
+                  </Link>
+                </div>
+                <div className="col-lg-4 col-md-6">
+                  <Link 
+                    href="/dashboard/inventory/product-batch" 
+                    className="btn btn-outline-secondary btn-lg w-100 d-flex flex-column align-items-center py-3"
+                    style={{ borderColor: '#6f42c1', color: '#6f42c1' }}
+                  >
+                    <i className="bi bi-calendar-check mb-2" style={{ fontSize: '2rem' }} />
+                    <span>Lotes</span>
                   </Link>
                 </div>
               </div>
@@ -189,7 +255,7 @@ export default function InventoryDashboardPage() {
                           </p>
                           <small className="text-muted">
                             Cantidad: {movement.quantity?.toLocaleString() || 0} •{' '}
-                            {movement.warehouse?.attributes?.name || 'Almacén N/A'}
+                            {movement.warehouse?.name || 'Almacén N/A'}
                           </small>
                         </div>
                       </div>

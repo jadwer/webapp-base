@@ -98,7 +98,7 @@ export const MovementDetail = ({ movementId }: MovementDetailProps) => {
       console.error('Error deleting movement:', error)
       
       // Show error toast
-      const message = error.response?.data?.message || 'Error al eliminar el movimiento'
+      const message = (error as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Error al eliminar el movimiento'
       const toastElement = document.createElement('div')
       toastElement.className = 'position-fixed top-0 end-0 p-3'
       toastElement.style.zIndex = '9999'

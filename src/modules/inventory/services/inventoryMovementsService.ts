@@ -142,8 +142,8 @@ export const inventoryMovementsService = {
     
     // Remove undefined values to keep payload clean
     Object.keys(payload.data.attributes).forEach(key => {
-      if (payload.data.attributes[key] === undefined) {
-        delete payload.data.attributes[key]
+      if ((payload.data.attributes as Record<string, unknown>)[key] === undefined) {
+        delete (payload.data.attributes as Record<string, unknown>)[key]
       }
     })
     

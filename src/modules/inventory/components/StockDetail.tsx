@@ -92,7 +92,7 @@ export const StockDetail = ({ stockId }: StockDetailProps) => {
       console.error('Error deleting stock:', error)
       
       // Show error toast
-      const message = (error as unknown)?.response?.data?.message || 'Error al eliminar el registro de stock'
+      const message = (error as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Error al eliminar el registro de stock'
       const toastElement = document.createElement('div')
       toastElement.className = 'position-fixed top-0 end-0 p-3'
       toastElement.style.zIndex = '9999'

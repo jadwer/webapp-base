@@ -5,7 +5,6 @@
  * Hooks para obtener métricas y datos del dashboard de inventario
  */
 
-import useSWR from 'swr'
 import { useWarehouses } from './useWarehouses'
 import { useLocations } from './useLocations'
 import { useStock } from './useStock'
@@ -68,13 +67,13 @@ export const useInventoryDashboard = () => {
   // Calcular métricas de stock (API devuelve strings, convertir a números)
   const stockMetrics = {
     totalProducts: stock?.length || 0,
-    availableStock: stock?.filter(s => parseFloat(s.quantity || '0') > 0)?.length || 0,
+    availableStock: stock?.filter(s => parseFloat(String(s.quantity || '0')) > 0)?.length || 0,
     lowStock: stock?.filter(s => {
-      const quantity = parseFloat(s.quantity || '0')
-      const minStock = parseFloat(s.minimumStock || '0')
+      const quantity = parseFloat(String(s.quantity || '0'))
+      const minStock = parseFloat(String(s.minimumStock || '0'))
       return minStock > 0 && quantity <= minStock
     })?.length || 0,
-    outOfStock: stock?.filter(s => parseFloat(s.quantity || '0') <= 0)?.length || 0
+    outOfStock: stock?.filter(s => parseFloat(String(s.quantity || '0')) <= 0)?.length || 0
   }
 
   // Calcular métricas de movimientos del día
@@ -115,12 +114,12 @@ export const useStockAlerts = () => {
 
   const alerts = stock?.filter(stockItem => {
     if (!stockItem.minimumStock) return false
-    const quantity = parseFloat(stockItem.quantity || '0')
-    const minStock = parseFloat(stockItem.minimumStock || '0')
+    const quantity = parseFloat(String(stockItem.quantity || '0'))
+    const minStock = parseFloat(String(stockItem.minimumStock || '0'))
     return quantity <= minStock
   }).map(stockItem => {
-    const quantity = parseFloat(stockItem.quantity || '0')
-    const minStock = parseFloat(stockItem.minimumStock || '0')
+    const quantity = parseFloat(String(stockItem.quantity || '0'))
+    const minStock = parseFloat(String(stockItem.minimumStock || '0'))
     
     return {
       id: stockItem.id,

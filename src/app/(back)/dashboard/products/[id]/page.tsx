@@ -1,6 +1,7 @@
 'use client'
 
 import React from 'react'
+import Image from 'next/image'
 import { useParams } from 'next/navigation'
 import { Card, Button } from '@/ui/components/base'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
@@ -226,9 +227,11 @@ export default function ProductDetailPage() {
                 </h6>
               </div>
               <div className="card-body text-center">
-                <img 
+                <Image 
                   src={product.imgPath} 
                   alt={product.name}
+                  width={400}
+                  height={300}
                   className="img-fluid rounded"
                   style={{ maxHeight: 300 }}
                 />

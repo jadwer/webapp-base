@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
+import Image from 'next/image'
 import { Card, Button } from '@/ui/components/base'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
 import { useProduct, useProductMutations } from '../hooks'
@@ -99,9 +100,11 @@ export const ProductFormTemplate: React.FC<ProductFormTemplateProps> = ({
               )}
             </div>
             {product.imgPath && (
-              <img 
+              <Image 
                 src={product.imgPath} 
                 alt={product.name}
+                width={48}
+                height={48}
                 className="rounded"
                 style={{ width: 48, height: 48, objectFit: 'cover' }}
               />

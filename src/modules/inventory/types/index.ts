@@ -42,6 +42,25 @@ export type {
   MovementSortOptions
 } from './inventoryMovement'
 
+// ProductBatch types
+export type {
+  ProductBatch,
+  ParsedProductBatch,
+  CreateProductBatchRequest,
+  UpdateProductBatchRequest,
+  ProductBatchFilters,
+  ProductBatchSortOptions,
+  ProductBatchFormData,
+  ProductBatchStatus,
+  ProductBatchTestResults,
+  ProductBatchCertifications,
+  ProductBatchMetadata,
+  ProductBatchStatusConfig,
+  UseProductBatchesResult,
+  UseProductBatchResult,
+  UseProductBatchMutationsResult
+} from './productBatch'
+
 // Common pagination and response types
 export interface PaginationParams {
   page?: number
@@ -84,12 +103,20 @@ export interface JsonApiError {
   }
 }
 
+// Import types for UI interfaces
+import type { WarehouseFilters, WarehouseSortOptions } from './warehouse'
+import type { LocationFilters, LocationSortOptions } from './location'
+import type { StockFilters, StockSortOptions } from './stock'
+import type { MovementFilters, MovementSortOptions } from './inventoryMovement'
+import type { ProductBatchFilters, ProductBatchSortOptions } from './productBatch'
+
 // UI State types (for Zustand) - simplified to avoid missing type references
 export interface InventoryUIFilters {
   warehouses: WarehouseFilters
   locations: LocationFilters
   stock: StockFilters  
   movements: MovementFilters
+  productBatches: ProductBatchFilters
 }
 
 export interface InventoryUISort {
@@ -97,6 +124,7 @@ export interface InventoryUISort {
   locations: LocationSortOptions
   stock: StockSortOptions
   movements: MovementSortOptions
+  productBatches: ProductBatchSortOptions
 }
 
 export interface InventoryUIPagination {
@@ -104,6 +132,7 @@ export interface InventoryUIPagination {
   locations: PaginationParams
   stock: PaginationParams
   movements: PaginationParams
+  productBatches: PaginationParams
 }
 
 export type ViewMode = 'table' | 'grid' | 'list' | 'compact' | 'showcase'

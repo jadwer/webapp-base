@@ -14,7 +14,6 @@ import { PaginationSimple } from './PaginationSimple'
 import { Button } from '@/ui/components/base/Button'
 import { Alert } from '@/ui/components/base/Alert'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
-import type { InventoryMovement } from '../types'
 
 export const MovementsAdminPageReal = () => {
   const [searchTerm, setSearchTerm] = useState('')
@@ -30,7 +29,7 @@ export const MovementsAdminPageReal = () => {
   })
 
   // Paginación desde meta.page structure
-  const paginationInfo = meta?.page
+  const paginationInfo = meta?.page as { lastPage?: number; total?: number; currentPage?: number; perPage?: number } | undefined
   const totalPages = paginationInfo?.lastPage || 1
   const totalItems = paginationInfo?.total || 0
   const currentBackendPage = paginationInfo?.currentPage || currentPage
@@ -42,11 +41,11 @@ export const MovementsAdminPageReal = () => {
     return {
       entriesToday: movements.filter(m => {
         const movementDate = m.movementDate?.split('T')[0]
-        return movementDate === today && (m.movementType === 'entry' || m.movementType === 'in')
+        return movementDate === today && m.movementType === 'entry'
       }).length,
       exitsToday: movements.filter(m => {
         const movementDate = m.movementDate?.split('T')[0]
-        return movementDate === today && (m.movementType === 'exit' || m.movementType === 'out')
+        return movementDate === today && m.movementType === 'exit'
       }).length,
       transfers: movements.filter(m => m.movementType === 'transfer').length
     }
@@ -86,11 +85,11 @@ export const MovementsAdminPageReal = () => {
           </p>
         </div>
         <div className="d-flex gap-2">
-          <Button variant="outline-success" onClick={() => {}}>
+          <Button variant="success" onClick={() => {}}>
             <i className="bi bi-box-arrow-in-down me-2" />
             Entrada
           </Button>
-          <Button variant="outline-danger" onClick={() => {}}>
+          <Button variant="danger" onClick={() => {}}>
             <i className="bi bi-box-arrow-up me-2" />
             Salida
           </Button>
@@ -181,7 +180,7 @@ export const MovementsAdminPageReal = () => {
           <MovementsTableSimple
             movements={movements}
             isLoading={isLoading}
-            onView={() => {}}
+            _onView={() => {}}
           />
           
           {/* Paginación - Show if we have more than 1 page */}

@@ -35,7 +35,7 @@ export default function DesignSystemPage() {
       <div className="container-fluid">
         <div className="row">
           <div className="col-12">
-            <h1 className="mb-4">Design System - AtomoSoluciones</h1>
+            <h1 className="mb-4">Sistema de Diseño - AtomoSoluciones</h1>
             <p className="text-muted mb-5">
               Catálogo de componentes UI para mantener consistencia visual en toda la aplicación.
             </p>
@@ -58,7 +58,7 @@ export default function DesignSystemPage() {
                         border: '1px solid #e2e8f0'
                       }}
                     ></div>
-                    <h6 className="mb-1">Primary</h6>
+                    <h6 className="mb-1">Primario</h6>
                     <small className="text-muted">#2563eb</small>
                   </CardContent>
                 </Card>
@@ -75,7 +75,7 @@ export default function DesignSystemPage() {
                         border: '1px solid #e2e8f0'
                       }}
                     ></div>
-                    <h6 className="mb-1">Secondary</h6>
+                    <h6 className="mb-1">Secundario</h6>
                     <small className="text-muted">#64748b</small>
                   </CardContent>
                 </Card>
@@ -92,7 +92,7 @@ export default function DesignSystemPage() {
                         border: '1px solid #e2e8f0'
                       }}
                     ></div>
-                    <h6 className="mb-1">Success</h6>
+                    <h6 className="mb-1">Éxito</h6>
                     <small className="text-muted">#059669</small>
                   </CardContent>
                 </Card>
@@ -109,7 +109,7 @@ export default function DesignSystemPage() {
                         border: '1px solid #e2e8f0'
                       }}
                     ></div>
-                    <h6 className="mb-1">Danger</h6>
+                    <h6 className="mb-1">Peligro</h6>
                     <small className="text-muted">#dc2626</small>
                   </CardContent>
                 </Card>
@@ -678,25 +678,25 @@ export default function DesignSystemPage() {
               </CardHeader>
               <CardContent>
                 <div className="d-flex flex-wrap gap-3 mb-3">
-                  <Button variant="primary">Primary</Button>
-                  <Button variant="secondary">Secondary</Button>
-                  <Button variant="success">Success</Button>
-                  <Button variant="warning">Warning</Button>
-                  <Button variant="danger">Danger</Button>
+                  <Button variant="primary">Primario</Button>
+                  <Button variant="secondary">Secundario</Button>
+                  <Button variant="success">Éxito</Button>
+                  <Button variant="warning">Advertencia</Button>
+                  <Button variant="danger">Peligro</Button>
                 </div>
                 
                 <h6 className="mt-4 mb-3">Outline Style</h6>
                 <div className="d-flex flex-wrap gap-3 mb-3">
-                  <Button variant="primary" buttonStyle="outline">Primary</Button>
-                  <Button variant="secondary" buttonStyle="outline">Secondary</Button>
-                  <Button variant="success" buttonStyle="outline">Success</Button>
-                  <Button variant="danger" buttonStyle="outline">Danger</Button>
+                  <Button variant="primary" buttonStyle="outline">Primario</Button>
+                  <Button variant="secondary" buttonStyle="outline">Secundario</Button>
+                  <Button variant="success" buttonStyle="outline">Éxito</Button>
+                  <Button variant="danger" buttonStyle="outline">Peligro</Button>
                 </div>
                 
                 <h6 className="mt-4 mb-3">Ghost Style</h6>
                 <div className="d-flex flex-wrap gap-3">
-                  <Button variant="primary" buttonStyle="ghost">Primary</Button>
-                  <Button variant="secondary" buttonStyle="ghost">Secondary</Button>
+                  <Button variant="primary" buttonStyle="ghost">Primario</Button>
+                  <Button variant="secondary" buttonStyle="ghost">Secundario</Button>
                 </div>
               </CardContent>
             </Card>
@@ -708,10 +708,10 @@ export default function DesignSystemPage() {
               </CardHeader>
               <CardContent>
                 <div className="d-flex flex-wrap align-items-center gap-3">
-                  <Button size="small">Small</Button>
-                  <Button size="medium">Medium</Button>
-                  <Button size="large">Large</Button>
-                  <Button size="xl">Extra Large</Button>
+                  <Button size="small">Pequeño</Button>
+                  <Button size="medium">Mediano</Button>
+                  <Button size="large">Grande</Button>
+                  <Button size="xl">Extra Grande</Button>
                 </div>
               </CardContent>
             </Card>
@@ -1033,11 +1033,11 @@ export default function DesignSystemPage() {
         {/* Complete Form Example */}
         <div className="row mb-5">
           <div className="col-12">
-            <h2 className="mb-4">📋 Form Examples & Patterns</h2>
+            <h2 className="mb-4">📋 Ejemplos de Formularios y Patrones</h2>
             <Card variant="outlined">
               <CardHeader>
-                <h5 className="mb-1">User Registration Form</h5>
-                <small className="text-muted">Comprehensive form example with validation patterns and states</small>
+                <h5 className="mb-1">Formulario de Registro de Usuario</h5>
+                <small className="text-muted">Ejemplo completo de formulario con patrones de validación y estados</small>
               </CardHeader>
               <CardContent>
                 <form>
@@ -1302,7 +1302,7 @@ export default function DesignSystemPage() {
             {/* Product Card */}
             <Card variant="outlined" className="mb-4">
               <CardHeader>
-                <h5 className="mb-0">Product Card</h5>
+                <h5 className="mb-0">Tarjeta de Producto</h5>
               </CardHeader>
               <CardContent>
                 <p className="text-muted mb-3">Tarjeta especializada para mostrar productos en vista de cuadrícula</p>
@@ -1400,7 +1400,7 @@ export default function DesignSystemPage() {
             <h2 className="mb-4">📋 Guías de Uso</h2>
             <Card variant="outlined">
               <CardContent>
-                <h5>Principios del Design System</h5>
+                <h5>Principios del Sistema de Diseño</h5>
                 <ul className="mt-3">
                   <li><strong>Consistencia:</strong> Usa los mismos componentes en contextos similares</li>
                   <li><strong>Jerarquía:</strong> Utiliza los colores primary/secondary para establecer importancia</li>

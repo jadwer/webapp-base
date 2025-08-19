@@ -11,7 +11,6 @@ import useSWR, { useSWRConfig } from 'swr'
 import { locationsService } from '../services'
 import { processJsonApiResponse } from '../utils/jsonApi'
 import type {
-  WarehouseLocation,
   WarehouseLocationParsed,
   CreateLocationData,
   UpdateLocationData,

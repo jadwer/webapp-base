@@ -1,0 +1,411 @@
+// FOOTER COMPONENT STYLES
+// Comprehensive footer with company info, links, and contact details
+
+.footer {
+  background: #212529;
+  color: #adb5bd;
+  padding: 60px 0 0;
+}
+
+.footerSection {
+  margin-bottom: 40px;
+}
+
+// Logo section
+.logoSection {
+  margin-bottom: 24px;
+}
+
+.logoContainer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.logoIcon {
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(45deg, #007bff, #0056b3);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logoLetter {
+  color: white;
+  font-weight: bold;
+  font-size: 24px;
+}
+
+.logoText {
+  display: flex;
+  flex-direction: column;
+}
+
+.logoTitle {
+  font-weight: bold;
+  font-size: 18px;
+  color: white;
+  line-height: 1;
+}
+
+.logoSubtitle {
+  font-size: 12px;
+  color: #6c757d;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.companyDescription {
+  font-size: 0.9rem;
+  line-height: 1.6;
+  margin-bottom: 24px;
+  color: #adb5bd;
+}
+
+// Social media
+.socialMedia {
+  margin-bottom: 20px;
+}
+
+.socialTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: white;
+  margin-bottom: 12px;
+}
+
+.socialIcons {
+  display: flex;
+  gap: 12px;
+}
+
+.socialIcon {
+  width: 40px;
+  height: 40px;
+  background: #343a40;
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #adb5bd;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  
+  &:hover {
+    background: #007bff;
+    color: white;
+    transform: translateY(-2px);
+  }
+  
+  i {
+    font-size: 1.1rem;
+  }
+  
+  &:focus {
+    outline: 2px solid #007bff;
+    outline-offset: 2px;
+  }
+}
+
+// Section titles
+.sectionTitle {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: white;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+// Links lists
+.linksList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.linksList li {
+  margin-bottom: 8px;
+}
+
+.footerLink {
+  color: #adb5bd;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: color 0.3s ease;
+  display: inline-block;
+  
+  &:hover {
+    color: #007bff;
+    text-decoration: none;
+  }
+  
+  &:focus {
+    color: #007bff;
+    text-decoration: underline;
+  }
+}
+
+// Contact info
+.contactInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.contactItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  
+  i {
+    color: #007bff;
+    font-size: 1rem;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  
+  span {
+    color: #adb5bd;
+  }
+}
+
+.contactLink {
+  background: none;
+  border: none;
+  color: #adb5bd;
+  text-decoration: none;
+  transition: color 0.3s ease;
+  cursor: pointer;
+  padding: 0;
+  text-align: left;
+  font-size: inherit;
+  
+  &:hover {
+    color: #007bff;
+  }
+  
+  &:focus {
+    color: #007bff;
+    outline: 1px dashed #007bff;
+    outline-offset: 2px;
+  }
+}
+
+// Footer bottom
+.footerBottom {
+  border-top: 1px solid #343a40;
+  padding: 24px 0;
+  margin-top: 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  
+  @media (max-width: 767px) {
+    flex-direction: column;
+    text-align: center;
+    gap: 12px;
+  }
+}
+
+.copyright {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  
+  p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: #6c757d;
+  }
+  
+  @media (max-width: 767px) {
+    text-align: center;
+  }
+}
+
+.developedBy {
+  font-size: 0.8rem !important;
+}
+
+.devLink {
+  color: #007bff;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s ease;
+  
+  &:hover {
+    color: #0056b3;
+    text-decoration: underline;
+  }
+}
+
+.footerMeta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.85rem;
+  
+  @media (max-width: 767px) {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+}
+
+.metaLink {
+  color: #6c757d;
+  text-decoration: none;
+  transition: color 0.3s ease;
+  
+  &:hover {
+    color: #007bff;
+    text-decoration: underline;
+  }
+}
+
+.separator {
+  color: #495057;
+}
+
+.metaText {
+  color: #6c757d;
+  
+  i {
+    color: #dc3545;
+    font-size: 0.8rem;
+    animation: heartbeat 1.5s ease-in-out infinite;
+  }
+}
+
+@keyframes heartbeat {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 991px) {
+  .footer {
+    padding: 50px 0 0;
+  }
+  
+  .footerSection {
+    margin-bottom: 35px;
+  }
+}
+
+@media (max-width: 767px) {
+  .footer {
+    padding: 40px 0 0;
+  }
+  
+  .logoContainer {
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+  
+  .companyDescription {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .socialMedia {
+    text-align: center;
+  }
+  
+  .sectionTitle {
+    text-align: center;
+    margin-bottom: 16px;
+  }
+  
+  .linksList {
+    text-align: center;
+  }
+  
+  .contactInfo {
+    align-items: center;
+    text-align: center;
+  }
+  
+  .contactItem {
+    justify-content: center;
+  }
+  
+  .footerBottom {
+    padding: 20px 0;
+    margin-top: 30px;
+  }
+  
+  .footerMeta {
+    gap: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .logoIcon {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .logoLetter {
+    font-size: 20px;
+  }
+  
+  .logoTitle {
+    font-size: 16px;
+  }
+  
+  .logoSubtitle {
+    font-size: 11px;
+  }
+  
+  .socialIcons {
+    justify-content: center;
+  }
+  
+  .socialIcon {
+    width: 36px;
+    height: 36px;
+    
+    i {
+      font-size: 1rem;
+    }
+  }
+}
+
+// Accessibility improvements
+@media (prefers-reduced-motion: reduce) {
+  .socialIcon,
+  .footerLink,
+  .contactLink,
+  .devLink,
+  .metaLink {
+    transition: none;
+  }
+  
+  .metaText i {
+    animation: none;
+  }
+}
+
+// Dark mode enhancements (for future use)
+@media (prefers-color-scheme: dark) {
+  .footer {
+    background: #000;
+  }
+  
+  .footerBottom {
+    border-top-color: #2d3238;
+  }
+}

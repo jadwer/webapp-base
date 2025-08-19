@@ -5,7 +5,7 @@ import { Input } from '@/ui/components/base'
 export default function TestIconsPage() {
   return (
     <div style={{ padding: '2rem', maxWidth: '600px', margin: '0 auto' }}>
-      <h1>Bootstrap Icons Test</h1>
+      <h1>Prueba de Iconos Bootstrap</h1>
       
       <div style={{ marginBottom: '2rem' }}>
         <h3>Iconos directos (FUNCIONAN):</h3>
@@ -18,7 +18,7 @@ export default function TestIconsPage() {
       </div>
 
       <div style={{ marginBottom: '2rem' }}>
-        <h3>Iconos en DIV con clases del Input (TESTING):</h3>
+        <h3>Iconos en DIV con clases del Input (PRUEBA):</h3>
         <div style={{ position: 'relative', display: 'inline-block' }}>
           <i className="bi bi-envelope" style={{ 
             position: 'absolute', 

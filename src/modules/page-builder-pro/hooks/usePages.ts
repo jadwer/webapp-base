@@ -40,9 +40,57 @@ export function usePages(filters: PageFilters = {}, page = 1, perPage = 15) {
 export function usePage(id: string | null | undefined) {
   const { data, error, isLoading } = useSWR(
     id ? `page-${id}` : null,
-    () => id ? PagesService.getPage(id) : null,
+    async () => {
+      if (!id) return null
+      
+      try {
+        // Intentar obtener desde API primero
+        return await PagesService.getPage(id)
+      } catch (apiError) {
+        console.warn('API fetch failed, trying localStorage fallback:', apiError)
+        
+        // 🔧 FALLBACK: Buscar en localStorage si API falla (útil para páginas recién creadas)
+        const tempPageKey = `temp-page-${id}`
+        const tempPageData = localStorage.getItem(tempPageKey)
+        
+        if (tempPageData) {
+          try {
+            const pageData = JSON.parse(tempPageData)
+            
+            // Verificar que no sea muy antiguo (cleanup de 10 minutos)
+            const now = Date.now()
+            const isRecent = now - pageData.timestamp < 10 * 60 * 1000
+            
+            if (isRecent) {
+              console.log('✅ Using temporary page data from localStorage')
+              
+              // Cleanup del localStorage después de usar
+              setTimeout(() => {
+                localStorage.removeItem(tempPageKey)
+                console.log('🧹 Cleaned up temporary page data')
+              }, 2000)
+              
+              return pageData
+            } else {
+              // Cleanup de datos antiguos
+              localStorage.removeItem(tempPageKey)
+              console.log('🧹 Removed expired temporary page data')
+            }
+          } catch (parseError) {
+            console.error('Error parsing temporary page data:', parseError)
+            localStorage.removeItem(tempPageKey)
+          }
+        }
+        
+        // Si todo falló, lanzar el error original
+        throw apiError
+      }
+    },
     {
       revalidateOnFocus: false,
+      retryInterval: 2000, // Retry cada 2 segundos
+      retryWhen: () => true, // Siempre hacer retry en errores
+      retryCount: 5, // Máximo 5 intentos
     }
   )
 

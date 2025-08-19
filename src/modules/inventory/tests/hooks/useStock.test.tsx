@@ -51,7 +51,7 @@ describe('useStock Hook', () => {
       search: 'test product',
       productId: '1',
       warehouseId: '2',
-      locationId: '3',
+      warehouseLocationId: '3',
       status: 'active' as const,
       lowStock: true,
       outOfStock: false,
@@ -67,14 +67,14 @@ describe('useStock Hook', () => {
       expect(mockedAxiosClient.get).toHaveBeenCalledWith('/api/v1/stocks', {
         params: {
           'filter[search]': 'test product',
-          'filter[productId]': '1',
-          'filter[warehouseId]': '2',
-          'filter[locationId]': '3',
+          'filter[product_id]': '1',
+          'filter[warehouse_id]': '2',
+          'filter[warehouse_location_id]': '3',
           'filter[status]': 'active',
-          'filter[lowStock]': true,
-          'filter[outOfStock]': false,
-          'filter[minQuantity]': 10,
-          'filter[maxQuantity]': 500
+          'filter[low_stock]': 1,
+          'filter[out_of_stock]': 0,
+          'filter[min_quantity]': 10,
+          'filter[max_quantity]': 500
         }
       })
     })
@@ -155,8 +155,8 @@ describe('useStock Hook', () => {
     await waitFor(() => {
       expect(mockedAxiosClient.get).toHaveBeenCalledWith('/api/v1/stocks', {
         params: {
-          'filter[lowStock]': true,
-          'filter[outOfStock]': false
+          'filter[low_stock]': 1,
+          'filter[out_of_stock]': 0
         }
       })
     })
@@ -180,8 +180,8 @@ describe('useStock Hook', () => {
     await waitFor(() => {
       expect(mockedAxiosClient.get).toHaveBeenCalledWith('/api/v1/stocks', {
         params: {
-          'filter[minQuantity]': 0,
-          'filter[maxQuantity]': 0
+          'filter[min_quantity]': 0,
+          'filter[max_quantity]': 0
         }
       })
     })
@@ -212,8 +212,8 @@ describe('useStock Hook', () => {
       expect(mockedAxiosClient.get).toHaveBeenCalledWith('/api/v1/stocks', {
         params: {
           'filter[search]': 'electronics',
-          'filter[warehouseId]': '1',
-          'filter[lowStock]': true,
+          'filter[warehouse_id]': '1',
+          'filter[low_stock]': 1,
           sort: 'quantity',
           'page[number]': 1,
           'page[size]': 20,
@@ -263,7 +263,7 @@ describe('useStock Hook', () => {
     await waitFor(() => {
       expect(mockedAxiosClient.get).toHaveBeenCalledWith('/api/v1/stocks', {
         params: {
-          'filter[warehouseId]': '1',
+          'filter[warehouse_id]': '1',
           sort: '-quantity'
         }
       })
@@ -294,10 +294,10 @@ describe('useStock Hook', () => {
       expect(mockedAxiosClient.get).toHaveBeenCalledWith('/api/v1/stocks', {
         params: {
           'filter[search]': 'string-value',
-          'filter[warehouseId]': '123',
-          'filter[lowStock]': true,
-          'filter[minQuantity]': 0,
-          'filter[maxQuantity]': 1000,
+          'filter[warehouse_id]': '123',
+          'filter[low_stock]': 1,
+          'filter[min_quantity]': 0,
+          'filter[max_quantity]': 1000,
           sort: 'quantity',
           'page[number]': 1,
           'page[size]': 25

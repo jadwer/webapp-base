@@ -1,0 +1,277 @@
+// HEADER COMPONENT STYLES
+// Professional header with top bar, logo, search, and navigation
+
+.header {
+  background: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+// Top bar styles
+.topBar {
+  background: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+  padding: 8px 0;
+  font-size: 12px;
+}
+
+.topBarText {
+  color: #6c757d;
+  font-size: 12px;
+}
+
+.topBarActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.separator {
+  color: #dee2e6;
+}
+
+.loginButton {
+  font-size: 11px;
+  padding: 4px 12px;
+  
+  i {
+    margin-right: 4px;
+  }
+}
+
+// Main header styles
+.mainHeader {
+  padding: 16px 0;
+  background: white;
+}
+
+.logo {
+  text-decoration: none;
+  color: inherit;
+  
+  &:hover {
+    text-decoration: none;
+    color: inherit;
+  }
+}
+
+.logoContainer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logoIcon {
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(45deg, #007bff, #0056b3);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logoLetter {
+  color: white;
+  font-weight: bold;
+  font-size: 24px;
+}
+
+.logoText {
+  display: flex;
+  flex-direction: column;
+}
+
+.logoTitle {
+  font-weight: bold;
+  font-size: 16px;
+  color: #212529;
+  line-height: 1;
+}
+
+.logoSubtitle {
+  font-size: 11px;
+  color: #6c757d;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+// Search form styles
+.searchForm {
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.searchInput {
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+  border-right: none;
+}
+
+.searchButton {
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+  padding: 0 16px;
+  
+  i {
+    font-size: 14px;
+  }
+}
+
+// Header actions styles
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.actionButton {
+  position: relative;
+  padding: 8px 12px;
+  
+  i {
+    font-size: 18px;
+  }
+}
+
+.cartCount {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: #dc3545;
+  color: white;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+// Navigation styles
+.navigation {
+  background: #f8f9fa;
+  border-top: 1px solid #e9ecef;
+  padding: 0;
+}
+
+.navContent {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+}
+
+.mobileMenuButton {
+  padding: 8px;
+  border: none;
+  background: none;
+  
+  i {
+    font-size: 20px;
+  }
+}
+
+.navItems {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: 32px;
+  
+  @media (max-width: 991px) {
+    display: none;
+    
+    &.navItemsOpen {
+      display: flex;
+      flex-direction: column;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: white;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      padding: 16px;
+      z-index: 1000;
+    }
+  }
+}
+
+.navItem {
+  margin: 0;
+}
+
+.navLink {
+  color: #495057;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 14px;
+  padding: 8px 0;
+  transition: color 0.2s ease;
+  
+  &:hover {
+    color: #007bff;
+    text-decoration: none;
+  }
+}
+
+.contactInfo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #28a745;
+  font-weight: 500;
+  font-size: 14px;
+  
+  i {
+    font-size: 16px;
+  }
+  
+  @media (max-width: 991px) {
+    display: none;
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 767px) {
+  .topBar {
+    display: none;
+  }
+  
+  .mainHeader {
+    padding: 12px 0;
+  }
+  
+  .logoContainer {
+    gap: 8px;
+  }
+  
+  .logoIcon {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .logoLetter {
+    font-size: 20px;
+  }
+  
+  .logoTitle {
+    font-size: 14px;
+  }
+  
+  .logoSubtitle {
+    font-size: 10px;
+  }
+  
+  .searchForm {
+    margin-top: 12px;
+  }
+  
+  .headerActions {
+    margin-top: 12px;
+    justify-content: center;
+  }
+}

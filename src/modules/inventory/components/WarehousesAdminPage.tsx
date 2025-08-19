@@ -49,7 +49,7 @@ export const WarehousesAdminPage = () => {
   
   // Backend pagination info - correct structure
   const paginationInfo = meta?.page
-  const hasRealPagination = !!(paginationInfo?.total && paginationInfo?.lastPage)
+  const hasRealPagination = !!(paginationInfo && typeof paginationInfo === 'object' && 'total' in paginationInfo && 'lastPage' in paginationInfo)
   
   console.log('📄 [Pagination Debug]:', {
     hasRealPagination,
@@ -59,11 +59,11 @@ export const WarehousesAdminPage = () => {
   })
   
   // Use backend pagination data
-  const totalItems = paginationInfo?.total || 0
-  const totalPages = paginationInfo?.lastPage || 1
-  const currentBackendPage = paginationInfo?.currentPage || currentPage
-  const pageFrom = paginationInfo?.from || 0
-  const pageTo = paginationInfo?.to || 0
+  const totalItems = (paginationInfo && typeof paginationInfo === 'object' && 'total' in paginationInfo) ? (paginationInfo as Record<string, unknown>).total as number : 0
+  const totalPages = (paginationInfo && typeof paginationInfo === 'object' && 'lastPage' in paginationInfo) ? (paginationInfo as Record<string, unknown>).lastPage as number : 1
+  const currentBackendPage = (paginationInfo && typeof paginationInfo === 'object' && 'currentPage' in paginationInfo) ? (paginationInfo as Record<string, unknown>).currentPage as number : currentPage
+  const pageFrom = (paginationInfo && typeof paginationInfo === 'object' && 'from' in paginationInfo) ? (paginationInfo as Record<string, unknown>).from as number : 0
+  const pageTo = (paginationInfo && typeof paginationInfo === 'object' && 'to' in paginationInfo) ? (paginationInfo as Record<string, unknown>).to as number : 0
   
   console.log('📊 [Backend Pagination]:', {
     totalItems,
@@ -93,9 +93,9 @@ export const WarehousesAdminPage = () => {
   } = useWarehousesMutations()
 
   // Handlers
-  const handleCreate = async (data: CreateWarehouseData) => {
+  const handleCreate = async (data: CreateWarehouseData | UpdateWarehouseData) => {
     try {
-      await createWarehouse(data)
+      await createWarehouse(data as CreateWarehouseData)
       setIsCreateModalOpen(false)
       mutate() // Refresh data
     } catch (error) {
@@ -130,11 +130,11 @@ export const WarehousesAdminPage = () => {
     }
   }
 
-  const handleEdit = (warehouse: Warehouse) => {
+  const handleEdit = (warehouse: WarehouseParsed) => {
     setEditingWarehouse(warehouse)
   }
 
-  const handleDeleteClick = (warehouse: Warehouse) => {
+  const handleDeleteClick = (warehouse: WarehouseParsed) => {
     setDeletingWarehouse(warehouse)
   }
 
@@ -197,7 +197,7 @@ export const WarehousesAdminPage = () => {
               onPageChange={handlePageChange}
               isLoading={isLoading}
               totalItems={totalItems}
-              pageSize={paginationInfo?.perPage || pageSize}
+              pageSize={pageSize}
             />
           )}
         </div>
@@ -224,8 +224,8 @@ export const WarehousesAdminPage = () => {
 
       {/* Delete Confirmation Modal */}
       <Modal
-        isOpen={!!deletingWarehouse}
-        onClose={() => setDeletingWarehouse(null)}
+        show={!!deletingWarehouse}
+        onHide={() => setDeletingWarehouse(null)}
         title="Eliminar Almacén"
       >
         <div className="modal-body">

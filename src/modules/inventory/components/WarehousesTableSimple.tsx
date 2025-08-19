@@ -8,19 +8,19 @@
 
 import React from 'react'
 import Link from 'next/link'
-import type { Warehouse } from '../types'
+import type { WarehouseParsed } from '../types'
 
 interface WarehousesTableSimpleProps {
-  warehouses?: Warehouse[]
+  warehouses?: WarehouseParsed[]
   isLoading: boolean
-  onEdit: (warehouse: Warehouse) => void
-  onDelete: (warehouse: Warehouse) => void
+  onEdit: (warehouse: WarehouseParsed) => void
+  onDelete: (warehouse: WarehouseParsed) => void
 }
 
 export const WarehousesTableSimple = ({
   warehouses = [],
   isLoading,
-  onEdit,
+  onEdit: _unused, // eslint-disable-line @typescript-eslint/no-unused-vars
   onDelete
 }: WarehousesTableSimpleProps) => {
   // Debug: Log table data
@@ -78,29 +78,29 @@ export const WarehousesTableSimple = ({
           {warehouses.map((warehouse) => (
             <tr key={warehouse.id}>
               <td>
-                <div className="fw-semibold">{warehouse.attributes.name}</div>
-                {warehouse.attributes.phone && (
-                  <small className="text-muted">{warehouse.attributes.phone}</small>
+                <div className="fw-semibold">{warehouse.name}</div>
+                {warehouse.phone && (
+                  <small className="text-muted">{warehouse.phone}</small>
                 )}
               </td>
               <td>
                 <span className="text-muted">
-                  {warehouse.attributes.description || '-'}
+                  {warehouse.description || '-'}
                 </span>
               </td>
               <td>
                 <span className="text-muted">
-                  {warehouse.attributes.address || '-'}
+                  {warehouse.address || '-'}
                 </span>
               </td>
               <td>
-                <span className={`badge bg-${warehouse.attributes.isActive ? 'success' : 'secondary'}`}>
-                  {warehouse.attributes.isActive ? 'Activo' : 'Inactivo'}
+                <span className={`badge bg-${warehouse.isActive ? 'success' : 'secondary'}`}>
+                  {warehouse.isActive ? 'Activo' : 'Inactivo'}
                 </span>
               </td>
               <td>
                 <small className="text-muted">
-                  {warehouse.attributes.createdAt ? formatDate(warehouse.attributes.createdAt) : '-'}
+                  {warehouse.createdAt ? formatDate(warehouse.createdAt) : '-'}
                 </small>
               </td>
               <td>

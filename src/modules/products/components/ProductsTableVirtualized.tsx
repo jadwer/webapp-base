@@ -1,6 +1,7 @@
 'use client'
 
 import React from 'react'
+import Image from 'next/image'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { Button } from '@/ui/components/base'
 import type { Product } from '../types'
@@ -26,16 +27,13 @@ const ProductRow = React.memo<{
   >
     {/* Image */}
     <div className="flex-shrink-0 me-3" style={{ width: '60px' }}>
-      <img
+      <Image
         src={product.imgPath || '/images/product-placeholder.jpg'}
         alt={product.name}
+        width={50}
+        height={50}
         className="rounded border"
         style={{ width: '50px', height: '50px', objectFit: 'cover' }}
-        onError={(e) => {
-          const target = e.target as HTMLImageElement
-          if (target.src.includes('product-placeholder.jpg')) return // Prevent infinite loop
-          target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAiIGhlaWdodD0iNTAiIHZpZXdCb3g9IjAgMCA1MCA1MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjUwIiBoZWlnaHQ9IjUwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0yNSAyMEMyNi42NTY5IDIwIDI4IDIxLjM0MzEgMjggMjNDMjggMjQuNjU2OSAyNi42NTY5IDI2IDI1IDI2QzIzLjM0MzEgMjYgMjIgMjQuNjU2OSAyMiAyM0MyMiAyMS4zNDMxIDIzLjM0MzEgMjAgMjUgMjBaIiBmaWxsPSIjOUIxQjI2Ii8+CjxwYXRoIGQ9Ik0xOCAzMEwzMiAzMEMzMi41NTIzIDMwIDMzIDI5LjU1MjMgMzMgMjlDMzMgMjguNDQ3NyAzMi41NTIzIDI4IDMyIDI4TDE4IDI4QzE3LjQ0NzcgMjggMTcgMjguNDQ3NyAxNyAyOUMxNyAyOS41NTIzIDE3LjQ0NzcgMzAgMTggMzBaIiBmaWxsPSIjOUIxQjI2Ii8+Cjwvc3ZnPgo='
-        }}
       />
     </div>
 

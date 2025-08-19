@@ -59,9 +59,9 @@ describe('stockService', () => {
       // Assert
       expect(mockedAxiosClient.get).toHaveBeenCalledWith('/api/v1/stocks', { 
         params: { 
-          'filter[warehouseId]': '1',
+          'filter[warehouse_id]': '1',
           'filter[status]': 'active',
-          'filter[lowStock]': true
+          'filter[low_stock]': 1
         } 
       })
     })
@@ -197,21 +197,13 @@ describe('stockService', () => {
         data: {
           type: 'stocks',
           attributes: {
+            productId: '1',
+            warehouseId: '1',
+            locationId: '1',
             quantity: 100,
             reservedQuantity: 10,
             availableQuantity: 90,
             unitCost: 15.50
-          },
-          relationships: {
-            product: {
-              data: { type: 'products', id: '1' }
-            },
-            warehouse: {
-              data: { type: 'warehouses', id: '1' }
-            },
-            location: {
-              data: { type: 'warehouse-locations', id: '1' }
-            }
           }
         }
       })
@@ -308,7 +300,7 @@ describe('stockService', () => {
       const result = await stockService.getByProduct('1')
 
       // Assert
-      expect(mockedAxiosClient.get).toHaveBeenCalledWith('/api/v1/stocks', { params: { 'filter[productId]': '1' } })
+      expect(mockedAxiosClient.get).toHaveBeenCalledWith('/api/v1/stocks', { params: { 'filter[product_id]': '1' } })
       expect(result.data).toHaveLength(2)
     })
 
@@ -325,7 +317,7 @@ describe('stockService', () => {
 
       // Assert
       expect(mockedAxiosClient.get).toHaveBeenCalledWith('/api/v1/stocks', { 
-        params: { 'filter[productId]': '1', include: 'warehouse,location' } 
+        params: { 'filter[product_id]': '1', include: 'warehouse,location' } 
       })
     })
   })

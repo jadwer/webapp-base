@@ -67,11 +67,11 @@ describe('inventoryMovementsService', () => {
       // Assert
       expect(mockedAxiosClient.get).toHaveBeenCalledWith('/api/v1/inventory-movements', { 
         params: { 
-          'filter[movementType]': 'entry',
+          'filter[movement_type]': 'entry',
           'filter[status]': 'completed',
-          'filter[warehouseId]': '1',
-          'filter[productId]': '1',
-          'filter[referenceType]': 'purchase',
+          'filter[warehouse_id]': '1',
+          'filter[product_id]': '1',
+          'filter[reference_type]': 'purchase',
           'filter[dateFrom]': '2025-01-01',
           'filter[dateTo]': '2025-01-31',
           sort: '-movementDate'
@@ -215,6 +215,9 @@ describe('inventoryMovementsService', () => {
         data: {
           type: 'inventory-movements',
           attributes: {
+            productId: 1,
+            warehouseId: 1,
+            locationId: 1,
             movementType: 'entry',
             referenceType: 'purchase',
             referenceId: 123,
@@ -222,18 +225,8 @@ describe('inventoryMovementsService', () => {
             unitCost: 15.50,
             movementDate: '2025-01-14T10:00:00Z',
             description: 'Purchase order entry',
-            status: 'completed'
-          },
-          relationships: {
-            product: {
-              data: { type: 'products', id: '1' }
-            },
-            warehouse: {
-              data: { type: 'warehouses', id: '1' }
-            },
-            location: {
-              data: { type: 'warehouse-locations', id: '1' }
-            }
+            status: 'completed',
+            userId: 1
           }
         }
       })
@@ -268,29 +261,18 @@ describe('inventoryMovementsService', () => {
         data: {
           type: 'inventory-movements',
           attributes: {
+            productId: 1,
+            warehouseId: 1,
+            locationId: 1,
+            destinationWarehouseId: 2,
+            destinationLocationId: 2,
             movementType: 'transfer',
             referenceType: 'transfer',
             quantity: 25,
             movementDate: '2025-01-14T10:00:00Z',
             description: 'Inter-warehouse transfer',
-            status: 'completed'
-          },
-          relationships: {
-            product: {
-              data: { type: 'products', id: '1' }
-            },
-            warehouse: {
-              data: { type: 'warehouses', id: '1' }
-            },
-            location: {
-              data: { type: 'warehouse-locations', id: '1' }
-            },
-            destinationWarehouse: {
-              data: { type: 'warehouses', id: '2' }
-            },
-            destinationLocation: {
-              data: { type: 'warehouse-locations', id: '2' }
-            }
+            status: 'completed',
+            userId: 1
           }
         }
       })
@@ -391,7 +373,7 @@ describe('inventoryMovementsService', () => {
       const result = await inventoryMovementsService.getByProduct('1')
 
       // Assert
-      expect(mockedAxiosClient.get).toHaveBeenCalledWith('/api/v1/inventory-movements', { params: { 'filter[productId]': '1', sort: '-movementDate' } })
+      expect(mockedAxiosClient.get).toHaveBeenCalledWith('/api/v1/inventory-movements', { params: { 'filter[product_id]': '1', sort: '-movementDate' } })
       expect(result.data).toHaveLength(2)
     })
 
@@ -409,7 +391,7 @@ describe('inventoryMovementsService', () => {
       // Assert
       expect(mockedAxiosClient.get).toHaveBeenCalledWith('/api/v1/inventory-movements', { 
         params: {
-          'filter[productId]': '1',
+          'filter[product_id]': '1',
           sort: '-movementDate',
           include: 'warehouse,location'
         }
@@ -431,7 +413,7 @@ describe('inventoryMovementsService', () => {
       const result = await inventoryMovementsService.getByWarehouse('1')
 
       // Assert
-      expect(mockedAxiosClient.get).toHaveBeenCalledWith('/api/v1/inventory-movements', { params: { 'filter[warehouseId]': '1', sort: '-movementDate' } })
+      expect(mockedAxiosClient.get).toHaveBeenCalledWith('/api/v1/inventory-movements', { params: { 'filter[warehouse_id]': '1', sort: '-movementDate' } })
       expect(result.data).toHaveLength(2)
     })
 
@@ -449,7 +431,7 @@ describe('inventoryMovementsService', () => {
       // Assert
       expect(mockedAxiosClient.get).toHaveBeenCalledWith('/api/v1/inventory-movements', { 
         params: {
-          'filter[warehouseId]': '1',
+          'filter[warehouse_id]': '1',
           sort: '-movementDate',
           include: 'product,location'
         }
@@ -472,7 +454,7 @@ describe('inventoryMovementsService', () => {
 
       // Assert
       expect(mockedAxiosClient.get).toHaveBeenCalledWith('/api/v1/inventory-movements', { 
-        params: { 'filter[movementType]': 'entry', sort: '-movementDate' }
+        params: { 'filter[movement_type]': 'entry', sort: '-movementDate' }
       })
       expect(result.data).toHaveLength(2)
       expect(result.data.every(movement => movement.movementType === 'entry')).toBe(true)
@@ -492,7 +474,7 @@ describe('inventoryMovementsService', () => {
       // Assert
       expect(mockedAxiosClient.get).toHaveBeenCalledWith('/api/v1/inventory-movements', { 
         params: { 
-          'filter[movementType]': 'entry',
+          'filter[movement_type]': 'entry',
           sort: '-movementDate',
           include: 'warehouse,product'
         }
@@ -515,7 +497,7 @@ describe('inventoryMovementsService', () => {
 
       // Assert
       expect(mockedAxiosClient.get).toHaveBeenCalledWith('/api/v1/inventory-movements', { 
-        params: { 'filter[movementType]': 'exit', sort: '-movementDate' }
+        params: { 'filter[movement_type]': 'exit', sort: '-movementDate' }
       })
       expect(result.data).toHaveLength(2)
       expect(result.data.every(movement => movement.movementType === 'exit')).toBe(true)
@@ -535,7 +517,7 @@ describe('inventoryMovementsService', () => {
       // Assert
       expect(mockedAxiosClient.get).toHaveBeenCalledWith('/api/v1/inventory-movements', { 
         params: { 
-          'filter[movementType]': 'exit',
+          'filter[movement_type]': 'exit',
           sort: '-movementDate',
           include: 'product,warehouse,location'
         }

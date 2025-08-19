@@ -2,13 +2,13 @@
 
 import { StockForm } from './StockForm'
 import { useStockMutations } from '../hooks'
-import type { CreateStockData } from '../types'
+import type { CreateStockData, UpdateStockData } from '../types'
 
 export const CreateStockWrapper = () => {
   const { createStock } = useStockMutations()
   
-  const handleSubmit = async (data: CreateStockData) => {
-    await createStock(data)
+  const handleSubmit = async (data: CreateStockData | UpdateStockData) => {
+    await createStock(data as CreateStockData)
   }
   
   return (

@@ -28,7 +28,9 @@
       "Bash(TEST_AUTH_TOKEN=\"2|UjbIq04xLgkvbdiqBvVBA2HckqtKNiIcasaUxIp91722a4cf\" npm run test:integration)",
       "Bash(npm run test:integration:*)",
       "Bash(npm run vitest run:*)",
-      "Bash(npx vitest run:*)"
+      "Bash(npx vitest run:*)",
+      "Bash(npm run test:*)",
+      "Bash(npx eslint:*)"
     ],
     "deny": [],
     "defaultMode": "acceptEdits"

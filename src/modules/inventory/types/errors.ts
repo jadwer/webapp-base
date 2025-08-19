@@ -3,8 +3,8 @@
  * Types específicos para manejo de errores en el módulo inventory
  */
 
-import type { AxiosError } from 'axios'
-import type { JsonApiErrorResponse, JsonApiErrorObject } from '../utils/jsonApi'
+import type { AxiosError, AxiosResponse } from 'axios'
+import type { JsonApiErrorObject } from '../utils/jsonApi'
 
 // Standard API Error Response
 export interface ApiErrorResponse {
@@ -16,12 +16,7 @@ export interface ApiErrorResponse {
 
 // Axios Error with our API response structure
 export interface ApiError extends AxiosError<ApiErrorResponse> {
-  response: {
-    data: ApiErrorResponse
-    status: number
-    statusText: string
-    headers: Record<string, string>
-  }
+  response: AxiosResponse<ApiErrorResponse>
 }
 
 // Common error types we handle
@@ -37,8 +32,8 @@ export function isApiError(error: unknown): error is ApiError {
     typeof error === 'object' &&
     error !== null &&
     'response' in error &&
-    typeof (error as any).response === 'object' &&
-    'data' in (error as any).response
+    typeof (error as { response?: unknown }).response === 'object' &&
+    'data' in ((error as { response?: Record<string, unknown> }).response || {})
   )
 }
 
@@ -51,7 +46,7 @@ export function isErrorWithMessage(error: unknown): error is { message: string }
     typeof error === 'object' &&
     error !== null &&
     'message' in error &&
-    typeof (error as any).message === 'string'
+    typeof (error as { message?: unknown }).message === 'string'
   )
 }
 

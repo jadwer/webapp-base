@@ -8,6 +8,11 @@ import pluginUiEditorPlus from "./plugins/grapesjs-ui-editor-plus";
 import pluginStorageLocal from "./plugins/grapesjs-storage-local";
 import organizeDefaultBlocks from "./plugins/grapesjs-organize-default-blocks";
 import { ensureGrapeJSGlobalInit } from "./globalInit";
+import { registerLaborWasserBlocks } from "./blocks/laborwasser-blocks";
+import { registerHeroRevolutionBlocks } from "./blocks/hero-revolution-blocks";
+import { registerPublicCatalogBlocks } from "./blocks/public-catalog-blocks";
+import { registerSliderEditorComponent } from "./components/SliderEditorComponent";
+import sliderEditorPlugin from "./plugins/slider-editor-plugin";
 
 import type { ToastType } from "./types/ToastType";
 
@@ -79,6 +84,7 @@ export default async function initPageBuilder(
       blocksUIBootstrap,
       (editor) => pluginStorageLocal(editor, notify, { autoLoad: !disableAutoLoad }),
       (editor) => pluginUiEditorPlus(editor, notify),
+      sliderEditorPlugin,
     ],
   });
 
@@ -100,7 +106,47 @@ export default async function initPageBuilder(
             link.href = "https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css";
             head.appendChild(link);
           }
+          
+          // Also inject Bootstrap Icons for LaborWasser blocks
+          if (!head.querySelector('link[href*="bootstrap-icons"]')) {
+            const iconsLink = canvasDoc.createElement("link");
+            iconsLink.rel = "stylesheet";
+            iconsLink.href = "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css";
+            head.appendChild(iconsLink);
+          }
         }
+      }
+
+      // Register LaborWasser blocks
+      try {
+        registerLaborWasserBlocks(editor);
+        console.log('✅ LaborWasser blocks registered successfully');
+      } catch (error) {
+        console.warn('Error registering LaborWasser blocks:', error);
+      }
+
+      // Register Hero Revolution blocks
+      try {
+        registerHeroRevolutionBlocks(editor);
+        console.log('✅ Hero Revolution blocks registered successfully');
+      } catch (error) {
+        console.warn('Error registering Hero Revolution blocks:', error);
+      }
+
+      // Register Public Catalog blocks
+      try {
+        registerPublicCatalogBlocks(editor);
+        console.log('✅ Public Catalog blocks registered successfully');
+      } catch (error) {
+        console.warn('Error registering Public Catalog blocks:', error);
+      }
+
+      // Register Slider Editor Component
+      try {
+        registerSliderEditorComponent(editor);
+        console.log('✅ Slider Editor Component registered successfully');
+      } catch (error) {
+        console.warn('Error registering Slider Editor Component:', error);
       }
 
       // Organize blocks after everything is loaded
