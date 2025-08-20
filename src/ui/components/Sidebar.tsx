@@ -46,6 +46,27 @@ const inventoryLinks = [
   { href: '/dashboard/inventory/product-batch', label: 'Lotes de Productos', icon: 'bi-calendar-check' }
 ]
 
+const salesLinks = [
+  { href: '/dashboard/sales', label: 'Órdenes de Venta', icon: 'bi-cart-check' },
+  { href: '/dashboard/sales/create', label: 'Nueva Orden', icon: 'bi-plus-circle' },
+  { href: '/dashboard/sales/reports', label: 'Reportes', icon: 'bi-graph-up' },
+  { href: '/dashboard/sales/customers', label: 'Clientes', icon: 'bi-person-heart' }
+]
+
+const purchaseLinks = [
+  { href: '/dashboard/purchase', label: 'Órdenes de Compra', icon: 'bi-cart-plus' },
+  { href: '/dashboard/purchase/create', label: 'Nueva Orden', icon: 'bi-plus-circle' },
+  { href: '/dashboard/purchase/reports', label: 'Reportes', icon: 'bi-graph-up' },
+  { href: '/dashboard/purchase/suppliers', label: 'Proveedores', icon: 'bi-building' }
+]
+
+const catalogLinks = [
+  { href: '/dashboard/catalog', label: 'Gestión', icon: 'bi-grid-3x3-gap' },
+  { href: '/dashboard/catalog/featured', label: 'Productos Destacados', icon: 'bi-star' },
+  { href: '/dashboard/catalog/offers', label: 'Ofertas', icon: 'bi-percent' },
+  { href: '/dashboard/catalog/settings', label: 'Configuración', icon: 'bi-gear' }
+]
+
 export default function Sidebar() {
   const pathname = usePathname()
   const navigation = useNavigationProgress()
@@ -67,6 +88,15 @@ export default function Sidebar() {
   const [pageBuilderOpen, setPageBuilderOpen] = useState(
     pathname?.startsWith('/dashboard/pages') || 
     pathname?.startsWith('/dashboard/page-builder')
+  )
+  const [salesOpen, setSalesOpen] = useState(
+    pathname?.startsWith('/dashboard/sales')
+  )
+  const [purchaseOpen, setPurchaseOpen] = useState(
+    pathname?.startsWith('/dashboard/purchase')
+  )
+  const [catalogOpen, setCatalogOpen] = useState(
+    pathname?.startsWith('/dashboard/catalog')
   )
 
   return (
@@ -287,6 +317,123 @@ export default function Sidebar() {
             }`}>
               <ul className={styles.subNavList}>
                 {inventoryLinks.map(({ href, label, icon }) => (
+                  <li key={href}>
+                    <button
+                      onClick={() => navigation.push(href)}
+                      className={`${styles.subNavLink} ${
+                        pathname === href ? styles.active : ''
+                      }`}
+                    >
+                      <i className={`bi ${icon} ${styles.subNavIcon}`} aria-hidden="true"></i>
+                      {label}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </li>
+          
+          {/* Grupo Ventas */}
+          <li className={styles.navItem}>
+            <button
+              className={`${styles.groupButton} ${
+                salesOpen ? styles.groupActive : ''
+              }`}
+              onClick={() => setSalesOpen(!salesOpen)}
+            >
+              <div className={styles.groupContent}>
+                <i className="bi bi-cart-check" aria-hidden="true"></i>
+                Ventas
+              </div>
+              <i className={`bi bi-chevron-right ${styles.groupChevron} ${
+                salesOpen ? styles.expanded : ''
+              }`}></i>
+            </button>
+            
+            {/* Submenú */}
+            <div className={`${styles.subMenu} ${
+              salesOpen ? styles.expanded : styles.collapsed
+            }`}>
+              <ul className={styles.subNavList}>
+                {salesLinks.map(({ href, label, icon }) => (
+                  <li key={href}>
+                    <button
+                      onClick={() => navigation.push(href)}
+                      className={`${styles.subNavLink} ${
+                        pathname === href ? styles.active : ''
+                      }`}
+                    >
+                      <i className={`bi ${icon} ${styles.subNavIcon}`} aria-hidden="true"></i>
+                      {label}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </li>
+          
+          {/* Grupo Compras */}
+          <li className={styles.navItem}>
+            <button
+              className={`${styles.groupButton} ${
+                purchaseOpen ? styles.groupActive : ''
+              }`}
+              onClick={() => setPurchaseOpen(!purchaseOpen)}
+            >
+              <div className={styles.groupContent}>
+                <i className="bi bi-cart-plus" aria-hidden="true"></i>
+                Compras
+              </div>
+              <i className={`bi bi-chevron-right ${styles.groupChevron} ${
+                purchaseOpen ? styles.expanded : ''
+              }`}></i>
+            </button>
+            
+            {/* Submenú */}
+            <div className={`${styles.subMenu} ${
+              purchaseOpen ? styles.expanded : styles.collapsed
+            }`}>
+              <ul className={styles.subNavList}>
+                {purchaseLinks.map(({ href, label, icon }) => (
+                  <li key={href}>
+                    <button
+                      onClick={() => navigation.push(href)}
+                      className={`${styles.subNavLink} ${
+                        pathname === href ? styles.active : ''
+                      }`}
+                    >
+                      <i className={`bi ${icon} ${styles.subNavIcon}`} aria-hidden="true"></i>
+                      {label}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </li>
+          
+          {/* Grupo Catálogo Público */}
+          <li className={styles.navItem}>
+            <button
+              className={`${styles.groupButton} ${
+                catalogOpen ? styles.groupActive : ''
+              }`}
+              onClick={() => setCatalogOpen(!catalogOpen)}
+            >
+              <div className={styles.groupContent}>
+                <i className="bi bi-grid-3x3-gap" aria-hidden="true"></i>
+                Catálogo Público
+              </div>
+              <i className={`bi bi-chevron-right ${styles.groupChevron} ${
+                catalogOpen ? styles.expanded : ''
+              }`}></i>
+            </button>
+            
+            {/* Submenú */}
+            <div className={`${styles.subMenu} ${
+              catalogOpen ? styles.expanded : styles.collapsed
+            }`}>
+              <ul className={styles.subNavList}>
+                {catalogLinks.map(({ href, label, icon }) => (
                   <li key={href}>
                     <button
                       onClick={() => navigation.push(href)}
