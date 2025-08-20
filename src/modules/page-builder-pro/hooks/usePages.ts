@@ -375,3 +375,25 @@ export function useSlugValidation(initialSlug = '', excludeId?: string) {
     suggestions: slugResult.suggestions || []
   }
 }
+
+// ============================================
+// NAVIGATION HOOKS
+// ============================================
+
+export function usePublishedPagesForNavigation() {
+  const { data, error, isLoading } = useSWR(
+    'navigation-pages',
+    () => PagesService.getPublishedPagesForNavigation(),
+    {
+      revalidateOnFocus: false,
+      dedupingInterval: 60000, // Cache for 1 minute
+      refreshInterval: 300000, // Refresh every 5 minutes
+    }
+  )
+
+  return {
+    navigationPages: data || [],
+    isLoading,
+    error
+  }
+}

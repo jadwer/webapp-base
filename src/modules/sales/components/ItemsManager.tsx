@@ -245,11 +245,11 @@ export default function ItemsManager({ items, onItemsChange, onTotalChange }: It
               <thead>
                 <tr>
                   <th>Producto</th>
-                  <th width="80">Cantidad</th>
-                  <th width="100">Precio</th>
-                  <th width="100">Descuento</th>
-                  <th width="100">Total</th>
-                  <th width="60">Acciones</th>
+                  <th style={{width: '80px'}}>Cantidad</th>
+                  <th style={{width: '100px'}}>Precio</th>
+                  <th style={{width: '100px'}}>Descuento</th>
+                  <th style={{width: '100px'}}>Total</th>
+                  <th style={{width: '60px'}}>Acciones</th>
                 </tr>
               </thead>
               <tbody>

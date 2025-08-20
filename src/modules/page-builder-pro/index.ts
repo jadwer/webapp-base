@@ -30,13 +30,15 @@ export type {
 } from './types/page'
 export type { ToastType } from './types/ToastType'
 export { PagesService } from './services/pagesService'
+export { fetchPageBySlug } from './services/fetchPage'
 export { 
   usePages, 
   usePage, 
   usePageActions,
   useSoftDeleteActions,
   useDeletedPages,
-  useSlugValidation 
+  useSlugValidation,
+  usePublishedPagesForNavigation 
 } from './hooks/usePages'
 export { default as PagesAdminTemplate } from './templates/PagesAdminTemplate'
 export { default as PageEditorTemplate } from './templates/PageEditorTemplate'

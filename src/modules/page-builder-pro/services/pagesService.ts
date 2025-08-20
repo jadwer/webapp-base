@@ -484,4 +484,26 @@ export class PagesService {
     
     await axios.delete(`${API_BASE}/${id}`)
   }
+
+  /**
+   * Get all published pages for navigation (public use)
+   */
+  static async getPublishedPagesForNavigation(): Promise<Array<{ id: string; title: string; slug: string }>> {
+    try {
+      const response = await axios.get<JsonApiResponse>(`${API_BASE}?filter[status]=published`)
+      const pages = response.data.data || []
+      
+      return pages
+        .filter((page: JsonApiPageResource) => page.attributes.status === 'published')
+        .map((page: JsonApiPageResource) => ({
+          id: page.id,
+          title: page.attributes.title,
+          slug: page.attributes.slug
+        }))
+        .sort((a, b) => a.title.localeCompare(b.title)) // Sort alphabetically by title
+    } catch (error) {
+      console.error('Error fetching published pages for navigation:', error)
+      return []
+    }
+  }
 }

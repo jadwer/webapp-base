@@ -16,6 +16,7 @@ export interface PurchaseOrderItem {
   purchaseOrderId: string
   productId: number
   product?: any
+  purchaseOrder?: any
   quantity: number
   unitPrice: number
   totalPrice: number

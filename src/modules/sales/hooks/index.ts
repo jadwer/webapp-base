@@ -132,7 +132,7 @@ export const useSalesAnalytics = (dateFrom?: string, dateTo?: string) => {
 
   const { data, error, isLoading, mutate } = useSWR(
     key,
-    () => salesReportsService.getSalesAnalytics(dateFrom, dateTo)
+    () => salesReportsService.getReports(30)
   )
 
   return {

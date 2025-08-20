@@ -96,99 +96,87 @@ DELETE /api/v1/product-batches/{id}
 
 ---
 
-### **💰 MÓDULO FINANCE - NUEVO**
+### **💰 MÓDULO FINANCE - FASE 1 (SIMPLIFICADO)**
 
-**📋 Backend Entities (11 total):**
+**🎯 Scope Fase 1:** Funcionalidad básica operativa sin complejidades
 
-**Accounts Payable (AP):**
-- APInvoice - Facturas proveedores
-- APInvoiceLine - Líneas facturas
-- APPayment - Pagos a proveedores  
-- APInvoicePayment - Aplicación pagos
+**📋 Entities Core (Solo 5):**
+1. **APInvoice** - Facturas proveedores (básico)
+2. **APPayment** - Pagos a proveedores
+3. **ARInvoice** - Facturas clientes (básico)  
+4. **ARReceipt** - Cobros de clientes
+5. **BankAccount** - Catálogo cuentas bancarias
 
-**Accounts Receivable (AR):**
-- ARInvoice - Facturas clientes
-- ARInvoiceLine - Líneas facturas
-- ARReceipt - Cobros clientes
-- ARInvoiceReceipt - Aplicación cobros
-
-**Banking:**
-- BankAccount - Cuentas bancarias
-- BankStatement - Estados cuenta
-- BankStatementLine - Movimientos bancarios
-
-**🎯 Complejidad:** **COMPLEJA** (AdminPagePro + FormWrapper patterns)
-
-**Business Logic Critical:**
+**✅ Features Incluidas:**
 ```typescript
-// Invoice-Payment Matching
-- Partial payments tracking
-- Currency conversion
-- Payment allocation
-- Outstanding balances
+// AP Flow (Cuentas por Pagar)
+- Crear factura proveedor (draft → posted)
+- Crear pago desde factura 
+- Backend autogenera asientos GL
+- Estados: draft/posted/paid
 
-// Multi-currency Support
-- Exchange rate handling
-- Currency conversion
-- Reporting in base currency
+// AR Flow (Cuentas por Cobrar)  
+- Crear factura cliente (draft → posted)
+- Crear cobro desde factura
+- Backend autogenera asientos GL
+- Estados: draft/posted/paid
 
-// Bank Reconciliation
-- Statement import
-- Transaction matching
-- Variance reporting
+// Banking Simple
+- Catálogo cuentas bancarias
+- Uso en dropdowns pagos/cobros
 ```
 
-**🔗 Complex Relationships:**
-- Finance → Contacts (customers/suppliers)
-- Finance → Products (invoice lines)
-- Finance → Purchase/Sales (auto invoice generation)
+**🚫 NO Incluye (Fase 2):**
+- ❌ Líneas detalladas facturas
+- ❌ Aplicaciones N:M complejas  
+- ❌ Multi-moneda (solo MXN)
+- ❌ Conciliación bancaria
+- ❌ Estados de cuenta
 
-**⏱️ Tiempo estimado:** 6-8 horas
+**🎯 Complejidad:** **MEDIA** (AdminPageReal pattern)
+
+**⏱️ Tiempo estimado:** 3-4 horas
 
 ---
 
-### **📊 MÓDULO ACCOUNTING - NUEVO**
+### **📊 MÓDULO ACCOUNTING - FASE 1 (SIMPLIFICADO)**
 
-**📋 Backend Entities (6 total):**
-1. **Account** - Plan cuentas jerárquico
-2. **Journal** - Diarios contables
-3. **JournalEntry** - Asientos contables
-4. **JournalLine** - Líneas asientos
-5. **FiscalPeriod** - Periodos fiscales
-6. **ExchangeRate** - Tipos cambio
+**🎯 Scope Fase 1:** Contabilidad básica funcional
 
-**🎯 Complejidad:** **MUY COMPLEJA** (Enterprise Business Logic)
+**📋 Entities Core (Solo 3):**
+1. **Account** - Plan cuentas (solo postables)
+2. **JournalEntry** - Asientos contables básicos
+3. **JournalLine** - Líneas de asientos
 
-**Critical Business Rules:**
+**✅ Features Incluidas:**
 ```typescript
-// Chart of Accounts Hierarchy
-- Multi-level account structure (1000, 1100, 1110, etc)
-- Account types (Asset, Liability, Equity, Revenue, Expense)
-- Postable vs Summary accounts
-- Account currency handling
+// Chart of Accounts Simple
+- Listado cuentas con filtro isPostable=true
+- Code, name, accountType, status
+- Sin jerarquía compleja (Fase 2)
 
-// Journal Entry Balancing
-- Debit = Credit validation
-- Multi-currency entries
-- Automatic exchange rates
-- Period validation
+// Journal Entries Basic
+- CRUD asientos contables
+- Validación debit = credit
+- Estado draft → posted (inmutable)
+- Líneas con account + amounts
 
-// Fiscal Period Controls
-- Open/Closed period validation
-- Backposting permissions
-- Period-end processes
-- Audit trail maintenance
+// Backend Automation
+- AP/AR invoices autogeneran GL
+- AP/AR payments autogeneran GL
+- Solo visualización de automáticos
 ```
 
-**Enterprise Features Required:**
-- Account hierarchy tree view
-- Journal entry forms con balancing
-- Period management con controls
-- Multi-currency con conversion
-- Professional error validation
-- Audit trail completo
+**🚫 NO Incluye (Fase 2):**
+- ❌ Jerarquía de cuentas
+- ❌ Períodos fiscales
+- ❌ Multi-moneda
+- ❌ Centros de costo
+- ❌ Reportes complejos
 
-**⏱️ Tiempo estimado:** 8-12 horas
+**🎯 Complejidad:** **MEDIA** (AdminPageReal + validations)
+
+**⏱️ Tiempo estimado:** 2-3 horas
 
 ---
 
@@ -244,55 +232,48 @@ DELETE /api/v1/product-batches/{id}
 
 ---
 
-#### **SEMANA 3-4: FINANCE MODULE**
-**Objetivo:** Sistema financiero enterprise
+#### **SEMANA 3: FINANCE MODULE - FASE 1**
+**Objetivo:** Sistema financiero básico operativo
 
-**Día 1-2 (4 horas) - Accounts Payable:**
-- [ ] APInvoice + APInvoiceLine (FormWrapper)
-- [ ] APPayment + APInvoicePayment
-- [ ] Supplier integration
+**Día 1 (2 horas) - Accounts Payable:**
+- [ ] APInvoice CRUD (AdminPageReal)
+- [ ] APPayment desde invoice
+- [ ] Integration con Contacts (suppliers)
 
-**Día 3-4 (4 horas) - Accounts Receivable:**
-- [ ] ARInvoice + ARInvoiceLine
-- [ ] ARReceipt + ARInvoiceReceipt
-- [ ] Customer integration
-
-**Día 5 (2 horas) - Banking:**
-- [ ] BankAccount management
-- [ ] BankStatement processing
-- [ ] Integration testing
+**Día 2 (2 horas) - Accounts Receivable:**
+- [ ] ARInvoice CRUD (AdminPageReal)
+- [ ] ARReceipt desde invoice
+- [ ] Integration con Contacts (customers)
 
 **✅ Entregables:**
-- Finance module completo
-- 11 entidades funcionando
-- Multi-currency support
-- Professional invoice-payment matching
+- Finance module Fase 1 completo
+- 5 entidades básicas funcionando
+- Flujos AP/AR operativos
+- BankAccount catalog simple
+- Backend genera GL automáticamente
 
 ---
 
-#### **SEMANA 5-6: ACCOUNTING MODULE**
-**Objetivo:** Sistema contable profesional
+#### **SEMANA 4: ACCOUNTING MODULE - FASE 1**
+**Objetivo:** Contabilidad básica funcional
 
-**Día 1-2 (4 horas) - Chart of Accounts:**
-- [ ] Account hierarchy management
-- [ ] Account types y validations
-- [ ] Professional tree navigation
+**Día 1 (1.5 horas) - Chart of Accounts:**
+- [ ] Account listado (solo postables)
+- [ ] Account filters por type
+- [ ] Basic CRUD accounts
 
-**Día 3-4 (4 horas) - Journal System:**
-- [ ] Journal configuration
-- [ ] JournalEntry creation con balancing
+**Día 2 (1.5 horas) - Journal Entries:**
+- [ ] JournalEntry CRUD
 - [ ] JournalLine management
-
-**Día 5-6 (4 horas) - Advanced Features:**
-- [ ] FiscalPeriod controls
-- [ ] ExchangeRate management
-- [ ] Period validation logic
+- [ ] Balance validation (debit=credit)
+- [ ] Post/unpost functionality
 
 **✅ Entregables:**
-- Accounting module enterprise-ready
-- Chart of accounts jerárquico
-- Journal entry balancing system
-- Professional fiscal controls
+- Accounting module Fase 1 completo  
+- 3 entidades core funcionando
+- Plan de cuentas básico
+- Asientos contables con validación
+- Visualización de GL automáticos
 
 ---
 
@@ -312,17 +293,17 @@ DELETE /api/v1/product-batches/{id}
 - **Integration:** Products, Contacts, Sales
 - **Time:** 3-4 horas
 
-#### **Finance:**
-- **Pattern:** AdminPagePro + FormWrapper
-- **Features:** Invoice-payment matching, multi-currency
-- **Business Logic:** Payment allocation, balance tracking
-- **Time:** 6-8 horas
+#### **Finance (Fase 1):**
+- **Pattern:** AdminPageReal (simplicity-first)
+- **Features:** Basic AP/AR flows, payment from invoice
+- **Business Logic:** Backend automation, status tracking
+- **Time:** 3-4 horas
 
-#### **Accounting:**
-- **Pattern:** AdminPagePro + Custom Logic
-- **Features:** Account hierarchy, journal balancing
-- **Business Logic:** Period controls, debit=credit validation
-- **Time:** 8-12 horas
+#### **Accounting (Fase 1):**
+- **Pattern:** AdminPageReal + Basic validations
+- **Features:** Simple chart of accounts, basic journal entries
+- **Business Logic:** Debit=credit validation, post/draft states
+- **Time:** 2-3 horas
 
 ### **🔧 TECHNICAL STACK**
 
@@ -455,15 +436,63 @@ DELETE /api/v1/product-batches/{id}
 ---
 
 **🎊 ROADMAP STATUS: COMPREHENSIVE ANALYSIS COMPLETE**  
-**🚀 READY FOR: Systematic Implementation**  
-**⏱️ TOTAL TIME ESTIMATED: 18-25 horas across 4 modules**  
-**🎯 TARGET: Complete Enterprise ERP System**
+**🚀 READY FOR: Fase 1 Implementation**  
+**⏱️ TOTAL TIME ESTIMATED: 12-15 horas (Fase 1 only)**  
+**🎯 TARGET: Functional Finance-Accounting System (Basics)**
+
+---
+
+## 🔮 **FASE 2 - PLANIFICACIÓN FUTURA**
+
+### **📋 ENTIDADES DISPONIBLES PERO NO USAR**
+
+**⚠️ IMPORTANTE:** Estas entidades ya están implementadas en el backend pero son **FASE 2**. NO implementar en frontend hasta completar Fase 1:
+
+**Finance Fase 2:**
+```bash
+❌ /api/v1/a-p-invoice-lines          # Líneas detalladas facturas
+❌ /api/v1/a-r-invoice-lines          # Líneas detalladas facturas
+❌ /api/v1/a-p-invoice-payments       # Aplicaciones N:M
+❌ /api/v1/a-r-invoice-receipts       # Aplicaciones N:M
+❌ /api/v1/bank-statements            # Conciliación bancaria
+❌ /api/v1/bank-statement-lines       # Movimientos bancarios
+```
+
+**Accounting Fase 2:**
+```bash
+❌ /api/v1/journals                   # Diarios especializados
+❌ /api/v1/fiscal-periods             # Períodos fiscales
+❌ /api/v1/exchange-rates             # Multi-moneda
+```
+
+### **🚨 CRITERIOS PARA FASE 2**
+
+**✅ Prerrequisitos Obligatorios:**
+- [ ] Fase 1 funcionando estable en producción
+- [ ] >1000 asientos GL automáticos sin errores
+- [ ] >500 facturas AP/AR procesadas correctamente
+- [ ] Usuario final aprobó funcionalidad Fase 1
+- [ ] Team tiene tiempo/recursos para complejidad Fase 2
+
+### **📅 ROADMAP FASE 2 PRELIMINAR**
+
+**Trimestre 1:** Multi-moneda + líneas detalladas
+**Trimestre 2:** Conciliación bancaria + aplicaciones N:M
+**Trimestre 3:** Reportes avanzados + centros costo
+**Trimestre 4:** Períodos fiscales + funciones enterprise
+
+### **📚 DOCUMENTACIÓN FASE 2**
+
+- **Spec completa:** `/api-base/docs/development/FINANCE_ACCOUNTING_PHASE2_ROADMAP.md`
+- **Análisis backend:** Entidades ya implementadas, endpoints funcionales
+- **Complejidad:** 15-20 horas adicionales estimadas
+- **Risk:** Alto - Solo después de validar Fase 1 exitosa
 
 ---
 
 *Análisis completo realizado: Agosto 20, 2025*  
-*Metodología: Simplified-First Blueprint + Enterprise Patterns*  
-*Estado: Production-Ready Architecture Validated*
+*Metodología: Simplified-First Blueprint + Phased Approach*  
+*Estado: Fase 1 Ready - Fase 2 Documented*
 
 ### ✅ 1. **Products Module** (Enterprise Level)
 **Estado:** ✅ COMPLETADO | **Complejidad:** ⭐⭐⭐⭐⭐ | **Tiempo:** 25+ horas

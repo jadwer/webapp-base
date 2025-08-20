@@ -10,7 +10,7 @@ export default function PurchasePage() {
   const [searchTerm, setSearchTerm] = useState('')
 
   const { purchaseOrders, isLoading, error } = usePurchaseOrders({
-    filters: searchTerm ? { search: searchTerm } : undefined
+    search: searchTerm || undefined
   })
 
   const getStatusBadgeClass = (status: string) => {

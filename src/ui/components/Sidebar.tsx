@@ -60,6 +60,28 @@ const purchaseLinks = [
   { href: '/dashboard/purchase/suppliers', label: 'Proveedores', icon: 'bi-building' }
 ]
 
+const financeLinks = [
+  { href: '/dashboard/finance/ap-invoices', label: 'Facturas por Pagar', icon: 'bi-receipt' },
+  { href: '/dashboard/finance/ar-invoices', label: 'Facturas por Cobrar', icon: 'bi-receipt-cutoff' },
+  { href: '/dashboard/finance/ap-payments', label: 'Pagos AP', icon: 'bi-credit-card' },
+  { href: '/dashboard/finance/ar-receipts', label: 'Recibos de Clientes', icon: 'bi-cash-coin' },
+  { href: '/dashboard/finance/bank-accounts', label: 'Cuentas Bancarias', icon: 'bi-bank' }
+]
+
+const accountingLinks = [
+  { href: '/dashboard/accounting/accounts', label: 'Plan Contable', icon: 'bi-list-ol' },
+  { href: '/dashboard/accounting/journal-entries', label: 'Asientos Contables', icon: 'bi-journal-text' },
+  { href: '/dashboard/accounting/fiscal-periods', label: 'Períodos Fiscales', icon: 'bi-calendar-range' },
+  { href: '/dashboard/accounting/reports/balance-general', label: 'Balance General', icon: 'bi-clipboard-data' },
+  { href: '/dashboard/accounting/reports/estado-resultados', label: 'Estado de Resultados', icon: 'bi-graph-up-arrow' },
+  { href: '/dashboard/accounting/reports/balanza-comprobacion', label: 'Balanza de Comprobación', icon: 'bi-balance-scale' },
+  { href: '/dashboard/accounting/reports/libro-diario', label: 'Libro Diario', icon: 'bi-journal-text' },
+  { href: '/dashboard/accounting/reports/libro-mayor', label: 'Libro Mayor', icon: 'bi-book' },
+  { href: '/dashboard/sales/reports', label: 'Reportes de Ventas', icon: 'bi-graph-up' },
+  { href: '/dashboard/purchase/reports', label: 'Reportes de Compras', icon: 'bi-truck' },
+  { href: '/dashboard/accounting/reports', label: 'Todos los Reportes', icon: 'bi-collection' }
+]
+
 const catalogLinks = [
   { href: '/dashboard/catalog', label: 'Gestión', icon: 'bi-grid-3x3-gap' },
   { href: '/dashboard/catalog/featured', label: 'Productos Destacados', icon: 'bi-star' },
@@ -94,6 +116,12 @@ export default function Sidebar() {
   )
   const [purchaseOpen, setPurchaseOpen] = useState(
     pathname?.startsWith('/dashboard/purchase')
+  )
+  const [financeOpen, setFinanceOpen] = useState(
+    pathname?.startsWith('/dashboard/finance')
+  )
+  const [accountingOpen, setAccountingOpen] = useState(
+    pathname?.startsWith('/dashboard/accounting')
   )
   const [catalogOpen, setCatalogOpen] = useState(
     pathname?.startsWith('/dashboard/catalog')
@@ -395,6 +423,84 @@ export default function Sidebar() {
             }`}>
               <ul className={styles.subNavList}>
                 {purchaseLinks.map(({ href, label, icon }) => (
+                  <li key={href}>
+                    <button
+                      onClick={() => navigation.push(href)}
+                      className={`${styles.subNavLink} ${
+                        pathname === href ? styles.active : ''
+                      }`}
+                    >
+                      <i className={`bi ${icon} ${styles.subNavIcon}`} aria-hidden="true"></i>
+                      {label}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </li>
+          
+          {/* Grupo Finance */}
+          <li className={styles.navItem}>
+            <button
+              className={`${styles.groupButton} ${
+                financeOpen ? styles.groupActive : ''
+              }`}
+              onClick={() => setFinanceOpen(!financeOpen)}
+            >
+              <div className={styles.groupContent}>
+                <i className="bi bi-cash-stack" aria-hidden="true"></i>
+                Finanzas
+              </div>
+              <i className={`bi bi-chevron-right ${styles.groupChevron} ${
+                financeOpen ? styles.expanded : ''
+              }`}></i>
+            </button>
+            
+            {/* Submenú */}
+            <div className={`${styles.subMenu} ${
+              financeOpen ? styles.expanded : styles.collapsed
+            }`}>
+              <ul className={styles.subNavList}>
+                {financeLinks.map(({ href, label, icon }) => (
+                  <li key={href}>
+                    <button
+                      onClick={() => navigation.push(href)}
+                      className={`${styles.subNavLink} ${
+                        pathname === href ? styles.active : ''
+                      }`}
+                    >
+                      <i className={`bi ${icon} ${styles.subNavIcon}`} aria-hidden="true"></i>
+                      {label}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </li>
+          
+          {/* Grupo Accounting */}
+          <li className={styles.navItem}>
+            <button
+              className={`${styles.groupButton} ${
+                accountingOpen ? styles.groupActive : ''
+              }`}
+              onClick={() => setAccountingOpen(!accountingOpen)}
+            >
+              <div className={styles.groupContent}>
+                <i className="bi bi-calculator" aria-hidden="true"></i>
+                Contabilidad
+              </div>
+              <i className={`bi bi-chevron-right ${styles.groupChevron} ${
+                accountingOpen ? styles.expanded : ''
+              }`}></i>
+            </button>
+            
+            {/* Submenú */}
+            <div className={`${styles.subMenu} ${
+              accountingOpen ? styles.expanded : styles.collapsed
+            }`}>
+              <ul className={styles.subNavList}>
+                {accountingLinks.map(({ href, label, icon }) => (
                   <li key={href}>
                     <button
                       onClick={() => navigation.push(href)}

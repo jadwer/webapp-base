@@ -16,6 +16,7 @@ export interface SalesOrderItem {
   salesOrderId: string
   productId: number
   product?: any
+  salesOrder?: any
   quantity: number
   unitPrice: number
   totalPrice: number

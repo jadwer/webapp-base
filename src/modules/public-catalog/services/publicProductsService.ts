@@ -78,9 +78,10 @@ class PublicProductsService {
         params['filter[price_max]'] = filters.priceMax.toString()
       }
       
-      if (filters.isActive !== undefined) {
-        params['filter[is_active]'] = filters.isActive ? '1' : '0'
-      }
+      // is_active filter not supported by API - removing for now
+      // if (filters.isActive !== undefined) {
+      //   params['filter[is_active]'] = filters.isActive ? '1' : '0'
+      // }
       
       if (filters.sku) {
         params['filter[sku]'] = filters.sku
@@ -374,8 +375,8 @@ class PublicProductsService {
     include: PublicProductInclude = 'unit,category,brand'
   ): Promise<EnhancedPublicProduct[]> {
     const result = await this.getPublicProducts(
-      { isActive: true },
-      [{ field: 'created_at', direction: 'desc' }],
+      undefined, // Remove isActive filter as it's not supported
+      [{ field: 'name', direction: 'asc' }], // Use 'name' instead of 'created_at'
       { size: limit },
       include
     )
@@ -417,7 +418,7 @@ class PublicProductsService {
       const product = await this.getPublicProduct(productId, include)
       
       // Get related products from same category
-      const filters: PublicProductFilters = { isActive: true }
+      const filters: PublicProductFilters = {}
       
       if (product.category) {
         filters.categoryId = product.category.id
@@ -427,7 +428,7 @@ class PublicProductsService {
       
       const result = await this.getPublicProducts(
         filters,
-        [{ field: 'created_at', direction: 'desc' }],
+        [{ field: 'name', direction: 'asc' }], // Use 'name' instead of 'created_at'
         { size: limit + 1 }, // +1 to exclude current product
         include
       )

@@ -257,10 +257,9 @@ function buildQueryParams(
   }
   params['page[size]'] = pageSize.toString()
   
-  // Sorting
+  // Sorting - keep camelCase for backend compatibility
   if (sort?.field) {
-    const transformedSortObj = transformToSnakeCase({ [sort.field]: '' })
-    const sortField = Object.keys(transformedSortObj)[0]
+    const sortField = sort.field // Use camelCase directly
     params.sort = sort.direction === 'desc' ? `-${sortField}` : sortField
   }
   
@@ -381,7 +380,7 @@ export const productBatchService = {
     const requestData = {
       data: {
         type: RESOURCE_TYPE,
-        attributes: transformToSnakeCase(attributes),
+        attributes: attributes, // Send camelCase directly - backend expects it
         relationships: {
           product: {
             data: { type: 'products', id: productId }
@@ -421,7 +420,7 @@ export const productBatchService = {
       data: {
         type: RESOURCE_TYPE,
         id,
-        attributes: transformToSnakeCase(attributes),
+        attributes: attributes, // Send camelCase directly
         ...(productId || warehouseId || warehouseLocationId) && {
           relationships: {
             ...(productId && {

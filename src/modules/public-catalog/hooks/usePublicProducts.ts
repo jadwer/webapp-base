@@ -243,9 +243,9 @@ export function useFeaturedProducts(
   error: Error | null
   mutate: () => void
 } {
-  const filters = useMemo((): PublicProductFilters => ({ isActive: true }), [])
+  const filters = useMemo((): PublicProductFilters => ({}), [])
   const sort = useMemo((): PublicProductSort[] => ([
-    { field: 'created_at', direction: 'desc' }
+    { field: 'name', direction: 'asc' }
   ]), [])
   const pagination = useMemo((): PublicProductPagination => ({ size: limit }), [limit])
 
@@ -270,7 +270,7 @@ export function useProductsOnOffer(
   pagination?: PublicProductPagination,
   include: PublicProductInclude = 'unit,category,brand'
 ): UsePublicProductsResult {
-  const filters = useMemo((): PublicProductFilters => ({ isActive: true }), [])
+  const filters = useMemo((): PublicProductFilters => ({}), [])
   const sort = useMemo((): PublicProductSort[] => ([
     { field: 'price', direction: 'asc' }
   ]), [])
@@ -328,7 +328,7 @@ export function useProductsByPriceRange(
   const filters = useMemo((): PublicProductFilters | undefined => {
     if (minPrice === null && maxPrice === null) return undefined
     
-    const result: PublicProductFilters = { isActive: true }
+    const result: PublicProductFilters = {}
     
     if (minPrice !== null) result.priceMin = minPrice
     if (maxPrice !== null) result.priceMax = maxPrice

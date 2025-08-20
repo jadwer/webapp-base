@@ -31,7 +31,6 @@ export {
   usePurchaseOrderItems,
   usePurchaseReports,
   usePurchaseSuppliers,
-  usePurchaseAnalytics,
   usePurchaseContacts,
   usePurchaseProducts,
   usePurchaseOrderMutations,

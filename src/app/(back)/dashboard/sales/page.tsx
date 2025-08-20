@@ -11,7 +11,7 @@ export default function SalesPage() {
   
 
   const { salesOrders, isLoading, error } = useSalesOrders({
-    filters: searchTerm ? { search: searchTerm } : undefined
+    search: searchTerm || undefined
   })
 
   const getStatusBadgeClass = (status: string) => {

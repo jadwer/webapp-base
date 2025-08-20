@@ -1,5 +1,5 @@
 import { Metadata } from 'next'
-import { LaborWasserLandingEnhanced } from '@/modules/laborwasser-landing'
+import LaborWasserClient from './LaborWasserClient'
 
 export const metadata: Metadata = {
   title: 'Labor Wasser de México - Reactivos y Material de Laboratorio',
@@ -31,7 +31,7 @@ export const metadata: Metadata = {
 
 export default function LaborWasserDemoPage() {
   return (
-    <LaborWasserLandingEnhanced 
+    <LaborWasserClient 
       showFullCatalog={false}
       enableProductModal={true}
     />

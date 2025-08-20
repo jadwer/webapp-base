@@ -1,21 +1,81 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Button, Input } from '@/ui/components/base'
 import styles from './Header.module.scss'
 import type { NavigationItem } from '../../types'
 
-const navigationItems: NavigationItem[] = [
-  { label: 'Productos', href: '/productos' },
-  { label: 'Servicios', href: '/servicios' },
-  { label: 'Nosotros', href: '/nosotros' },
-  { label: 'Contacto', href: '/contacto' }
+// Base navigation items (fixed pages)
+const baseNavigationItems: NavigationItem[] = [
+  { label: 'Home', href: '/' },
+  { label: 'Roadmap Financiero', href: '/roadmap-financiero' }
 ]
 
 export const Header: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+
+  const [dynamicPages, setDynamicPages] = useState<NavigationItem[]>([])
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  // Obtener páginas dinámicas disponibles
+  useEffect(() => {
+    const fetchPages = async () => {
+      setIsLoading(true)
+      setError(null)
+      try {
+        const response = await fetch('/api/v1/pages?filter[status]=published')
+        
+        // Si el endpoint no existe (404), usar páginas conocidas que existen
+        if (response.status === 404) {
+          console.warn('Pages API not available, using fallback pages')
+          setDynamicPages([
+            { label: 'Nosotros', href: '/p/nosotros' }
+          ])
+          return
+        }
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`)
+        }
+        
+        const contentType = response.headers.get('content-type')
+        if (!contentType || !contentType.includes('application/json')) {
+          console.warn('API returned non-JSON response, using base navigation only')
+          setDynamicPages([])
+          return
+        }
+        
+        const data = await response.json()
+        
+        if (data.data) {
+          const pages = data.data.map((page: any) => ({
+            label: page.attributes.title,
+            href: `/p/${page.attributes.slug}`
+          }))
+          setDynamicPages(pages)
+        } else {
+          setDynamicPages([])
+        }
+      } catch (fetchError) {
+        console.warn('Error fetching pages (graceful fallback):', fetchError)
+        // No establecer error en UI, solo usar navegación base
+        setDynamicPages([])
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchPages()
+  }, [])
+
+  // Combinar navegación base con páginas dinámicas
+  const navigationItems: NavigationItem[] = [
+    ...baseNavigationItems,
+    ...dynamicPages
+  ]
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
@@ -145,6 +205,20 @@ export const Header: React.FC = () => {
                       </Link>
                     </li>
                   ))}
+                  {isLoading && (
+                    <li className={styles.navItem}>
+                      <span className={styles.navLink}>
+                        <i className="bi bi-three-dots" />
+                      </span>
+                    </li>
+                  )}
+                  {error && (
+                    <li className={styles.navItem}>
+                      <span className={styles.navLink} title="Error al cargar páginas dinámicas">
+                        <i className="bi bi-exclamation-triangle text-warning" />
+                      </span>
+                    </li>
+                  )}
                 </ul>
 
                 {/* Contact info */}
