@@ -70,7 +70,7 @@ export const usePurchaseOrder = (id: string) => {
 }
 
 export const usePurchaseOrderItems = (purchaseOrderId?: string) => {
-  const params = purchaseOrderId ? { 'filter[purchase_order_id]': purchaseOrderId } : null
+  const params = purchaseOrderId ? { 'filter[purchaseOrderId]': purchaseOrderId } : null
   const key = params ? ['/api/v1/purchase-order-items', params] : null
   
   const { data, error, isLoading, mutate } = useSWR(
@@ -93,11 +93,11 @@ export const usePurchaseOrderItems = (purchaseOrderId?: string) => {
   }
 }
 
-// Purchase Reports Hooks
-export const usePurchaseReports = (period = 30) => {
+// Purchase Reports Hooks - usar fechas específicas según documentación API
+export const usePurchaseReports = (startDate = '1980-01-01', endDate = '2025-12-31') => {
   const { data, error, isLoading, mutate } = useSWR(
-    `/api/v1/purchase-orders/reports?period=${period}`,
-    () => purchaseReportsService.getReports(period)
+    `/api/v1/purchase-orders/reports?start_date=${startDate}&end_date=${endDate}`,
+    () => purchaseReportsService.getReports(startDate, endDate)
   )
 
   return {
@@ -108,10 +108,10 @@ export const usePurchaseReports = (period = 30) => {
   }
 }
 
-export const usePurchaseSuppliers = (period = 90) => {
+export const usePurchaseSuppliers = (startDate = '1980-01-01', endDate = '2025-12-31') => {
   const { data, error, isLoading, mutate } = useSWR(
-    `/api/v1/purchase-orders/suppliers?period=${period}`,
-    () => purchaseReportsService.getSuppliers(period)
+    `/api/v1/purchase-orders/suppliers?start_date=${startDate}&end_date=${endDate}`,
+    () => purchaseReportsService.getSuppliers(startDate, endDate)
   )
 
   return {
@@ -122,30 +122,12 @@ export const usePurchaseSuppliers = (period = 90) => {
   }
 }
 
-export const usePurchaseAnalytics = (dateFrom?: string, dateTo?: string) => {
-  const key = dateFrom || dateTo 
-    ? `/api/v1/purchase-orders/analytics?${new URLSearchParams({ 
-        ...(dateFrom && { date_from: dateFrom }),
-        ...(dateTo && { date_to: dateTo })
-      }).toString()}`
-    : '/api/v1/purchase-orders/analytics'
-
-  const { data, error, isLoading, mutate } = useSWR(
-    key,
-    () => purchaseReportsService.getPurchaseAnalytics(dateFrom, dateTo)
-  )
-
-  return {
-    analytics: data,
-    isLoading,
-    error,
-    mutate
-  }
-}
-
 // Purchase Contacts Hook (for supplier dropdowns)
 export const usePurchaseContacts = (params?: any) => {
-  const queryParams = params || { 'filter[active]': '1' }
+  // ✅ Usar filtro CORRECTO que funciona: filter[isSupplier]=1
+  const queryParams = params || { 
+    'filter[isSupplier]': '1'
+  }
   const key = ['/api/v1/contacts', queryParams]
   
   const { data, error, isLoading } = useSWR(
@@ -153,6 +135,8 @@ export const usePurchaseContacts = (params?: any) => {
     async () => {
       const response = await purchaseContactsService.getAll(queryParams)
       console.log('🔄 [Hook] Raw contacts response:', response)
+      console.log('🏭 [Hook] Suppliers loaded:', response?.data?.length || 0)
+      console.log('📡 [Hook] Request URL: /api/v1/contacts?filter[isSupplier]=1')
       return response
     }
   )
@@ -166,7 +150,8 @@ export const usePurchaseContacts = (params?: any) => {
 
 // Purchase Products Hook (for order items)
 export const usePurchaseProducts = (params?: any) => {
-  const queryParams = params || { 'filter[active]': '1' }
+  // TODO: Implementar Status - agregar filter[status]=active después de la presentación
+  const queryParams = params || {}
   const key = ['/api/v1/products', queryParams]
   
   const { data, error, isLoading } = useSWR(
@@ -222,9 +207,22 @@ export const usePurchaseOrderMutations = () => {
     }
   }, [])
 
+  const updatePurchaseOrderTotals = useCallback(async (id: string, totals: { totalAmount: number }) => {
+    console.log('💰 [Mutation] Updating purchase order totals:', id, totals)
+    try {
+      const response = await purchaseService.orders.updateTotals(id, totals)
+      console.log('✅ [Mutation] Purchase order totals updated successfully:', response)
+      return response
+    } catch (error) {
+      console.error('❌ [Mutation] Error updating purchase order totals:', error)
+      throw error
+    }
+  }, [])
+
   return {
     createPurchaseOrder,
     updatePurchaseOrder,
+    updatePurchaseOrderTotals,
     deletePurchaseOrder
   }
 }

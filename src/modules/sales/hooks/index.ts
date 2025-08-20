@@ -70,7 +70,7 @@ export const useSalesOrder = (id: string) => {
 }
 
 export const useSalesOrderItems = (salesOrderId?: string) => {
-  const params = salesOrderId ? { 'filter[sales_order_id]': salesOrderId } : null
+  const params = salesOrderId ? { 'filter[salesOrderId]': salesOrderId } : null
   const key = params ? ['/api/v1/sales-order-items', params] : null
   
   const { data, error, isLoading, mutate } = useSWR(
@@ -145,7 +145,7 @@ export const useSalesAnalytics = (dateFrom?: string, dateTo?: string) => {
 
 // Sales Contacts Hook (for dropdowns)
 export const useSalesContacts = (params?: any) => {
-  const queryParams = params || { 'filter[active]': '1' }
+  const queryParams = params || { 'filter[status]': 'active', 'filter[isCustomer]': '1' }
   const key = ['/api/v1/contacts', queryParams]
   
   const { data, error, isLoading } = useSWR(
@@ -166,7 +166,8 @@ export const useSalesContacts = (params?: any) => {
 
 // Sales Products Hook (for order items)
 export const useSalesProducts = (params?: any) => {
-  const queryParams = params || { 'filter[active]': '1' }
+  // TODO: Implementar Status - agregar filter[status]=active después de la presentación
+  const queryParams = params || {}
   const key = ['/api/v1/products', queryParams]
   
   const { data, error, isLoading } = useSWR(
@@ -222,9 +223,22 @@ export const useSalesOrderMutations = () => {
     }
   }, [])
 
+  const updateSalesOrderTotals = useCallback(async (id: string, totals: { totalAmount: number, subtotalAmount?: number, taxAmount?: number }) => {
+    console.log('💰 [Mutation] Updating sales order totals:', id, totals)
+    try {
+      const response = await salesService.orders.updateTotals(id, totals)
+      console.log('✅ [Mutation] Sales order totals updated successfully:', response)
+      return response
+    } catch (error) {
+      console.error('❌ [Mutation] Error updating sales order totals:', error)
+      throw error
+    }
+  }, [])
+
   return {
     createSalesOrder,
     updateSalesOrder,
+    updateSalesOrderTotals,
     deleteSalesOrder
   }
 }

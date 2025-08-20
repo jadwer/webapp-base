@@ -4,7 +4,7 @@ export interface SalesOrder {
   contact?: Contact
   orderNumber: string
   orderDate: string
-  status: 'pending' | 'processing' | 'completed' | 'cancelled'
+  status: 'draft' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled'
   totalAmount: number
   notes?: string
   createdAt?: string

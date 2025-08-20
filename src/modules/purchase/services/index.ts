@@ -11,7 +11,7 @@ export const purchaseService = {
         // Build query string for filtering and includes
         const queryParams = new URLSearchParams()
         
-        // Add includes for relationships
+        // Add includes for relationships - include contact (supplier) for purchase orders
         queryParams.append('include', 'contact')
         
         // Add filters if provided
@@ -40,7 +40,7 @@ export const purchaseService = {
     getById: async (id: string) => {
       try {
         console.log('🚀 [Service] Fetching purchase order by ID:', id)
-        const response = await axiosClient.get(`/api/v1/purchase-orders/${id}?include=contact,items.product`)
+        const response = await axiosClient.get(`/api/v1/purchase-orders/${id}?include=contact,purchaseOrderItems`)
         console.log('✅ [Service] Purchase order response:', response.data)
         return response.data
       } catch (error) {
@@ -78,6 +78,29 @@ export const purchaseService = {
         throw error
       }
     },
+
+    updateTotals: async (id: string, totals: { totalAmount: number }) => {
+      try {
+        console.log('🚀 [Service] Updating purchase order totals:', id, totals)
+        const payload = {
+          data: {
+            type: 'purchase-orders',
+            id: id,
+            attributes: {
+              totalAmount: parseFloat(totals.totalAmount.toString()) // Ensure float
+            }
+          }
+        }
+        console.log('📦 [Service] Totals update payload:', payload)
+        
+        const response = await axiosClient.patch(`/api/v1/purchase-orders/${id}`, payload)
+        console.log('✅ [Service] Updated purchase order totals:', response.data)
+        return response.data
+      } catch (error) {
+        console.error('❌ [Service] Error updating purchase order totals:', error)
+        throw error
+      }
+    },
     
     delete: async (id: string) => {
       try {
@@ -98,8 +121,8 @@ export const purchaseService = {
         
         const queryParams = new URLSearchParams()
         
-        // Add includes for relationships
-        queryParams.append('include', 'product,purchase_order')
+        // Add includes for relationships - API doesn't support nested includes
+        queryParams.append('include', 'product,purchaseOrder')
         
         // Add filters if provided
         if (params) {
@@ -111,7 +134,7 @@ export const purchaseService = {
         }
         
         const queryString = queryParams.toString()
-        const url = queryString ? `/api/v1/purchase-order-items?${queryString}` : '/api/v1/purchase-order-items?include=product,purchase_order'
+        const url = queryString ? `/api/v1/purchase-order-items?${queryString}` : '/api/v1/purchase-order-items?include=product,purchaseOrder'
         
         console.log('📡 [Service] Making request to:', url)
         const response = await axiosClient.get(url)
@@ -168,11 +191,36 @@ export const purchaseService = {
 }
 
 export const purchaseReportsService = {
-  getReports: async (period = 30): Promise<any> => {
+  // Purchase Reports Summary - fechas específicas, estructura simple (no JSON:API)
+  getReports: async (startDate = '1980-01-01', endDate = '2025-12-31'): Promise<any> => {
     try {
-      console.log('🚀 [Service] Fetching purchase reports for period:', period)
-      const response = await axiosClient.get(`/api/v1/purchase-orders/reports?period=${period}`)
+      console.log('📊 [Service] Fetching purchase reports summary from:', startDate, 'to:', endDate)
+      const response = await axiosClient.get(`/api/v1/purchase-orders/reports?start_date=${startDate}&end_date=${endDate}`)
       console.log('✅ [Service] Purchase reports response:', response.data)
+      console.log('🔍 [DEBUG] Raw response.data structure:', JSON.stringify(response.data, null, 2))
+      
+      // Estructura exacta según curl: { data: { summary, by_status, by_supplier, monthly_trend }, period }
+      const data = response.data?.data
+      if (data) {
+        return {
+          // Summary fields - nombres exactos de la API real
+          totalOrders: data.summary?.total_orders || 0,
+          totalAmount: parseFloat(data.summary?.total_amount || 0),
+          averageOrderValue: parseFloat(data.summary?.average_order_value || 0),
+          pendingOrders: data.summary?.pending_orders || 0,
+          completedOrders: data.summary?.completed_orders || 0,
+          
+          // Arrays con nombres exactos de Purchase API real
+          byStatus: data.by_status || [],        // ← by_status (no sales_by_status)
+          bySupplier: data.by_supplier || [],    // ← by_supplier (no top_customers)  
+          monthlyTrend: data.monthly_trend || [], // ← monthly_trend (no sales_trend)
+          
+          // Period info
+          period: response.data.period,
+          raw: response.data // datos completos incluyendo period
+        }
+      }
+      
       return response.data
     } catch (error) {
       console.error('❌ [Service] Error fetching purchase reports:', error)
@@ -180,34 +228,39 @@ export const purchaseReportsService = {
     }
   },
   
-  getSuppliers: async (period = 90): Promise<any> => {
+  // Purchase Suppliers Analytics - fechas específicas
+  getSuppliers: async (startDate = '1980-01-01', endDate = '2025-12-31'): Promise<any> => {
     try {
-      console.log('🚀 [Service] Fetching supplier reports for period:', period)
-      const response = await axiosClient.get(`/api/v1/purchase-orders/suppliers?period=${period}`)
-      console.log('✅ [Service] Supplier reports response:', response.data)
-      return response.data
+      console.log('🏭 [Service] Fetching supplier analytics from:', startDate, 'to:', endDate)
+      const response = await axiosClient.get(`/api/v1/purchase-orders/suppliers?start_date=${startDate}&end_date=${endDate}`)
+      console.log('✅ [Service] Supplier analytics response:', response.data)
+      console.log('🔍 [DEBUG] Raw suppliers response structure:', JSON.stringify(response.data, null, 2))
+      
+      // Estructura exacta JSON:API según curl: { data: [{ id, type, attributes }], meta }
+      const suppliers = response.data?.data || []
+      const meta = response.data?.meta || {}
+      
+      return {
+        suppliers: suppliers.map((supplier: any) => ({
+          id: supplier.id,
+          name: supplier.attributes?.supplier_name,        // ← supplier_name según curl real
+          email: supplier.attributes?.supplier_email,      // ← supplier_email según curl real
+          phone: supplier.attributes?.supplier_phone,      // ← supplier_phone según curl real
+          classification: supplier.attributes?.supplier_classification,
+          totalOrders: supplier.attributes?.total_orders || 0,
+          totalPurchased: parseFloat(supplier.attributes?.total_purchased || 0), // ← total_purchased según curl real
+          lastOrderDate: supplier.attributes?.last_order_date,
+          averageOrderValue: parseFloat(supplier.attributes?.average_order_value || 0),
+          orders: supplier.attributes?.orders || []
+        })),
+        meta: {
+          totalSuppliers: meta.total_suppliers || 0,    // ← total_suppliers según curl real
+          period: meta.period,
+          generatedAt: meta.generated_at
+        }
+      }
     } catch (error) {
-      console.error('❌ [Service] Error fetching supplier reports:', error)
-      throw error
-    }
-  },
-  
-  getPurchaseAnalytics: async (dateFrom?: string, dateTo?: string): Promise<any> => {
-    try {
-      console.log('🚀 [Service] Fetching purchase analytics from:', dateFrom, 'to:', dateTo)
-      
-      const params = new URLSearchParams()
-      if (dateFrom) params.append('date_from', dateFrom)
-      if (dateTo) params.append('date_to', dateTo)
-      
-      const queryString = params.toString()
-      const url = queryString ? `/api/v1/purchase-orders/analytics?${queryString}` : '/api/v1/purchase-orders/analytics'
-      
-      const response = await axiosClient.get(url)
-      console.log('✅ [Service] Purchase analytics response:', response.data)
-      return response.data
-    } catch (error) {
-      console.error('❌ [Service] Error fetching purchase analytics:', error)
+      console.error('❌ [Service] Error fetching supplier analytics:', error)
       throw error
     }
   }
@@ -217,9 +270,10 @@ export const purchaseReportsService = {
 export const purchaseContactsService = {
   getAll: async (params?: any) => {
     try {
-      console.log('🚀 [Service] Fetching contacts for purchases:', params)
+      console.log('🚀 [Service] Fetching suppliers for purchases:', params)
       
       const queryParams = new URLSearchParams()
+      
       if (params) {
         Object.keys(params).forEach(key => {
           if (params[key] !== undefined && params[key] !== null && params[key] !== '') {
@@ -228,14 +282,14 @@ export const purchaseContactsService = {
         })
       }
       
-      const queryString = queryParams.toString()
-      const url = queryString ? `/api/v1/contacts?${queryString}` : '/api/v1/contacts'
+      const url = queryParams.toString() ? `/api/v1/contacts?${queryParams.toString()}` : '/api/v1/contacts'
       
+      console.log('📡 [Service] Making request to:', url)
       const response = await axiosClient.get(url)
-      console.log('✅ [Service] Contacts response:', response.data)
+      console.log('✅ [Service] Suppliers response:', response.data)
       return response.data
     } catch (error) {
-      console.error('❌ [Service] Error fetching contacts:', error)
+      console.error('❌ [Service] Error fetching suppliers:', error)
       throw error
     }
   }
