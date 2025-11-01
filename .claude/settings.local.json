@@ -30,7 +30,11 @@
       "Bash(npm run vitest run:*)",
       "Bash(npx vitest run:*)",
       "Bash(npm run test:*)",
-      "Bash(npx eslint:*)"
+      "Bash(npx eslint:*)",
+      "Bash(tree:*)",
+      "Bash(do echo '=== $(basename $dir) ===')",
+      "Bash(xargs:*)",
+      "Bash(do echo '=== $module ===')"
     ],
     "deny": [],
     "defaultMode": "acceptEdits"
