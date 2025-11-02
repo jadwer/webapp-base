@@ -2,6 +2,36 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## CRITICAL: Commit Message Style Guidelines
+
+**IMPORTANT:** All commit messages must follow professional standards:
+
+- NO emojis in commit messages (no 🎉, ✅, 🔧, etc.)
+- NO Claude Code attribution or co-author tags
+- NO marketing language or promotional content
+- Professional tone - Clear, concise, technical
+- Conventional Commits format when applicable (feat:, fix:, docs:, test:, etc.)
+- Technical accuracy - Describe what was changed and why
+
+**Example of INCORRECT commit:**
+```
+🎉 feat: add amazing new feature
+
+This is so cool! We added an amazing feature.
+
+🤖 Generated with Claude Code
+Co-Authored-By: Claude <noreply@anthropic.com>
+```
+
+**Example of CORRECT commit:**
+```
+feat: add user authentication with JWT tokens
+
+Implemented JWT-based authentication system with refresh token support.
+Added login, logout, and token refresh endpoints.
+Updated user model to store refresh tokens securely.
+```
+
 ## Project Overview
 
 This is a Next.js App Router application serving as the official frontend template for Labor Wasser de México. It's designed as a modular, scalable base for ERPs, internal systems, and web platforms with decoupled, reusable modules.

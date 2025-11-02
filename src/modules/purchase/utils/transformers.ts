@@ -18,13 +18,13 @@ export function transformJsonApiPurchaseOrder(resource: JsonApiResource): Purcha
   return {
     id: resource.id,
     contactId: (attributes.contact_id || attributes.contactId) as number,
-    orderNumber: `PO-${resource.id}`, // Generate order number from ID since API doesn't provide one
-    orderDate: (attributes.orderDate || attributes.order_date || '') as string,
+    orderNumber: (attributes.order_number || attributes.orderNumber || `PO-${resource.id}`) as string, // Use API value first, fallback to generated
+    orderDate: (attributes.order_date || attributes.orderDate || '') as string,
     status: (attributes.status || 'pending') as 'pending' | 'approved' | 'received' | 'cancelled',
-    totalAmount: (attributes.totalAmount || attributes.total_amount || 0) as number,
+    totalAmount: (attributes.total_amount || attributes.totalAmount || 0) as number,
     notes: (attributes.notes || '') as string,
-    createdAt: attributes.createdAt || attributes.created_at || attributes.createdAt,
-    updatedAt: attributes.updatedAt || attributes.updated_at || attributes.updatedAt,
+    createdAt: attributes.created_at || attributes.createdAt,
+    updatedAt: attributes.updated_at || attributes.updatedAt,
     contact: resource.relationships?.contact?.data ? transformContact(resource.relationships.contact.data) : undefined
   }
 }
@@ -75,10 +75,10 @@ export function transformPurchaseOrdersResponse(response: any) {
   }
   
   // Transform orders and attach related data
-  const data = Array.isArray(response.data) 
+  const data = Array.isArray(response.data)
     ? response.data.map((order: any) => {
         const transformed = transformJsonApiPurchaseOrder(order)
-        
+
         // If contact relationship exists, get full contact data from included
         if (order.relationships?.contact?.data) {
           const contactKey = `${order.relationships.contact.data.type}:${order.relationships.contact.data.id}`
@@ -87,10 +87,21 @@ export function transformPurchaseOrdersResponse(response: any) {
             transformed.contact = transformContact(contactData)
           }
         }
-        
+
         return transformed
       })
-    : [transformJsonApiPurchaseOrder(response.data)]
+    : (() => {
+        // Single resource - also process included
+        const transformed = transformJsonApiPurchaseOrder(response.data)
+        if (response.data.relationships?.contact?.data) {
+          const contactKey = `${response.data.relationships.contact.data.type}:${response.data.relationships.contact.data.id}`
+          const contactData = includedMap.get(contactKey)
+          if (contactData) {
+            transformed.contact = transformContact(contactData)
+          }
+        }
+        return [transformed]
+      })()
   
   console.log('✅ [Transformer] Transformed purchase orders with contacts:', data)
   return { data, meta: response.meta || {} }
@@ -117,16 +128,21 @@ export function transformPurchaseOrderItemsResponse(response: any) {
   const data = Array.isArray(response.data)
     ? response.data.map((item: any) => {
         const transformed = transformJsonApiPurchaseOrderItem(item)
-        
+
         // If product relationship exists, get full product data from included
         if (item.relationships?.product?.data) {
           const productKey = `${item.relationships.product.data.type}:${item.relationships.product.data.id}`
           const productData = includedMap.get(productKey)
           if (productData) {
-            transformed.product = productData
+            // Transform product to simple object
+            transformed.product = {
+              id: parseInt(productData.id),
+              name: productData.attributes?.name || '',
+              sku: productData.attributes?.sku || '',
+            }
           }
         }
-        
+
         // If purchase order relationship exists, get full order data from included
         if (item.relationships?.purchaseOrder?.data) {
           const orderKey = `${item.relationships.purchaseOrder.data.type}:${item.relationships.purchaseOrder.data.id}`
@@ -135,10 +151,33 @@ export function transformPurchaseOrderItemsResponse(response: any) {
             transformed.purchaseOrder = orderData
           }
         }
-        
+
         return transformed
       })
-    : [transformJsonApiPurchaseOrderItem(response.data)]
+    : (() => {
+        // Single resource - also process included
+        const transformed = transformJsonApiPurchaseOrderItem(response.data)
+        if (response.data.relationships?.product?.data) {
+          const productKey = `${response.data.relationships.product.data.type}:${response.data.relationships.product.data.id}`
+          const productData = includedMap.get(productKey)
+          if (productData) {
+            // Transform product to simple object
+            transformed.product = {
+              id: parseInt(productData.id),
+              name: productData.attributes?.name || '',
+              sku: productData.attributes?.sku || '',
+            }
+          }
+        }
+        if (response.data.relationships?.purchaseOrder?.data) {
+          const orderKey = `${response.data.relationships.purchaseOrder.data.type}:${response.data.relationships.purchaseOrder.data.id}`
+          const orderData = includedMap.get(orderKey)
+          if (orderData) {
+            transformed.purchaseOrder = orderData
+          }
+        }
+        return [transformed]
+      })()
   
   console.log('✅ [Transformer] Transformed purchase order items with relationships:', data)
   return { data, meta: response.meta || {} }
@@ -150,27 +189,28 @@ export function transformPurchaseOrderFormToJsonApi(data: any, type: string = 'p
     data: {
       type,
       attributes: {
-        contact_id: parseInt(data.contactId), // ✅ AMBOS: contact_id como atributo
-        orderDate: data.orderDate,
+        contact_id: parseInt(data.contactId), // Convert to integer
+        order_number: data.orderNumber, // Include order number
+        order_date: data.orderDate, // Use snake_case for API
         status: data.status,
         notes: data.notes || '',
-        totalAmount: parseFloat(data.totalAmount || 0)
+        total_amount: parseFloat(data.totalAmount || 0) // Use snake_case for API
       },
       relationships: {
         contact: {
-          data: { 
-            type: "contacts", 
-            id: parseInt(data.contactId).toString() // ✅ Y contact como relationship
+          data: {
+            type: "contacts",
+            id: parseInt(data.contactId).toString()
           }
         }
       }
     }
   }
-  
+
   if (id) {
     payload.data.id = id
   }
-  
+
   console.log('📦 [Transformer] Purchase Order payload:', JSON.stringify(payload, null, 2))
   return payload
 }
