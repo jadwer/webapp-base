@@ -43,11 +43,14 @@ export {
   useExitMovements
 } from './useInventoryMovements'
 
-// Product Batch hooks ✨ **NEW**
+// Product Batch hooks
 export {
   useProductBatches,
   useProductBatchesByProduct,
-  useExpiringProductBatches
+  useProductBatchesByWarehouse,
+  useProductBatchesByStatus,
+  useExpiringProductBatches,
+  useLowStockProductBatches
 } from './useProductBatches'
 
 export {
