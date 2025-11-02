@@ -91,7 +91,7 @@ export default function PermissionsTable({
                 </span>
               </td>
               <td className="text-muted small">
-                {formatDate(permission.createdAt)}
+                {formatDate(permission.created_at)}
               </td>
               <td>
                 <div className="btn-group btn-group-sm" role="group">

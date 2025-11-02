@@ -6,11 +6,11 @@
 // ============================================
 // COMPONENTS
 // ============================================
-export { AuthStatus } from './components/AuthStatus'
+export { default as AuthStatus } from './components/AuthStatus'
 export { default as AuthenticatedLayout } from './components/AuthenticatedLayout'
-export { ChangePasswordForm } from './components/ChangePasswordForm'
+export { default as ChangePasswordForm } from './components/ChangePasswordForm'
 export { LoginForm } from './components/LoginForm'
-export { ProfileInfo } from './components/ProfileInfo'
+export { default as ProfileInfo } from './components/ProfileInfo'
 export { RegisterForm } from './components/RegisterForm'
 
 // ============================================

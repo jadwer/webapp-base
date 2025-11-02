@@ -55,7 +55,6 @@ export function useRoleActions() {
       await mutate(key => Array.isArray(key) && key[0] === 'roles')
       return newRole
     } catch (error) {
-      console.error('Error creando rol:', error)
       throw error
     }
   }, [])
@@ -68,7 +67,6 @@ export function useRoleActions() {
       await mutate(key => Array.isArray(key) && key[0] === 'roles')
       return updatedRole
     } catch (error) {
-      console.error('Error actualizando rol:', error)
       throw error
     }
   }, [])
@@ -80,7 +78,6 @@ export function useRoleActions() {
       await mutate(key => typeof key === 'string' && key.startsWith('roles'))
       await mutate(key => Array.isArray(key) && key[0] === 'roles')
     } catch (error) {
-      console.error('Error eliminando rol:', error)
       throw error
     }
   }, [])
@@ -94,7 +91,7 @@ export function useRoleActions() {
 
 // Hook para estadísticas de roles
 export function useRoleStats() {
-  const { roles, isLoading, error } = useRoles(['permissions'])
+  const { roles, isLoading, error, mutate } = useRoles(['permissions'])
 
   const stats = useMemo(() => {
     return {
@@ -108,6 +105,6 @@ export function useRoleStats() {
     stats,
     error,
     isLoading,
-    mutate: () => {} // Mantener compatibilidad
+    mutate
   }
 }

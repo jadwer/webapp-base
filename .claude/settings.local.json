@@ -35,7 +35,8 @@
       "Bash(do echo '=== $(basename $dir) ===')",
       "Bash(xargs:*)",
       "Bash(do echo '=== $module ===')",
-      "Bash(npm run test:coverage:*)"
+      "Bash(npm run test:coverage:*)",
+      "Bash(npm run validate:module:*)"
     ],
     "deny": [],
     "defaultMode": "acceptEdits"

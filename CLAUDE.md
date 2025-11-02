@@ -295,6 +295,138 @@ The `contacts` module is a comprehensive contact management system with advanced
 - Each module should have its own types, hooks, and services
 - Always create an `index.ts` export file per module
 
+### Module index.ts Best Practices ⚠️ **CRITICAL**
+
+**CRITICAL:** Creating module barrel files (`index.ts`) requires careful verification to prevent export errors. A single incorrect export can break the entire module.
+
+#### **Why This Matters:**
+During Sprint 1 of the implementation review (Enero 2025), an `auth/index.ts` file was created with incorrect exports, causing TypeScript errors:
+- Used named exports for components that actually had default exports
+- Error: `El módulo "./components/AuthStatus" no tiene ningún miembro "AuthStatus" exportado`
+- Impact: Module completely broken until fixed
+
+#### **The Rule:**
+**ALWAYS verify the actual export syntax in each source file BEFORE creating the index.ts barrel file.**
+
+#### **Checklist for Creating Module index.ts:**
+
+1. **Read ALL source files first** - Use the Read tool to open each file
+2. **Identify export type** - Check if it's a named export or default export:
+   ```tsx
+   // DEFAULT export (look for "export default")
+   export default function ComponentName() { }
+
+   // NAMED export (look for "export" before function/const)
+   export function ComponentName() { }
+   export const hookName = () => { }
+   ```
+
+3. **Use correct barrel syntax:**
+   ```typescript
+   // For DEFAULT exports:
+   export { default as ComponentName } from './components/ComponentName'
+
+   // For NAMED exports:
+   export { ComponentName } from './components/ComponentName'
+
+   // For type exports:
+   export type { TypeName } from './types/typeName'
+   ```
+
+4. **Organize exports by category:**
+   ```typescript
+   // Components
+   export { default as AuthStatus } from './components/AuthStatus'
+   export { LoginForm } from './components/LoginForm'
+
+   // Hooks
+   export { useAuth } from './lib/auth'
+   export { useProfile } from './hooks/useProfile'
+
+   // Services
+   export { authService } from './services/authService'
+
+   // Types
+   export type { User, LoginFormData } from './types/auth'
+   ```
+
+5. **Verify the build** - Always run `npm run build` after creating index.ts to catch errors immediately
+
+#### **Common Mistakes to Avoid:**
+
+❌ **WRONG - Guessing export types:**
+```typescript
+// Assumed it was named export without checking
+export { AuthStatus } from './components/AuthStatus'  // BREAKS if it's actually default export
+```
+
+✅ **CORRECT - Verify first, then export:**
+```typescript
+// Read the file, saw "export default function AuthStatus()"
+export { default as AuthStatus } from './components/AuthStatus'  // WORKS
+```
+
+❌ **WRONG - Mixed syntax:**
+```typescript
+export { default ComponentName } from './path'  // Missing "as"
+export default { ComponentName } from './path'  // Completely wrong
+```
+
+✅ **CORRECT - Proper syntax:**
+```typescript
+export { default as ComponentName } from './path'
+export { ComponentName } from './path'
+```
+
+#### **Validation Process:**
+
+**MANDATORY STEPS before creating any module index.ts:**
+
+1. **List all files to export:**
+   ```bash
+   # Use Glob to find all exportable files
+   components/*.tsx
+   hooks/*.ts
+   services/*.ts
+   types/*.ts
+   lib/*.ts
+   ```
+
+2. **Read each file and document export type:**
+   ```
+   ✓ AuthStatus.tsx - DEFAULT export
+   ✓ LoginForm.tsx - NAMED export
+   ✓ useAuth.ts - NAMED export
+   ✓ authService.ts - NAMED export
+   ```
+
+3. **Create index.ts with verified syntax**
+
+4. **Build and verify:**
+   ```bash
+   npm run build
+   ```
+
+5. **Check for TypeScript errors** - Any "no exported member" errors mean wrong export type
+
+#### **Quick Reference:**
+
+| Source File | Export Syntax | Barrel File Syntax |
+|-------------|---------------|-------------------|
+| `export default function Foo()` | Default | `export { default as Foo } from './Foo'` |
+| `export function Foo()` | Named | `export { Foo } from './Foo'` |
+| `export const foo = () => {}` | Named | `export { foo } from './foo'` |
+| `export type Foo = {}` | Type | `export type { Foo } from './foo'` |
+| `export interface Foo {}` | Type | `export type { Foo } from './foo'` |
+
+#### **Why This Can't Be Automated (Yet):**
+- Files may have multiple exports (default + named)
+- Some files export from other files (re-exports)
+- TypeScript doesn't provide a simple "list all exports" command
+- Manual verification is currently the safest approach
+
+**Remember:** The goal of a barrel file is to make imports cleaner. If it breaks the module, it's worse than not having one. When in doubt, read the source file first.
+
 ### File Conventions
 - `*.html.tsx` files are designated for designers (visual templates)
 - Business logic and hooks should not be modified by designers
@@ -531,6 +663,37 @@ This frontend is designed to work with `api-base`, the official modular backend 
 4. Developer handles push and any merge conflicts
 
 This ensures developer maintains full control over git history and prevents accidental work loss.
+
+### Commit Message Style Guidelines
+
+**IMPORTANT:** All commit messages must follow professional standards:
+
+- ❌ **NO emojis** in commit messages (🎉, ✅, 🔧, etc.)
+- ❌ **NO Claude Code attribution** or co-author tags
+- ❌ **NO marketing language** or promotional content
+- ✅ **Professional tone** - Clear, concise, technical
+- ✅ **Conventional Commits** format when applicable (feat:, fix:, docs:, etc.)
+- ✅ **Technical accuracy** - Describe what was changed and why
+
+**Good examples:**
+```
+feat: add comprehensive test suite for permissions and roles modules
+
+- Implemented 57 tests across permissions and roles modules
+- Added test utilities and mock factories
+- Fixed type inconsistencies in permissions service
+- Updated documentation with module export best practices
+```
+
+**Bad examples (AVOID):**
+```
+🎉 feat: complete Sprint 2 with awesome testing! ✅
+
+Co-Authored-By: Claude <noreply@anthropic.com>
+🤖 Generated with Claude Code
+```
+
+**Reasoning:** Professional commit messages maintain code history integrity, facilitate team collaboration, and reflect the quality standards of Labor Wasser de México's development practices.
 
 ## Documentation References
 

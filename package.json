@@ -20,7 +20,8 @@
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest watch",
     "test:integration": "vitest run --testNamePattern=\"API Integration Tests\" --testTimeout=10000",
-    "test:unit": "vitest run --testNamePattern=\"^(?!.*API Integration Tests).*\""
+    "test:unit": "vitest run --testNamePattern=\"^(?!.*API Integration Tests).*\"",
+    "validate:module": "node scripts/validate-module-exports.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.1.1",
