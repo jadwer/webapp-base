@@ -1,5 +1,5 @@
 // src/modules/auth/tests/lib/auth.test.ts
-import { renderHook, waitFor, act } from '@testing-library/react'
+import { renderHook, act } from '@testing-library/react'
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
 import { useAuth } from '../../lib/auth'
 import axios from '@/lib/axiosClient'

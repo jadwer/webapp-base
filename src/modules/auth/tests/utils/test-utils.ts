@@ -1,4 +1,5 @@
 // src/modules/auth/tests/utils/test-utils.ts
+import { vi } from 'vitest'
 import { User } from '@/lib/permissions'
 
 /**

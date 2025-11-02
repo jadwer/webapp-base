@@ -3,9 +3,16 @@ import { Permission, PermissionFormData } from '../types/permission'
 
 const RESOURCE = '/api/v1/permissions'
 
+interface PermissionApiAttributes {
+  name: string
+  guard_name: string
+  createdAt: string
+  updatedAt: string
+}
+
 export const getAllPermissions = async (): Promise<Permission[]> => {
   const response = await axiosClient.get(RESOURCE)
-  return response.data.data.map((item: { id: string; attributes: any }) => ({
+  return response.data.data.map((item: { id: string; attributes: PermissionApiAttributes }) => ({
     id: item.id,
     name: item.attributes.name,
     guard_name: item.attributes.guard_name,

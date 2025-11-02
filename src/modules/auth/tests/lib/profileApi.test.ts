@@ -34,6 +34,7 @@ describe('profileApi', () => {
 
       expect(axiosClient.get).toHaveBeenCalledWith('/api/v1/profile')
       // getCurrentUser returns attributes only (no id)
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { id, ...userWithoutId } = testUser
       expect(user).toEqual(userWithoutId)
     })
