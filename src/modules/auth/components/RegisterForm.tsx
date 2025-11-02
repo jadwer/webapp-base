@@ -28,6 +28,7 @@ export function RegisterForm() {
   >("info");
   const [showPassword, setShowPassword] = useState(false);
   const [showPasswordConfirmation, setShowPasswordConfirmation] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
     register,
@@ -39,6 +40,8 @@ export function RegisterForm() {
   });
 
   const onSubmit = async (data: RegisterFormData) => {
+    setIsSubmitting(true);
+
     try {
       await registerUser({
         ...data,
@@ -83,6 +86,8 @@ export function RegisterForm() {
           setStatusType("danger");
         }
       );
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -160,8 +165,15 @@ export function RegisterForm() {
       </div>
 
       <div className="d-grid">
-        <button type="submit" className="btn btn-primary">
-          Registrarme
+        <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
+          {isSubmitting ? (
+            <>
+              <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+              Registrando...
+            </>
+          ) : (
+            'Registrarme'
+          )}
         </button>
       </div>
     </form>

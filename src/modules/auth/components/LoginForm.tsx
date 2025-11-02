@@ -23,6 +23,7 @@ export function LoginForm({ redirect, onLoginSuccess }: Props) {
 
   const [status, setStatus] = useState<string | null>(null)
   const [statusType, setStatusType] = useState<'success' | 'danger' | 'info' | 'warning'>('info')
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const {
     register,
@@ -41,6 +42,8 @@ export function LoginForm({ redirect, onLoginSuccess }: Props) {
   }, [registered])
 
   const onSubmit = async (data: LoginFormData) => {
+    setIsSubmitting(true)
+
     try {
       const success = await login({
         ...data,
@@ -85,6 +88,8 @@ export function LoginForm({ redirect, onLoginSuccess }: Props) {
           setStatusType('danger')
         }
       )
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -118,7 +123,16 @@ export function LoginForm({ redirect, onLoginSuccess }: Props) {
       </div>
 
       <div className="d-grid">
-        <button type="submit" className="btn btn-primary">Iniciar sesión</button>
+        <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
+          {isSubmitting ? (
+            <>
+              <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+              Iniciando sesión...
+            </>
+          ) : (
+            'Iniciar sesión'
+          )}
+        </button>
       </div>
     </form>
   )

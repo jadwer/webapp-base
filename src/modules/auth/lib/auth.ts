@@ -38,13 +38,11 @@ export const useAuth = ({ middleware }: UseAuthOptions = {}) => {
       axios
         .get(url)
         .then((res) => {
-          console.log('🔍 API Profile Response (with roles & permissions):', res.data)
           const userData = res.data?.data
           const finalUser = {
             id: parseInt(userData?.id),
             ...userData?.attributes
           }
-          console.log('✅ Usuario final procesado:', finalUser)
           return finalUser
         })
         .catch((error) => {
@@ -74,18 +72,19 @@ const isLoading = shouldFetch && !user && !error;
   }: AuthErrorHandler & Record<string, unknown>) => {
     setErrors({});
 
-    axios
-      .post("/api/auth/register", props)
-      .then(() => mutate())
-      .catch((error) => {
-        if (error.response?.status === 422) {
-          const jsonApiErrors = error.response.data.errors ?? [];
-          const parsed = parseJsonApiErrors(jsonApiErrors);
-          setErrors?.(parsed);
-        } else {
-          throw error;
-        }
-      });
+    try {
+      await axios.post("/api/auth/register", props);
+      await mutate();
+    } catch (error: unknown) {
+      const apiError = error as ApiError;
+      if (apiError.response?.status === 422) {
+        const jsonApiErrors = apiError.response.data?.errors ?? [];
+        const parsed = parseJsonApiErrors(jsonApiErrors);
+        setErrors?.(parsed);
+      } else {
+        throw error;
+      }
+    }
   };
 
   const login = async ({
@@ -144,9 +143,23 @@ const isLoading = shouldFetch && !user && !error;
   };
 
   const logout = async () => {
-    localStorage.removeItem("access_token");
-    await mutate(null);
-    router.replace("/auth/login");
+    try {
+      // 1. Invalidar token en el backend
+      await axios.post("/api/v1/auth/logout");
+    } catch (error) {
+      // Log error pero continuar con logout local
+      // No queremos bloquear el logout si el backend falla
+      console.error("Backend logout failed:", error);
+    } finally {
+      // 2. Limpieza local (SIEMPRE ejecutar)
+      localStorage.removeItem("access_token");
+
+      // 3. Limpiar caché de SWR
+      await mutate(null);
+
+      // 4. Redirigir al login
+      router.replace("/auth/login");
+    }
   };
 
   const forgotPassword = async ({

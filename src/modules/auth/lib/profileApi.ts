@@ -40,7 +40,7 @@ function updateProfile() {
 }
 
 function uploadAvatar() {
-  console.log("TODO: updateProfile");
+  console.log("TODO: uploadAvatar");
   return true;
 }
 
