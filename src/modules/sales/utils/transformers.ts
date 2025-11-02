@@ -75,10 +75,10 @@ export function transformSalesOrdersResponse(response: any) {
   }
   
   // Transform orders and attach related data
-  const data = Array.isArray(response.data) 
+  const data = Array.isArray(response.data)
     ? response.data.map((order: any) => {
         const transformed = transformJsonApiSalesOrder(order)
-        
+
         // If contact relationship exists, get full contact data from included
         if (order.relationships?.contact?.data) {
           const contactKey = `${order.relationships.contact.data.type}:${order.relationships.contact.data.id}`
@@ -87,10 +87,21 @@ export function transformSalesOrdersResponse(response: any) {
             transformed.contact = transformContact(contactData)
           }
         }
-        
+
         return transformed
       })
-    : [transformJsonApiSalesOrder(response.data)]
+    : (() => {
+        // Single resource - also process included
+        const transformed = transformJsonApiSalesOrder(response.data)
+        if (response.data.relationships?.contact?.data) {
+          const contactKey = `${response.data.relationships.contact.data.type}:${response.data.relationships.contact.data.id}`
+          const contactData = includedMap.get(contactKey)
+          if (contactData) {
+            transformed.contact = transformContact(contactData)
+          }
+        }
+        return [transformed]
+      })()
   
   console.log('✅ [Transformer] Transformed sales orders with contacts:', data)
   return { data, meta: response.meta || {} }
@@ -117,16 +128,21 @@ export function transformSalesOrderItemsResponse(response: any) {
   const data = Array.isArray(response.data)
     ? response.data.map((item: any) => {
         const transformed = transformJsonApiSalesOrderItem(item)
-        
+
         // If product relationship exists, get full product data from included
         if (item.relationships?.product?.data) {
           const productKey = `${item.relationships.product.data.type}:${item.relationships.product.data.id}`
           const productData = includedMap.get(productKey)
           if (productData) {
-            transformed.product = productData
+            // Transform product to simple object
+            transformed.product = {
+              id: parseInt(productData.id),
+              name: productData.attributes?.name || '',
+              sku: productData.attributes?.sku || '',
+            }
           }
         }
-        
+
         // If sales order relationship exists, get full order data from included
         if (item.relationships?.salesOrder?.data) {
           const orderKey = `${item.relationships.salesOrder.data.type}:${item.relationships.salesOrder.data.id}`
@@ -135,10 +151,33 @@ export function transformSalesOrderItemsResponse(response: any) {
             transformed.salesOrder = orderData
           }
         }
-        
+
         return transformed
       })
-    : [transformJsonApiSalesOrderItem(response.data)]
+    : (() => {
+        // Single resource - also process included
+        const transformed = transformJsonApiSalesOrderItem(response.data)
+        if (response.data.relationships?.product?.data) {
+          const productKey = `${response.data.relationships.product.data.type}:${response.data.relationships.product.data.id}`
+          const productData = includedMap.get(productKey)
+          if (productData) {
+            // Transform product to simple object
+            transformed.product = {
+              id: parseInt(productData.id),
+              name: productData.attributes?.name || '',
+              sku: productData.attributes?.sku || '',
+            }
+          }
+        }
+        if (response.data.relationships?.salesOrder?.data) {
+          const orderKey = `${response.data.relationships.salesOrder.data.type}:${response.data.relationships.salesOrder.data.id}`
+          const orderData = includedMap.get(orderKey)
+          if (orderData) {
+            transformed.salesOrder = orderData
+          }
+        }
+        return [transformed]
+      })()
   
   console.log('✅ [Transformer] Transformed sales order items with relationships:', data)
   return { data, meta: response.meta || {} }
