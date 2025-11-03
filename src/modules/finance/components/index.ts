@@ -21,4 +21,12 @@ export { ARReceiptFormComponent } from './ARReceiptForm'
 export { FilterBar } from './FilterBar'
 export { PaginationSimple } from './PaginationSimple'
 
+// Payment Methods components
+export { PaymentMethodsAdminPage } from './PaymentMethodsAdminPage'
+export { PaymentMethodForm } from './PaymentMethodForm'
+
+// Payment Applications components
+export { PaymentApplicationsAdminPage } from './PaymentApplicationsAdminPage'
+export { PaymentApplicationForm } from './PaymentApplicationForm'
+
 // Bank Account components coming next
