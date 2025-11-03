@@ -38,7 +38,10 @@
       "Bash(npm run test:coverage:*)",
       "Bash(npm run validate:module:*)",
       "Bash(cat:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(do echo '===== $dir =====')",
+      "Bash(awk:*)",
+      "Bash(/home/jadwer/dev/AtomoSoluciones/base/webapp-base/src/modules/finance/services/index.ts)"
     ],
     "deny": [],
     "defaultMode": "acceptEdits"

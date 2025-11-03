@@ -17,6 +17,12 @@ import {
   transformAPPaymentToAPI,
   transformARInvoiceToAPI,
   transformARReceiptToAPI,
+  transformPaymentApplicationsFromAPI,
+  transformPaymentApplicationFromAPI,
+  transformPaymentApplicationToAPI,
+  transformPaymentMethodsFromAPI,
+  transformPaymentMethodFromAPI,
+  transformPaymentMethodToAPI,
 } from '../utils/transformers';
 import type {
   APInvoice,
@@ -28,13 +34,17 @@ import type {
   APPaymentForm,
   ARInvoiceForm,
   ARReceiptForm,
+  PaymentApplication,
+  PaymentApplicationForm,
+  PaymentMethod,
+  PaymentMethodForm,
   FinanceAPIResponse,
 } from '../types';
 
 // AP Invoices Service
 export const apInvoicesService = {
   async getAll(params: Record<string, any> = {}): Promise<FinanceAPIResponse<APInvoice>> {
-    const response = await axiosClient.get('/api/v1/a-p-invoices', { params });
+    const response = await axiosClient.get('/api/v1/ap-invoices', { params });
     const transformedData = transformAPInvoicesFromAPI(response.data);
     return {
       jsonapi: response.data.jsonapi || { version: '1.0' },
@@ -46,7 +56,7 @@ export const apInvoicesService = {
 
   async getById(id: string, includes: string[] = []): Promise<{ data: APInvoice }> {
     const includeParam = includes.length > 0 ? `?include=${includes.join(',')}` : '';
-    const response = await axiosClient.get(`/api/v1/a-p-invoices/${id}${includeParam}`);
+    const response = await axiosClient.get(`/api/v1/ap-invoices/${id}${includeParam}`);
     return {
       data: transformAPInvoiceFromAPI(response.data.data, response.data.included || [])
     };
@@ -54,16 +64,16 @@ export const apInvoicesService = {
 
   async create(data: APInvoiceForm): Promise<{ data: APInvoice }> {
     const payload = transformAPInvoiceToAPI(data);
-    const response = await axiosClient.post('/api/v1/a-p-invoices', payload);
+    const response = await axiosClient.post('/api/v1/ap-invoices', payload);
     return {
       data: transformAPInvoiceFromAPI(response.data.data)
     };
   },
 
   async update(id: string, data: Partial<APInvoiceForm>): Promise<{ data: APInvoice }> {
-    const response = await axiosClient.patch(`/api/v1/a-p-invoices/${id}`, {
+    const response = await axiosClient.patch(`/api/v1/ap-invoices/${id}`, {
       data: {
-        type: 'a-p-invoices',
+        type: 'ap-invoices',
         id,
         attributes: data,
       },
@@ -72,11 +82,11 @@ export const apInvoicesService = {
   },
 
   async delete(id: string): Promise<void> {
-    await axiosClient.delete(`/api/v1/a-p-invoices/${id}`);
+    await axiosClient.delete(`/api/v1/ap-invoices/${id}`);
   },
 
   async post(id: string): Promise<{ data: APInvoice }> {
-    const response = await axiosClient.post(`/api/v1/a-p-invoices/${id}/post`);
+    const response = await axiosClient.post(`/api/v1/ap-invoices/${id}/post`);
     return response.data;
   },
 };
@@ -84,7 +94,7 @@ export const apInvoicesService = {
 // AP Payments Service
 export const apPaymentsService = {
   async getAll(params: Record<string, any> = {}): Promise<FinanceAPIResponse<APPayment>> {
-    const response = await axiosClient.get('/api/v1/a-p-payments', { params });
+    const response = await axiosClient.get('/api/v1/ap-payments', { params });
     const transformedData = transformAPPaymentsFromAPI(response.data);
     return {
       jsonapi: response.data.jsonapi || { version: '1.0' },
@@ -96,7 +106,7 @@ export const apPaymentsService = {
 
   async getById(id: string, includes: string[] = []): Promise<{ data: APPayment }> {
     const includeParam = includes.length > 0 ? `?include=${includes.join(',')}` : '';
-    const response = await axiosClient.get(`/api/v1/a-p-payments/${id}${includeParam}`);
+    const response = await axiosClient.get(`/api/v1/ap-payments/${id}${includeParam}`);
     return {
       data: transformAPPaymentFromAPI(response.data.data, response.data.included || [])
     };
@@ -104,16 +114,16 @@ export const apPaymentsService = {
 
   async create(data: APPaymentForm): Promise<{ data: APPayment }> {
     const payload = transformAPPaymentToAPI(data);
-    const response = await axiosClient.post('/api/v1/a-p-payments', payload);
+    const response = await axiosClient.post('/api/v1/ap-payments', payload);
     return {
       data: transformAPPaymentFromAPI(response.data.data)
     };
   },
 
   async update(id: string, data: Partial<APPaymentForm>): Promise<{ data: APPayment }> {
-    const response = await axiosClient.patch(`/api/v1/a-p-payments/${id}`, {
+    const response = await axiosClient.patch(`/api/v1/ap-payments/${id}`, {
       data: {
-        type: 'a-p-payments',
+        type: 'ap-payments',
         id,
         attributes: data,
       },
@@ -122,11 +132,11 @@ export const apPaymentsService = {
   },
 
   async delete(id: string): Promise<void> {
-    await axiosClient.delete(`/api/v1/a-p-payments/${id}`);
+    await axiosClient.delete(`/api/v1/ap-payments/${id}`);
   },
 
   async post(id: string): Promise<{ data: APPayment }> {
-    const response = await axiosClient.post(`/api/v1/a-p-payments/${id}/post`);
+    const response = await axiosClient.post(`/api/v1/ap-payments/${id}/post`);
     return response.data;
   },
 };
@@ -134,7 +144,7 @@ export const apPaymentsService = {
 // AR Invoices Service
 export const arInvoicesService = {
   async getAll(params: Record<string, any> = {}): Promise<FinanceAPIResponse<ARInvoice>> {
-    const response = await axiosClient.get('/api/v1/a-r-invoices', { params });
+    const response = await axiosClient.get('/api/v1/ar-invoices', { params });
     const transformedData = transformARInvoicesFromAPI(response.data);
     return {
       jsonapi: response.data.jsonapi || { version: '1.0' },
@@ -146,7 +156,7 @@ export const arInvoicesService = {
 
   async getById(id: string, includes: string[] = []): Promise<{ data: ARInvoice }> {
     const includeParam = includes.length > 0 ? `?include=${includes.join(',')}` : '';
-    const response = await axiosClient.get(`/api/v1/a-r-invoices/${id}${includeParam}`);
+    const response = await axiosClient.get(`/api/v1/ar-invoices/${id}${includeParam}`);
     return {
       data: transformARInvoiceFromAPI(response.data.data, response.data.included || [])
     };
@@ -154,16 +164,16 @@ export const arInvoicesService = {
 
   async create(data: ARInvoiceForm): Promise<{ data: ARInvoice }> {
     const payload = transformARInvoiceToAPI(data);
-    const response = await axiosClient.post('/api/v1/a-r-invoices', payload);
+    const response = await axiosClient.post('/api/v1/ar-invoices', payload);
     return {
       data: transformARInvoiceFromAPI(response.data.data)
     };
   },
 
   async update(id: string, data: Partial<ARInvoiceForm>): Promise<{ data: ARInvoice }> {
-    const response = await axiosClient.patch(`/api/v1/a-r-invoices/${id}`, {
+    const response = await axiosClient.patch(`/api/v1/ar-invoices/${id}`, {
       data: {
-        type: 'a-r-invoices',
+        type: 'ar-invoices',
         id,
         attributes: data,
       },
@@ -172,11 +182,11 @@ export const arInvoicesService = {
   },
 
   async delete(id: string): Promise<void> {
-    await axiosClient.delete(`/api/v1/a-r-invoices/${id}`);
+    await axiosClient.delete(`/api/v1/ar-invoices/${id}`);
   },
 
   async post(id: string): Promise<{ data: ARInvoice }> {
-    const response = await axiosClient.post(`/api/v1/a-r-invoices/${id}/post`);
+    const response = await axiosClient.post(`/api/v1/ar-invoices/${id}/post`);
     return response.data;
   },
 };
@@ -184,7 +194,7 @@ export const arInvoicesService = {
 // AR Receipts Service
 export const arReceiptsService = {
   async getAll(params: Record<string, any> = {}): Promise<FinanceAPIResponse<ARReceipt>> {
-    const response = await axiosClient.get('/api/v1/a-r-receipts', { params });
+    const response = await axiosClient.get('/api/v1/ar-receipts', { params });
     const transformedData = transformARReceiptsFromAPI(response.data);
     return {
       jsonapi: response.data.jsonapi || { version: '1.0' },
@@ -196,7 +206,7 @@ export const arReceiptsService = {
 
   async getById(id: string, includes: string[] = []): Promise<{ data: ARReceipt }> {
     const includeParam = includes.length > 0 ? `?include=${includes.join(',')}` : '';
-    const response = await axiosClient.get(`/api/v1/a-r-receipts/${id}${includeParam}`);
+    const response = await axiosClient.get(`/api/v1/ar-receipts/${id}${includeParam}`);
     return {
       data: transformARReceiptFromAPI(response.data.data, response.data.included || [])
     };
@@ -204,16 +214,16 @@ export const arReceiptsService = {
 
   async create(data: ARReceiptForm): Promise<{ data: ARReceipt }> {
     const payload = transformARReceiptToAPI(data);
-    const response = await axiosClient.post('/api/v1/a-r-receipts', payload);
+    const response = await axiosClient.post('/api/v1/ar-receipts', payload);
     return {
       data: transformARReceiptFromAPI(response.data.data)
     };
   },
 
   async update(id: string, data: Partial<ARReceiptForm>): Promise<{ data: ARReceipt }> {
-    const response = await axiosClient.patch(`/api/v1/a-r-receipts/${id}`, {
+    const response = await axiosClient.patch(`/api/v1/ar-receipts/${id}`, {
       data: {
-        type: 'a-r-receipts',
+        type: 'ar-receipts',
         id,
         attributes: data,
       },
@@ -222,11 +232,11 @@ export const arReceiptsService = {
   },
 
   async delete(id: string): Promise<void> {
-    await axiosClient.delete(`/api/v1/a-r-receipts/${id}`);
+    await axiosClient.delete(`/api/v1/ar-receipts/${id}`);
   },
 
   async post(id: string): Promise<{ data: ARReceipt }> {
-    const response = await axiosClient.post(`/api/v1/a-r-receipts/${id}/post`);
+    const response = await axiosClient.post(`/api/v1/ar-receipts/${id}/post`);
     return response.data;
   },
 };
@@ -431,3 +441,157 @@ export const getBankAccount = (id: string) => bankAccountsService.getById(id).th
 export const createBankAccount = (data: any) => bankAccountsService.create(data).then(response => response.data);
 export const updateBankAccount = (id: string, data: Partial<BankAccount>) => bankAccountsService.update(id, data).then(response => response.data);
 export const deleteBankAccount = (id: string) => bankAccountsService.delete(id);
+// Payment Applications Service
+export const paymentApplicationsService = {
+  async getAll(params: Record<string, any> = {}): Promise<FinanceAPIResponse<PaymentApplication>> {
+    const response = await axiosClient.get('/api/v1/payment-applications', { params });
+    const transformedData = transformPaymentApplicationsFromAPI(response.data);
+    return {
+      jsonapi: response.data.jsonapi || { version: '1.0' },
+      data: transformedData,
+      meta: response.data.meta,
+      links: response.data.links,
+    };
+  },
+
+  async getById(id: string, includes: string[] = []): Promise<{ data: PaymentApplication }> {
+    const includeParam = includes.length > 0 ? '?include=' + includes.join(',') : '';
+    const response = await axiosClient.get('/api/v1/payment-applications/' + id + includeParam);
+    return {
+      data: transformPaymentApplicationFromAPI(response.data.data, response.data.included || [])
+    };
+  },
+
+  async create(data: PaymentApplicationForm): Promise<{ data: PaymentApplication }> {
+    const payload = transformPaymentApplicationToAPI(data);
+    const response = await axiosClient.post('/api/v1/payment-applications', payload);
+    return {
+      data: transformPaymentApplicationFromAPI(response.data.data)
+    };
+  },
+
+  async update(id: string, data: Partial<PaymentApplicationForm>): Promise<{ data: PaymentApplication }> {
+    const response = await axiosClient.patch('/api/v1/payment-applications/' + id, {
+      data: {
+        type: 'payment-applications',
+        id,
+        attributes: data,
+      },
+    });
+    return {
+      data: transformPaymentApplicationFromAPI(response.data.data)
+    };
+  },
+
+  async delete(id: string): Promise<void> {
+    await axiosClient.delete('/api/v1/payment-applications/' + id);
+  },
+};
+
+// Payment Methods Service
+export const paymentMethodsService = {
+  async getAll(params: Record<string, any> = {}): Promise<FinanceAPIResponse<PaymentMethod>> {
+    const response = await axiosClient.get('/api/v1/payment-methods', { params });
+    const transformedData = transformPaymentMethodsFromAPI(response.data);
+    return {
+      jsonapi: response.data.jsonapi || { version: '1.0' },
+      data: transformedData,
+      meta: response.data.meta,
+      links: response.data.links,
+    };
+  },
+
+  async getById(id: string): Promise<{ data: PaymentMethod }> {
+    const response = await axiosClient.get('/api/v1/payment-methods/' + id);
+    return {
+      data: transformPaymentMethodFromAPI(response.data.data)
+    };
+  },
+
+  async create(data: PaymentMethodForm): Promise<{ data: PaymentMethod }> {
+    const payload = transformPaymentMethodToAPI(data);
+    const response = await axiosClient.post('/api/v1/payment-methods', payload);
+    return {
+      data: transformPaymentMethodFromAPI(response.data.data)
+    };
+  },
+
+  async update(id: string, data: Partial<PaymentMethodForm>): Promise<{ data: PaymentMethod }> {
+    const response = await axiosClient.patch('/api/v1/payment-methods/' + id, {
+      data: {
+        type: 'payment-methods',
+        id,
+        attributes: data,
+      },
+    });
+    return {
+      data: transformPaymentMethodFromAPI(response.data.data)
+    };
+  },
+
+  async delete(id: string): Promise<void> {
+    await axiosClient.delete('/api/v1/payment-methods/' + id);
+  },
+};
+
+// Export individual functions for Payment Applications
+export const getPaymentApplications = (params?: { filters?: any; pagination?: any; include?: string[]; sort?: string[] }) => {
+  const queryParams: Record<string, any> = {};
+
+  if (params?.filters) {
+    Object.keys(params.filters).forEach(key => {
+      queryParams['filter[' + key + ']'] = params.filters[key];
+    });
+  }
+
+  if (params?.pagination) {
+    if (params.pagination.page) queryParams['page[number]'] = params.pagination.page;
+    if (params.pagination.size) queryParams['page[size]'] = params.pagination.size;
+  }
+
+  if (params?.include) {
+    queryParams.include = params.include.join(',');
+  }
+
+  if (params?.sort) {
+    queryParams.sort = params.sort.join(',');
+  }
+
+  return paymentApplicationsService.getAll(queryParams);
+};
+
+export const getPaymentApplication = (id: string) => paymentApplicationsService.getById(id).then(response => response.data);
+export const createPaymentApplication = (data: PaymentApplicationForm) => paymentApplicationsService.create(data).then(response => response.data);
+export const updatePaymentApplication = (id: string, data: Partial<PaymentApplicationForm>) => paymentApplicationsService.update(id, data).then(response => response.data);
+export const deletePaymentApplication = (id: string) => paymentApplicationsService.delete(id);
+
+// Export individual functions for Payment Methods
+export const getPaymentMethods = (params?: { filters?: any; pagination?: any; include?: string[]; sort?: string[] }) => {
+  const queryParams: Record<string, any> = {};
+
+  if (params?.filters) {
+    Object.keys(params.filters).forEach(key => {
+      queryParams['filter[' + key + ']'] = params.filters[key];
+    });
+  }
+
+  if (params?.pagination) {
+    if (params.pagination.page) queryParams['page[number]'] = params.pagination.page;
+    if (params.pagination.size) queryParams['page[size]'] = params.pagination.size;
+  }
+
+  if (params?.include) {
+    queryParams.include = params.include.join(',');
+  }
+
+  if (params?.sort) {
+    queryParams.sort = params.sort.join(',');
+  }
+
+  return paymentMethodsService.getAll(queryParams);
+};
+
+export const getPaymentMethod = (id: string) => paymentMethodsService.getById(id).then(response => response.data);
+export const createPaymentMethod = (data: PaymentMethodForm) => paymentMethodsService.create(data).then(response => response.data);
+export const updatePaymentMethod = (id: string, data: Partial<PaymentMethodForm>) => paymentMethodsService.update(id, data).then(response => response.data);
+export const deletePaymentMethod = (id: string) => paymentMethodsService.delete(id);

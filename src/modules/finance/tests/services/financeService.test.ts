@@ -47,7 +47,7 @@ describe('Finance Service', () => {
       const result = await financeService.getAPInvoices()
 
       // Assert
-      expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/a-p-invoices')
+      expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/ap-invoices')
       expect(result.data).toEqual(mockInvoices)
       expect(result.meta).toBeDefined()
     })
@@ -61,7 +61,7 @@ describe('Finance Service', () => {
       const result = await financeService.getAPInvoice('1')
 
       // Assert
-      expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/a-p-invoices/1')
+      expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/ap-invoices/1')
       expect(result).toEqual(mockInvoice)
     })
 
@@ -86,9 +86,9 @@ describe('Finance Service', () => {
       const result = await financeService.createAPInvoice(invoiceData)
 
       // Assert
-      expect(mockAxios.post).toHaveBeenCalledWith('/api/v1/a-p-invoices', {
+      expect(mockAxios.post).toHaveBeenCalledWith('/api/v1/ap-invoices', {
         data: {
-          type: 'a-p-invoices',
+          type: 'ap-invoices',
           attributes: invoiceData
         }
       })
@@ -105,9 +105,9 @@ describe('Finance Service', () => {
       const result = await financeService.updateAPInvoice('1', updateData as any)
 
       // Assert
-      expect(mockAxios.patch).toHaveBeenCalledWith('/api/v1/a-p-invoices/1', {
+      expect(mockAxios.patch).toHaveBeenCalledWith('/api/v1/ap-invoices/1', {
         data: {
-          type: 'a-p-invoices',
+          type: 'ap-invoices',
           id: '1',
           attributes: updateData
         }
@@ -123,7 +123,7 @@ describe('Finance Service', () => {
       await financeService.deleteAPInvoice('1')
 
       // Assert
-      expect(mockAxios.delete).toHaveBeenCalledWith('/api/v1/a-p-invoices/1')
+      expect(mockAxios.delete).toHaveBeenCalledWith('/api/v1/ap-invoices/1')
     })
   })
 
@@ -138,7 +138,7 @@ describe('Finance Service', () => {
       const result = await financeService.getARInvoices()
 
       // Assert
-      expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/a-r-invoices')
+      expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/ar-invoices')
       expect(result.data).toEqual(mockInvoices)
     })
 
@@ -162,9 +162,9 @@ describe('Finance Service', () => {
       const result = await financeService.createARInvoice(invoiceData)
 
       // Assert
-      expect(mockAxios.post).toHaveBeenCalledWith('/api/v1/a-r-invoices', {
+      expect(mockAxios.post).toHaveBeenCalledWith('/api/v1/ar-invoices', {
         data: {
-          type: 'a-r-invoices',
+          type: 'ar-invoices',
           attributes: invoiceData
         }
       })
@@ -183,7 +183,7 @@ describe('Finance Service', () => {
       const result = await financeService.getAPPayments()
 
       // Assert
-      expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/a-p-payments')
+      expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/ap-payments')
       expect(result.data).toEqual(mockPayments)
     })
 
@@ -204,9 +204,9 @@ describe('Finance Service', () => {
       const result = await financeService.createAPPayment(paymentData)
 
       // Assert
-      expect(mockAxios.post).toHaveBeenCalledWith('/api/v1/a-p-payments', {
+      expect(mockAxios.post).toHaveBeenCalledWith('/api/v1/ap-payments', {
         data: {
-          type: 'a-p-payments',
+          type: 'ap-payments',
           attributes: paymentData
         }
       })
@@ -225,7 +225,7 @@ describe('Finance Service', () => {
       const result = await financeService.getARReceipts()
 
       // Assert
-      expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/a-r-receipts')
+      expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/ar-receipts')
       expect(result.data).toEqual(mockReceipts)
     })
 
@@ -246,9 +246,9 @@ describe('Finance Service', () => {
       const result = await financeService.createARReceipt(receiptData)
 
       // Assert
-      expect(mockAxios.post).toHaveBeenCalledWith('/api/v1/a-r-receipts', {
+      expect(mockAxios.post).toHaveBeenCalledWith('/api/v1/ar-receipts', {
         data: {
-          type: 'a-r-receipts',
+          type: 'ar-receipts',
           attributes: receiptData
         }
       })
@@ -332,7 +332,7 @@ describe('Finance Service', () => {
       await financeService.getAPInvoices({ filters, pagination })
 
       // Assert
-      expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/a-p-invoices', {
+      expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/ap-invoices', {
         params: {
           'filter[status]': 'posted',
           'filter[contactId]': 5,
@@ -351,7 +351,7 @@ describe('Finance Service', () => {
       await financeService.getAPInvoices({ include: includes })
 
       // Assert
-      expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/a-p-invoices', {
+      expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/ap-invoices', {
         params: {
           include: 'contact,payments'
         }

@@ -11,6 +11,10 @@ import type {
   APPaymentForm,
   ARInvoiceForm,
   ARReceiptForm,
+  PaymentApplication,
+  PaymentApplicationForm,
+  PaymentMethod,
+  PaymentMethodForm,
 } from '../types'
 
 // ===== JSON:API TO FRONTEND TRANSFORMERS =====
@@ -345,4 +349,113 @@ export const validatePaymentData = (data: any, maxAmount: number): string[] => {
   if (!data.reference) errors.push('reference is required')
   
   return errors
+}
+// ===== PAYMENT APPLICATIONS TRANSFORMERS =====
+
+export const transformPaymentApplicationFromAPI = (apiData: any, includedData?: any[]): PaymentApplication => {
+  const attributes = apiData.attributes || {}
+
+  // Resolve invoice number from included data
+  let invoiceNumber: string | undefined
+  if (includedData) {
+    const invoice = includedData.find((item: any) =>
+      (item.type === 'ar-invoices' && item.id === String(attributes.arInvoiceId)) ||
+      (item.type === 'ap-invoices' && item.id === String(attributes.apInvoiceId))
+    )
+    if (invoice && invoice.attributes) {
+      invoiceNumber = invoice.attributes.invoiceNumber
+    }
+  }
+
+  // Resolve payment number from included data
+  let paymentNumber: string | undefined
+  if (includedData) {
+    const payment = includedData.find((item: any) =>
+      item.type === 'payments' && item.id === String(attributes.paymentId)
+    )
+    if (payment && payment.attributes) {
+      paymentNumber = payment.attributes.paymentNumber || `Payment #${attributes.paymentId}`
+    }
+  }
+
+  return {
+    id: apiData.id,
+    paymentId: String(attributes.paymentId),
+    arInvoiceId: attributes.arInvoiceId ? String(attributes.arInvoiceId) : null,
+    apInvoiceId: attributes.apInvoiceId ? String(attributes.apInvoiceId) : null,
+    amount: String(attributes.amount || 0),
+    applicationDate: attributes.applicationDate,
+    invoiceNumber,
+    paymentNumber,
+    createdAt: attributes.createdAt,
+    updatedAt: attributes.updatedAt,
+  }
+}
+
+export const transformPaymentApplicationsFromAPI = (apiResponse: any): PaymentApplication[] => {
+  if (!apiResponse.data || !Array.isArray(apiResponse.data)) {
+    return []
+  }
+
+  const includedData = apiResponse.included || []
+  return apiResponse.data.map((item: any) =>
+    transformPaymentApplicationFromAPI(item, includedData)
+  )
+}
+
+export const transformPaymentApplicationToAPI = (data: PaymentApplicationForm) => {
+  return {
+    data: {
+      type: 'payment-applications',
+      attributes: {
+        paymentId: data.paymentId,
+        arInvoiceId: data.arInvoiceId || null,
+        apInvoiceId: data.apInvoiceId || null,
+        amount: data.amount,
+        applicationDate: data.applicationDate,
+      },
+    },
+  }
+}
+
+// ===== PAYMENT METHODS TRANSFORMERS =====
+
+export const transformPaymentMethodFromAPI = (apiData: any): PaymentMethod => {
+  const attributes = apiData.attributes || {}
+
+  return {
+    id: apiData.id,
+    name: attributes.name,
+    code: attributes.code,
+    description: attributes.description || '',
+    requiresReference: attributes.requiresReference ?? false,
+    isActive: attributes.isActive ?? true,
+    createdAt: attributes.createdAt,
+    updatedAt: attributes.updatedAt,
+  }
+}
+
+export const transformPaymentMethodsFromAPI = (apiResponse: any): PaymentMethod[] => {
+  if (!apiResponse.data || !Array.isArray(apiResponse.data)) {
+    return []
+  }
+
+  return apiResponse.data.map((item: any) =>
+    transformPaymentMethodFromAPI(item)
+  )
+}
+
+export const transformPaymentMethodToAPI = (data: PaymentMethodForm) => {
+  return {
+    data: {
+      type: 'payment-methods',
+      attributes: {
+        name: data.name,
+        code: data.code,
+        description: data.description || '',
+        requiresReference: data.requiresReference ?? false,
+        isActive: data.isActive ?? true,
+      },
+    },
+  }
 }

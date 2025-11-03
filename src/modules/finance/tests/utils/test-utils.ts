@@ -1,20 +1,21 @@
 // Finance Module Test Utilities
 // Mock factories and utilities for testing Finance module
 
-import type { APInvoice, APPayment, ARInvoice, ARReceipt, BankAccount } from '../../types'
+import type { APInvoice, APPayment, ARInvoice, ARReceipt, BankAccount, PaymentApplication, PaymentMethod } from '../../types'
 
 // Mock AP Invoice factory
 export const createMockAPInvoice = (overrides?: Partial<APInvoice>): APInvoice => ({
   id: '1',
-  contactId: 1,
+  contactId: '1',
+  contactName: 'Test Supplier',
   invoiceNumber: 'FACT-001',
   invoiceDate: '2025-08-20',
   dueDate: '2025-09-20',
   currency: 'MXN',
-  exchangeRate: 1.0,
-  subtotal: 1000.00,
-  taxTotal: 160.00,
-  total: 1160.00,
+  exchangeRate: '1.0',
+  subtotal: '1000.00',
+  taxTotal: '160.00',
+  total: '1160.00',
   status: 'draft',
   paidAmount: 0.00,
   remainingBalance: 1160.00,
@@ -26,11 +27,14 @@ export const createMockAPInvoice = (overrides?: Partial<APInvoice>): APInvoice =
 // Mock AP Payment factory
 export const createMockAPPayment = (overrides?: Partial<APPayment>): APPayment => ({
   id: '1',
-  aPInvoiceId: 1,
+  contactId: 1,
+  contactName: 'Test Supplier',
+  apInvoiceId: 1,
   bankAccountId: 1,
   paymentDate: '2025-08-20',
-  amount: 1160.00,
+  amount: '1160.00',
   paymentMethod: 'transfer',
+  currency: 'MXN',
   reference: 'TXN-12345',
   status: 'draft',
   createdAt: '2025-08-20T10:00:00.000Z',
@@ -41,16 +45,18 @@ export const createMockAPPayment = (overrides?: Partial<APPayment>): APPayment =
 // Mock AR Invoice factory
 export const createMockARInvoice = (overrides?: Partial<ARInvoice>): ARInvoice => ({
   id: '1',
-  contactId: 10,
+  contactId: '10',
+  contactName: 'Test Customer',
   invoiceNumber: 'INV-001',
   invoiceDate: '2025-08-20',
   dueDate: '2025-09-20',
   currency: 'MXN',
-  subtotal: 2000.00,
-  taxTotal: 320.00,
-  total: 2320.00,
+  exchangeRate: '1.0',
+  subtotal: '2000.00',
+  taxTotal: '320.00',
+  total: '2320.00',
   status: 'posted',
-  collectedAmount: 500.00,
+  paidAmount: 500.00,
   remainingBalance: 1820.00,
   createdAt: '2025-08-20T10:00:00.000Z',
   updatedAt: '2025-08-20T10:00:00.000Z',
@@ -60,11 +66,14 @@ export const createMockARInvoice = (overrides?: Partial<ARInvoice>): ARInvoice =
 // Mock AR Receipt factory
 export const createMockARReceipt = (overrides?: Partial<ARReceipt>): ARReceipt => ({
   id: '1',
-  aRInvoiceId: 1,
+  contactId: 10,
+  contactName: 'Test Customer',
+  arInvoiceId: 1,
   bankAccountId: 1,
   receiptDate: '2025-08-20',
-  amount: 500.00,
+  amount: '500.00',
   paymentMethod: 'transfer',
+  currency: 'MXN',
   reference: 'DEP-67890',
   status: 'posted',
   createdAt: '2025-08-20T10:00:00.000Z',
@@ -80,8 +89,36 @@ export const createMockBankAccount = (overrides?: Partial<BankAccount>): BankAcc
   clabe: '012180001234567890',
   currency: 'MXN',
   accountType: 'checking',
-  openingBalance: 50000.00,
+  openingBalance: '50000.00',
   status: 'active',
+  createdAt: '2025-08-20T10:00:00.000Z',
+  updatedAt: '2025-08-20T10:00:00.000Z',
+  ...overrides,
+})
+
+// Mock Payment Application factory
+export const createMockPaymentApplication = (overrides?: Partial<PaymentApplication>): PaymentApplication => ({
+  id: '1',
+  paymentId: '1',
+  arInvoiceId: '1',
+  apInvoiceId: null,
+  amount: '500.00',
+  applicationDate: '2025-08-20',
+  invoiceNumber: 'INV-001',
+  paymentNumber: 'PAY-001',
+  createdAt: '2025-08-20T10:00:00.000Z',
+  updatedAt: '2025-08-20T10:00:00.000Z',
+  ...overrides,
+})
+
+// Mock Payment Method factory
+export const createMockPaymentMethod = (overrides?: Partial<PaymentMethod>): PaymentMethod => ({
+  id: '1',
+  name: 'Bank Transfer',
+  code: 'TRANSFER',
+  description: 'Electronic bank transfer',
+  requiresReference: true,
+  isActive: true,
   createdAt: '2025-08-20T10:00:00.000Z',
   updatedAt: '2025-08-20T10:00:00.000Z',
   ...overrides,

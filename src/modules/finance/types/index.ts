@@ -178,3 +178,45 @@ export interface FinanceAPIError {
     };
   }>;
 }
+
+// Payment Application - Unifies payments with invoices (AR/AP)
+export interface PaymentApplication {
+  id: string;
+  paymentId: string;            // FK to payments
+  arInvoiceId: string | null;   // FK to ar_invoices (nullable if AP)
+  apInvoiceId: string | null;   // FK to ap_invoices (nullable if AR)
+  amount: string;               // Decimal as string for precision
+  applicationDate: string;      // ISO date
+  invoiceNumber?: string;       // Resolved from invoice relationship
+  paymentNumber?: string;       // Resolved from payment relationship
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface PaymentApplicationForm {
+  paymentId: string;            // Required
+  arInvoiceId?: string | null;  // Either arInvoiceId OR apInvoiceId required
+  apInvoiceId?: string | null;  // Either arInvoiceId OR apInvoiceId required
+  amount: string;               // Required - decimal as string
+  applicationDate: string;      // Required - ISO date format
+}
+
+// Payment Method - Defines available payment methods (cash, transfer, card, etc.)
+export interface PaymentMethod {
+  id: string;
+  name: string;                 // e.g., "Cash", "Bank Transfer", "Credit Card"
+  code: string;                 // e.g., "CASH", "TRANSFER", "CARD"
+  description?: string;         // Optional description
+  requiresReference: boolean;   // Whether this method requires a reference number
+  isActive: boolean;            // Active status
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface PaymentMethodForm {
+  name: string;                 // Required
+  code: string;                 // Required - unique identifier
+  description?: string;         // Optional
+  requiresReference: boolean;   // Default: false
+  isActive: boolean;            // Default: true
+}
