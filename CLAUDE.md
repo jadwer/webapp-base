@@ -727,6 +727,9 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 
 ## Documentation References
 
+- **Master Roadmap:** `MASTER_ROADMAP.md` - Complete project roadmap with module-by-module strategy
+- **Architecture Blueprint:** `MODULE_ARCHITECTURE_BLUEPRINT.md` - Module implementation patterns
+- **Design System:** `DESIGN_SYSTEM_REGISTRY.md` - UI components registry
 - Complete project documentation: `docs/README.PROYECTO_BASE_ATM_WEBAPP.md`
 - Production deployment guide: `PRODUCTION_DEPLOYMENT.md`
 - Role system documentation: `docs/SISTEMA_ROLES_AUTENTICACION.md`
