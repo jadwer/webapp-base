@@ -4,6 +4,8 @@
  * SWR-based hooks for fetching and mutating shopping cart.
  */
 
+'use client'
+
 import useSWR from 'swr';
 import { useState, useCallback } from 'react';
 import { shoppingCartService } from '../services';

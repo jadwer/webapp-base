@@ -4,6 +4,8 @@
  * SWR-based hooks for fetching and mutating ecommerce orders.
  */
 
+'use client'
+
 import useSWR from 'swr';
 import { useState } from 'react';
 import { ecommerceService } from '../services';

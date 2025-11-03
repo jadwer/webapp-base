@@ -96,3 +96,20 @@ export {
   calculateOrderTotals,
   calculateCartTotals,
 } from './utils/transformers';
+
+// ============================================
+// Components
+// ============================================
+
+export {
+  // Admin components
+  OrdersAdminPage,
+  OrdersTable,
+  OrderFilters,
+  OrderStatusBadge,
+  PaginationSimple,
+  OrderViewTabs,
+  // Public components
+  CartPage,
+  CheckoutPage,
+} from './components';

@@ -84,8 +84,8 @@ export interface EcommerceOrder {
 
   // Relationships
   items?: EcommerceOrderItem[];
-  customer?: any; // Contact type from contacts module
-  paymentMethod?: any; // PaymentMethod type from finance module
+  customer?: unknown; // Contact type from contacts module
+  paymentMethod?: unknown; // PaymentMethod type from finance module
 }
 
 export interface EcommerceOrderFormData {
@@ -127,7 +127,7 @@ export interface EcommerceOrderItem {
   updatedAt?: string;
 
   // Relationships
-  product?: any; // Product type from products module
+  product?: unknown; // Product type from products module
   ecommerceOrder?: EcommerceOrder;
 }
 
@@ -161,7 +161,7 @@ export interface ShoppingCart {
 
   // Relationships
   items?: ShoppingCartItem[];
-  customer?: any; // Contact type from contacts module
+  customer?: unknown; // Contact type from contacts module
 }
 
 export interface ShoppingCartItem {
@@ -184,7 +184,7 @@ export interface ShoppingCartItem {
   updatedAt?: string;
 
   // Relationships
-  product?: any; // Product type from products module
+  product?: unknown; // Product type from products module
   shoppingCart?: ShoppingCart;
 }
 
