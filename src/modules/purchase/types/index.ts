@@ -4,7 +4,12 @@ export interface PurchaseOrder {
   contact?: Contact
   orderNumber: string
   orderDate: string
-  status: 'pending' | 'approved' | 'received' | 'cancelled'
+  status: 'pending' | 'approved' | 'received' | 'completed' | 'cancelled'
+  financialStatus?: 'not_invoiced' | 'invoiced' | 'paid'
+  apInvoiceId?: number | null
+  subtotalAmount?: number
+  taxAmount?: number
+  discountTotal?: number
   totalAmount: number
   notes?: string
   createdAt?: string
