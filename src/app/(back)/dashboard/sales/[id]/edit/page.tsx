@@ -22,7 +22,7 @@ export default function EditSalesOrderPage({ params }: PageProps) {
     contactId: '',
     orderNumber: '',
     orderDate: '',
-    status: 'pending' as 'pending' | 'processing' | 'completed' | 'cancelled',
+    status: 'pending' as 'pending' | 'approved' | 'completed' | 'cancelled',
     notes: ''
   })
 
@@ -211,7 +211,7 @@ export default function EditSalesOrderPage({ params }: PageProps) {
                       required
                     >
                       <option value="pending">Pendiente</option>
-                      <option value="processing">En Proceso</option>
+                      <option value="approved">Aprobada</option>
                       <option value="completed">Completada</option>
                       <option value="cancelled">Cancelada</option>
                     </select>

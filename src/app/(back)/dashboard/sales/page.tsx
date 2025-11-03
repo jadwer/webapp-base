@@ -16,24 +16,20 @@ export default function SalesPage() {
 
   const getStatusBadgeClass = (status: string) => {
     switch (status) {
-      case 'delivered': return 'bg-success'
-      case 'shipped': return 'bg-info'
-      case 'processing': return 'bg-warning'
-      case 'confirmed': return 'bg-primary'
+      case 'completed': return 'bg-success'
+      case 'approved': return 'bg-primary'
+      case 'pending': return 'bg-warning'
       case 'cancelled': return 'bg-danger'
-      case 'draft': return 'bg-secondary'
       default: return 'bg-secondary'
     }
   }
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case 'delivered': return 'Entregada'
-      case 'shipped': return 'Enviada'
-      case 'processing': return 'Procesando'
-      case 'confirmed': return 'Confirmada'
+      case 'completed': return 'Completada'
+      case 'approved': return 'Aprobada'
+      case 'pending': return 'Pendiente'
       case 'cancelled': return 'Cancelada'
-      case 'draft': return 'Borrador'
       default: return status
     }
   }
@@ -262,9 +258,9 @@ export default function SalesPage() {
               <div className="card-body">
                 <div className="d-flex align-items-center">
                   <div className="flex-grow-1">
-                    <h6 className="text-white-50">Entregadas</h6>
+                    <h6 className="text-white-50">Completadas</h6>
                     <h4 className="mb-0">
-                      {salesOrders.filter((o: any) => o.status === 'delivered').length}
+                      {salesOrders.filter((o: any) => o.status === 'completed').length}
                     </h4>
                   </div>
                   <i className="bi bi-check-circle display-6"></i>
@@ -277,9 +273,9 @@ export default function SalesPage() {
               <div className="card-body">
                 <div className="d-flex align-items-center">
                   <div className="flex-grow-1">
-                    <h6 className="text-white-50">En Proceso</h6>
+                    <h6 className="text-white-50">Pendientes</h6>
                     <h4 className="mb-0">
-                      {salesOrders.filter((o: any) => ['processing', 'confirmed', 'shipped'].includes(o.status)).length}
+                      {salesOrders.filter((o: any) => ['pending', 'approved'].includes(o.status)).length}
                     </h4>
                   </div>
                   <i className="bi bi-clock display-6"></i>

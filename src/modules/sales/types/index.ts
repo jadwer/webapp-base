@@ -4,7 +4,12 @@ export interface SalesOrder {
   contact?: Contact
   orderNumber: string
   orderDate: string
-  status: 'draft' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled'
+  status: 'pending' | 'approved' | 'completed' | 'cancelled'
+  financialStatus?: 'not_invoiced' | 'invoiced' | 'paid'
+  invoicingStatus?: 'not_invoiced' | 'partially_invoiced' | 'fully_invoiced'
+  arInvoiceId?: number | null
+  subtotalAmount?: number
+  taxAmount?: number
   totalAmount: number
   notes?: string
   createdAt?: string

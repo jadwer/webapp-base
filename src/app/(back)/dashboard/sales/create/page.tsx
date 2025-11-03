@@ -18,7 +18,7 @@ export default function CreateSalesOrderPage() {
     contactId: '',
     orderNumber: '',
     orderDate: new Date().toISOString().split('T')[0],
-    status: 'draft' as 'draft' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled',
+    status: 'pending' as 'pending' | 'approved' | 'completed' | 'cancelled',
     notes: ''
   })
 
@@ -225,11 +225,9 @@ export default function CreateSalesOrderPage() {
                       onChange={handleInputChange}
                       required
                     >
-                      <option value="draft">Borrador</option>
-                      <option value="confirmed">Confirmada</option>
-                      <option value="processing">En Proceso</option>
-                      <option value="shipped">Enviada</option>
-                      <option value="delivered">Entregada</option>
+                      <option value="pending">Pendiente</option>
+                      <option value="approved">Aprobada</option>
+                      <option value="completed">Completada</option>
                       <option value="cancelled">Cancelada</option>
                     </select>
                   </div>

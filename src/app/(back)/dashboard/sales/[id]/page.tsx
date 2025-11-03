@@ -20,24 +20,20 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
 
   const getStatusBadgeClass = (status: string) => {
     switch (status) {
-      case 'delivered': return 'bg-success'
-      case 'shipped': return 'bg-info'
-      case 'processing': return 'bg-warning'
-      case 'confirmed': return 'bg-primary'
+      case 'completed': return 'bg-success'
+      case 'approved': return 'bg-primary'
+      case 'pending': return 'bg-warning'
       case 'cancelled': return 'bg-danger'
-      case 'draft': return 'bg-secondary'
       default: return 'bg-secondary'
     }
   }
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case 'delivered': return 'Entregada'
-      case 'shipped': return 'Enviada'
-      case 'processing': return 'Procesando'
-      case 'confirmed': return 'Confirmada'
+      case 'completed': return 'Completada'
+      case 'approved': return 'Aprobada'
+      case 'pending': return 'Pendiente'
       case 'cancelled': return 'Cancelada'
-      case 'draft': return 'Borrador'
       default: return status
     }
   }

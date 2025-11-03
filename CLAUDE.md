@@ -2,6 +2,30 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+---
+---
+---
+
+# CRITICAL POLICIES - READ FIRST
+
+## Git Commit Policy - NEVER EXECUTE COMMITS
+- NEVER use git commit via Bash tool
+- NEVER use git push via Bash tool
+- ONLY provide plain text commit message for manual execution
+- NO emojis in any communication
+- NO heredoc syntax or bash examples
+- JUST the plain text message
+
+## Communication Style
+- Professional tone only
+- NO emojis anywhere in responses or commit messages
+- Plain text communication
+- Technical accuracy and brevity
+
+---
+---
+---
+
 ## CRITICAL: Commit Message Style Guidelines
 
 **IMPORTANT:** All commit messages must follow professional standards:
@@ -734,3 +758,28 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 - Production deployment guide: `PRODUCTION_DEPLOYMENT.md`
 - Role system documentation: `docs/SISTEMA_ROLES_AUTENTICACION.md`
 - Bootstrap Icons integration: `docs/BOOTSTRAP_ICONS_MEJORA.md`
+
+---
+---
+---
+
+# CRITICAL POLICIES - READ FIRST
+Como soy tonto, lo pongo dos veces para recordar que es bien importante.
+
+## Git Commit Policy - NEVER EXECUTE COMMITS
+- NEVER use git commit via Bash tool
+- NEVER use git push via Bash tool
+- ONLY provide plain text commit message for manual execution
+- NO emojis in any communication
+- NO heredoc syntax or bash examples
+- JUST the plain text message
+
+## Communication Style
+- Professional tone only
+- NO emojis anywhere in responses or commit messages
+- Plain text communication
+- Technical accuracy and brevity
+
+---
+---
+---

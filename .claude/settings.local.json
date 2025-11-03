@@ -41,7 +41,8 @@
       "Bash(git add:*)",
       "Bash(do echo '===== $dir =====')",
       "Bash(awk:*)",
-      "Bash(/home/jadwer/dev/AtomoSoluciones/base/webapp-base/src/modules/finance/services/index.ts)"
+      "Bash(/home/jadwer/dev/AtomoSoluciones/base/webapp-base/src/modules/finance/services/index.ts)",
+      "Bash(git reset:*)"
     ],
     "deny": [],
     "defaultMode": "acceptEdits"
