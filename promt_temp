@@ -1,0 +1,10 @@
+Finance module completado (176 tests, 70%+ coverage). Commit ejecutado.
+
+Lee MASTER_ROADMAP.md y determina el siguiente módulo prioritario según estrategia "Módulo por Módulo al 100%".
+
+Analiza:
+1. Módulo siguiente (Fase 1 prioridad)
+2. Estado actual (existe/no existe, tests, coverage)
+3. Plan de acción para llevarlo a 100%
+
+Sigue políticas CLAUDE.md (testing 70%+, no ejecutar commits).
