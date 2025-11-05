@@ -1,16 +1,22 @@
 /**
- * Create Account Page
- * Route: /dashboard/accounting/accounts/create
+ * Edit Account Page
+ * Route: /dashboard/accounting/accounts/[id]/edit
  */
 
 'use client'
 
 import React from 'react'
+import { use } from 'react'
 import { AccountFormWrapper } from '@/modules/accounting'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
 
-export default function CreateAccountPage() {
+interface EditAccountPageProps {
+  params: Promise<{ id: string }>
+}
+
+export default function EditAccountPage({ params }: EditAccountPageProps) {
   const navigation = useNavigationProgress()
+  const { id } = use(params)
 
   const handleCancel = () => {
     navigation.push('/dashboard/accounting/accounts')
@@ -21,16 +27,16 @@ export default function CreateAccountPage() {
       <div className="row mb-4">
         <div className="col-12">
           <h1 className="h3 mb-2">
-            <i className="bi bi-plus-circle me-3 text-primary"></i>
-            Nueva Cuenta Contable
+            <i className="bi bi-pencil me-3 text-primary"></i>
+            Editar Cuenta Contable
           </h1>
           <p className="text-muted mb-0">
-            Complete la información para crear una nueva cuenta en el catálogo
+            Modifique la información de la cuenta contable
           </p>
         </div>
       </div>
 
-      <AccountFormWrapper onCancel={handleCancel} />
+      <AccountFormWrapper accountId={id} onCancel={handleCancel} />
     </div>
   )
 }
