@@ -43,7 +43,9 @@
       "Bash(awk:*)",
       "Bash(/home/jadwer/dev/AtomoSoluciones/base/webapp-base/src/modules/finance/services/index.ts)",
       "Bash(git reset:*)",
-      "Bash(test:*)"
+      "Bash(test:*)",
+      "Bash(src/modules/accounting/tests/hooks/useAccountsHooks.test.ts)",
+      "Bash(src/modules/accounting/tests/hooks/useJournalEntriesHooks.test.ts)"
     ],
     "deny": [],
     "defaultMode": "acceptEdits"

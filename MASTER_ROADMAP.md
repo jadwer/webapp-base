@@ -61,7 +61,7 @@
 
 ## 🔧 Módulos Incompletos (Requieren Trabajo)
 
-### ⚠️ Accounting Module - **Backend 100%, Frontend 65%** - 🔄 EN PROGRESO
+### ⚠️ Accounting Module - **Backend 100%, Frontend 75%** - 🔄 EN PROGRESO
 
 **Status:**
 - ✅ Backend API completo (Chart of Accounts, Journal Entries, Fiscal Periods, Ledger)
@@ -71,27 +71,31 @@
 - ✅ Form components implementados (AccountForm, JournalEntryForm)
 - ✅ Admin pages funcionales (Accounts, Journal Entries)
 - ✅ 7 Reports APIs integrados (Balance General, Estado Resultados, etc.)
-- ⏳ UI: 65% - Componentes core completos, faltan rutas CRUD
-- ❌ Testing: 21 tests (necesita ~150+ para 70%+ coverage) - CRÍTICO
+- ✅ CRUD routes implementadas (accounts/create, accounts/[id]/edit, journal-entries/create)
+- ⏳ Testing: 65 tests implementados (44 nuevos en Phase 4) - Necesita ~85+ adicionales para 70%+
+- ❌ Documentación completa (README.md del módulo)
 
 **Completado recientemente:**
 - Phase 1: Corrección de 15 errores TypeScript
-- Phase 2: Creación de componentes de formularios (AccountForm, JournalEntryForm)
-- Double-entry validation en JournalEntryForm
-- ExecutiveDashboard con navegación Next.js Link
+- Phase 2: Creación de componentes de formularios (AccountForm, JournalEntryForm + Wrappers)
+- Phase 3: CRUD routes implementadas (3 rutas funcionales)
+- Phase 4 Parcial: Test suite para services y hooks (44 tests, 100% passing)
+  - accountsService.test.ts: 7 tests
+  - journalEntriesService.test.ts: 9 tests
+  - journalLinesService.test.ts: 8 tests
+  - useAccountsHooks.test.ts: 7 tests
+  - useJournalEntriesHooks.test.ts: 13 tests
+  - Test infrastructure con mock factories completa
 
 **Tareas pendientes para 100%:**
 1. ✅ ~~Completar servicios y transformers~~ (HECHO)
 2. ✅ ~~Crear SWR hooks completos~~ (HECHO)
-3. ⏳ Implementar rutas CRUD faltantes:
-   - /dashboard/accounting/accounts/create
-   - /dashboard/accounting/accounts/[id]/edit
-   - /dashboard/accounting/journal-entries/create
-4. ❌ Crear 130+ tests adicionales (services, hooks, components)
-5. ❌ Alcanzar 70%+ coverage
+3. ✅ ~~Implementar rutas CRUD faltantes~~ (HECHO)
+4. ⏳ Crear 85+ tests adicionales (components, integration tests)
+5. ⏳ Alcanzar 70%+ coverage (actualmente ~43% estimado con 65 tests)
 6. ❌ Documentación completa (README.md del módulo)
 
-**Estimación restante:** 3-4 semanas
+**Estimación restante:** 2-3 semanas
 
 ---
 
@@ -115,11 +119,15 @@
 - ⏳ Payment gateway integration (pending external service)
 - ✅ Documentation completa
 
-### **Fase 4: Accounting** - 🔄 EN PROGRESO (3-4 semanas restantes)
+### **Fase 4: Accounting** - 🔄 EN PROGRESO (2-3 semanas restantes)
 - ✅ Phase 1 Complete: TypeScript fixes (15 errors resolved)
 - ✅ Phase 2 Complete: Form components (AccountForm, JournalEntryForm + Wrappers)
-- ⏳ Phase 3: CRUD routes implementation (en progreso)
-- ⏳ Phase 4: Testing suite (21/150 tests, necesita 130+ adicionales)
+- ✅ Phase 3 Complete: CRUD routes implementation (3 routes: create accounts, edit accounts, create journal entries)
+- ⏳ Phase 4 Parcial: Testing suite (65/150 tests, 44 tests nuevos implementados)
+  - Services tests: 24 tests (accountsService, journalEntriesService, journalLinesService)
+  - Hooks tests: 20 tests (useAccountsHooks, useJournalEntriesHooks)
+  - Test infrastructure completa con mock factories
+  - Necesita: 85+ tests adicionales para alcanzar 70%+ coverage
 - ⏳ Phase 5: Documentation (README.md pendiente)
 
 ### **Fase 5: HR (Si requerido)** - 6-8 semanas
