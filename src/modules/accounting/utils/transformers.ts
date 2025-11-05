@@ -12,8 +12,8 @@ import type {
 
 // ===== JSON:API TO FRONTEND TRANSFORMERS =====
 
-export const transformAccountFromAPI = (apiData: any): Account => {
-  const attributes = apiData.attributes || {}
+export const transformAccountFromAPI = (apiData: Record<string, unknown>): Account => {
+  const attributes = (apiData.attributes as Record<string, unknown>) || {}
   
   return {
     id: apiData.id,
@@ -31,8 +31,8 @@ export const transformAccountFromAPI = (apiData: any): Account => {
   }
 }
 
-export const transformJournalEntryFromAPI = (apiData: any): JournalEntry => {
-  const attributes = apiData.attributes || {}
+export const transformJournalEntryFromAPI = (apiData: Record<string, unknown>): JournalEntry => {
+  const attributes = (apiData.attributes as Record<string, unknown>) || {}
   
   return {
     id: apiData.id,
@@ -59,8 +59,8 @@ export const transformJournalEntryFromAPI = (apiData: any): JournalEntry => {
   }
 }
 
-export const transformJournalLineFromAPI = (apiData: any): JournalLine => {
-  const attributes = apiData.attributes || {}
+export const transformJournalLineFromAPI = (apiData: Record<string, unknown>): JournalLine => {
+  const attributes = (apiData.attributes as Record<string, unknown>) || {}
   
   return {
     id: apiData.id,

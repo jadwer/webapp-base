@@ -1,11 +1,12 @@
 'use client'
 
 import { useState } from 'react'
-import { 
-  useBalanceGeneral, 
-  useEstadoResultados, 
-  useSalesReports, 
-  usePurchaseReports 
+import Link from 'next/link'
+import {
+  useBalanceGeneral,
+  useEstadoResultados,
+  useSalesReports,
+  usePurchaseReports
 } from '../hooks/useReports'
 
 export function ExecutiveDashboard() {
@@ -234,12 +235,12 @@ export function ExecutiveDashboard() {
                       <p className="text-muted small mb-3">
                         Estado actual de activos, pasivos y patrimonio
                       </p>
-                      <a 
-                        href="/dashboard/accounting/reports/balance-general" 
+                      <Link
+                        href="/dashboard/accounting/reports/balance-general"
                         className="btn btn-outline-primary btn-sm"
                       >
                         Ver Reporte
-                      </a>
+                      </Link>
                     </div>
                   </div>
                 </div>
@@ -252,12 +253,12 @@ export function ExecutiveDashboard() {
                       <p className="text-muted small mb-3">
                         Ingresos, gastos y utilidad neta del período
                       </p>
-                      <a 
-                        href="/dashboard/accounting/reports/estado-resultados" 
+                      <Link
+                        href="/dashboard/accounting/reports/estado-resultados"
                         className="btn btn-outline-success btn-sm"
                       >
                         Ver Reporte
-                      </a>
+                      </Link>
                     </div>
                   </div>
                 </div>
@@ -270,12 +271,12 @@ export function ExecutiveDashboard() {
                       <p className="text-muted small mb-3">
                         Análisis de ventas, clientes y productos
                       </p>
-                      <a 
-                        href="/dashboard/sales/reports" 
+                      <Link
+                        href="/dashboard/sales/reports"
                         className="btn btn-outline-info btn-sm"
                       >
                         Ver Reporte
-                      </a>
+                      </Link>
                     </div>
                   </div>
                 </div>
@@ -288,12 +289,12 @@ export function ExecutiveDashboard() {
                       <p className="text-muted small mb-3">
                         Análisis de compras, proveedores y costos
                       </p>
-                      <a 
-                        href="/dashboard/purchase/reports" 
+                      <Link
+                        href="/dashboard/purchase/reports"
                         className="btn btn-outline-warning btn-sm"
                       >
                         Ver Reporte
-                      </a>
+                      </Link>
                     </div>
                   </div>
                 </div>
@@ -315,7 +316,7 @@ export function ExecutiveDashboard() {
             </div>
             <div className="card-body">
               <div className="list-group list-group-flush">
-                <a 
+                <Link
                   href="/dashboard/accounting/reports/balanza-comprobacion"
                   className="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
                 >
@@ -324,8 +325,8 @@ export function ExecutiveDashboard() {
                     Balanza de Comprobación
                   </div>
                   <i className="bi bi-arrow-right"></i>
-                </a>
-                <a 
+                </Link>
+                <Link
                   href="/dashboard/accounting/reports/libro-diario"
                   className="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
                 >
@@ -334,8 +335,8 @@ export function ExecutiveDashboard() {
                     Libro Diario
                   </div>
                   <i className="bi bi-arrow-right"></i>
-                </a>
-                <a 
+                </Link>
+                <Link
                   href="/dashboard/accounting/reports/libro-mayor"
                   className="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
                 >
@@ -344,7 +345,7 @@ export function ExecutiveDashboard() {
                     Libro Mayor
                   </div>
                   <i className="bi bi-arrow-right"></i>
-                </a>
+                </Link>
               </div>
             </div>
           </div>

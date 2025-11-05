@@ -10,7 +10,7 @@ export interface Account {
   currency: string;      // ✅ Optional en backend
   isPostable: boolean;   // ✅ boolean requerido
   status: 'active' | 'inactive';  // ✅ string requerido
-  metadata?: Record<string, any>; // ✅ object opcional
+  metadata?: Record<string, unknown>; // ✅ object opcional
   createdAt: string;
   updatedAt: string;
 }
@@ -34,7 +34,7 @@ export interface JournalEntry {
   sourceId?: string;       // ✅ ID como string
   totalDebit: string;      // ✅ Decimal como string
   totalCredit: string;     // ✅ Decimal como string
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
   createdAt: string;
   updatedAt: string;
 }
@@ -51,7 +51,7 @@ export interface JournalLine {
   memo?: string;
   currency?: string;
   exchangeRate?: string;   // ✅ Decimal como string
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
   createdAt: string;
   updatedAt: string;
 }
@@ -66,7 +66,7 @@ export interface AccountForm {
   status: 'active' | 'inactive';  // ✅ REQUERIDO: string
   parentId?: string;     // ✅ OPCIONAL: string, ID cuenta padre
   currency?: string;     // ✅ OPCIONAL: string
-  metadata?: Record<string, any>; // ✅ OPCIONAL: object
+  metadata?: Record<string, unknown>; // ✅ OPCIONAL: object
 }
 
 export interface JournalEntryForm {

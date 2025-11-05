@@ -9,7 +9,6 @@
 import React, { useState } from 'react'
 import { useAccounts } from '../hooks'
 import { AccountsTableSimple } from './AccountsTableSimple'
-import { FilterBar } from './FilterBar'
 import { PaginationSimple } from './PaginationSimple'
 import { Button } from '@/ui/components/base/Button'
 import { Alert } from '@/ui/components/base/Alert'
@@ -24,7 +23,7 @@ export const AccountsAdminPageReal = () => {
   const navigation = useNavigationProgress()
 
   // Build filters object
-  const filters: Record<string, any> = {}
+  const filters: Record<string, string | number> = {}
   if (searchTerm) filters.search = searchTerm
   if (typeFilter) filters.accountType = typeFilter
   if (postableFilter) filters.isPostable = postableFilter === 'true' ? 1 : 0

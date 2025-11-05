@@ -10,9 +10,6 @@ import {
   journalEntryService,
 } from '../services';
 import type {
-  Account,
-  JournalEntry,
-  JournalLine,
   AccountForm,
   JournalEntryForm,
   JournalLineForm,

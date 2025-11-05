@@ -24,7 +24,7 @@ export function LibroMayorReport() {
     }).format(numAmount)
   }
 
-  const handleFilterChange = (field: keyof typeof filters, value: any) => {
+  const handleFilterChange = (field: keyof typeof filters, value: string | number | null) => {
     setFilters(prev => ({ ...prev, [field]: value }))
   }
 

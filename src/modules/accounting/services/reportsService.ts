@@ -151,7 +151,7 @@ export const accountingReportsService = {
     page?: number;
     perPage?: number;
   } = {}): Promise<LibroDiarioResponse> {
-    const queryParams: Record<string, any> = {};
+    const queryParams: Record<string, string | number> = {};
     if (params.startDate) queryParams.start_date = params.startDate;
     if (params.endDate) queryParams.end_date = params.endDate;
     if (params.page) queryParams.page = params.page;
@@ -163,7 +163,7 @@ export const accountingReportsService = {
 
   // Libro Mayor
   async getLibroMayor(accountId: number, startDate?: string, endDate?: string): Promise<LibroMayorResponse> {
-    const params: Record<string, any> = { account_id: accountId };
+    const params: Record<string, string | number> = { account_id: accountId };
     if (startDate) params.start_date = startDate;
     if (endDate) params.end_date = endDate;
     

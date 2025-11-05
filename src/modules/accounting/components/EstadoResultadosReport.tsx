@@ -34,8 +34,7 @@ export const EstadoResultadosReport = () => {
     type: 'revenue' | 'expenses';
   }) => {
     const colorClass = type === 'revenue' ? 'text-success' : 'text-danger'
-    const bgClass = type === 'revenue' ? 'bg-success' : 'bg-danger'
-    
+
     return (
       <div className="mb-4">
         <h5 className={`${colorClass} mb-3`}>
