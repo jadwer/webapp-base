@@ -13,18 +13,20 @@ import { createMockAccount, createMockAPIResponse } from '../utils/test-utils'
 // Mock SWR
 vi.mock('swr', () => ({
   default: vi.fn((key, fetcher) => {
-    if (fetcher) {
+    // If key is null/falsy, SWR doesn't fetch and isLoading is false
+    if (!key || !fetcher) {
       return {
         data: undefined,
         error: undefined,
-        isLoading: true,
+        isLoading: false,
         mutate: vi.fn()
       }
     }
+    // If key and fetcher exist, SWR is loading
     return {
       data: undefined,
       error: undefined,
-      isLoading: false,
+      isLoading: true,
       mutate: vi.fn()
     }
   }),

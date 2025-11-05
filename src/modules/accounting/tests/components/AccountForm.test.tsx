@@ -25,11 +25,11 @@ describe('AccountForm Integration Tests', () => {
 
       // Assert
       expect(screen.getByLabelText(/código/i)).toBeInTheDocument()
-      expect(screen.getByLabelText(/nombre/i)).toBeInTheDocument()
-      expect(screen.getByLabelText(/tipo de cuenta/i)).toBeInTheDocument()
+      expect(screen.getByLabelText(/nombre de la cuenta/i)).toBeInTheDocument()
+      expect(screen.getByText(/tipo de cuenta/i)).toBeInTheDocument()
       expect(screen.getByLabelText(/nivel/i)).toBeInTheDocument()
-      expect(screen.getByLabelText(/moneda/i)).toBeInTheDocument()
-      expect(screen.getByRole('button', { name: /guardar/i })).toBeInTheDocument()
+      expect(screen.getByText(/moneda/i)).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: /crear cuenta/i })).toBeInTheDocument()
       expect(screen.getByRole('button', { name: /cancelar/i })).toBeInTheDocument()
     })
 
@@ -39,7 +39,7 @@ describe('AccountForm Integration Tests', () => {
 
       // Assert
       const codeInput = screen.getByLabelText(/código/i) as HTMLInputElement
-      const nameInput = screen.getByLabelText(/nombre/i) as HTMLInputElement
+      const nameInput = screen.getByLabelText(/nombre de la cuenta/i) as HTMLInputElement
       const levelInput = screen.getByLabelText(/nivel/i) as HTMLInputElement
 
       expect(codeInput.value).toBe('')
@@ -60,7 +60,7 @@ describe('AccountForm Integration Tests', () => {
 
       // Assert
       const codeInput = screen.getByLabelText(/código/i) as HTMLInputElement
-      const nameInput = screen.getByLabelText(/nombre/i) as HTMLInputElement
+      const nameInput = screen.getByLabelText(/nombre de la cuenta/i) as HTMLInputElement
 
       expect(codeInput.value).toBe('1000')
       expect(nameInput.value).toBe('Caja General')
@@ -71,7 +71,7 @@ describe('AccountForm Integration Tests', () => {
     it('should show error when code is empty', async () => {
       // Arrange
       render(<AccountForm onSubmit={mockOnSubmit} />)
-      const submitButton = screen.getByRole('button', { name: /guardar/i })
+      const submitButton = screen.getByRole('button', { name: /crear cuenta/i })
 
       // Act
       fireEvent.click(submitButton)
@@ -87,7 +87,7 @@ describe('AccountForm Integration Tests', () => {
       // Arrange
       render(<AccountForm onSubmit={mockOnSubmit} />)
       const codeInput = screen.getByLabelText(/código/i)
-      const submitButton = screen.getByRole('button', { name: /guardar/i })
+      const submitButton = screen.getByRole('button', { name: /crear cuenta/i })
 
       // Act
       fireEvent.change(codeInput, { target: { value: '1000' } })
@@ -104,7 +104,7 @@ describe('AccountForm Integration Tests', () => {
       // Arrange
       render(<AccountForm onSubmit={mockOnSubmit} />)
       const codeInput = screen.getByLabelText(/código/i)
-      const submitButton = screen.getByRole('button', { name: /guardar/i })
+      const submitButton = screen.getByRole('button', { name: /crear cuenta/i })
       const longCode = 'A'.repeat(256)
 
       // Act
@@ -124,7 +124,7 @@ describe('AccountForm Integration Tests', () => {
       const codeInput = screen.getByLabelText(/código/i)
       const nameInput = screen.getByLabelText(/nombre/i)
       const levelInput = screen.getByLabelText(/nivel/i)
-      const submitButton = screen.getByRole('button', { name: /guardar/i })
+      const submitButton = screen.getByRole('button', { name: /crear cuenta/i })
 
       // Act
       fireEvent.change(codeInput, { target: { value: '1000' } })
@@ -143,7 +143,7 @@ describe('AccountForm Integration Tests', () => {
       // Arrange
       render(<AccountForm onSubmit={mockOnSubmit} />)
       const codeInput = screen.getByLabelText(/código/i)
-      const submitButton = screen.getByRole('button', { name: /guardar/i })
+      const submitButton = screen.getByRole('button', { name: /crear cuenta/i })
 
       // Act - trigger error
       fireEvent.click(submitButton)
@@ -166,7 +166,7 @@ describe('AccountForm Integration Tests', () => {
       // Arrange
       render(<AccountForm onSubmit={mockOnSubmit} />)
       const codeInput = screen.getByLabelText(/código/i) as HTMLInputElement
-      const nameInput = screen.getByLabelText(/nombre/i) as HTMLInputElement
+      const nameInput = screen.getByLabelText(/nombre de la cuenta/i) as HTMLInputElement
 
       // Act
       fireEvent.change(codeInput, { target: { value: '1000' } })
@@ -195,7 +195,7 @@ describe('AccountForm Integration Tests', () => {
       render(<AccountForm onSubmit={mockOnSubmit} isLoading={true} />)
 
       // Assert
-      const submitButton = screen.getByRole('button', { name: /guardar/i }) as HTMLButtonElement
+      const submitButton = screen.getByRole('button', { name: /crear cuenta/i }) as HTMLButtonElement
       expect(submitButton.disabled).toBe(true)
     })
   })
@@ -208,7 +208,7 @@ describe('AccountForm Integration Tests', () => {
 
       const codeInput = screen.getByLabelText(/código/i)
       const nameInput = screen.getByLabelText(/nombre/i)
-      const submitButton = screen.getByRole('button', { name: /guardar/i })
+      const submitButton = screen.getByRole('button', { name: /crear cuenta/i })
 
       // Act
       fireEvent.change(codeInput, { target: { value: '1000' } })
@@ -235,11 +235,12 @@ describe('AccountForm Integration Tests', () => {
       render(<AccountForm onSubmit={mockOnSubmit} />)
 
       const codeInput = screen.getByLabelText(/código/i)
-      const nameInput = screen.getByLabelText(/nombre/i)
-      const accountTypeSelect = screen.getByLabelText(/tipo de cuenta/i)
+      const nameInput = screen.getByLabelText(/nombre de la cuenta/i)
+      const accountTypeSelects = screen.getAllByRole('combobox')
+      const accountTypeSelect = accountTypeSelects[0] // First select is account type
       const levelInput = screen.getByLabelText(/nivel/i)
-      const currencySelect = screen.getByLabelText(/moneda/i)
-      const submitButton = screen.getByRole('button', { name: /guardar/i })
+      const currencySelect = accountTypeSelects[1] // Second select is currency
+      const submitButton = screen.getByRole('button', { name: /crear cuenta/i })
 
       // Act
       fireEvent.change(codeInput, { target: { value: '2000' } })
@@ -273,8 +274,8 @@ describe('AccountForm Integration Tests', () => {
       mockOnSubmit.mockResolvedValue(undefined)
       render(<AccountForm account={mockAccount} onSubmit={mockOnSubmit} />)
 
-      const nameInput = screen.getByLabelText(/nombre/i)
-      const submitButton = screen.getByRole('button', { name: /guardar/i })
+      const nameInput = screen.getByLabelText(/nombre de la cuenta/i)
+      const submitButton = screen.getByRole('button', { name: /actualizar cuenta/i })
 
       // Act
       fireEvent.change(nameInput, { target: { value: 'Caja General Updated' } })
@@ -300,7 +301,7 @@ describe('AccountForm Integration Tests', () => {
 
       const codeInput = screen.getByLabelText(/código/i)
       const nameInput = screen.getByLabelText(/nombre/i)
-      const submitButton = screen.getByRole('button', { name: /guardar/i })
+      const submitButton = screen.getByRole('button', { name: /crear cuenta/i })
 
       // Act
       fireEvent.change(codeInput, { target: { value: '1000' } })
@@ -335,7 +336,7 @@ describe('AccountForm Integration Tests', () => {
         <AccountForm account={initialAccount} onSubmit={mockOnSubmit} />
       )
 
-      const nameInput = screen.getByLabelText(/nombre/i) as HTMLInputElement
+      const nameInput = screen.getByLabelText(/nombre de la cuenta/i) as HTMLInputElement
       expect(nameInput.value).toBe('Initial')
 
       // Act - update account prop
