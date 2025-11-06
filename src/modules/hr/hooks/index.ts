@@ -5,6 +5,8 @@
  * Focus on main entities: Employee, Attendance, Leave, PayrollPeriod
  */
 
+'use client'
+
 import useSWR from 'swr'
 import { useCallback } from 'react'
 import {

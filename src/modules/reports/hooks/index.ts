@@ -5,6 +5,8 @@
  * NO mutation hooks (reports are read-only)
  */
 
+'use client'
+
 import useSWR from 'swr'
 import {
   balanceSheetService,
