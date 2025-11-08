@@ -29,7 +29,7 @@ const cartService = {
    * Get current shopping cart (by session or customer)
    */
   async getCurrent(filters?: ShoppingCartFilters): Promise<ShoppingCart | null> {
-    const params: Record<string, any> = {};
+    const params: Record<string, string | number> = {};
 
     if (filters?.sessionId) {
       params['filter[session_id]'] = filters.sessionId;
@@ -44,10 +44,13 @@ const cartService = {
         { params }
       );
 
-      return shoppingCartFromAPI(response.data.data);
-    } catch (error: any) {
-      if (error.response?.status === 404) {
-        return null;
+      return shoppingCartFromAPI(response.data.data as unknown as Record<string, unknown>);
+    } catch (error: unknown) {
+      if (error && typeof error === 'object' && 'response' in error) {
+        const axiosError = error as { response?: { status?: number } };
+        if (axiosError.response?.status === 404) {
+          return null;
+        }
       }
       throw error;
     }
@@ -66,7 +69,7 @@ const cartService = {
       }
     );
 
-    return shoppingCartFromAPI(response.data.data);
+    return shoppingCartFromAPI(response.data.data as unknown as Record<string, unknown>);
   },
 
   /**
@@ -85,7 +88,7 @@ const cartService = {
       payload
     );
 
-    return shoppingCartFromAPI(response.data.data);
+    return shoppingCartFromAPI(response.data.data as unknown as Record<string, unknown>);
   },
 
   /**
@@ -116,7 +119,7 @@ const cartService = {
       payload
     );
 
-    return shoppingCartFromAPI(response.data.data);
+    return shoppingCartFromAPI(response.data.data as unknown as Record<string, unknown>);
   },
 
   /**
@@ -136,13 +139,13 @@ const cartService = {
   /**
    * Convert cart to order
    */
-  async checkout(id: string, orderData: any): Promise<any> {
+  async checkout(id: string, orderData: Record<string, unknown>): Promise<Record<string, unknown>> {
     const response = await axiosClient.post(
       `/api/v1/shopping-carts/${id}/checkout`,
       orderData
     );
 
-    return response.data;
+    return response.data as unknown as Record<string, unknown>;
   },
 };
 
@@ -155,7 +158,7 @@ const cartItemsService = {
    * Get all cart items for a specific cart
    */
   async getAll(shoppingCartId: number): Promise<ShoppingCartItem[]> {
-    const params: Record<string, any> = {
+    const params: Record<string, string | number> = {
       'filter[shopping_cart_id]': shoppingCartId,
     };
 
@@ -164,14 +167,14 @@ const cartItemsService = {
       { params }
     );
 
-    return response.data.data.map(shoppingCartItemFromAPI);
+    return response.data.data.map(item => shoppingCartItemFromAPI(item as unknown as Record<string, unknown>));
   },
 
   /**
    * Get a single cart item by ID
    */
   async getById(id: string): Promise<ShoppingCartItem> {
-    const response = await axiosClient.get<{ data: any }>(
+    const response = await axiosClient.get<{ data: Record<string, unknown> }>(
       `/api/v1/shopping-cart-items/${id}`,
       {
         params: {
@@ -180,7 +183,7 @@ const cartItemsService = {
       }
     );
 
-    return shoppingCartItemFromAPI(response.data.data);
+    return shoppingCartItemFromAPI(response.data.data as unknown as Record<string, unknown>);
   },
 
   /**
@@ -202,12 +205,12 @@ const cartItemsService = {
       },
     };
 
-    const response = await axiosClient.post<{ data: any }>(
+    const response = await axiosClient.post<{ data: Record<string, unknown> }>(
       '/api/v1/shopping-cart-items',
       payload
     );
 
-    return shoppingCartItemFromAPI(response.data.data);
+    return shoppingCartItemFromAPI(response.data.data as unknown as Record<string, unknown>);
   },
 
   /**
@@ -224,12 +227,12 @@ const cartItemsService = {
       },
     };
 
-    const response = await axiosClient.patch<{ data: any }>(
+    const response = await axiosClient.patch<{ data: Record<string, unknown> }>(
       `/api/v1/shopping-cart-items/${id}`,
       payload
     );
 
-    return shoppingCartItemFromAPI(response.data.data);
+    return shoppingCartItemFromAPI(response.data.data as unknown as Record<string, unknown>);
   },
 
   /**
@@ -244,12 +247,12 @@ const cartItemsService = {
       },
     };
 
-    const response = await axiosClient.patch<{ data: any }>(
+    const response = await axiosClient.patch<{ data: Record<string, unknown> }>(
       `/api/v1/shopping-cart-items/${id}`,
       payload
     );
 
-    return shoppingCartItemFromAPI(response.data.data);
+    return shoppingCartItemFromAPI(response.data.data as unknown as Record<string, unknown>);
   },
 
   /**

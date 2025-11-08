@@ -25,8 +25,8 @@ export default function SalesOrderItemsPage({ params }: PageProps) {
     console.log('🔍 [Debug] First Item Data:', salesOrderItems[0])
   }
 
-  const filteredItems = salesOrderItems?.filter((item: any) => 
-    searchTerm === '' || 
+  const filteredItems = salesOrderItems?.filter((item) =>
+    searchTerm === '' ||
     item.productId?.toString().includes(searchTerm) ||
     item.id?.toString().includes(searchTerm)
   )
@@ -148,7 +148,10 @@ export default function SalesOrderItemsPage({ params }: PageProps) {
                           </td>
                         </tr>
                       ) : (
-                        filteredItems?.map((item: any) => (
+                        filteredItems?.map((item) => {
+                          const product = item.product as Record<string, unknown> | undefined
+                          const productAttributes = product?.attributes as Record<string, unknown> | undefined
+                          return (
                           <tr key={item.id}>
                             <td>
                               <strong className="text-primary">#{item.id}</strong>
@@ -156,10 +159,10 @@ export default function SalesOrderItemsPage({ params }: PageProps) {
                             <td>
                               <div>
                                 <div className="fw-bold">
-                                  {item.product?.attributes?.name || item.product?.name || `Producto #${item.productId}`}
+                                  {(productAttributes?.name as string) || (product?.name as string) || `Producto #${item.productId}`}
                                 </div>
                                 <small className="text-muted">
-                                  SKU: {item.product?.attributes?.sku || item.product?.sku || item.productId}
+                                  SKU: {(productAttributes?.sku as string) || (product?.sku as string) || item.productId}
                                 </small>
                               </div>
                             </td>
@@ -170,9 +173,9 @@ export default function SalesOrderItemsPage({ params }: PageProps) {
                               {formatCurrency(item.unitPrice)}
                             </td>
                             <td>
-                              {item.discount > 0 ? (
+                              {(item.discount ?? 0) > 0 ? (
                                 <span className="text-warning">
-                                  -{formatCurrency(item.discount)}
+                                  -{formatCurrency(item.discount ?? 0)}
                                 </span>
                               ) : (
                                 <span className="text-muted">-</span>
@@ -180,7 +183,7 @@ export default function SalesOrderItemsPage({ params }: PageProps) {
                             </td>
                             <td>
                               <strong className="text-success">
-                                {formatCurrency(item.totalPrice || item.total || (item.quantity * item.unitPrice) - (item.discount || 0))}
+                                {formatCurrency(item.totalPrice || (item.quantity * item.unitPrice) - (item.discount || 0))}
                               </strong>
                             </td>
                             <td>
@@ -194,7 +197,8 @@ export default function SalesOrderItemsPage({ params }: PageProps) {
                               </div>
                             </td>
                           </tr>
-                        ))
+                          )
+                        })
                       )}
                     </tbody>
                   </table>
@@ -228,7 +232,7 @@ export default function SalesOrderItemsPage({ params }: PageProps) {
                   <div className="flex-grow-1">
                     <h6 className="text-white-50">Cantidad Total</h6>
                     <h4 className="mb-0">
-                      {formatQuantity(filteredItems.reduce((acc: number, item: any) => acc + (item.quantity || 0), 0))}
+                      {formatQuantity(filteredItems.reduce((acc: number, item) => acc + (item.quantity || 0), 0))}
                     </h4>
                   </div>
                   <i className="bi bi-calculator display-6"></i>
@@ -243,7 +247,7 @@ export default function SalesOrderItemsPage({ params }: PageProps) {
                   <div className="flex-grow-1">
                     <h6 className="text-white-50">Valor Total</h6>
                     <h4 className="mb-0">
-                      {formatCurrency(filteredItems.reduce((acc: number, item: any) => acc + (item.total || item.totalPrice || 0), 0))}
+                      {formatCurrency(filteredItems.reduce((acc: number, item) => acc + (item.totalPrice || 0), 0))}
                     </h4>
                   </div>
                   <i className="bi bi-currency-dollar display-6"></i>

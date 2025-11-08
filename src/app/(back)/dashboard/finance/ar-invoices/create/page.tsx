@@ -23,7 +23,7 @@ export default function CreateARInvoicePage() {
     invoiceDate: new Date().toISOString().split('T')[0],
     dueDate: '',
     currency: 'MXN',
-    exchangeRate: null,
+    exchangeRate: undefined,
     subtotal: '0.00',
     taxTotal: '0.00',
     total: '0.00',
@@ -44,9 +44,9 @@ export default function CreateARInvoicePage() {
       const response = await createARInvoice(formData)
       console.log('✅ [ARInvoiceCreate] Invoice created successfully:', response)
       navigation.push('/dashboard/finance/ar-invoices')
-    } catch (err: any) {
+    } catch (err) {
       console.error('❌ [ARInvoiceCreate] Error creating AR invoice:', err)
-      setError(err.message || 'Error al crear la factura por cobrar')
+      setError(err instanceof Error ? err.message : 'Error al crear la factura por cobrar')
     } finally {
       setIsLoading(false)
     }
@@ -99,7 +99,7 @@ export default function CreateARInvoicePage() {
                       <option value="">Seleccionar cliente...</option>
                       {contacts?.map((contact) => (
                         <option key={contact.id} value={contact.id}>
-                          {contact.name || contact.companyName || `Cliente ID: ${contact.id}`}
+                          {contact.name || `Cliente ID: ${contact.id}`}
                         </option>
                       ))}
                     </select>
@@ -215,7 +215,7 @@ export default function CreateARInvoicePage() {
                       className="form-select"
                       id="status"
                       value={formData.status}
-                      onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value as any }))}
+                      onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value as 'draft' | 'posted' | 'paid' }))}
                     >
                       <option value="draft">Borrador</option>
                       <option value="posted">Contabilizada</option>
@@ -231,7 +231,7 @@ export default function CreateARInvoicePage() {
                         className="form-control"
                         id="exchangeRate"
                         value={formData.exchangeRate || ''}
-                        onChange={(e) => setFormData(prev => ({ ...prev, exchangeRate: e.target.value || null }))}
+                        onChange={(e) => setFormData(prev => ({ ...prev, exchangeRate: e.target.value || undefined }))}
                         min="0"
                         step="0.0001"
                         placeholder="Ej: 20.0000"

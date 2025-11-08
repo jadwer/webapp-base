@@ -143,25 +143,27 @@ export default function SalesPage() {
                             <i className="bi bi-inbox display-4 text-muted mb-3 d-block"></i>
                             <h6>No hay órdenes de venta</h6>
                             <p className="mb-0">
-                              Crea tu primera orden de venta haciendo clic en "Nueva Orden"
+                              Crea tu primera orden de venta haciendo clic en &quot;Nueva Orden&quot;
                             </p>
                           </td>
                         </tr>
                       ) : (
-                        salesOrders?.map((order: any) => (
-                          <tr key={order.id}>
+                        salesOrders?.map((order) => {
+                          const contact = order.contact
+                          return (
+                          <tr key={order.id as string}>
                             <td>
-                              <strong className="text-primary">{order.orderNumber}</strong>
+                              <strong className="text-primary">{order.orderNumber as string}</strong>
                               <br />
                               <small className="text-muted">ID: {order.id}</small>
                             </td>
                             <td>
-                              {order.contact ? (
+                              {contact ? (
                                 <div>
-                                  <strong>{order.contact.name}</strong>
+                                  <strong>{contact.name as string}</strong>
                                   <br />
                                   <small className="text-muted">
-                                    {order.contact.email || `ID: ${order.contactId}`}
+                                    {(contact.email as string) || `ID: ${order.contactId}`}
                                   </small>
                                 </div>
                               ) : (
@@ -171,47 +173,48 @@ export default function SalesPage() {
                               )}
                             </td>
                             <td>
-                              {order.orderDate ? new Date(order.orderDate).toLocaleDateString('es-ES', {
+                              {order.orderDate ? new Date(order.orderDate as string).toLocaleDateString('es-ES', {
                                 day: '2-digit',
-                                month: '2-digit', 
+                                month: '2-digit',
                                 year: 'numeric'
                               }) : 'Sin fecha'}
                             </td>
                             <td>
-                              <span className={`badge ${getStatusBadgeClass(order.status)}`}>
-                                {getStatusText(order.status)}
+                              <span className={`badge ${getStatusBadgeClass(order.status as string)}`}>
+                                {getStatusText(order.status as string)}
                               </span>
                             </td>
                             <td>
                               <strong className="text-success">
-                                {formatCurrency(order.totalAmount)}
+                                {formatCurrency(order.totalAmount as number)}
                               </strong>
                             </td>
                             <td>
-                              {order.discountTotal > 0 && (
+                              {(order.discountTotal as number) > 0 && (
                                 <span className="text-warning">
-                                  -{formatCurrency(order.discountTotal)}
+                                  -{formatCurrency(order.discountTotal as number)}
                                 </span>
                               )}
                             </td>
                             <td>
                               <div className="btn-group btn-group-sm">
-                                <button 
+                                <button
                                   className="btn btn-outline-primary"
-                                  onClick={() => navigation.push(`/dashboard/sales/${order.id}`)}
+                                  onClick={() => navigation.push(`/dashboard/sales/${order.id as string}`)}
                                 >
                                   <i className="bi bi-eye"></i> Ver
                                 </button>
-                                <button 
+                                <button
                                   className="btn btn-outline-secondary"
-                                  onClick={() => navigation.push(`/dashboard/sales/${order.id}/edit`)}
+                                  onClick={() => navigation.push(`/dashboard/sales/${order.id as string}/edit`)}
                                 >
                                   <i className="bi bi-pencil"></i> Editar
                                 </button>
                               </div>
                             </td>
                           </tr>
-                        ))
+                          )
+                        })
                       )}
                     </tbody>
                   </table>
@@ -245,7 +248,7 @@ export default function SalesPage() {
                   <div className="flex-grow-1">
                     <h6 className="text-white-50">Valor Total</h6>
                     <h4 className="mb-0">
-                      {formatCurrency(salesOrders.reduce((acc: number, order: any) => acc + (order.totalAmount || 0), 0))}
+                      {formatCurrency(salesOrders.reduce((acc: number, order) => acc + (order.totalAmount || 0), 0))}
                     </h4>
                   </div>
                   <i className="bi bi-currency-dollar display-6"></i>
@@ -260,7 +263,7 @@ export default function SalesPage() {
                   <div className="flex-grow-1">
                     <h6 className="text-white-50">Completadas</h6>
                     <h4 className="mb-0">
-                      {salesOrders.filter((o: any) => o.status === 'completed').length}
+                      {salesOrders.filter((o) => o.status === 'completed').length}
                     </h4>
                   </div>
                   <i className="bi bi-check-circle display-6"></i>
@@ -275,7 +278,7 @@ export default function SalesPage() {
                   <div className="flex-grow-1">
                     <h6 className="text-white-50">Pendientes</h6>
                     <h4 className="mb-0">
-                      {salesOrders.filter((o: any) => ['pending', 'approved'].includes(o.status)).length}
+                      {salesOrders.filter((o) => ['pending', 'approved'].includes(o.status)).length}
                     </h4>
                   </div>
                   <i className="bi bi-clock display-6"></i>

@@ -4,7 +4,6 @@ import React, { useState } from 'react'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
 import { useBankAccountMutations } from '@/modules/finance'
 import { Button } from '@/ui/components/base/Button'
-import { Input } from '@/ui/components/base/Input'
 import type { BankAccountForm } from '@/modules/finance/types'
 
 export default function CreateBankAccountPage() {
@@ -37,9 +36,9 @@ export default function CreateBankAccountPage() {
       const response = await createBankAccount(formData)
       console.log('✅ [BankAccountCreate] Bank account created successfully:', response)
       navigation.push('/dashboard/finance/bank-accounts')
-    } catch (err: any) {
+    } catch (err) {
       console.error('❌ [BankAccountCreate] Error creating bank account:', err)
-      setError(err.message || 'Error al crear la cuenta bancaria')
+      setError(err instanceof Error ? err.message : 'Error al crear la cuenta bancaria')
     } finally {
       setIsLoading(false)
     }
@@ -47,11 +46,6 @@ export default function CreateBankAccountPage() {
 
   const handleCancel = () => {
     navigation.back()
-  }
-
-  const handleInputChange = (field: keyof BankAccountForm, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }))
-    setError(null)
   }
 
   return (
@@ -124,7 +118,7 @@ export default function CreateBankAccountPage() {
                       className="form-select"
                       id="accountType"
                       value={formData.accountType}
-                      onChange={(e) => setFormData(prev => ({ ...prev, accountType: e.target.value as any }))}
+                      onChange={(e) => setFormData(prev => ({ ...prev, accountType: e.target.value }))}
                       required
                     >
                       <option value="checking">Cuenta Corriente</option>
@@ -157,7 +151,7 @@ export default function CreateBankAccountPage() {
                       className="form-select"
                       id="status"
                       value={formData.status}
-                      onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value as any }))}
+                      onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value as 'active' | 'inactive' | 'closed' }))}
                     >
                       <option value="active">Activa</option>
                       <option value="inactive">Inactiva</option>

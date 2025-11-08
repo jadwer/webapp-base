@@ -11,10 +11,6 @@ import {
   bankAccountsService,
 } from '../services';
 import type {
-  APInvoice,
-  APPayment,
-  ARInvoice,
-  ARReceipt,
   BankAccount,
   APInvoiceForm,
   APPaymentForm,
@@ -23,27 +19,35 @@ import type {
 } from '../types';
 
 // AP Invoices Hooks
-export function useAPInvoices(params: Record<string, any> = {}) {
+export function useAPInvoices(params: Record<string, unknown> = {}) {
   // Format parameters correctly for the API
-  const formattedParams: Record<string, any> = {};
+  const formattedParams: Record<string, unknown> = {};
   
   if (params.filters) {
-    Object.keys(params.filters).forEach(key => {
-      formattedParams[`filter[${key}]`] = params.filters[key];
+    const filters = params.filters as Record<string, unknown>;
+    Object.keys(filters).forEach(key => {
+      formattedParams[`filter[${key}]`] = filters[key];
     });
   }
-  
+
   if (params.pagination) {
-    if (params.pagination.page) formattedParams['page[number]'] = params.pagination.page;
-    if (params.pagination.size) formattedParams['page[size]'] = params.pagination.size;
+    const pagination = params.pagination as Record<string, unknown>;
+    if (pagination.page) formattedParams['page[number]'] = pagination.page;
+    if (pagination.size) formattedParams['page[size]'] = pagination.size;
   }
   
-  if (params.include && params.include.length > 0) {
-    formattedParams.include = params.include.join(',');
+  if (params.include) {
+    const include = params.include as string[];
+    if (include.length > 0) {
+      formattedParams.include = include.join(',');
+    }
   }
-  
-  if (params.sort && params.sort.length > 0) {
-    formattedParams.sort = params.sort.join(',');
+
+  if (params.sort) {
+    const sort = params.sort as string[];
+    if (sort.length > 0) {
+      formattedParams.sort = sort.join(',');
+    }
   }
 
   const key = ['/api/v1/a-p-invoices', formattedParams];
@@ -112,27 +116,35 @@ export function useAPInvoiceMutations() {
 }
 
 // AP Payments Hooks
-export function useAPPayments(params: Record<string, any> = {}) {
+export function useAPPayments(params: Record<string, unknown> = {}) {
   // Format parameters correctly for the API
-  const formattedParams: Record<string, any> = {};
+  const formattedParams: Record<string, unknown> = {};
   
   if (params.filters) {
-    Object.keys(params.filters).forEach(key => {
-      formattedParams[`filter[${key}]`] = params.filters[key];
+    const filters = params.filters as Record<string, unknown>;
+    Object.keys(filters).forEach(key => {
+      formattedParams[`filter[${key}]`] = filters[key];
     });
   }
-  
+
   if (params.pagination) {
-    if (params.pagination.page) formattedParams['page[number]'] = params.pagination.page;
-    if (params.pagination.size) formattedParams['page[size]'] = params.pagination.size;
+    const pagination = params.pagination as Record<string, unknown>;
+    if (pagination.page) formattedParams['page[number]'] = pagination.page;
+    if (pagination.size) formattedParams['page[size]'] = pagination.size;
   }
   
-  if (params.include && params.include.length > 0) {
-    formattedParams.include = params.include.join(',');
+  if (params.include) {
+    const include = params.include as string[];
+    if (include.length > 0) {
+      formattedParams.include = include.join(',');
+    }
   }
-  
-  if (params.sort && params.sort.length > 0) {
-    formattedParams.sort = params.sort.join(',');
+
+  if (params.sort) {
+    const sort = params.sort as string[];
+    if (sort.length > 0) {
+      formattedParams.sort = sort.join(',');
+    }
   }
 
   const key = ['/api/v1/a-p-payments', formattedParams];
@@ -204,27 +216,35 @@ export function useAPPaymentMutations() {
 }
 
 // AR Invoices Hooks
-export function useARInvoices(params: Record<string, any> = {}) {
+export function useARInvoices(params: Record<string, unknown> = {}) {
   // Format parameters correctly for the API
-  const formattedParams: Record<string, any> = {};
+  const formattedParams: Record<string, unknown> = {};
   
   if (params.filters) {
-    Object.keys(params.filters).forEach(key => {
-      formattedParams[`filter[${key}]`] = params.filters[key];
+    const filters = params.filters as Record<string, unknown>;
+    Object.keys(filters).forEach(key => {
+      formattedParams[`filter[${key}]`] = filters[key];
     });
   }
-  
+
   if (params.pagination) {
-    if (params.pagination.page) formattedParams['page[number]'] = params.pagination.page;
-    if (params.pagination.size) formattedParams['page[size]'] = params.pagination.size;
+    const pagination = params.pagination as Record<string, unknown>;
+    if (pagination.page) formattedParams['page[number]'] = pagination.page;
+    if (pagination.size) formattedParams['page[size]'] = pagination.size;
   }
   
-  if (params.include && params.include.length > 0) {
-    formattedParams.include = params.include.join(',');
+  if (params.include) {
+    const include = params.include as string[];
+    if (include.length > 0) {
+      formattedParams.include = include.join(',');
+    }
   }
-  
-  if (params.sort && params.sort.length > 0) {
-    formattedParams.sort = params.sort.join(',');
+
+  if (params.sort) {
+    const sort = params.sort as string[];
+    if (sort.length > 0) {
+      formattedParams.sort = sort.join(',');
+    }
   }
 
   const key = ['/api/v1/a-r-invoices', formattedParams];
@@ -293,27 +313,35 @@ export function useARInvoiceMutations() {
 }
 
 // AR Receipts Hooks
-export function useARReceipts(params: Record<string, any> = {}) {
+export function useARReceipts(params: Record<string, unknown> = {}) {
   // Format parameters correctly for the API
-  const formattedParams: Record<string, any> = {};
+  const formattedParams: Record<string, unknown> = {};
   
   if (params.filters) {
-    Object.keys(params.filters).forEach(key => {
-      formattedParams[`filter[${key}]`] = params.filters[key];
+    const filters = params.filters as Record<string, unknown>;
+    Object.keys(filters).forEach(key => {
+      formattedParams[`filter[${key}]`] = filters[key];
     });
   }
-  
+
   if (params.pagination) {
-    if (params.pagination.page) formattedParams['page[number]'] = params.pagination.page;
-    if (params.pagination.size) formattedParams['page[size]'] = params.pagination.size;
+    const pagination = params.pagination as Record<string, unknown>;
+    if (pagination.page) formattedParams['page[number]'] = pagination.page;
+    if (pagination.size) formattedParams['page[size]'] = pagination.size;
   }
   
-  if (params.include && params.include.length > 0) {
-    formattedParams.include = params.include.join(',');
+  if (params.include) {
+    const include = params.include as string[];
+    if (include.length > 0) {
+      formattedParams.include = include.join(',');
+    }
   }
-  
-  if (params.sort && params.sort.length > 0) {
-    formattedParams.sort = params.sort.join(',');
+
+  if (params.sort) {
+    const sort = params.sort as string[];
+    if (sort.length > 0) {
+      formattedParams.sort = sort.join(',');
+    }
   }
 
   const key = ['/api/v1/a-r-receipts', formattedParams];
@@ -385,7 +413,7 @@ export function useARReceiptMutations() {
 }
 
 // Bank Accounts Hooks
-export function useBankAccounts(params: Record<string, any> = {}) {
+export function useBankAccounts(params: Record<string, unknown> = {}) {
   const key = ['/api/v1/bank-accounts', params];
   const { data, error, isLoading, mutate } = useSWR(
     key,

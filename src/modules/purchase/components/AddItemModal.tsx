@@ -11,23 +11,33 @@ interface AddItemModalProps {
   onSuccess: () => void
 }
 
+interface Product {
+  id: string | number
+  attributes?: {
+    name?: string
+    sku?: string
+    price?: string | number
+    unit_price?: string | number
+  }
+}
+
 export default function AddItemModal({ purchaseOrderId, isOpen, onClose, onSuccess }: AddItemModalProps) {
   const { products, isLoading: productsLoading } = usePurchaseProducts()
   const { createPurchaseOrderItem } = usePurchaseOrderItemMutations()
-  
+
   const [formData, setFormData] = useState({
     productId: '',
     quantity: 1,
     unitPrice: 0,
     discount: 0
   })
-  
+
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  
+
   // Calcular total
   const total = (formData.quantity * formData.unitPrice) - formData.discount
-  
+
   // Reset form when modal opens
   useEffect(() => {
     if (isOpen) {
@@ -40,26 +50,26 @@ export default function AddItemModal({ purchaseOrderId, isOpen, onClose, onSucce
       setError(null)
     }
   }, [isOpen])
-  
+
   // Update unit price when product changes
   const handleProductChange = (productId: string) => {
     setFormData(prev => ({ ...prev, productId }))
-    
+
     if (productId) {
-      const selectedProduct = products.find((p: any) => p.id === productId)
+      const selectedProduct = products.find((p: Product) => p.id === productId)
       if (selectedProduct) {
         // Use product price if available
         const price = selectedProduct.attributes?.price || selectedProduct.attributes?.unit_price || 0
-        setFormData(prev => ({ ...prev, unitPrice: parseFloat(price) || 0 }))
+        setFormData(prev => ({ ...prev, unitPrice: parseFloat(String(price)) || 0 }))
       }
     }
   }
-  
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
     setError(null)
-    
+
     try {
       const itemData = {
         purchaseOrderId,
@@ -68,15 +78,16 @@ export default function AddItemModal({ purchaseOrderId, isOpen, onClose, onSucce
         unitPrice: formData.unitPrice,
         discount: formData.discount
       }
-      
+
       console.log('🚀 Creating purchase order item:', itemData)
       await createPurchaseOrderItem(itemData)
-      
+
       onSuccess()
       onClose()
-    } catch (err: any) {
+    } catch (err) {
       console.error('❌ Error creating item:', err)
-      setError(err.response?.data?.message || err.message || 'Error al agregar el item')
+      const error = err as { response?: { data?: { message?: string } }; message?: string }
+      setError(error.response?.data?.message || error.message || 'Error al agregar el item')
     } finally {
       setIsSubmitting(false)
     }
@@ -123,11 +134,11 @@ export default function AddItemModal({ purchaseOrderId, isOpen, onClose, onSucce
                     disabled={productsLoading || isSubmitting}
                   >
                     <option value="">Seleccionar producto...</option>
-                    {products.map((product: any) => (
+                    {products.map((product: Product) => (
                       <option key={product.id} value={product.id}>
-                        {product.attributes?.name || `Producto #${product.id}`} 
+                        {product.attributes?.name || `Producto #${product.id}`}
                         {product.attributes?.sku && ` (SKU: ${product.attributes.sku})`}
-                        {product.attributes?.price && ` - ${formatCurrency(product.attributes.price)}`}
+                        {product.attributes?.price && ` - ${formatCurrency(Number(product.attributes.price))}`}
                       </option>
                     ))}
                   </select>

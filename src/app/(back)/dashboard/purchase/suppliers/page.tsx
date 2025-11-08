@@ -5,13 +5,25 @@ import { usePurchaseSuppliers } from '@/modules/purchase'
 import { formatCurrency } from '@/lib/formatters'
 import Link from 'next/link'
 
+interface Supplier {
+  id: string | number
+  supplier_id?: string | number
+  name?: string
+  email?: string
+  phone?: string
+  totalPurchased?: number
+  totalOrders?: number
+  averageOrderValue?: number
+  lastOrderDate?: string
+}
+
 export default function PurchaseSuppliersPage() {
   const [selectedPeriod, setSelectedPeriod] = useState('all')
-  
+
   // Calcular fechas según el período seleccionado - incluir datos históricos
   const getDateRange = (period: string) => {
     const endDate = new Date().toISOString().split('T')[0]
-    let startDate = new Date()
+    const startDate = new Date()
     
     switch (period) {
       case '30days':
@@ -43,7 +55,7 @@ export default function PurchaseSuppliersPage() {
   const { suppliers, isLoading, error } = usePurchaseSuppliers(startDate, endDate)
 
   // Transform API response usando estructura específica de Purchase API
-  const topSuppliers = suppliers?.suppliers || []
+  const topSuppliers = (suppliers?.suppliers || []) as Supplier[]
 
   const handleTimeRangeChange = (period: string) => {
     setSelectedPeriod(period)
@@ -162,7 +174,7 @@ export default function PurchaseSuppliersPage() {
                       </tr>
                     )}
 
-                    {!isLoading && !error && topSuppliers.map((supplier: any, index: number) => (
+                    {!isLoading && !error && topSuppliers.map((supplier: Supplier, index: number) => (
                       <tr key={supplier.id || supplier.supplier_id}>
                         <td>
                           <div className="d-flex align-items-center">

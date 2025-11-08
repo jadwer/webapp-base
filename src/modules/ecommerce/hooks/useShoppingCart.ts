@@ -143,7 +143,7 @@ export function useShoppingCartMutations() {
   /**
    * Convert cart to order (checkout)
    */
-  const checkout = async (id: string, orderData: any): Promise<any> => {
+  const checkout = async (id: string, orderData: Record<string, unknown>): Promise<Record<string, unknown>> => {
     setIsCheckingOut(true);
     try {
       const result = await shoppingCartService.cart.checkout(id, orderData);
@@ -336,7 +336,7 @@ export function useCart(filters?: ShoppingCartFilters) {
    * Checkout cart
    */
   const checkoutCart = useCallback(
-    async (orderData: any) => {
+    async (orderData: Record<string, unknown>) => {
       if (cart) {
         const result = await cartMutations.checkout(cart.id, orderData);
         await mutateCart();

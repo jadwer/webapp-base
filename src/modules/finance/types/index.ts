@@ -15,7 +15,7 @@ export interface APInvoice {
   status: 'draft' | 'posted' | 'paid';
   paidAmount: number;        // ✅ Campo calculado como float
   remainingBalance: number;  // ✅ Campo calculado como float
-  metadata?: Record<string, any>;  // ✅ Campo opcional del backend
+  metadata?: Record<string, unknown>;  // ✅ Campo opcional del backend
   createdAt: string;
   updatedAt: string;
 }
@@ -51,7 +51,7 @@ export interface ARInvoice {
   status: 'draft' | 'posted' | 'paid';
   paidAmount: number;        // ✅ Campo calculado (misma estructura que AP)
   remainingBalance: number;  // ✅ Campo calculado
-  metadata?: Record<string, any>;  // ✅ Campo opcional
+  metadata?: Record<string, unknown>;  // ✅ Campo opcional
   createdAt: string;
   updatedAt: string;
 }
@@ -107,7 +107,7 @@ export interface APInvoiceForm {
   status: 'draft' | 'posted' | 'paid';  // ✅ Required field
   currency?: string;     // ✅ Optional, default: MXN
   exchangeRate?: string; // ✅ Optional string (decimal)
-  metadata?: Record<string, any>; // ✅ Optional object
+  metadata?: Record<string, unknown>; // ✅ Optional object
 }
 
 export interface APPaymentForm {
@@ -131,7 +131,7 @@ export interface ARInvoiceForm {
   status: 'draft' | 'posted' | 'paid';  // ✅ Required field
   currency?: string;     // ✅ Optional, default: MXN
   exchangeRate?: string; // ✅ Optional string (decimal)
-  metadata?: Record<string, any>; // ✅ Optional object
+  metadata?: Record<string, unknown>; // ✅ Optional object
 }
 
 export interface ARReceiptForm {

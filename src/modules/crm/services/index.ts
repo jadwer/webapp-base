@@ -21,7 +21,7 @@ import {
 // ============================================================================
 
 export const pipelineStagesService = {
-  getAll: async (params?: any) => {
+  getAll: async (params?: Record<string, unknown>) => {
     try {
       console.log('🚀 [Service] Fetching pipeline stages with params:', params)
 
@@ -36,7 +36,7 @@ export const pipelineStagesService = {
       if (params) {
         Object.keys(params).forEach(key => {
           if (params[key] !== undefined && params[key] !== null && params[key] !== '') {
-            queryParams.append(key, params[key])
+            queryParams.append(key, String(params[key]))
           }
         })
       }
@@ -117,7 +117,7 @@ export const pipelineStagesService = {
 // ============================================================================
 
 export const leadsService = {
-  getAll: async (params?: any) => {
+  getAll: async (params?: Record<string, unknown>) => {
     try {
       console.log('🚀 [Service] Fetching leads with params:', params)
 
@@ -130,7 +130,7 @@ export const leadsService = {
       if (params) {
         Object.keys(params).forEach(key => {
           if (params[key] !== undefined && params[key] !== null && params[key] !== '') {
-            queryParams.append(key, params[key])
+            queryParams.append(key, String(params[key]))
           }
         })
       }
@@ -213,7 +213,7 @@ export const leadsService = {
 // ============================================================================
 
 export const campaignsService = {
-  getAll: async (params?: any) => {
+  getAll: async (params?: Record<string, unknown>) => {
     try {
       console.log('🚀 [Service] Fetching campaigns with params:', params)
 
@@ -226,7 +226,7 @@ export const campaignsService = {
       if (params) {
         Object.keys(params).forEach(key => {
           if (params[key] !== undefined && params[key] !== null && params[key] !== '') {
-            queryParams.append(key, params[key])
+            queryParams.append(key, String(params[key]))
           }
         })
       }

@@ -6,7 +6,7 @@ import { AccountForm } from './AccountForm'
 import { useAccount, useAccountMutations } from '../hooks'
 import { useToast } from '@/ui/hooks/useToast'
 import { Alert } from '@/ui/components/base'
-import type { AccountForm as AccountFormData } from '../types'
+import type { AccountFormData } from '../types'
 
 interface AccountFormWrapperProps {
   accountId?: string

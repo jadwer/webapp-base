@@ -7,7 +7,7 @@ import { PurchaseOrderFormData, PurchaseOrderFilters } from '../types'
 // Purchase Orders Hooks
 export const usePurchaseOrders = (params?: PurchaseOrderFilters) => {
   // Convert filters to API query parameters
-  const queryParams: any = {}
+  const queryParams: Record<string, string> = {}
   
   if (params?.search) {
     queryParams['filter[search]'] = params.search
@@ -16,7 +16,7 @@ export const usePurchaseOrders = (params?: PurchaseOrderFilters) => {
     queryParams['filter[status]'] = params.status
   }
   if (params?.contactId) {
-    queryParams['filter[contact_id]'] = params.contactId
+    queryParams['filter[contact_id]'] = String(params.contactId)
   }
   if (params?.dateFrom) {
     queryParams['filter[date_from]'] = params.dateFrom
@@ -71,7 +71,7 @@ export const usePurchaseOrder = (id: string) => {
 
 export const usePurchaseOrderItems = (purchaseOrderId?: string) => {
   const params = purchaseOrderId ? { 'filter[purchaseOrderId]': purchaseOrderId } : null
-  const key = params ? ['/api/v1/purchase-order-items', params] : null
+  const key = params ? ['/api/v1/purchase-order-items', params as Record<string, string>] : null
   
   const { data, error, isLoading, mutate } = useSWR(
     key,
@@ -123,9 +123,9 @@ export const usePurchaseSuppliers = (startDate = '1980-01-01', endDate = '2025-1
 }
 
 // Purchase Contacts Hook (for supplier dropdowns)
-export const usePurchaseContacts = (params?: any) => {
+export const usePurchaseContacts = (params?: Record<string, string>) => {
   // ✅ Usar filtro CORRECTO que funciona: filter[isSupplier]=1
-  const queryParams = params || { 
+  const queryParams = params || {
     'filter[isSupplier]': '1'
   }
   const key = ['/api/v1/contacts', queryParams]
@@ -149,7 +149,7 @@ export const usePurchaseContacts = (params?: any) => {
 }
 
 // Purchase Products Hook (for order items)
-export const usePurchaseProducts = (params?: any) => {
+export const usePurchaseProducts = (params?: Record<string, string>) => {
   // TODO: Implementar Status - agregar filter[status]=active después de la presentación
   const queryParams = params || {}
   const key = ['/api/v1/products', queryParams]
@@ -229,7 +229,7 @@ export const usePurchaseOrderMutations = () => {
 
 // Purchase Order Items Mutations Hook
 export const usePurchaseOrderItemMutations = () => {
-  const createPurchaseOrderItem = useCallback(async (data: any) => {
+  const createPurchaseOrderItem = useCallback(async (data: Record<string, unknown>) => {
     console.log('🚀 [Mutation] Creating purchase order item:', data)
     try {
       const response = await purchaseService.items.create(data)
@@ -241,7 +241,7 @@ export const usePurchaseOrderItemMutations = () => {
     }
   }, [])
 
-  const updatePurchaseOrderItem = useCallback(async (id: string, data: any) => {
+  const updatePurchaseOrderItem = useCallback(async (id: string, data: Record<string, unknown>) => {
     console.log('📝 [Mutation] Updating purchase order item:', id)
     try {
       const response = await purchaseService.items.update(id, data)

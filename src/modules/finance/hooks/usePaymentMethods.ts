@@ -6,11 +6,11 @@
  */
 
 import useSWR from 'swr'
-import type { PaymentMethod } from '../types'
+import type { PaymentMethodForm } from '../types'
 import { paymentMethodsService } from '../services'
 
 interface UsePaymentMethodsOptions {
-  filters?: Record<string, any>
+  filters?: Record<string, unknown>
   pagination?: { page?: number; size?: number }
   include?: string[]
   sort?: string[]
@@ -23,7 +23,7 @@ interface UsePaymentMethodsOptions {
 export const usePaymentMethods = (options: UsePaymentMethodsOptions = {}) => {
   const { filters, pagination, include, sort, enabled = true } = options
 
-  const queryParams: Record<string, any> = {}
+  const queryParams: Record<string, unknown> = {}
 
   if (filters) {
     Object.keys(filters).forEach(key => {
@@ -125,11 +125,11 @@ export const usePaymentMethodsRequiringReference = () => {
  * Payment Methods mutations hook
  */
 export const usePaymentMethodMutations = () => {
-  const createPaymentMethod = async (data: any) => {
+  const createPaymentMethod = async (data: PaymentMethodForm) => {
     return await paymentMethodsService.create(data)
   }
 
-  const updatePaymentMethod = async (id: string, data: any) => {
+  const updatePaymentMethod = async (id: string, data: Partial<PaymentMethodForm>) => {
     return await paymentMethodsService.update(id, data)
   }
 

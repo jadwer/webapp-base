@@ -156,8 +156,8 @@ export const BalanceGeneralReport = () => {
                 placeholder="Fecha de corte"
               />
               <Button
-                variant="outline-primary"
-                size="sm"
+                variant="primary"
+                size="small"
                 onClick={() => setEndDate('')}
                 disabled={!endDate}
               >

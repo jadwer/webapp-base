@@ -16,7 +16,7 @@ import { Button, ConfirmModal } from '@/ui/components/base'
 import type { ConfirmModalHandle } from '@/ui/components/base'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
 import { useToast } from '@/ui/hooks/useToast'
-import type { EcommerceOrder } from '../types'
+import type { EcommerceOrder, OrderStatus, PaymentStatus, ShippingStatus } from '../types'
 
 export const OrdersAdminPage = React.memo(() => {
   const [searchTerm, setSearchTerm] = useState('')
@@ -35,9 +35,9 @@ export const OrdersAdminPage = React.memo(() => {
   // Fetch orders with filters
   const { ecommerceOrders, isLoading, error } = useEcommerceOrders({
     search: searchTerm || undefined,
-    status: statusFilter || undefined,
-    paymentStatus: paymentStatusFilter || undefined,
-    shippingStatus: shippingStatusFilter || undefined,
+    status: (statusFilter || undefined) as OrderStatus | undefined,
+    paymentStatus: (paymentStatusFilter || undefined) as PaymentStatus | undefined,
+    shippingStatus: (shippingStatusFilter || undefined) as ShippingStatus | undefined,
   })
 
   // Get all orders for metrics (without pagination)

@@ -44,7 +44,6 @@ const initialAddressForm: AddressFormData = {
 }
 
 export const ContactAddresses: React.FC<ContactAddressesProps> = ({
-  contactId,
   addresses,
   onAddAddress,
   onUpdateAddress,
@@ -219,7 +218,7 @@ export const ContactAddresses: React.FC<ContactAddressesProps> = ({
                     id="addressType"
                     className="form-select"
                     value={formData.addressType}
-                    onChange={(e) => updateField('addressType', e.target.value as any)}
+                    onChange={(e) => updateField('addressType', e.target.value as AddressFormData['addressType'])}
                     disabled={isLoading}
                     required
                   >

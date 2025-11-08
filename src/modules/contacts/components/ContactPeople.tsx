@@ -42,7 +42,6 @@ const initialPersonForm: PersonFormData = {
 }
 
 export const ContactPeople: React.FC<ContactPeopleProps> = ({
-  contactId,
   people,
   onAddPerson,
   onUpdatePerson,

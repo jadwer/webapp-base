@@ -57,7 +57,7 @@ export const OrderViewTabs = React.memo<OrderViewTabsProps>(({
             <Button
               variant="secondary"
               buttonStyle="outline"
-              size="sm"
+              size="small"
               onClick={() => navigation.back()}
               className="me-3"
             >

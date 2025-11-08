@@ -16,7 +16,7 @@ export default function CreateAPInvoicePage() {
     invoiceDate: new Date().toISOString().split('T')[0],
     dueDate: '',
     currency: 'MXN',
-    exchangeRate: null,
+    exchangeRate: undefined,
     subtotal: '0.00',
     taxTotal: '0.00',
     total: '0.00',
@@ -183,7 +183,7 @@ export default function CreateAPInvoicePage() {
                       className="form-select"
                       id="status"
                       value={formData.status}
-                      onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value as any }))}
+                      onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value as 'draft' | 'posted' | 'paid' }))}
                     >
                       <option value="draft">Borrador</option>
                       <option value="posted">Contabilizada</option>
@@ -199,7 +199,7 @@ export default function CreateAPInvoicePage() {
                         className="form-control"
                         id="exchangeRate"
                         value={formData.exchangeRate || ''}
-                        onChange={(e) => setFormData(prev => ({ ...prev, exchangeRate: e.target.value || null }))}
+                        onChange={(e) => setFormData(prev => ({ ...prev, exchangeRate: e.target.value || undefined }))}
                         min="0"
                         step="0.0001"
                         placeholder="Ej: 20.0000"

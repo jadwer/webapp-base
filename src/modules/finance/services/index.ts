@@ -30,6 +30,7 @@ import type {
   ARInvoice,
   ARReceipt,
   BankAccount,
+  BankAccountForm,
   APInvoiceForm,
   APPaymentForm,
   ARInvoiceForm,
@@ -43,7 +44,7 @@ import type {
 
 // AP Invoices Service
 export const apInvoicesService = {
-  async getAll(params: Record<string, any> = {}): Promise<FinanceAPIResponse<APInvoice>> {
+  async getAll(params: Record<string, unknown> = {}): Promise<FinanceAPIResponse<APInvoice>> {
     const response = await axiosClient.get('/api/v1/ap-invoices', { params });
     const transformedData = transformAPInvoicesFromAPI(response.data);
     return {
@@ -93,7 +94,7 @@ export const apInvoicesService = {
 
 // AP Payments Service
 export const apPaymentsService = {
-  async getAll(params: Record<string, any> = {}): Promise<FinanceAPIResponse<APPayment>> {
+  async getAll(params: Record<string, unknown> = {}): Promise<FinanceAPIResponse<APPayment>> {
     const response = await axiosClient.get('/api/v1/ap-payments', { params });
     const transformedData = transformAPPaymentsFromAPI(response.data);
     return {
@@ -143,7 +144,7 @@ export const apPaymentsService = {
 
 // AR Invoices Service
 export const arInvoicesService = {
-  async getAll(params: Record<string, any> = {}): Promise<FinanceAPIResponse<ARInvoice>> {
+  async getAll(params: Record<string, unknown> = {}): Promise<FinanceAPIResponse<ARInvoice>> {
     const response = await axiosClient.get('/api/v1/ar-invoices', { params });
     const transformedData = transformARInvoicesFromAPI(response.data);
     return {
@@ -193,7 +194,7 @@ export const arInvoicesService = {
 
 // AR Receipts Service
 export const arReceiptsService = {
-  async getAll(params: Record<string, any> = {}): Promise<FinanceAPIResponse<ARReceipt>> {
+  async getAll(params: Record<string, unknown> = {}): Promise<FinanceAPIResponse<ARReceipt>> {
     const response = await axiosClient.get('/api/v1/ar-receipts', { params });
     const transformedData = transformARReceiptsFromAPI(response.data);
     return {
@@ -243,7 +244,7 @@ export const arReceiptsService = {
 
 // Bank Accounts Service
 export const bankAccountsService = {
-  async getAll(params: Record<string, any> = {}): Promise<FinanceAPIResponse<BankAccount>> {
+  async getAll(params: Record<string, unknown> = {}): Promise<FinanceAPIResponse<BankAccount>> {
     const response = await axiosClient.get('/api/v1/bank-accounts', { params });
     const transformedData = transformBankAccountsFromAPI(response.data);
     return {
@@ -261,7 +262,7 @@ export const bankAccountsService = {
     };
   },
 
-  async create(data: any): Promise<{ data: BankAccount }> {
+  async create(data: BankAccountForm): Promise<{ data: BankAccount }> {
     const response = await axiosClient.post('/api/v1/bank-accounts', {
       data: {
         type: 'bank-accounts',
@@ -292,12 +293,13 @@ export const bankAccountsService = {
 };
 
 // Export individual functions for test compatibility
-export const getAPInvoices = (params?: { filters?: any; pagination?: any; include?: string[]; sort?: string[] }) => {
-  const queryParams: Record<string, any> = {};
+export const getAPInvoices = (params?: { filters?: Record<string, unknown>; pagination?: Record<string, unknown>; include?: string[]; sort?: string[] }) => {
+  const queryParams: Record<string, unknown> = {};
   
   if (params?.filters) {
-    Object.keys(params.filters).forEach(key => {
-      queryParams[`filter[${key}]`] = params.filters[key];
+    const filters = params.filters as Record<string, unknown>;
+    Object.keys(filters).forEach(key => {
+      queryParams[`filter[${key}]`] = filters[key];
     });
   }
   
@@ -322,12 +324,13 @@ export const createAPInvoice = (data: APInvoiceForm) => apInvoicesService.create
 export const updateAPInvoice = (id: string, data: Partial<APInvoiceForm>) => apInvoicesService.update(id, data).then(response => response.data);
 export const deleteAPInvoice = (id: string) => apInvoicesService.delete(id);
 
-export const getARInvoices = (params?: { filters?: any; pagination?: any; include?: string[]; sort?: string[] }) => {
-  const queryParams: Record<string, any> = {};
+export const getARInvoices = (params?: { filters?: Record<string, unknown>; pagination?: Record<string, unknown>; include?: string[]; sort?: string[] }) => {
+  const queryParams: Record<string, unknown> = {};
   
   if (params?.filters) {
-    Object.keys(params.filters).forEach(key => {
-      queryParams[`filter[${key}]`] = params.filters[key];
+    const filters = params.filters as Record<string, unknown>;
+    Object.keys(filters).forEach(key => {
+      queryParams[`filter[${key}]`] = filters[key];
     });
   }
   
@@ -352,12 +355,13 @@ export const createARInvoice = (data: ARInvoiceForm) => arInvoicesService.create
 export const updateARInvoice = (id: string, data: Partial<ARInvoiceForm>) => arInvoicesService.update(id, data).then(response => response.data);
 export const deleteARInvoice = (id: string) => arInvoicesService.delete(id);
 
-export const getAPPayments = (params?: { filters?: any; pagination?: any; include?: string[]; sort?: string[] }) => {
-  const queryParams: Record<string, any> = {};
+export const getAPPayments = (params?: { filters?: Record<string, unknown>; pagination?: Record<string, unknown>; include?: string[]; sort?: string[] }) => {
+  const queryParams: Record<string, unknown> = {};
   
   if (params?.filters) {
-    Object.keys(params.filters).forEach(key => {
-      queryParams[`filter[${key}]`] = params.filters[key];
+    const filters = params.filters as Record<string, unknown>;
+    Object.keys(filters).forEach(key => {
+      queryParams[`filter[${key}]`] = filters[key];
     });
   }
   
@@ -382,12 +386,13 @@ export const createAPPayment = (data: APPaymentForm) => apPaymentsService.create
 export const updateAPPayment = (id: string, data: Partial<APPaymentForm>) => apPaymentsService.update(id, data).then(response => response.data);
 export const deleteAPPayment = (id: string) => apPaymentsService.delete(id);
 
-export const getARReceipts = (params?: { filters?: any; pagination?: any; include?: string[]; sort?: string[] }) => {
-  const queryParams: Record<string, any> = {};
+export const getARReceipts = (params?: { filters?: Record<string, unknown>; pagination?: Record<string, unknown>; include?: string[]; sort?: string[] }) => {
+  const queryParams: Record<string, unknown> = {};
   
   if (params?.filters) {
-    Object.keys(params.filters).forEach(key => {
-      queryParams[`filter[${key}]`] = params.filters[key];
+    const filters = params.filters as Record<string, unknown>;
+    Object.keys(filters).forEach(key => {
+      queryParams[`filter[${key}]`] = filters[key];
     });
   }
   
@@ -412,12 +417,13 @@ export const createARReceipt = (data: ARReceiptForm) => arReceiptsService.create
 export const updateARReceipt = (id: string, data: Partial<ARReceiptForm>) => arReceiptsService.update(id, data).then(response => response.data);
 export const deleteARReceipt = (id: string) => arReceiptsService.delete(id);
 
-export const getBankAccounts = (params?: { filters?: any; pagination?: any; include?: string[]; sort?: string[] }) => {
-  const queryParams: Record<string, any> = {};
+export const getBankAccounts = (params?: { filters?: Record<string, unknown>; pagination?: Record<string, unknown>; include?: string[]; sort?: string[] }) => {
+  const queryParams: Record<string, unknown> = {};
   
   if (params?.filters) {
-    Object.keys(params.filters).forEach(key => {
-      queryParams[`filter[${key}]`] = params.filters[key];
+    const filters = params.filters as Record<string, unknown>;
+    Object.keys(filters).forEach(key => {
+      queryParams[`filter[${key}]`] = filters[key];
     });
   }
   
@@ -438,12 +444,12 @@ export const getBankAccounts = (params?: { filters?: any; pagination?: any; incl
 };
 
 export const getBankAccount = (id: string) => bankAccountsService.getById(id).then(response => response.data);
-export const createBankAccount = (data: any) => bankAccountsService.create(data).then(response => response.data);
+export const createBankAccount = (data: BankAccountForm) => bankAccountsService.create(data).then(response => response.data);
 export const updateBankAccount = (id: string, data: Partial<BankAccount>) => bankAccountsService.update(id, data).then(response => response.data);
 export const deleteBankAccount = (id: string) => bankAccountsService.delete(id);
 // Payment Applications Service
 export const paymentApplicationsService = {
-  async getAll(params: Record<string, any> = {}): Promise<FinanceAPIResponse<PaymentApplication>> {
+  async getAll(params: Record<string, unknown> = {}): Promise<FinanceAPIResponse<PaymentApplication>> {
     const response = await axiosClient.get('/api/v1/payment-applications', { params });
     const transformedData = transformPaymentApplicationsFromAPI(response.data);
     return {
@@ -490,7 +496,7 @@ export const paymentApplicationsService = {
 
 // Payment Methods Service
 export const paymentMethodsService = {
-  async getAll(params: Record<string, any> = {}): Promise<FinanceAPIResponse<PaymentMethod>> {
+  async getAll(params: Record<string, unknown> = {}): Promise<FinanceAPIResponse<PaymentMethod>> {
     const response = await axiosClient.get('/api/v1/payment-methods', { params });
     const transformedData = transformPaymentMethodsFromAPI(response.data);
     return {
@@ -535,12 +541,13 @@ export const paymentMethodsService = {
 };
 
 // Export individual functions for Payment Applications
-export const getPaymentApplications = (params?: { filters?: any; pagination?: any; include?: string[]; sort?: string[] }) => {
-  const queryParams: Record<string, any> = {};
+export const getPaymentApplications = (params?: { filters?: Record<string, unknown>; pagination?: Record<string, unknown>; include?: string[]; sort?: string[] }) => {
+  const queryParams: Record<string, unknown> = {};
 
   if (params?.filters) {
-    Object.keys(params.filters).forEach(key => {
-      queryParams['filter[' + key + ']'] = params.filters[key];
+    const filters = params.filters as Record<string, unknown>;
+    Object.keys(filters).forEach(key => {
+      queryParams['filter[' + key + ']'] = filters[key];
     });
   }
 
@@ -566,12 +573,13 @@ export const updatePaymentApplication = (id: string, data: Partial<PaymentApplic
 export const deletePaymentApplication = (id: string) => paymentApplicationsService.delete(id);
 
 // Export individual functions for Payment Methods
-export const getPaymentMethods = (params?: { filters?: any; pagination?: any; include?: string[]; sort?: string[] }) => {
-  const queryParams: Record<string, any> = {};
+export const getPaymentMethods = (params?: { filters?: Record<string, unknown>; pagination?: Record<string, unknown>; include?: string[]; sort?: string[] }) => {
+  const queryParams: Record<string, unknown> = {};
 
   if (params?.filters) {
-    Object.keys(params.filters).forEach(key => {
-      queryParams['filter[' + key + ']'] = params.filters[key];
+    const filters = params.filters as Record<string, unknown>;
+    Object.keys(filters).forEach(key => {
+      queryParams['filter[' + key + ']'] = filters[key];
     });
   }
 

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { Button, Input } from '@/ui/components/base'
-import type { Account, AccountForm as AccountFormData } from '../types'
+import type { Account, AccountFormData } from '../types'
 
 interface AccountFormProps {
   account?: Account

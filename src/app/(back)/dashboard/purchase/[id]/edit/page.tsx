@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect, use } from 'react'
-import { useRouter } from 'next/navigation'
 import { usePurchaseOrder, usePurchaseOrderMutations, usePurchaseContacts } from '@/modules/purchase'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
 
@@ -9,9 +8,16 @@ interface PageProps {
   params: Promise<{ id: string }>
 }
 
+interface Contact {
+  id: string | number
+  name?: string
+  attributes?: {
+    name?: string
+  }
+}
+
 export default function EditPurchaseOrderPage({ params }: PageProps) {
   const resolvedParams = use(params)
-  const router = useRouter()
   const navigation = useNavigationProgress()
   
   const { purchaseOrder, isLoading, error } = usePurchaseOrder(resolvedParams.id)
@@ -22,7 +28,7 @@ export default function EditPurchaseOrderPage({ params }: PageProps) {
     contactId: '',
     orderNumber: '',
     orderDate: '',
-    status: 'pending' as 'pending' | 'processing' | 'received' | 'cancelled' | 'approved',
+    status: 'pending' as 'pending' | 'approved' | 'received' | 'completed' | 'cancelled',
     notes: ''
   })
 
@@ -67,9 +73,10 @@ export default function EditPurchaseOrderPage({ params }: PageProps) {
       // Navigate back to the order detail page
       navigation.push(`/dashboard/purchase/${resolvedParams.id}`)
       
-    } catch (err: any) {
+    } catch (err) {
       console.error('❌ Error updating purchase order:', err)
-      setSubmitError(err.response?.data?.message || err.message || 'Error al actualizar la orden de compra')
+      const error = err as { response?: { data?: { message?: string } }; message?: string }
+      setSubmitError(error.response?.data?.message || error.message || 'Error al actualizar la orden de compra')
     } finally {
       setIsSubmitting(false)
     }
@@ -157,7 +164,7 @@ export default function EditPurchaseOrderPage({ params }: PageProps) {
                       disabled={contactsLoading}
                     >
                       <option value="">Seleccionar proveedor...</option>
-                      {contacts?.map((contact: any) => (
+                      {contacts?.map((contact: Contact) => (
                         <option key={contact.id} value={contact.id}>
                           {contact.name || contact.attributes?.name || `Proveedor #${contact.id}`}
                         </option>

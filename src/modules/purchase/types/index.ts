@@ -20,8 +20,8 @@ export interface PurchaseOrderItem {
   id: string
   purchaseOrderId: string
   productId: number
-  product?: any
-  purchaseOrder?: any
+  product?: Record<string, unknown>
+  purchaseOrder?: Record<string, unknown>
   quantity: number
   unitPrice: number
   totalPrice: number
@@ -49,25 +49,25 @@ export interface PurchaseOrderFormData {
 export interface JsonApiResource {
   id: string
   type: string
-  attributes: Record<string, any>
-  relationships?: Record<string, any>
+  attributes: Record<string, unknown>
+  relationships?: Record<string, unknown>
 }
 
 export interface JsonApiResponse {
   data: JsonApiResource | JsonApiResource[]
-  meta?: any
+  meta?: Record<string, unknown>
   included?: JsonApiResource[]
 }
 
 // API Response types
 export interface PurchaseOrdersResponse {
   data: PurchaseOrder[]
-  meta: any
+  meta: Record<string, unknown>
 }
 
 export interface PurchaseOrderItemsResponse {
   data: PurchaseOrderItem[]
-  meta: any
+  meta: Record<string, unknown>
 }
 
 // Filter and pagination types

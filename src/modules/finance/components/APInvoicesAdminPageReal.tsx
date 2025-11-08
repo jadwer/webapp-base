@@ -23,7 +23,7 @@ export const APInvoicesAdminPageReal = () => {
   const navigation = useNavigationProgress()
 
   // Build filters object
-  const filters: Record<string, any> = {}
+  const filters: Record<string, unknown> = {}
   if (searchTerm) filters.search = searchTerm
   if (statusFilter) filters.status = statusFilter
 

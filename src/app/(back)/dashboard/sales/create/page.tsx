@@ -1,14 +1,21 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { useSalesOrderMutations, useSalesContacts, useSalesOrderItemMutations } from '@/modules/sales'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
 import ItemsManager from '@/modules/sales/components/ItemsManager'
 import { formatCurrency } from '@/lib/formatters'
 
+interface OrderItem {
+  tempId: string
+  productId: string
+  quantity: number
+  unitPrice: number
+  discount: number
+  total: number
+}
+
 export default function CreateSalesOrderPage() {
-  const router = useRouter()
   const navigation = useNavigationProgress()
   const { createSalesOrder, updateSalesOrderTotals } = useSalesOrderMutations()
   const { createSalesOrderItem } = useSalesOrderItemMutations()
@@ -22,7 +29,7 @@ export default function CreateSalesOrderPage() {
     notes: ''
   })
 
-  const [orderItems, setOrderItems] = useState<any[]>([])
+  const [orderItems, setOrderItems] = useState<OrderItem[]>([])
   const [totalAmount, setTotalAmount] = useState(0)
 
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -74,10 +81,10 @@ export default function CreateSalesOrderPage() {
         const itemData = {
           salesOrderId: parseInt(orderId), // Ensure orderId is integer
           productId: parseInt(item.productId),
-          quantity: parseInt(item.quantity),
-          unitPrice: parseFloat(item.unitPrice),
-          discount: parseFloat(item.discount),
-          total: parseFloat(item.total)
+          quantity: item.quantity,
+          unitPrice: item.unitPrice,
+          discount: item.discount,
+          total: item.total
         }
         
         console.log('📦 Creating item:', itemData)
@@ -100,10 +107,11 @@ export default function CreateSalesOrderPage() {
       
       // Navigate to the created order detail page
       navigation.push(`/dashboard/sales/${orderId}`)
-      
-    } catch (err: any) {
+
+    } catch (err) {
       console.error('❌ Error creating sales order:', err)
-      setError(err.response?.data?.message || err.message || 'Error al crear la orden de venta')
+      const error = err as { response?: { data?: { message?: string } }; message?: string }
+      setError(error.response?.data?.message || error.message || 'Error al crear la orden de venta')
     } finally {
       setIsSubmitting(false)
     }
@@ -169,11 +177,14 @@ export default function CreateSalesOrderPage() {
                       disabled={contactsLoading}
                     >
                       <option value="">Seleccionar cliente...</option>
-                      {contacts?.map((contact: any) => (
-                        <option key={contact.id} value={contact.id}>
-                          {contact.name || contact.attributes?.name || `Cliente #${contact.id}`}
-                        </option>
-                      ))}
+                      {contacts?.map((contact: Record<string, unknown>) => {
+                        const attributes = contact.attributes as Record<string, unknown> | undefined
+                        return (
+                          <option key={contact.id as string} value={contact.id as string}>
+                            {(contact.name as string) || (attributes?.name as string) || `Cliente #${contact.id}`}
+                          </option>
+                        )
+                      })}
                     </select>
                     {contactsLoading && (
                       <small className="text-muted">Cargando clientes...</small>

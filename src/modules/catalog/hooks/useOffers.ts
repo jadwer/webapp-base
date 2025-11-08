@@ -56,7 +56,7 @@ export function useOffers() {
 
   // Procesar productos para encontrar ofertas
   const offers: OfferProduct[] = []
-  let metrics: OffersMetrics = {
+  const metrics: OffersMetrics = {
     activeOffers: 0,
     totalDiscount: 0,
     averageDiscount: 0,
@@ -64,9 +64,9 @@ export function useOffers() {
   }
 
   if (productsData?.data) {
-    productsData.data.forEach((product: any) => {
-      const price = parseFloat(product.price) || 0
-      const cost = parseFloat(product.cost) || 0
+    productsData.data.forEach((product) => {
+      const price = parseFloat(String(product.price)) || 0
+      const cost = parseFloat(String(product.cost)) || 0
       
       // Solo considerar como oferta si price > cost
       if (price > cost && cost > 0) {
@@ -76,16 +76,16 @@ export function useOffers() {
         offers.push({
           id: product.id,
           name: product.name,
-          description: product.description,
+          description: product.description ?? null,
           price,
           cost,
-          sku: product.sku,
+          sku: product.sku ?? null,
           discount,
           discountPercent,
           unit: product.unit ? {
             id: product.unit.id,
             name: product.unit.name,
-            abbreviation: product.unit.code // Using code as abbreviation
+            abbreviation: product.unit.code ?? null // Using code as abbreviation
           } : undefined,
           category: product.category ? {
             id: product.category.id,

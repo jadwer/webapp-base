@@ -4,7 +4,7 @@ import { transformSalesOrderFormToJsonApi, transformSalesOrderItemFormToJsonApi 
 
 export const salesService = {
   orders: {
-    getAll: async (params?: any) => {
+    getAll: async (params?: Record<string, string | number>) => {
       try {
         console.log('🚀 [Service] Fetching sales orders with params:', params)
         
@@ -18,7 +18,7 @@ export const salesService = {
         if (params) {
           Object.keys(params).forEach(key => {
             if (params[key] !== undefined && params[key] !== null && params[key] !== '') {
-              queryParams.append(key, params[key])
+              queryParams.append(key, String(params[key]))
             }
           })
         }
@@ -117,7 +117,7 @@ export const salesService = {
   },
   
   items: {
-    getAll: async (params?: any) => {
+    getAll: async (params?: Record<string, string | number>) => {
       try {
         console.log('🚀 [Service] Fetching sales order items with params:', params)
         
@@ -130,7 +130,7 @@ export const salesService = {
         if (params) {
           Object.keys(params).forEach(key => {
             if (params[key] !== undefined && params[key] !== null && params[key] !== '') {
-              queryParams.append(key, params[key])
+              queryParams.append(key, String(params[key]))
             }
           })
         }
@@ -149,12 +149,12 @@ export const salesService = {
       }
     },
     
-    create: async (data: any) => {
+    create: async (data: Record<string, unknown>) => {
       try {
         console.log('🚀 [Service] Creating sales order item:', data)
         const payload = transformSalesOrderItemFormToJsonApi(data)
         console.log('📦 [Service] JSON:API payload:', payload)
-        
+
         const response = await axiosClient.post('/api/v1/sales-order-items', payload)
         console.log('✅ [Service] Created sales order item:', response.data)
         return response.data
@@ -163,8 +163,8 @@ export const salesService = {
         throw error
       }
     },
-    
-    update: async (id: string, data: any) => {
+
+    update: async (id: string, data: Record<string, unknown>) => {
       try {
         console.log('🚀 [Service] Updating sales order item:', id, data)
         const payload = transformSalesOrderItemFormToJsonApi(data, 'sales-order-items', id)
@@ -194,7 +194,7 @@ export const salesService = {
 
 export const salesReportsService = {
   // Sales Reports Summary - período en días, respuesta JSON:API
-  getReports: async (period = 30): Promise<any> => {
+  getReports: async (period = 30): Promise<Record<string, unknown>> => {
     try {
       console.log('📊 [Service] Fetching sales reports summary for period:', period)
       const response = await axiosClient.get(`/api/v1/sales-orders/reports?period=${period}`)
@@ -231,7 +231,7 @@ export const salesReportsService = {
   },
   
   // Sales Customer Analytics - período en días, respuesta JSON:API
-  getCustomers: async (period = 90): Promise<any> => {
+  getCustomers: async (period = 90): Promise<Record<string, unknown>> => {
     try {
       console.log('👥 [Service] Fetching customer analytics for period:', period)
       const response = await axiosClient.get(`/api/v1/sales-orders/customers?period=${period}`)
@@ -240,22 +240,25 @@ export const salesReportsService = {
       // Estructura JSON:API: data es array de customer-sales objects
       const customers = response.data?.data || []
       const meta = response.data?.meta || {}
-      
+
       return {
-        customers: customers.map((customer: any) => ({
-          id: customer.id,
-          name: customer.attributes?.customer_name,         // ← customer_name (no supplier_name)
-          email: customer.attributes?.customer_email,       // ← customer_email (no supplier_email)
-          classification: customer.attributes?.customer_classification,
-          totalOrders: customer.attributes?.total_orders || 0,
-          totalRevenue: parseFloat(customer.attributes?.total_revenue || 0), // ← total_revenue (no total_purchased)
-          lastOrderDate: customer.attributes?.last_order_date,
-          averageOrderValue: parseFloat(customer.attributes?.average_order_value || 0),
-          orders: customer.attributes?.orders?.map((order: any) => ({
-            ...order,
-            orderNumber: order.order_number  // ← order_number incluido en Sales (no en Purchase)
-          })) || []
-        })),
+        customers: customers.map((customer: Record<string, unknown>) => {
+          const attributes = (customer.attributes || {}) as Record<string, unknown>
+          return {
+            id: customer.id,
+            name: attributes.customer_name,         // ← customer_name (no supplier_name)
+            email: attributes.customer_email,       // ← customer_email (no supplier_email)
+            classification: attributes.customer_classification,
+            totalOrders: attributes.total_orders || 0,
+            totalRevenue: parseFloat(String(attributes.total_revenue || 0)), // ← total_revenue (no total_purchased)
+            lastOrderDate: attributes.last_order_date,
+            averageOrderValue: parseFloat(String(attributes.average_order_value || 0)),
+            orders: ((attributes.orders as Record<string, unknown>[] || []).map((order: Record<string, unknown>) => ({
+              ...order,
+              orderNumber: order.order_number  // ← order_number incluido en Sales (no en Purchase)
+            }))) || []
+          }
+        }),
         meta: {
           totalCustomers: meta.total_customers || 0,  // ← total_customers (no total_suppliers)
           periodDays: meta.period_days,
@@ -273,7 +276,7 @@ export const salesReportsService = {
 
 // Contacts service for sales order creation
 export const salesContactsService = {
-  getAll: async (params?: any) => {
+  getAll: async (params?: Record<string, string>) => {
     try {
       console.log('🚀 [Service] Fetching contacts for sales:', params)
       
@@ -301,7 +304,7 @@ export const salesContactsService = {
 
 // Products service for sales order items
 export const salesProductsService = {
-  getAll: async (params?: any) => {
+  getAll: async (params?: Record<string, string>) => {
     try {
       console.log('🚀 [Service] Fetching products for sales:', params)
       

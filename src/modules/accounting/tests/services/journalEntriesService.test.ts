@@ -8,7 +8,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { journalEntriesService } from '../../services'
 import axiosClient from '@/lib/axiosClient'
 import { createMockJournalEntry, createMockAPIResponse } from '../utils/test-utils'
-import type { JournalEntryForm } from '../../types'
+import type { JournalEntryFormData } from '../../types'
 
 // Mock axios client
 vi.mock('@/lib/axiosClient', () => ({
@@ -98,7 +98,7 @@ describe('Journal Entries Service', () => {
   describe('create', () => {
     it('should create new journal entry successfully', async () => {
       // Arrange
-      const formData: JournalEntryForm = {
+      const formData: JournalEntryFormData = {
         date: '2025-01-05',
         description: 'Test journal entry',
         reference: 'REF-001'

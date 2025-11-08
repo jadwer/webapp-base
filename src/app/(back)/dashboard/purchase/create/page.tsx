@@ -1,14 +1,31 @@
 'use client'
 
 import React, { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { usePurchaseOrderMutations, usePurchaseContacts, usePurchaseOrderItemMutations } from '@/modules/purchase'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
 import ItemsManager from '@/modules/purchase/components/ItemsManager'
 import { formatCurrency } from '@/lib/formatters'
 
+interface Contact {
+  id: string | number
+  name?: string
+  attributes?: {
+    name?: string
+    isSupplier?: boolean
+  }
+  isSupplier?: boolean
+}
+
+interface OrderItem {
+  tempId: string
+  productId: string
+  quantity: number
+  unitPrice: number
+  discount: number
+  total: number
+}
+
 export default function CreatePurchaseOrderPage() {
-  const router = useRouter()
   const navigation = useNavigationProgress()
   const { createPurchaseOrder, updatePurchaseOrderTotals } = usePurchaseOrderMutations()
   const { createPurchaseOrderItem } = usePurchaseOrderItemMutations()
@@ -18,8 +35,8 @@ export default function CreatePurchaseOrderPage() {
   React.useEffect(() => {
     if (contacts?.length) {
       console.log('🏭 Suppliers loaded successfully:', contacts.length)
-      console.log('📋 Available suppliers:', contacts.map((c: any) => ({ 
-        id: c.id, 
+      console.log('📋 Available suppliers:', contacts.map((c: Contact) => ({
+        id: c.id,
         name: c.name || c.attributes?.name,
         isSupplier: c.isSupplier || c.attributes?.isSupplier
       })))
@@ -36,7 +53,7 @@ export default function CreatePurchaseOrderPage() {
     notes: ''
   })
 
-  const [orderItems, setOrderItems] = useState<any[]>([])
+  const [orderItems, setOrderItems] = useState<OrderItem[]>([])
   const [totalAmount, setTotalAmount] = useState(0)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -81,11 +98,11 @@ export default function CreatePurchaseOrderPage() {
         const itemData = {
           purchaseOrderId: parseInt(orderId), // Ensure orderId is integer
           productId: parseInt(item.productId),
-          quantity: parseInt(item.quantity),
-          unitPrice: parseFloat(item.unitPrice),
-          discount: parseFloat(item.discount),
-          subtotal: parseFloat(item.total),
-          total: parseFloat(item.total)
+          quantity: item.quantity,
+          unitPrice: item.unitPrice,
+          discount: item.discount,
+          subtotal: item.total,
+          total: item.total
         }
         
         console.log('📦 Creating item:', itemData)
@@ -106,10 +123,11 @@ export default function CreatePurchaseOrderPage() {
       
       // Navigate to the created order detail page
       navigation.push(`/dashboard/purchase/${orderId}`)
-      
-    } catch (err: any) {
+
+    } catch (err) {
       console.error('❌ Error creating purchase order:', err)
-      setError(err.response?.data?.message || err.message || 'Error al crear la orden de compra')
+      const error = err as { response?: { data?: { message?: string } }; message?: string }
+      setError(error.response?.data?.message || error.message || 'Error al crear la orden de compra')
     } finally {
       setIsSubmitting(false)
     }
@@ -176,7 +194,7 @@ export default function CreatePurchaseOrderPage() {
                       <option value="">Seleccionar proveedor...</option>
                       {/* Opción manual según tu sugerencia */}
                       <option value="1">Contact ID 1 (Supplier)</option>
-                      {contacts?.map((contact: any) => (
+                      {contacts?.map((contact: Contact) => (
                         <option key={contact.id} value={contact.id}>
                           {contact.name || contact.attributes?.name || `Proveedor #${contact.id}`}
                         </option>

@@ -23,10 +23,10 @@ export { PaginationSimple } from './PaginationSimple'
 
 // Payment Methods components
 export { PaymentMethodsAdminPage } from './PaymentMethodsAdminPage'
-export { PaymentMethodForm } from './PaymentMethodForm'
+export { PaymentMethodForm as PaymentMethodFormComponent } from './PaymentMethodForm'
 
 // Payment Applications components
 export { PaymentApplicationsAdminPage } from './PaymentApplicationsAdminPage'
-export { PaymentApplicationForm } from './PaymentApplicationForm'
+export { PaymentApplicationForm as PaymentApplicationFormComponent } from './PaymentApplicationForm'
 
 // Bank Account components coming next

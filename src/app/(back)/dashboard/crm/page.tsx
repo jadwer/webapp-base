@@ -9,10 +9,10 @@ export default function CRMPage() {
   const { campaigns, isLoading: loadingCampaigns } = useCampaigns()
 
   // Calculate metrics
-  const activeStages = pipelineStages.filter(s => s.isActive).length
-  const hotLeads = leads.filter(l => l.rating === 'hot').length
-  const activeCampaigns = campaigns.filter(c => c.status === 'active').length
-  const totalLeadValue = leads.reduce((sum, l) => sum + (l.estimatedValue || 0), 0)
+  const activeStages = Array.isArray(pipelineStages) ? pipelineStages.filter(s => s.isActive).length : 0
+  const hotLeads = Array.isArray(leads) ? leads.filter(l => l.rating === 'hot').length : 0
+  const activeCampaigns = Array.isArray(campaigns) ? campaigns.filter(c => c.status === 'active').length : 0
+  const totalLeadValue = Array.isArray(leads) ? leads.reduce((sum, l) => sum + (l.estimatedValue || 0), 0) : 0
 
   return (
     <div className="container-fluid py-4">
@@ -50,7 +50,7 @@ export default function CRMPage() {
                     {loadingStages ? (
                       <span className="spinner-border spinner-border-sm" />
                     ) : (
-                      `${activeStages}/${pipelineStages.length}`
+                      `${activeStages}/${Array.isArray(pipelineStages) ? pipelineStages.length : 0}`
                     )}
                   </h3>
                 </div>
@@ -151,7 +151,7 @@ export default function CRMPage() {
               <div className="mb-3">
                 <div className="d-flex justify-content-between text-muted small mb-1">
                   <span>Total de etapas</span>
-                  <strong>{loadingStages ? '...' : pipelineStages.length}</strong>
+                  <strong>{loadingStages ? '...' : (Array.isArray(pipelineStages) ? pipelineStages.length : 0)}</strong>
                 </div>
                 <div className="d-flex justify-content-between text-muted small">
                   <span>Etapas activas</span>
@@ -185,7 +185,7 @@ export default function CRMPage() {
               <div className="mb-3">
                 <div className="d-flex justify-content-between text-muted small mb-1">
                   <span>Total de leads</span>
-                  <strong>{loadingLeads ? '...' : leads.length}</strong>
+                  <strong>{loadingLeads ? '...' : (Array.isArray(leads) ? leads.length : 0)}</strong>
                 </div>
                 <div className="d-flex justify-content-between text-muted small">
                   <span>Leads calientes</span>
@@ -219,7 +219,7 @@ export default function CRMPage() {
               <div className="mb-3">
                 <div className="d-flex justify-content-between text-muted small mb-1">
                   <span>Total de campañas</span>
-                  <strong>{loadingCampaigns ? '...' : campaigns.length}</strong>
+                  <strong>{loadingCampaigns ? '...' : (Array.isArray(campaigns) ? campaigns.length : 0)}</strong>
                 </div>
                 <div className="d-flex justify-content-between text-muted small">
                   <span>Campañas activas</span>

@@ -6,15 +6,13 @@ import {
   transformAccountsFromAPI,
   transformAccountFromAPI,
   transformAccountToAPI,
-  transformJournalEntryToAPI,
-  transformJournalLineToAPI,
 } from '../utils/transformers';
 import type {
   Account,
   JournalEntry,
   JournalLine,
-  AccountForm,
-  JournalEntryForm,
+  AccountFormData,
+  JournalEntryFormData,
   JournalLineForm,
   JournalEntryWithLines,
   AccountingAPIResponse,
@@ -22,7 +20,7 @@ import type {
 
 // Accounts Service
 export const accountsService = {
-  async getAll(params: Record<string, any> = {}): Promise<AccountingAPIResponse<Account>> {
+  async getAll(params: Record<string, unknown> = {}): Promise<AccountingAPIResponse<Account>> {
     const response = await axiosClient.get('/api/v1/accounts', { params });
     const transformedData = transformAccountsFromAPI(response.data);
     return {
@@ -40,7 +38,7 @@ export const accountsService = {
     };
   },
 
-  async create(data: AccountForm): Promise<{ data: Account }> {
+  async create(data: AccountFormData): Promise<{ data: Account }> {
     const payload = transformAccountToAPI(data);
     const response = await axiosClient.post('/api/v1/accounts', payload);
     return {
@@ -48,7 +46,7 @@ export const accountsService = {
     };
   },
 
-  async update(id: string, data: Partial<AccountForm>): Promise<{ data: Account }> {
+  async update(id: string, data: Partial<AccountFormData>): Promise<{ data: Account }> {
     const response = await axiosClient.patch(`/api/v1/accounts/${id}`, {
       data: {
         type: 'accounts',
@@ -64,14 +62,14 @@ export const accountsService = {
   },
 
   // Helper method to get only postable accounts for journal lines
-  async getPostableAccounts(params: Record<string, any> = {}): Promise<AccountingAPIResponse<Account>> {
+  async getPostableAccounts(params: Record<string, unknown> = {}): Promise<AccountingAPIResponse<Account>> {
     return this.getAll({ ...params, 'filter[isPostable]': 1 });
   },
 };
 
 // Journal Entries Service
 export const journalEntriesService = {
-  async getAll(params: Record<string, any> = {}): Promise<AccountingAPIResponse<JournalEntry>> {
+  async getAll(params: Record<string, unknown> = {}): Promise<AccountingAPIResponse<JournalEntry>> {
     const response = await axiosClient.get('/api/v1/journal-entries', { params });
     return response.data;
   },
@@ -82,7 +80,7 @@ export const journalEntriesService = {
     return response.data;
   },
 
-  async create(data: JournalEntryForm): Promise<{ data: JournalEntry }> {
+  async create(data: JournalEntryFormData): Promise<{ data: JournalEntry }> {
     const response = await axiosClient.post('/api/v1/journal-entries', {
       data: {
         type: 'journal-entries',
@@ -92,7 +90,7 @@ export const journalEntriesService = {
     return response.data;
   },
 
-  async update(id: string, data: Partial<JournalEntryForm>): Promise<{ data: JournalEntry }> {
+  async update(id: string, data: Partial<JournalEntryFormData>): Promise<{ data: JournalEntry }> {
     const response = await axiosClient.patch(`/api/v1/journal-entries/${id}`, {
       data: {
         type: 'journal-entries',
@@ -118,9 +116,9 @@ export const journalEntriesService = {
   },
 };
 
-// Journal Lines Service  
+// Journal Lines Service
 export const journalLinesService = {
-  async getAll(params: Record<string, any> = {}): Promise<AccountingAPIResponse<JournalLine>> {
+  async getAll(params: Record<string, unknown> = {}): Promise<AccountingAPIResponse<JournalLine>> {
     const response = await axiosClient.get('/api/v1/journal-lines', { params });
     return response.data;
   },
@@ -173,10 +171,9 @@ export const journalEntryService = {
     // First create the journal entry
     const { lines, ...entryData } = data;
     const entryResult = await journalEntriesService.create(entryData);
-    
+
     // Then create the lines
-    const journalEntryId = parseInt(entryResult.data.id);
-    const linePromises = lines.map(line => 
+    const linePromises = lines.map(line =>
       journalLinesService.create({
         accountId: line.accountId,
         debit: line.debit,
@@ -184,9 +181,9 @@ export const journalEntryService = {
         memo: line.memo,
       })
     );
-    
+
     await Promise.all(linePromises);
-    
+
     // Return the entry with lines included
     return journalEntriesService.getWithLines(entryResult.data.id);
   },
@@ -208,58 +205,60 @@ export const journalEntryService = {
 };
 
 // Export individual functions for test compatibility
-export const getAccounts = (params?: { filters?: any; pagination?: any; include?: string[]; sort?: string[] }) => {
-  const queryParams: Record<string, any> = {};
-  
+export const getAccounts = (params?: { filters?: Record<string, unknown>; pagination?: Record<string, unknown>; include?: string[]; sort?: string[] }) => {
+  const queryParams: Record<string, unknown> = {};
+
   if (params?.filters) {
-    Object.keys(params.filters).forEach(key => {
-      queryParams[`filter[${key}]`] = params.filters[key];
+    const filters = params.filters;
+    Object.keys(filters).forEach(key => {
+      queryParams[`filter[${key}]`] = filters[key];
     });
   }
-  
+
   if (params?.pagination) {
     if (params.pagination.page) queryParams['page[number]'] = params.pagination.page;
     if (params.pagination.size) queryParams['page[size]'] = params.pagination.size;
   }
-  
+
   if (params?.include) {
     queryParams.include = params.include.join(',');
   }
-  
+
   if (params?.sort) {
     queryParams.sort = params.sort.join(',');
   }
-  
+
   return accountsService.getAll(queryParams);
 };
 
 export const getAccount = (id: string) => accountsService.getById(id).then(response => response.data);
-export const createAccount = (data: AccountForm) => accountsService.create(data).then(response => response.data);
-export const updateAccount = (id: string, data: Partial<AccountForm>) => accountsService.update(id, data).then(response => response.data);
+export const createAccount = (data: AccountFormData) => accountsService.create(data).then(response => response.data);
+export const updateAccount = (id: string, data: Partial<AccountFormData>) => accountsService.update(id, data).then(response => response.data);
 export const deleteAccount = (id: string) => accountsService.delete(id);
 
-export const getJournalEntries = (params?: { filters?: any; pagination?: any; include?: string[]; sort?: string[] }) => {
-  const queryParams: Record<string, any> = {};
-  
+export const getJournalEntries = (params?: { filters?: Record<string, unknown>; pagination?: Record<string, unknown>; include?: string[]; sort?: string[] }) => {
+  const queryParams: Record<string, unknown> = {};
+
   if (params?.filters) {
-    Object.keys(params.filters).forEach(key => {
-      queryParams[`filter[${key}]`] = params.filters[key];
+    const filters = params.filters;
+    Object.keys(filters).forEach(key => {
+      queryParams[`filter[${key}]`] = filters[key];
     });
   }
-  
+
   if (params?.pagination) {
     if (params.pagination.page) queryParams['page[number]'] = params.pagination.page;
     if (params.pagination.size) queryParams['page[size]'] = params.pagination.size;
   }
-  
+
   if (params?.include) {
     queryParams.include = params.include.join(',');
   }
-  
+
   if (params?.sort) {
     queryParams.sort = params.sort.join(',');
   }
-  
+
   return journalEntriesService.getAll(queryParams);
 };
 
@@ -267,27 +266,28 @@ export const getJournalEntry = (id: string, includes?: string[]) => {
   return journalEntriesService.getById(id, includes).then(response => response.data);
 };
 
-export const createJournalEntry = (data: JournalEntryForm) => journalEntriesService.create(data).then(response => response.data);
-export const updateJournalEntry = (id: string, data: Partial<JournalEntryForm>) => journalEntriesService.update(id, data).then(response => response.data);
+export const createJournalEntry = (data: JournalEntryFormData) => journalEntriesService.create(data).then(response => response.data);
+export const updateJournalEntry = (id: string, data: Partial<JournalEntryFormData>) => journalEntriesService.update(id, data).then(response => response.data);
 export const deleteJournalEntry = (id: string) => journalEntriesService.delete(id);
 
-export const getJournalLines = (params?: { entryId?: string; filters?: any; include?: string[] }) => {
-  const queryParams: Record<string, any> = {};
-  
+export const getJournalLines = (params?: { entryId?: string; filters?: Record<string, unknown>; include?: string[] }) => {
+  const queryParams: Record<string, unknown> = {};
+
   if (params?.entryId) {
     queryParams['filter[entryId]'] = params.entryId;
   }
-  
+
   if (params?.filters) {
-    Object.keys(params.filters).forEach(key => {
-      queryParams[`filter[${key}]`] = params.filters[key];
+    const filters = params.filters;
+    Object.keys(filters).forEach(key => {
+      queryParams[`filter[${key}]`] = filters[key];
     });
   }
-  
+
   if (params?.include) {
     queryParams.include = params.include.join(',');
   }
-  
+
   return journalLinesService.getAll(queryParams);
 };
 

@@ -17,7 +17,7 @@ export interface PipelineStage {
   isActive: boolean;
   color?: string;                  // Hex color (#RRGGBB)
   description?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
   createdAt: string;               // ISO 8601
   updatedAt: string;               // ISO 8601
 }
@@ -61,7 +61,7 @@ export interface Lead {
   convertedAt?: string;            // ISO 8601
   lostReason?: string;
   notes?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
   createdAt: string;               // ISO 8601
   updatedAt: string;               // ISO 8601
 
@@ -71,8 +71,8 @@ export interface Lead {
   pipelineStageId?: number;
 
   // Included relationships (populated by SWR)
-  user?: any;
-  contact?: any;
+  user?: Record<string, unknown>;
+  contact?: Record<string, unknown>;
   pipelineStage?: PipelineStage;
   campaigns?: Campaign[];
 }
@@ -129,7 +129,7 @@ export interface Campaign {
   // Additional info
   targetAudience?: string;
   description?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 
   createdAt: string;               // ISO 8601
   updatedAt: string;               // ISO 8601
@@ -138,7 +138,7 @@ export interface Campaign {
   userId: number;
 
   // Included relationships
-  user?: any;
+  user?: Record<string, unknown>;
   leads?: Lead[];
 }
 
@@ -187,7 +187,7 @@ export interface PipelineStageResponse {
     id: string;
     type: 'pipeline-stages';
     attributes: Omit<PipelineStage, 'id'>;
-    relationships?: any;
+    relationships?: Record<string, unknown>;
   };
 }
 
@@ -197,8 +197,8 @@ export interface PipelineStagesResponse {
     type: 'pipeline-stages';
     attributes: Omit<PipelineStage, 'id'>;
   }>;
-  links?: any;
-  meta?: any;
+  links?: Record<string, unknown>;
+  meta?: Record<string, unknown>;
 }
 
 export interface LeadResponse {
@@ -206,9 +206,9 @@ export interface LeadResponse {
     id: string;
     type: 'leads';
     attributes: Omit<Lead, 'id' | 'user' | 'contact' | 'pipelineStage' | 'campaigns'>;
-    relationships?: any;
+    relationships?: Record<string, unknown>;
   };
-  included?: any[];
+  included?: Record<string, unknown>[];
 }
 
 export interface LeadsResponse {
@@ -216,11 +216,11 @@ export interface LeadsResponse {
     id: string;
     type: 'leads';
     attributes: Omit<Lead, 'id' | 'user' | 'contact' | 'pipelineStage' | 'campaigns'>;
-    relationships?: any;
+    relationships?: Record<string, unknown>;
   }>;
-  included?: any[];
-  links?: any;
-  meta?: any;
+  included?: Record<string, unknown>[];
+  links?: Record<string, unknown>;
+  meta?: Record<string, unknown>;
 }
 
 export interface CampaignResponse {
@@ -228,9 +228,9 @@ export interface CampaignResponse {
     id: string;
     type: 'campaigns';
     attributes: Omit<Campaign, 'id' | 'user' | 'leads'>;
-    relationships?: any;
+    relationships?: Record<string, unknown>;
   };
-  included?: any[];
+  included?: Record<string, unknown>[];
 }
 
 export interface CampaignsResponse {
@@ -238,9 +238,9 @@ export interface CampaignsResponse {
     id: string;
     type: 'campaigns';
     attributes: Omit<Campaign, 'id' | 'user' | 'leads'>;
-    relationships?: any;
+    relationships?: Record<string, unknown>;
   }>;
-  included?: any[];
-  links?: any;
-  meta?: any;
+  included?: Record<string, unknown>[];
+  links?: Record<string, unknown>;
+  meta?: Record<string, unknown>;
 }

@@ -4,7 +4,7 @@ import { transformPurchaseOrderFormToJsonApi, transformPurchaseOrderItemFormToJs
 
 export const purchaseService = {
   orders: {
-    getAll: async (params?: any) => {
+    getAll: async (params?: Record<string, string>) => {
       try {
         console.log('🚀 [Service] Fetching purchase orders with params:', params)
         
@@ -113,9 +113,10 @@ export const purchaseService = {
       }
     }
   },
-  
+
+
   items: {
-    getAll: async (params?: any) => {
+    getAll: async (params?: Record<string, string> | null) => {
       try {
         console.log('🚀 [Service] Fetching purchase order items with params:', params)
         
@@ -146,8 +147,9 @@ export const purchaseService = {
         throw error
       }
     },
-    
-    create: async (data: any) => {
+
+
+    create: async (data: Record<string, unknown>) => {
       try {
         console.log('🚀 [Service] Creating purchase order item:', data)
         const payload = transformPurchaseOrderItemFormToJsonApi(data)
@@ -161,8 +163,9 @@ export const purchaseService = {
         throw error
       }
     },
-    
-    update: async (id: string, data: any) => {
+
+
+    update: async (id: string, data: Record<string, unknown>) => {
       try {
         console.log('🚀 [Service] Updating purchase order item:', id, data)
         const payload = transformPurchaseOrderItemFormToJsonApi(data, 'purchase-order-items', id)
@@ -192,7 +195,7 @@ export const purchaseService = {
 
 export const purchaseReportsService = {
   // Purchase Reports Summary - fechas específicas, estructura simple (no JSON:API)
-  getReports: async (startDate = '1980-01-01', endDate = '2025-12-31'): Promise<any> => {
+  getReports: async (startDate = '1980-01-01', endDate = '2025-12-31'): Promise<Record<string, unknown>> => {
     try {
       console.log('📊 [Service] Fetching purchase reports summary from:', startDate, 'to:', endDate)
       const response = await axiosClient.get(`/api/v1/purchase-orders/reports?start_date=${startDate}&end_date=${endDate}`)
@@ -227,30 +230,35 @@ export const purchaseReportsService = {
       throw error
     }
   },
-  
+
+
   // Purchase Suppliers Analytics - fechas específicas
-  getSuppliers: async (startDate = '1980-01-01', endDate = '2025-12-31'): Promise<any> => {
+  getSuppliers: async (startDate = '1980-01-01', endDate = '2025-12-31'): Promise<Record<string, unknown>> => {
     try {
       console.log('🏭 [Service] Fetching supplier analytics from:', startDate, 'to:', endDate)
       const response = await axiosClient.get(`/api/v1/purchase-orders/suppliers?start_date=${startDate}&end_date=${endDate}`)
       console.log('✅ [Service] Supplier analytics response:', response.data)
       console.log('🔍 [DEBUG] Raw suppliers response structure:', JSON.stringify(response.data, null, 2))
-      
+
+
       // Estructura exacta JSON:API según curl: { data: [{ id, type, attributes }], meta }
-      const suppliers = response.data?.data || []
+      const suppliers = (response.data?.data || []) as Array<{
+        id: string
+        attributes?: Record<string, unknown>
+      }>
       const meta = response.data?.meta || {}
-      
+
       return {
-        suppliers: suppliers.map((supplier: any) => ({
+        suppliers: suppliers.map((supplier) => ({
           id: supplier.id,
           name: supplier.attributes?.supplier_name,        // ← supplier_name según curl real
           email: supplier.attributes?.supplier_email,      // ← supplier_email según curl real
           phone: supplier.attributes?.supplier_phone,      // ← supplier_phone según curl real
           classification: supplier.attributes?.supplier_classification,
           totalOrders: supplier.attributes?.total_orders || 0,
-          totalPurchased: parseFloat(supplier.attributes?.total_purchased || 0), // ← total_purchased según curl real
+          totalPurchased: parseFloat(String(supplier.attributes?.total_purchased || 0)), // ← total_purchased según curl real
           lastOrderDate: supplier.attributes?.last_order_date,
-          averageOrderValue: parseFloat(supplier.attributes?.average_order_value || 0),
+          averageOrderValue: parseFloat(String(supplier.attributes?.average_order_value || 0)),
           orders: supplier.attributes?.orders || []
         })),
         meta: {
@@ -268,7 +276,7 @@ export const purchaseReportsService = {
 
 // Contacts service for purchase order creation (suppliers)
 export const purchaseContactsService = {
-  getAll: async (params?: any) => {
+  getAll: async (params?: Record<string, string>) => {
     try {
       console.log('🚀 [Service] Fetching suppliers for purchases:', params)
       
@@ -297,7 +305,7 @@ export const purchaseContactsService = {
 
 // Products service for purchase order items
 export const purchaseProductsService = {
-  getAll: async (params?: any) => {
+  getAll: async (params?: Record<string, string>) => {
     try {
       console.log('🚀 [Service] Fetching products for purchases:', params)
       

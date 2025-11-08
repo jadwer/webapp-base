@@ -19,152 +19,156 @@ import type {
 
 // ===== JSON:API TO FRONTEND TRANSFORMERS =====
 
-export const transformAPInvoiceFromAPI = (apiData: any, includedData?: any[]): APInvoice => {
-  const attributes = apiData.attributes || {}
-  
+export const transformAPInvoiceFromAPI = (apiData: Record<string, unknown>, includedData?: Record<string, unknown>[]): APInvoice => {
+  const attributes = (apiData.attributes || {}) as Record<string, unknown>
+
   // Find contact information from included data
   let contactName = `Proveedor ID: ${attributes.contactId}`
   if (includedData && attributes.contactId) {
-    const contact = includedData.find((item: any) => 
+    const contact = includedData.find((item: Record<string, unknown>) =>
       item.type === 'contacts' && item.id === String(attributes.contactId)
     )
     if (contact && contact.attributes) {
-      contactName = contact.attributes.name || contact.attributes.companyName || contactName
+      const contactAttrs = contact.attributes as Record<string, unknown>
+      contactName = (contactAttrs.name || contactAttrs.companyName || contactName) as string
     }
   }
-  
+
   return {
-    id: apiData.id,
+    id: apiData.id as string,
     contactId: String(attributes.contactId),  // ✅ Backend shows "31" as string
     contactName,                              // ✅ Resolved contact name
-    invoiceNumber: attributes.invoiceNumber,
-    invoiceDate: attributes.invoiceDate,
-    dueDate: attributes.dueDate,
-    currency: attributes.currency || 'MXN',   // ✅ Default MXN
-    exchangeRate: attributes.exchangeRate,    // ✅ Keep as string "20.00" or null
-    subtotal: attributes.subtotal,            // ✅ Keep as string "100.00"
-    taxTotal: attributes.taxTotal,            // ✅ Keep as string "16.00"
-    total: attributes.total,                  // ✅ Keep as string "116.00"
-    status: attributes.status,
-    paidAmount: attributes.paidAmount || 0,   // ✅ Float calculated field
-    remainingBalance: attributes.remainingBalance || 0, // ✅ Float calculated field
-    metadata: attributes.metadata,            // ✅ Include optional metadata
-    createdAt: attributes.createdAt,
-    updatedAt: attributes.updatedAt,
+    invoiceNumber: attributes.invoiceNumber as string,
+    invoiceDate: attributes.invoiceDate as string,
+    dueDate: attributes.dueDate as string,
+    currency: (attributes.currency as string) || 'MXN',   // ✅ Default MXN
+    exchangeRate: (attributes.exchangeRate as string) || null,    // ✅ Keep as string "20.00" or null
+    subtotal: attributes.subtotal as string,            // ✅ Keep as string "100.00"
+    taxTotal: attributes.taxTotal as string,            // ✅ Keep as string "16.00"
+    total: attributes.total as string,                  // ✅ Keep as string "116.00"
+    status: attributes.status as 'draft' | 'posted' | 'paid',
+    paidAmount: (attributes.paidAmount as number) || 0,   // ✅ Float calculated field
+    remainingBalance: (attributes.remainingBalance as number) || 0, // ✅ Float calculated field
+    metadata: attributes.metadata as Record<string, unknown> | undefined,            // ✅ Include optional metadata
+    createdAt: attributes.createdAt as string,
+    updatedAt: attributes.updatedAt as string,
   }
 }
 
-export const transformAPPaymentFromAPI = (apiData: any, includedData?: any[]): APPayment => {
-  const attributes = apiData.attributes || {}
-  
+export const transformAPPaymentFromAPI = (apiData: Record<string, unknown>, includedData?: Record<string, unknown>[]): APPayment => {
+  const attributes = (apiData.attributes || {}) as Record<string, unknown>
+
   // Find contact information from included data
   let contactName = `Proveedor ID: ${attributes.contactId}`
   if (includedData && attributes.contactId) {
-    const contact = includedData.find((item: any) => 
+    const contact = includedData.find((item: Record<string, unknown>) =>
       item.type === 'contacts' && item.id === String(attributes.contactId)
     )
     if (contact && contact.attributes) {
-      contactName = contact.attributes.name || contact.attributes.companyName || contactName
+      const contactAttrs = contact.attributes as Record<string, unknown>
+      contactName = (contactAttrs.name || contactAttrs.companyName || contactName) as string
     }
   }
-  
+
   return {
-    id: apiData.id,
-    contactId: attributes.contactId,              // ✅ CORREGIDO - mantener como number
-    contactName,                                  // ✅ Resolved contact name  
-    apInvoiceId: attributes.apInvoiceId || null,  // ✅ AGREGADO - nuevo campo
-    paymentDate: attributes.paymentDate,
+    id: apiData.id as string,
+    contactId: attributes.contactId as number,              // ✅ CORREGIDO - mantener como number
+    contactName,                                  // ✅ Resolved contact name
+    apInvoiceId: (attributes.apInvoiceId as number) || null,  // ✅ AGREGADO - nuevo campo
+    paymentDate: attributes.paymentDate as string,
     amount: String(attributes.amount || 0),       // ✅ Ensure string format
-    paymentMethod: attributes.paymentMethod || '',
-    currency: attributes.currency || 'MXN',
-    reference: attributes.reference || '',
-    bankAccountId: attributes.bankAccountId,      // ✅ CORREGIDO - mantener como number
-    status: attributes.status || 'draft',
-    createdAt: attributes.createdAt,
-    updatedAt: attributes.updatedAt,
+    paymentMethod: (attributes.paymentMethod as string) || '',
+    currency: (attributes.currency as string) || 'MXN',
+    reference: (attributes.reference as string) || '',
+    bankAccountId: attributes.bankAccountId as number,      // ✅ CORREGIDO - mantener como number
+    status: (attributes.status as string) || 'draft',
+    createdAt: attributes.createdAt as string,
+    updatedAt: attributes.updatedAt as string,
   }
 }
 
-export const transformARInvoiceFromAPI = (apiData: any, includedData?: any[]): ARInvoice => {
-  const attributes = apiData.attributes || {}
-  
+export const transformARInvoiceFromAPI = (apiData: Record<string, unknown>, includedData?: Record<string, unknown>[]): ARInvoice => {
+  const attributes = (apiData.attributes || {}) as Record<string, unknown>
+
   // Find contact information from included data
   let contactName = `Cliente ID: ${attributes.contactId}`
   if (includedData && attributes.contactId) {
-    const contact = includedData.find((item: any) => 
+    const contact = includedData.find((item: Record<string, unknown>) =>
       item.type === 'contacts' && item.id === String(attributes.contactId)
     )
     if (contact && contact.attributes) {
-      contactName = contact.attributes.name || contact.attributes.companyName || contactName
+      const contactAttrs = contact.attributes as Record<string, unknown>
+      contactName = (contactAttrs.name || contactAttrs.companyName || contactName) as string
     }
   }
-  
+
   return {
-    id: apiData.id,
+    id: apiData.id as string,
     contactId: String(attributes.contactId),  // ✅ Consistent with AP Invoice
     contactName,                              // ✅ Resolved contact name
-    invoiceNumber: attributes.invoiceNumber,
-    invoiceDate: attributes.invoiceDate,
-    dueDate: attributes.dueDate,
-    currency: attributes.currency || 'MXN',   // ✅ Default MXN
-    exchangeRate: attributes.exchangeRate,    // ✅ Same as AP Invoice
-    subtotal: attributes.subtotal,            // ✅ Keep as string
-    taxTotal: attributes.taxTotal,            // ✅ Keep as string
-    total: attributes.total,                  // ✅ Keep as string
-    status: attributes.status,
-    paidAmount: attributes.paidAmount || 0,   // ✅ Backend uses same field name as AP
-    remainingBalance: attributes.remainingBalance || 0, // ✅ Same structure
-    metadata: attributes.metadata,            // ✅ Include optional metadata
-    createdAt: attributes.createdAt,
-    updatedAt: attributes.updatedAt,
+    invoiceNumber: attributes.invoiceNumber as string,
+    invoiceDate: attributes.invoiceDate as string,
+    dueDate: attributes.dueDate as string,
+    currency: (attributes.currency as string) || 'MXN',   // ✅ Default MXN
+    exchangeRate: (attributes.exchangeRate as string) || null,    // ✅ Same as AP Invoice
+    subtotal: attributes.subtotal as string,            // ✅ Keep as string
+    taxTotal: attributes.taxTotal as string,            // ✅ Keep as string
+    total: attributes.total as string,                  // ✅ Keep as string
+    status: attributes.status as 'draft' | 'posted' | 'paid',
+    paidAmount: (attributes.paidAmount as number) || 0,   // ✅ Backend uses same field name as AP
+    remainingBalance: (attributes.remainingBalance as number) || 0, // ✅ Same structure
+    metadata: attributes.metadata as Record<string, unknown> | undefined,            // ✅ Include optional metadata
+    createdAt: attributes.createdAt as string,
+    updatedAt: attributes.updatedAt as string,
   }
 }
 
-export const transformARReceiptFromAPI = (apiData: any, includedData?: any[]): ARReceipt => {
-  const attributes = apiData.attributes || {}
-  
+export const transformARReceiptFromAPI = (apiData: Record<string, unknown>, includedData?: Record<string, unknown>[]): ARReceipt => {
+  const attributes = (apiData.attributes || {}) as Record<string, unknown>
+
   // Find contact information from included data
   let contactName = `Cliente ID: ${attributes.contactId}`
   if (includedData && attributes.contactId) {
-    const contact = includedData.find((item: any) => 
+    const contact = includedData.find((item: Record<string, unknown>) =>
       item.type === 'contacts' && item.id === String(attributes.contactId)
     )
     if (contact && contact.attributes) {
-      contactName = contact.attributes.name || contact.attributes.companyName || contactName
+      const contactAttrs = contact.attributes as Record<string, unknown>
+      contactName = (contactAttrs.name || contactAttrs.companyName || contactName) as string
     }
   }
-  
+
   return {
-    id: apiData.id,
-    contactId: attributes.contactId,              // ✅ CORREGIDO - mantener como number
+    id: apiData.id as string,
+    contactId: attributes.contactId as number,              // ✅ CORREGIDO - mantener como number
     contactName,                                  // ✅ Resolved contact name
-    arInvoiceId: attributes.arInvoiceId || null,  // ✅ CORREGIDO - campo confirmado
-    receiptDate: attributes.receiptDate,          // ✅ Key difference from paymentDate
+    arInvoiceId: (attributes.arInvoiceId as number) || null,  // ✅ CORREGIDO - campo confirmado
+    receiptDate: attributes.receiptDate as string,          // ✅ Key difference from paymentDate
     amount: String(attributes.amount || 0),       // ✅ Keep as string decimal
-    paymentMethod: attributes.paymentMethod || '',
-    currency: attributes.currency || 'MXN',       // ✅ AGREGADO - campo del backend
-    reference: attributes.reference || '',
-    bankAccountId: attributes.bankAccountId,      // ✅ CORREGIDO - mantener como number
-    status: attributes.status || 'draft',
-    createdAt: attributes.createdAt,
-    updatedAt: attributes.updatedAt,
+    paymentMethod: (attributes.paymentMethod as string) || '',
+    currency: (attributes.currency as string) || 'MXN',       // ✅ AGREGADO - campo del backend
+    reference: (attributes.reference as string) || '',
+    bankAccountId: attributes.bankAccountId as number,      // ✅ CORREGIDO - mantener como number
+    status: (attributes.status as string) || 'draft',
+    createdAt: attributes.createdAt as string,
+    updatedAt: attributes.updatedAt as string,
   }
 }
 
-export const transformBankAccountFromAPI = (apiData: any): BankAccount => {
-  const attributes = apiData.attributes || {}
-  
+export const transformBankAccountFromAPI = (apiData: Record<string, unknown>): BankAccount => {
+  const attributes = (apiData.attributes || {}) as Record<string, unknown>
+
   return {
-    id: apiData.id,
-    bankName: attributes.bankName,
-    accountNumber: attributes.accountNumber,
-    clabe: attributes.clabe,
-    currency: attributes.currency,
-    accountType: attributes.accountType,
-    openingBalance: attributes.openingBalance, // ✅ Keep as string decimal
-    status: attributes.status,
-    createdAt: attributes.createdAt,
-    updatedAt: attributes.updatedAt,
+    id: apiData.id as string,
+    bankName: attributes.bankName as string,
+    accountNumber: attributes.accountNumber as string,
+    clabe: attributes.clabe as string,
+    currency: attributes.currency as string,
+    accountType: attributes.accountType as string,
+    openingBalance: attributes.openingBalance as string, // ✅ Keep as string decimal
+    status: attributes.status as 'active' | 'inactive' | 'closed',
+    createdAt: attributes.createdAt as string,
+    updatedAt: attributes.updatedAt as string,
   }
 }
 
@@ -240,166 +244,170 @@ export const transformARReceiptToAPI = (formData: ARReceiptForm) => ({
 
 // ===== BATCH TRANSFORMERS =====
 
-export const transformAPInvoicesFromAPI = (apiResponse: any): APInvoice[] => {
+export const transformAPInvoicesFromAPI = (apiResponse: Record<string, unknown>): APInvoice[] => {
   if (!apiResponse.data || !Array.isArray(apiResponse.data)) {
     return []
   }
-  
+
   // Pass included data to each transformer
   const includedData = apiResponse.included || []
-  return apiResponse.data.map((item: any) => transformAPInvoiceFromAPI(item, includedData))
+  return apiResponse.data.map((item: Record<string, unknown>) => transformAPInvoiceFromAPI(item, includedData as Record<string, unknown>[]))
 }
 
-export const transformAPPaymentsFromAPI = (apiResponse: any): APPayment[] => {
+export const transformAPPaymentsFromAPI = (apiResponse: Record<string, unknown>): APPayment[] => {
   if (!apiResponse.data || !Array.isArray(apiResponse.data)) {
     return []
   }
-  
+
   // Pass included data to each transformer
   const includedData = apiResponse.included || []
-  return apiResponse.data.map((item: any) => transformAPPaymentFromAPI(item, includedData))
+  return apiResponse.data.map((item: Record<string, unknown>) => transformAPPaymentFromAPI(item, includedData as Record<string, unknown>[]))
 }
 
-export const transformARInvoicesFromAPI = (apiResponse: any): ARInvoice[] => {
+export const transformARInvoicesFromAPI = (apiResponse: Record<string, unknown>): ARInvoice[] => {
   if (!apiResponse.data || !Array.isArray(apiResponse.data)) {
     return []
   }
-  
+
   // Pass included data to each transformer
   const includedData = apiResponse.included || []
-  return apiResponse.data.map((item: any) => transformARInvoiceFromAPI(item, includedData))
+  return apiResponse.data.map((item: Record<string, unknown>) => transformARInvoiceFromAPI(item, includedData as Record<string, unknown>[]))
 }
 
-export const transformARReceiptsFromAPI = (apiResponse: any): ARReceipt[] => {
+export const transformARReceiptsFromAPI = (apiResponse: Record<string, unknown>): ARReceipt[] => {
   if (!apiResponse.data || !Array.isArray(apiResponse.data)) {
     return []
   }
-  
+
   // Pass included data to each transformer
   const includedData = apiResponse.included || []
-  return apiResponse.data.map((item: any) => transformARReceiptFromAPI(item, includedData))
+  return apiResponse.data.map((item: Record<string, unknown>) => transformARReceiptFromAPI(item, includedData as Record<string, unknown>[]))
 }
 
-export const transformBankAccountsFromAPI = (apiResponse: any): BankAccount[] => {
+export const transformBankAccountsFromAPI = (apiResponse: Record<string, unknown>): BankAccount[] => {
   if (!apiResponse.data || !Array.isArray(apiResponse.data)) {
     return []
   }
-  
-  return apiResponse.data.map(transformBankAccountFromAPI)
+
+  return (apiResponse.data as Record<string, unknown>[]).map(transformBankAccountFromAPI)
 }
 
 // ===== RELATIONSHIP EXTRACTORS =====
 
-export const extractContactFromInvoice = (apiData: any) => {
-  const relationships = apiData.relationships || {}
-  const contact = relationships.contact?.data
-  
+export const extractContactFromInvoice = (apiData: Record<string, unknown>) => {
+  const relationships = (apiData.relationships || {}) as Record<string, unknown>
+  const contactRel = relationships.contact as Record<string, unknown> | undefined
+  const contact = contactRel?.data as Record<string, unknown> | undefined
+
   if (!contact) return null
-  
+
   return {
-    id: contact.id,
-    type: contact.type,
+    id: contact.id as string,
+    type: contact.type as string,
   }
 }
 
-export const extractBankAccountFromPayment = (apiData: any) => {
-  const relationships = apiData.relationships || {}
-  const bankAccount = relationships.bankAccount?.data
-  
+export const extractBankAccountFromPayment = (apiData: Record<string, unknown>) => {
+  const relationships = (apiData.relationships || {}) as Record<string, unknown>
+  const bankAccountRel = relationships.bankAccount as Record<string, unknown> | undefined
+  const bankAccount = bankAccountRel?.data as Record<string, unknown> | undefined
+
   if (!bankAccount) return null
-  
+
   return {
-    id: bankAccount.id,
-    type: bankAccount.type,
+    id: bankAccount.id as string,
+    type: bankAccount.type as string,
   }
 }
 
 // ===== VALIDATION HELPERS =====
 
-export const validateAPInvoiceData = (data: any): string[] => {
+export const validateAPInvoiceData = (data: Record<string, unknown>): string[] => {
   const errors: string[] = []
-  
+
   if (!data.contactId) errors.push('contactId is required')
   if (!data.invoiceNumber) errors.push('invoiceNumber is required')
   if (!data.invoiceDate) errors.push('invoiceDate is required')
   if (!data.dueDate) errors.push('dueDate is required')
-  if (!data.total || data.total <= 0) errors.push('total must be greater than 0')
-  
+  if (!data.total || (data.total as number) <= 0) errors.push('total must be greater than 0')
+
   return errors
 }
 
-export const validateARInvoiceData = (data: any): string[] => {
+export const validateARInvoiceData = (data: Record<string, unknown>): string[] => {
   const errors: string[] = []
-  
+
   if (!data.contactId) errors.push('contactId is required')
   if (!data.invoiceNumber) errors.push('invoiceNumber is required')
   if (!data.invoiceDate) errors.push('invoiceDate is required')
   if (!data.dueDate) errors.push('dueDate is required')
-  if (!data.total || data.total <= 0) errors.push('total must be greater than 0')
-  
+  if (!data.total || (data.total as number) <= 0) errors.push('total must be greater than 0')
+
   return errors
 }
 
-export const validatePaymentData = (data: any, maxAmount: number): string[] => {
+export const validatePaymentData = (data: Record<string, unknown>, maxAmount: number): string[] => {
   const errors: string[] = []
-  
+
   if (!data.bankAccountId) errors.push('bankAccountId is required')
-  if (!data.amount || data.amount <= 0) errors.push('amount must be greater than 0')
-  if (data.amount > maxAmount) errors.push(`amount cannot exceed ${maxAmount}`)
+  if (!data.amount || (data.amount as number) <= 0) errors.push('amount must be greater than 0')
+  if ((data.amount as number) > maxAmount) errors.push(`amount cannot exceed ${maxAmount}`)
   if (!data.reference) errors.push('reference is required')
-  
+
   return errors
 }
 // ===== PAYMENT APPLICATIONS TRANSFORMERS =====
 
-export const transformPaymentApplicationFromAPI = (apiData: any, includedData?: any[]): PaymentApplication => {
-  const attributes = apiData.attributes || {}
+export const transformPaymentApplicationFromAPI = (apiData: Record<string, unknown>, includedData?: Record<string, unknown>[]): PaymentApplication => {
+  const attributes = (apiData.attributes || {}) as Record<string, unknown>
 
   // Resolve invoice number from included data
   let invoiceNumber: string | undefined
   if (includedData) {
-    const invoice = includedData.find((item: any) =>
+    const invoice = includedData.find((item: Record<string, unknown>) =>
       (item.type === 'ar-invoices' && item.id === String(attributes.arInvoiceId)) ||
       (item.type === 'ap-invoices' && item.id === String(attributes.apInvoiceId))
     )
     if (invoice && invoice.attributes) {
-      invoiceNumber = invoice.attributes.invoiceNumber
+      const invoiceAttrs = invoice.attributes as Record<string, unknown>
+      invoiceNumber = invoiceAttrs.invoiceNumber as string
     }
   }
 
   // Resolve payment number from included data
   let paymentNumber: string | undefined
   if (includedData) {
-    const payment = includedData.find((item: any) =>
+    const payment = includedData.find((item: Record<string, unknown>) =>
       item.type === 'payments' && item.id === String(attributes.paymentId)
     )
     if (payment && payment.attributes) {
-      paymentNumber = payment.attributes.paymentNumber || `Payment #${attributes.paymentId}`
+      const paymentAttrs = payment.attributes as Record<string, unknown>
+      paymentNumber = (paymentAttrs.paymentNumber as string) || `Payment #${attributes.paymentId}`
     }
   }
 
   return {
-    id: apiData.id,
+    id: apiData.id as string,
     paymentId: String(attributes.paymentId),
     arInvoiceId: attributes.arInvoiceId ? String(attributes.arInvoiceId) : null,
     apInvoiceId: attributes.apInvoiceId ? String(attributes.apInvoiceId) : null,
     amount: String(attributes.amount || 0),
-    applicationDate: attributes.applicationDate,
+    applicationDate: attributes.applicationDate as string,
     invoiceNumber,
     paymentNumber,
-    createdAt: attributes.createdAt,
-    updatedAt: attributes.updatedAt,
+    createdAt: attributes.createdAt as string,
+    updatedAt: attributes.updatedAt as string,
   }
 }
 
-export const transformPaymentApplicationsFromAPI = (apiResponse: any): PaymentApplication[] => {
+export const transformPaymentApplicationsFromAPI = (apiResponse: Record<string, unknown>): PaymentApplication[] => {
   if (!apiResponse.data || !Array.isArray(apiResponse.data)) {
     return []
   }
 
   const includedData = apiResponse.included || []
-  return apiResponse.data.map((item: any) =>
-    transformPaymentApplicationFromAPI(item, includedData)
+  return apiResponse.data.map((item: Record<string, unknown>) =>
+    transformPaymentApplicationFromAPI(item, includedData as Record<string, unknown>[])
   )
 }
 
@@ -420,27 +428,27 @@ export const transformPaymentApplicationToAPI = (data: PaymentApplicationForm) =
 
 // ===== PAYMENT METHODS TRANSFORMERS =====
 
-export const transformPaymentMethodFromAPI = (apiData: any): PaymentMethod => {
-  const attributes = apiData.attributes || {}
+export const transformPaymentMethodFromAPI = (apiData: Record<string, unknown>): PaymentMethod => {
+  const attributes = (apiData.attributes || {}) as Record<string, unknown>
 
   return {
-    id: apiData.id,
-    name: attributes.name,
-    code: attributes.code,
-    description: attributes.description || '',
-    requiresReference: attributes.requiresReference ?? false,
-    isActive: attributes.isActive ?? true,
-    createdAt: attributes.createdAt,
-    updatedAt: attributes.updatedAt,
+    id: apiData.id as string,
+    name: attributes.name as string,
+    code: attributes.code as string,
+    description: (attributes.description as string) || '',
+    requiresReference: (attributes.requiresReference as boolean) ?? false,
+    isActive: (attributes.isActive as boolean) ?? true,
+    createdAt: attributes.createdAt as string,
+    updatedAt: attributes.updatedAt as string,
   }
 }
 
-export const transformPaymentMethodsFromAPI = (apiResponse: any): PaymentMethod[] => {
+export const transformPaymentMethodsFromAPI = (apiResponse: Record<string, unknown>): PaymentMethod[] => {
   if (!apiResponse.data || !Array.isArray(apiResponse.data)) {
     return []
   }
 
-  return apiResponse.data.map((item: any) =>
+  return apiResponse.data.map((item: Record<string, unknown>) =>
     transformPaymentMethodFromAPI(item)
   )
 }

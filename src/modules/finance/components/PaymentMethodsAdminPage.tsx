@@ -6,10 +6,10 @@
  * Features: Search, filters, pagination, create/edit/delete
  */
 
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import { usePaymentMethods, usePaymentMethodMutations } from '../hooks'
 import { PaymentMethod } from '../types'
-import ConfirmModal from '@/ui/components/base/ConfirmModal'
+import ConfirmModal, { ConfirmModalHandle } from '@/ui/ConfirmModal'
 
 interface PaymentMethodsAdminPageProps {
   onEdit?: (method: PaymentMethod) => void
@@ -24,38 +24,44 @@ export const PaymentMethodsAdminPage: React.FC<PaymentMethodsAdminPageProps> = (
   const [filterActive, setFilterActive] = useState<boolean | null>(null)
   const [filterRequiresReference, setFilterRequiresReference] = useState<boolean | null>(null)
   const [page, setPage] = useState(1)
-  const [showDeleteModal, setShowDeleteModal] = useState(false)
-  const [methodToDelete, setMethodToDelete] = useState<PaymentMethod | null>(null)
+  const confirmModalRef = useRef<ConfirmModalHandle>(null)
 
   // Build filters
-  const filters: any = {}
+  const filters: Record<string, unknown> = {}
   if (search) filters.search = search
   if (filterActive !== null) filters.isActive = filterActive
   if (filterRequiresReference !== null) filters.requiresReference = filterRequiresReference
 
   // Fetch data
-  const { methods, isLoading, error, meta } = usePaymentMethods({
+  const { paymentMethods, isLoading, error, meta } = usePaymentMethods({
     filters,
     pagination: { page, size: 20 }
   })
 
-  const { deleteMethod } = usePaymentMethodMutations()
+  const { deletePaymentMethod } = usePaymentMethodMutations()
 
-  const handleDelete = async () => {
-    if (!methodToDelete) return
+  const handleDeleteClick = async (method: PaymentMethod) => {
+    if (!confirmModalRef.current) return
 
-    try {
-      await deleteMethod(methodToDelete.id)
-      setShowDeleteModal(false)
-      setMethodToDelete(null)
-      // Show success toast
-      showToast('Método de pago eliminado correctamente', 'success')
-    } catch (error: any) {
-      console.error('Error deleting payment method:', error)
-      showToast(
-        error.response?.data?.errors?.[0]?.detail || 'Error al eliminar método de pago',
-        'error'
-      )
+    const confirmed = await confirmModalRef.current.confirm(
+      `¿Está seguro que desea eliminar el método de pago "${method.name}"? Esta acción no se puede deshacer.`
+    )
+
+    if (confirmed) {
+      try {
+        await deletePaymentMethod(method.id)
+        showToast('Método de pago eliminado correctamente', 'success')
+      } catch (error: unknown) {
+        console.error('Error deleting payment method:', error)
+        const axiosError = error as Record<string, unknown>
+        const response = axiosError.response as Record<string, unknown> | undefined
+        const data = response?.data as Record<string, unknown> | undefined
+        const errors = data?.errors as Array<Record<string, unknown>> | undefined
+        showToast(
+          (errors?.[0]?.detail as string) || 'Error al eliminar método de pago',
+          'error'
+        )
+      }
     }
   }
 
@@ -174,7 +180,7 @@ export const PaymentMethodsAdminPage: React.FC<PaymentMethodsAdminPageProps> = (
                 <span className="visually-hidden">Cargando...</span>
               </div>
             </div>
-          ) : methods.length === 0 ? (
+          ) : paymentMethods.length === 0 ? (
             <div className="text-center py-5 text-muted">
               <i className="bi bi-inbox fs-1 d-block mb-3"></i>
               <p>No se encontraron métodos de pago</p>
@@ -194,7 +200,7 @@ export const PaymentMethodsAdminPage: React.FC<PaymentMethodsAdminPageProps> = (
                     </tr>
                   </thead>
                   <tbody>
-                    {methods.map((method) => (
+                    {paymentMethods.map((method) => (
                       <tr key={method.id}>
                         <td>
                           <code className="text-dark">{method.code}</code>
@@ -240,10 +246,7 @@ export const PaymentMethodsAdminPage: React.FC<PaymentMethodsAdminPageProps> = (
                             )}
                             <button
                               className="btn btn-outline-danger"
-                              onClick={() => {
-                                setMethodToDelete(method)
-                                setShowDeleteModal(true)
-                              }}
+                              onClick={() => handleDeleteClick(method)}
                               title="Eliminar"
                             >
                               <i className="bi bi-trash"></i>
@@ -260,7 +263,7 @@ export const PaymentMethodsAdminPage: React.FC<PaymentMethodsAdminPageProps> = (
               {meta && meta.page && (
                 <div className="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
                   <div className="text-muted">
-                    Mostrando {methods.length} de {meta.page.total || 0} registros
+                    Mostrando {paymentMethods.length} de {meta?.page?.total || 0} registros
                   </div>
                   <nav>
                     <ul className="pagination pagination-sm mb-0">
@@ -276,11 +279,11 @@ export const PaymentMethodsAdminPage: React.FC<PaymentMethodsAdminPageProps> = (
                       <li className="page-item active">
                         <span className="page-link">{page}</span>
                       </li>
-                      <li className={`page-item ${methods.length < 20 ? 'disabled' : ''}`}>
+                      <li className={`page-item ${paymentMethods.length < 20 ? 'disabled' : ''}`}>
                         <button
                           className="page-link"
                           onClick={() => setPage(p => p + 1)}
-                          disabled={methods.length < 20}
+                          disabled={paymentMethods.length < 20}
                         >
                           Siguiente
                         </button>
@@ -295,21 +298,7 @@ export const PaymentMethodsAdminPage: React.FC<PaymentMethodsAdminPageProps> = (
       </div>
 
       {/* Delete Confirmation Modal */}
-      {showDeleteModal && methodToDelete && (
-        <ConfirmModal
-          isOpen={showDeleteModal}
-          title="Confirmar Eliminación"
-          message={`¿Está seguro que desea eliminar el método de pago "${methodToDelete.name}"? Esta acción no se puede deshacer.`}
-          confirmText="Eliminar"
-          cancelText="Cancelar"
-          onConfirm={handleDelete}
-          onCancel={() => {
-            setShowDeleteModal(false)
-            setMethodToDelete(null)
-          }}
-          variant="danger"
-        />
-      )}
+      <ConfirmModal ref={confirmModalRef} />
     </div>
   )
 }

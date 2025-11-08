@@ -116,7 +116,8 @@ export const CheckoutPage = React.memo<CheckoutPageProps>(({ sessionId }) => {
       toast.success('¡Orden creada exitosamente!')
 
       // Redirect to order confirmation
-      navigation.push(`/order-confirmation/${order.data.id}`)
+      const orderData_response = order.data as { id: string }
+      navigation.push(`/order-confirmation/${orderData_response.id}`)
     } catch (error) {
       console.error('Error during checkout:', error)
       toast.error('Error al procesar tu orden. Intenta nuevamente.')
@@ -421,7 +422,7 @@ export const CheckoutPage = React.memo<CheckoutPageProps>(({ sessionId }) => {
                   type="submit"
                   variant="primary"
                   className="w-100 mb-3"
-                  size="lg"
+                  size="large"
                   disabled={isCheckingOut}
                 >
                   {isCheckingOut ? (

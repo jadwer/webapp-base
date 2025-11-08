@@ -19,7 +19,7 @@ import {
   validateJournalEntryData,
   validateJournalLineData,
 } from '../../utils/transformers'
-import type { AccountForm, JournalEntryForm, JournalLineForm } from '../../types'
+import { AccountFormData } from '../../types'
 
 describe('Account Transformers', () => {
   describe('transformAccountFromAPI', () => {
@@ -127,7 +127,7 @@ describe('Account Transformers', () => {
   describe('transformAccountToAPI', () => {
     it('should transform AccountForm to API format', () => {
       // Arrange
-      const formData: AccountForm = {
+      const formData: AccountFormData = {
         code: '1000',
         name: 'Caja General',
         accountType: 'asset',
@@ -152,7 +152,7 @@ describe('Account Transformers', () => {
 
     it('should default currency to MXN when not provided', () => {
       // Arrange
-      const formData: AccountForm = {
+      const formData: AccountFormData = {
         code: '1000',
         name: 'Test',
         accountType: 'asset',
@@ -170,7 +170,7 @@ describe('Account Transformers', () => {
 
     it('should default metadata to empty object when not provided', () => {
       // Arrange
-      const formData: AccountForm = {
+      const formData: AccountFormData = {
         code: '1000',
         name: 'Test',
         accountType: 'asset',
@@ -188,7 +188,7 @@ describe('Account Transformers', () => {
 
     it('should include optional parentId when provided', () => {
       // Arrange
-      const formData: AccountForm = {
+      const formData: AccountFormData = {
         code: '1001',
         name: 'Bancos',
         accountType: 'asset',
@@ -369,9 +369,9 @@ describe('Journal Entry Transformers', () => {
   })
 
   describe('transformJournalEntryToAPI', () => {
-    it('should transform JournalEntryForm to API format', () => {
+    it('should transform JournalEntryFormData to API format', () => {
       // Arrange
-      const formData: JournalEntryForm = {
+      const formData: JournalEntryFormData = {
         journalId: 1,
         periodId: 1,
         number: 'JE-2025-001',
@@ -395,7 +395,7 @@ describe('Journal Entry Transformers', () => {
 
     it('should default currency to MXN when not provided', () => {
       // Arrange
-      const formData: JournalEntryForm = {
+      const formData: JournalEntryFormData = {
         journalId: 1,
         periodId: 1,
         number: 'JE-001',

@@ -182,9 +182,9 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
                       <tr>
                         <td><strong>Descuento:</strong></td>
                         <td>
-                          {salesOrder.discountTotal > 0 ? (
+                          {(salesOrder.discountTotal ?? 0) > 0 ? (
                             <span className="text-warning">
-                              -{formatCurrency(salesOrder.discountTotal)}
+                              -{formatCurrency(salesOrder.discountTotal ?? 0)}
                             </span>
                           ) : (
                             <span className="text-muted">Sin descuento</span>
@@ -247,13 +247,13 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
                   <div className="d-flex justify-content-between mb-3">
                     <span>Cantidad Total:</span>
                     <strong>
-                      {formatQuantity(salesOrderItems.reduce((acc: number, item: any) => acc + (item.quantity || 0), 0))}
+                      {formatQuantity(salesOrderItems.reduce((acc: number, item) => acc + (item.quantity || 0), 0))}
                     </strong>
                   </div>
                   <div className="d-flex justify-content-between mb-3">
                     <span>Valor Items:</span>
                     <strong className="text-success">
-                      {formatCurrency(salesOrderItems.reduce((acc: number, item: any) => acc + (item.total || item.totalPrice || 0), 0))}
+                      {formatCurrency(salesOrderItems.reduce((acc: number, item) => acc + (item.totalPrice || 0), 0))}
                     </strong>
                   </div>
                   <hr />

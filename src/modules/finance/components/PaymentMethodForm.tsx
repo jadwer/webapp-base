@@ -22,8 +22,8 @@ export const PaymentMethodForm: React.FC<PaymentMethodFormProps> = ({
   onCancel
 }) => {
   const isEditing = !!methodId
-  const { method, isLoading: isLoadingMethod } = usePaymentMethod(methodId || null)
-  const { createMethod, updateMethod } = usePaymentMethodMutations()
+  const { paymentMethod, isLoading: isLoadingMethod } = usePaymentMethod(methodId || null)
+  const { createPaymentMethod, updatePaymentMethod } = usePaymentMethodMutations()
 
   const [formData, setFormData] = useState<PaymentMethodFormType>({
     name: '',
@@ -38,16 +38,16 @@ export const PaymentMethodForm: React.FC<PaymentMethodFormProps> = ({
 
   // Load existing data when editing
   useEffect(() => {
-    if (method && isEditing) {
+    if (paymentMethod && isEditing) {
       setFormData({
-        name: method.name,
-        code: method.code,
-        description: method.description || '',
-        requiresReference: method.requiresReference,
-        isActive: method.isActive
+        name: paymentMethod.name,
+        code: paymentMethod.code,
+        description: paymentMethod.description || '',
+        requiresReference: paymentMethod.requiresReference,
+        isActive: paymentMethod.isActive
       })
     }
-  }, [method, isEditing])
+  }, [paymentMethod, isEditing])
 
   const validate = (): boolean => {
     const newErrors: Record<string, string> = {}
@@ -84,22 +84,28 @@ export const PaymentMethodForm: React.FC<PaymentMethodFormProps> = ({
 
     try {
       if (isEditing && methodId) {
-        await updateMethod(methodId, formData)
+        await updatePaymentMethod(methodId, formData)
         showToast('Método de pago actualizado correctamente', 'success')
       } else {
-        await createMethod(formData)
+        await createPaymentMethod(formData)
         showToast('Método de pago creado correctamente', 'success')
       }
 
       if (onSuccess) {
         onSuccess()
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error submitting payment method:', error)
 
+      const axiosError = error as Record<string, unknown>
+      const response = axiosError.response as Record<string, unknown> | undefined
+      const data = response?.data as Record<string, unknown> | undefined
+      const errors = data?.errors as Array<Record<string, unknown>> | undefined
+      const status = response?.status as number | undefined
+
       // Handle duplicate code error
-      if (error.response?.status === 422 || error.response?.status === 409) {
-        const errorMessage = error.response?.data?.errors?.[0]?.detail || ''
+      if (status === 422 || status === 409) {
+        const errorMessage = (errors?.[0]?.detail as string) || ''
         if (errorMessage.toLowerCase().includes('code') || errorMessage.toLowerCase().includes('código')) {
           setErrors({ code: 'Este código ya está en uso' })
         } else {
@@ -107,7 +113,7 @@ export const PaymentMethodForm: React.FC<PaymentMethodFormProps> = ({
         }
       } else {
         setErrors({
-          submit: error.response?.data?.errors?.[0]?.detail || 'Error al guardar el método de pago'
+          submit: (errors?.[0]?.detail as string) || 'Error al guardar el método de pago'
         })
       }
     } finally {
@@ -306,7 +312,7 @@ export const PaymentMethodForm: React.FC<PaymentMethodFormProps> = ({
               <ul className="mb-0">
                 <li>El <strong>código</strong> debe ser único en el sistema</li>
                 <li>Usa códigos descriptivos en MAYÚSCULAS (Ej: TRANSFER, CASH, CARD)</li>
-                <li>Activa "Requiere referencia" para métodos como transferencias bancarias</li>
+                <li>Activa &quot;Requiere referencia&quot; para métodos como transferencias bancarias</li>
                 <li>Los métodos inactivos no aparecerán en formularios de pago</li>
               </ul>
             </div>

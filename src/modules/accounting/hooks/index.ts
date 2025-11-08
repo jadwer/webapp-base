@@ -10,14 +10,14 @@ import {
   journalEntryService,
 } from '../services';
 import type {
-  AccountForm,
-  JournalEntryForm,
+  AccountFormData,
+  JournalEntryFormData,
   JournalLineForm,
   JournalEntryWithLines,
 } from '../types';
 
 // Accounts Hooks
-export function useAccounts(params: Record<string, any> = {}) {
+export function useAccounts(params: Record<string, unknown> = {}) {
   const key = ['/api/v1/accounts', params];
   const { data, error, isLoading, mutate } = useSWR(
     key,
@@ -47,7 +47,7 @@ export function useAccount(id: string | null) {
   };
 }
 
-export function usePostableAccounts(params: Record<string, any> = {}) {
+export function usePostableAccounts(params: Record<string, unknown> = {}) {
   const key = ['/api/v1/accounts/postable', params];
   const { data, error, isLoading, mutate } = useSWR(
     key,
@@ -65,13 +65,13 @@ export function usePostableAccounts(params: Record<string, any> = {}) {
 export function useAccountMutations() {
   const { mutate } = useSWRConfig();
 
-  const createAccount = async (data: AccountForm) => {
+  const createAccount = async (data: AccountFormData) => {
     const result = await accountsService.create(data);
     mutate('/api/v1/accounts');
     return result;
   };
 
-  const updateAccount = async (id: string, data: Partial<AccountForm>) => {
+  const updateAccount = async (id: string, data: Partial<AccountFormData>) => {
     const result = await accountsService.update(id, data);
     mutate(`/api/v1/accounts/${id}`);
     mutate('/api/v1/accounts');
@@ -91,27 +91,28 @@ export function useAccountMutations() {
 }
 
 // Journal Entries Hooks
-export function useJournalEntries(params: Record<string, any> = {}) {
+export function useJournalEntries(params: Record<string, unknown> = {}) {
   const key = ['/api/v1/journal-entries', params];
-  
+
   // Format parameters correctly for JSON:API
-  const formattedParams: Record<string, any> = {};
-  
+  const formattedParams: Record<string, unknown> = {};
+
   if (params.filters) {
-    Object.keys(params.filters).forEach(key => {
-      formattedParams[`filter[${key}]`] = params.filters[key];
+    Object.keys(params.filters as Record<string, unknown>).forEach(key => {
+      formattedParams[`filter[${key}]`] = (params.filters as Record<string, unknown>)[key];
     });
   }
-  
+
   if (params.pagination) {
-    if (params.pagination.page) formattedParams['page[number]'] = params.pagination.page;
-    if (params.pagination.size) formattedParams['page[size]'] = params.pagination.size;
+    const pagination = params.pagination as Record<string, unknown>;
+    if (pagination.page) formattedParams['page[number]'] = pagination.page;
+    if (pagination.size) formattedParams['page[size]'] = pagination.size;
   }
-  
-  if (params.include && params.include.length > 0) {
+
+  if (params.include && Array.isArray(params.include) && params.include.length > 0) {
     formattedParams.include = params.include.join(',');
   }
-  
+
   const { data, error, isLoading, mutate } = useSWR(
     key,
     () => journalEntriesService.getAll(formattedParams)
@@ -158,7 +159,7 @@ export function useJournalEntryWithLines(id: string | null) {
 export function useJournalEntryMutations() {
   const { mutate } = useSWRConfig();
 
-  const createJournalEntry = async (data: JournalEntryForm) => {
+  const createJournalEntry = async (data: JournalEntryFormData) => {
     const result = await journalEntriesService.create(data);
     mutate('/api/v1/journal-entries');
     return result;
@@ -170,7 +171,7 @@ export function useJournalEntryMutations() {
     return result;
   };
 
-  const updateJournalEntry = async (id: string, data: Partial<JournalEntryForm>) => {
+  const updateJournalEntry = async (id: string, data: Partial<JournalEntryFormData>) => {
     const result = await journalEntriesService.update(id, data);
     mutate(`/api/v1/journal-entries/${id}`);
     mutate('/api/v1/journal-entries');
@@ -199,7 +200,7 @@ export function useJournalEntryMutations() {
 }
 
 // Journal Lines Hooks
-export function useJournalLines(params: Record<string, any> = {}) {
+export function useJournalLines(params: Record<string, unknown> = {}) {
   const key = ['/api/v1/journal-lines', params];
   const { data, error, isLoading, mutate } = useSWR(
     key,

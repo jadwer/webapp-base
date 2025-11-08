@@ -96,7 +96,7 @@ export default function ViewAPInvoicePage() {
             </div>
             <div className="d-flex gap-2">
               <Button
-                variant="outline-primary"
+                variant="primary"
                 onClick={() => navigation.push(`/dashboard/finance/ap-invoices/${id}/edit`)}
               >
                 <i className="bi bi-pencil me-2"></i>
@@ -243,7 +243,7 @@ export default function ViewAPInvoicePage() {
                 </p>
                 <Button
                   variant="primary"
-                  size="sm"
+                  size="small"
                   className="w-100"
                   onClick={() => navigation.push(`/dashboard/finance/ap-invoices/${id}/edit`)}
                 >

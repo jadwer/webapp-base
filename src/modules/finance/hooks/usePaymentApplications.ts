@@ -6,11 +6,11 @@
  */
 
 import useSWR from 'swr'
-import type { PaymentApplication } from '../types'
+import type { PaymentApplicationForm } from '../types'
 import { paymentApplicationsService } from '../services'
 
 interface UsePaymentApplicationsOptions {
-  filters?: Record<string, any>
+  filters?: Record<string, unknown>
   pagination?: { page?: number; size?: number }
   include?: string[]
   sort?: string[]
@@ -23,7 +23,7 @@ interface UsePaymentApplicationsOptions {
 export const usePaymentApplications = (options: UsePaymentApplicationsOptions = {}) => {
   const { filters, pagination, include, sort, enabled = true } = options
 
-  const queryParams: Record<string, any> = {}
+  const queryParams: Record<string, unknown> = {}
 
   if (filters) {
     Object.keys(filters).forEach(key => {
@@ -143,11 +143,11 @@ export const usePaymentApplicationsByAPInvoice = (apInvoiceId: string | null) =>
  * Payment Applications mutations hook
  */
 export const usePaymentApplicationMutations = () => {
-  const createApplication = async (data: any) => {
+  const createApplication = async (data: PaymentApplicationForm) => {
     return await paymentApplicationsService.create(data)
   }
 
-  const updateApplication = async (id: string, data: any) => {
+  const updateApplication = async (id: string, data: Partial<PaymentApplicationForm>) => {
     return await paymentApplicationsService.update(id, data)
   }
 

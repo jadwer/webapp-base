@@ -109,10 +109,14 @@ export const PaymentApplicationForm: React.FC<PaymentApplicationFormProps> = ({
       if (onSuccess) {
         onSuccess()
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error submitting payment application:', error)
+      const axiosError = error as Record<string, unknown>
+      const response = axiosError.response as Record<string, unknown> | undefined
+      const data = response?.data as Record<string, unknown> | undefined
+      const errors = data?.errors as Array<Record<string, unknown>> | undefined
       setErrors({
-        submit: error.response?.data?.errors?.[0]?.detail || 'Error al guardar la aplicación de pago'
+        submit: (errors?.[0]?.detail as string) || 'Error al guardar la aplicación de pago'
       })
     } finally {
       setIsSubmitting(false)

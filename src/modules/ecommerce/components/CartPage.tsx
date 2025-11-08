@@ -195,7 +195,7 @@ export const CartPage = React.memo<CartPageProps>(({ sessionId }) => {
                         <Button
                           variant="secondary"
                           buttonStyle="outline"
-                          size="sm"
+                          size="small"
                           onClick={() => handleQuantityChange(item.id, item.quantity - 1)}
                           disabled={item.quantity <= 1 || updatingItemId === item.id}
                         >
@@ -211,7 +211,7 @@ export const CartPage = React.memo<CartPageProps>(({ sessionId }) => {
                         <Button
                           variant="secondary"
                           buttonStyle="outline"
-                          size="sm"
+                          size="small"
                           onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
                           disabled={updatingItemId === item.id}
                         >
@@ -228,7 +228,7 @@ export const CartPage = React.memo<CartPageProps>(({ sessionId }) => {
                       <Button
                         variant="danger"
                         buttonStyle="outline"
-                        size="sm"
+                        size="small"
                         onClick={() => handleRemoveItem(item.id, item.productName || 'Producto')}
                         disabled={isRemoving}
                       >
@@ -283,7 +283,7 @@ export const CartPage = React.memo<CartPageProps>(({ sessionId }) => {
               <Button
                 variant="primary"
                 className="w-100 mb-3"
-                size="lg"
+                size="large"
                 onClick={handleCheckout}
                 disabled={isUpdating || isRemoving}
               >

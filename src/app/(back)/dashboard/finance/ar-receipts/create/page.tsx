@@ -5,7 +5,6 @@ import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
 import { useARReceiptMutations, useBankAccounts } from '@/modules/finance'
 import { useContacts } from '@/modules/contacts'
 import { Button } from '@/ui/components/base/Button'
-import { Input } from '@/ui/components/base/Input'
 import type { ARReceiptForm } from '@/modules/finance/types'
 
 export default function CreateARReceiptPage() {
@@ -47,9 +46,9 @@ export default function CreateARReceiptPage() {
       const response = await createARReceipt(formData)
       console.log('✅ [ARReceiptCreate] Receipt created successfully:', response)
       navigation.push('/dashboard/finance/ar-receipts')
-    } catch (err: any) {
+    } catch (err) {
       console.error('❌ [ARReceiptCreate] Error creating AR receipt:', err)
-      setError(err.message || 'Error al crear el recibo de cliente')
+      setError(err instanceof Error ? err.message : 'Error al crear el recibo de cliente')
     } finally {
       setIsLoading(false)
     }
@@ -59,7 +58,7 @@ export default function CreateARReceiptPage() {
     navigation.back()
   }
 
-  const handleInputChange = (field: keyof ARReceiptForm, value: any) => {
+  const handleInputChange = (field: keyof ARReceiptForm, value: string | null) => {
     setFormData(prev => ({ ...prev, [field]: value }))
     setError(null)
   }
@@ -99,7 +98,7 @@ export default function CreateARReceiptPage() {
                       <option value="">Seleccionar cliente...</option>
                       {contacts?.map((contact) => (
                         <option key={contact.id} value={contact.id}>
-                          {contact.name || contact.companyName || `Cliente ID: ${contact.id}`}
+                          {contact.name || `Cliente ID: ${contact.id}`}
                         </option>
                       ))}
                     </select>
@@ -161,7 +160,7 @@ export default function CreateARReceiptPage() {
                       className="form-select"
                       id="paymentMethod"
                       value={formData.paymentMethod}
-                      onChange={(e) => setFormData(prev => ({ ...prev, paymentMethod: e.target.value as any }))}
+                      onChange={(e) => setFormData(prev => ({ ...prev, paymentMethod: e.target.value }))}
                       required
                     >
                       <option value="transfer">Transferencia</option>
@@ -204,7 +203,7 @@ export default function CreateARReceiptPage() {
                       className="form-select"
                       id="status"
                       value={formData.status}
-                      onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value as any }))}
+                      onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value as 'draft' | 'posted' }))}
                     >
                       <option value="draft">Borrador</option>
                       <option value="posted">Contabilizado</option>

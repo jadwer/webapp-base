@@ -26,19 +26,20 @@ export const ARReceiptFormComponent = ({
   bankAccounts = []
 }: ARReceiptFormProps) => {
   const [formData, setFormData] = useState<ARReceiptForm>({
-    aRInvoiceId: parseInt(arInvoice.id),
-    bankAccountId: 0,
-    receiptDate: new Date().toISOString().split('T')[0], // Note: receiptDate not paymentDate
-    amount: arInvoice.remainingBalance,
+    contactId: arInvoice.contactId,
+    receiptDate: new Date().toISOString().split('T')[0],
     paymentMethod: 'transfer',
-    reference: '',
+    currency: arInvoice.currency || 'MXN',
+    amount: arInvoice.remainingBalance.toString(),
+    bankAccountId: null,
+    status: 'draft',
   })
 
   const [errors, setErrors] = useState<Record<string, string>>({})
 
-  const handleInputChange = (field: keyof ARReceiptForm, value: string | number) => {
+  const handleInputChange = (field: keyof ARReceiptForm, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }))
-    
+
     // Clear error when user starts typing
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: '' }))
@@ -54,14 +55,12 @@ export const ARReceiptFormComponent = ({
     if (!formData.receiptDate) {
       newErrors.receiptDate = 'La fecha de cobro es obligatoria'
     }
-    if (formData.amount <= 0) {
+    const amountNum = parseFloat(formData.amount)
+    if (isNaN(amountNum) || amountNum <= 0) {
       newErrors.amount = 'El monto debe ser mayor a cero'
     }
-    if (formData.amount > arInvoice.remainingBalance) {
+    if (amountNum > arInvoice.remainingBalance) {
       newErrors.amount = `El monto no puede ser mayor al saldo pendiente (${arInvoice.remainingBalance})`
-    }
-    if (!formData.reference.trim()) {
-      newErrors.reference = 'La referencia es obligatoria'
     }
 
     setErrors(newErrors)
@@ -97,10 +96,10 @@ export const ARReceiptFormComponent = ({
           <div className="row">
             <div className="col-md-6">
               <strong>Factura:</strong> {arInvoice.invoiceNumber}<br />
-              <strong>Total:</strong> {formatCurrency(arInvoice.total)}
+              <strong>Total:</strong> {formatCurrency(typeof arInvoice.total === 'string' ? parseFloat(arInvoice.total) : arInvoice.total)}
             </div>
             <div className="col-md-6">
-              <strong>Cobrado:</strong> {formatCurrency(arInvoice.collectedAmount)}<br />
+              <strong>Cobrado:</strong> {formatCurrency(arInvoice.paidAmount)}<br />
               <strong>Saldo pendiente:</strong> <span className="text-primary fw-bold">{formatCurrency(arInvoice.remainingBalance)}</span>
             </div>
           </div>
@@ -115,11 +114,11 @@ export const ARReceiptFormComponent = ({
             <select
               id="bankAccountId"
               className={`form-select ${errors.bankAccountId ? 'is-invalid' : ''}`}
-              value={formData.bankAccountId}
-              onChange={(e) => handleInputChange('bankAccountId', parseInt(e.target.value))}
+              value={formData.bankAccountId || ''}
+              onChange={(e) => setFormData(prev => ({ ...prev, bankAccountId: e.target.value || null }))}
               disabled={isLoading}
             >
-              <option value="0">Seleccionar cuenta...</option>
+              <option value="">Seleccionar cuenta...</option>
               {bankAccounts.filter(account => account.status === 'active').map((account) => (
                 <option key={account.id} value={account.id}>
                   {account.bankName} - {account.accountNumber} ({account.currency})
@@ -150,7 +149,7 @@ export const ARReceiptFormComponent = ({
           </div>
 
           {/* Receipt Amount */}
-          <div className="col-md-6">
+          <div className="col-md-4">
             <label htmlFor="amount" className="form-label">
               Monto a Cobrar <span className="text-danger">*</span>
             </label>
@@ -161,10 +160,9 @@ export const ARReceiptFormComponent = ({
                 id="amount"
                 className={`form-control ${errors.amount ? 'is-invalid' : ''}`}
                 value={formData.amount}
-                onChange={(e) => handleInputChange('amount', parseFloat(e.target.value) || 0)}
+                onChange={(e) => handleInputChange('amount', e.target.value)}
                 disabled={isLoading}
                 min="0"
-                max={arInvoice.remainingBalance}
                 step="0.01"
               />
               {errors.amount && (
@@ -176,8 +174,26 @@ export const ARReceiptFormComponent = ({
             </div>
           </div>
 
+          {/* Currency */}
+          <div className="col-md-4">
+            <label htmlFor="currency" className="form-label">
+              Moneda
+            </label>
+            <select
+              id="currency"
+              className="form-select"
+              value={formData.currency}
+              onChange={(e) => handleInputChange('currency', e.target.value)}
+              disabled={isLoading}
+            >
+              <option value="MXN">MXN - Peso Mexicano</option>
+              <option value="USD">USD - Dólar Americano</option>
+              <option value="EUR">EUR - Euro</option>
+            </select>
+          </div>
+
           {/* Payment Method */}
-          <div className="col-md-6">
+          <div className="col-md-4">
             <label htmlFor="paymentMethod" className="form-label">
               Método de Cobro
             </label>
@@ -193,25 +209,6 @@ export const ARReceiptFormComponent = ({
               <option value="cash">Efectivo</option>
               <option value="card">Tarjeta</option>
             </select>
-          </div>
-
-          {/* Reference */}
-          <div className="col-12">
-            <label htmlFor="reference" className="form-label">
-              Referencia/Concepto <span className="text-danger">*</span>
-            </label>
-            <input
-              type="text"
-              id="reference"
-              className={`form-control ${errors.reference ? 'is-invalid' : ''}`}
-              value={formData.reference}
-              onChange={(e) => handleInputChange('reference', e.target.value)}
-              disabled={isLoading}
-              placeholder="Número de depósito, transferencia, etc."
-            />
-            {errors.reference && (
-              <div className="invalid-feedback">{errors.reference}</div>
-            )}
           </div>
 
           {/* Form Actions */}

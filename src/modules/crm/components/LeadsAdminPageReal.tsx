@@ -74,12 +74,17 @@ export const LeadsAdminPageReal = () => {
       await deleteLead(lead.id)
       await mutate()
       alert('Lead eliminado exitosamente')
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error deleting lead:', error)
 
       // Check for foreign key constraint error
-      if (error.response?.status === 409) {
-        alert('No se puede eliminar el lead porque tiene relaciones asociadas (campañas, actividades, etc.)')
+      if (typeof error === 'object' && error !== null && 'response' in error) {
+        const errorWithResponse = error as { response?: { status: number } }
+        if (errorWithResponse.response?.status === 409) {
+          alert('No se puede eliminar el lead porque tiene relaciones asociadas (campañas, actividades, etc.)')
+        } else {
+          alert('Error al eliminar el lead. Por favor intente nuevamente.')
+        }
       } else {
         alert('Error al eliminar el lead. Por favor intente nuevamente.')
       }

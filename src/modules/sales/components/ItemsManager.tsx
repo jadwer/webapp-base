@@ -51,14 +51,15 @@ export default function ItemsManager({ items, onItemsChange, onTotalChange }: It
 
   const handleProductChange = (productId: string) => {
     setNewItem(prev => ({ ...prev, productId }))
-    
+
     if (productId) {
-      const selectedProduct = products.find((p: any) => p.id === productId)
+      const selectedProduct = products.find((p: Record<string, unknown>) => p.id === productId)
       if (selectedProduct) {
-        const price = selectedProduct.attributes?.price || selectedProduct.attributes?.unit_price || 0
-        setNewItem(prev => ({ 
-          ...prev, 
-          unitPrice: parseFloat(price) || 0 
+        const attributes = selectedProduct.attributes as Record<string, unknown> | undefined
+        const price = attributes?.price || attributes?.unit_price || 0
+        setNewItem(prev => ({
+          ...prev,
+          unitPrice: parseFloat(price.toString()) || 0
         }))
       }
     }
@@ -71,13 +72,14 @@ export default function ItemsManager({ items, onItemsChange, onTotalChange }: It
   const addItem = () => {
     if (!newItem.productId || newItem.quantity <= 0 || newItem.unitPrice < 0) return
 
-    const selectedProduct = products.find((p: any) => p.id === newItem.productId)
+    const selectedProduct = products.find((p: Record<string, unknown>) => p.id === newItem.productId)
+    const attributes = selectedProduct?.attributes as Record<string, unknown> | undefined
     const total = calculateItemTotal(newItem.quantity, newItem.unitPrice, newItem.discount)
-    
+
     const item: OrderItem = {
       tempId: `temp_${Date.now()}`,
       productId: newItem.productId,
-      productName: selectedProduct?.attributes?.name || `Producto #${newItem.productId}`,
+      productName: (attributes?.name as string) || `Producto #${newItem.productId}`,
       quantity: newItem.quantity,
       unitPrice: newItem.unitPrice,
       discount: newItem.discount,
@@ -85,7 +87,7 @@ export default function ItemsManager({ items, onItemsChange, onTotalChange }: It
     }
 
     onItemsChange([...items, item])
-    
+
     // Reset form
     setNewItem({
       productId: '',
@@ -163,12 +165,15 @@ export default function ItemsManager({ items, onItemsChange, onTotalChange }: It
                   disabled={productsLoading}
                 >
                   <option value="">Seleccionar producto...</option>
-                  {products.map((product: any) => (
-                    <option key={product.id} value={product.id}>
-                      {product.attributes?.name || `Producto #${product.id}`}
-                      {product.attributes?.sku && ` (${product.attributes.sku})`}
-                    </option>
-                  ))}
+                  {products.map((product: Record<string, unknown>) => {
+                    const attributes = product.attributes as Record<string, unknown> | undefined
+                    return (
+                      <option key={product.id as string} value={product.id as string}>
+                        {(attributes?.name as string) || `Producto #${product.id}`}
+                        {attributes?.sku ? ` (${String(attributes.sku)})` : ''}
+                      </option>
+                    )
+                  })}
                 </select>
               </div>
               
@@ -301,7 +306,7 @@ export default function ItemsManager({ items, onItemsChange, onTotalChange }: It
           <div className="text-center text-muted py-4">
             <i className="bi bi-inbox display-4 mb-3"></i>
             <p>No hay items agregados</p>
-            <small>Haz click en "Agregar Item" para comenzar</small>
+            <small>Haz click en &quot;Agregar Item&quot; para comenzar</small>
           </div>
         )}
       </div>

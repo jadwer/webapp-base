@@ -10,6 +10,9 @@ import type {
   EcommerceOrderItem,
   ShoppingCart,
   ShoppingCartItem,
+  OrderStatus,
+  PaymentStatus,
+  ShippingStatus,
 } from '../types';
 
 // ============================================
@@ -19,7 +22,7 @@ import type {
 /**
  * Transform EcommerceOrder from frontend (camelCase) to backend (snake_case)
  */
-export function ecommerceOrderToAPI(order: Partial<EcommerceOrder>): Record<string, any> {
+export function ecommerceOrderToAPI(order: Partial<EcommerceOrder>): Record<string, unknown> {
   return {
     order_number: order.orderNumber,
     customer_id: order.customerId,
@@ -57,43 +60,43 @@ export function ecommerceOrderToAPI(order: Partial<EcommerceOrder>): Record<stri
 /**
  * Transform EcommerceOrder from backend (snake_case) to frontend (camelCase)
  */
-export function ecommerceOrderFromAPI(data: any): EcommerceOrder {
-  const attributes = data.attributes || data;
+export function ecommerceOrderFromAPI(data: Record<string, unknown>): EcommerceOrder {
+  const attributes = (data.attributes || data) as Record<string, unknown>;
 
   return {
-    id: data.id?.toString() || attributes.id?.toString(),
-    orderNumber: attributes.order_number || '',
-    customerId: attributes.customer_id,
-    customerEmail: attributes.customer_email || '',
-    customerName: attributes.customer_name || '',
-    customerPhone: attributes.customer_phone,
-    status: attributes.status || 'pending',
-    paymentStatus: attributes.payment_status || 'pending',
-    shippingStatus: attributes.shipping_status || 'pending',
-    subtotalAmount: parseFloat(attributes.subtotal_amount || 0),
-    taxAmount: parseFloat(attributes.tax_amount || 0),
-    shippingAmount: parseFloat(attributes.shipping_amount || 0),
-    discountAmount: parseFloat(attributes.discount_amount || 0),
-    totalAmount: parseFloat(attributes.total_amount || 0),
-    shippingAddressLine1: attributes.shipping_address_line1 || '',
-    shippingAddressLine2: attributes.shipping_address_line2,
-    shippingCity: attributes.shipping_city || '',
-    shippingState: attributes.shipping_state || '',
-    shippingPostalCode: attributes.shipping_postal_code || '',
-    shippingCountry: attributes.shipping_country || '',
-    billingAddressLine1: attributes.billing_address_line1,
-    billingAddressLine2: attributes.billing_address_line2,
-    billingCity: attributes.billing_city,
-    billingState: attributes.billing_state,
-    billingPostalCode: attributes.billing_postal_code,
-    billingCountry: attributes.billing_country,
-    paymentMethodId: attributes.payment_method_id,
-    paymentReference: attributes.payment_reference,
-    notes: attributes.notes,
-    orderDate: attributes.order_date || new Date().toISOString().split('T')[0],
-    completedDate: attributes.completed_date,
-    createdAt: attributes.created_at,
-    updatedAt: attributes.updated_at,
+    id: (data.id as string | number | undefined)?.toString() || (attributes.id as string | number | undefined)?.toString() || '',
+    orderNumber: (attributes.order_number as string) || '',
+    customerId: attributes.customer_id as number | undefined,
+    customerEmail: (attributes.customer_email as string) || '',
+    customerName: (attributes.customer_name as string) || '',
+    customerPhone: attributes.customer_phone as string | undefined,
+    status: ((attributes.status as string) || 'pending') as OrderStatus,
+    paymentStatus: ((attributes.payment_status as string) || 'pending') as PaymentStatus,
+    shippingStatus: ((attributes.shipping_status as string) || 'pending') as ShippingStatus,
+    subtotalAmount: parseFloat(String(attributes.subtotal_amount || 0)),
+    taxAmount: parseFloat(String(attributes.tax_amount || 0)),
+    shippingAmount: parseFloat(String(attributes.shipping_amount || 0)),
+    discountAmount: parseFloat(String(attributes.discount_amount || 0)),
+    totalAmount: parseFloat(String(attributes.total_amount || 0)),
+    shippingAddressLine1: (attributes.shipping_address_line1 as string) || '',
+    shippingAddressLine2: attributes.shipping_address_line2 as string | undefined,
+    shippingCity: (attributes.shipping_city as string) || '',
+    shippingState: (attributes.shipping_state as string) || '',
+    shippingPostalCode: (attributes.shipping_postal_code as string) || '',
+    shippingCountry: (attributes.shipping_country as string) || '',
+    billingAddressLine1: attributes.billing_address_line1 as string | undefined,
+    billingAddressLine2: attributes.billing_address_line2 as string | undefined,
+    billingCity: attributes.billing_city as string | undefined,
+    billingState: attributes.billing_state as string | undefined,
+    billingPostalCode: attributes.billing_postal_code as string | undefined,
+    billingCountry: attributes.billing_country as string | undefined,
+    paymentMethodId: attributes.payment_method_id as number | undefined,
+    paymentReference: attributes.payment_reference as string | undefined,
+    notes: attributes.notes as string | undefined,
+    orderDate: (attributes.order_date as string) || new Date().toISOString().split('T')[0],
+    completedDate: attributes.completed_date as string | undefined,
+    createdAt: attributes.created_at as string | undefined,
+    updatedAt: attributes.updated_at as string | undefined,
   };
 }
 
@@ -104,7 +107,7 @@ export function ecommerceOrderFromAPI(data: any): EcommerceOrder {
 /**
  * Transform EcommerceOrderItem from frontend (camelCase) to backend (snake_case)
  */
-export function ecommerceOrderItemToAPI(item: Partial<EcommerceOrderItem>): Record<string, any> {
+export function ecommerceOrderItemToAPI(item: Partial<EcommerceOrderItem>): Record<string, unknown> {
   return {
     ecommerce_order_id: item.ecommerceOrderId,
     product_id: item.productId,
@@ -122,23 +125,23 @@ export function ecommerceOrderItemToAPI(item: Partial<EcommerceOrderItem>): Reco
 /**
  * Transform EcommerceOrderItem from backend (snake_case) to frontend (camelCase)
  */
-export function ecommerceOrderItemFromAPI(data: any): EcommerceOrderItem {
-  const attributes = data.attributes || data;
+export function ecommerceOrderItemFromAPI(data: Record<string, unknown>): EcommerceOrderItem {
+  const attributes = (data.attributes || data) as Record<string, unknown>;
 
   return {
-    id: data.id?.toString() || attributes.id?.toString(),
-    ecommerceOrderId: attributes.ecommerce_order_id,
-    productId: attributes.product_id,
-    productName: attributes.product_name || '',
-    productSku: attributes.product_sku,
-    productImage: attributes.product_image,
-    quantity: parseInt(attributes.quantity || 1),
-    unitPrice: parseFloat(attributes.unit_price || 0),
-    discount: parseFloat(attributes.discount || 0),
-    taxAmount: parseFloat(attributes.tax_amount || 0),
-    totalPrice: parseFloat(attributes.total_price || 0),
-    createdAt: attributes.created_at,
-    updatedAt: attributes.updated_at,
+    id: (data.id as string | number | undefined)?.toString() || (attributes.id as string | number | undefined)?.toString() || '',
+    ecommerceOrderId: attributes.ecommerce_order_id as number,
+    productId: attributes.product_id as number,
+    productName: (attributes.product_name as string) || '',
+    productSku: attributes.product_sku as string | undefined,
+    productImage: attributes.product_image as string | undefined,
+    quantity: parseInt(String(attributes.quantity || 1)),
+    unitPrice: parseFloat(String(attributes.unit_price || 0)),
+    discount: parseFloat(String(attributes.discount || 0)),
+    taxAmount: parseFloat(String(attributes.tax_amount || 0)),
+    totalPrice: parseFloat(String(attributes.total_price || 0)),
+    createdAt: attributes.created_at as string | undefined,
+    updatedAt: attributes.updated_at as string | undefined,
   };
 }
 
@@ -149,7 +152,7 @@ export function ecommerceOrderItemFromAPI(data: any): EcommerceOrderItem {
 /**
  * Transform ShoppingCart from frontend (camelCase) to backend (snake_case)
  */
-export function shoppingCartToAPI(cart: Partial<ShoppingCart>): Record<string, any> {
+export function shoppingCartToAPI(cart: Partial<ShoppingCart>): Record<string, unknown> {
   return {
     session_id: cart.sessionId,
     customer_id: cart.customerId,
@@ -163,19 +166,19 @@ export function shoppingCartToAPI(cart: Partial<ShoppingCart>): Record<string, a
 /**
  * Transform ShoppingCart from backend (snake_case) to frontend (camelCase)
  */
-export function shoppingCartFromAPI(data: any): ShoppingCart {
-  const attributes = data.attributes || data;
+export function shoppingCartFromAPI(data: Record<string, unknown>): ShoppingCart {
+  const attributes = (data.attributes || data) as Record<string, unknown>;
 
   return {
-    id: data.id?.toString() || attributes.id?.toString(),
-    sessionId: attributes.session_id,
-    customerId: attributes.customer_id,
-    subtotalAmount: parseFloat(attributes.subtotal_amount || 0),
-    taxAmount: parseFloat(attributes.tax_amount || 0),
-    totalAmount: parseFloat(attributes.total_amount || 0),
-    createdAt: attributes.created_at,
-    updatedAt: attributes.updated_at,
-    expiresAt: attributes.expires_at,
+    id: (data.id as string | number | undefined)?.toString() || (attributes.id as string | number | undefined)?.toString() || '',
+    sessionId: attributes.session_id as string | undefined,
+    customerId: attributes.customer_id as number | undefined,
+    subtotalAmount: parseFloat(String(attributes.subtotal_amount || 0)),
+    taxAmount: parseFloat(String(attributes.tax_amount || 0)),
+    totalAmount: parseFloat(String(attributes.total_amount || 0)),
+    createdAt: attributes.created_at as string | undefined,
+    updatedAt: attributes.updated_at as string | undefined,
+    expiresAt: attributes.expires_at as string | undefined,
   };
 }
 
@@ -186,7 +189,7 @@ export function shoppingCartFromAPI(data: any): ShoppingCart {
 /**
  * Transform ShoppingCartItem from frontend (camelCase) to backend (snake_case)
  */
-export function shoppingCartItemToAPI(item: Partial<ShoppingCartItem>): Record<string, any> {
+export function shoppingCartItemToAPI(item: Partial<ShoppingCartItem>): Record<string, unknown> {
   return {
     shopping_cart_id: item.shoppingCartId,
     product_id: item.productId,
@@ -202,21 +205,21 @@ export function shoppingCartItemToAPI(item: Partial<ShoppingCartItem>): Record<s
 /**
  * Transform ShoppingCartItem from backend (snake_case) to frontend (camelCase)
  */
-export function shoppingCartItemFromAPI(data: any): ShoppingCartItem {
-  const attributes = data.attributes || data;
+export function shoppingCartItemFromAPI(data: Record<string, unknown>): ShoppingCartItem {
+  const attributes = (data.attributes || data) as Record<string, unknown>;
 
   return {
-    id: data.id?.toString() || attributes.id?.toString(),
-    shoppingCartId: attributes.shopping_cart_id,
-    productId: attributes.product_id,
-    productName: attributes.product_name,
-    productSku: attributes.product_sku,
-    productImage: attributes.product_image,
-    quantity: parseInt(attributes.quantity || 1),
-    unitPrice: parseFloat(attributes.unit_price || 0),
-    totalPrice: parseFloat(attributes.total_price || 0),
-    createdAt: attributes.created_at,
-    updatedAt: attributes.updated_at,
+    id: (data.id as string | number | undefined)?.toString() || (attributes.id as string | number | undefined)?.toString() || '',
+    shoppingCartId: attributes.shopping_cart_id as number,
+    productId: attributes.product_id as number,
+    productName: attributes.product_name as string | undefined,
+    productSku: attributes.product_sku as string | undefined,
+    productImage: attributes.product_image as string | undefined,
+    quantity: parseInt(String(attributes.quantity || 1)),
+    unitPrice: parseFloat(String(attributes.unit_price || 0)),
+    totalPrice: parseFloat(String(attributes.total_price || 0)),
+    createdAt: attributes.created_at as string | undefined,
+    updatedAt: attributes.updated_at as string | undefined,
   };
 }
 

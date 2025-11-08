@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect, use } from 'react'
-import { useRouter } from 'next/navigation'
 import { useSalesOrder, useSalesOrderMutations, useSalesContacts } from '@/modules/sales'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
 
@@ -11,7 +10,6 @@ interface PageProps {
 
 export default function EditSalesOrderPage({ params }: PageProps) {
   const resolvedParams = use(params)
-  const router = useRouter()
   const navigation = useNavigationProgress()
   
   const { salesOrder, isLoading, error } = useSalesOrder(resolvedParams.id)
@@ -63,13 +61,15 @@ export default function EditSalesOrderPage({ params }: PageProps) {
 
       console.log('🚀 Updating sales order:', orderData)
       await updateSalesOrder(resolvedParams.id, orderData)
-      
+
+
       // Navigate back to the order detail page
       navigation.push(`/dashboard/sales/${resolvedParams.id}`)
-      
-    } catch (err: any) {
+
+    } catch (err) {
       console.error('❌ Error updating sales order:', err)
-      setSubmitError(err.response?.data?.message || err.message || 'Error al actualizar la orden de venta')
+      const error = err as { response?: { data?: { message?: string } }; message?: string }
+      setSubmitError(error.response?.data?.message || error.message || 'Error al actualizar la orden de venta')
     } finally {
       setIsSubmitting(false)
     }
@@ -157,11 +157,14 @@ export default function EditSalesOrderPage({ params }: PageProps) {
                       disabled={contactsLoading}
                     >
                       <option value="">Seleccionar cliente...</option>
-                      {contacts?.map((contact: any) => (
-                        <option key={contact.id} value={contact.id}>
-                          {contact.name || contact.attributes?.name || `Cliente #${contact.id}`}
-                        </option>
-                      ))}
+                      {contacts?.map((contact: Record<string, unknown>) => {
+                        const attributes = contact.attributes as Record<string, unknown> | undefined
+                        return (
+                          <option key={contact.id as string} value={contact.id as string}>
+                            {(contact.name as string) || (attributes?.name as string) || `Cliente #${contact.id}`}
+                          </option>
+                        )
+                      })}
                     </select>
                     {contactsLoading && (
                       <small className="text-muted">Cargando clientes...</small>

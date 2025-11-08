@@ -84,12 +84,17 @@ export const CampaignsAdminPageReal = () => {
       await deleteCampaign(campaign.id)
       await mutate()
       alert('Campaña eliminada exitosamente')
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error deleting campaign:', error)
 
       // Check for foreign key constraint error
-      if (error.response?.status === 409) {
-        alert('No se puede eliminar la campaña porque tiene leads asociados')
+      if (typeof error === 'object' && error !== null && 'response' in error) {
+        const errorWithResponse = error as { response?: { status: number } }
+        if (errorWithResponse.response?.status === 409) {
+          alert('No se puede eliminar la campaña porque tiene leads asociados')
+        } else {
+          alert('Error al eliminar la campaña. Por favor intente nuevamente.')
+        }
       } else {
         alert('Error al eliminar la campaña. Por favor intente nuevamente.')
       }

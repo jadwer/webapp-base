@@ -10,6 +10,7 @@ export interface SalesOrder {
   arInvoiceId?: number | null
   subtotalAmount?: number
   taxAmount?: number
+  discountTotal?: number
   totalAmount: number
   notes?: string
   createdAt?: string
@@ -20,8 +21,8 @@ export interface SalesOrderItem {
   id: string
   salesOrderId: string
   productId: number
-  product?: any
-  salesOrder?: any
+  product?: Record<string, unknown>
+  salesOrder?: Record<string, unknown>
   quantity: number
   unitPrice: number
   totalPrice: number
@@ -49,25 +50,25 @@ export interface SalesOrderFormData {
 export interface JsonApiResource {
   id: string
   type: string
-  attributes: Record<string, any>
-  relationships?: Record<string, any>
+  attributes: Record<string, unknown>
+  relationships?: Record<string, unknown>
 }
 
 export interface JsonApiResponse {
   data: JsonApiResource | JsonApiResource[]
-  meta?: any
+  meta?: Record<string, unknown>
   included?: JsonApiResource[]
 }
 
 // API Response types
 export interface SalesOrdersResponse {
   data: SalesOrder[]
-  meta: any
+  meta: Record<string, unknown>
 }
 
 export interface SalesOrderItemsResponse {
   data: SalesOrderItem[]
-  meta: any
+  meta: Record<string, unknown>
 }
 
 // Filter and pagination types

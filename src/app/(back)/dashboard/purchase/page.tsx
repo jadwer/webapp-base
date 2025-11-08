@@ -5,6 +5,18 @@ import { usePurchaseOrders } from '@/modules/purchase'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
 import { formatCurrency } from '@/lib/formatters'
 
+interface PurchaseOrder {
+  id: string | number
+  contactId?: string | number
+  contact?: {
+    name?: string
+    email?: string
+  }
+  orderDate?: string
+  status: string
+  totalAmount: number
+}
+
 export default function PurchasePage() {
   const navigation = useNavigationProgress()
   const [searchTerm, setSearchTerm] = useState('')
@@ -142,12 +154,12 @@ export default function PurchasePage() {
                             <i className="bi bi-inbox display-4 text-muted mb-3 d-block"></i>
                             <h6>No hay órdenes de compra</h6>
                             <p className="mb-0">
-                              Crea tu primera orden de compra haciendo clic en "Nueva Orden"
+                              Crea tu primera orden de compra haciendo clic en &quot;Nueva Orden&quot;
                             </p>
                           </td>
                         </tr>
                       ) : (
-                        purchaseOrders?.map((order: any) => (
+                        purchaseOrders?.map((order: PurchaseOrder) => (
                           <tr key={order.id}>
                             <td>
                               <strong className="text-primary">PO-{order.id}</strong>
@@ -237,7 +249,7 @@ export default function PurchasePage() {
                   <div className="flex-grow-1">
                     <h6 className="text-white-50">Valor Total</h6>
                     <h4 className="mb-0">
-                      {formatCurrency(purchaseOrders.reduce((acc: number, order: any) => acc + (order.totalAmount || 0), 0))}
+                      {formatCurrency(purchaseOrders.reduce((acc: number, order: PurchaseOrder) => acc + (order.totalAmount || 0), 0))}
                     </h4>
                   </div>
                   <i className="bi bi-currency-dollar display-6"></i>
@@ -252,7 +264,7 @@ export default function PurchasePage() {
                   <div className="flex-grow-1">
                     <h6 className="text-white-50">Aprobadas</h6>
                     <h4 className="mb-0">
-                      {purchaseOrders.filter((o: any) => o.status === 'approved').length}
+                      {purchaseOrders.filter((o: PurchaseOrder) => o.status === 'approved').length}
                     </h4>
                   </div>
                   <i className="bi bi-check-circle display-6"></i>
@@ -267,7 +279,7 @@ export default function PurchasePage() {
                   <div className="flex-grow-1">
                     <h6 className="text-white-50">Pendientes</h6>
                     <h4 className="mb-0">
-                      {purchaseOrders.filter((o: any) => ['pending', 'draft'].includes(o.status)).length}
+                      {purchaseOrders.filter((o: PurchaseOrder) => ['pending', 'draft'].includes(o.status)).length}
                     </h4>
                   </div>
                   <i className="bi bi-clock display-6"></i>

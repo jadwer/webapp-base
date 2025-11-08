@@ -23,7 +23,7 @@ export const ARInvoicesAdminPageReal = () => {
   const navigation = useNavigationProgress()
 
   // Build filters object
-  const filters: Record<string, any> = {}
+  const filters: Record<string, unknown> = {}
   if (searchTerm) filters.search = searchTerm
   if (statusFilter) filters.status = statusFilter
 
@@ -164,7 +164,7 @@ export const ARInvoicesAdminPageReal = () => {
               style: 'currency',
               currency: 'MXN'
             }).format(
-              arInvoices?.reduce((sum, inv) => sum + inv.collectedAmount, 0) || 0
+              arInvoices?.reduce((sum, inv) => sum + inv.paidAmount, 0) || 0
             )}
           </div>
         </div>
@@ -175,7 +175,7 @@ export const ARInvoicesAdminPageReal = () => {
               style: 'currency',
               currency: 'MXN'
             }).format(
-              arInvoices?.reduce((sum, inv) => sum + inv.total, 0) || 0
+              arInvoices?.reduce((sum, inv) => sum + parseFloat(inv.total), 0) || 0
             )}
           </div>
         </div>

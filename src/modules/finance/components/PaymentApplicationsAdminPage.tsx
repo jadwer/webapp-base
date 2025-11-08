@@ -6,10 +6,10 @@
  * Features: Search, filters by payment/invoice, pagination, create/edit/delete
  */
 
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import { usePaymentApplications, usePaymentApplicationMutations } from '../hooks'
 import { PaymentApplication } from '../types'
-import ConfirmModal from '@/ui/components/base/ConfirmModal'
+import ConfirmModal, { ConfirmModalHandle } from '@/ui/ConfirmModal'
 
 interface PaymentApplicationsAdminPageProps {
   onEdit?: (application: PaymentApplication) => void
@@ -24,11 +24,10 @@ export const PaymentApplicationsAdminPage: React.FC<PaymentApplicationsAdminPage
   const [filterPaymentId, setFilterPaymentId] = useState('')
   const [filterInvoiceId, setFilterInvoiceId] = useState('')
   const [page, setPage] = useState(1)
-  const [showDeleteModal, setShowDeleteModal] = useState(false)
-  const [applicationToDelete, setApplicationToDelete] = useState<PaymentApplication | null>(null)
+  const confirmModalRef = useRef<ConfirmModalHandle>(null)
 
   // Build filters
-  const filters: any = {}
+  const filters: Record<string, unknown> = {}
   if (search) filters.search = search
   if (filterPaymentId) filters.paymentId = filterPaymentId
   if (filterInvoiceId) {
@@ -45,20 +44,28 @@ export const PaymentApplicationsAdminPage: React.FC<PaymentApplicationsAdminPage
 
   const { deleteApplication } = usePaymentApplicationMutations()
 
-  const handleDelete = async () => {
-    if (!applicationToDelete) return
+  const handleDeleteClick = async (application: PaymentApplication) => {
+    if (!confirmModalRef.current) return
 
-    try {
-      await deleteApplication(applicationToDelete.id)
-      setShowDeleteModal(false)
-      setApplicationToDelete(null)
-      showToast('Aplicación de pago eliminada correctamente', 'success')
-    } catch (error: any) {
-      console.error('Error deleting payment application:', error)
-      showToast(
-        error.response?.data?.errors?.[0]?.detail || 'Error al eliminar aplicación de pago',
-        'error'
-      )
+    const confirmed = await confirmModalRef.current.confirm(
+      `¿Está seguro que desea eliminar esta aplicación de pago? Esta acción no se puede deshacer.`
+    )
+
+    if (confirmed) {
+      try {
+        await deleteApplication(application.id)
+        showToast('Aplicación de pago eliminada correctamente', 'success')
+      } catch (error: unknown) {
+        console.error('Error deleting payment application:', error)
+        const axiosError = error as Record<string, unknown>
+        const response = axiosError.response as Record<string, unknown> | undefined
+        const data = response?.data as Record<string, unknown> | undefined
+        const errors = data?.errors as Array<Record<string, unknown>> | undefined
+        showToast(
+          (errors?.[0]?.detail as string) || 'Error al eliminar aplicación de pago',
+          'error'
+        )
+      }
     }
   }
 
@@ -257,10 +264,7 @@ export const PaymentApplicationsAdminPage: React.FC<PaymentApplicationsAdminPage
                             )}
                             <button
                               className="btn btn-outline-danger"
-                              onClick={() => {
-                                setApplicationToDelete(application)
-                                setShowDeleteModal(true)
-                              }}
+                              onClick={() => handleDeleteClick(application)}
                               title="Eliminar"
                             >
                               <i className="bi bi-trash"></i>
@@ -312,21 +316,7 @@ export const PaymentApplicationsAdminPage: React.FC<PaymentApplicationsAdminPage
       </div>
 
       {/* Delete Confirmation Modal */}
-      {showDeleteModal && applicationToDelete && (
-        <ConfirmModal
-          isOpen={showDeleteModal}
-          title="Confirmar Eliminación"
-          message={`¿Está seguro que desea eliminar esta aplicación de pago? Esta acción no se puede deshacer.`}
-          confirmText="Eliminar"
-          cancelText="Cancelar"
-          onConfirm={handleDelete}
-          onCancel={() => {
-            setShowDeleteModal(false)
-            setApplicationToDelete(null)
-          }}
-          variant="danger"
-        />
-      )}
+      <ConfirmModal ref={confirmModalRef} />
     </div>
   )
 }

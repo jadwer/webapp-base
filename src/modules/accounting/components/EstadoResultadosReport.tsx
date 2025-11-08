@@ -164,8 +164,8 @@ export const EstadoResultadosReport = () => {
                 placeholder="Fecha fin"
               />
               <Button
-                variant="outline-primary"
-                size="sm"
+                variant="primary"
+                size="small"
                 onClick={() => {
                   setStartDate('')
                   setEndDate('')

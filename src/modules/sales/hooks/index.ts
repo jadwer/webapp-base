@@ -7,7 +7,7 @@ import { SalesOrderFormData, SalesOrderFilters } from '../types'
 // Sales Orders Hooks
 export const useSalesOrders = (params?: SalesOrderFilters) => {
   // Convert filters to API query parameters
-  const queryParams: any = {}
+  const queryParams: Record<string, string | number> = {}
   
   if (params?.search) {
     queryParams['filter[search]'] = params.search
@@ -70,12 +70,13 @@ export const useSalesOrder = (id: string) => {
 }
 
 export const useSalesOrderItems = (salesOrderId?: string) => {
-  const params = salesOrderId ? { 'filter[salesOrderId]': salesOrderId } : null
+  const params = salesOrderId ? { 'filter[salesOrderId]': salesOrderId } : undefined
   const key = params ? ['/api/v1/sales-order-items', params] : null
-  
+
   const { data, error, isLoading, mutate } = useSWR(
     key,
     async () => {
+      if (!params) return { data: [], meta: {} }
       const response = await salesService.items.getAll(params)
       console.log('🔄 [Hook] Raw sales order items:', response)
       const transformed = transformSalesOrderItemsResponse(response)
@@ -144,7 +145,7 @@ export const useSalesAnalytics = (dateFrom?: string, dateTo?: string) => {
 }
 
 // Sales Contacts Hook (for dropdowns)
-export const useSalesContacts = (params?: any) => {
+export const useSalesContacts = (params?: Record<string, string>) => {
   const queryParams = params || { 'filter[status]': 'active', 'filter[isCustomer]': '1' }
   const key = ['/api/v1/contacts', queryParams]
   
@@ -165,7 +166,7 @@ export const useSalesContacts = (params?: any) => {
 }
 
 // Sales Products Hook (for order items)
-export const useSalesProducts = (params?: any) => {
+export const useSalesProducts = (params?: Record<string, string>) => {
   // TODO: Implementar Status - agregar filter[status]=active después de la presentación
   const queryParams = params || {}
   const key = ['/api/v1/products', queryParams]
@@ -245,7 +246,7 @@ export const useSalesOrderMutations = () => {
 
 // Sales Order Items Mutations Hook
 export const useSalesOrderItemMutations = () => {
-  const createSalesOrderItem = useCallback(async (data: any) => {
+  const createSalesOrderItem = useCallback(async (data: Record<string, unknown>) => {
     console.log('🚀 [Mutation] Creating sales order item:', data)
     try {
       const response = await salesService.items.create(data)
@@ -257,7 +258,7 @@ export const useSalesOrderItemMutations = () => {
     }
   }, [])
 
-  const updateSalesOrderItem = useCallback(async (id: string, data: any) => {
+  const updateSalesOrderItem = useCallback(async (id: string, data: Record<string, unknown>) => {
     console.log('📝 [Mutation] Updating sales order item:', id)
     try {
       const response = await salesService.items.update(id, data)

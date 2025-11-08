@@ -49,11 +49,11 @@ export const Header: React.FC = () => {
         }
         
         const data = await response.json()
-        
+
         if (data.data) {
-          const pages = data.data.map((page: any) => ({
-            label: page.attributes.title,
-            href: `/p/${page.attributes.slug}`
+          const pages = data.data.map((page: Record<string, unknown>) => ({
+            label: (page.attributes as Record<string, unknown>).title,
+            href: `/p/${(page.attributes as Record<string, unknown>).slug}`
           }))
           setDynamicPages(pages)
         } else {

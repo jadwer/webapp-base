@@ -22,77 +22,79 @@ import type {
  * Transform JSON:API CFDIInvoice resource to frontend type
  */
 export function transformJsonApiCFDIInvoice(
-  resource: any,
-  included?: any[]
+  resource: Record<string, unknown>,
+  included?: Record<string, unknown>[]
 ): CFDIInvoice {
-  const attributes = resource.attributes
+  const attributes = resource.attributes as Record<string, unknown>
 
   // Map included relationships
+  const relationships = resource.relationships as Record<string, { data?: { id: unknown } | Array<{ id: unknown }> }> | undefined
+
   const companySetting = included?.find(
     (inc) =>
       inc.type === 'company_settings' &&
-      inc.id === resource.relationships?.companySetting?.data?.id
+      inc.id === (relationships?.companySetting?.data as { id: unknown } | undefined)?.id
   )
   const contact = included?.find(
     (inc) =>
       inc.type === 'contacts' &&
-      inc.id === resource.relationships?.contact?.data?.id
+      inc.id === (relationships?.contact?.data as { id: unknown } | undefined)?.id
   )
   const arInvoice = included?.find(
     (inc) =>
       inc.type === 'ar_invoices' &&
-      inc.id === resource.relationships?.arInvoice?.data?.id
+      inc.id === (relationships?.arInvoice?.data as { id: unknown } | undefined)?.id
   )
   const items = included?.filter(
     (inc) =>
       inc.type === 'cfdi_items' &&
-      resource.relationships?.items?.data?.some((item: any) => item.id === inc.id)
+      (relationships?.items?.data as Array<{ id: unknown }> | undefined)?.some((item) => item.id === inc.id)
   )
 
   return {
-    id: resource.id,
-    companySettingId: attributes.company_setting_id,
-    contactId: attributes.contact_id,
-    arInvoiceId: attributes.ar_invoice_id || undefined,
-    series: attributes.series || '',
-    folio: attributes.folio || 0,
-    uuid: attributes.uuid || undefined,
-    tipoComprobante: attributes.tipo_comprobante || 'I',
-    receptorRfc: attributes.receptor_rfc || '',
-    receptorNombre: attributes.receptor_nombre || '',
-    receptorUsoCfdi: attributes.receptor_uso_cfdi || '',
-    receptorRegimenFiscal: attributes.receptor_regimen_fiscal || '',
-    receptorDomicilioFiscal: attributes.receptor_domicilio_fiscal || '',
-    subtotal: attributes.subtotal || 0,
-    total: attributes.total || 0,
-    descuento: attributes.descuento || 0,
-    iva: attributes.iva || 0,
-    ieps: attributes.ieps || 0,
-    isrRetenido: attributes.isr_retenido || 0,
-    ivaRetenido: attributes.iva_retenido || 0,
-    moneda: attributes.moneda || 'MXN',
-    tipoCambio: attributes.tipo_cambio || 1,
-    formaPago: attributes.forma_pago || '01',
-    metodoPago: attributes.metodo_pago || 'PUE',
-    condicionesPago: attributes.condiciones_pago || undefined,
-    cfdiRelacionadoTipo: attributes.cfdi_relacionado_tipo || undefined,
-    cfdiRelacionadoUuids: attributes.cfdi_relacionado_uuids || undefined,
-    status: attributes.status || 'draft',
-    fechaEmision: attributes.fecha_emision || '',
-    fechaTimbrado: attributes.fecha_timbrado || undefined,
-    fechaCancelacion: attributes.fecha_cancelacion || undefined,
-    xmlPath: attributes.xml_path || undefined,
-    pdfPath: attributes.pdf_path || undefined,
-    errorMessage: attributes.error_message || undefined,
-    metadata: attributes.metadata || undefined,
-    createdAt: attributes.created_at || '',
-    updatedAt: attributes.updated_at || '',
+    id: String(resource.id),
+    companySettingId: attributes.company_setting_id as number,
+    contactId: attributes.contact_id as number,
+    arInvoiceId: (attributes.ar_invoice_id as number | undefined) || undefined,
+    series: String(attributes.series || ''),
+    folio: attributes.folio as number,
+    uuid: (attributes.uuid as string | undefined) || undefined,
+    tipoComprobante: (attributes.tipo_comprobante as CFDIInvoice['tipoComprobante']) || 'I',
+    receptorRfc: String(attributes.receptor_rfc || ''),
+    receptorNombre: String(attributes.receptor_nombre || ''),
+    receptorUsoCfdi: String(attributes.receptor_uso_cfdi || ''),
+    receptorRegimenFiscal: String(attributes.receptor_regimen_fiscal || ''),
+    receptorDomicilioFiscal: String(attributes.receptor_domicilio_fiscal || ''),
+    subtotal: attributes.subtotal as number,
+    total: attributes.total as number,
+    descuento: attributes.descuento as number,
+    iva: attributes.iva as number,
+    ieps: attributes.ieps as number,
+    isrRetenido: attributes.isr_retenido as number,
+    ivaRetenido: attributes.iva_retenido as number,
+    moneda: String(attributes.moneda || 'MXN'),
+    tipoCambio: attributes.tipo_cambio as number,
+    formaPago: String(attributes.forma_pago || '01'),
+    metodoPago: (attributes.metodo_pago as CFDIInvoice['metodoPago']) || 'PUE',
+    condicionesPago: (attributes.condiciones_pago as string | undefined) || undefined,
+    cfdiRelacionadoTipo: (attributes.cfdi_relacionado_tipo as string | undefined) || undefined,
+    cfdiRelacionadoUuids: (attributes.cfdi_relacionado_uuids as string[] | undefined) || undefined,
+    status: (attributes.status as CFDIInvoice['status']) || 'draft',
+    fechaEmision: String(attributes.fecha_emision || ''),
+    fechaTimbrado: (attributes.fecha_timbrado as string | undefined) || undefined,
+    fechaCancelacion: (attributes.fecha_cancelacion as string | undefined) || undefined,
+    xmlPath: (attributes.xml_path as string | undefined) || undefined,
+    pdfPath: (attributes.pdf_path as string | undefined) || undefined,
+    errorMessage: (attributes.error_message as string | undefined) || undefined,
+    metadata: (attributes.metadata as Record<string, unknown> | undefined) || undefined,
+    createdAt: String(attributes.created_at || ''),
+    updatedAt: String(attributes.updated_at || ''),
     // Included relationships
     companySetting: companySetting
       ? transformJsonApiCompanySetting(companySetting)
       : undefined,
-    contact: contact ? contact.attributes : undefined,
-    arInvoice: arInvoice ? arInvoice.attributes : undefined,
+    contact: contact ? (contact.attributes as Record<string, unknown>) : undefined,
+    arInvoice: arInvoice ? (arInvoice.attributes as Record<string, unknown>) : undefined,
     items: items?.map((item) => transformJsonApiCFDIItem(item)) || undefined,
   }
 }
@@ -102,7 +104,7 @@ export function transformJsonApiCFDIInvoice(
  */
 export function transformCFDIInvoiceFormToJsonApi(
   data: CFDIInvoiceFormData
-): any {
+): Record<string, unknown> {
   return {
     type: 'cfdi_invoices',
     attributes: {
@@ -139,19 +141,19 @@ export function transformCFDIInvoiceFormToJsonApi(
 /**
  * Transform JSON:API CFDIInvoices collection response
  */
-export function transformCFDIInvoicesResponse(apiResponse: any): {
+export function transformCFDIInvoicesResponse(apiResponse: Record<string, unknown>): {
   data: CFDIInvoice[]
-  meta?: any
-  links?: any
+  meta?: Record<string, unknown>
+  links?: Record<string, unknown>
 } {
-  const included = apiResponse.included || []
+  const included = (apiResponse.included as Record<string, unknown>[]) || []
 
   return {
-    data: apiResponse.data.map((resource: any) =>
+    data: (apiResponse.data as Record<string, unknown>[]).map((resource: Record<string, unknown>) =>
       transformJsonApiCFDIInvoice(resource, included)
     ),
-    meta: apiResponse.meta,
-    links: apiResponse.links,
+    meta: apiResponse.meta as Record<string, unknown>,
+    links: apiResponse.links as Record<string, unknown>,
   }
 }
 
@@ -163,42 +165,43 @@ export function transformCFDIInvoicesResponse(apiResponse: any): {
  * Transform JSON:API CFDIItem resource to frontend type
  */
 export function transformJsonApiCFDIItem(
-  resource: any,
-  included?: any[]
+  resource: Record<string, unknown>,
+  included?: Record<string, unknown>[]
 ): CFDIItem {
-  const attributes = resource.attributes
+  const attributes = resource.attributes as Record<string, unknown>
 
   // Map included relationship
+  const relationships = resource.relationships as Record<string, { data?: { id: unknown } }> | undefined
   const cfdiInvoice = included?.find(
     (inc) =>
       inc.type === 'cfdi_invoices' &&
-      inc.id === resource.relationships?.cfdiInvoice?.data?.id
+      inc.id === (relationships?.cfdiInvoice?.data as { id: unknown } | undefined)?.id
   )
 
   return {
-    id: resource.id,
-    cfdiInvoiceId: attributes.cfdi_invoice_id,
-    claveProdServ: attributes.clave_prod_serv || '',
-    noIdentificacion: attributes.no_identificacion || undefined,
-    cantidad: attributes.cantidad || 0,
-    claveUnidad: attributes.clave_unidad || '',
-    unidad: attributes.unidad || '',
-    descripcion: attributes.descripcion || '',
-    valorUnitario: attributes.valor_unitario || 0,
-    importe: attributes.importe || 0,
-    descuento: attributes.descuento || 0,
-    objetoImp: attributes.objeto_imp || '02',
-    trasladoImpuesto: attributes.traslado_impuesto || undefined,
-    trasladoTipoFactor: attributes.traslado_tipo_factor || undefined,
-    trasladoTasaOCuota: attributes.traslado_tasa_o_cuota || undefined,
-    trasladoImporte: attributes.traslado_importe || undefined,
-    retencionImpuesto: attributes.retencion_impuesto || undefined,
-    retencionTipoFactor: attributes.retencion_tipo_factor || undefined,
-    retencionTasaOCuota: attributes.retencion_tasa_o_cuota || undefined,
-    retencionImporte: attributes.retencion_importe || undefined,
-    metadata: attributes.metadata || undefined,
-    createdAt: attributes.created_at || '',
-    updatedAt: attributes.updated_at || '',
+    id: String(resource.id),
+    cfdiInvoiceId: attributes.cfdi_invoice_id as number,
+    claveProdServ: String(attributes.clave_prod_serv || ''),
+    noIdentificacion: (attributes.no_identificacion as string | undefined) || undefined,
+    cantidad: attributes.cantidad as number,
+    claveUnidad: String(attributes.clave_unidad || ''),
+    unidad: String(attributes.unidad || ''),
+    descripcion: String(attributes.descripcion || ''),
+    valorUnitario: attributes.valor_unitario as number,
+    importe: attributes.importe as number,
+    descuento: attributes.descuento as number,
+    objetoImp: String(attributes.objeto_imp || '02'),
+    trasladoImpuesto: (attributes.traslado_impuesto as string | undefined) || undefined,
+    trasladoTipoFactor: (attributes.traslado_tipo_factor as string | undefined) || undefined,
+    trasladoTasaOCuota: (attributes.traslado_tasa_o_cuota as string | undefined) || undefined,
+    trasladoImporte: (attributes.traslado_importe as number | undefined) || undefined,
+    retencionImpuesto: (attributes.retencion_impuesto as string | undefined) || undefined,
+    retencionTipoFactor: (attributes.retencion_tipo_factor as string | undefined) || undefined,
+    retencionTasaOCuota: (attributes.retencion_tasa_o_cuota as string | undefined) || undefined,
+    retencionImporte: (attributes.retencion_importe as number | undefined) || undefined,
+    metadata: (attributes.metadata as Record<string, unknown> | undefined) || undefined,
+    createdAt: String(attributes.created_at || ''),
+    updatedAt: String(attributes.updated_at || ''),
     // Included relationships
     cfdiInvoice: cfdiInvoice
       ? transformJsonApiCFDIInvoice(cfdiInvoice)
@@ -209,7 +212,7 @@ export function transformJsonApiCFDIItem(
 /**
  * Transform CFDIItemFormData to JSON:API format
  */
-export function transformCFDIItemFormToJsonApi(data: CFDIItemFormData): any {
+export function transformCFDIItemFormToJsonApi(data: CFDIItemFormData): Record<string, unknown> {
   return {
     type: 'cfdi_items',
     attributes: {
@@ -239,19 +242,19 @@ export function transformCFDIItemFormToJsonApi(data: CFDIItemFormData): any {
 /**
  * Transform JSON:API CFDIItems collection response
  */
-export function transformCFDIItemsResponse(apiResponse: any): {
+export function transformCFDIItemsResponse(apiResponse: Record<string, unknown>): {
   data: CFDIItem[]
-  meta?: any
-  links?: any
+  meta?: Record<string, unknown>
+  links?: Record<string, unknown>
 } {
-  const included = apiResponse.included || []
+  const included = (apiResponse.included as Record<string, unknown>[]) || []
 
   return {
-    data: apiResponse.data.map((resource: any) =>
+    data: (apiResponse.data as Record<string, unknown>[]).map((resource: Record<string, unknown>) =>
       transformJsonApiCFDIItem(resource, included)
     ),
-    meta: apiResponse.meta,
-    links: apiResponse.links,
+    meta: apiResponse.meta as Record<string, unknown>,
+    links: apiResponse.links as Record<string, unknown>,
   }
 }
 
@@ -262,29 +265,29 @@ export function transformCFDIItemsResponse(apiResponse: any): {
 /**
  * Transform JSON:API CompanySetting resource to frontend type
  */
-export function transformJsonApiCompanySetting(resource: any): CompanySetting {
-  const attributes = resource.attributes
+export function transformJsonApiCompanySetting(resource: Record<string, unknown>): CompanySetting {
+  const attributes = resource.attributes as Record<string, unknown>
 
   return {
-    id: resource.id,
-    companyName: attributes.company_name || '',
-    rfc: attributes.rfc || '',
-    taxRegime: attributes.tax_regime || '',
-    postalCode: attributes.postal_code || '',
-    invoiceSeries: attributes.invoice_series || '',
-    creditNoteSeries: attributes.credit_note_series || '',
-    nextInvoiceFolio: attributes.next_invoice_folio || 1,
-    nextCreditNoteFolio: attributes.next_credit_note_folio || 1,
-    pacProvider: attributes.pac_provider || 'sw',
-    pacUsername: attributes.pac_username || '',
-    pacProductionMode: attributes.pac_production_mode || false,
-    certificateFile: attributes.certificate_file || '',
-    keyFile: attributes.key_file || '',
-    logoPath: attributes.logo_path || undefined,
-    additionalSettings: attributes.additional_settings || undefined,
-    isActive: attributes.is_active || true,
-    createdAt: attributes.created_at || '',
-    updatedAt: attributes.updated_at || '',
+    id: String(resource.id),
+    companyName: String(attributes.company_name || ''),
+    rfc: String(attributes.rfc || ''),
+    taxRegime: String(attributes.tax_regime || ''),
+    postalCode: String(attributes.postal_code || ''),
+    invoiceSeries: String(attributes.invoice_series || ''),
+    creditNoteSeries: String(attributes.credit_note_series || ''),
+    nextInvoiceFolio: attributes.next_invoice_folio as number,
+    nextCreditNoteFolio: attributes.next_credit_note_folio as number,
+    pacProvider: String(attributes.pac_provider || 'sw'),
+    pacUsername: String(attributes.pac_username || ''),
+    pacProductionMode: attributes.pac_production_mode as boolean,
+    certificateFile: String(attributes.certificate_file || ''),
+    keyFile: String(attributes.key_file || ''),
+    logoPath: (attributes.logo_path as string | undefined) || undefined,
+    additionalSettings: (attributes.additional_settings as Record<string, unknown> | undefined) || undefined,
+    isActive: attributes.is_active as boolean,
+    createdAt: String(attributes.created_at || ''),
+    updatedAt: String(attributes.updated_at || ''),
   }
 }
 
@@ -293,7 +296,7 @@ export function transformJsonApiCompanySetting(resource: any): CompanySetting {
  */
 export function transformCompanySettingFormToJsonApi(
   data: CompanySettingFormData
-): any {
+): Record<string, unknown> {
   return {
     type: 'company_settings',
     attributes: {
@@ -322,16 +325,16 @@ export function transformCompanySettingFormToJsonApi(
 /**
  * Transform JSON:API CompanySettings collection response
  */
-export function transformCompanySettingsResponse(apiResponse: any): {
+export function transformCompanySettingsResponse(apiResponse: Record<string, unknown>): {
   data: CompanySetting[]
-  meta?: any
-  links?: any
+  meta?: Record<string, unknown>
+  links?: Record<string, unknown>
 } {
   return {
-    data: apiResponse.data.map((resource: any) =>
+    data: (apiResponse.data as Record<string, unknown>[]).map((resource: Record<string, unknown>) =>
       transformJsonApiCompanySetting(resource)
     ),
-    meta: apiResponse.meta,
-    links: apiResponse.links,
+    meta: apiResponse.meta as Record<string, unknown>,
+    links: apiResponse.links as Record<string, unknown>,
   }
 }

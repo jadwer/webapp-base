@@ -11,36 +11,38 @@ export default function SalesCustomersPage() {
   const { salesOrders, isLoading, error } = useSalesOrders()
 
   // Calculate customer statistics from sales orders
-  const customerStats = salesOrders?.reduce((acc: any, order: any) => {
-    if (!order.contact) return acc
-    
-    const customerId = order.contact.id
+  const customerStats = salesOrders?.reduce((acc: Record<string, Record<string, unknown>>, order) => {
+    const contact = order.contact
+    if (!contact) return acc
+
+    const customerId = String(contact.id)
     if (!acc[customerId]) {
       acc[customerId] = {
         id: customerId,
-        name: order.contact.name,
-        email: order.contact.email,
+        name: contact.name,
+        email: contact.email,
         totalAmount: 0,
         totalOrders: 0,
         lastOrderDate: null,
         orders: []
       }
     }
-    
-    acc[customerId].totalAmount += order.totalAmount || 0
-    acc[customerId].totalOrders += 1
-    acc[customerId].orders.push(order)
-    
+
+    const stats = acc[customerId]
+    stats.totalAmount = (stats.totalAmount as number) + (order.totalAmount || 0)
+    stats.totalOrders = (stats.totalOrders as number) + 1
+    ;(stats.orders as unknown[]).push(order)
+
     const orderDate = new Date(order.orderDate)
-    if (!acc[customerId].lastOrderDate || orderDate > new Date(acc[customerId].lastOrderDate)) {
-      acc[customerId].lastOrderDate = order.orderDate
+    if (!stats.lastOrderDate || orderDate > new Date(stats.lastOrderDate as string)) {
+      stats.lastOrderDate = order.orderDate
     }
-    
+
     return acc
   }, {}) || {}
 
   const topCustomers = Object.values(customerStats)
-    .sort((a: any, b: any) => b.totalAmount - a.totalAmount)
+    .sort((a: Record<string, unknown>, b: Record<string, unknown>) => (b.totalAmount as number) - (a.totalAmount as number))
     .slice(0, 10)
 
   const handleTimeRangeChange = (range: number) => {
@@ -84,13 +86,13 @@ export default function SalesCustomersPage() {
                   1 año
                 </button>
               </div>
-              <a 
-                href="/dashboard/contacts" 
+              <button
                 className="btn btn-outline-primary"
+                onClick={() => window.location.href = '/dashboard/contacts'}
               >
                 <i className="bi bi-person-plus me-2"></i>
                 Gestionar Contactos
-              </a>
+              </button>
             </div>
           </div>
         </div>
@@ -152,20 +154,20 @@ export default function SalesCustomersPage() {
                       </tr>
                     )}
 
-                    {!isLoading && !error && topCustomers.map((customer: any, index: number) => (
-                      <tr key={customer.id || customer.customer_id}>
+                    {!isLoading && !error && topCustomers.map((customer, index: number) => (
+                      <tr key={(customer.id as string) || (customer.customer_id as string)}>
                         <td>
                           <div className="d-flex align-items-center">
-                            <div className={`bg-${index === 0 ? 'primary' : index === 1 ? 'success' : 'secondary'} text-white rounded-circle d-flex align-items-center justify-content-center me-3`} 
+                            <div className={`bg-${index === 0 ? 'primary' : index === 1 ? 'success' : 'secondary'} text-white rounded-circle d-flex align-items-center justify-content-center me-3`}
                                  style={{ width: '40px', height: '40px', fontSize: '1.1rem' }}>
-                              {(customer.name || customer.customer_name)?.charAt(0).toUpperCase() || 'C'}
+                              {((customer.name as string) || (customer.customer_name as string))?.charAt(0).toUpperCase() || 'C'}
                             </div>
                             <div>
                               <div className="fw-bold">
-                                {customer.name || customer.customer_name || customer.contact_name || customer.contact?.name || 'Cliente sin nombre'}
+                                {(customer.name as string) || (customer.customer_name as string) || (customer.contact_name as string) || ((customer.contact as Record<string, unknown>)?.name as string) || 'Cliente sin nombre'}
                               </div>
                               <small className="text-muted">
-                                {customer.email || customer.customer_email || customer.contact_email || customer.contact?.email || `ID: ${customer.id || customer.customer_id || customer.contact_id}`}
+                                {(customer.email as string) || (customer.customer_email as string) || (customer.contact_email as string) || ((customer.contact as Record<string, unknown>)?.email as string) || `ID: ${customer.id || customer.customer_id || customer.contact_id}`}
                               </small>
                             </div>
                           </div>
@@ -173,35 +175,35 @@ export default function SalesCustomersPage() {
                         <td>
                           <span className="fw-bold text-success">
                             {formatCurrency(
-                              customer.totalAmount || 
-                              customer.total_amount || 
-                              customer.total_sales || 
-                              customer.sales_total ||
-                              customer.amount ||
+                              (customer.totalAmount as number) ||
+                              (customer.total_amount as number) ||
+                              (customer.total_sales as number) ||
+                              (customer.sales_total as number) ||
+                              (customer.amount as number) ||
                               0
                             )}
                           </span>
                         </td>
                         <td>
                           <span className="badge bg-secondary">
-                            {customer.totalOrders || 
-                             customer.total_orders || 
-                             customer.order_count || 
-                             customer.orders_count ||
-                             customer.count ||
+                            {(customer.totalOrders as number) ||
+                             (customer.total_orders as number) ||
+                             (customer.order_count as number) ||
+                             (customer.orders_count as number) ||
+                             (customer.count as number) ||
                              0}
                           </span>
                         </td>
                         <td>
                           {formatCurrency(
-                            (customer.totalAmount || customer.total_amount || customer.total_sales || customer.sales_total || customer.amount || 0) / 
-                            (customer.totalOrders || customer.total_orders || customer.order_count || customer.orders_count || customer.count || 1)
+                            ((customer.totalAmount as number) || (customer.total_amount as number) || (customer.total_sales as number) || (customer.sales_total as number) || (customer.amount as number) || 0) /
+                            ((customer.totalOrders as number) || (customer.total_orders as number) || (customer.order_count as number) || (customer.orders_count as number) || (customer.count as number) || 1)
                           )}
                         </td>
                         <td>
                           <small className="text-muted">
-                            {(customer.lastOrderDate || customer.last_order_date || customer.latest_order || customer.last_order) 
-                              ? new Date(customer.lastOrderDate || customer.last_order_date || customer.latest_order || customer.last_order).toLocaleDateString('es-ES') 
+                            {((customer.lastOrderDate as string) || (customer.last_order_date as string) || (customer.latest_order as string) || (customer.last_order as string))
+                              ? new Date((customer.lastOrderDate as string) || (customer.last_order_date as string) || (customer.latest_order as string) || (customer.last_order as string)).toLocaleDateString('es-ES')
                               : 'N/A'}
                           </small>
                         </td>

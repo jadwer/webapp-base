@@ -321,17 +321,18 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
               } else {
                 console.warn('⚠️ Document has no file object:', document.originalFilename)
               }
-            } catch (error: any) {
+            } catch (error: unknown) {
               console.error('❌ Error uploading document:', {
                 filename: document.originalFilename,
-                error: error.message,
-                response: error.response?.data,
-                status: error.response?.status,
-                statusText: error.response?.statusText
+                error: error instanceof Error ? error.message : String(error),
+                response: typeof error === 'object' && error !== null && 'response' in error ? (error as Record<string, unknown>).response : undefined
               })
-              
+
               // Continue with other documents even if one fails
-              alert(`Error subiendo ${document.originalFilename}: ${error.response?.data?.message || error.message}`)
+              const errorMessage = typeof error === 'object' && error !== null && 'response' in error
+                ? String((error as Record<string, unknown>).response)
+                : error instanceof Error ? error.message : String(error)
+              alert(`Error subiendo ${document.originalFilename}: ${errorMessage}`)
             }
           }
         }

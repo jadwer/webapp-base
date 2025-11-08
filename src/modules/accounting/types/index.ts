@@ -57,7 +57,7 @@ export interface JournalLine {
 }
 
 // Form interfaces - Exact backend requirements
-export interface AccountForm {
+export interface AccountFormData {
   code: string;          // ✅ REQUERIDO: string, único, máx 255
   name: string;          // ✅ REQUERIDO: string, máx 255
   accountType: 'asset' | 'liability' | 'equity' | 'revenue' | 'expense'; // ✅ REQUERIDO
@@ -69,7 +69,7 @@ export interface AccountForm {
   metadata?: Record<string, unknown>; // ✅ OPCIONAL: object
 }
 
-export interface JournalEntryForm {
+export interface JournalEntryFormData {
   date: string;          // ✅ formato YYYY-MM-DD
   description: string;
   reference?: string;
@@ -85,7 +85,7 @@ export interface JournalLineForm {
   journalEntryId?: string; // ✅ ID como string
 }
 
-export interface JournalEntryWithLines extends JournalEntryForm {
+export interface JournalEntryWithLines extends JournalEntryFormData {
   lines: JournalLineForm[];
 }
 

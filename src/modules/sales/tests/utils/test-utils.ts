@@ -46,7 +46,7 @@ export const mockSalesOrder = (overrides?: Partial<SalesOrder>): SalesOrder => (
   contact: mockContact(),
   orderNumber: 'SO-2025-001',
   orderDate: '2025-01-01',
-  status: 'draft',
+  status: 'pending',
   totalAmount: 1000.00,
   notes: 'Test sales order notes',
   createdAt: '2025-01-01T00:00:00.000Z',

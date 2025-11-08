@@ -5,7 +5,6 @@ import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
 import { useAPPaymentMutations, useBankAccounts } from '@/modules/finance'
 import { useContacts } from '@/modules/contacts'
 import { Button } from '@/ui/components/base/Button'
-import { Input } from '@/ui/components/base/Input'
 import type { APPaymentForm } from '@/modules/finance/types'
 
 export default function CreateAPPaymentPage() {
@@ -47,9 +46,9 @@ export default function CreateAPPaymentPage() {
       const response = await createAPPayment(formData)
       console.log('✅ [APPaymentCreate] Payment created successfully:', response)
       navigation.push('/dashboard/finance/ap-payments')
-    } catch (err: any) {
+    } catch (err) {
       console.error('❌ [APPaymentCreate] Error creating AP payment:', err)
-      setError(err.message || 'Error al crear el pago a proveedor')
+      setError(err instanceof Error ? err.message : 'Error al crear el pago a proveedor')
     } finally {
       setIsLoading(false)
     }
@@ -59,7 +58,7 @@ export default function CreateAPPaymentPage() {
     navigation.back()
   }
 
-  const handleInputChange = (field: keyof APPaymentForm, value: any) => {
+  const handleInputChange = (field: keyof APPaymentForm, value: string | null) => {
     setFormData(prev => ({ ...prev, [field]: value }))
     setError(null)
   }
@@ -99,7 +98,7 @@ export default function CreateAPPaymentPage() {
                       <option value="">Seleccionar proveedor...</option>
                       {contacts?.map((contact) => (
                         <option key={contact.id} value={contact.id}>
-                          {contact.name || contact.companyName || `Proveedor ID: ${contact.id}`}
+                          {contact.name || `Proveedor ID: ${contact.id}`}
                         </option>
                       ))}
                     </select>
@@ -161,7 +160,7 @@ export default function CreateAPPaymentPage() {
                       className="form-select"
                       id="paymentMethod"
                       value={formData.paymentMethod}
-                      onChange={(e) => setFormData(prev => ({ ...prev, paymentMethod: e.target.value as any }))}
+                      onChange={(e) => setFormData(prev => ({ ...prev, paymentMethod: e.target.value }))}
                       required
                     >
                       <option value="transfer">Transferencia</option>
@@ -204,7 +203,7 @@ export default function CreateAPPaymentPage() {
                       className="form-select"
                       id="status"
                       value={formData.status}
-                      onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value as any }))}
+                      onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value as 'draft' | 'posted' }))}
                     >
                       <option value="draft">Borrador</option>
                       <option value="posted">Contabilizado</option>

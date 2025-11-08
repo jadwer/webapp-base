@@ -1,11 +1,11 @@
-import { JsonApiResource, SalesOrder, SalesOrderItem, Contact } from '../types'
+import { JsonApiResource, SalesOrder, SalesOrderItem, Contact, SalesOrderFormData } from '../types'
 
-export function transformContact(resource: JsonApiResource | any): Contact {
+export function transformContact(resource: JsonApiResource | Record<string, unknown>): Contact {
   if (!resource) return { id: '', name: '', type: 'individual' }
-  
-  const attributes = resource.attributes || resource
+
+  const attributes = (resource as JsonApiResource).attributes || resource
   return {
-    id: resource.id || '',
+    id: (resource as JsonApiResource).id || '',
     name: (attributes.name || '') as string,
     email: attributes.email as string,
     phone: attributes.phone as string,
@@ -20,12 +20,12 @@ export function transformJsonApiSalesOrder(resource: JsonApiResource): SalesOrde
     contactId: (attributes.contact_id || attributes.contactId) as number,
     orderNumber: (attributes.order_number || attributes.orderNumber || '') as string,
     orderDate: (attributes.order_date || attributes.orderDate || '') as string,
-    status: (attributes.status || 'draft') as 'draft' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled',
+    status: (attributes.status || 'pending') as 'pending' | 'approved' | 'completed' | 'cancelled',
     totalAmount: (attributes.total_amount || attributes.totalAmount || 0) as number,
     notes: (attributes.notes || '') as string,
-    createdAt: attributes.created_at || attributes.createdAt,
-    updatedAt: attributes.updated_at || attributes.updatedAt,
-    contact: resource.relationships?.contact?.data ? transformContact(resource.relationships.contact.data) : undefined
+    createdAt: (attributes.created_at || attributes.createdAt) as string | undefined,
+    updatedAt: (attributes.updated_at || attributes.updatedAt) as string | undefined,
+    contact: resource.relationships?.contact ? transformContact((resource.relationships.contact as Record<string, unknown>).data as JsonApiResource) : undefined
   }
 }
 
@@ -35,16 +35,16 @@ export function transformJsonApiSalesOrderItem(resource: JsonApiResource): Sales
   // Get basic values
   const quantity = (attributes.quantity || 0) as number
   const unitPrice = (attributes.unit_price || attributes.unitPrice || 0) as number
-  const discount = Math.abs(attributes.discount || 0) // Make discount positive for calculation
-  
+  const discount = Math.abs((attributes.discount || 0) as number) // Make discount positive for calculation
+
   // Try to get total from API, if not available calculate it
   let totalPrice = (attributes.total_price || attributes.totalPrice || attributes.subtotal || attributes.line_total || attributes.amount || 0) as number
-  
+
   // If no total price from API, calculate it
   if (totalPrice === 0 && quantity > 0 && unitPrice > 0) {
     totalPrice = (quantity * unitPrice) - discount
   }
-  
+
   return {
     id: resource.id,
     salesOrderId: (attributes.sales_order_id || attributes.salesOrderId) as string,
@@ -53,35 +53,36 @@ export function transformJsonApiSalesOrderItem(resource: JsonApiResource): Sales
     unitPrice,
     totalPrice,
     discount,
-    product: resource.relationships?.product?.data || undefined
+    product: resource.relationships?.product ? (resource.relationships.product as Record<string, unknown>).data as Record<string, unknown> | undefined : undefined
   }
 }
 
-export function transformSalesOrdersResponse(response: any) {
+export function transformSalesOrdersResponse(response: Record<string, unknown>) {
   console.log('🔄 [Transformer] Raw sales orders response:', response)
-  
+
   if (!response?.data) {
     console.log('⚠️ [Transformer] No data in response, returning empty array')
     return { data: [], meta: {} }
   }
-  
+
   // Create a map of included resources for quick lookup
   const includedMap = new Map()
   if (response.included) {
-    response.included.forEach((item: any) => {
+    (response.included as JsonApiResource[]).forEach((item: JsonApiResource) => {
       const key = `${item.type}:${item.id}`
       includedMap.set(key, item)
     })
   }
-  
+
   // Transform orders and attach related data
   const data = Array.isArray(response.data)
-    ? response.data.map((order: any) => {
+    ? (response.data as JsonApiResource[]).map((order: JsonApiResource) => {
         const transformed = transformJsonApiSalesOrder(order)
 
         // If contact relationship exists, get full contact data from included
-        if (order.relationships?.contact?.data) {
-          const contactKey = `${order.relationships.contact.data.type}:${order.relationships.contact.data.id}`
+        const contactRel = order.relationships?.contact as { data?: { type: string; id: string } } | undefined
+        if (contactRel?.data) {
+          const contactKey = `${contactRel.data.type}:${contactRel.data.id}`
           const contactData = includedMap.get(contactKey)
           if (contactData) {
             transformed.contact = transformContact(contactData)
@@ -92,63 +93,67 @@ export function transformSalesOrdersResponse(response: any) {
       })
     : (() => {
         // Single resource - also process included
-        const transformed = transformJsonApiSalesOrder(response.data)
-        if (response.data.relationships?.contact?.data) {
-          const contactKey = `${response.data.relationships.contact.data.type}:${response.data.relationships.contact.data.id}`
-          const contactData = includedMap.get(contactKey)
-          if (contactData) {
-            transformed.contact = transformContact(contactData)
+        const transformed = transformJsonApiSalesOrder(response.data as JsonApiResource)
+        const singleData = response.data as JsonApiResource
+        const contactRel = singleData.relationships?.contact as { data?: { type: string; id: string } } | undefined
+        if (contactRel?.data) {
+          const contactKey = `${contactRel.data.type}:${contactRel.data.id}`
+          const contactResource = includedMap.get(contactKey)
+          if (contactResource) {
+            transformed.contact = transformContact(contactResource as JsonApiResource)
           }
         }
         return [transformed]
       })()
-  
+
   console.log('✅ [Transformer] Transformed sales orders with contacts:', data)
-  return { data, meta: response.meta || {} }
+  return { data, meta: (response.meta as Record<string, unknown>) || {} }
 }
 
-export function transformSalesOrderItemsResponse(response: any) {
+export function transformSalesOrderItemsResponse(response: Record<string, unknown>) {
   console.log('🔄 [Transformer] Raw sales order items response:', response)
-  
+
   if (!response?.data) {
     console.log('⚠️ [Transformer] No data in response, returning empty array')
     return { data: [], meta: {} }
   }
-  
+
   // Create a map of included resources for quick lookup
   const includedMap = new Map()
   if (response.included) {
-    response.included.forEach((item: any) => {
+    (response.included as JsonApiResource[]).forEach((item: JsonApiResource) => {
       const key = `${item.type}:${item.id}`
       includedMap.set(key, item)
     })
   }
-  
+
   // Transform items and attach related data
   const data = Array.isArray(response.data)
-    ? response.data.map((item: any) => {
+    ? (response.data as JsonApiResource[]).map((item: JsonApiResource) => {
         const transformed = transformJsonApiSalesOrderItem(item)
 
         // If product relationship exists, get full product data from included
-        if (item.relationships?.product?.data) {
-          const productKey = `${item.relationships.product.data.type}:${item.relationships.product.data.id}`
-          const productData = includedMap.get(productKey)
+        const productRel = item.relationships?.product as { data?: { type: string; id: string } } | undefined
+        if (productRel?.data) {
+          const productKey = `${productRel.data.type}:${productRel.data.id}`
+          const productData = includedMap.get(productKey) as JsonApiResource | undefined
           if (productData) {
             // Transform product to simple object
             transformed.product = {
               id: parseInt(productData.id),
-              name: productData.attributes?.name || '',
-              sku: productData.attributes?.sku || '',
+              name: (productData.attributes?.name as string) || '',
+              sku: (productData.attributes?.sku as string) || '',
             }
           }
         }
 
         // If sales order relationship exists, get full order data from included
-        if (item.relationships?.salesOrder?.data) {
-          const orderKey = `${item.relationships.salesOrder.data.type}:${item.relationships.salesOrder.data.id}`
+        const orderRel = item.relationships?.salesOrder as { data?: { type: string; id: string } } | undefined
+        if (orderRel?.data) {
+          const orderKey = `${orderRel.data.type}:${orderRel.data.id}`
           const orderData = includedMap.get(orderKey)
           if (orderData) {
-            transformed.salesOrder = orderData
+            transformed.salesOrder = orderData as Record<string, unknown>
           }
         }
 
@@ -156,76 +161,88 @@ export function transformSalesOrderItemsResponse(response: any) {
       })
     : (() => {
         // Single resource - also process included
-        const transformed = transformJsonApiSalesOrderItem(response.data)
-        if (response.data.relationships?.product?.data) {
-          const productKey = `${response.data.relationships.product.data.type}:${response.data.relationships.product.data.id}`
-          const productData = includedMap.get(productKey)
+        const singleData = response.data as JsonApiResource
+        const transformed = transformJsonApiSalesOrderItem(singleData)
+        const productRel = singleData.relationships?.product as { data?: { type: string; id: string } } | undefined
+        if (productRel?.data) {
+          const productKey = `${productRel.data.type}:${productRel.data.id}`
+          const productData = includedMap.get(productKey) as JsonApiResource | undefined
           if (productData) {
             // Transform product to simple object
             transformed.product = {
               id: parseInt(productData.id),
-              name: productData.attributes?.name || '',
-              sku: productData.attributes?.sku || '',
+              name: (productData.attributes?.name as string) || '',
+              sku: (productData.attributes?.sku as string) || '',
             }
           }
         }
-        if (response.data.relationships?.salesOrder?.data) {
-          const orderKey = `${response.data.relationships.salesOrder.data.type}:${response.data.relationships.salesOrder.data.id}`
+        const orderRel = singleData.relationships?.salesOrder as { data?: { type: string; id: string } } | undefined
+        if (orderRel?.data) {
+          const orderKey = `${orderRel.data.type}:${orderRel.data.id}`
           const orderData = includedMap.get(orderKey)
           if (orderData) {
-            transformed.salesOrder = orderData
+            transformed.salesOrder = orderData as Record<string, unknown>
           }
         }
         return [transformed]
       })()
-  
+
   console.log('✅ [Transformer] Transformed sales order items with relationships:', data)
-  return { data, meta: response.meta || {} }
+  return { data, meta: (response.meta as Record<string, unknown>) || {} }
 }
 
 // Utility function to transform form data to JSON:API format
-export function transformSalesOrderFormToJsonApi(data: any, type: string = 'sales-orders', id?: string) {
-  const payload: any = {
+export function transformSalesOrderFormToJsonApi(data: SalesOrderFormData, type: string = 'sales-orders', id?: string): Record<string, unknown> {
+  const payload: Record<string, unknown> = {
     data: {
       type,
       attributes: {
-        contact_id: parseInt(data.contactId), // Convert to integer
+        contact_id: data.contactId, // Already a number
         order_number: data.orderNumber,
         status: data.status,
         order_date: data.orderDate,
-        total_amount: parseFloat(data.totalAmount || 0), // Convert to float
-        subtotal_amount: parseFloat(data.subtotalAmount || 0), // Convert to float
-        tax_amount: parseFloat(data.taxAmount || 0), // Convert to float
         notes: data.notes || ''
+      },
+      relationships: {
+        contact: {
+          data: {
+            type: 'contacts',
+            id: data.contactId.toString()
+          }
+        }
       }
     }
   }
-  
+
   if (id) {
-    payload.data.id = id
+    (payload.data as Record<string, unknown>).id = id
   }
-  
+
   return payload
 }
 
-export function transformSalesOrderItemFormToJsonApi(data: any, type: string = 'sales-order-items', id?: string) {
-  const payload: any = {
+export function transformSalesOrderItemFormToJsonApi(data: Record<string, unknown>, type: string = 'sales-order-items', id?: string): Record<string, unknown> {
+  const quantity = data.quantity as number
+  const unitPrice = data.unitPrice as number
+  const discount = (data.discount || 0) as number
+
+  const payload: Record<string, unknown> = {
     data: {
       type,
       attributes: {
-        salesOrderId: parseInt(data.salesOrderId), // Convert to integer
-        productId: parseInt(data.productId), // Convert to integer
-        quantity: parseInt(data.quantity), // Convert to integer
-        unitPrice: parseFloat(data.unitPrice), // Convert to float
-        discount: parseFloat(data.discount || 0), // Convert to float
-        total: parseFloat(data.total || ((data.quantity * data.unitPrice) - (data.discount || 0))) // Convert to float
+        salesOrderId: parseInt(data.salesOrderId as string), // Convert to integer
+        productId: parseInt(data.productId as string), // Convert to integer
+        quantity: parseInt(quantity.toString()), // Convert to integer
+        unitPrice: parseFloat(unitPrice.toString()), // Convert to float
+        discount: parseFloat(discount.toString()), // Convert to float
+        total: parseFloat((data.total || ((quantity * unitPrice) - discount)).toString()) // Convert to float
       }
     }
   }
-  
+
   if (id) {
-    payload.data.id = id
+    (payload.data as Record<string, unknown>).id = id
   }
-  
+
   return payload
 }

@@ -3,10 +3,10 @@
 
 import type {
   Account,
+  AccountFormData,
   JournalEntry,
   JournalLine,
-  AccountForm,
-  JournalEntryForm,
+  JournalEntryFormData,
   JournalLineForm,
 } from '../types'
 
@@ -16,18 +16,18 @@ export const transformAccountFromAPI = (apiData: Record<string, unknown>): Accou
   const attributes = (apiData.attributes as Record<string, unknown>) || {}
   
   return {
-    id: apiData.id,
-    code: attributes.code,                    // ✅ string, unique, max 255
-    name: attributes.name,                    // ✅ string, max 255
-    accountType: attributes.accountType,      // ✅ Required enum
-    level: attributes.level,                  // ✅ integer, hierarchical level
+    id: String(apiData.id),
+    code: String(attributes.code),                    // ✅ string, unique, max 255
+    name: String(attributes.name),                    // ✅ string, max 255
+    accountType: attributes.accountType as Account['accountType'],      // ✅ Required enum
+    level: attributes.level as number,                  // ✅ integer, hierarchical level
     parentId: attributes.parentId ? String(attributes.parentId) : null, // ✅ string ID or null
-    currency: attributes.currency || 'MXN',   // ✅ Optional, default MXN
-    isPostable: attributes.isPostable,        // ✅ boolean required
-    status: attributes.status,                // ✅ required: active|inactive
-    metadata: attributes.metadata,            // ✅ optional object
-    createdAt: attributes.createdAt,
-    updatedAt: attributes.updatedAt,
+    currency: (attributes.currency as string | undefined) || 'MXN',   // ✅ Optional, default MXN
+    isPostable: attributes.isPostable as boolean,        // ✅ boolean required
+    status: attributes.status as Account['status'],                // ✅ required: active|inactive
+    metadata: attributes.metadata as Record<string, unknown> | undefined,            // ✅ optional object
+    createdAt: attributes.createdAt as string,
+    updatedAt: attributes.updatedAt as string,
   }
 }
 
@@ -35,27 +35,27 @@ export const transformJournalEntryFromAPI = (apiData: Record<string, unknown>): 
   const attributes = (apiData.attributes as Record<string, unknown>) || {}
   
   return {
-    id: apiData.id,
+    id: String(apiData.id),
     journalId: attributes.journalId ? String(attributes.journalId) : undefined,
     periodId: attributes.periodId ? String(attributes.periodId) : undefined,
-    number: attributes.number,
-    date: attributes.date,                    // ✅ YYYY-MM-DD format
-    currency: attributes.currency,
-    exchangeRate: attributes.exchangeRate,    // ✅ decimal as string
-    reference: attributes.reference,
-    description: attributes.description,
-    status: attributes.status,                // ✅ draft|posted
+    number: String(attributes.number),
+    date: String(attributes.date),                    // ✅ YYYY-MM-DD format
+    currency: String(attributes.currency),
+    exchangeRate: String(attributes.exchangeRate),    // ✅ decimal as string
+    reference: String(attributes.reference),
+    description: String(attributes.description),
+    status: attributes.status as JournalEntry['status'],                // ✅ draft|posted
     approvedById: attributes.approvedById ? String(attributes.approvedById) : undefined,
     postedById: attributes.postedById ? String(attributes.postedById) : undefined,
-    postedAt: attributes.postedAt,
+    postedAt: attributes.postedAt as string | undefined,
     reversalOfId: attributes.reversalOfId ? String(attributes.reversalOfId) : undefined,
-    sourceType: attributes.sourceType,
+    sourceType: attributes.sourceType as JournalEntry['sourceType'],
     sourceId: attributes.sourceId ? String(attributes.sourceId) : undefined,
-    totalDebit: attributes.totalDebit,        // ✅ decimal as string
-    totalCredit: attributes.totalCredit,      // ✅ decimal as string
-    metadata: attributes.metadata,
-    createdAt: attributes.createdAt,
-    updatedAt: attributes.updatedAt,
+    totalDebit: String(attributes.totalDebit),        // ✅ decimal as string
+    totalCredit: String(attributes.totalCredit),      // ✅ decimal as string
+    metadata: attributes.metadata as Record<string, unknown> | undefined,
+    createdAt: attributes.createdAt as string,
+    updatedAt: attributes.updatedAt as string,
   }
 }
 
@@ -63,26 +63,26 @@ export const transformJournalLineFromAPI = (apiData: Record<string, unknown>): J
   const attributes = (apiData.attributes as Record<string, unknown>) || {}
   
   return {
-    id: apiData.id,
+    id: String(apiData.id),
     journalEntryId: String(attributes.journalEntryId), // ✅ ID as string
     accountId: String(attributes.accountId),           // ✅ ID as string
-    debit: attributes.debit,                           // ✅ decimal as string
-    credit: attributes.credit,                         // ✅ decimal as string
-    baseAmount: attributes.baseAmount,                 // ✅ decimal as string
+    debit: String(attributes.debit),                           // ✅ decimal as string
+    credit: String(attributes.credit),                         // ✅ decimal as string
+    baseAmount: attributes.baseAmount as string | undefined,                 // ✅ decimal as string
     costCenterId: attributes.costCenterId ? String(attributes.costCenterId) : undefined,
     partnerId: attributes.partnerId ? String(attributes.partnerId) : undefined,
-    memo: attributes.memo,
-    currency: attributes.currency,
-    exchangeRate: attributes.exchangeRate,             // ✅ decimal as string
-    metadata: attributes.metadata,
-    createdAt: attributes.createdAt,
-    updatedAt: attributes.updatedAt,
+    memo: String(attributes.memo),
+    currency: String(attributes.currency),
+    exchangeRate: String(attributes.exchangeRate),             // ✅ decimal as string
+    metadata: attributes.metadata as Record<string, unknown> | undefined,
+    createdAt: attributes.createdAt as string,
+    updatedAt: attributes.updatedAt as string,
   }
 }
 
 // ===== FRONTEND TO JSON:API TRANSFORMERS =====
 
-export const transformAccountToAPI = (formData: AccountForm) => ({
+export const transformAccountToAPI = (formData: AccountFormData) => ({
   data: {
     type: 'accounts',
     attributes: {
@@ -99,7 +99,7 @@ export const transformAccountToAPI = (formData: AccountForm) => ({
   },
 })
 
-export const transformJournalEntryToAPI = (formData: JournalEntryForm) => ({
+export const transformJournalEntryToAPI = (formData: JournalEntryFormData) => ({
   data: {
     type: 'journal-entries',
     attributes: {
@@ -127,60 +127,60 @@ export const transformJournalLineToAPI = (formData: JournalLineForm) => ({
 
 // ===== BATCH TRANSFORMERS =====
 
-export const transformAccountsFromAPI = (apiResponse: any): Account[] => {
+export const transformAccountsFromAPI = (apiResponse: Record<string, unknown>): Account[] => {
   if (!apiResponse.data || !Array.isArray(apiResponse.data)) {
     return []
   }
-  
+
   return apiResponse.data.map(transformAccountFromAPI)
 }
 
-export const transformJournalEntriesFromAPI = (apiResponse: any): JournalEntry[] => {
+export const transformJournalEntriesFromAPI = (apiResponse: Record<string, unknown>): JournalEntry[] => {
   if (!apiResponse.data || !Array.isArray(apiResponse.data)) {
     return []
   }
-  
+
   return apiResponse.data.map(transformJournalEntryFromAPI)
 }
 
-export const transformJournalLinesFromAPI = (apiResponse: any): JournalLine[] => {
+export const transformJournalLinesFromAPI = (apiResponse: Record<string, unknown>): JournalLine[] => {
   if (!apiResponse.data || !Array.isArray(apiResponse.data)) {
     return []
   }
-  
+
   return apiResponse.data.map(transformJournalLineFromAPI)
 }
 
 // ===== VALIDATION HELPERS =====
 
-export const validateAccountData = (data: any): string[] => {
+export const validateAccountData = (data: Record<string, unknown>): string[] => {
   const errors: string[] = []
-  
+
   if (!data.code) errors.push('code is required')
   if (!data.name) errors.push('name is required')
   if (!data.accountType) errors.push('accountType is required')
   if (typeof data.level !== 'number') errors.push('level is required and must be a number')
   if (typeof data.isPostable !== 'boolean') errors.push('isPostable is required and must be boolean')
   if (!data.status) errors.push('status is required')
-  
+
   return errors
 }
 
-export const validateJournalEntryData = (data: any): string[] => {
+export const validateJournalEntryData = (data: Record<string, unknown>): string[] => {
   const errors: string[] = []
-  
+
   if (!data.date) errors.push('date is required')
   if (!data.description) errors.push('description is required')
-  
+
   return errors
 }
 
-export const validateJournalLineData = (data: any): string[] => {
+export const validateJournalLineData = (data: Record<string, unknown>): string[] => {
   const errors: string[] = []
-  
+
   if (!data.accountId) errors.push('accountId is required')
   if (!data.debit && !data.credit) errors.push('either debit or credit must be provided')
   if (data.debit && data.credit) errors.push('cannot have both debit and credit in the same line')
-  
+
   return errors
 }

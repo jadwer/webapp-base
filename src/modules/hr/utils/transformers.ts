@@ -34,19 +34,19 @@ export function transformJsonApiEmployee(resource: Record<string, unknown>): Emp
     email: attributes.email as string,
     phone: (attributes.phone as string | undefined),
     hireDate: (attributes.hire_date || attributes.hireDate) as string,
-    birthDate: (attributes.birth_date || attributes.birthDate as string | undefined),
+    birthDate: (attributes.birth_date || attributes.birthDate) as string | undefined,
     salary: attributes.salary as number,
     status: attributes.status as Employee['status'],
-    terminationDate: (attributes.termination_date || attributes.terminationDate as string | undefined),
-    terminationReason: (attributes.termination_reason || attributes.terminationReason as string | undefined),
+    terminationDate: (attributes.termination_date || attributes.terminationDate) as string | undefined,
+    terminationReason: (attributes.termination_reason || attributes.terminationReason) as string | undefined,
     address: (attributes.address as string | undefined),
-    emergencyContactName: (attributes.emergency_contact_name || attributes.emergencyContactName as string | undefined),
-    emergencyContactPhone: (attributes.emergency_contact_phone || attributes.emergencyContactPhone as string | undefined),
+    emergencyContactName: (attributes.emergency_contact_name || attributes.emergencyContactName) as string | undefined,
+    emergencyContactPhone: (attributes.emergency_contact_phone || attributes.emergencyContactPhone) as string | undefined,
     createdAt: (attributes.created_at || attributes.createdAt) as string,
     updatedAt: (attributes.updated_at || attributes.updatedAt) as string,
-    departmentId: (attributes.department_id || attributes.departmentId as number | undefined),
-    positionId: (attributes.position_id || attributes.positionId as number | undefined),
-    userId: (attributes.user_id || attributes.userId as number | undefined),
+    departmentId: (attributes.department_id || attributes.departmentId) as number | undefined,
+    positionId: (attributes.position_id || attributes.positionId) as number | undefined,
+    userId: (attributes.user_id || attributes.userId) as number | undefined,
   }
 }
 
@@ -113,7 +113,7 @@ export function transformEmployeesResponse(response: Record<string, unknown>) {
 
   const data = Array.isArray(response.data)
     ? (response.data as Record<string, unknown>[]).map((employee) => transformJsonApiEmployee(employee))
-    : transformJsonApiEmployee(response.data as Record<string, unknown>)
+    : [transformJsonApiEmployee(response.data as Record<string, unknown>)]
 
   return {
     data,
@@ -132,7 +132,7 @@ export function transformJsonApiAttendance(resource: Record<string, unknown>): A
     id: resource.id as string,
     date: attributes.date as string,
     checkIn: (attributes.check_in || attributes.checkIn) as string,
-    checkOut: (attributes.check_out || attributes.checkOut as string | undefined),
+    checkOut: (attributes.check_out || attributes.checkOut) as string | undefined,
     hoursWorked: (attributes.hours_worked || attributes.hoursWorked) as number,
     overtimeHours: (attributes.overtime_hours || attributes.overtimeHours) as number,
     status: attributes.status as Attendance['status'],
@@ -180,7 +180,7 @@ export function transformAttendancesResponse(response: Record<string, unknown>) 
 
   const data = Array.isArray(response.data)
     ? (response.data as Record<string, unknown>[]).map((attendance) => transformJsonApiAttendance(attendance))
-    : transformJsonApiAttendance(response.data as Record<string, unknown>)
+    : [transformJsonApiAttendance(response.data as Record<string, unknown>)]
 
   return {
     data,
@@ -203,12 +203,12 @@ export function transformJsonApiLeave(resource: Record<string, unknown>): Leave 
     status: attributes.status as Leave['status'],
     reason: attributes.reason as string,
     notes: (attributes.notes as string | undefined),
-    approvedAt: (attributes.approved_at || attributes.approvedAt as string | undefined),
+    approvedAt: (attributes.approved_at || attributes.approvedAt) as string | undefined,
     createdAt: (attributes.created_at || attributes.createdAt) as string,
     updatedAt: (attributes.updated_at || attributes.updatedAt) as string,
     employeeId: (attributes.employee_id || attributes.employeeId) as number,
     leaveTypeId: (attributes.leave_type_id || attributes.leaveTypeId) as number,
-    approverId: (attributes.approver_id || attributes.approverId as number | undefined),
+    approverId: (attributes.approver_id || attributes.approverId) as number | undefined,
   }
 }
 
@@ -259,7 +259,7 @@ export function transformLeavesResponse(response: Record<string, unknown>) {
 
   const data = Array.isArray(response.data)
     ? (response.data as Record<string, unknown>[]).map((leave) => transformJsonApiLeave(leave))
-    : transformJsonApiLeave(response.data as Record<string, unknown>)
+    : [transformJsonApiLeave(response.data as Record<string, unknown>)]
 
   return {
     data,
@@ -325,7 +325,7 @@ export function transformPayrollPeriodsResponse(response: Record<string, unknown
 
   const data = Array.isArray(response.data)
     ? (response.data as Record<string, unknown>[]).map((period) => transformJsonApiPayrollPeriod(period))
-    : transformJsonApiPayrollPeriod(response.data as Record<string, unknown>)
+    : [transformJsonApiPayrollPeriod(response.data as Record<string, unknown>)]
 
   return {
     data,
@@ -344,7 +344,7 @@ export function transformJsonApiDepartment(resource: Record<string, unknown>): D
     id: resource.id as string,
     name: attributes.name as string,
     description: (attributes.description as string | undefined),
-    managerId: (attributes.manager_id || attributes.managerId as number | undefined),
+    managerId: (attributes.manager_id || attributes.managerId) as number | undefined,
     createdAt: (attributes.created_at || attributes.createdAt) as string,
     updatedAt: (attributes.updated_at || attributes.updatedAt) as string,
   }
@@ -357,7 +357,7 @@ export function transformJsonApiPosition(resource: Record<string, unknown>): Pos
     id: resource.id as string,
     title: attributes.title as string,
     description: (attributes.description as string | undefined),
-    departmentId: (attributes.department_id || attributes.departmentId as number | undefined),
+    departmentId: (attributes.department_id || attributes.departmentId) as number | undefined,
     createdAt: (attributes.created_at || attributes.createdAt) as string,
     updatedAt: (attributes.updated_at || attributes.updatedAt) as string,
   }

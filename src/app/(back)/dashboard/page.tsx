@@ -1,11 +1,12 @@
 'use client'
 
 import { useState } from 'react'
-import { 
-  useBalanceGeneral, 
-  useEstadoResultados, 
-  useSalesReports, 
-  usePurchaseReports 
+import Link from 'next/link'
+import {
+  useBalanceGeneral,
+  useEstadoResultados,
+  useSalesReports,
+  usePurchaseReports
 } from '@/modules/accounting'
 
 export default function DashboardPage() {
@@ -237,8 +238,8 @@ export default function DashboardPage() {
                 </div>
 
                 <div className="col-md-6 col-xl-3">
-                  <a 
-                    href="/dashboard/sales/reports" 
+                  <Link
+                    href="/dashboard/sales/reports"
                     className="card border text-decoration-none h-100"
                   >
                     <div className="card-body text-center">
@@ -248,12 +249,12 @@ export default function DashboardPage() {
                         {formatCurrency(totalRevenue)} en ventas
                       </p>
                     </div>
-                  </a>
+                  </Link>
                 </div>
 
                 <div className="col-md-6 col-xl-3">
-                  <a 
-                    href="/dashboard/purchase/reports" 
+                  <Link
+                    href="/dashboard/purchase/reports"
                     className="card border text-decoration-none h-100"
                   >
                     <div className="card-body text-center">
@@ -263,7 +264,7 @@ export default function DashboardPage() {
                         {formatCurrency(totalPurchases)} en compras
                       </p>
                     </div>
-                  </a>
+                  </Link>
                 </div>
               </div>
             </div>
@@ -289,9 +290,9 @@ export default function DashboardPage() {
               <i className="bi bi-box-seam display-5 text-info me-3" aria-hidden="true"></i>
               <div>
                 <h5 className="card-title mb-1">
-                  <a href="/dashboard/products" className="text-decoration-none">
+                  <Link href="/dashboard/products" className="text-decoration-none">
                     Productos
-                  </a>
+                  </Link>
                 </h5>
                 <p className="card-text text-muted small">Gestión completa de inventario</p>
                 <span className="badge bg-info">Sistema Enterprise</span>
@@ -306,9 +307,9 @@ export default function DashboardPage() {
               <i className="bi bi-people-fill display-5 text-secondary me-3" aria-hidden="true"></i>
               <div>
                 <h5 className="card-title mb-1">
-                  <a href="/dashboard/contacts" className="text-decoration-none">
+                  <Link href="/dashboard/contacts" className="text-decoration-none">
                     Contactos
-                  </a>
+                  </Link>
                 </h5>
                 <p className="card-text text-muted small">Clientes, proveedores y documentos</p>
                 <span className="badge bg-secondary">CRM Completo</span>
@@ -343,9 +344,9 @@ export default function DashboardPage() {
               <i className="bi bi-cart-check display-5 text-success me-3" aria-hidden="true"></i>
               <div>
                 <h5 className="card-title mb-1">
-                  <a href="/dashboard/sales" className="text-decoration-none">
+                  <Link href="/dashboard/sales" className="text-decoration-none">
                     Ventas
-                  </a>
+                  </Link>
                 </h5>
                 <p className="card-text text-muted small">Órdenes de venta y clientes</p>
                 <span className="badge bg-success">Con Reportes</span>
@@ -360,9 +361,9 @@ export default function DashboardPage() {
               <i className="bi bi-cart-plus display-5 text-primary me-3" aria-hidden="true"></i>
               <div>
                 <h5 className="card-title mb-1">
-                  <a href="/dashboard/purchase" className="text-decoration-none">
+                  <Link href="/dashboard/purchase" className="text-decoration-none">
                     Compras
-                  </a>
+                  </Link>
                 </h5>
                 <p className="card-text text-muted small">Órdenes de compra y proveedores</p>
                 <span className="badge bg-primary">Con Reportes</span>
@@ -397,9 +398,9 @@ export default function DashboardPage() {
               <i className="bi bi-bank display-5 text-info me-3" aria-hidden="true"></i>
               <div>
                 <h5 className="card-title mb-1">
-                  <a href="/dashboard/finance/ap-invoices" className="text-decoration-none">
+                  <Link href="/dashboard/finance/ap-invoices" className="text-decoration-none">
                     Finanzas
-                  </a>
+                  </Link>
                 </h5>
                 <p className="card-text text-muted small">Cuentas por pagar y cobrar</p>
                 <span className="badge bg-info">Pagos & Recibos</span>

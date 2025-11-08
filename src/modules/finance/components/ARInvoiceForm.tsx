@@ -26,28 +26,31 @@ export const ARInvoiceFormComponent = ({
   customers = []
 }: ARInvoiceFormProps) => {
   const [formData, setFormData] = useState<ARInvoiceForm>({
-    contactId: initialData?.contactId || 0,
+    contactId: initialData?.contactId || '',
     invoiceNumber: initialData?.invoiceNumber || '',
     invoiceDate: initialData?.invoiceDate || new Date().toISOString().split('T')[0],
     dueDate: initialData?.dueDate || '',
     currency: initialData?.currency || 'MXN',
-    subtotal: initialData?.subtotal || 0,
-    taxTotal: initialData?.taxTotal || 0,
-    total: initialData?.total || 0,
+    subtotal: initialData?.subtotal || '0',
+    taxTotal: initialData?.taxTotal || '0',
+    total: initialData?.total || '0',
+    status: initialData?.status || 'draft',
   })
 
   const [errors, setErrors] = useState<Record<string, string>>({})
 
-  const handleInputChange = (field: keyof ARInvoiceForm, value: string | number) => {
+  const handleInputChange = (field: keyof ARInvoiceForm, value: string) => {
     const newFormData = { ...formData, [field]: value }
-    
+
     // Auto-calculate total when subtotal or taxTotal changes
     if (field === 'subtotal' || field === 'taxTotal') {
-      newFormData.total = newFormData.subtotal + newFormData.taxTotal
+      const subtotal = parseFloat(newFormData.subtotal) || 0
+      const taxTotal = parseFloat(newFormData.taxTotal) || 0
+      newFormData.total = (subtotal + taxTotal).toFixed(2)
     }
-    
+
     setFormData(newFormData)
-    
+
     // Clear error when user starts typing
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: '' }))
@@ -69,10 +72,10 @@ export const ARInvoiceFormComponent = ({
     if (!formData.dueDate) {
       newErrors.dueDate = 'La fecha de vencimiento es obligatoria'
     }
-    if (formData.subtotal <= 0) {
+    if (parseFloat(formData.subtotal) <= 0) {
       newErrors.subtotal = 'El subtotal debe ser mayor a cero'
     }
-    if (formData.total <= 0) {
+    if (parseFloat(formData.total) <= 0) {
       newErrors.total = 'El total debe ser mayor a cero'
     }
 
@@ -106,10 +109,10 @@ export const ARInvoiceFormComponent = ({
           id="contactId"
           className={`form-select ${errors.contactId ? 'is-invalid' : ''}`}
           value={formData.contactId}
-          onChange={(e) => handleInputChange('contactId', parseInt(e.target.value))}
+          onChange={(e) => handleInputChange('contactId', e.target.value)}
           disabled={isLoading}
         >
-          <option value="0">Seleccionar cliente...</option>
+          <option value="">Seleccionar cliente...</option>
           {customers.map((customer) => (
             <option key={customer.id} value={customer.id}>
               {customer.name}
@@ -206,7 +209,7 @@ export const ARInvoiceFormComponent = ({
             id="subtotal"
             className={`form-control ${errors.subtotal ? 'is-invalid' : ''}`}
             value={formData.subtotal}
-            onChange={(e) => handleInputChange('subtotal', parseFloat(e.target.value) || 0)}
+            onChange={(e) => handleInputChange('subtotal', e.target.value)}
             disabled={isLoading}
             min="0"
             step="0.01"
@@ -228,7 +231,7 @@ export const ARInvoiceFormComponent = ({
             id="taxTotal"
             className="form-control"
             value={formData.taxTotal}
-            onChange={(e) => handleInputChange('taxTotal', parseFloat(e.target.value) || 0)}
+            onChange={(e) => handleInputChange('taxTotal', e.target.value)}
             disabled={isLoading}
             min="0"
             step="0.01"
@@ -247,10 +250,11 @@ export const ARInvoiceFormComponent = ({
             id="total"
             className={`form-control ${errors.total ? 'is-invalid' : ''}`}
             value={formData.total}
-            onChange={(e) => handleInputChange('total', parseFloat(e.target.value) || 0)}
+            onChange={(e) => handleInputChange('total', e.target.value)}
             disabled={isLoading}
             min="0"
             step="0.01"
+            readOnly
           />
           {errors.total && (
             <div className="invalid-feedback">{errors.total}</div>

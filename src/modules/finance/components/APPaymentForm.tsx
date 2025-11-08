@@ -25,19 +25,20 @@ export const APPaymentFormComponent = ({
   bankAccounts = []
 }: APPaymentFormProps) => {
   const [formData, setFormData] = useState<APPaymentForm>({
-    aPInvoiceId: parseInt(apInvoice.id),
-    bankAccountId: 0,
+    contactId: apInvoice.contactId,
     paymentDate: new Date().toISOString().split('T')[0],
-    amount: apInvoice.remainingBalance,
     paymentMethod: 'transfer',
-    reference: '',
+    currency: apInvoice.currency || 'MXN',
+    amount: apInvoice.remainingBalance.toString(),
+    bankAccountId: null,
+    status: 'draft',
   })
 
   const [errors, setErrors] = useState<Record<string, string>>({})
 
-  const handleInputChange = (field: keyof APPaymentForm, value: string | number) => {
+  const handleInputChange = (field: keyof APPaymentForm, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }))
-    
+
     // Clear error when user starts typing
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: '' }))
@@ -53,14 +54,12 @@ export const APPaymentFormComponent = ({
     if (!formData.paymentDate) {
       newErrors.paymentDate = 'La fecha de pago es obligatoria'
     }
-    if (formData.amount <= 0) {
+    const amountNum = parseFloat(formData.amount)
+    if (isNaN(amountNum) || amountNum <= 0) {
       newErrors.amount = 'El monto debe ser mayor a cero'
     }
-    if (formData.amount > apInvoice.remainingBalance) {
+    if (amountNum > apInvoice.remainingBalance) {
       newErrors.amount = `El monto no puede ser mayor al saldo pendiente (${apInvoice.remainingBalance})`
-    }
-    if (!formData.reference.trim()) {
-      newErrors.reference = 'La referencia es obligatoria'
     }
 
     setErrors(newErrors)
@@ -96,7 +95,7 @@ export const APPaymentFormComponent = ({
           <div className="row">
             <div className="col-md-6">
               <strong>Factura:</strong> {apInvoice.invoiceNumber}<br />
-              <strong>Total:</strong> {formatCurrency(apInvoice.total)}
+              <strong>Total:</strong> {formatCurrency(typeof apInvoice.total === 'string' ? parseFloat(apInvoice.total) : apInvoice.total)}
             </div>
             <div className="col-md-6">
               <strong>Pagado:</strong> {formatCurrency(apInvoice.paidAmount)}<br />
@@ -114,11 +113,11 @@ export const APPaymentFormComponent = ({
             <select
               id="bankAccountId"
               className={`form-select ${errors.bankAccountId ? 'is-invalid' : ''}`}
-              value={formData.bankAccountId}
-              onChange={(e) => handleInputChange('bankAccountId', parseInt(e.target.value))}
+              value={formData.bankAccountId || ''}
+              onChange={(e) => setFormData(prev => ({ ...prev, bankAccountId: e.target.value || null }))}
               disabled={isLoading}
             >
-              <option value="0">Seleccionar cuenta...</option>
+              <option value="">Seleccionar cuenta...</option>
               {bankAccounts.filter(account => account.status === 'active').map((account) => (
                 <option key={account.id} value={account.id}>
                   {account.bankName} - {account.accountNumber} ({account.currency})
@@ -149,7 +148,7 @@ export const APPaymentFormComponent = ({
           </div>
 
           {/* Payment Amount */}
-          <div className="col-md-6">
+          <div className="col-md-4">
             <label htmlFor="amount" className="form-label">
               Monto a Pagar <span className="text-danger">*</span>
             </label>
@@ -160,10 +159,9 @@ export const APPaymentFormComponent = ({
                 id="amount"
                 className={`form-control ${errors.amount ? 'is-invalid' : ''}`}
                 value={formData.amount}
-                onChange={(e) => handleInputChange('amount', parseFloat(e.target.value) || 0)}
+                onChange={(e) => handleInputChange('amount', e.target.value)}
                 disabled={isLoading}
                 min="0"
-                max={apInvoice.remainingBalance}
                 step="0.01"
               />
               {errors.amount && (
@@ -175,8 +173,26 @@ export const APPaymentFormComponent = ({
             </div>
           </div>
 
+          {/* Currency */}
+          <div className="col-md-4">
+            <label htmlFor="currency" className="form-label">
+              Moneda
+            </label>
+            <select
+              id="currency"
+              className="form-select"
+              value={formData.currency}
+              onChange={(e) => handleInputChange('currency', e.target.value)}
+              disabled={isLoading}
+            >
+              <option value="MXN">MXN - Peso Mexicano</option>
+              <option value="USD">USD - Dólar Americano</option>
+              <option value="EUR">EUR - Euro</option>
+            </select>
+          </div>
+
           {/* Payment Method */}
-          <div className="col-md-6">
+          <div className="col-md-4">
             <label htmlFor="paymentMethod" className="form-label">
               Método de Pago
             </label>
@@ -192,25 +208,6 @@ export const APPaymentFormComponent = ({
               <option value="cash">Efectivo</option>
               <option value="card">Tarjeta</option>
             </select>
-          </div>
-
-          {/* Reference */}
-          <div className="col-12">
-            <label htmlFor="reference" className="form-label">
-              Referencia/Concepto <span className="text-danger">*</span>
-            </label>
-            <input
-              type="text"
-              id="reference"
-              className={`form-control ${errors.reference ? 'is-invalid' : ''}`}
-              value={formData.reference}
-              onChange={(e) => handleInputChange('reference', e.target.value)}
-              disabled={isLoading}
-              placeholder="Número de transferencia, cheque, etc."
-            />
-            {errors.reference && (
-              <div className="invalid-feedback">{errors.reference}</div>
-            )}
           </div>
 
           {/* Form Actions */}

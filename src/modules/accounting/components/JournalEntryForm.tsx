@@ -220,7 +220,7 @@ export const JournalEntryForm: React.FC<JournalEntryFormProps> = ({
               <Button
                 type="button"
                 variant="primary"
-                size="sm"
+                size="small"
                 onClick={addLine}
                 disabled={isLoading}
               >

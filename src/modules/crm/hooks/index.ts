@@ -20,8 +20,11 @@ import {
   transformCampaignsResponse,
 } from '../utils/transformers'
 import type {
+  PipelineStage,
   PipelineStageFormData,
+  Lead,
   LeadFormData,
+  Campaign,
   CampaignFormData,
 } from '../types'
 
@@ -36,7 +39,7 @@ export interface PipelineStagesFilters {
 
 export const usePipelineStages = (params?: PipelineStagesFilters) => {
   // Convert filters to API query parameters
-  const queryParams: any = {}
+  const queryParams: Record<string, unknown> = {}
 
   if (params?.search) {
     queryParams['filter[search]'] = params.search
@@ -61,7 +64,7 @@ export const usePipelineStages = (params?: PipelineStagesFilters) => {
   )
 
   return {
-    pipelineStages: data?.data || [],
+    pipelineStages: (Array.isArray(data?.data) ? data.data : []) as PipelineStage[],
     meta: data?.meta || {},
     isLoading,
     error,
@@ -121,7 +124,7 @@ export interface LeadsFilters {
 
 export const useLeads = (params?: LeadsFilters) => {
   // Convert filters to API query parameters
-  const queryParams: any = {}
+  const queryParams: Record<string, unknown> = {}
 
   if (params?.search) {
     queryParams['filter[search]'] = params.search
@@ -161,7 +164,7 @@ export const useLeads = (params?: LeadsFilters) => {
   )
 
   return {
-    leads: data?.data || [],
+    leads: (Array.isArray(data?.data) ? data.data : []) as Lead[],
     meta: data?.meta || {},
     isLoading,
     error,
@@ -220,7 +223,7 @@ export interface CampaignsFilters {
 
 export const useCampaigns = (params?: CampaignsFilters) => {
   // Convert filters to API query parameters
-  const queryParams: any = {}
+  const queryParams: Record<string, unknown> = {}
 
   if (params?.search) {
     queryParams['filter[search]'] = params.search
@@ -257,7 +260,7 @@ export const useCampaigns = (params?: CampaignsFilters) => {
   )
 
   return {
-    campaigns: data?.data || [],
+    campaigns: (Array.isArray(data?.data) ? data.data : []) as Campaign[],
     meta: data?.meta || {},
     isLoading,
     error,

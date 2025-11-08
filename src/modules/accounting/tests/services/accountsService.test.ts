@@ -8,7 +8,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { accountsService } from '../../services'
 import axiosClient from '@/lib/axiosClient'
 import { createMockAccount, createMockAPIResponse } from '../utils/test-utils'
-import type { AccountForm } from '../../types'
+import { AccountFormData } from '../../types'
 
 // Mock axios client
 vi.mock('@/lib/axiosClient', () => ({
@@ -91,7 +91,7 @@ describe('Accounts Service', () => {
   describe('create', () => {
     it('should create new account successfully', async () => {
       // Arrange
-      const formData: AccountForm = {
+      const formData: AccountFormData = {
         code: '1003',
         name: 'Test Account',
         accountType: 'asset',

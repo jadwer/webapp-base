@@ -87,7 +87,7 @@ export const PaginationSimple = React.memo<PaginationSimpleProps>(({
                   <Button
                     variant="secondary"
                     buttonStyle="outline"
-                    size="sm"
+                    size="small"
                     onClick={() => onPageChange(currentPage - 1)}
                     disabled={currentPage === 1}
                     className="page-link"
@@ -109,8 +109,8 @@ export const PaginationSimple = React.memo<PaginationSimpleProps>(({
                     ) : (
                       <Button
                         variant={page === currentPage ? 'primary' : 'secondary'}
-                        buttonStyle={page === currentPage ? 'solid' : 'outline'}
-                        size="sm"
+                        buttonStyle={page === currentPage ? 'filled' : 'outline'}
+                        size="small"
                         onClick={() => onPageChange(page as number)}
                         className="page-link"
                       >
@@ -125,7 +125,7 @@ export const PaginationSimple = React.memo<PaginationSimpleProps>(({
                   <Button
                     variant="secondary"
                     buttonStyle="outline"
-                    size="sm"
+                    size="small"
                     onClick={() => onPageChange(currentPage + 1)}
                     disabled={currentPage === totalPages}
                     className="page-link"

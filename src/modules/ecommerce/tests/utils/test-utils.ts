@@ -4,6 +4,7 @@
  * Mock factories and test helpers for the Ecommerce module.
  */
 
+import { vi } from 'vitest';
 import type {
   EcommerceOrder,
   EcommerceOrderItem,

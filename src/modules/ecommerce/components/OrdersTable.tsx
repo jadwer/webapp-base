@@ -135,7 +135,7 @@ export const OrdersTable = React.memo<OrdersTableProps>(({
                     <Button
                       variant="primary"
                       buttonStyle="outline"
-                      size="sm"
+                      size="small"
                       onClick={() => onView(order)}
                       title="Ver detalles"
                     >
@@ -144,7 +144,7 @@ export const OrdersTable = React.memo<OrdersTableProps>(({
                     <Button
                       variant="secondary"
                       buttonStyle="outline"
-                      size="sm"
+                      size="small"
                       onClick={() => onEdit(order)}
                       title="Editar"
                     >
@@ -153,7 +153,7 @@ export const OrdersTable = React.memo<OrdersTableProps>(({
                     <Button
                       variant="danger"
                       buttonStyle="outline"
-                      size="sm"
+                      size="small"
                       onClick={() => onDelete(order)}
                       title="Eliminar"
                     >

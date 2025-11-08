@@ -13,6 +13,9 @@ import type {
   EcommerceOrder,
   EcommerceOrderItem,
   EcommerceOrderFilters,
+  OrderStatus,
+  PaymentStatus,
+  ShippingStatus,
 } from '../types';
 
 // ============================================
@@ -118,7 +121,7 @@ export function useEcommerceOrderMutations() {
    */
   const updateOrderStatus = async (
     id: string,
-    status: string
+    status: OrderStatus
   ): Promise<EcommerceOrder> => {
     setIsUpdating(true);
     try {
@@ -134,7 +137,7 @@ export function useEcommerceOrderMutations() {
    */
   const updatePaymentStatus = async (
     id: string,
-    paymentStatus: string
+    paymentStatus: PaymentStatus
   ): Promise<EcommerceOrder> => {
     setIsUpdating(true);
     try {
@@ -153,7 +156,7 @@ export function useEcommerceOrderMutations() {
    */
   const updateShippingStatus = async (
     id: string,
-    shippingStatus: string
+    shippingStatus: ShippingStatus
   ): Promise<EcommerceOrder> => {
     setIsUpdating(true);
     try {

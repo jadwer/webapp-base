@@ -34,7 +34,6 @@ const initialUploadForm: DocumentUploadData = {
 }
 
 export const ContactDocuments: React.FC<ContactDocumentsProps> = ({
-  contactId,
   documents,
   onUploadDocument,
   onDeleteDocument,
@@ -278,9 +277,9 @@ export const ContactDocuments: React.FC<ContactDocumentsProps> = ({
                     id="documentType"
                     className="form-select"
                     value={uploadData.documentType}
-                    onChange={(e) => setUploadData(prev => ({ 
-                      ...prev, 
-                      documentType: e.target.value as any 
+                    onChange={(e) => setUploadData(prev => ({
+                      ...prev,
+                      documentType: e.target.value as DocumentUploadData['documentType']
                     }))}
                     disabled={isLoading}
                     required

@@ -10,6 +10,12 @@ interface PageProps {
   params: Promise<{ id: string }>
 }
 
+interface PurchaseOrderItem {
+  id: string | number
+  quantity: number
+  totalPrice?: number
+}
+
 export default function PurchaseOrderDetailPage({ params }: PageProps) {
   const resolvedParams = use(params)
   const navigation = useNavigationProgress()
@@ -243,13 +249,13 @@ export default function PurchaseOrderDetailPage({ params }: PageProps) {
                   <div className="d-flex justify-content-between mb-3">
                     <span>Cantidad Total:</span>
                     <strong>
-                      {formatQuantity(purchaseOrderItems.reduce((acc: number, item: any) => acc + (item.quantity || 0), 0))}
+                      {formatQuantity(purchaseOrderItems.reduce((acc: number, item: PurchaseOrderItem) => acc + (item.quantity || 0), 0))}
                     </strong>
                   </div>
                   <div className="d-flex justify-content-between mb-3">
                     <span>Valor Items:</span>
                     <strong className="text-success">
-                      {formatCurrency(purchaseOrderItems.reduce((acc: number, item: any) => acc + (item.totalPrice || 0), 0))}
+                      {formatCurrency(purchaseOrderItems.reduce((acc: number, item: PurchaseOrderItem) => acc + (item.totalPrice || 0), 0))}
                     </strong>
                   </div>
                   <hr />

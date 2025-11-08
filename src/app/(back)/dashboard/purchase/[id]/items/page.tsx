@@ -9,6 +9,24 @@ interface PageProps {
   params: Promise<{ id: string }>
 }
 
+interface PurchaseOrderItem {
+  id: string | number
+  productId?: string | number
+  product?: {
+    attributes?: {
+      name?: string
+      sku?: string
+    }
+    name?: string
+    sku?: string
+  }
+  quantity: number
+  unitPrice: number
+  discount?: number
+  totalPrice?: number
+  total?: number
+}
+
 export default function PurchaseOrderItemsPage({ params }: PageProps) {
   const resolvedParams = use(params)
   const navigation = useNavigationProgress()
@@ -16,8 +34,8 @@ export default function PurchaseOrderItemsPage({ params }: PageProps) {
 
   const { purchaseOrderItems, isLoading, error } = usePurchaseOrderItems(resolvedParams.id)
 
-  const filteredItems = purchaseOrderItems?.filter((item: any) => 
-    searchTerm === '' || 
+  const filteredItems = purchaseOrderItems?.filter((item: PurchaseOrderItem) =>
+    searchTerm === '' ||
     item.productId?.toString().includes(searchTerm) ||
     item.id?.toString().includes(searchTerm)
   )
@@ -136,7 +154,7 @@ export default function PurchaseOrderItemsPage({ params }: PageProps) {
                           </td>
                         </tr>
                       ) : (
-                        filteredItems?.map((item: any) => (
+                        filteredItems?.map((item: PurchaseOrderItem) => (
                           <tr key={item.id}>
                             <td>
                               <strong className="text-primary">#{item.id}</strong>
@@ -158,9 +176,9 @@ export default function PurchaseOrderItemsPage({ params }: PageProps) {
                               {formatCurrency(item.unitPrice)}
                             </td>
                             <td>
-                              {item.discount > 0 ? (
+                              {(item.discount ?? 0) > 0 ? (
                                 <span className="text-warning">
-                                  -{formatCurrency(item.discount)}
+                                  -{formatCurrency(item.discount ?? 0)}
                                 </span>
                               ) : (
                                 <span className="text-muted">-</span>
@@ -216,7 +234,7 @@ export default function PurchaseOrderItemsPage({ params }: PageProps) {
                   <div className="flex-grow-1">
                     <h6 className="text-white-50">Cantidad Total</h6>
                     <h4 className="mb-0">
-                      {formatQuantity(filteredItems.reduce((acc: number, item: any) => acc + (item.quantity || 0), 0))}
+                      {formatQuantity(filteredItems.reduce((acc: number, item: PurchaseOrderItem) => acc + (item.quantity || 0), 0))}
                     </h4>
                   </div>
                   <i className="bi bi-calculator display-6"></i>
@@ -231,7 +249,7 @@ export default function PurchaseOrderItemsPage({ params }: PageProps) {
                   <div className="flex-grow-1">
                     <h6 className="text-white-50">Valor Total</h6>
                     <h4 className="mb-0">
-                      {formatCurrency(filteredItems.reduce((acc: number, item: any) => acc + (item.totalPrice || 0), 0))}
+                      {formatCurrency(filteredItems.reduce((acc: number, item: PurchaseOrderItem) => acc + (item.totalPrice || 0), 0))}
                     </h4>
                   </div>
                   <i className="bi bi-currency-dollar display-6"></i>

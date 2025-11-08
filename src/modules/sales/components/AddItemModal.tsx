@@ -44,22 +44,23 @@ export default function AddItemModal({ salesOrderId, isOpen, onClose, onSuccess 
   // Update unit price when product changes
   const handleProductChange = (productId: string) => {
     setFormData(prev => ({ ...prev, productId }))
-    
+
     if (productId) {
-      const selectedProduct = products.find((p: any) => p.id === productId)
+      const selectedProduct = products.find((p: Record<string, unknown>) => p.id === productId)
       if (selectedProduct) {
         // Use product price if available
-        const price = selectedProduct.attributes?.price || selectedProduct.attributes?.unit_price || 0
-        setFormData(prev => ({ ...prev, unitPrice: parseFloat(price) || 0 }))
+        const attributes = selectedProduct.attributes as Record<string, unknown> | undefined
+        const price = attributes?.price || attributes?.unit_price || 0
+        setFormData(prev => ({ ...prev, unitPrice: parseFloat(price.toString()) || 0 }))
       }
     }
   }
-  
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
     setError(null)
-    
+
     try {
       const itemData = {
         salesOrderId,
@@ -68,15 +69,16 @@ export default function AddItemModal({ salesOrderId, isOpen, onClose, onSuccess 
         unitPrice: formData.unitPrice,
         discount: formData.discount
       }
-      
+
       console.log('🚀 Creating sales order item:', itemData)
       await createSalesOrderItem(itemData)
-      
+
       onSuccess()
       onClose()
-    } catch (err: any) {
+    } catch (err) {
       console.error('❌ Error creating item:', err)
-      setError(err.response?.data?.message || err.message || 'Error al agregar el item')
+      const error = err as { response?: { data?: { message?: string } }; message?: string }
+      setError(error.response?.data?.message || error.message || 'Error al agregar el item')
     } finally {
       setIsSubmitting(false)
     }
@@ -123,13 +125,16 @@ export default function AddItemModal({ salesOrderId, isOpen, onClose, onSuccess 
                     disabled={productsLoading || isSubmitting}
                   >
                     <option value="">Seleccionar producto...</option>
-                    {products.map((product: any) => (
-                      <option key={product.id} value={product.id}>
-                        {product.attributes?.name || `Producto #${product.id}`} 
-                        {product.attributes?.sku && ` (SKU: ${product.attributes.sku})`}
-                        {product.attributes?.price && ` - ${formatCurrency(product.attributes.price)}`}
-                      </option>
-                    ))}
+                    {products.map((product: Record<string, unknown>) => {
+                      const attributes = product.attributes as Record<string, unknown> | undefined
+                      return (
+                        <option key={product.id as string} value={product.id as string}>
+                          {(attributes?.name as string) || `Producto #${product.id}`}
+                          {attributes?.sku ? ` (SKU: ${String(attributes.sku)})` : ''}
+                          {attributes?.price ? ` - ${formatCurrency(attributes.price as number)}` : ''}
+                        </option>
+                      )
+                    })}
                   </select>
                   {productsLoading && (
                     <small className="text-muted">Cargando productos...</small>

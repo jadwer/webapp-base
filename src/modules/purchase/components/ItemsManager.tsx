@@ -20,6 +20,16 @@ interface ItemsManagerProps {
   onTotalChange: (total: number) => void
 }
 
+interface Product {
+  id: string | number
+  attributes?: {
+    name?: string
+    sku?: string
+    price?: string | number
+    unit_price?: string | number
+  }
+}
+
 export default function ItemsManager({ items, onItemsChange, onTotalChange }: ItemsManagerProps) {
   const [productSearch, setProductSearch] = useState('')
   const [debouncedSearch, setDebouncedSearch] = useState('')
@@ -51,14 +61,14 @@ export default function ItemsManager({ items, onItemsChange, onTotalChange }: It
 
   const handleProductChange = (productId: string) => {
     setNewItem(prev => ({ ...prev, productId }))
-    
+
     if (productId) {
-      const selectedProduct = products.find((p: any) => p.id === productId)
+      const selectedProduct = products.find((p: Product) => p.id === productId)
       if (selectedProduct) {
         const price = selectedProduct.attributes?.price || selectedProduct.attributes?.unit_price || 0
-        setNewItem(prev => ({ 
-          ...prev, 
-          unitPrice: parseFloat(price) || 0 
+        setNewItem(prev => ({
+          ...prev,
+          unitPrice: parseFloat(String(price)) || 0
         }))
       }
     }
@@ -71,9 +81,9 @@ export default function ItemsManager({ items, onItemsChange, onTotalChange }: It
   const addItem = () => {
     if (!newItem.productId || newItem.quantity <= 0 || newItem.unitPrice < 0) return
 
-    const selectedProduct = products.find((p: any) => p.id === newItem.productId)
+    const selectedProduct = products.find((p: Product) => p.id === newItem.productId)
     const total = calculateItemTotal(newItem.quantity, newItem.unitPrice, newItem.discount)
-    
+
     const item: OrderItem = {
       tempId: `temp_${Date.now()}`,
       productId: newItem.productId,
@@ -163,7 +173,7 @@ export default function ItemsManager({ items, onItemsChange, onTotalChange }: It
                   disabled={productsLoading}
                 >
                   <option value="">Seleccionar producto...</option>
-                  {products.map((product: any) => (
+                  {products.map((product: Product) => (
                     <option key={product.id} value={product.id}>
                       {product.attributes?.name || `Producto #${product.id}`}
                       {product.attributes?.sku && ` (${product.attributes.sku})`}
@@ -301,7 +311,7 @@ export default function ItemsManager({ items, onItemsChange, onTotalChange }: It
           <div className="text-center text-muted py-4">
             <i className="bi bi-inbox display-4 mb-3"></i>
             <p>No hay items agregados</p>
-            <small>Haz click en "Agregar Item" para comenzar</small>
+            <small>Haz click en &quot;Agregar Item&quot; para comenzar</small>
           </div>
         )}
       </div>

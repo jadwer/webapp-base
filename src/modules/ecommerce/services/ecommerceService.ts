@@ -13,6 +13,9 @@ import type {
   EcommerceOrderResponse,
   EcommerceOrderItemsResponse,
   EcommerceOrderFilters,
+  OrderStatus,
+  PaymentStatus,
+  ShippingStatus,
 } from '../types';
 import {
   ecommerceOrderFromAPI,
@@ -30,7 +33,7 @@ const ordersService = {
    * Get all ecommerce orders with optional filters
    */
   async getAll(filters?: EcommerceOrderFilters): Promise<EcommerceOrder[]> {
-    const params: Record<string, any> = {};
+    const params: Record<string, string | number> = {};
 
     if (filters?.search) {
       params['filter[search]'] = filters.search;
@@ -59,7 +62,7 @@ const ordersService = {
       { params }
     );
 
-    return response.data.data.map(ecommerceOrderFromAPI);
+    return response.data.data.map(item => ecommerceOrderFromAPI(item as unknown as Record<string, unknown>));
   },
 
   /**
@@ -75,7 +78,7 @@ const ordersService = {
       }
     );
 
-    return ecommerceOrderFromAPI(response.data.data);
+    return ecommerceOrderFromAPI(response.data.data as unknown as Record<string, unknown>);
   },
 
   /**
@@ -94,7 +97,7 @@ const ordersService = {
       payload
     );
 
-    return ecommerceOrderFromAPI(response.data.data);
+    return ecommerceOrderFromAPI(response.data.data as unknown as Record<string, unknown>);
   },
 
   /**
@@ -114,7 +117,7 @@ const ordersService = {
       payload
     );
 
-    return ecommerceOrderFromAPI(response.data.data);
+    return ecommerceOrderFromAPI(response.data.data as unknown as Record<string, unknown>);
   },
 
   /**
@@ -122,9 +125,9 @@ const ordersService = {
    */
   async updateStatus(
     id: string,
-    status: string
+    status: OrderStatus
   ): Promise<EcommerceOrder> {
-    return this.update(id, { status: status as any });
+    return this.update(id, { status });
   },
 
   /**
@@ -132,9 +135,9 @@ const ordersService = {
    */
   async updatePaymentStatus(
     id: string,
-    paymentStatus: string
+    paymentStatus: PaymentStatus
   ): Promise<EcommerceOrder> {
-    return this.update(id, { paymentStatus: paymentStatus as any });
+    return this.update(id, { paymentStatus });
   },
 
   /**
@@ -142,9 +145,9 @@ const ordersService = {
    */
   async updateShippingStatus(
     id: string,
-    shippingStatus: string
+    shippingStatus: ShippingStatus
   ): Promise<EcommerceOrder> {
-    return this.update(id, { shippingStatus: shippingStatus as any });
+    return this.update(id, { shippingStatus });
   },
 
   /**
@@ -190,7 +193,7 @@ const itemsService = {
    * Get all order items with optional filters
    */
   async getAll(ecommerceOrderId?: number): Promise<EcommerceOrderItem[]> {
-    const params: Record<string, any> = {};
+    const params: Record<string, string | number> = {};
 
     if (ecommerceOrderId) {
       params['filter[ecommerce_order_id]'] = ecommerceOrderId;
@@ -201,14 +204,14 @@ const itemsService = {
       { params }
     );
 
-    return response.data.data.map(ecommerceOrderItemFromAPI);
+    return response.data.data.map(item => ecommerceOrderItemFromAPI(item as unknown as Record<string, unknown>));
   },
 
   /**
    * Get a single order item by ID
    */
   async getById(id: string): Promise<EcommerceOrderItem> {
-    const response = await axiosClient.get<{ data: any }>(
+    const response = await axiosClient.get<{ data: Record<string, unknown> }>(
       `/api/v1/ecommerce-order-items/${id}`,
       {
         params: {
@@ -217,7 +220,7 @@ const itemsService = {
       }
     );
 
-    return ecommerceOrderItemFromAPI(response.data.data);
+    return ecommerceOrderItemFromAPI(response.data.data as unknown as Record<string, unknown>);
   },
 
   /**
@@ -231,12 +234,12 @@ const itemsService = {
       },
     };
 
-    const response = await axiosClient.post<{ data: any }>(
+    const response = await axiosClient.post<{ data: Record<string, unknown> }>(
       '/api/v1/ecommerce-order-items',
       payload
     );
 
-    return ecommerceOrderItemFromAPI(response.data.data);
+    return ecommerceOrderItemFromAPI(response.data.data as unknown as Record<string, unknown>);
   },
 
   /**
@@ -251,12 +254,12 @@ const itemsService = {
       },
     };
 
-    const response = await axiosClient.patch<{ data: any }>(
+    const response = await axiosClient.patch<{ data: Record<string, unknown> }>(
       `/api/v1/ecommerce-order-items/${id}`,
       payload
     );
 
-    return ecommerceOrderItemFromAPI(response.data.data);
+    return ecommerceOrderItemFromAPI(response.data.data as unknown as Record<string, unknown>);
   },
 
   /**
