@@ -44,7 +44,8 @@ export default defineConfig({
     include: [
       'src/modules/**/tests/**/*.{test,spec}.{js,ts,tsx}',
       'src/modules/**/*.{test,spec}.{js,ts,tsx}',
-      'src/ui/**/*.{test,spec}.{js,ts,tsx}'
+      'src/ui/**/*.{test,spec}.{js,ts,tsx}',
+      'src/tests/**/*.{test,spec}.{js,ts,tsx}'
     ],
     exclude: ['node_modules/', 'src/test/setup.ts'],
     
