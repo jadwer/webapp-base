@@ -51,13 +51,13 @@ export const UltimosProductosEnhanced: React.FC<UltimosProductosEnhancedProps> =
 
   // Handle add to cart (for future implementation)
   const handleAddToCart = useCallback((product: EnhancedPublicProduct) => {
-    console.log('Add to cart:', product.displayName)
+    // console.log('Add to cart:', product.displayName)
     // TODO: Implement cart functionality
   }, [])
 
   // Handle add to wishlist (for future implementation)
   const handleAddToWishlist = useCallback((product: EnhancedPublicProduct) => {
-    console.log('Add to wishlist:', product.displayName)
+    // console.log('Add to wishlist:', product.displayName)
     // TODO: Implement wishlist functionality
   }, [])
 

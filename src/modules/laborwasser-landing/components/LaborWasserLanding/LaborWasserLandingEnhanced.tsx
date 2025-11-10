@@ -79,12 +79,12 @@ export const LaborWasserLandingEnhanced: React.FC<LaborWasserLandingEnhancedProp
   }
 
   const handleAddToCart = (product: EnhancedPublicProduct) => {
-    console.log('Add to cart:', product.displayName)
+    // console.log('Add to cart:', product.displayName)
     alert(`${product.displayName} agregado al carrito`)
   }
 
   const handleAddToWishlist = (product: EnhancedPublicProduct) => {
-    console.log('Add to wishlist:', product.displayName)
+    // console.log('Add to wishlist:', product.displayName)
     alert(`${product.displayName} agregado a favoritos`)
   }
 
