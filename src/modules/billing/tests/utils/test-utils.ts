@@ -24,35 +24,29 @@ export const createMockCFDIInvoice = (
   overrides?: Partial<CFDIInvoice>
 ): CFDIInvoice => ({
   id: '1',
-  serie: 'A',
-  folio: '001',
-  fecha: '2025-01-15T10:00:00Z',
+  series: 'A',
+  folio: 1,
   tipoComprobante: 'I',
-  metodoPago: 'PUE',
-  formaPago: '01',
-  moneda: 'MXN',
-  tipoCambio: 1,
-  subTotal: 1000,
-  descuento: 0,
-  total: 1160,
-  status: 'draft',
-  companySettingId: '1',
-  contactId: '1',
-  emisorRfc: 'XAXX010101000',
-  emisorNombre: 'Test Emisor',
   receptorRfc: 'XAXX010101000',
   receptorNombre: 'Test Receptor',
-  receptorUsoCFDI: 'G03',
-  uuid: null,
-  fechaTimbrado: null,
-  noCertificadoSAT: null,
-  selloSAT: null,
-  cadenaOriginalSAT: null,
-  xmlPath: null,
-  pdfPath: null,
-  fechaCancelacion: null,
-  motivoCancelacion: null,
-  uuidReemplazo: null,
+  receptorUsoCfdi: 'G03',
+  receptorRegimenFiscal: '601',
+  receptorDomicilioFiscal: '12345',
+  subtotal: 1000,
+  total: 1160,
+  descuento: 0,
+  iva: 160,
+  ieps: 0,
+  isrRetenido: 0,
+  ivaRetenido: 0,
+  moneda: 'MXN',
+  tipoCambio: 1,
+  formaPago: '01',
+  metodoPago: 'PUE',
+  status: 'draft',
+  companySettingId: 1,
+  contactId: 1,
+  fechaEmision: '2025-01-15T10:00:00Z',
   createdAt: '2025-01-15T10:00:00Z',
   updatedAt: '2025-01-15T10:00:00Z',
   ...overrides,
@@ -63,7 +57,7 @@ export const createMockCFDIInvoice = (
  */
 export const createMockCFDIInvoices = (count: number): CFDIInvoice[] => {
   return Array.from({ length: count }, (_, i) =>
-    createMockCFDIInvoice({ id: String(i + 1), folio: String(i + 1).padStart(3, '0') })
+    createMockCFDIInvoice({ id: String(i + 1), folio: i + 1 })
   )
 }
 
@@ -72,7 +66,7 @@ export const createMockCFDIInvoices = (count: number): CFDIInvoice[] => {
  */
 export const createMockCFDIItem = (overrides?: Partial<CFDIItem>): CFDIItem => ({
   id: '1',
-  cfdiInvoiceId: '1',
+  cfdiInvoiceId: 1,
   claveProdServ: '01010101',
   noIdentificacion: 'PROD001',
   cantidad: 1,
@@ -107,21 +101,20 @@ export const createMockCompanySetting = (
   overrides?: Partial<CompanySetting>
 ): CompanySetting => ({
   id: '1',
-  razonSocial: 'Test Company SA de CV',
+  companyName: 'Test Company SA de CV',
   rfc: 'XAXX010101000',
-  regimenFiscal: '601',
-  codigoPostal: '12345',
-  isActive: true,
+  taxRegime: '601',
+  postalCode: '12345',
+  invoiceSeries: 'A',
+  creditNoteSeries: 'NC',
+  nextInvoiceFolio: 1,
+  nextCreditNoteFolio: 1,
   pacProvider: 'SW',
-  pacUser: 'test@example.com',
-  pacPassword: 'encrypted_password',
-  pacUrl: 'https://services.test.sw.com.mx',
-  pacToken: null,
-  certificatePath: '/path/to/cert.cer',
-  keyPath: '/path/to/key.key',
-  certificateNumber: '30001000000400002434',
-  certificateValidFrom: '2023-01-01T00:00:00Z',
-  certificateValidTo: '2027-01-01T00:00:00Z',
+  pacUsername: 'test@example.com',
+  pacProductionMode: false,
+  certificateFile: '/path/to/cert.cer',
+  keyFile: '/path/to/key.key',
+  isActive: true,
   createdAt: '2025-01-15T10:00:00Z',
   updatedAt: '2025-01-15T10:00:00Z',
   ...overrides,
@@ -134,7 +127,7 @@ export const createMockCompanySettings = (count: number): CompanySetting[] => {
   return Array.from({ length: count }, (_, i) =>
     createMockCompanySetting({
       id: String(i + 1),
-      razonSocial: `Test Company ${i + 1} SA de CV`,
+      companyName: `Test Company ${i + 1} SA de CV`,
       isActive: i === 0,
     })
   )

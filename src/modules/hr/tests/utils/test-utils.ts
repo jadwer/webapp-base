@@ -345,7 +345,7 @@ export const waitForCondition = async (
   }
 };
 
-export const mockConsole = () => {
-  console.log = vi.fn();
-  console.error = vi.fn();
-};
+// export const mockConsole = () => {
+//   console.log = vi.fn();
+//   console.error = vi.fn();
+// };

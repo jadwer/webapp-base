@@ -224,21 +224,22 @@ export const waitForCondition = async (
 
 /**
  * Mock console methods for cleaner test output
+ * Note: This function should be called within test files, not in utils
  */
-export const mockConsole = () => {
-  const originalLog = console.log;
-  const originalError = console.error;
-  const originalWarn = console.warn;
+// export const mockConsole = () => {
+//   const originalLog = console.log;
+//   const originalError = console.error;
+//   const originalWarn = console.warn;
 
-  beforeEach(() => {
-    console.log = vi.fn();
-    console.error = vi.fn();
-    console.warn = vi.fn();
-  });
+//   beforeEach(() => {
+//     console.log = vi.fn();
+//     console.error = vi.fn();
+//     console.warn = vi.fn();
+//   });
 
-  afterEach(() => {
-    console.log = originalLog;
-    console.error = originalError;
-    console.warn = originalWarn;
-  });
-};
+//   afterEach(() => {
+//     console.log = originalLog;
+//     console.error = originalError;
+//     console.warn = originalWarn;
+//   });
+// };
