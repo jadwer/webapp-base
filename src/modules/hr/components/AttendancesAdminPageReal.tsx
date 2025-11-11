@@ -6,8 +6,9 @@
 
 'use client'
 
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useRef } from 'react'
 import { Button, ConfirmModal } from '@/ui/components/base'
+import type { ConfirmModalHandle } from '@/ui/components/base'
 import { useAttendances, useAttendancesMutations } from '../hooks'
 import { AttendanceForm } from './AttendanceForm'
 import { AttendancesTable } from './AttendancesTable'
@@ -21,7 +22,7 @@ export const AttendancesAdminPageReal: React.FC = () => {
 
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [editingAttendance, setEditingAttendance] = useState<Attendance | null>(null)
-  const [deletingAttendance, setDeletingAttendance] = useState<Attendance | null>(null)
+  const confirmModalRef = useRef<ConfirmModalHandle>(null)
 
   // Create Attendance
   const handleCreate = useCallback(async (data: AttendanceFormData) => {
@@ -52,19 +53,28 @@ export const AttendancesAdminPageReal: React.FC = () => {
   }, [editingAttendance, updateAttendance, mutate])
 
   // Delete Attendance
-  const handleDelete = useCallback(async () => {
-    if (!deletingAttendance) return
+  const handleDelete = useCallback(async (attendance: Attendance) => {
+    const confirmed = await confirmModalRef.current?.confirm(
+      `¿Estás seguro de que deseas eliminar el registro de asistencia del ${new Date(attendance.date).toLocaleDateString('es-MX')}? Esta acción no se puede deshacer.`,
+      {
+        title: 'Confirmar Eliminación',
+        confirmText: 'Eliminar',
+        cancelText: 'Cancelar',
+        confirmVariant: 'danger',
+      }
+    )
+
+    if (!confirmed) return
 
     try {
-      await deleteAttendance(deletingAttendance.id)
-      setDeletingAttendance(null)
+      await deleteAttendance(attendance.id)
       mutate()
       showToast('Registro de asistencia eliminado exitosamente', 'success')
     } catch (error) {
       console.error('Error deleting attendance:', error)
       showToast('Error al eliminar registro de asistencia', 'error')
     }
-  }, [deletingAttendance, deleteAttendance, mutate])
+  }, [deleteAttendance, mutate])
 
   // Toast notification helper
   const showToast = (message: string, type: 'success' | 'error') => {
@@ -232,7 +242,7 @@ export const AttendancesAdminPageReal: React.FC = () => {
             onEdit={setEditingAttendance}
             onDelete={(id) => {
               const attendance = attendances.find(a => a.id === id)
-              if (attendance) setDeletingAttendance(attendance)
+              if (attendance) handleDelete(attendance)
             }}
             isLoading={isLoading}
           />
@@ -303,18 +313,7 @@ export const AttendancesAdminPageReal: React.FC = () => {
       )}
 
       {/* Delete Confirmation Modal */}
-      {deletingAttendance && (
-        <ConfirmModal
-          isOpen={true}
-          title="Confirmar Eliminación"
-          message={`¿Estás seguro de que deseas eliminar el registro de asistencia del ${new Date(deletingAttendance.date).toLocaleDateString('es-MX')}? Esta acción no se puede deshacer.`}
-          confirmText="Eliminar"
-          cancelText="Cancelar"
-          variant="danger"
-          onConfirm={handleDelete}
-          onCancel={() => setDeletingAttendance(null)}
-        />
-      )}
+      <ConfirmModal ref={confirmModalRef} />
     </div>
   )
 }

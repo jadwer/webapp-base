@@ -6,7 +6,7 @@
 
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { Input, Button } from '@/ui/components/base'
 import { useEmployees } from '../hooks'
 import type { AttendanceFormData, AttendanceStatus } from '../types'
@@ -114,7 +114,7 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
             type="date"
             value={formData.date}
             onChange={(e) => handleChange('date', e.target.value)}
-            error={errors.date}
+            errorText={errors.date}
           />
         </div>
 
@@ -125,7 +125,7 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
             type="time"
             value={formData.checkIn}
             onChange={(e) => handleChange('checkIn', e.target.value)}
-            error={errors.checkIn}
+            errorText={errors.checkIn}
           />
         </div>
 

@@ -6,8 +6,9 @@
 
 'use client'
 
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useRef } from 'react'
 import { Button, ConfirmModal } from '@/ui/components/base'
+import type { ConfirmModalHandle } from '@/ui/components/base'
 import { usePayrollPeriods, usePayrollPeriodsMutations } from '../hooks'
 import type { PayrollPeriod, PayrollPeriodFormData, PayrollPeriodsFilters as FiltersType, PeriodType, PayrollStatus } from '../types'
 
@@ -24,12 +25,12 @@ const StatusBadge: React.FC<{ status: PayrollStatus }> = ({ status }) => {
 }
 
 export const PayrollPeriodsAdminPageReal: React.FC = () => {
-  const [filters, setFilters] = useState<FiltersType>({})
+  const [filters] = useState<FiltersType>({})
   const { payrollPeriods, isLoading, mutate } = usePayrollPeriods(filters)
   const { createPayrollPeriod, updatePayrollPeriod, deletePayrollPeriod } = usePayrollPeriodsMutations()
 
   const [showCreateModal, setShowCreateModal] = useState(false)
-  const [deletingPeriod, setDeletingPeriod] = useState<PayrollPeriod | null>(null)
+  const confirmModalRef = useRef<ConfirmModalHandle>(null)
   const [formData, setFormData] = useState<PayrollPeriodFormData>({
     name: '',
     periodType: 'monthly',
@@ -64,6 +65,27 @@ export const PayrollPeriodsAdminPageReal: React.FC = () => {
       console.error('Error:', error)
     }
   }, [updatePayrollPeriod, mutate])
+
+  const handleDelete = useCallback(async (period: PayrollPeriod) => {
+    const confirmed = await confirmModalRef.current?.confirm(
+      `¿Eliminar el período ${period.name}?`,
+      {
+        title: 'Confirmar Eliminación',
+        confirmText: 'Eliminar',
+        cancelText: 'Cancelar',
+        confirmVariant: 'danger',
+      }
+    )
+
+    if (!confirmed) return
+
+    try {
+      await deletePayrollPeriod(period.id)
+      mutate()
+    } catch (error) {
+      console.error('Error:', error)
+    }
+  }, [deletePayrollPeriod, mutate])
 
   const totalGross = payrollPeriods.reduce((sum, p) => sum + p.totalGross, 0)
   const totalDeductions = payrollPeriods.reduce((sum, p) => sum + p.totalDeductions, 0)
@@ -176,7 +198,7 @@ export const PayrollPeriodsAdminPageReal: React.FC = () => {
                               <i className="bi bi-cash" />
                             </Button>
                           )}
-                          <Button size="small" variant="danger" buttonStyle="outline" onClick={() => setDeletingPeriod(period)}>
+                          <Button size="small" variant="danger" buttonStyle="outline" onClick={() => handleDelete(period)}>
                             <i className="bi bi-trash" />
                           </Button>
                         </div>
@@ -241,22 +263,7 @@ export const PayrollPeriodsAdminPageReal: React.FC = () => {
       )}
 
       {/* Delete Modal */}
-      {deletingPeriod && (
-        <ConfirmModal
-          isOpen={true}
-          title="Confirmar Eliminación"
-          message={`¿Eliminar el período ${deletingPeriod.name}?`}
-          confirmText="Eliminar"
-          cancelText="Cancelar"
-          variant="danger"
-          onConfirm={async () => {
-            await deletePayrollPeriod(deletingPeriod.id)
-            setDeletingPeriod(null)
-            mutate()
-          }}
-          onCancel={() => setDeletingPeriod(null)}
-        />
-      )}
+      <ConfirmModal ref={confirmModalRef} />
     </div>
   )
 }

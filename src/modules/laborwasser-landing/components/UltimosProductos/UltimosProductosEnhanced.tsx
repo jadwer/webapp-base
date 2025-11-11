@@ -50,14 +50,16 @@ export const UltimosProductosEnhanced: React.FC<UltimosProductosEnhancedProps> =
   }, [enableProductModal])
 
   // Handle add to cart (for future implementation)
-  const handleAddToCart = useCallback((product: EnhancedPublicProduct) => {
-    // console.log('Add to cart:', product.displayName)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const handleAddToCart = useCallback((_product: EnhancedPublicProduct) => {
+    // console.log('Add to cart:', _product.displayName)
     // TODO: Implement cart functionality
   }, [])
 
   // Handle add to wishlist (for future implementation)
-  const handleAddToWishlist = useCallback((product: EnhancedPublicProduct) => {
-    // console.log('Add to wishlist:', product.displayName)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const handleAddToWishlist = useCallback((_product: EnhancedPublicProduct) => {
+    // console.log('Add to wishlist:', _product.displayName)
     // TODO: Implement wishlist functionality
   }, [])
 

@@ -116,7 +116,7 @@ export const EmployeeForm: React.FC<EmployeeFormProps> = ({
             type="text"
             value={formData.employeeCode}
             onChange={(e) => handleChange('employeeCode', e.target.value)}
-            error={errors.employeeCode}
+            errorText={errors.employeeCode}
             disabled={isEdit}
           />
         </div>
@@ -142,7 +142,7 @@ export const EmployeeForm: React.FC<EmployeeFormProps> = ({
             type="text"
             value={formData.firstName}
             onChange={(e) => handleChange('firstName', e.target.value)}
-            error={errors.firstName}
+            errorText={errors.firstName}
           />
         </div>
 
@@ -153,7 +153,7 @@ export const EmployeeForm: React.FC<EmployeeFormProps> = ({
             type="text"
             value={formData.lastName}
             onChange={(e) => handleChange('lastName', e.target.value)}
-            error={errors.lastName}
+            errorText={errors.lastName}
           />
         </div>
 
@@ -164,7 +164,7 @@ export const EmployeeForm: React.FC<EmployeeFormProps> = ({
             type="email"
             value={formData.email}
             onChange={(e) => handleChange('email', e.target.value)}
-            error={errors.email}
+            errorText={errors.email}
           />
         </div>
 
@@ -185,7 +185,7 @@ export const EmployeeForm: React.FC<EmployeeFormProps> = ({
             type="date"
             value={formData.hireDate}
             onChange={(e) => handleChange('hireDate', e.target.value)}
-            error={errors.hireDate}
+            errorText={errors.hireDate}
           />
         </div>
 
@@ -206,7 +206,7 @@ export const EmployeeForm: React.FC<EmployeeFormProps> = ({
             type="number"
             value={formData.salary}
             onChange={(e) => handleChange('salary', parseFloat(e.target.value) || 0)}
-            error={errors.salary}
+            errorText={errors.salary}
             step="0.01"
           />
         </div>

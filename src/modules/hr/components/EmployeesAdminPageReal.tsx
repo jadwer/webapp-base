@@ -6,8 +6,9 @@
 
 'use client'
 
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useRef } from 'react'
 import { Button, ConfirmModal } from '@/ui/components/base'
+import type { ConfirmModalHandle } from '@/ui/components/base'
 import { useEmployees, useEmployeesMutations } from '../hooks'
 import { EmployeeForm } from './EmployeeForm'
 import { EmployeesTable } from './EmployeesTable'
@@ -21,7 +22,7 @@ export const EmployeesAdminPageReal: React.FC = () => {
 
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null)
-  const [deletingEmployee, setDeletingEmployee] = useState<Employee | null>(null)
+  const confirmModalRef = useRef<ConfirmModalHandle>(null)
 
   // Create Employee
   const handleCreate = useCallback(async (data: EmployeeFormData) => {
@@ -52,19 +53,28 @@ export const EmployeesAdminPageReal: React.FC = () => {
   }, [editingEmployee, updateEmployee, mutate])
 
   // Delete Employee
-  const handleDelete = useCallback(async () => {
-    if (!deletingEmployee) return
+  const handleDelete = useCallback(async (employee: Employee) => {
+    const confirmed = await confirmModalRef.current?.confirm(
+      `¿Estás seguro de que deseas eliminar al empleado ${employee.firstName} ${employee.lastName}? Esta acción no se puede deshacer.`,
+      {
+        title: 'Confirmar Eliminación',
+        confirmText: 'Eliminar',
+        cancelText: 'Cancelar',
+        confirmVariant: 'danger',
+      }
+    )
+
+    if (!confirmed) return
 
     try {
-      await deleteEmployee(deletingEmployee.id)
-      setDeletingEmployee(null)
+      await deleteEmployee(employee.id)
       mutate()
       showToast('Empleado eliminado exitosamente', 'success')
     } catch (error) {
       console.error('Error deleting employee:', error)
       showToast('Error al eliminar empleado', 'error')
     }
-  }, [deletingEmployee, deleteEmployee, mutate])
+  }, [deleteEmployee, mutate])
 
   // Toast notification helper
   const showToast = (message: string, type: 'success' | 'error') => {
@@ -194,7 +204,7 @@ export const EmployeesAdminPageReal: React.FC = () => {
             onEdit={setEditingEmployee}
             onDelete={(id) => {
               const employee = employees.find(e => e.id === id)
-              if (employee) setDeletingEmployee(employee)
+              if (employee) handleDelete(employee)
             }}
             isLoading={isLoading}
           />
@@ -276,18 +286,7 @@ export const EmployeesAdminPageReal: React.FC = () => {
       )}
 
       {/* Delete Confirmation Modal */}
-      {deletingEmployee && (
-        <ConfirmModal
-          isOpen={true}
-          title="Confirmar Eliminación"
-          message={`¿Estás seguro de que deseas eliminar al empleado ${deletingEmployee.firstName} ${deletingEmployee.lastName}? Esta acción no se puede deshacer.`}
-          confirmText="Eliminar"
-          cancelText="Cancelar"
-          variant="danger"
-          onConfirm={handleDelete}
-          onCancel={() => setDeletingEmployee(null)}
-        />
-      )}
+      <ConfirmModal ref={confirmModalRef} />
     </div>
   )
 }

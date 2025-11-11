@@ -6,8 +6,8 @@
 
 'use client'
 
-import React, { useState, useEffect, useCallback } from 'react'
-import { Input, Button } from '@/ui/components/base'
+import React, { useCallback } from 'react'
+import { Button } from '@/ui/components/base'
 import { useEmployees } from '../hooks'
 import type { AttendancesFilters as FiltersType, AttendanceStatus } from '../types'
 

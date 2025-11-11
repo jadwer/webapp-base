@@ -6,8 +6,9 @@
 
 'use client'
 
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useRef } from 'react'
 import { Button, ConfirmModal } from '@/ui/components/base'
+import type { ConfirmModalHandle } from '@/ui/components/base'
 import { useLeaves, useLeavesMutations, useEmployees, useLeaveTypes } from '../hooks'
 import type { Leave, LeaveFormData, LeavesFilters as FiltersType, LeaveStatus } from '../types'
 
@@ -23,15 +24,14 @@ const LeaveStatusBadge: React.FC<{ status: LeaveStatus }> = ({ status }) => {
 }
 
 export const LeavesAdminPageReal: React.FC = () => {
-  const [filters, setFilters] = useState<FiltersType>({})
+  const [filters] = useState<FiltersType>({})
   const { leaves, isLoading, mutate } = useLeaves(filters)
   const { employees } = useEmployees()
   const { leaveTypes } = useLeaveTypes()
   const { createLeave, updateLeave, deleteLeave } = useLeavesMutations()
 
   const [showCreateModal, setShowCreateModal] = useState(false)
-  const [editingLeave, setEditingLeave] = useState<Leave | null>(null)
-  const [deletingLeave, setDeletingLeave] = useState<Leave | null>(null)
+  const confirmModalRef = useRef<ConfirmModalHandle>(null)
   const [formData, setFormData] = useState<LeaveFormData>({
     startDate: new Date().toISOString().split('T')[0],
     endDate: new Date().toISOString().split('T')[0],
@@ -75,6 +75,27 @@ export const LeavesAdminPageReal: React.FC = () => {
       console.error('Error:', error)
     }
   }, [updateLeave, mutate])
+
+  const handleDelete = useCallback(async (leave: Leave) => {
+    const confirmed = await confirmModalRef.current?.confirm(
+      '¿Eliminar la solicitud de permiso?',
+      {
+        title: 'Confirmar Eliminación',
+        confirmText: 'Eliminar',
+        cancelText: 'Cancelar',
+        confirmVariant: 'danger',
+      }
+    )
+
+    if (!confirmed) return
+
+    try {
+      await deleteLeave(leave.id)
+      mutate()
+    } catch (error) {
+      console.error('Error:', error)
+    }
+  }, [deleteLeave, mutate])
 
   const pending = leaves.filter(l => l.status === 'pending').length
   const approved = leaves.filter(l => l.status === 'approved').length
@@ -176,7 +197,7 @@ export const LeavesAdminPageReal: React.FC = () => {
                               </Button>
                             </>
                           )}
-                          <Button size="small" variant="danger" buttonStyle="outline" onClick={() => setDeletingLeave(leave)}>
+                          <Button size="small" variant="danger" buttonStyle="outline" onClick={() => handleDelete(leave)}>
                             <i className="bi bi-trash" />
                           </Button>
                         </div>
@@ -247,22 +268,7 @@ export const LeavesAdminPageReal: React.FC = () => {
       )}
 
       {/* Delete Modal */}
-      {deletingLeave && (
-        <ConfirmModal
-          isOpen={true}
-          title="Confirmar Eliminación"
-          message={`¿Eliminar la solicitud de permiso?`}
-          confirmText="Eliminar"
-          cancelText="Cancelar"
-          variant="danger"
-          onConfirm={async () => {
-            await deleteLeave(deletingLeave.id)
-            setDeletingLeave(null)
-            mutate()
-          }}
-          onCancel={() => setDeletingLeave(null)}
-        />
-      )}
+      <ConfirmModal ref={confirmModalRef} />
     </div>
   )
 }
