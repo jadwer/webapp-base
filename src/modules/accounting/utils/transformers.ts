@@ -71,7 +71,7 @@ export const transformJournalLineFromAPI = (apiData: Record<string, unknown>): J
     baseAmount: attributes.baseAmount as string | undefined,                 // ✅ decimal as string
     costCenterId: attributes.costCenterId ? String(attributes.costCenterId) : undefined,
     partnerId: attributes.partnerId ? String(attributes.partnerId) : undefined,
-    memo: String(attributes.memo),
+    memo: attributes.memo ? String(attributes.memo) : undefined,
     currency: String(attributes.currency),
     exchangeRate: String(attributes.exchangeRate),             // ✅ decimal as string
     metadata: attributes.metadata as Record<string, unknown> | undefined,
