@@ -88,11 +88,9 @@ const accountingLinks = [
 // Reportes (módulo independiente)
 const reportsLinks = [
   { href: '/dashboard/reports', label: 'Dashboard Reportes', icon: 'bi-speedometer2' },
-  { href: '/dashboard/accounting/reports/balance-general', label: 'Balance General', icon: 'bi-clipboard-data' },
-  { href: '/dashboard/accounting/reports/estado-resultados', label: 'Estado de Resultados', icon: 'bi-graph-up-arrow' },
-  { href: '/dashboard/accounting/reports/balanza-comprobacion', label: 'Balanza de Comprobación', icon: 'bi-balance-scale' },
-  { href: '/dashboard/accounting/reports/libro-diario', label: 'Libro Diario', icon: 'bi-journal-text' },
-  { href: '/dashboard/accounting/reports/libro-mayor', label: 'Libro Mayor', icon: 'bi-book' }
+  { href: '/dashboard/reports/financial-statements', label: 'Estados Financieros', icon: 'bi-file-earmark-text' },
+  { href: '/dashboard/reports/aging-reports', label: 'Antigüedad AR/AP', icon: 'bi-clock-history' },
+  { href: '/dashboard/reports/management-reports', label: 'Reportes Gerenciales', icon: 'bi-graph-up' }
 ]
 
 // CRM
@@ -107,11 +105,10 @@ const crmLinks = [
 const hrLinks = [
   { href: '/dashboard/hr', label: 'Dashboard HR', icon: 'bi-speedometer2' },
   { href: '/dashboard/hr/employees', label: 'Empleados', icon: 'bi-person-badge' },
-  { href: '/dashboard/hr/departments', label: 'Departamentos', icon: 'bi-building' },
-  { href: '/dashboard/hr/positions', label: 'Puestos', icon: 'bi-briefcase' },
-  { href: '/dashboard/hr/attendances', label: 'Asistencias', icon: 'bi-calendar-check' },
-  { href: '/dashboard/hr/leaves', label: 'Permisos y Vacaciones', icon: 'bi-calendar-x' },
-  { href: '/dashboard/hr/payroll-periods', label: 'Períodos de Nómina', icon: 'bi-cash-coin' }
+  { href: '/dashboard/hr/attendances', label: 'Asistencia', icon: 'bi-clock-history' },
+  { href: '/dashboard/hr/leaves', label: 'Permisos y Vacaciones', icon: 'bi-calendar-check' },
+  { href: '/dashboard/hr/payroll', label: 'Nómina', icon: 'bi-cash-stack' },
+  { href: '/dashboard/hr/organization', label: 'Organización', icon: 'bi-diagram-3' }
 ]
 
 // Facturación CFDI

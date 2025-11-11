@@ -17,7 +17,7 @@ export const PaginationPro = React.memo<PaginationProProps>(({
   onPageChange,
   isLoading = false
 }) => {
-  console.log('🔄 PaginationPro render:', currentPage, '/', meta?.page?.lastPage)
+  // console.log('🔄 PaginationPro render:', currentPage, '/', meta?.page?.lastPage)
 
   if (!meta?.page || meta.page.lastPage <= 1) {
     return null

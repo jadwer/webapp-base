@@ -18,7 +18,7 @@ export const UnitFormWrapper: React.FC<UnitFormWrapperProps> = ({
   onSuccess,
   onCancel
 }) => {
-  console.log('🔄 UnitFormWrapper render', { unitId })
+  // console.log('🔄 UnitFormWrapper render', { unitId })
   
   const router = useRouter()
   const toast = useToast()
@@ -28,11 +28,11 @@ export const UnitFormWrapper: React.FC<UnitFormWrapperProps> = ({
   const handleSubmit = async (formData: CreateUnitData | UpdateUnitData) => {
     try {
       if (unitId && unit) {
-        console.log('📝 Updating unit:', unitId, formData)
+        // console.log('📝 Updating unit:', unitId, formData)
         await updateUnit(unitId, formData as UpdateUnitData)
         toast.success('Unidad actualizada exitosamente')
       } else {
-        console.log('🆕 Creating unit:', formData)
+        // console.log('🆕 Creating unit:', formData)
         await createUnit(formData as CreateUnitData)
         toast.success('Unidad creada exitosamente')
       }

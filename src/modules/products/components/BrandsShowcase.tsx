@@ -13,7 +13,7 @@ interface BrandsShowcaseProps {
 }
 
 export const BrandsShowcase = React.memo<BrandsShowcaseProps>(({ brands, isLoading = false, onEdit, onView, onDelete }) => {
-  console.log('🔄 BrandsShowcase render', { brandCount: brands.length })
+  // console.log('🔄 BrandsShowcase render', { brandCount: brands.length })
 
   if (isLoading) {
     return (

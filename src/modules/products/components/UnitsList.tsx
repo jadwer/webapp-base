@@ -19,7 +19,7 @@ export const UnitsList = React.memo<UnitsListProps>(({
   onView,
   onDelete
 }) => {
-  console.log('🔄 UnitsList render', { unitCount: units.length })
+  // console.log('🔄 UnitsList render', { unitCount: units.length })
 
   if (isLoading) {
     return (

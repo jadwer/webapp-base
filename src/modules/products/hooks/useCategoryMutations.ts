@@ -35,24 +35,24 @@ export function useCategoryMutations() {
   }
 
   const updateCategory = async (id: string, data: UpdateCategoryRequest) => {
-    console.log('🔄 useCategoryMutations.updateCategory called', { id, data })
+    // console.log('🔄 useCategoryMutations.updateCategory called', { id, data })
     setIsLoading(true)
     setError(null)
     
     try {
-      console.log('📞 Calling categoryService.updateCategory...')
+      // console.log('📞 Calling categoryService.updateCategory...')
       const response = await categoryService.updateCategory(id, data)
-      console.log('✅ categoryService.updateCategory returned:', response)
+      // console.log('✅ categoryService.updateCategory returned:', response)
       
       // Invalidate specific category and categories list
-      console.log('🔄 Invalidating SWR cache...')
+      // console.log('🔄 Invalidating SWR cache...')
       await mutate(['category', id], response, { revalidate: false })
       await mutate(
         (key) => Array.isArray(key) && key[0] === 'categories',
         undefined,
         { revalidate: true }
       )
-      console.log('✅ Cache invalidated successfully')
+      // console.log('✅ Cache invalidated successfully')
       
       return response
     } catch (err) {

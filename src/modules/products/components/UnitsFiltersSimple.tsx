@@ -22,7 +22,7 @@ const useDebounce = (value: string, delay: number) => {
 }
 
 export const UnitsFiltersSimple = React.memo(() => {
-  console.log('🔄 UnitsFiltersSimple render') // Should be minimal
+  // console.log('🔄 UnitsFiltersSimple render') // Should be minimal
 
   const { filters, setFilters, clearFilters } = useUnitsUIStore()
   
@@ -34,12 +34,12 @@ export const UnitsFiltersSimple = React.memo(() => {
 
   // Actualizar filtros cuando cambia el debounced search
   useEffect(() => {
-    console.log('🔍 Updating search filter:', debouncedSearch)
+    // console.log('🔍 Updating search filter:', debouncedSearch)
     setFilters({
-      ...filters,
       search: debouncedSearch || undefined
     })
-  }, [debouncedSearch, filters, setFilters])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedSearch])
 
   const handleClearFilters = React.useCallback(() => {
     setSearchTerm('')

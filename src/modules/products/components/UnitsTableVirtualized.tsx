@@ -94,7 +94,7 @@ export const UnitsTableVirtualized = React.memo<UnitsTableVirtualizedProps>(({
   onDelete,
   onView 
 }) => {
-  console.log('🔄 UnitsTableVirtualized render:', units.length, 'units')
+  // console.log('🔄 UnitsTableVirtualized render:', units.length, 'units')
 
   const parentRef = React.useRef<HTMLDivElement>(null)
 

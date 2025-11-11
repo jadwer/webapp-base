@@ -19,7 +19,7 @@ export const UnitsCompact = React.memo<UnitsCompactProps>(({
   onView,
   onDelete
 }) => {
-  console.log('🔄 UnitsCompact render', { unitCount: units.length })
+  // console.log('🔄 UnitsCompact render', { unitCount: units.length })
 
   if (isLoading) {
     return (

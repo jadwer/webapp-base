@@ -22,7 +22,7 @@ const useDebounce = (value: string, delay: number) => {
 }
 
 export const ProductsFiltersSimple = React.memo(() => {
-  console.log('🔄 ProductsFiltersSimple render') // Should be minimal
+  // console.log('🔄 ProductsFiltersSimple render') // Should be minimal
   
   // Local state for instant UI feedback
   const [searchTerm, setSearchTerm] = useState('')
@@ -62,7 +62,7 @@ export const ProductsFiltersSimple = React.memo(() => {
       newFilters.unitId = selectedUnit
     }
     
-    console.log('🔍 Updating filters (debounced):', newFilters)
+    // console.log('🔍 Updating filters (debounced):', newFilters)
     setFilters(newFilters)
   }, [debouncedSearchTerm, selectedCategory, selectedBrand, selectedUnit, setFilters])
 

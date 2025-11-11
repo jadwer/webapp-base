@@ -74,7 +74,7 @@ const ProductsStatsBar = React.memo<{
 ProductsStatsBar.displayName = 'ProductsStatsBar'
 
 export const ProductsAdminPagePro = React.memo(() => {
-  console.log('🔄 ProductsAdminPagePro render') // Should be minimal
+  // console.log('🔄 ProductsAdminPagePro render') // Should be minimal
 
   const navigation = useNavigationProgress()
   const confirmModalRef = useRef<ConfirmModalHandle>(null)
@@ -88,7 +88,7 @@ export const ProductsAdminPagePro = React.memo(() => {
   const { setPage } = useProductsUIStore()
 
   // Debug filters
-  console.log('🏭 ProductsAdminPagePro - filters received:', filters)
+  // console.log('🏭 ProductsAdminPagePro - filters received:', filters)
 
   // Get products data using existing hooks (maintains modularity)
   const { products, meta, isLoading, error, refresh } = useProducts({

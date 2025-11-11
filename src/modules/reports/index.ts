@@ -83,4 +83,6 @@ export {
 export {
   ReportsIndexPage,
   FinancialStatementsPage,
+  AgingReportsPage,
+  ManagementReportsPage,
 } from './components'

@@ -114,7 +114,7 @@ export const ProductsTableVirtualized = React.memo<ProductsTableVirtualizedProps
   onDelete,
   onView 
 }) => {
-  console.log('🔄 ProductsTableVirtualized render:', products.length, 'products')
+  // console.log('🔄 ProductsTableVirtualized render:', products.length, 'products')
 
   const parentRef = React.useRef<HTMLDivElement>(null)
 

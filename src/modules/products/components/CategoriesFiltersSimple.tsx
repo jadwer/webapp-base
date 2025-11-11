@@ -19,7 +19,7 @@ const useDebouncedFilter = (callback: (value: string) => void, delay: number = 3
 }
 
 export const CategoriesFiltersSimple = React.memo(() => {
-  console.log('🔄 CategoriesFiltersSimple render')
+  // console.log('🔄 CategoriesFiltersSimple render')
   
   // UI state from Zustand (no re-renders)
   const { filters, setFilters, clearFilters } = useCategoriesUIStore()
@@ -36,24 +36,24 @@ export const CategoriesFiltersSimple = React.memo(() => {
   // Debounced search handler
   const debouncedSearch = useDebouncedFilter(
     useCallback((searchValue: string) => {
-      console.log('🔍 Applying debounced category search:', searchValue)
-      setFilters({ 
-        ...filters,
-        search: searchValue || undefined 
+      // console.log('🔍 Applying debounced category search:', searchValue)
+      setFilters({
+        search: searchValue || undefined
       })
-    }, [setFilters, filters]),
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [setFilters]),
     300
   )
   
   // Handlers
   const handleSearchChange = useCallback((value: string) => {
-    console.log('⌨️ Category search input change:', value)
+    // console.log('⌨️ Category search input change:', value)
     setLocalSearch(value)
     debouncedSearch(value)
   }, [debouncedSearch])
   
   const handleClearFilters = useCallback(() => {
-    console.log('🧹 Clearing category filters')
+    // console.log('🧹 Clearing category filters')
     setLocalSearch('')
     clearFilters()
     

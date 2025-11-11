@@ -16,7 +16,7 @@ export const BrandView: React.FC<BrandViewProps> = ({
   onEdit,
   onBack
 }) => {
-  console.log('🔄 BrandView render', { brandId })
+  // console.log('🔄 BrandView render', { brandId })
   
   const { brand, error, isLoading } = useBrand(brandId)
 

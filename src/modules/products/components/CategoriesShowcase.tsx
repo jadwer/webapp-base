@@ -13,7 +13,7 @@ interface CategoriesShowcaseProps {
 }
 
 export const CategoriesShowcase = React.memo<CategoriesShowcaseProps>(({ categories, isLoading = false, onEdit, onView, onDelete }) => {
-  console.log('🔄 CategoriesShowcase render', { categoryCount: categories.length })
+  // console.log('🔄 CategoriesShowcase render', { categoryCount: categories.length })
 
   if (isLoading) {
     return (

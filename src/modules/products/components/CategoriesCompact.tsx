@@ -13,7 +13,7 @@ interface CategoriesCompactProps {
 }
 
 export const CategoriesCompact = React.memo<CategoriesCompactProps>(({ categories, isLoading = false, onEdit, onView, onDelete }) => {
-  console.log('🔄 CategoriesCompact render', { categoryCount: categories.length })
+  // console.log('🔄 CategoriesCompact render', { categoryCount: categories.length })
 
   if (isLoading) {
     return (

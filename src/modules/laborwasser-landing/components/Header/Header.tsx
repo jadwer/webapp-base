@@ -80,7 +80,7 @@ export const Header: React.FC = () => {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
     // TODO: Implement search functionality
-    console.log('Searching for:', searchQuery)
+    // console.log('Searching for:', searchQuery)
   }
 
   return (

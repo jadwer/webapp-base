@@ -16,7 +16,7 @@ export const UnitView: React.FC<UnitViewProps> = ({
   onEdit,
   onBack
 }) => {
-  console.log('🔄 UnitView render', { unitId })
+  // console.log('🔄 UnitView render', { unitId })
   
   const { unit, error, isLoading } = useUnit(unitId)
 

@@ -88,4 +88,9 @@ export {
 // Components
 export {
   HRIndexPage,
+  EmployeesAdminPageReal,
+  AttendancesAdminPageReal,
+  LeavesAdminPageReal,
+  PayrollPeriodsAdminPageReal,
+  OrganizationAdminPageReal,
 } from './components'

@@ -18,7 +18,7 @@ export const BrandFormWrapper: React.FC<BrandFormWrapperProps> = ({
   onSuccess,
   onCancel
 }) => {
-  console.log('🔄 BrandFormWrapper render', { brandId })
+  // console.log('🔄 BrandFormWrapper render', { brandId })
   
   const router = useRouter()
   const toast = useToast()
@@ -28,11 +28,11 @@ export const BrandFormWrapper: React.FC<BrandFormWrapperProps> = ({
   const handleSubmit = async (formData: CreateBrandData | UpdateBrandData) => {
     try {
       if (brandId && brand) {
-        console.log('📝 Updating brand:', brandId, formData)
+        // console.log('📝 Updating brand:', brandId, formData)
         await updateBrand(brandId, formData as UpdateBrandData)
         toast.success('Marca actualizada exitosamente')
       } else {
-        console.log('🆕 Creating brand:', formData)
+        // console.log('🆕 Creating brand:', formData)
         await createBrand(formData as CreateBrandData)
         toast.success('Marca creada exitosamente')
       }

@@ -142,7 +142,7 @@ export const ProductsShowcase = React.memo<ProductsShowcaseProps>(({
   onDelete,
   onView
 }) => {
-  console.log('🔄 ProductsShowcase render:', products.length, 'products')
+  // console.log('🔄 ProductsShowcase render:', products.length, 'products')
 
   const parentRef = React.useRef<HTMLDivElement>(null)
 

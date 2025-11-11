@@ -19,7 +19,7 @@ export const CategoryFormWrapper: React.FC<CategoryFormWrapperProps> = ({
   onSuccess,
   onCancel
 }) => {
-  console.log('🔄 CategoryFormWrapper render', { categoryId })
+  // console.log('🔄 CategoryFormWrapper render', { categoryId })
   
   const router = useRouter()
   const toast = useToast()
@@ -29,11 +29,11 @@ export const CategoryFormWrapper: React.FC<CategoryFormWrapperProps> = ({
   const handleSubmit = async (formData: CreateCategoryData | UpdateCategoryData) => {
     try {
       if (categoryId && category) {
-        console.log('📝 Updating category:', categoryId, formData)
+        // console.log('📝 Updating category:', categoryId, formData)
         await updateCategory(categoryId, formData as UpdateCategoryData)
         toast.success('Categoría actualizada exitosamente')
       } else {
-        console.log('🆕 Creating category:', formData)
+        // console.log('🆕 Creating category:', formData)
         await createCategory(formData as CreateCategoryData)
         toast.success('Categoría creada exitosamente')
       }

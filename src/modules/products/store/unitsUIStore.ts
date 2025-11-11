@@ -37,7 +37,7 @@ export const useUnitsUIStore = create<UnitsUIState>((set) => ({
   
   // Acciones que NO causan re-renders porque no están en React state
   setFilters: (filters) => {
-    console.log('🔍 Zustand: Setting unit filters (NO RERENDER)', filters)
+    // console.log('🔍 Zustand: Setting unit filters (NO RERENDER)', filters)
     set(() => ({ 
       filters,
       currentPage: 1 // Reset page when filters change
@@ -45,7 +45,7 @@ export const useUnitsUIStore = create<UnitsUIState>((set) => ({
   },
   
   setSort: (sort) => {
-    console.log('📊 Zustand: Setting unit sort (NO RERENDER)', sort)
+    // console.log('📊 Zustand: Setting unit sort (NO RERENDER)', sort)
     set(() => ({ 
       sort,
       currentPage: 1 // Reset page when sort changes  
@@ -53,17 +53,17 @@ export const useUnitsUIStore = create<UnitsUIState>((set) => ({
   },
   
   setPage: (currentPage) => {
-    console.log('📄 Zustand: Setting unit page (NO RERENDER)', currentPage)
+    // console.log('📄 Zustand: Setting unit page (NO RERENDER)', currentPage)
     set({ currentPage })
   },
   
   setViewMode: (viewMode) => {
-    console.log('👁️ Zustand: Setting unit view mode', viewMode)
+    // console.log('👁️ Zustand: Setting unit view mode', viewMode)
     set({ viewMode })
   },
   
   clearFilters: () => {
-    console.log('🧹 Zustand: Clearing unit filters (NO RERENDER)')
+    // console.log('🧹 Zustand: Clearing unit filters (NO RERENDER)')
     set({ 
       filters: {},
       currentPage: 1

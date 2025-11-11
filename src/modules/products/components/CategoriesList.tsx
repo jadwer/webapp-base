@@ -13,7 +13,7 @@ interface CategoriesListProps {
 }
 
 export const CategoriesList = React.memo<CategoriesListProps>(({ categories, isLoading = false, onEdit, onView, onDelete }) => {
-  console.log('🔄 CategoriesList render', { categoryCount: categories.length })
+  // console.log('🔄 CategoriesList render', { categoryCount: categories.length })
 
   if (isLoading) {
     return (

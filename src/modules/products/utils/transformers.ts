@@ -9,7 +9,7 @@ export interface JsonApiResource {
 
 
 export function transformJsonApiUnit(resource: JsonApiResource): Unit {
-  console.log('🔄 Transforming Unit:', resource)
+  // console.log('🔄 Transforming Unit:', resource)
   return {
     id: resource.id,
     unitType: (resource.attributes.unitType || '') as string,
@@ -23,7 +23,7 @@ export function transformJsonApiUnit(resource: JsonApiResource): Unit {
 }
 
 export function transformJsonApiCategory(resource: JsonApiResource): Category {
-  console.log('🔄 Transforming Category:', resource)
+  // console.log('🔄 Transforming Category:', resource)
   return {
     id: resource.id,
     name: (resource.attributes.name || '') as string,
@@ -36,7 +36,7 @@ export function transformJsonApiCategory(resource: JsonApiResource): Category {
 }
 
 export function transformJsonApiBrand(resource: JsonApiResource): Brand {
-  console.log('🔄 Transforming Brand:', resource)
+  // console.log('🔄 Transforming Brand:', resource)
   return {
     id: resource.id,
     name: (resource.attributes.name || '') as string,
@@ -52,7 +52,7 @@ export function transformJsonApiProduct(
   resource: JsonApiResource, 
   included: JsonApiResource[] = []
 ): Product {
-  console.log('🔄 Transforming Product:', resource)
+  // console.log('🔄 Transforming Product:', resource)
   
   // Parse included resources
   const includedMap: Record<string, JsonApiResource> = {}

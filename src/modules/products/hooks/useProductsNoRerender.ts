@@ -34,11 +34,11 @@ export function useProductsNoRerender(initialParams?: UseProductsNoRerenderParam
       setIsLoading(true)
       setError(null)
       
-      console.log('🔍 Fetching with params:', params)
+      // console.log('🔍 Fetching with params:', params)
       
       const response = await productService.getProducts(params)
       
-      console.log('📊 Fetched products:', response.data?.length || 0)
+      // console.log('📊 Fetched products:', response.data?.length || 0)
       
       // Update ref immediately (no re-render)
       currentDataRef.current = response

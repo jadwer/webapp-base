@@ -36,9 +36,9 @@ export const brandService = {
     }
 
     const response = await axios.get(BRANDS_ENDPOINT, { params: queryParams })
-    console.log('🔍 Brands API Request URL:', response.config?.url)
-    console.log('🔍 Brands API Response:', response.data)
-    console.log('🔍 Brands Raw Data:', JSON.stringify(response.data, null, 2))
+    // console.log('🔍 Brands API Request URL:', response.config?.url)
+    // console.log('🔍 Brands API Response:', response.data)
+    // console.log('🔍 Brands Raw Data:', JSON.stringify(response.data, null, 2))
     
     const jsonApiResponse = response.data as JsonApiResponse<JsonApiResource[]>
     
@@ -47,7 +47,7 @@ export const brandService = {
       ? jsonApiResponse.data.map(resource => transformJsonApiBrand(resource))
       : []
     
-    console.log('🔄 Transformed Brands:', transformedData)
+    // console.log('🔄 Transformed Brands:', transformedData)
     
     return {
       data: transformedData,
@@ -58,14 +58,14 @@ export const brandService = {
 
   async getBrand(id: string): Promise<BrandResponse> {
     const response = await axios.get(`${BRANDS_ENDPOINT}/${id}`)
-    console.log('🔍 Single Brand API Response:', response.data)
+    // console.log('🔍 Single Brand API Response:', response.data)
     
     const jsonApiResponse = response.data as JsonApiResponse<JsonApiResource>
     
     // Transform the single resource response
     const transformedBrand = transformJsonApiBrand(jsonApiResponse.data)
     
-    console.log('🔄 Transformed Brand:', transformedBrand)
+    // console.log('🔄 Transformed Brand:', transformedBrand)
     
     return {
       data: transformedBrand,

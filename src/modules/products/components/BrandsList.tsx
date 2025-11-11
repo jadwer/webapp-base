@@ -13,7 +13,7 @@ interface BrandsListProps {
 }
 
 export const BrandsList = React.memo<BrandsListProps>(({ brands, isLoading = false, onEdit, onView, onDelete }) => {
-  console.log('🔄 BrandsList render', { brandCount: brands.length })
+  // console.log('🔄 BrandsList render', { brandCount: brands.length })
 
   if (isLoading) {
     return (
