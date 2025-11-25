@@ -49,14 +49,11 @@ export const PipelineStagesTableSimple = ({
             {stages.map((stage) => (
               <tr key={stage.id}>
                 <td>
-                  <span className="badge bg-secondary">{stage.order}</span>
+                  <span className="badge bg-secondary">{stage.sortOrder}</span>
                 </td>
                 <td>
                   <div>
                     <strong>{stage.name}</strong>
-                    {stage.description && (
-                      <div className="text-muted small">{stage.description}</div>
-                    )}
                   </div>
                 </td>
                 <td>
@@ -75,18 +72,21 @@ export const PipelineStagesTableSimple = ({
                   </div>
                 </td>
                 <td>
-                  {stage.color && (
+                  {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+                  {(stage as any).color && (
                     <div className="d-flex align-items-center gap-2">
                       <div
                         style={{
                           width: '24px',
                           height: '24px',
-                          backgroundColor: stage.color,
+                          /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+                          backgroundColor: (stage as any).color,
                           borderRadius: '4px',
                           border: '1px solid #dee2e6'
                         }}
                       />
-                      <small className="text-muted">{stage.color}</small>
+                      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+                      <small className="text-muted">{(stage as any).color}</small>
                     </div>
                   )}
                 </td>

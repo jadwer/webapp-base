@@ -1,4 +1,4 @@
-import { JsonApiResource, SalesOrder, SalesOrderItem, Contact, SalesOrderFormData } from '../types'
+import { JsonApiResource, SalesOrder, SalesOrderItem, Contact, SalesOrderFormData, OrderStatus } from '../types'
 
 export function transformContact(resource: JsonApiResource | Record<string, unknown>): Contact {
   if (!resource) return { id: '', name: '', type: 'individual' }
@@ -20,8 +20,11 @@ export function transformJsonApiSalesOrder(resource: JsonApiResource): SalesOrde
     contactId: (attributes.contact_id || attributes.contactId) as number,
     orderNumber: (attributes.order_number || attributes.orderNumber || '') as string,
     orderDate: (attributes.order_date || attributes.orderDate || '') as string,
-    status: (attributes.status || 'pending') as 'pending' | 'approved' | 'completed' | 'cancelled',
+    status: (attributes.status || 'pending') as OrderStatus,
+    approvedAt: (attributes.approved_at || attributes.approvedAt) as string | null,
+    deliveredAt: (attributes.delivered_at || attributes.deliveredAt) as string | null,
     totalAmount: (attributes.total_amount || attributes.totalAmount || 0) as number,
+    invoicingNotes: (attributes.invoicing_notes || attributes.invoicingNotes) as string | null,
     notes: (attributes.notes || '') as string,
     createdAt: (attributes.created_at || attributes.createdAt) as string | undefined,
     updatedAt: (attributes.updated_at || attributes.updatedAt) as string | undefined,
@@ -197,10 +200,13 @@ export function transformSalesOrderFormToJsonApi(data: SalesOrderFormData, type:
     data: {
       type,
       attributes: {
-        contact_id: data.contactId, // Already a number
+        contact_id: data.contactId,
         order_number: data.orderNumber,
         status: data.status,
         order_date: data.orderDate,
+        approved_at: data.approvedAt || null,
+        delivered_at: data.deliveredAt || null,
+        invoicing_notes: data.invoicingNotes || null,
         notes: data.notes || ''
       },
       relationships: {

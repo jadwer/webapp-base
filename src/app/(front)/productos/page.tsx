@@ -6,9 +6,11 @@
 
 'use client'
 
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { PublicCatalogTemplate } from '@/modules/public-catalog'
 import type { EnhancedPublicProduct } from '@/modules/public-catalog'
+import { useCart } from '@/modules/ecommerce'
+import { useToast } from '@/ui/hooks/useToast'
 
 // Mock data for demonstration - in real app, this would come from API
 const mockCategories = [
@@ -42,6 +44,28 @@ const priceRange = {
 }
 
 export default function ProductosPage() {
+  const toast = useToast()
+  const [sessionId, setSessionId] = useState<string>('')
+  const [isClient, setIsClient] = useState(false)
+
+  // Client-side only initialization
+  useEffect(() => {
+    setIsClient(true)
+
+    let storedSessionId = localStorage.getItem('ecommerce_session_id')
+
+    if (!storedSessionId) {
+      // Generate new session ID
+      storedSessionId = `sess_${Date.now()}_${Math.random().toString(36).substring(7)}`
+      localStorage.setItem('ecommerce_session_id', storedSessionId)
+    }
+
+    setSessionId(storedSessionId)
+  }, [])
+
+  // Initialize cart hook only on client side
+  const { addProduct, cartItems } = useCart({ sessionId: isClient ? sessionId : '' })
+
   // Event handlers
   const handleProductClick = (product: EnhancedPublicProduct) => {
     console.log('Product clicked:', product.displayName)
@@ -49,16 +73,28 @@ export default function ProductosPage() {
     window.location.href = `/productos/${product.id}`
   }
 
-  const handleAddToCart = (product: EnhancedPublicProduct) => {
-    console.log('Add to cart:', product.displayName)
-    // TODO: Implement cart functionality
-    alert(`${product.displayName} agregado al carrito`)
+  const handleAddToCart = async (product: EnhancedPublicProduct) => {
+    if (!sessionId) {
+      toast.error('Inicializando carrito...')
+      return
+    }
+
+    try {
+      await addProduct(parseInt(product.id), 1)
+      toast.success(`${product.displayName} agregado al carrito`)
+
+      // Optional: Show cart item count
+      console.log('Cart items:', cartItems?.length || 0)
+    } catch (error) {
+      console.error('Error adding to cart:', error)
+      toast.error('Error al agregar el producto al carrito')
+    }
   }
 
   const handleAddToWishlist = (product: EnhancedPublicProduct) => {
     console.log('Add to wishlist:', product.displayName)
     // TODO: Implement wishlist functionality
-    alert(`${product.displayName} agregado a favoritos`)
+    toast.info(`${product.displayName} agregado a favoritos`)
   }
 
   return (

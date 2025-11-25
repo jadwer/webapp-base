@@ -108,7 +108,7 @@ export const ARInvoicesAdminPageReal = () => {
         statusOptions={[
           { value: '', label: 'Todos los estados' },
           { value: 'draft', label: 'Borrador' },
-          { value: 'posted', label: 'Contabilizada' },
+          { value: 'sent', label: 'Enviada' },
           { value: 'paid', label: 'Cobrada' },
         ]}
         placeholder="Buscar por número de factura, cliente..."
@@ -131,7 +131,7 @@ export const ARInvoicesAdminPageReal = () => {
         <div className="bg-white p-4 rounded-lg border">
           <div className="text-sm text-gray-600">Por Cobrar</div>
           <div className="text-2xl font-bold text-blue-600">
-            {arInvoices?.filter(inv => inv.status === 'posted' && inv.remainingBalance > 0).length || 0}
+            {arInvoices?.filter(inv => inv.status === 'sent' && (inv.totalAmount - inv.paidAmount) > 0).length || 0}
           </div>
         </div>
         <div className="bg-white p-4 rounded-lg border">
@@ -151,8 +151,8 @@ export const ARInvoicesAdminPageReal = () => {
               style: 'currency',
               currency: 'MXN'
             }).format(
-              arInvoices?.reduce((sum, inv) => 
-                inv.status === 'posted' ? sum + inv.remainingBalance : sum, 0
+              arInvoices?.reduce((sum, inv) =>
+                inv.status === 'sent' ? sum + (inv.totalAmount - inv.paidAmount) : sum, 0
               ) || 0
             )}
           </div>
@@ -175,7 +175,7 @@ export const ARInvoicesAdminPageReal = () => {
               style: 'currency',
               currency: 'MXN'
             }).format(
-              arInvoices?.reduce((sum, inv) => sum + parseFloat(inv.total), 0) || 0
+              arInvoices?.reduce((sum, inv) => sum + inv.totalAmount, 0) || 0
             )}
           </div>
         </div>

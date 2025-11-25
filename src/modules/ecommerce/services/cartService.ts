@@ -15,7 +15,6 @@ import type {
 } from '../types';
 import {
   shoppingCartFromAPI,
-  shoppingCartToAPI,
   shoppingCartItemFromAPI,
   shoppingCartItemToAPI,
 } from '../utils/transformers';
@@ -76,10 +75,24 @@ const cartService = {
    * Create a new shopping cart
    */
   async create(cart: Partial<ShoppingCart>): Promise<ShoppingCart> {
+    // JSON:API 5.x uses camelCase for attributes, not snake_case
     const payload = {
       data: {
         type: 'shopping-carts',
-        attributes: shoppingCartToAPI(cart),
+        attributes: {
+          sessionId: cart.sessionId,
+          userId: cart.userId,
+          status: cart.status,
+          expiresAt: cart.expiresAt,
+          totalAmount: cart.totalAmount,
+          currency: cart.currency,
+          couponCode: cart.couponCode,
+          discountAmount: cart.discountAmount,
+          taxAmount: cart.taxAmount,
+          shippingAmount: cart.shippingAmount,
+          notes: cart.notes,
+          metadata: cart.metadata,
+        },
       },
     };
 

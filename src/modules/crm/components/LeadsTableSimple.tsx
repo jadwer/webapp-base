@@ -115,12 +115,14 @@ export const LeadsTableSimple = ({
                   <td>
                     {lead.pipelineStage && (
                       <div className="d-flex align-items-center gap-2">
-                        {lead.pipelineStage.color && (
+                        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+                        {(lead.pipelineStage as any).color && (
                           <div
                             style={{
                               width: '12px',
                               height: '12px',
-                              backgroundColor: lead.pipelineStage.color,
+                              /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+                              backgroundColor: (lead.pipelineStage as any).color,
                               borderRadius: '50%'
                             }}
                           />

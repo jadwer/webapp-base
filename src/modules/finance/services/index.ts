@@ -95,7 +95,7 @@ export const apInvoicesService = {
 // AP Payments Service
 export const apPaymentsService = {
   async getAll(params: Record<string, unknown> = {}): Promise<FinanceAPIResponse<APPayment>> {
-    const response = await axiosClient.get('/api/v1/ap-payments', { params });
+    const response = await axiosClient.get('/api/v1/payments', { params });
     const transformedData = transformAPPaymentsFromAPI(response.data);
     return {
       jsonapi: response.data.jsonapi || { version: '1.0' },
@@ -107,7 +107,7 @@ export const apPaymentsService = {
 
   async getById(id: string, includes: string[] = []): Promise<{ data: APPayment }> {
     const includeParam = includes.length > 0 ? `?include=${includes.join(',')}` : '';
-    const response = await axiosClient.get(`/api/v1/ap-payments/${id}${includeParam}`);
+    const response = await axiosClient.get(`/api/v1/payments/${id}${includeParam}`);
     return {
       data: transformAPPaymentFromAPI(response.data.data, response.data.included || [])
     };
@@ -115,16 +115,16 @@ export const apPaymentsService = {
 
   async create(data: APPaymentForm): Promise<{ data: APPayment }> {
     const payload = transformAPPaymentToAPI(data);
-    const response = await axiosClient.post('/api/v1/ap-payments', payload);
+    const response = await axiosClient.post('/api/v1/payments', payload);
     return {
       data: transformAPPaymentFromAPI(response.data.data)
     };
   },
 
   async update(id: string, data: Partial<APPaymentForm>): Promise<{ data: APPayment }> {
-    const response = await axiosClient.patch(`/api/v1/ap-payments/${id}`, {
+    const response = await axiosClient.patch(`/api/v1/payments/${id}`, {
       data: {
-        type: 'ap-payments',
+        type: 'payments',
         id,
         attributes: data,
       },
@@ -133,11 +133,11 @@ export const apPaymentsService = {
   },
 
   async delete(id: string): Promise<void> {
-    await axiosClient.delete(`/api/v1/ap-payments/${id}`);
+    await axiosClient.delete(`/api/v1/payments/${id}`);
   },
 
   async post(id: string): Promise<{ data: APPayment }> {
-    const response = await axiosClient.post(`/api/v1/ap-payments/${id}/post`);
+    const response = await axiosClient.post(`/api/v1/payments/${id}/post`);
     return response.data;
   },
 };
@@ -195,7 +195,7 @@ export const arInvoicesService = {
 // AR Receipts Service
 export const arReceiptsService = {
   async getAll(params: Record<string, unknown> = {}): Promise<FinanceAPIResponse<ARReceipt>> {
-    const response = await axiosClient.get('/api/v1/ar-receipts', { params });
+    const response = await axiosClient.get('/api/v1/payments', { params });
     const transformedData = transformARReceiptsFromAPI(response.data);
     return {
       jsonapi: response.data.jsonapi || { version: '1.0' },
@@ -207,7 +207,7 @@ export const arReceiptsService = {
 
   async getById(id: string, includes: string[] = []): Promise<{ data: ARReceipt }> {
     const includeParam = includes.length > 0 ? `?include=${includes.join(',')}` : '';
-    const response = await axiosClient.get(`/api/v1/ar-receipts/${id}${includeParam}`);
+    const response = await axiosClient.get(`/api/v1/payments/${id}${includeParam}`);
     return {
       data: transformARReceiptFromAPI(response.data.data, response.data.included || [])
     };
@@ -215,16 +215,16 @@ export const arReceiptsService = {
 
   async create(data: ARReceiptForm): Promise<{ data: ARReceipt }> {
     const payload = transformARReceiptToAPI(data);
-    const response = await axiosClient.post('/api/v1/ar-receipts', payload);
+    const response = await axiosClient.post('/api/v1/payments', payload);
     return {
       data: transformARReceiptFromAPI(response.data.data)
     };
   },
 
   async update(id: string, data: Partial<ARReceiptForm>): Promise<{ data: ARReceipt }> {
-    const response = await axiosClient.patch(`/api/v1/ar-receipts/${id}`, {
+    const response = await axiosClient.patch(`/api/v1/payments/${id}`, {
       data: {
-        type: 'ar-receipts',
+        type: 'payments',
         id,
         attributes: data,
       },
@@ -233,11 +233,11 @@ export const arReceiptsService = {
   },
 
   async delete(id: string): Promise<void> {
-    await axiosClient.delete(`/api/v1/ar-receipts/${id}`);
+    await axiosClient.delete(`/api/v1/payments/${id}`);
   },
 
   async post(id: string): Promise<{ data: ARReceipt }> {
-    const response = await axiosClient.post(`/api/v1/ar-receipts/${id}/post`);
+    const response = await axiosClient.post(`/api/v1/payments/${id}/post`);
     return response.data;
   },
 };

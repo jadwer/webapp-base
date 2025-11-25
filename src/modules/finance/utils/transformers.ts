@@ -23,10 +23,11 @@ export const transformAPInvoiceFromAPI = (apiData: Record<string, unknown>, incl
   const attributes = (apiData.attributes || {}) as Record<string, unknown>
 
   // Find contact information from included data
-  let contactName = `Proveedor ID: ${attributes.contactId}`
-  if (includedData && attributes.contactId) {
+  let contactName = `Proveedor ID: ${attributes.contactId || attributes.contact_id}`
+  const contactIdValue = (attributes.contactId || attributes.contact_id) as number
+  if (includedData && contactIdValue) {
     const contact = includedData.find((item: Record<string, unknown>) =>
-      item.type === 'contacts' && item.id === String(attributes.contactId)
+      item.type === 'contacts' && item.id === String(contactIdValue)
     )
     if (contact && contact.attributes) {
       const contactAttrs = contact.attributes as Record<string, unknown>
@@ -36,22 +37,31 @@ export const transformAPInvoiceFromAPI = (apiData: Record<string, unknown>, incl
 
   return {
     id: apiData.id as string,
-    contactId: String(attributes.contactId),  // ✅ Backend shows "31" as string
-    contactName,                              // ✅ Resolved contact name
-    invoiceNumber: attributes.invoiceNumber as string,
-    invoiceDate: attributes.invoiceDate as string,
-    dueDate: attributes.dueDate as string,
-    currency: (attributes.currency as string) || 'MXN',   // ✅ Default MXN
-    exchangeRate: (attributes.exchangeRate as string) || null,    // ✅ Keep as string "20.00" or null
-    subtotal: attributes.subtotal as string,            // ✅ Keep as string "100.00"
-    taxTotal: attributes.taxTotal as string,            // ✅ Keep as string "16.00"
-    total: attributes.total as string,                  // ✅ Keep as string "116.00"
-    status: attributes.status as 'draft' | 'posted' | 'paid',
-    paidAmount: (attributes.paidAmount as number) || 0,   // ✅ Float calculated field
-    remainingBalance: (attributes.remainingBalance as number) || 0, // ✅ Float calculated field
-    metadata: attributes.metadata as Record<string, unknown> | undefined,            // ✅ Include optional metadata
-    createdAt: attributes.createdAt as string,
-    updatedAt: attributes.updatedAt as string,
+    invoiceNumber: (attributes.invoiceNumber || attributes.invoice_number) as string,
+    invoiceDate: (attributes.invoiceDate || attributes.invoice_date) as string,
+    dueDate: (attributes.dueDate || attributes.due_date) as string,
+    contactId: contactIdValue,
+    purchaseOrderId: (attributes.purchaseOrderId || attributes.purchase_order_id) as number | null,
+    currency: (attributes.currency as string) || 'MXN',
+    subtotal: (attributes.subtotal as number) || 0,
+    taxAmount: (attributes.taxAmount || attributes.tax_amount) as number || 0,
+    totalAmount: (attributes.totalAmount || attributes.total_amount) as number || 0,
+    paidAmount: (attributes.paidAmount || attributes.paid_amount) as number || 0,
+    paidDate: (attributes.paidDate || attributes.paid_date) as string | null,
+    status: (attributes.status as APInvoice['status']) || 'draft',
+    journalEntryId: (attributes.journalEntryId || attributes.journal_entry_id) as number | null,
+    fiscalPeriodId: (attributes.fiscalPeriodId || attributes.fiscal_period_id) as number | null,
+    isRefund: (attributes.isRefund || attributes.is_refund) as boolean || false,
+    refundOfInvoiceId: (attributes.refundOfInvoiceId || attributes.refund_of_invoice_id) as number | null,
+    voidedAt: (attributes.voidedAt || attributes.voided_at) as string | null,
+    voidedById: (attributes.voidedById || attributes.voided_by_id) as number | null,
+    voidReason: (attributes.voidReason || attributes.void_reason) as string | null,
+    notes: (attributes.notes) as string | null,
+    metadata: (attributes.metadata) as Record<string, unknown> | null,
+    isActive: (attributes.isActive || attributes.is_active) as boolean ?? true,
+    createdAt: (attributes.createdAt || attributes.created_at) as string,
+    updatedAt: (attributes.updatedAt || attributes.updated_at) as string,
+    contactName,
   }
 }
 
@@ -91,10 +101,11 @@ export const transformARInvoiceFromAPI = (apiData: Record<string, unknown>, incl
   const attributes = (apiData.attributes || {}) as Record<string, unknown>
 
   // Find contact information from included data
-  let contactName = `Cliente ID: ${attributes.contactId}`
-  if (includedData && attributes.contactId) {
+  let contactName = `Cliente ID: ${attributes.contactId || attributes.contact_id}`
+  const contactIdValue = (attributes.contactId || attributes.contact_id) as number
+  if (includedData && contactIdValue) {
     const contact = includedData.find((item: Record<string, unknown>) =>
-      item.type === 'contacts' && item.id === String(attributes.contactId)
+      item.type === 'contacts' && item.id === String(contactIdValue)
     )
     if (contact && contact.attributes) {
       const contactAttrs = contact.attributes as Record<string, unknown>
@@ -104,22 +115,31 @@ export const transformARInvoiceFromAPI = (apiData: Record<string, unknown>, incl
 
   return {
     id: apiData.id as string,
-    contactId: String(attributes.contactId),  // ✅ Consistent with AP Invoice
-    contactName,                              // ✅ Resolved contact name
-    invoiceNumber: attributes.invoiceNumber as string,
-    invoiceDate: attributes.invoiceDate as string,
-    dueDate: attributes.dueDate as string,
-    currency: (attributes.currency as string) || 'MXN',   // ✅ Default MXN
-    exchangeRate: (attributes.exchangeRate as string) || null,    // ✅ Same as AP Invoice
-    subtotal: attributes.subtotal as string,            // ✅ Keep as string
-    taxTotal: attributes.taxTotal as string,            // ✅ Keep as string
-    total: attributes.total as string,                  // ✅ Keep as string
-    status: attributes.status as 'draft' | 'posted' | 'paid',
-    paidAmount: (attributes.paidAmount as number) || 0,   // ✅ Backend uses same field name as AP
-    remainingBalance: (attributes.remainingBalance as number) || 0, // ✅ Same structure
-    metadata: attributes.metadata as Record<string, unknown> | undefined,            // ✅ Include optional metadata
-    createdAt: attributes.createdAt as string,
-    updatedAt: attributes.updatedAt as string,
+    invoiceNumber: (attributes.invoiceNumber || attributes.invoice_number) as string,
+    invoiceDate: (attributes.invoiceDate || attributes.invoice_date) as string,
+    dueDate: (attributes.dueDate || attributes.due_date) as string,
+    contactId: contactIdValue,
+    salesOrderId: (attributes.salesOrderId || attributes.sales_order_id) as number | null,
+    currency: (attributes.currency as string) || 'MXN',
+    subtotal: (attributes.subtotal as number) || 0,
+    taxAmount: (attributes.taxAmount || attributes.tax_amount) as number || 0,
+    totalAmount: (attributes.totalAmount || attributes.total_amount) as number || 0,
+    paidAmount: (attributes.paidAmount || attributes.paid_amount) as number || 0,
+    paidDate: (attributes.paidDate || attributes.paid_date) as string | null,
+    status: (attributes.status as ARInvoice['status']) || 'draft',
+    journalEntryId: (attributes.journalEntryId || attributes.journal_entry_id) as number | null,
+    fiscalPeriodId: (attributes.fiscalPeriodId || attributes.fiscal_period_id) as number | null,
+    isRefund: (attributes.isRefund || attributes.is_refund) as boolean || false,
+    refundOfInvoiceId: (attributes.refundOfInvoiceId || attributes.refund_of_invoice_id) as number | null,
+    voidedAt: (attributes.voidedAt || attributes.voided_at) as string | null,
+    voidedById: (attributes.voidedById || attributes.voided_by_id) as number | null,
+    voidReason: (attributes.voidReason || attributes.void_reason) as string | null,
+    notes: (attributes.notes) as string | null,
+    metadata: (attributes.metadata) as Record<string, unknown> | null,
+    isActive: (attributes.isActive || attributes.is_active) as boolean ?? true,
+    createdAt: (attributes.createdAt || attributes.created_at) as string,
+    updatedAt: (attributes.updatedAt || attributes.updated_at) as string,
+    contactName,
   }
 }
 
@@ -178,17 +198,18 @@ export const transformAPInvoiceToAPI = (formData: APInvoiceForm) => ({
   data: {
     type: 'a-p-invoices',
     attributes: {
-      contactId: parseInt(formData.contactId),    // ✅ Convert to number as per backend docs
-      invoiceNumber: formData.invoiceNumber,      // ✅ Required, max 255, unique per supplier
-      invoiceDate: formData.invoiceDate,          // ✅ YYYY-MM-DD format
-      dueDate: formData.dueDate,                  // ✅ YYYY-MM-DD format
-      subtotal: parseFloat(formData.subtotal),    // ✅ Convert to number as per backend docs
-      taxTotal: parseFloat(formData.taxTotal),    // ✅ Convert to number as per backend docs
-      total: parseFloat(formData.total),          // ✅ Convert to number as per backend docs
-      status: formData.status,                    // ✅ Required: draft|posted|paid
-      currency: formData.currency || 'MXN',       // ✅ Optional, default MXN
-      exchangeRate: formData.exchangeRate ? parseFloat(formData.exchangeRate) : null, // ✅ Convert to number
-      metadata: formData.metadata || {},          // ✅ Optional object
+      contact_id: formData.contactId,
+      invoice_number: formData.invoiceNumber,
+      invoice_date: formData.invoiceDate,
+      due_date: formData.dueDate,
+      purchase_order_id: formData.purchaseOrderId || null,
+      currency: formData.currency || 'MXN',
+      subtotal: formData.subtotal,
+      tax_amount: formData.taxAmount,
+      total_amount: formData.totalAmount,
+      status: formData.status,
+      notes: formData.notes || null,
+      metadata: formData.metadata || {},
     },
   },
 })
@@ -197,12 +218,12 @@ export const transformAPPaymentToAPI = (formData: APPaymentForm) => ({
   data: {
     type: 'a-p-payments',
     attributes: {
-      contactId: parseInt(formData.contactId),                                    // ✅ Updated field
+      contactId: formData.contactId,                                              // ✅ Updated field
       paymentDate: formData.paymentDate,                                          // ✅ YYYY-MM-DD format
       paymentMethod: formData.paymentMethod,                                      // ✅ Required field
       currency: formData.currency,                                                // ✅ Required field  
-      amount: parseFloat(formData.amount),                                        // ✅ Convert to number
-      bankAccountId: formData.bankAccountId ? parseInt(formData.bankAccountId) : null, // ✅ Optional number
+      amount: formData.amount,                                                    // ✅ Convert to number
+      bankAccountId: formData.bankAccountId,                                       // ✅ Optional number
       status: formData.status,                                                    // ✅ Required field
     },
   },
@@ -212,17 +233,18 @@ export const transformARInvoiceToAPI = (formData: ARInvoiceForm) => ({
   data: {
     type: 'a-r-invoices',
     attributes: {
-      contactId: parseInt(formData.contactId),    // ✅ Convert to number as per backend docs
-      invoiceNumber: formData.invoiceNumber,      // ✅ Required, max 255
-      invoiceDate: formData.invoiceDate,          // ✅ YYYY-MM-DD format
-      dueDate: formData.dueDate,                  // ✅ YYYY-MM-DD format
-      subtotal: parseFloat(formData.subtotal),    // ✅ Convert to number as per backend docs
-      taxTotal: parseFloat(formData.taxTotal),    // ✅ Convert to number as per backend docs
-      total: parseFloat(formData.total),          // ✅ Convert to number as per backend docs
-      status: formData.status,                    // ✅ Required: draft|posted|paid
-      currency: formData.currency || 'MXN',       // ✅ Optional, default MXN
-      exchangeRate: formData.exchangeRate ? parseFloat(formData.exchangeRate) : null, // ✅ Convert to number
-      metadata: formData.metadata || {},          // ✅ Optional object
+      contact_id: formData.contactId,
+      invoice_number: formData.invoiceNumber,
+      invoice_date: formData.invoiceDate,
+      due_date: formData.dueDate,
+      sales_order_id: formData.salesOrderId || null,
+      currency: formData.currency || 'MXN',
+      subtotal: formData.subtotal,
+      tax_amount: formData.taxAmount,
+      total_amount: formData.totalAmount,
+      status: formData.status,
+      notes: formData.notes || null,
+      metadata: formData.metadata || {},
     },
   },
 })
@@ -231,12 +253,12 @@ export const transformARReceiptToAPI = (formData: ARReceiptForm) => ({
   data: {
     type: 'a-r-receipts',
     attributes: {
-      contactId: parseInt(formData.contactId),                                    // ✅ Updated field
+      contactId: formData.contactId,                                              // ✅ Updated field
       receiptDate: formData.receiptDate,                                          // ✅ YYYY-MM-DD format
       paymentMethod: formData.paymentMethod,                                      // ✅ Required field
       currency: formData.currency,                                                // ✅ Required field
-      amount: parseFloat(formData.amount),                                        // ✅ Convert to number
-      bankAccountId: formData.bankAccountId ? parseInt(formData.bankAccountId) : null, // ✅ Optional number
+      amount: formData.amount,                                                    // ✅ Convert to number
+      bankAccountId: formData.bankAccountId,                                       // ✅ Optional number
       status: formData.status,                                                    // ✅ Required field
     },
   },
@@ -329,7 +351,7 @@ export const validateAPInvoiceData = (data: Record<string, unknown>): string[] =
   if (!data.invoiceNumber) errors.push('invoiceNumber is required')
   if (!data.invoiceDate) errors.push('invoiceDate is required')
   if (!data.dueDate) errors.push('dueDate is required')
-  if (!data.total || (data.total as number) <= 0) errors.push('total must be greater than 0')
+  if (!data.totalAmount || (data.totalAmount as number) <= 0) errors.push('totalAmount must be greater than 0')
 
   return errors
 }
@@ -341,7 +363,7 @@ export const validateARInvoiceData = (data: Record<string, unknown>): string[] =
   if (!data.invoiceNumber) errors.push('invoiceNumber is required')
   if (!data.invoiceDate) errors.push('invoiceDate is required')
   if (!data.dueDate) errors.push('dueDate is required')
-  if (!data.total || (data.total as number) <= 0) errors.push('total must be greater than 0')
+  if (!data.totalAmount || (data.totalAmount as number) <= 0) errors.push('totalAmount must be greater than 0')
 
   return errors
 }

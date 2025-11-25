@@ -108,7 +108,7 @@ export const APInvoicesAdminPageReal = () => {
         statusOptions={[
           { value: '', label: 'Todos los estados' },
           { value: 'draft', label: 'Borrador' },
-          { value: 'posted', label: 'Contabilizada' },
+          { value: 'sent', label: 'Enviada' },
           { value: 'paid', label: 'Pagada' },
         ]}
         placeholder="Buscar por número de factura, proveedor..."
@@ -131,7 +131,7 @@ export const APInvoicesAdminPageReal = () => {
         <div className="bg-white p-4 rounded-lg border">
           <div className="text-sm text-gray-600">Pendientes</div>
           <div className="text-2xl font-bold text-blue-600">
-            {apInvoices?.filter(inv => inv.status === 'posted' && inv.remainingBalance > 0).length || 0}
+            {apInvoices?.filter(inv => inv.status === 'sent' && (inv.totalAmount - inv.paidAmount) > 0).length || 0}
           </div>
         </div>
         <div className="bg-white p-4 rounded-lg border">

@@ -168,12 +168,6 @@ export default function ViewAPInvoicePage() {
                   <label className="form-label text-muted">Moneda</label>
                   <div>{apInvoice.currency}</div>
                 </div>
-                {apInvoice.exchangeRate && (
-                  <div className="col-md-6">
-                    <label className="form-label text-muted">Tipo de Cambio</label>
-                    <div>{apInvoice.exchangeRate}</div>
-                  </div>
-                )}
               </div>
             </div>
           </div>
@@ -198,14 +192,14 @@ export default function ViewAPInvoicePage() {
                 <div className="col-12">
                   <div className="d-flex justify-content-between">
                     <span>Impuestos:</span>
-                    <span>{formatCurrency(apInvoice.taxTotal)}</span>
+                    <span>{formatCurrency(apInvoice.taxAmount)}</span>
                   </div>
                 </div>
                 <hr className="my-2" />
                 <div className="col-12">
                   <div className="d-flex justify-content-between fw-bold fs-5">
                     <span>Total:</span>
-                    <span className="text-primary">{formatCurrency(apInvoice.total)}</span>
+                    <span className="text-primary">{formatCurrency(apInvoice.totalAmount)}</span>
                   </div>
                 </div>
                 {apInvoice.status !== 'paid' && (
@@ -220,7 +214,7 @@ export default function ViewAPInvoicePage() {
                     <div className="col-12">
                       <div className="d-flex justify-content-between text-danger fw-bold">
                         <span>Saldo Pendiente:</span>
-                        <span>{formatCurrency(apInvoice.remainingBalance)}</span>
+                        <span>{formatCurrency(apInvoice.totalAmount - apInvoice.paidAmount)}</span>
                       </div>
                     </div>
                   </>

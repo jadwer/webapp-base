@@ -144,15 +144,35 @@ export interface EcommerceOrderItemFormData {
 // Shopping Cart Types
 // ============================================
 
+export type CartStatus = 'active' | 'abandoned' | 'converted' | 'expired';
+
 export interface ShoppingCart {
   id: string;
   sessionId?: string;
   customerId?: number;
+  userId?: number | null;
 
-  // Cart metadata
+  // Cart status and metadata
+  status: CartStatus;
+  currency: string;
+  couponCode: string | null;
+
+  // Cart amounts
   subtotalAmount: number;
   taxAmount: number;
+  discountAmount: number;
+  shippingAmount: number;
   totalAmount: number;
+
+  // Calculated fields (read-only from backend)
+  itemsCount: number;
+  finalTotal: number;
+  isExpired: boolean;
+  canApplyCoupon: boolean;
+
+  // Additional metadata
+  notes: string | null;
+  metadata: Record<string, unknown> | null;
 
   // Timestamps
   createdAt?: string;

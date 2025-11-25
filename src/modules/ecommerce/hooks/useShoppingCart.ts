@@ -278,12 +278,20 @@ export function useCart(filters?: ShoppingCartFilters) {
 
       // Create cart if it doesn't exist
       if (!currentCart) {
+        // Set cart expiration to 7 days from now
+        const expiresAt = new Date();
+        expiresAt.setDate(expiresAt.getDate() + 7);
+
         currentCart = await cartMutations.createCart({
           sessionId: filters?.sessionId,
-          customerId: filters?.customerId,
-          subtotalAmount: 0,
-          taxAmount: 0,
+          userId: filters?.customerId ? filters.customerId : null,
+          status: 'active',
+          currency: 'MXN',
+          expiresAt: expiresAt.toISOString(),
           totalAmount: 0,
+          taxAmount: 0,
+          discountAmount: 0,
+          shippingAmount: 0,
         });
         await mutateCart();
       }

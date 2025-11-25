@@ -13,6 +13,7 @@ import type {
   OrderStatus,
   PaymentStatus,
   ShippingStatus,
+  CartStatus,
 } from '../types';
 
 // ============================================
@@ -156,9 +157,17 @@ export function shoppingCartToAPI(cart: Partial<ShoppingCart>): Record<string, u
   return {
     session_id: cart.sessionId,
     customer_id: cart.customerId,
+    user_id: cart.userId,
+    status: cart.status,
+    currency: cart.currency,
+    coupon_code: cart.couponCode,
     subtotal_amount: cart.subtotalAmount,
     tax_amount: cart.taxAmount,
+    discount_amount: cart.discountAmount,
+    shipping_amount: cart.shippingAmount,
     total_amount: cart.totalAmount,
+    notes: cart.notes,
+    metadata: cart.metadata,
     expires_at: cart.expiresAt,
   };
 }
@@ -173,9 +182,21 @@ export function shoppingCartFromAPI(data: Record<string, unknown>): ShoppingCart
     id: (data.id as string | number | undefined)?.toString() || (attributes.id as string | number | undefined)?.toString() || '',
     sessionId: attributes.session_id as string | undefined,
     customerId: attributes.customer_id as number | undefined,
+    userId: (attributes.user_id as number | null) ?? null,
+    status: ((attributes.status as string) || 'active') as CartStatus,
+    currency: (attributes.currency as string) || 'MXN',
+    couponCode: (attributes.coupon_code as string | null) ?? null,
     subtotalAmount: parseFloat(String(attributes.subtotal_amount || 0)),
     taxAmount: parseFloat(String(attributes.tax_amount || 0)),
+    discountAmount: parseFloat(String(attributes.discount_amount || 0)),
+    shippingAmount: parseFloat(String(attributes.shipping_amount || 0)),
     totalAmount: parseFloat(String(attributes.total_amount || 0)),
+    itemsCount: parseInt(String(attributes.items_count || 0)),
+    finalTotal: parseFloat(String(attributes.final_total || attributes.total_amount || 0)),
+    isExpired: (attributes.is_expired as boolean) ?? false,
+    canApplyCoupon: (attributes.can_apply_coupon as boolean) ?? true,
+    notes: (attributes.notes as string | null) ?? null,
+    metadata: (attributes.metadata as Record<string, unknown> | null) ?? null,
     createdAt: attributes.created_at as string | undefined,
     updatedAt: attributes.updated_at as string | undefined,
     expiresAt: attributes.expires_at as string | undefined,

@@ -1,10 +1,23 @@
+export type OrderStatus =
+  | 'pending'
+  | 'confirmed'
+  | 'processing'
+  | 'shipped'
+  | 'delivered'
+  | 'completed'
+  | 'cancelled'
+  | 'returned'
+  | 'refunded'
+
 export interface SalesOrder {
   id: string
   contactId: number
   contact?: Contact
   orderNumber: string
   orderDate: string
-  status: 'pending' | 'approved' | 'completed' | 'cancelled'
+  status: OrderStatus
+  approvedAt: string | null
+  deliveredAt: string | null
   financialStatus?: 'not_invoiced' | 'invoiced' | 'paid'
   invoicingStatus?: 'not_invoiced' | 'partially_invoiced' | 'fully_invoiced'
   arInvoiceId?: number | null
@@ -12,6 +25,7 @@ export interface SalesOrder {
   taxAmount?: number
   discountTotal?: number
   totalAmount: number
+  invoicingNotes: string | null
   notes?: string
   createdAt?: string
   updatedAt?: string
@@ -41,7 +55,10 @@ export interface SalesOrderFormData {
   contactId: number
   orderNumber: string
   orderDate: string
-  status: string
+  status: OrderStatus
+  approvedAt?: string | null
+  deliveredAt?: string | null
+  invoicingNotes?: string | null
   notes?: string
   items?: SalesOrderItem[]
 }

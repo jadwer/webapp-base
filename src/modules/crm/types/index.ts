@@ -9,26 +9,29 @@
 // PIPELINE STAGE
 // ============================================================================
 
+export type StageType = 'lead' | 'opportunity';
+
 export interface PipelineStage {
   id: string;
   name: string;
-  order: number;                   // 1-100
+  stageType: StageType;            // Tipo de etapa (lead u opportunity)
   probability: number;             // 0-100 (percentage)
+  sortOrder: number;               // Orden de visualización (entero >= 0)
   isActive: boolean;
-  color?: string;                  // Hex color (#RRGGBB)
-  description?: string;
-  metadata?: Record<string, unknown>;
+  isClosedWon: boolean;            // Marca como etapa cerrada ganada
+  isClosedLost: boolean;           // Marca como etapa cerrada perdida
   createdAt: string;               // ISO 8601
   updatedAt: string;               // ISO 8601
 }
 
 export interface PipelineStageFormData {
   name: string;
-  order: number;
+  stageType: StageType;
   probability: number;
-  isActive: boolean;
-  color?: string;
-  description?: string;
+  sortOrder: number;
+  isActive?: boolean;
+  isClosedWon?: boolean;
+  isClosedLost?: boolean;
 }
 
 // ============================================================================
@@ -39,10 +42,8 @@ export type LeadStatus =
   | 'new'
   | 'contacted'
   | 'qualified'
-  | 'proposal'
-  | 'negotiation'
-  | 'converted'
-  | 'lost';
+  | 'unqualified'
+  | 'converted';
 
 export type LeadRating = 'hot' | 'warm' | 'cold';
 
@@ -53,13 +54,12 @@ export interface Lead {
   rating: LeadRating;
   source?: string;
   companyName?: string;
+  contactPerson?: string;          // Nombre de la persona de contacto
   email?: string;
   phone?: string;
   estimatedValue?: number;
-  expectedCloseDate?: string;      // YYYY-MM-DD
-  actualCloseDate?: string;        // YYYY-MM-DD
+  estimatedCloseDate?: string;     // YYYY-MM-DD (renamed from expectedCloseDate)
   convertedAt?: string;            // ISO 8601
-  lostReason?: string;
   notes?: string;
   metadata?: Record<string, unknown>;
   createdAt: string;               // ISO 8601
@@ -83,10 +83,11 @@ export interface LeadFormData {
   rating: LeadRating;
   source?: string;
   companyName?: string;
+  contactPerson?: string;
   email?: string;
   phone?: string;
   estimatedValue?: number;
-  expectedCloseDate?: string;
+  estimatedCloseDate?: string;     // Renamed from expectedCloseDate
   notes?: string;
   userId: number;
   contactId?: number;

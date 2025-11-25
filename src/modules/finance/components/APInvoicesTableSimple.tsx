@@ -52,7 +52,7 @@ export const APInvoicesTableSimple = ({
   const getStatusBadge = (status: string) => {
     const statusConfig = {
       draft: { class: 'badge bg-secondary', text: 'Borrador' },
-      posted: { class: 'badge bg-primary', text: 'Contabilizada' },
+      sent: { class: 'badge bg-primary', text: 'Enviada' },
       paid: { class: 'badge bg-success', text: 'Pagada' }
     }
     
@@ -135,7 +135,7 @@ export const APInvoicesTableSimple = ({
                 {getPriorityBadge(invoice.dueDate, invoice.status)}
               </td>
               <td>
-                <strong>{formatCurrency(invoice.total)}</strong>
+                <strong>{formatCurrency(invoice.totalAmount)}</strong>
                 <div className="small text-muted">
                   {invoice.currency}
                 </div>
@@ -145,7 +145,7 @@ export const APInvoicesTableSimple = ({
                   <span className="text-success">Pagada</span>
                 ) : (
                   <strong className="text-danger">
-                    {formatCurrency(invoice.remainingBalance)}
+                    {formatCurrency(invoice.totalAmount - invoice.paidAmount)}
                   </strong>
                 )}
               </td>
@@ -174,7 +174,7 @@ export const APInvoicesTableSimple = ({
                       <i className="bi bi-pencil"></i>
                     </button>
                   )}
-                  {invoice.status === 'posted' && invoice.remainingBalance > 0 && (
+                  {invoice.status === 'sent' && (invoice.totalAmount - invoice.paidAmount) > 0 && (
                     <button
                       type="button"
                       className="btn btn-outline-success"

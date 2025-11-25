@@ -147,7 +147,7 @@ export function useAPPayments(params: Record<string, unknown> = {}) {
     }
   }
 
-  const key = ['/api/v1/a-p-payments', formattedParams];
+  const key = ['/api/v1/payments', 'ap', formattedParams];
   const { data, error, isLoading, mutate } = useSWR(
     key,
     () => apPaymentsService.getAll(formattedParams)
@@ -162,7 +162,7 @@ export function useAPPayments(params: Record<string, unknown> = {}) {
 }
 
 export function useAPPayment(id: string | null, includes: string[] = []) {
-  const key = id ? ['/api/v1/a-p-payments', id, includes] : null;
+  const key = id ? ['/api/v1/payments', 'ap', id, includes] : null;
   const { data, error, isLoading, mutate } = useSWR(
     key,
     () => apPaymentsService.getById(id!, includes)
@@ -181,29 +181,29 @@ export function useAPPaymentMutations() {
 
   const createAPPayment = async (data: APPaymentForm) => {
     const result = await apPaymentsService.create(data);
-    mutate('/api/v1/a-p-payments');
-    mutate('/api/v1/a-p-invoices'); // Refresh invoices as status may change
+    mutate('/api/v1/payments');
+    mutate('/api/v1/ap-invoices'); // Refresh invoices as status may change
     return result;
   };
 
   const updateAPPayment = async (id: string, data: Partial<APPaymentForm>) => {
     const result = await apPaymentsService.update(id, data);
-    mutate(`/api/v1/a-p-payments/${id}`);
-    mutate('/api/v1/a-p-payments');
+    mutate(`/api/v1/payments/${id}`);
+    mutate('/api/v1/payments');
     return result;
   };
 
   const deleteAPPayment = async (id: string) => {
     await apPaymentsService.delete(id);
-    mutate('/api/v1/a-p-payments');
-    mutate('/api/v1/a-p-invoices');
+    mutate('/api/v1/payments');
+    mutate('/api/v1/ap-invoices');
   };
 
   const postAPPayment = async (id: string) => {
     const result = await apPaymentsService.post(id);
-    mutate(`/api/v1/a-p-payments/${id}`);
-    mutate('/api/v1/a-p-payments');
-    mutate('/api/v1/a-p-invoices');
+    mutate(`/api/v1/payments/${id}`);
+    mutate('/api/v1/payments');
+    mutate('/api/v1/ap-invoices');
     return result;
   };
 
@@ -344,7 +344,7 @@ export function useARReceipts(params: Record<string, unknown> = {}) {
     }
   }
 
-  const key = ['/api/v1/a-r-receipts', formattedParams];
+  const key = ['/api/v1/payments', 'ar', formattedParams];
   const { data, error, isLoading, mutate } = useSWR(
     key,
     () => arReceiptsService.getAll(formattedParams)
@@ -359,7 +359,7 @@ export function useARReceipts(params: Record<string, unknown> = {}) {
 }
 
 export function useARReceipt(id: string | null, includes: string[] = []) {
-  const key = id ? ['/api/v1/a-r-receipts', id, includes] : null;
+  const key = id ? ['/api/v1/payments', 'ar', id, includes] : null;
   const { data, error, isLoading, mutate } = useSWR(
     key,
     () => arReceiptsService.getById(id!, includes)
@@ -378,29 +378,29 @@ export function useARReceiptMutations() {
 
   const createARReceipt = async (data: ARReceiptForm) => {
     const result = await arReceiptsService.create(data);
-    mutate('/api/v1/a-r-receipts');
-    mutate('/api/v1/a-r-invoices'); // Refresh invoices as status may change
+    mutate('/api/v1/payments');
+    mutate('/api/v1/ar-invoices'); // Refresh invoices as status may change
     return result;
   };
 
   const updateARReceipt = async (id: string, data: Partial<ARReceiptForm>) => {
     const result = await arReceiptsService.update(id, data);
-    mutate(`/api/v1/a-r-receipts/${id}`);
-    mutate('/api/v1/a-r-receipts');
+    mutate(`/api/v1/payments/${id}`);
+    mutate('/api/v1/payments');
     return result;
   };
 
   const deleteARReceipt = async (id: string) => {
     await arReceiptsService.delete(id);
-    mutate('/api/v1/a-r-receipts');
-    mutate('/api/v1/a-r-invoices');
+    mutate('/api/v1/payments');
+    mutate('/api/v1/ar-invoices');
   };
 
   const postARReceipt = async (id: string) => {
     const result = await arReceiptsService.post(id);
-    mutate(`/api/v1/a-r-receipts/${id}`);
-    mutate('/api/v1/a-r-receipts');
-    mutate('/api/v1/a-r-invoices');
+    mutate(`/api/v1/payments/${id}`);
+    mutate('/api/v1/payments');
+    mutate('/api/v1/ar-invoices');
     return result;
   };
 

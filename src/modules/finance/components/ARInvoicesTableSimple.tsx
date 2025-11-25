@@ -52,7 +52,7 @@ export const ARInvoicesTableSimple = ({
   const getStatusBadge = (status: string) => {
     const statusConfig = {
       draft: { class: 'badge bg-secondary', text: 'Borrador' },
-      posted: { class: 'badge bg-primary', text: 'Contabilizada' },
+      sent: { class: 'badge bg-primary', text: 'Enviada' },
       paid: { class: 'badge bg-success', text: 'Cobrada' }
     }
     
@@ -126,7 +126,7 @@ export const ARInvoicesTableSimple = ({
         </thead>
         <tbody>
           {arInvoices.map((invoice) => {
-            const totalNumber = typeof invoice.total === 'string' ? parseFloat(invoice.total) : invoice.total
+            const totalNumber = typeof invoice.totalAmount === 'string' ? parseFloat(invoice.totalAmount) : invoice.totalAmount
             const collectionPercentage = getCollectionPercentage(totalNumber, invoice.paidAmount)
             
             return (
@@ -145,7 +145,7 @@ export const ARInvoicesTableSimple = ({
                   {getPriorityBadge(invoice.dueDate, invoice.status)}
                 </td>
                 <td>
-                  <strong>{formatCurrency(invoice.total)}</strong>
+                  <strong>{formatCurrency(invoice.totalAmount)}</strong>
                   <div className="small text-muted">
                     {invoice.currency}
                   </div>
@@ -169,7 +169,7 @@ export const ARInvoicesTableSimple = ({
                     <span className="text-success">Cobrada</span>
                   ) : (
                     <strong className="text-primary">
-                      {formatCurrency(invoice.remainingBalance)}
+                      {formatCurrency(invoice.totalAmount - invoice.paidAmount)}
                     </strong>
                   )}
                 </td>
@@ -198,7 +198,7 @@ export const ARInvoicesTableSimple = ({
                         <i className="bi bi-pencil"></i>
                       </button>
                     )}
-                    {invoice.status === 'posted' && invoice.remainingBalance > 0 && (
+                    {invoice.status === 'sent' && (invoice.totalAmount - invoice.paidAmount) > 0 && (
                       <button
                         type="button"
                         className="btn btn-outline-success"

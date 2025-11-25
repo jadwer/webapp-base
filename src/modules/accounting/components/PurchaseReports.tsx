@@ -54,7 +54,7 @@ export function PurchaseReports() {
     )
   }
 
-  if (!purchaseReports) {
+  if (!purchaseReports || !purchaseReports.data) {
     return (
       <div className="container-fluid py-4">
         <div className="row">
@@ -73,6 +73,16 @@ export function PurchaseReports() {
   }
 
   const { data } = purchaseReports
+
+  // Ensure all data properties have fallback values
+  const safeData = {
+    total_purchases: data?.total_purchases ?? 0,
+    total_orders: data?.total_orders ?? 0,
+    average_order_value: data?.average_order_value ?? 0,
+    top_suppliers: data?.top_suppliers ?? [],
+    top_products: data?.top_products ?? [],
+    purchases_by_period: data?.purchases_by_period ?? [],
+  }
 
   return (
     <div className="container-fluid py-4">
@@ -148,7 +158,7 @@ export function PurchaseReports() {
                 <div className="flex-grow-1">
                   <h6 className="text-muted mb-1">Compras Totales</h6>
                   <h4 className="mb-0 text-danger">
-                    {formatCurrency(data.total_purchases)}
+                    {formatCurrency(safeData.total_purchases)}
                   </h4>
                 </div>
                 <div className="ms-3">
@@ -168,7 +178,7 @@ export function PurchaseReports() {
                 <div className="flex-grow-1">
                   <h6 className="text-muted mb-1">Órdenes Totales</h6>
                   <h4 className="mb-0 text-primary">
-                    {data.total_orders.toLocaleString()}
+                    {safeData.total_orders.toLocaleString()}
                   </h4>
                 </div>
                 <div className="ms-3">
@@ -188,7 +198,7 @@ export function PurchaseReports() {
                 <div className="flex-grow-1">
                   <h6 className="text-muted mb-1">Valor Promedio</h6>
                   <h4 className="mb-0 text-info">
-                    {formatCurrency(data.average_order_value)}
+                    {formatCurrency(safeData.average_order_value)}
                   </h4>
                 </div>
                 <div className="ms-3">
@@ -234,7 +244,7 @@ export function PurchaseReports() {
               </h6>
             </div>
             <div className="card-body">
-              {data.top_suppliers.length > 0 ? (
+              {safeData.top_suppliers.length > 0 ? (
                 <div className="table-responsive">
                   <table className="table table-sm">
                     <thead>
@@ -245,7 +255,7 @@ export function PurchaseReports() {
                       </tr>
                     </thead>
                     <tbody>
-                      {data.top_suppliers.map((supplier, index) => (
+                      {safeData.top_suppliers.map((supplier, index) => (
                         <tr key={supplier.supplier_id}>
                           <td>
                             <div className="d-flex align-items-center">
@@ -291,7 +301,7 @@ export function PurchaseReports() {
               </h6>
             </div>
             <div className="card-body">
-              {data.top_products.length > 0 ? (
+              {safeData.top_products.length > 0 ? (
                 <div className="table-responsive">
                   <table className="table table-sm">
                     <thead>
@@ -302,7 +312,7 @@ export function PurchaseReports() {
                       </tr>
                     </thead>
                     <tbody>
-                      {data.top_products.map((product, index) => (
+                      {safeData.top_products.map((product, index) => (
                         <tr key={product.product_id}>
                           <td>
                             <div className="d-flex align-items-center">
@@ -350,7 +360,7 @@ export function PurchaseReports() {
               </h6>
             </div>
             <div className="card-body">
-              {data.purchases_by_period.length > 0 ? (
+              {safeData.purchases_by_period.length > 0 ? (
                 <div className="table-responsive">
                   <table className="table table-striped">
                     <thead>
@@ -362,7 +372,7 @@ export function PurchaseReports() {
                       </tr>
                     </thead>
                     <tbody>
-                      {data.purchases_by_period.map((period, index) => {
+                      {safeData.purchases_by_period.map((period, index) => {
                         const avgValue = period.total_orders > 0 
                           ? period.total_purchases / period.total_orders 
                           : 0
