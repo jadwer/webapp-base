@@ -1,7 +1,7 @@
 /**
  * CRM Module - TypeScript Types
  *
- * Entities: PipelineStage, Lead, Campaign
+ * Entities: PipelineStage, Lead, Campaign, Activity, Opportunity
  * Backend: Laravel JSON:API
  */
 
@@ -159,6 +159,129 @@ export interface CampaignFormData {
 }
 
 // ============================================================================
+// ACTIVITY
+// ============================================================================
+
+export type ActivityType = 'call' | 'email' | 'meeting' | 'note' | 'task';
+
+export type ActivityStatus = 'pending' | 'in_progress' | 'completed' | 'cancelled';
+
+export type ActivityPriority = 'low' | 'medium' | 'high';
+
+export interface Activity {
+  id: string;
+  subject: string;
+  activityType: ActivityType;
+  status: ActivityStatus;
+  description?: string;
+  activityDate: string;             // YYYY-MM-DD
+  dueDate?: string;                 // YYYY-MM-DD
+  completedAt?: string;             // ISO 8601
+  duration?: number;                // Minutes
+  outcome?: string;
+  priority?: ActivityPriority;
+  metadata?: Record<string, unknown>;
+  createdAt: string;                // ISO 8601
+  updatedAt: string;                // ISO 8601
+
+  // Relationships
+  userId: number;
+  leadId?: number;
+  campaignId?: number;
+  opportunityId?: number;
+
+  // Included relationships (populated by SWR)
+  user?: Record<string, unknown>;
+  lead?: Lead;
+  campaign?: Campaign;
+  opportunity?: Opportunity;
+}
+
+export interface ActivityFormData {
+  subject: string;
+  activityType: ActivityType;
+  status: ActivityStatus;
+  description?: string;
+  activityDate: string;
+  dueDate?: string;
+  duration?: number;
+  outcome?: string;
+  priority?: ActivityPriority;
+  userId: number;
+  leadId?: number;
+  campaignId?: number;
+  opportunityId?: number;
+}
+
+// ============================================================================
+// OPPORTUNITY
+// ============================================================================
+
+export type OpportunityStatus = 'open' | 'won' | 'lost' | 'abandoned';
+
+export type ForecastCategory = 'pipeline' | 'best_case' | 'commit' | 'closed';
+
+export interface Opportunity {
+  id: string;
+  name: string;
+  description?: string;
+
+  // Financial
+  amount: number;
+  probability: number;              // 0-100
+  expectedRevenue?: number;         // Auto-calculated: amount * probability / 100
+  actualRevenue?: number;
+
+  // Dates
+  closeDate: string;                // YYYY-MM-DD (expected close date)
+  wonAt?: string;                   // ISO 8601 (auto-set when status = won)
+  lostAt?: string;                  // ISO 8601 (auto-set when status = lost)
+
+  // Pipeline
+  status: OpportunityStatus;
+  stage: string;
+  forecastCategory: ForecastCategory;
+
+  // Additional info
+  source?: string;
+  nextStep?: string;
+  lossReason?: string;
+  metadata?: Record<string, unknown>;
+
+  createdAt: string;                // ISO 8601
+  updatedAt: string;                // ISO 8601
+
+  // Relationships
+  userId: number;
+  leadId?: number;
+  pipelineStageId?: number;
+
+  // Included relationships (populated by SWR)
+  user?: Record<string, unknown>;
+  lead?: Lead;
+  pipelineStage?: PipelineStage;
+  activities?: Activity[];
+}
+
+export interface OpportunityFormData {
+  name: string;
+  description?: string;
+  amount: number;
+  probability: number;
+  closeDate: string;
+  status: OpportunityStatus;
+  stage: string;
+  forecastCategory: ForecastCategory;
+  source?: string;
+  nextStep?: string;
+  lossReason?: string;
+  actualRevenue?: number;
+  userId: number;
+  leadId?: number;
+  pipelineStageId?: number;
+}
+
+// ============================================================================
 // UTILITY TYPES
 // ============================================================================
 
@@ -239,6 +362,50 @@ export interface CampaignsResponse {
     id: string;
     type: 'campaigns';
     attributes: Omit<Campaign, 'id' | 'user' | 'leads'>;
+    relationships?: Record<string, unknown>;
+  }>;
+  included?: Record<string, unknown>[];
+  links?: Record<string, unknown>;
+  meta?: Record<string, unknown>;
+}
+
+export interface ActivityResponse {
+  data: {
+    id: string;
+    type: 'activities';
+    attributes: Omit<Activity, 'id' | 'user' | 'lead' | 'campaign' | 'opportunity'>;
+    relationships?: Record<string, unknown>;
+  };
+  included?: Record<string, unknown>[];
+}
+
+export interface ActivitiesResponse {
+  data: Array<{
+    id: string;
+    type: 'activities';
+    attributes: Omit<Activity, 'id' | 'user' | 'lead' | 'campaign' | 'opportunity'>;
+    relationships?: Record<string, unknown>;
+  }>;
+  included?: Record<string, unknown>[];
+  links?: Record<string, unknown>;
+  meta?: Record<string, unknown>;
+}
+
+export interface OpportunityResponse {
+  data: {
+    id: string;
+    type: 'opportunities';
+    attributes: Omit<Opportunity, 'id' | 'user' | 'lead' | 'pipelineStage' | 'activities'>;
+    relationships?: Record<string, unknown>;
+  };
+  included?: Record<string, unknown>[];
+}
+
+export interface OpportunitiesResponse {
+  data: Array<{
+    id: string;
+    type: 'opportunities';
+    attributes: Omit<Opportunity, 'id' | 'user' | 'lead' | 'pipelineStage' | 'activities'>;
     relationships?: Record<string, unknown>;
   }>;
   included?: Record<string, unknown>[];

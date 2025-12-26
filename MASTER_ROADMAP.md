@@ -1,10 +1,10 @@
 # 🎯 MASTER ROADMAP - Webapp Base ATM
 **Estrategia: Módulo por Módulo al 100%**
 
-> **Fecha de actualización:** Enero 2025
-> **Status:** ✅ COMPLETADO - Todos los módulos backend implementados en frontend (15/15 = 100%)
-> **Política:** Cada módulo debe estar 100% completo antes de avanzar al siguiente
-> **Objetivo:** Production-ready modules con testing >70% y documentación completa
+> **Fecha de actualizacion:** Diciembre 2025
+> **Status:** COMPLETADO - Todos los modulos sincronizados con backend (15/15 = 100%)
+> **Politica:** Cada modulo debe estar 100% completo antes de avanzar al siguiente
+> **Objetivo:** Production-ready modules con testing >70% y documentacion completa
 
 ---
 
@@ -27,16 +27,67 @@
 | **Purchase** | ✅ 81.92%+ | ✅ | ✅ | ✅ | 69 tests - Purchase Orders, Items, Reports, Supplier Analytics |
 | **Ecommerce** | ✅ 70%+ | ✅ | ✅ | ✅ | 78 tests - Orders, Shopping Cart, Checkout, Admin Dashboard |
 | **Accounting** | ✅ 70%+ | ✅ | ⏳ | ✅ | 174 tests - Chart of Accounts, Journal Entries, Ledger, Reports |
-| **CRM** | ✅ 79.48%+ | ✅ | ✅ | ✅ | 83 tests - PipelineStages, Leads, Campaigns - Complete CRUD with SWR hooks |
+| **CRM** | 79.48%+ | OK | OK | OK | 83 tests - 5 entidades completas: PipelineStages, Leads, Campaigns, Activity, Opportunity |
 | **Reports** | ✅ 73.82%+ | ✅ | ✅ | ✅ | 53 tests - 10 read-only reports - Financial Statements, Aging, Management |
 | **HR** | ✅ 82.1%+ | ✅ | ✅ | ✅ | 52 tests - 9 entities - Employees, Attendance, Leave, Payroll, Performance |
 | **Billing/CFDI** | ✅ 84.13%+ | ✅ | ✅ | ✅ | 54 tests - Mexican CFDI 4.0 - Complete workflow with SW PAC integration |
 
-### 🔄 Módulos En Progreso
+### Modulos En Progreso
 
-| Módulo | Status | Progreso |
+| Modulo | Status | Progreso |
 |--------|--------|----------|
-| - | - | Todos los módulos completados |
+| - | - | Todos los modulos completados y sincronizados con backend |
+
+---
+
+## 🔄 Sincronizacion Backend (Diciembre 2025)
+
+### Cambios Detectados en Backend
+
+**Fecha de revision:** 2025-12-26
+
+| Modulo | Backend Entidades | Frontend Entidades | Accion Requerida |
+|--------|-------------------|-------------------|------------------|
+| **CRM** | 5 (PipelineStage, Lead, Campaign, Activity, Opportunity) | 5 | COMPLETADO - Activity y Opportunity implementados |
+| **Ecommerce** | 15 | 15 | Sync OK - Fixed ProductReview, ProductComparison |
+| **Billing** | 4 | 4 | Sync OK - PaymentTransaction compartido |
+| **HR** | 9 | 9 | Sync OK |
+| **Reports** | 10 | 10 | Sync OK - URLs corregidas |
+
+### CRM Module - Implementacion Completada (2025-12-26)
+
+**Entidades Implementadas:**
+
+1. **Activity** - Actividades asociadas a Leads y Opportunities
+   - Tipos: call, email, meeting, task, note
+   - Status: pending, in_progress, completed, cancelled
+   - Campos: subject, activityType, status, description, activityDate, dueDate, completedAt, duration, outcome, priority
+   - Relationships: user, lead, campaign, opportunity
+   - Services: activitiesService (CRUD completo)
+   - Hooks: useActivities, useActivity, useActivitiesMutations
+
+2. **Opportunity** - Gestion completa de deals
+   - Status: open, won, lost, abandoned
+   - Auto-calculated: `expectedRevenue = amount * probability / 100`
+   - Auto-set: `wonAt`/`lostAt` cuando cambia status
+   - Campos: name, description, amount, probability, closeDate, status, stage, forecastCategory, source, nextStep, lossReason
+   - Relationships: user, lead, pipelineStage, activities
+   - Services: opportunitiesService (CRUD completo)
+   - Hooks: useOpportunities, useOpportunity, useOpportunitiesMutations, useOpportunityExpectedRevenue, usePipelineMetrics
+
+### Otros Cambios Backend (Ya Sincronizados)
+
+**Ecommerce:**
+- ProductReview: Fixed product relationship hydration
+- ProductComparison: Added proper User import
+
+**Billing:**
+- CompanySetting: pacPassword y keyPassword son write-only (hidden)
+- PATCH validation: required fields usan `sometimes`
+- PaymentTransaction: gateway field es required
+
+**HR:**
+- Field assertions corregidos en Employee tests
 
 ---
 
@@ -46,9 +97,9 @@
 
 Todos los módulos del backend han sido implementados en el frontend:
 
-| Módulo | Entidades | Endpoints | Tiempo Real | Completado |
+| Modulo | Entidades | Endpoints | Tiempo Real | Completado |
 |--------|-----------|-----------|-------------|------------|
-| **CRM** | 3 (PipelineStages, Leads, Campaigns) | 15 | 8-10 horas | ✅ Enero 2025 |
+| **CRM** | 5 (PipelineStages, Leads, Campaigns, Activity, Opportunity) | 25 | 12-16 horas | Dic 2025 |
 | **Reports** | 10 read-only reports | 10 | 12-16 horas | ✅ Enero 2025 |
 | **HR** | 9 (Employee, Attendance, Leave, Payroll, etc.) | 49 | 20-24 horas | ✅ Enero 2025 |
 | **Billing/CFDI** | 3 + PAC integration (SW) | 15 | 16-20 horas | ✅ Enero 2025 |
@@ -60,12 +111,14 @@ Todos los módulos del backend han sido implementados en el frontend:
 ### Detalles Técnicos Implementados
 
 **CRM Module:**
-- Entidades: PipelineStage, Lead, Campaign (3 entidades)
-- Tipos TypeScript completos con enums (LeadStatus, LeadRating, CampaignType, CampaignStatus)
+- Entidades: PipelineStage, Lead, Campaign, Activity, Opportunity (5 entidades)
+- Tipos TypeScript completos con enums (LeadStatus, LeadRating, CampaignType, CampaignStatus, ActivityType, ActivityStatus, OpportunityStatus)
 - Services JSON:API con transformers bidireccionales
 - SWR hooks con includes para relationships
 - UI: Dashboard CRM + AdminPages para cada entidad
-- Features: ROI calculation, lead status management, pipeline tracking
+- Features: ROI calculation, lead status management, pipeline tracking, activity tracking, opportunity forecasting
+- Auto-calculated: expectedRevenue = amount * probability / 100
+- Auto-set: wonAt/lostAt cuando status cambia a won/lost
 
 **Reports Module:**
 - 10 reportes read-only (virtual entities)

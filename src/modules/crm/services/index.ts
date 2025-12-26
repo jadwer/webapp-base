@@ -1,7 +1,7 @@
 /**
  * CRM Module - Services
  *
- * API layer for CRM entities (PipelineStage, Lead, Campaign)
+ * API layer for CRM entities (PipelineStage, Lead, Campaign, Activity, Opportunity)
  */
 
 import axiosClient from '@/lib/axiosClient'
@@ -9,11 +9,15 @@ import type {
   PipelineStageFormData,
   LeadFormData,
   CampaignFormData,
+  ActivityFormData,
+  OpportunityFormData,
 } from '../types'
 import {
   transformPipelineStageFormToJsonApi,
   transformLeadFormToJsonApi,
   transformCampaignFormToJsonApi,
+  transformActivityFormToJsonApi,
+  transformOpportunityFormToJsonApi,
 } from '../utils/transformers'
 
 // ============================================================================
@@ -343,6 +347,198 @@ export const campaignLeadsService = {
       return response.data
     } catch (error) {
       console.error('❌ [Service] Error removing leads from campaign:', error)
+      throw error
+    }
+  },
+}
+
+// ============================================================================
+// ACTIVITIES SERVICE
+// ============================================================================
+
+export const activitiesService = {
+  getAll: async (params?: Record<string, unknown>) => {
+    try {
+      console.log('🚀 [Service] Fetching activities with params:', params)
+
+      const queryParams = new URLSearchParams()
+
+      // Add includes for relationships
+      queryParams.append('include', 'user,lead,opportunity')
+
+      // Add filters if provided
+      if (params) {
+        Object.keys(params).forEach(key => {
+          if (params[key] !== undefined && params[key] !== null && params[key] !== '') {
+            queryParams.append(key, String(params[key]))
+          }
+        })
+      }
+
+      const queryString = queryParams.toString()
+      const url = queryString
+        ? `/api/v1/activities?${queryString}`
+        : '/api/v1/activities?include=user,lead,opportunity'
+
+      console.log('📡 [Service] Making request to:', url)
+      const response = await axiosClient.get(url)
+      console.log('✅ [Service] Activities response:', response.data)
+
+      return response.data
+    } catch (error) {
+      console.error('❌ [Service] Error fetching activities:', error)
+      throw error
+    }
+  },
+
+  getById: async (id: string) => {
+    try {
+      console.log('🚀 [Service] Fetching activity by ID:', id)
+      const response = await axiosClient.get(
+        `/api/v1/activities/${id}?include=user,lead,campaign,opportunity`
+      )
+      console.log('✅ [Service] Activity response:', response.data)
+      return response.data
+    } catch (error) {
+      console.error('❌ [Service] Error fetching activity:', error)
+      throw error
+    }
+  },
+
+  create: async (data: ActivityFormData) => {
+    try {
+      console.log('🚀 [Service] Creating activity:', data)
+      const payload = transformActivityFormToJsonApi(data)
+      console.log('📦 [Service] JSON:API payload:', payload)
+
+      const response = await axiosClient.post('/api/v1/activities', payload)
+      console.log('✅ [Service] Created activity:', response.data)
+      return response.data
+    } catch (error) {
+      console.error('❌ [Service] Error creating activity:', error)
+      throw error
+    }
+  },
+
+  update: async (id: string, data: ActivityFormData) => {
+    try {
+      console.log('🚀 [Service] Updating activity:', id, data)
+      const payload = transformActivityFormToJsonApi(data, 'activities', id)
+      console.log('📦 [Service] JSON:API payload:', payload)
+
+      const response = await axiosClient.patch(`/api/v1/activities/${id}`, payload)
+      console.log('✅ [Service] Updated activity:', response.data)
+      return response.data
+    } catch (error) {
+      console.error('❌ [Service] Error updating activity:', error)
+      throw error
+    }
+  },
+
+  delete: async (id: string) => {
+    try {
+      console.log('🚀 [Service] Deleting activity:', id)
+      const response = await axiosClient.delete(`/api/v1/activities/${id}`)
+      console.log('✅ [Service] Deleted activity')
+      return response.data
+    } catch (error) {
+      console.error('❌ [Service] Error deleting activity:', error)
+      throw error
+    }
+  },
+}
+
+// ============================================================================
+// OPPORTUNITIES SERVICE
+// ============================================================================
+
+export const opportunitiesService = {
+  getAll: async (params?: Record<string, unknown>) => {
+    try {
+      console.log('🚀 [Service] Fetching opportunities with params:', params)
+
+      const queryParams = new URLSearchParams()
+
+      // Add includes for relationships
+      queryParams.append('include', 'user,pipelineStage')
+
+      // Add filters if provided
+      if (params) {
+        Object.keys(params).forEach(key => {
+          if (params[key] !== undefined && params[key] !== null && params[key] !== '') {
+            queryParams.append(key, String(params[key]))
+          }
+        })
+      }
+
+      const queryString = queryParams.toString()
+      const url = queryString
+        ? `/api/v1/opportunities?${queryString}`
+        : '/api/v1/opportunities?include=user,pipelineStage'
+
+      console.log('📡 [Service] Making request to:', url)
+      const response = await axiosClient.get(url)
+      console.log('✅ [Service] Opportunities response:', response.data)
+
+      return response.data
+    } catch (error) {
+      console.error('❌ [Service] Error fetching opportunities:', error)
+      throw error
+    }
+  },
+
+  getById: async (id: string) => {
+    try {
+      console.log('🚀 [Service] Fetching opportunity by ID:', id)
+      const response = await axiosClient.get(
+        `/api/v1/opportunities/${id}?include=user,lead,pipelineStage,activities`
+      )
+      console.log('✅ [Service] Opportunity response:', response.data)
+      return response.data
+    } catch (error) {
+      console.error('❌ [Service] Error fetching opportunity:', error)
+      throw error
+    }
+  },
+
+  create: async (data: OpportunityFormData) => {
+    try {
+      console.log('🚀 [Service] Creating opportunity:', data)
+      const payload = transformOpportunityFormToJsonApi(data)
+      console.log('📦 [Service] JSON:API payload:', payload)
+
+      const response = await axiosClient.post('/api/v1/opportunities', payload)
+      console.log('✅ [Service] Created opportunity:', response.data)
+      return response.data
+    } catch (error) {
+      console.error('❌ [Service] Error creating opportunity:', error)
+      throw error
+    }
+  },
+
+  update: async (id: string, data: OpportunityFormData) => {
+    try {
+      console.log('🚀 [Service] Updating opportunity:', id, data)
+      const payload = transformOpportunityFormToJsonApi(data, 'opportunities', id)
+      console.log('📦 [Service] JSON:API payload:', payload)
+
+      const response = await axiosClient.patch(`/api/v1/opportunities/${id}`, payload)
+      console.log('✅ [Service] Updated opportunity:', response.data)
+      return response.data
+    } catch (error) {
+      console.error('❌ [Service] Error updating opportunity:', error)
+      throw error
+    }
+  },
+
+  delete: async (id: string) => {
+    try {
+      console.log('🚀 [Service] Deleting opportunity:', id)
+      const response = await axiosClient.delete(`/api/v1/opportunities/${id}`)
+      console.log('✅ [Service] Deleted opportunity')
+      return response.data
+    } catch (error) {
+      console.error('❌ [Service] Error deleting opportunity:', error)
       throw error
     }
   },
