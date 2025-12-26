@@ -24,7 +24,7 @@ vi.mock('@/lib/axiosClient', () => ({
 vi.mock('../../utils/transformers', () => ({
   transformARReceiptsFromAPI: vi.fn((data) => data.data || []),
   transformARReceiptFromAPI: vi.fn((data) => data),
-  transformARReceiptToAPI: vi.fn((data) => ({ data: { type: 'ar-receipts', attributes: data } }))
+  transformARReceiptToAPI: vi.fn((data) => ({ data: { type: 'payments', attributes: data } }))
 }))
 
 const mockAxios = axiosClient as any
@@ -48,7 +48,7 @@ describe('AR Receipts Service', () => {
       const result = await arReceiptsService.getAll()
 
       // Assert
-      expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/ar-receipts', { params: {} })
+      expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/payments', { params: {} })
       expect(result).toHaveProperty('data')
       expect(result).toHaveProperty('jsonapi')
     })
@@ -63,7 +63,7 @@ describe('AR Receipts Service', () => {
       await arReceiptsService.getAll(params)
 
       // Assert
-      expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/ar-receipts', { params })
+      expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/payments', { params })
     })
   })
 
@@ -79,7 +79,7 @@ describe('AR Receipts Service', () => {
       const result = await arReceiptsService.getById('1')
 
       // Assert
-      expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/ar-receipts/1')
+      expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/payments/1')
       expect(result.data).toBeDefined()
     })
 
@@ -94,7 +94,7 @@ describe('AR Receipts Service', () => {
       await arReceiptsService.getById('1', ['arInvoice', 'bankAccount'])
 
       // Assert
-      expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/ar-receipts/1?include=arInvoice,bankAccount')
+      expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/payments/1?include=arInvoice,bankAccount')
     })
   })
 
@@ -119,10 +119,10 @@ describe('AR Receipts Service', () => {
 
       // Assert
       expect(mockAxios.post).toHaveBeenCalledWith(
-        '/api/v1/ar-receipts',
+        '/api/v1/payments',
         expect.objectContaining({
           data: expect.objectContaining({
-            type: 'ar-receipts'
+            type: 'payments'
           })
         })
       )
@@ -144,10 +144,10 @@ describe('AR Receipts Service', () => {
 
       // Assert
       expect(mockAxios.patch).toHaveBeenCalledWith(
-        '/api/v1/ar-receipts/1',
+        '/api/v1/payments/1',
         {
           data: {
-            type: 'ar-receipts',
+            type: 'payments',
             id: '1',
             attributes: updateData
           }
@@ -166,7 +166,7 @@ describe('AR Receipts Service', () => {
       await arReceiptsService.delete('1')
 
       // Assert
-      expect(mockAxios.delete).toHaveBeenCalledWith('/api/v1/ar-receipts/1')
+      expect(mockAxios.delete).toHaveBeenCalledWith('/api/v1/payments/1')
     })
   })
 
@@ -182,7 +182,7 @@ describe('AR Receipts Service', () => {
       const result = await arReceiptsService.post('1')
 
       // Assert
-      expect(mockAxios.post).toHaveBeenCalledWith('/api/v1/ar-receipts/1/post')
+      expect(mockAxios.post).toHaveBeenCalledWith('/api/v1/payments/1/post')
       expect(result.data).toBeDefined()
     })
   })

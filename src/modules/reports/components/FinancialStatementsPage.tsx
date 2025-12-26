@@ -16,13 +16,21 @@ export const FinancialStatementsPage = () => {
   const [asOfDate, setAsOfDate] = useState(today)
   const [startDate, setStartDate] = useState(firstDayOfYear)
   const [endDate, setEndDate] = useState(today)
-  const [currency, setCurrency] = useState('USD')
+  const [currency, setCurrency] = useState('MXN')
 
   // Fetch reports
   const { balanceSheet, isLoading: loadingBS, error: errorBS } = useBalanceSheet({ asOfDate, currency })
   const { incomeStatement, isLoading: loadingIS, error: errorIS } = useIncomeStatement({ startDate, endDate, currency })
   const { cashFlow, isLoading: loadingCF, error: errorCF } = useCashFlow({ startDate, endDate, currency })
   const { trialBalance, isLoading: loadingTB, error: errorTB } = useTrialBalance({ asOfDate, currency })
+
+  const formatCurrency = (amount?: number) => {
+    if (amount === undefined || amount === null) return '$0.00'
+    return new Intl.NumberFormat('es-MX', {
+      style: 'currency',
+      currency: currency
+    }).format(amount)
+  }
 
   return (
     <div className="container-fluid py-4">
@@ -36,7 +44,7 @@ export const FinancialStatementsPage = () => {
                 Estados Financieros
               </h1>
               <p className="text-muted">
-                Balance General, Estado de Resultados, Flujo de Efectivo y Balanza de Comprobación
+                Balance General, Estado de Resultados, Flujo de Efectivo y Balanza de Comprobacion
               </p>
             </div>
           </div>
@@ -96,8 +104,8 @@ export const FinancialStatementsPage = () => {
                 value={currency}
                 onChange={(e) => setCurrency(e.target.value)}
               >
-                <option value="USD">USD - Dólar</option>
                 <option value="MXN">MXN - Peso Mexicano</option>
+                <option value="USD">USD - Dolar</option>
                 <option value="EUR">EUR - Euro</option>
               </select>
             </div>
@@ -114,12 +122,6 @@ export const FinancialStatementsPage = () => {
           </h5>
         </div>
         <div className="card-body">
-          {errorBS && (
-            <div className="alert alert-danger">
-              <i className="bi bi-exclamation-triangle me-2" />
-              Error al cargar el balance general
-            </div>
-          )}
           {loadingBS && (
             <div className="text-center py-4">
               <div className="spinner-border text-primary" role="status">
@@ -128,24 +130,30 @@ export const FinancialStatementsPage = () => {
               <p className="text-muted mt-2">Generando balance general...</p>
             </div>
           )}
-          {balanceSheet && (
+          {errorBS && (
+            <div className="alert alert-warning">
+              <i className="bi bi-info-circle me-2" />
+              No hay datos disponibles para el balance general en este periodo
+            </div>
+          )}
+          {!loadingBS && !errorBS && balanceSheet && (
             <div className="row">
               <div className="col-12 col-md-6">
                 <h6 className="text-primary">Activos</h6>
                 <div className="d-flex justify-content-between mb-2">
                   <span className="text-muted">Total Activos</span>
-                  <strong className="text-success">${balanceSheet.totalAssets.toLocaleString()}</strong>
+                  <strong className="text-success">{formatCurrency(balanceSheet.totalAssets)}</strong>
                 </div>
               </div>
               <div className="col-12 col-md-6">
                 <h6 className="text-danger">Pasivos + Capital</h6>
                 <div className="d-flex justify-content-between mb-2">
                   <span className="text-muted">Total Pasivos</span>
-                  <strong className="text-danger">${balanceSheet.totalLiabilities.toLocaleString()}</strong>
+                  <strong className="text-danger">{formatCurrency(balanceSheet.totalLiabilities)}</strong>
                 </div>
                 <div className="d-flex justify-content-between mb-2">
                   <span className="text-muted">Total Capital</span>
-                  <strong className="text-info">${balanceSheet.totalEquity.toLocaleString()}</strong>
+                  <strong className="text-info">{formatCurrency(balanceSheet.totalEquity)}</strong>
                 </div>
               </div>
               <div className="col-12 mt-3">
@@ -154,6 +162,12 @@ export const FinancialStatementsPage = () => {
                   Balance {balanceSheet.balanced ? 'Cuadrado' : 'Descuadrado'}
                 </div>
               </div>
+            </div>
+          )}
+          {!loadingBS && !errorBS && !balanceSheet && (
+            <div className="text-center py-4 text-muted">
+              <i className="bi bi-inbox display-4 d-block mb-3" />
+              No hay datos para mostrar
             </div>
           )}
         </div>
@@ -168,12 +182,6 @@ export const FinancialStatementsPage = () => {
           </h5>
         </div>
         <div className="card-body">
-          {errorIS && (
-            <div className="alert alert-danger">
-              <i className="bi bi-exclamation-triangle me-2" />
-              Error al cargar el estado de resultados
-            </div>
-          )}
           {loadingIS && (
             <div className="text-center py-4">
               <div className="spinner-border text-success" role="status">
@@ -182,34 +190,46 @@ export const FinancialStatementsPage = () => {
               <p className="text-muted mt-2">Generando estado de resultados...</p>
             </div>
           )}
-          {incomeStatement && (
+          {errorIS && (
+            <div className="alert alert-warning">
+              <i className="bi bi-info-circle me-2" />
+              No hay datos disponibles para el estado de resultados en este periodo
+            </div>
+          )}
+          {!loadingIS && !errorIS && incomeStatement && (
             <div>
               <div className="row">
                 <div className="col-12 col-md-6">
                   <div className="d-flex justify-content-between mb-2">
                     <span className="text-muted">Utilidad Bruta</span>
-                    <strong>${incomeStatement.grossProfit.toLocaleString()}</strong>
+                    <strong>{formatCurrency(incomeStatement.grossProfit)}</strong>
                   </div>
                   <div className="d-flex justify-content-between mb-2">
                     <span className="text-muted">Margen Bruto</span>
-                    <span className="badge bg-info">{incomeStatement.grossProfitMargin.toFixed(2)}%</span>
+                    <span className="badge bg-info">{(incomeStatement.grossProfitMargin || 0).toFixed(2)}%</span>
                   </div>
                 </div>
                 <div className="col-12 col-md-6">
                   <div className="d-flex justify-content-between mb-2">
                     <span className="text-muted">Utilidad Neta</span>
-                    <strong className={incomeStatement.netIncome >= 0 ? 'text-success' : 'text-danger'}>
-                      ${incomeStatement.netIncome.toLocaleString()}
+                    <strong className={(incomeStatement.netIncome || 0) >= 0 ? 'text-success' : 'text-danger'}>
+                      {formatCurrency(incomeStatement.netIncome)}
                     </strong>
                   </div>
                   <div className="d-flex justify-content-between mb-2">
                     <span className="text-muted">Margen Neto</span>
-                    <span className={`badge ${incomeStatement.netProfitMargin >= 0 ? 'bg-success' : 'bg-danger'}`}>
-                      {incomeStatement.netProfitMargin.toFixed(2)}%
+                    <span className={`badge ${(incomeStatement.netProfitMargin || 0) >= 0 ? 'bg-success' : 'bg-danger'}`}>
+                      {(incomeStatement.netProfitMargin || 0).toFixed(2)}%
                     </span>
                   </div>
                 </div>
               </div>
+            </div>
+          )}
+          {!loadingIS && !errorIS && !incomeStatement && (
+            <div className="text-center py-4 text-muted">
+              <i className="bi bi-inbox display-4 d-block mb-3" />
+              No hay datos para mostrar
             </div>
           )}
         </div>
@@ -224,12 +244,6 @@ export const FinancialStatementsPage = () => {
           </h5>
         </div>
         <div className="card-body">
-          {errorCF && (
-            <div className="alert alert-danger">
-              <i className="bi bi-exclamation-triangle me-2" />
-              Error al cargar el flujo de efectivo
-            </div>
-          )}
           {loadingCF && (
             <div className="text-center py-4">
               <div className="spinner-border text-info" role="status">
@@ -238,28 +252,40 @@ export const FinancialStatementsPage = () => {
               <p className="text-muted mt-2">Generando flujo de efectivo...</p>
             </div>
           )}
-          {cashFlow && (
+          {errorCF && (
+            <div className="alert alert-warning">
+              <i className="bi bi-info-circle me-2" />
+              No hay datos disponibles para el flujo de efectivo en este periodo
+            </div>
+          )}
+          {!loadingCF && !errorCF && cashFlow && (
             <div className="row">
               <div className="col-12 col-md-4">
                 <div className="d-flex justify-content-between mb-2">
                   <span className="text-muted">Efectivo Inicial</span>
-                  <strong>${cashFlow.beginningCash.toLocaleString()}</strong>
+                  <strong>{formatCurrency(cashFlow.beginningCash)}</strong>
                 </div>
               </div>
               <div className="col-12 col-md-4">
                 <div className="d-flex justify-content-between mb-2">
                   <span className="text-muted">Cambio Neto</span>
-                  <strong className={cashFlow.netCashChange >= 0 ? 'text-success' : 'text-danger'}>
-                    {cashFlow.netCashChange >= 0 ? '+' : ''}${cashFlow.netCashChange.toLocaleString()}
+                  <strong className={(cashFlow.netCashChange || 0) >= 0 ? 'text-success' : 'text-danger'}>
+                    {(cashFlow.netCashChange || 0) >= 0 ? '+' : ''}{formatCurrency(cashFlow.netCashChange)}
                   </strong>
                 </div>
               </div>
               <div className="col-12 col-md-4">
                 <div className="d-flex justify-content-between mb-2">
                   <span className="text-muted">Efectivo Final</span>
-                  <strong className="text-primary">${cashFlow.endingCash.toLocaleString()}</strong>
+                  <strong className="text-primary">{formatCurrency(cashFlow.endingCash)}</strong>
                 </div>
               </div>
+            </div>
+          )}
+          {!loadingCF && !errorCF && !cashFlow && (
+            <div className="text-center py-4 text-muted">
+              <i className="bi bi-inbox display-4 d-block mb-3" />
+              No hay datos para mostrar
             </div>
           )}
         </div>
@@ -270,37 +296,37 @@ export const FinancialStatementsPage = () => {
         <div className="card-header bg-secondary text-white">
           <h5 className="mb-0">
             <i className="bi bi-calculator me-2" />
-            Balanza de Comprobación (Trial Balance)
+            Balanza de Comprobacion (Trial Balance)
           </h5>
         </div>
         <div className="card-body">
-          {errorTB && (
-            <div className="alert alert-danger">
-              <i className="bi bi-exclamation-triangle me-2" />
-              Error al cargar la balanza de comprobación
-            </div>
-          )}
           {loadingTB && (
             <div className="text-center py-4">
               <div className="spinner-border text-secondary" role="status">
                 <span className="visually-hidden">Cargando...</span>
               </div>
-              <p className="text-muted mt-2">Generando balanza de comprobación...</p>
+              <p className="text-muted mt-2">Generando balanza de comprobacion...</p>
             </div>
           )}
-          {trialBalance && (
+          {errorTB && (
+            <div className="alert alert-warning">
+              <i className="bi bi-info-circle me-2" />
+              No hay datos disponibles para la balanza de comprobacion en este periodo
+            </div>
+          )}
+          {!loadingTB && !errorTB && trialBalance && (
             <div>
               <div className="row mb-3">
                 <div className="col-12 col-md-6">
                   <div className="d-flex justify-content-between mb-2">
                     <span className="text-muted">Total Cargos</span>
-                    <strong>${trialBalance.totalDebit.toLocaleString()}</strong>
+                    <strong>{formatCurrency(trialBalance.totalDebit)}</strong>
                   </div>
                 </div>
                 <div className="col-12 col-md-6">
                   <div className="d-flex justify-content-between mb-2">
                     <span className="text-muted">Total Abonos</span>
-                    <strong>${trialBalance.totalCredit.toLocaleString()}</strong>
+                    <strong>{formatCurrency(trialBalance.totalCredit)}</strong>
                   </div>
                 </div>
               </div>
@@ -308,6 +334,12 @@ export const FinancialStatementsPage = () => {
                 <i className={`bi ${trialBalance.balanced ? 'bi-check-circle' : 'bi-x-circle'} me-2`} />
                 Balanza {trialBalance.balanced ? 'Cuadrada' : 'Descuadrada'}
               </div>
+            </div>
+          )}
+          {!loadingTB && !errorTB && !trialBalance && (
+            <div className="text-center py-4 text-muted">
+              <i className="bi bi-inbox display-4 d-block mb-3" />
+              No hay datos para mostrar
             </div>
           )}
         </div>

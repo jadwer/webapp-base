@@ -24,7 +24,7 @@ vi.mock('@/lib/axiosClient', () => ({
 vi.mock('../../utils/transformers', () => ({
   transformAPPaymentsFromAPI: vi.fn((data) => data.data || []),
   transformAPPaymentFromAPI: vi.fn((data) => data),
-  transformAPPaymentToAPI: vi.fn((data) => ({ data: { type: 'ap-payments', attributes: data } }))
+  transformAPPaymentToAPI: vi.fn((data) => ({ data: { type: 'payments', attributes: data } }))
 }))
 
 const mockAxios = axiosClient as any
@@ -48,7 +48,7 @@ describe('AP Payments Service', () => {
       const result = await apPaymentsService.getAll()
 
       // Assert
-      expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/ap-payments', { params: {} })
+      expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/payments', { params: {} })
       expect(result).toHaveProperty('data')
       expect(result).toHaveProperty('jsonapi')
     })
@@ -63,7 +63,7 @@ describe('AP Payments Service', () => {
       await apPaymentsService.getAll(params)
 
       // Assert
-      expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/ap-payments', { params })
+      expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/payments', { params })
     })
   })
 
@@ -79,7 +79,7 @@ describe('AP Payments Service', () => {
       const result = await apPaymentsService.getById('1')
 
       // Assert
-      expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/ap-payments/1')
+      expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/payments/1')
       expect(result.data).toBeDefined()
     })
 
@@ -94,7 +94,7 @@ describe('AP Payments Service', () => {
       await apPaymentsService.getById('1', ['apInvoice', 'bankAccount'])
 
       // Assert
-      expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/ap-payments/1?include=apInvoice,bankAccount')
+      expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/payments/1?include=apInvoice,bankAccount')
     })
   })
 
@@ -119,10 +119,10 @@ describe('AP Payments Service', () => {
 
       // Assert
       expect(mockAxios.post).toHaveBeenCalledWith(
-        '/api/v1/ap-payments',
+        '/api/v1/payments',
         expect.objectContaining({
           data: expect.objectContaining({
-            type: 'ap-payments'
+            type: 'payments'
           })
         })
       )
@@ -144,10 +144,10 @@ describe('AP Payments Service', () => {
 
       // Assert
       expect(mockAxios.patch).toHaveBeenCalledWith(
-        '/api/v1/ap-payments/1',
+        '/api/v1/payments/1',
         {
           data: {
-            type: 'ap-payments',
+            type: 'payments',
             id: '1',
             attributes: updateData
           }
@@ -166,7 +166,7 @@ describe('AP Payments Service', () => {
       await apPaymentsService.delete('1')
 
       // Assert
-      expect(mockAxios.delete).toHaveBeenCalledWith('/api/v1/ap-payments/1')
+      expect(mockAxios.delete).toHaveBeenCalledWith('/api/v1/payments/1')
     })
   })
 
@@ -182,7 +182,7 @@ describe('AP Payments Service', () => {
       const result = await apPaymentsService.post('1')
 
       // Assert
-      expect(mockAxios.post).toHaveBeenCalledWith('/api/v1/ap-payments/1/post')
+      expect(mockAxios.post).toHaveBeenCalledWith('/api/v1/payments/1/post')
       expect(result.data).toBeDefined()
     })
   })

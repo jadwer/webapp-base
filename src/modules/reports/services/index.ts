@@ -3,6 +3,8 @@
  *
  * API layer for read-only reports
  * All reports are generated dynamically (no create/update/delete)
+ *
+ * IMPORTANT: All endpoints are under /api/v1/reports/ prefix
  */
 
 import axiosClient from '@/lib/axiosClient'
@@ -11,6 +13,9 @@ import type {
   PeriodReportFilters,
   AgingReportFilters,
 } from '../types'
+
+// Base URL for all reports
+const REPORTS_BASE = '/api/v1/reports'
 
 // ============================================================================
 // FINANCIAL STATEMENTS
@@ -32,8 +37,8 @@ export const balanceSheetService = {
 
       const queryString = queryParams.toString()
       const url = queryString
-        ? `/api/v1/balance-sheets?${queryString}`
-        : '/api/v1/balance-sheets'
+        ? `${REPORTS_BASE}/balance-sheets?${queryString}`
+        : `${REPORTS_BASE}/balance-sheets`
 
       console.log('📡 [Service] Making request to:', url)
       const response = await axiosClient.get(url)
@@ -60,7 +65,7 @@ export const incomeStatementService = {
         queryParams.append('filter[currency]', filters.currency)
       }
 
-      const url = `/api/v1/income-statements?${queryParams.toString()}`
+      const url = `${REPORTS_BASE}/income-statements?${queryParams.toString()}`
 
       console.log('📡 [Service] Making request to:', url)
       const response = await axiosClient.get(url)
@@ -87,7 +92,7 @@ export const cashFlowService = {
         queryParams.append('filter[currency]', filters.currency)
       }
 
-      const url = `/api/v1/cash-flows?${queryParams.toString()}`
+      const url = `${REPORTS_BASE}/cash-flows?${queryParams.toString()}`
 
       console.log('📡 [Service] Making request to:', url)
       const response = await axiosClient.get(url)
@@ -117,8 +122,8 @@ export const trialBalanceService = {
 
       const queryString = queryParams.toString()
       const url = queryString
-        ? `/api/v1/trial-balances?${queryString}`
-        : '/api/v1/trial-balances'
+        ? `${REPORTS_BASE}/trial-balances?${queryString}`
+        : `${REPORTS_BASE}/trial-balances`
 
       console.log('📡 [Service] Making request to:', url)
       const response = await axiosClient.get(url)
@@ -152,8 +157,8 @@ export const arAgingReportService = {
 
       const queryString = queryParams.toString()
       const url = queryString
-        ? `/api/v1/ar-aging-reports?${queryString}`
-        : '/api/v1/ar-aging-reports'
+        ? `${REPORTS_BASE}/ar-aging-reports?${queryString}`
+        : `${REPORTS_BASE}/ar-aging-reports`
 
       console.log('📡 [Service] Making request to:', url)
       const response = await axiosClient.get(url)
@@ -183,8 +188,8 @@ export const apAgingReportService = {
 
       const queryString = queryParams.toString()
       const url = queryString
-        ? `/api/v1/ap-aging-reports?${queryString}`
-        : '/api/v1/ap-aging-reports'
+        ? `${REPORTS_BASE}/ap-aging-reports?${queryString}`
+        : `${REPORTS_BASE}/ap-aging-reports`
 
       console.log('📡 [Service] Making request to:', url)
       const response = await axiosClient.get(url)
@@ -215,7 +220,7 @@ export const salesByCustomerService = {
         queryParams.append('filter[currency]', filters.currency)
       }
 
-      const url = `/api/v1/sales-by-customer-reports?${queryParams.toString()}`
+      const url = `${REPORTS_BASE}/sales-by-customer-reports?${queryParams.toString()}`
 
       console.log('📡 [Service] Making request to:', url)
       const response = await axiosClient.get(url)
@@ -242,7 +247,7 @@ export const salesByProductService = {
         queryParams.append('filter[currency]', filters.currency)
       }
 
-      const url = `/api/v1/sales-by-product-reports?${queryParams.toString()}`
+      const url = `${REPORTS_BASE}/sales-by-product-reports?${queryParams.toString()}`
 
       console.log('📡 [Service] Making request to:', url)
       const response = await axiosClient.get(url)
@@ -269,7 +274,7 @@ export const purchaseBySupplierService = {
         queryParams.append('filter[currency]', filters.currency)
       }
 
-      const url = `/api/v1/purchase-by-supplier-reports?${queryParams.toString()}`
+      const url = `${REPORTS_BASE}/purchase-by-supplier-reports?${queryParams.toString()}`
 
       console.log('📡 [Service] Making request to:', url)
       const response = await axiosClient.get(url)
@@ -296,7 +301,7 @@ export const purchaseByProductService = {
         queryParams.append('filter[currency]', filters.currency)
       }
 
-      const url = `/api/v1/purchase-by-product-reports?${queryParams.toString()}`
+      const url = `${REPORTS_BASE}/purchase-by-product-reports?${queryParams.toString()}`
 
       console.log('📡 [Service] Making request to:', url)
       const response = await axiosClient.get(url)

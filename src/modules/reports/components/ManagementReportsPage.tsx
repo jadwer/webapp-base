@@ -15,7 +15,7 @@ export const ManagementReportsPage = () => {
   // Filters
   const [startDate, setStartDate] = useState(firstDayOfYear)
   const [endDate, setEndDate] = useState(today)
-  const [currency, setCurrency] = useState('USD')
+  const [currency, setCurrency] = useState('MXN')
 
   // Fetch reports
   const { salesByCustomer, isLoading: loadingSC, error: errorSC } = useSalesByCustomer({ startDate, endDate, currency })
@@ -23,7 +23,8 @@ export const ManagementReportsPage = () => {
   const { purchaseBySupplier, isLoading: loadingPS, error: errorPS } = usePurchaseBySupplier({ startDate, endDate, currency })
   const { purchaseByProduct, isLoading: loadingPP, error: errorPP } = usePurchaseByProduct({ startDate, endDate, currency })
 
-  const formatCurrency = (amount: number) => {
+  const formatCurrency = (amount?: number) => {
+    if (amount === undefined || amount === null) return '$0.00'
     return new Intl.NumberFormat('es-MX', {
       style: 'currency',
       currency: currency
@@ -42,7 +43,7 @@ export const ManagementReportsPage = () => {
                 Reportes Gerenciales
               </h1>
               <p className="text-muted">
-                Análisis de ventas y compras por cliente, proveedor y producto
+                Analisis de ventas y compras por cliente, proveedor y producto
               </p>
             </div>
           </div>
@@ -89,8 +90,8 @@ export const ManagementReportsPage = () => {
                 value={currency}
                 onChange={(e) => setCurrency(e.target.value)}
               >
-                <option value="USD">USD - Dólar</option>
                 <option value="MXN">MXN - Peso Mexicano</option>
+                <option value="USD">USD - Dolar</option>
                 <option value="EUR">EUR - Euro</option>
               </select>
             </div>
@@ -107,12 +108,6 @@ export const ManagementReportsPage = () => {
           </h5>
         </div>
         <div className="card-body">
-          {errorSC && (
-            <div className="alert alert-danger">
-              <i className="bi bi-exclamation-triangle me-2" />
-              Error al cargar el reporte de ventas por cliente
-            </div>
-          )}
           {loadingSC && (
             <div className="text-center py-4">
               <div className="spinner-border text-success" role="status">
@@ -121,14 +116,20 @@ export const ManagementReportsPage = () => {
               <p className="text-muted mt-2">Generando reporte de ventas por cliente...</p>
             </div>
           )}
-          {salesByCustomer && (
+          {errorSC && (
+            <div className="alert alert-warning">
+              <i className="bi bi-info-circle me-2" />
+              No hay datos disponibles para ventas por cliente en este periodo
+            </div>
+          )}
+          {!loadingSC && !errorSC && salesByCustomer && (
             <div>
               <div className="alert alert-success d-flex justify-content-between align-items-center mb-4">
                 <strong>Total Ventas:</strong>
                 <span className="h4 mb-0">{formatCurrency(salesByCustomer.totalSales)}</span>
               </div>
 
-              {salesByCustomer.customers.length > 0 ? (
+              {salesByCustomer.customers && salesByCustomer.customers.length > 0 ? (
                 <div className="table-responsive">
                   <table className="table table-sm table-hover">
                     <thead className="table-light">
@@ -161,6 +162,12 @@ export const ManagementReportsPage = () => {
               )}
             </div>
           )}
+          {!loadingSC && !errorSC && !salesByCustomer && (
+            <div className="text-center py-4 text-muted">
+              <i className="bi bi-inbox display-4 d-block mb-3" />
+              No hay datos para mostrar
+            </div>
+          )}
         </div>
       </div>
 
@@ -173,12 +180,6 @@ export const ManagementReportsPage = () => {
           </h5>
         </div>
         <div className="card-body">
-          {errorSP && (
-            <div className="alert alert-danger">
-              <i className="bi bi-exclamation-triangle me-2" />
-              Error al cargar el reporte de ventas por producto
-            </div>
-          )}
           {loadingSP && (
             <div className="text-center py-4">
               <div className="spinner-border text-info" role="status">
@@ -187,14 +188,20 @@ export const ManagementReportsPage = () => {
               <p className="text-muted mt-2">Generando reporte de ventas por producto...</p>
             </div>
           )}
-          {salesByProduct && (
+          {errorSP && (
+            <div className="alert alert-warning">
+              <i className="bi bi-info-circle me-2" />
+              No hay datos disponibles para ventas por producto en este periodo
+            </div>
+          )}
+          {!loadingSP && !errorSP && salesByProduct && (
             <div>
               <div className="alert alert-info d-flex justify-content-between align-items-center mb-4">
                 <strong>Total Ingresos:</strong>
                 <span className="h4 mb-0">{formatCurrency(salesByProduct.totalRevenue)}</span>
               </div>
 
-              {salesByProduct.products.length > 0 ? (
+              {salesByProduct.products && salesByProduct.products.length > 0 ? (
                 <div className="table-responsive">
                   <table className="table table-sm table-hover">
                     <thead className="table-light">
@@ -227,6 +234,12 @@ export const ManagementReportsPage = () => {
               )}
             </div>
           )}
+          {!loadingSP && !errorSP && !salesByProduct && (
+            <div className="text-center py-4 text-muted">
+              <i className="bi bi-inbox display-4 d-block mb-3" />
+              No hay datos para mostrar
+            </div>
+          )}
         </div>
       </div>
 
@@ -239,12 +252,6 @@ export const ManagementReportsPage = () => {
           </h5>
         </div>
         <div className="card-body">
-          {errorPS && (
-            <div className="alert alert-danger">
-              <i className="bi bi-exclamation-triangle me-2" />
-              Error al cargar el reporte de compras por proveedor
-            </div>
-          )}
           {loadingPS && (
             <div className="text-center py-4">
               <div className="spinner-border text-primary" role="status">
@@ -253,20 +260,26 @@ export const ManagementReportsPage = () => {
               <p className="text-muted mt-2">Generando reporte de compras por proveedor...</p>
             </div>
           )}
-          {purchaseBySupplier && (
+          {errorPS && (
+            <div className="alert alert-warning">
+              <i className="bi bi-info-circle me-2" />
+              No hay datos disponibles para compras por proveedor en este periodo
+            </div>
+          )}
+          {!loadingPS && !errorPS && purchaseBySupplier && (
             <div>
               <div className="alert alert-primary d-flex justify-content-between align-items-center mb-4">
                 <strong>Total Compras:</strong>
                 <span className="h4 mb-0">{formatCurrency(purchaseBySupplier.totalPurchases)}</span>
               </div>
 
-              {purchaseBySupplier.suppliers.length > 0 ? (
+              {purchaseBySupplier.suppliers && purchaseBySupplier.suppliers.length > 0 ? (
                 <div className="table-responsive">
                   <table className="table table-sm table-hover">
                     <thead className="table-light">
                       <tr>
                         <th>Proveedor</th>
-                        <th className="text-center">Órdenes</th>
+                        <th className="text-center">Ordenes</th>
                         <th className="text-end">Total Compras</th>
                         <th className="text-end">Ticket Promedio</th>
                       </tr>
@@ -293,6 +306,12 @@ export const ManagementReportsPage = () => {
               )}
             </div>
           )}
+          {!loadingPS && !errorPS && !purchaseBySupplier && (
+            <div className="text-center py-4 text-muted">
+              <i className="bi bi-inbox display-4 d-block mb-3" />
+              No hay datos para mostrar
+            </div>
+          )}
         </div>
       </div>
 
@@ -305,12 +324,6 @@ export const ManagementReportsPage = () => {
           </h5>
         </div>
         <div className="card-body">
-          {errorPP && (
-            <div className="alert alert-danger">
-              <i className="bi bi-exclamation-triangle me-2" />
-              Error al cargar el reporte de compras por producto
-            </div>
-          )}
           {loadingPP && (
             <div className="text-center py-4">
               <div className="spinner-border text-secondary" role="status">
@@ -319,14 +332,20 @@ export const ManagementReportsPage = () => {
               <p className="text-muted mt-2">Generando reporte de compras por producto...</p>
             </div>
           )}
-          {purchaseByProduct && (
+          {errorPP && (
+            <div className="alert alert-warning">
+              <i className="bi bi-info-circle me-2" />
+              No hay datos disponibles para compras por producto en este periodo
+            </div>
+          )}
+          {!loadingPP && !errorPP && purchaseByProduct && (
             <div>
               <div className="alert alert-secondary d-flex justify-content-between align-items-center mb-4">
                 <strong>Total Costo:</strong>
                 <span className="h4 mb-0">{formatCurrency(purchaseByProduct.totalCost)}</span>
               </div>
 
-              {purchaseByProduct.products.length > 0 ? (
+              {purchaseByProduct.products && purchaseByProduct.products.length > 0 ? (
                 <div className="table-responsive">
                   <table className="table table-sm table-hover">
                     <thead className="table-light">
@@ -357,6 +376,12 @@ export const ManagementReportsPage = () => {
                   No hay productos comprados en este periodo
                 </div>
               )}
+            </div>
+          )}
+          {!loadingPP && !errorPP && !purchaseByProduct && (
+            <div className="text-center py-4 text-muted">
+              <i className="bi bi-inbox display-4 d-block mb-3" />
+              No hay datos para mostrar
             </div>
           )}
         </div>

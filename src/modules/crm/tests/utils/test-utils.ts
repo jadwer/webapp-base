@@ -43,11 +43,11 @@ export const createMockPipelineStage = (
  */
 export const createMockPipelineStages = (count: number = 5): PipelineStage[] => {
   const stages = [
-    { name: 'Prospecting', order: 1, probability: 10, color: '#3498db' },
-    { name: 'Qualification', order: 2, probability: 25, color: '#9b59b6' },
-    { name: 'Proposal', order: 3, probability: 50, color: '#f39c12' },
-    { name: 'Negotiation', order: 4, probability: 75, color: '#e67e22' },
-    { name: 'Closed Won', order: 5, probability: 100, color: '#27ae60' },
+    { name: 'Prospecting', sortOrder: 1, probability: 10, stageType: 'lead' as const },
+    { name: 'Qualification', sortOrder: 2, probability: 25, stageType: 'lead' as const },
+    { name: 'Proposal', sortOrder: 3, probability: 50, stageType: 'opportunity' as const },
+    { name: 'Negotiation', sortOrder: 4, probability: 75, stageType: 'opportunity' as const },
+    { name: 'Closed Won', sortOrder: 5, probability: 100, stageType: 'opportunity' as const, isClosedWon: true },
   ];
 
   return stages.slice(0, count).map((stage, index) =>

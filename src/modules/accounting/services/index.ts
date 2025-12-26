@@ -6,6 +6,8 @@ import {
   transformAccountsFromAPI,
   transformAccountFromAPI,
   transformAccountToAPI,
+  transformJournalEntriesFromAPI,
+  transformJournalEntryFromAPI,
 } from '../utils/transformers';
 import type {
   Account,
@@ -71,13 +73,21 @@ export const accountsService = {
 export const journalEntriesService = {
   async getAll(params: Record<string, unknown> = {}): Promise<AccountingAPIResponse<JournalEntry>> {
     const response = await axiosClient.get('/api/v1/journal-entries', { params });
-    return response.data;
+    const transformedData = transformJournalEntriesFromAPI(response.data);
+    return {
+      jsonapi: response.data.jsonapi || { version: '1.0' },
+      data: transformedData,
+      meta: response.data.meta,
+      links: response.data.links,
+    };
   },
 
   async getById(id: string, includes: string[] = []): Promise<{ data: JournalEntry }> {
     const includeParam = includes.length > 0 ? `?include=${includes.join(',')}` : '';
     const response = await axiosClient.get(`/api/v1/journal-entries/${id}${includeParam}`);
-    return response.data;
+    return {
+      data: transformJournalEntryFromAPI(response.data.data)
+    };
   },
 
   async create(data: JournalEntryFormData): Promise<{ data: JournalEntry }> {
@@ -112,7 +122,7 @@ export const journalEntriesService = {
 
   // Get with journal lines included
   async getWithLines(id: string): Promise<{ data: JournalEntry }> {
-    return this.getById(id, ['journalLines', 'journalLines.account']);
+    return this.getById(id, ['journalLines']);
   },
 };
 

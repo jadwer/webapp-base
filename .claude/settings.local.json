@@ -46,7 +46,9 @@
       "Bash(test:*)",
       "Bash(src/modules/accounting/tests/hooks/useAccountsHooks.test.ts)",
       "Bash(src/modules/accounting/tests/hooks/useJournalEntriesHooks.test.ts)",
-      "Bash(echo:*)"
+      "Bash(echo:*)",
+      "Bash(npx playwright install chromium)",
+      "Bash(npm run test:e2e:*)"
     ],
     "deny": [],
     "defaultMode": "acceptEdits"

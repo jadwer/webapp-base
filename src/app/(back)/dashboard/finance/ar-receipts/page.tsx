@@ -7,9 +7,9 @@ import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
 export default function ARReceiptsPage() {
   const navigation = useNavigationProgress()
   
-  // Include contacts and invoices to resolve customer names and invoice info
+  // Include contacts to resolve customer names
   const { arReceipts, isLoading, error } = useARReceipts({
-    include: ['contact', 'arInvoice']
+    include: ['contact']
   })
 
   if (isLoading) {

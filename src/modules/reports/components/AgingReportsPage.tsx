@@ -13,13 +13,14 @@ export const AgingReportsPage = () => {
 
   // Filters
   const [asOfDate, setAsOfDate] = useState(today)
-  const [currency, setCurrency] = useState('USD')
+  const [currency, setCurrency] = useState('MXN')
 
   // Fetch reports
   const { arAgingReport, isLoading: loadingAR, error: errorAR } = useARAgingReport({ asOfDate, currency })
   const { apAgingReport, isLoading: loadingAP, error: errorAP } = useAPAgingReport({ asOfDate, currency })
 
-  const formatCurrency = (amount: number) => {
+  const formatCurrency = (amount?: number) => {
+    if (amount === undefined || amount === null) return '$0.00'
     return new Intl.NumberFormat('es-MX', {
       style: 'currency',
       currency: currency
@@ -35,10 +36,10 @@ export const AgingReportsPage = () => {
             <div>
               <h1 className="h3 mb-2">
                 <i className="bi bi-clock-history me-3" />
-                Reportes de Antigüedad
+                Reportes de Antiguedad
               </h1>
               <p className="text-muted">
-                Análisis de Cuentas por Cobrar y Cuentas por Pagar por periodos de vencimiento
+                Analisis de Cuentas por Cobrar y Cuentas por Pagar por periodos de vencimiento
               </p>
             </div>
           </div>
@@ -72,8 +73,8 @@ export const AgingReportsPage = () => {
                 value={currency}
                 onChange={(e) => setCurrency(e.target.value)}
               >
-                <option value="USD">USD - Dólar</option>
                 <option value="MXN">MXN - Peso Mexicano</option>
+                <option value="USD">USD - Dolar</option>
                 <option value="EUR">EUR - Euro</option>
               </select>
             </div>
@@ -83,60 +84,60 @@ export const AgingReportsPage = () => {
 
       {/* AR Aging Report */}
       <div className="card mb-4">
-        <div className="card-header bg-warning text-white">
+        <div className="card-header bg-warning text-dark">
           <h5 className="mb-0">
             <i className="bi bi-receipt me-2" />
-            Antigüedad de Cuentas por Cobrar (AR)
+            Antiguedad de Cuentas por Cobrar (AR)
           </h5>
         </div>
         <div className="card-body">
-          {errorAR && (
-            <div className="alert alert-danger">
-              <i className="bi bi-exclamation-triangle me-2" />
-              Error al cargar el reporte AR
-            </div>
-          )}
           {loadingAR && (
             <div className="text-center py-4">
               <div className="spinner-border text-warning" role="status">
                 <span className="visually-hidden">Cargando...</span>
               </div>
-              <p className="text-muted mt-2">Generando reporte de antigüedad AR...</p>
+              <p className="text-muted mt-2">Generando reporte de antiguedad AR...</p>
             </div>
           )}
-          {arAgingReport && (
+          {errorAR && (
+            <div className="alert alert-warning">
+              <i className="bi bi-info-circle me-2" />
+              No hay datos disponibles para el reporte AR en este periodo
+            </div>
+          )}
+          {!loadingAR && !errorAR && arAgingReport && (
             <div>
               {/* Summary Cards */}
               <div className="row g-3 mb-4">
                 <div className="col-6 col-md-3">
                   <div className="card border-success">
                     <div className="card-body py-2">
-                      <div className="small text-muted">0-30 días</div>
-                      <div className="h5 mb-0 text-success">{formatCurrency(arAgingReport.summary.current)}</div>
+                      <div className="small text-muted">0-30 dias</div>
+                      <div className="h5 mb-0 text-success">{formatCurrency(arAgingReport.summary?.current)}</div>
                     </div>
                   </div>
                 </div>
                 <div className="col-6 col-md-3">
                   <div className="card border-warning">
                     <div className="card-body py-2">
-                      <div className="small text-muted">31-60 días</div>
-                      <div className="h5 mb-0 text-warning">{formatCurrency(arAgingReport.summary.days30)}</div>
+                      <div className="small text-muted">31-60 dias</div>
+                      <div className="h5 mb-0 text-warning">{formatCurrency(arAgingReport.summary?.days30)}</div>
                     </div>
                   </div>
                 </div>
                 <div className="col-6 col-md-3">
                   <div className="card border-danger">
                     <div className="card-body py-2">
-                      <div className="small text-muted">61-90 días</div>
-                      <div className="h5 mb-0 text-danger">{formatCurrency(arAgingReport.summary.days60)}</div>
+                      <div className="small text-muted">61-90 dias</div>
+                      <div className="h5 mb-0 text-danger">{formatCurrency(arAgingReport.summary?.days60)}</div>
                     </div>
                   </div>
                 </div>
                 <div className="col-6 col-md-3">
                   <div className="card border-dark">
                     <div className="card-body py-2">
-                      <div className="small text-muted">90+ días</div>
-                      <div className="h5 mb-0 text-dark">{formatCurrency(arAgingReport.summary.days90Plus)}</div>
+                      <div className="small text-muted">90+ dias</div>
+                      <div className="h5 mb-0 text-dark">{formatCurrency(arAgingReport.summary?.days90Plus)}</div>
                     </div>
                   </div>
                 </div>
@@ -145,20 +146,20 @@ export const AgingReportsPage = () => {
               {/* Total */}
               <div className="alert alert-info d-flex justify-content-between align-items-center mb-4">
                 <strong>Total por Cobrar:</strong>
-                <span className="h4 mb-0">{formatCurrency(arAgingReport.summary.total)}</span>
+                <span className="h4 mb-0">{formatCurrency(arAgingReport.summary?.total)}</span>
               </div>
 
               {/* Customer Details Table */}
-              {arAgingReport.customers.length > 0 ? (
+              {arAgingReport.customers && arAgingReport.customers.length > 0 ? (
                 <div className="table-responsive">
                   <table className="table table-sm table-hover">
                     <thead className="table-light">
                       <tr>
                         <th>Cliente</th>
-                        <th className="text-end">0-30 días</th>
-                        <th className="text-end">31-60 días</th>
-                        <th className="text-end">61-90 días</th>
-                        <th className="text-end">90+ días</th>
+                        <th className="text-end">0-30 dias</th>
+                        <th className="text-end">31-60 dias</th>
+                        <th className="text-end">61-90 dias</th>
+                        <th className="text-end">90+ dias</th>
                         <th className="text-end">Total</th>
                       </tr>
                     </thead>
@@ -184,6 +185,12 @@ export const AgingReportsPage = () => {
               )}
             </div>
           )}
+          {!loadingAR && !errorAR && !arAgingReport && (
+            <div className="text-center py-4 text-muted">
+              <i className="bi bi-inbox display-4 d-block mb-3" />
+              No hay datos para mostrar
+            </div>
+          )}
         </div>
       </div>
 
@@ -192,57 +199,57 @@ export const AgingReportsPage = () => {
         <div className="card-header bg-danger text-white">
           <h5 className="mb-0">
             <i className="bi bi-receipt me-2" />
-            Antigüedad de Cuentas por Pagar (AP)
+            Antiguedad de Cuentas por Pagar (AP)
           </h5>
         </div>
         <div className="card-body">
-          {errorAP && (
-            <div className="alert alert-danger">
-              <i className="bi bi-exclamation-triangle me-2" />
-              Error al cargar el reporte AP
-            </div>
-          )}
           {loadingAP && (
             <div className="text-center py-4">
               <div className="spinner-border text-danger" role="status">
                 <span className="visually-hidden">Cargando...</span>
               </div>
-              <p className="text-muted mt-2">Generando reporte de antigüedad AP...</p>
+              <p className="text-muted mt-2">Generando reporte de antiguedad AP...</p>
             </div>
           )}
-          {apAgingReport && (
+          {errorAP && (
+            <div className="alert alert-warning">
+              <i className="bi bi-info-circle me-2" />
+              No hay datos disponibles para el reporte AP en este periodo
+            </div>
+          )}
+          {!loadingAP && !errorAP && apAgingReport && (
             <div>
               {/* Summary Cards */}
               <div className="row g-3 mb-4">
                 <div className="col-6 col-md-3">
                   <div className="card border-success">
                     <div className="card-body py-2">
-                      <div className="small text-muted">0-30 días</div>
-                      <div className="h5 mb-0 text-success">{formatCurrency(apAgingReport.summary.current)}</div>
+                      <div className="small text-muted">0-30 dias</div>
+                      <div className="h5 mb-0 text-success">{formatCurrency(apAgingReport.summary?.current)}</div>
                     </div>
                   </div>
                 </div>
                 <div className="col-6 col-md-3">
                   <div className="card border-warning">
                     <div className="card-body py-2">
-                      <div className="small text-muted">31-60 días</div>
-                      <div className="h5 mb-0 text-warning">{formatCurrency(apAgingReport.summary.days30)}</div>
+                      <div className="small text-muted">31-60 dias</div>
+                      <div className="h5 mb-0 text-warning">{formatCurrency(apAgingReport.summary?.days30)}</div>
                     </div>
                   </div>
                 </div>
                 <div className="col-6 col-md-3">
                   <div className="card border-danger">
                     <div className="card-body py-2">
-                      <div className="small text-muted">61-90 días</div>
-                      <div className="h5 mb-0 text-danger">{formatCurrency(apAgingReport.summary.days60)}</div>
+                      <div className="small text-muted">61-90 dias</div>
+                      <div className="h5 mb-0 text-danger">{formatCurrency(apAgingReport.summary?.days60)}</div>
                     </div>
                   </div>
                 </div>
                 <div className="col-6 col-md-3">
                   <div className="card border-dark">
                     <div className="card-body py-2">
-                      <div className="small text-muted">90+ días</div>
-                      <div className="h5 mb-0 text-dark">{formatCurrency(apAgingReport.summary.days90Plus)}</div>
+                      <div className="small text-muted">90+ dias</div>
+                      <div className="h5 mb-0 text-dark">{formatCurrency(apAgingReport.summary?.days90Plus)}</div>
                     </div>
                   </div>
                 </div>
@@ -251,20 +258,20 @@ export const AgingReportsPage = () => {
               {/* Total */}
               <div className="alert alert-warning d-flex justify-content-between align-items-center mb-4">
                 <strong>Total por Pagar:</strong>
-                <span className="h4 mb-0">{formatCurrency(apAgingReport.summary.total)}</span>
+                <span className="h4 mb-0">{formatCurrency(apAgingReport.summary?.total)}</span>
               </div>
 
               {/* Supplier Details Table */}
-              {apAgingReport.suppliers.length > 0 ? (
+              {apAgingReport.suppliers && apAgingReport.suppliers.length > 0 ? (
                 <div className="table-responsive">
                   <table className="table table-sm table-hover">
                     <thead className="table-light">
                       <tr>
                         <th>Proveedor</th>
-                        <th className="text-end">0-30 días</th>
-                        <th className="text-end">31-60 días</th>
-                        <th className="text-end">61-90 días</th>
-                        <th className="text-end">90+ días</th>
+                        <th className="text-end">0-30 dias</th>
+                        <th className="text-end">31-60 dias</th>
+                        <th className="text-end">61-90 dias</th>
+                        <th className="text-end">90+ dias</th>
                         <th className="text-end">Total</th>
                       </tr>
                     </thead>
@@ -288,6 +295,12 @@ export const AgingReportsPage = () => {
                   No hay cuentas por pagar en este periodo
                 </div>
               )}
+            </div>
+          )}
+          {!loadingAP && !errorAP && !apAgingReport && (
+            <div className="text-center py-4 text-muted">
+              <i className="bi bi-inbox display-4 d-block mb-3" />
+              No hay datos para mostrar
             </div>
           )}
         </div>

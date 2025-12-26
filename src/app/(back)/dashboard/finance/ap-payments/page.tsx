@@ -7,9 +7,9 @@ import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
 export default function APPaymentsPage() {
   const navigation = useNavigationProgress()
   
-  // Include contacts and invoices to resolve supplier names and invoice info
+  // Include contacts to resolve supplier names
   const { apPayments, isLoading, error } = useAPPayments({
-    include: ['contact', 'apInvoice']
+    include: ['contact']
   })
 
   if (isLoading) {

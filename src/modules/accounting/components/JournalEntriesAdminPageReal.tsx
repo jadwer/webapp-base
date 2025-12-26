@@ -31,7 +31,7 @@ export const JournalEntriesAdminPageReal = () => {
   const { journalEntries, isLoading, error } = useJournalEntries({
     filters: Object.keys(filters).length > 0 ? filters : undefined,
     pagination: { page: currentPage, size: pageSize },
-    include: ['journalLines', 'journalLines.account']
+    include: ['journalLines']
   })
 
   // Reset to page 1 when search changes

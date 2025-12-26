@@ -33,11 +33,12 @@ describe('pipelineStagesService', () => {
           id: stage.id,
           attributes: {
             name: stage.name,
-            order: stage.order,
+            sort_order: stage.sortOrder,
+            stage_type: stage.stageType,
             probability: stage.probability,
             is_active: stage.isActive,
-            color: stage.color,
-            description: stage.description,
+            is_closed_won: stage.isClosedWon,
+            is_closed_lost: stage.isClosedLost,
           },
         })),
         'pipeline-stages'
@@ -61,7 +62,7 @@ describe('pipelineStagesService', () => {
       const mockResponse = createMockAPICollectionResponse(
         mockStages.map(stage => ({
           id: stage.id,
-          attributes: { name: stage.name, order: stage.order },
+          attributes: { name: stage.name, sort_order: stage.sortOrder, stage_type: stage.stageType },
         })),
         'pipeline-stages'
       );
@@ -101,7 +102,8 @@ describe('pipelineStagesService', () => {
       const mockStage = createMockPipelineStage({ id: '5' });
       const mockResponse = createMockAPIResponse('5', 'pipeline-stages', {
         name: mockStage.name,
-        order: mockStage.order,
+        sort_order: mockStage.sortOrder,
+        stage_type: mockStage.stageType,
         probability: mockStage.probability,
         is_active: mockStage.isActive,
       });
@@ -132,20 +134,22 @@ describe('pipelineStagesService', () => {
       // Arrange
       const formData = {
         name: 'New Stage',
-        order: 10,
+        stageType: 'opportunity' as const,
+        sortOrder: 10,
         probability: 50,
         isActive: true,
-        color: '#ff0000',
-        description: 'Test stage',
+        isClosedWon: false,
+        isClosedLost: false,
       };
 
       const mockResponse = createMockAPIResponse('10', 'pipeline-stages', {
         name: formData.name,
-        order: formData.order,
+        stage_type: formData.stageType,
+        sort_order: formData.sortOrder,
         probability: formData.probability,
         is_active: formData.isActive,
-        color: formData.color,
-        description: formData.description,
+        is_closed_won: formData.isClosedWon,
+        is_closed_lost: formData.isClosedLost,
       });
 
       vi.mocked(axiosClient.post).mockResolvedValue({ data: mockResponse });
@@ -161,7 +165,7 @@ describe('pipelineStagesService', () => {
             type: 'pipeline-stages',
             attributes: expect.objectContaining({
               name: formData.name,
-              order: formData.order,
+              sort_order: formData.sortOrder,
               probability: formData.probability,
             }),
           }),
@@ -174,7 +178,8 @@ describe('pipelineStagesService', () => {
       // Arrange
       const formData = {
         name: '',
-        order: -1,
+        stageType: 'lead' as const,
+        sortOrder: -1,
         probability: 150,
         isActive: true,
       };
@@ -193,14 +198,16 @@ describe('pipelineStagesService', () => {
       // Arrange
       const formData = {
         name: 'Updated Stage',
-        order: 5,
+        stageType: 'opportunity' as const,
+        sortOrder: 5,
         probability: 75,
         isActive: false,
       };
 
       const mockResponse = createMockAPIResponse('3', 'pipeline-stages', {
         name: formData.name,
-        order: formData.order,
+        stage_type: formData.stageType,
+        sort_order: formData.sortOrder,
         probability: formData.probability,
         is_active: formData.isActive,
       });
@@ -230,7 +237,8 @@ describe('pipelineStagesService', () => {
       // Arrange
       const formData = {
         name: 'Updated Stage',
-        order: 5,
+        stageType: 'lead' as const,
+        sortOrder: 5,
         probability: 75,
         isActive: true,
       };

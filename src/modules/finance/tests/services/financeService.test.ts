@@ -88,10 +88,9 @@ describe('Finance Service', () => {
         invoiceDate: '2025-08-20',
         dueDate: '2025-09-20',
         currency: 'MXN',
-        exchangeRate: '1.0',
         subtotal: '1000.00',
-        taxTotal: '160.00',
-        total: '1160.00',
+        taxAmount: '160.00',
+        totalAmount: '1160.00',
         status: 'draft' as const
       }
       const mockInvoice = createMockAPInvoice(invoiceData)
@@ -108,21 +107,22 @@ describe('Finance Service', () => {
       const result = await financeService.createAPInvoice(invoiceData)
 
       // Assert
-      // Service uses transformer that converts strings to numbers and type to camelCase
+      // Service uses transformer with snake_case attributes for AP Invoices
       expect(mockAxios.post).toHaveBeenCalledWith('/api/v1/ap-invoices', {
         data: {
           type: 'a-p-invoices',
           attributes: {
-            contactId: 1,
-            invoiceNumber: 'FACT-TEST',
-            invoiceDate: '2025-08-20',
-            dueDate: '2025-09-20',
+            contact_id: '1',
+            invoice_number: 'FACT-TEST',
+            invoice_date: '2025-08-20',
+            due_date: '2025-09-20',
+            purchase_order_id: null,
             currency: 'MXN',
-            exchangeRate: 1.0,
-            subtotal: 1000.00,
-            taxTotal: 160.00,
-            total: 1160.00,
+            subtotal: '1000.00',
+            tax_amount: '160.00',
+            total_amount: '1160.00',
             status: 'draft',
+            notes: null,
             metadata: {}
           }
         }
@@ -194,8 +194,8 @@ describe('Finance Service', () => {
         dueDate: '2025-09-20',
         currency: 'MXN',
         subtotal: '2000.00',
-        taxTotal: '320.00',
-        total: '2320.00',
+        taxAmount: '320.00',
+        totalAmount: '2320.00',
         status: 'draft' as const
       }
       const mockInvoice = createMockARInvoice(invoiceData)
@@ -212,21 +212,22 @@ describe('Finance Service', () => {
       const result = await financeService.createARInvoice(invoiceData)
 
       // Assert
-      // Service uses transformer that converts strings to numbers and type to camelCase
+      // Service uses transformer with snake_case attributes for AR Invoices
       expect(mockAxios.post).toHaveBeenCalledWith('/api/v1/ar-invoices', {
         data: {
           type: 'a-r-invoices',
           attributes: {
-            contactId: 10,
-            invoiceNumber: 'INV-TEST',
-            invoiceDate: '2025-08-20',
-            dueDate: '2025-09-20',
+            contact_id: '10',
+            invoice_number: 'INV-TEST',
+            invoice_date: '2025-08-20',
+            due_date: '2025-09-20',
+            sales_order_id: null,
             currency: 'MXN',
-            exchangeRate: null,
-            subtotal: 2000.00,
-            taxTotal: 320.00,
-            total: 2320.00,
+            subtotal: '2000.00',
+            tax_amount: '320.00',
+            total_amount: '2320.00',
             status: 'draft',
+            notes: null,
             metadata: {}
           }
         }
@@ -243,7 +244,7 @@ describe('Finance Service', () => {
         jsonapi: { version: '1.0' },
         data: mockPayments.map(pay => ({
           id: pay.id,
-          type: 'ap-payments',
+          type: 'payments',
           attributes: pay
         })),
         meta: { page: { total: 2 } }
@@ -254,7 +255,7 @@ describe('Finance Service', () => {
       const result = await financeService.getAPPayments()
 
       // Assert
-      expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/ap-payments', { params: {} })
+      expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/payments', { params: {} })
       expect(result.data).toHaveLength(2)
     })
 
@@ -273,7 +274,7 @@ describe('Finance Service', () => {
       const mockResponse = {
         data: {
           id: mockPayment.id,
-          type: 'ap-payments',
+          type: 'payments',
           attributes: mockPayment
         }
       }
@@ -283,17 +284,17 @@ describe('Finance Service', () => {
       const result = await financeService.createAPPayment(paymentData)
 
       // Assert
-      // Service uses transformer that converts strings to numbers and type to camelCase
-      expect(mockAxios.post).toHaveBeenCalledWith('/api/v1/ap-payments', {
+      // Service uses transformer with camelCase attributes and type 'a-p-payments'
+      expect(mockAxios.post).toHaveBeenCalledWith('/api/v1/payments', {
         data: {
           type: 'a-p-payments',
           attributes: {
-            contactId: 1,
+            contactId: '1',
             paymentDate: '2025-08-20',
             paymentMethod: 'transfer',
             currency: 'MXN',
-            amount: 500.00,
-            bankAccountId: 1,
+            amount: '500.00',
+            bankAccountId: '1',
             status: 'draft'
           }
         }
@@ -310,7 +311,7 @@ describe('Finance Service', () => {
         jsonapi: { version: '1.0' },
         data: mockReceipts.map(rec => ({
           id: rec.id,
-          type: 'ar-receipts',
+          type: 'payments',
           attributes: rec
         })),
         meta: { page: { total: 2 } }
@@ -321,7 +322,7 @@ describe('Finance Service', () => {
       const result = await financeService.getARReceipts()
 
       // Assert
-      expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/ar-receipts', { params: {} })
+      expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/payments', { params: {} })
       expect(result.data).toHaveLength(2)
     })
 
@@ -340,7 +341,7 @@ describe('Finance Service', () => {
       const mockResponse = {
         data: {
           id: mockReceipt.id,
-          type: 'ar-receipts',
+          type: 'payments',
           attributes: mockReceipt
         }
       }
@@ -350,17 +351,17 @@ describe('Finance Service', () => {
       const result = await financeService.createARReceipt(receiptData)
 
       // Assert
-      // Service uses transformer that converts strings to numbers and type to camelCase
-      expect(mockAxios.post).toHaveBeenCalledWith('/api/v1/ar-receipts', {
+      // Service uses transformer with camelCase attributes and type 'a-r-receipts'
+      expect(mockAxios.post).toHaveBeenCalledWith('/api/v1/payments', {
         data: {
           type: 'a-r-receipts',
           attributes: {
-            contactId: 1,
+            contactId: '1',
             receiptDate: '2025-08-20',
             paymentMethod: 'transfer',
             currency: 'MXN',
-            amount: 1000.00,
-            bankAccountId: 1,
+            amount: '1000.00',
+            bankAccountId: '1',
             status: 'draft'
           }
         }
