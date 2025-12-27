@@ -165,7 +165,7 @@ describe('pipelineStagesService', () => {
             type: 'pipeline-stages',
             attributes: expect.objectContaining({
               name: formData.name,
-              sort_order: formData.sortOrder,
+              sortOrder: formData.sortOrder,
               probability: formData.probability,
             }),
           }),

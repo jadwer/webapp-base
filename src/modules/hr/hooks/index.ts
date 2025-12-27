@@ -40,6 +40,7 @@ import type {
 // ============================================================================
 
 export const useEmployees = (params?: EmployeesFilters) => {
+  // Backend requires camelCase for filter names
   const queryParams: Record<string, unknown> = {}
 
   if (params?.search) {
@@ -49,10 +50,10 @@ export const useEmployees = (params?: EmployeesFilters) => {
     queryParams['filter[status]'] = params.status
   }
   if (params?.departmentId) {
-    queryParams['filter[department_id]'] = params.departmentId
+    queryParams['filter[departmentId]'] = params.departmentId
   }
   if (params?.positionId) {
-    queryParams['filter[position_id]'] = params.positionId
+    queryParams['filter[positionId]'] = params.positionId
   }
 
   const key = Object.keys(queryParams).length > 0
@@ -118,16 +119,17 @@ export const useEmployeesMutations = () => {
 // ============================================================================
 
 export const useAttendances = (params?: AttendancesFilters) => {
+  // Backend requires camelCase for filter names
   const queryParams: Record<string, unknown> = {}
 
   if (params?.employeeId) {
-    queryParams['filter[employee_id]'] = params.employeeId
+    queryParams['filter[employeeId]'] = params.employeeId
   }
   if (params?.dateFrom) {
-    queryParams['filter[date_from]'] = params.dateFrom
+    queryParams['filter[dateFrom]'] = params.dateFrom
   }
   if (params?.dateTo) {
-    queryParams['filter[date_to]'] = params.dateTo
+    queryParams['filter[dateTo]'] = params.dateTo
   }
   if (params?.status) {
     queryParams['filter[status]'] = params.status
@@ -177,22 +179,23 @@ export const useAttendancesMutations = () => {
 // ============================================================================
 
 export const useLeaves = (params?: LeavesFilters) => {
+  // Backend requires camelCase for filter names
   const queryParams: Record<string, unknown> = {}
 
   if (params?.employeeId) {
-    queryParams['filter[employee_id]'] = params.employeeId
+    queryParams['filter[employeeId]'] = params.employeeId
   }
   if (params?.status) {
     queryParams['filter[status]'] = params.status
   }
   if (params?.leaveTypeId) {
-    queryParams['filter[leave_type_id]'] = params.leaveTypeId
+    queryParams['filter[leaveTypeId]'] = params.leaveTypeId
   }
   if (params?.dateFrom) {
-    queryParams['filter[date_from]'] = params.dateFrom
+    queryParams['filter[dateFrom]'] = params.dateFrom
   }
   if (params?.dateTo) {
-    queryParams['filter[date_to]'] = params.dateTo
+    queryParams['filter[dateTo]'] = params.dateTo
   }
 
   const key = Object.keys(queryParams).length > 0
@@ -239,19 +242,20 @@ export const useLeavesMutations = () => {
 // ============================================================================
 
 export const usePayrollPeriods = (params?: PayrollPeriodsFilters) => {
+  // Backend requires camelCase for filter names
   const queryParams: Record<string, unknown> = {}
 
   if (params?.status) {
     queryParams['filter[status]'] = params.status
   }
   if (params?.periodType) {
-    queryParams['filter[period_type]'] = params.periodType
+    queryParams['filter[periodType]'] = params.periodType
   }
   if (params?.dateFrom) {
-    queryParams['filter[date_from]'] = params.dateFrom
+    queryParams['filter[dateFrom]'] = params.dateFrom
   }
   if (params?.dateTo) {
-    queryParams['filter[date_to]'] = params.dateTo
+    queryParams['filter[dateTo]'] = params.dateTo
   }
 
   const key = Object.keys(queryParams).length > 0

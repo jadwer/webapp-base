@@ -1,7 +1,9 @@
 /**
  * HR Module - JSON:API Transformers
  *
- * Transforms data between JSON:API format (snake_case) and TypeScript (camelCase)
+ * Transforms data between JSON:API format and TypeScript.
+ * IMPORTANT: Backend now requires camelCase for request attributes.
+ * Response parsing still handles both snake_case and camelCase for backwards compatibility.
  * Focus on main entities: Employee, Attendance, Leave, PayrollPeriod
  */
 
@@ -55,24 +57,25 @@ export function transformEmployeeFormToJsonApi(
   type = 'employees',
   id?: string
 ) {
+  // Backend requires camelCase for request attributes
   const payload: Record<string, unknown> = {
     data: {
       type,
       attributes: {
-        employee_code: data.employeeCode,
-        first_name: data.firstName,
-        last_name: data.lastName,
+        employeeCode: data.employeeCode,
+        firstName: data.firstName,
+        lastName: data.lastName,
         email: data.email,
         phone: data.phone || null,
-        hire_date: data.hireDate,
-        birth_date: data.birthDate || null,
+        hireDate: data.hireDate,
+        birthDate: data.birthDate || null,
         salary: data.salary,
         status: data.status,
-        termination_date: data.terminationDate || null,
-        termination_reason: data.terminationReason || null,
+        terminationDate: data.terminationDate || null,
+        terminationReason: data.terminationReason || null,
         address: data.address || null,
-        emergency_contact_name: data.emergencyContactName || null,
-        emergency_contact_phone: data.emergencyContactPhone || null,
+        emergencyContactName: data.emergencyContactName || null,
+        emergencyContactPhone: data.emergencyContactPhone || null,
       },
       relationships: {} as Record<string, unknown>,
     }
@@ -148,13 +151,14 @@ export function transformAttendanceFormToJsonApi(
   type = 'attendances',
   id?: string
 ) {
+  // Backend requires camelCase for request attributes
   const payload: Record<string, unknown> = {
     data: {
       type,
       attributes: {
         date: data.date,
-        check_in: data.checkIn,
-        check_out: data.checkOut || null,
+        checkIn: data.checkIn,
+        checkOut: data.checkOut || null,
         status: data.status,
         notes: data.notes || null,
       },
@@ -217,12 +221,13 @@ export function transformLeaveFormToJsonApi(
   type = 'leaves',
   id?: string
 ) {
+  // Backend requires camelCase for request attributes
   const payload: Record<string, unknown> = {
     data: {
       type,
       attributes: {
-        start_date: data.startDate,
-        end_date: data.endDate,
+        startDate: data.startDate,
+        endDate: data.endDate,
         status: data.status,
         reason: data.reason,
         notes: data.notes || null,
@@ -296,15 +301,16 @@ export function transformPayrollPeriodFormToJsonApi(
   type = 'payroll-periods',
   id?: string
 ) {
+  // Backend requires camelCase for request attributes
   const payload: Record<string, unknown> = {
     data: {
       type,
       attributes: {
         name: data.name,
-        period_type: data.periodType,
-        start_date: data.startDate,
-        end_date: data.endDate,
-        payment_date: data.paymentDate,
+        periodType: data.periodType,
+        startDate: data.startDate,
+        endDate: data.endDate,
+        paymentDate: data.paymentDate,
         status: data.status,
         notes: data.notes || null,
       }

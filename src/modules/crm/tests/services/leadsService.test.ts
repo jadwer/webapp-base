@@ -165,7 +165,7 @@ describe('leadsService', () => {
             attributes: expect.objectContaining({
               title: formData.title,
               status: formData.status,
-              estimated_value: formData.estimatedValue,
+              estimatedValue: formData.estimatedValue,
             }),
             relationships: expect.objectContaining({
               user: expect.any(Object),

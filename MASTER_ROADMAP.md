@@ -27,7 +27,7 @@
 | **Purchase** | ✅ 81.92%+ | ✅ | ✅ | ✅ | 69 tests - Purchase Orders, Items, Reports, Supplier Analytics |
 | **Ecommerce** | ✅ 70%+ | ✅ | ✅ | ✅ | 78 tests - Orders, Shopping Cart, Checkout, Admin Dashboard |
 | **Accounting** | ✅ 70%+ | ✅ | ⏳ | ✅ | 174 tests - Chart of Accounts, Journal Entries, Ledger, Reports |
-| **CRM** | 79.48%+ | OK | OK | OK | 83 tests - 5 entidades completas: PipelineStages, Leads, Campaigns, Activity, Opportunity |
+| **CRM** | 98.81%+ | OK | OK | OK | 112 tests - 5 entidades completas: PipelineStages, Leads, Campaigns, Activity, Opportunity |
 | **Reports** | ✅ 73.82%+ | ✅ | ✅ | ✅ | 53 tests - 10 read-only reports - Financial Statements, Aging, Management |
 | **HR** | ✅ 82.1%+ | ✅ | ✅ | ✅ | 52 tests - 9 entities - Employees, Attendance, Leave, Payroll, Performance |
 | **Billing/CFDI** | ✅ 84.13%+ | ✅ | ✅ | ✅ | 54 tests - Mexican CFDI 4.0 - Complete workflow with SW PAC integration |
@@ -182,13 +182,13 @@ Todos los módulos del backend han sido implementados en el frontend:
   - Test infrastructure completa con mock factories
 
 #### **Fase 5: CRM Module** - ✅ COMPLETADO (Enero 2025)
-- ✅ Foundation: Types para PipelineStage, Lead, Campaign con todos los enums
-- ✅ Services: JSON:API transformers bidireccionales completos
-- ✅ Hooks: usePipelineStages, useLeads, useCampaigns con mutation hooks
-- ✅ UI: Dashboard CRM + página principal con métricas
-- ✅ Routes: /dashboard/crm con vista general y navegación
-- ✅ Testing: 83 tests implementados (services 98.87%, hooks 79.48%)
-- **Tiempo real:** 8-10 horas
+- ✅ Foundation: Types para PipelineStage, Lead, Campaign, Activity, Opportunity con todos los enums
+- ✅ Services: JSON:API transformers bidireccionales completos para 5 entidades
+- ✅ Hooks: usePipelineStages, useLeads, useCampaigns, useActivities, useOpportunities con mutation hooks
+- ✅ UI: Dashboard CRM + pagina principal con metricas
+- ✅ Routes: /dashboard/crm con vista general y navegacion
+- ✅ Testing: 112 tests implementados (services 98.81%, hooks 45.11%, transformers 39.12%)
+- **Tiempo real:** 8-10 horas + sync diciembre 2025
 
 #### **Fase 6: Reports Module** - ✅ COMPLETADO (Enero 2025)
 - ✅ Foundation: Types para 10 reportes read-only

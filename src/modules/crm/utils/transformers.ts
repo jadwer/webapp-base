@@ -1,7 +1,9 @@
 /**
  * CRM Module - JSON:API Transformers
  *
- * Transforms data between JSON:API format (snake_case) and TypeScript (camelCase)
+ * Transforms data between JSON:API format and TypeScript.
+ * IMPORTANT: Backend now requires camelCase for request attributes.
+ * Response parsing still handles both snake_case and camelCase for backwards compatibility.
  */
 
 import type {
@@ -47,12 +49,12 @@ export function transformPipelineStageFormToJsonApi(
       type,
       attributes: {
         name: data.name,
-        stage_type: data.stageType,
+        stageType: data.stageType,
         probability: data.probability,
-        sort_order: data.sortOrder,
-        is_active: data.isActive ?? true,
-        is_closed_won: data.isClosedWon ?? false,
-        is_closed_lost: data.isClosedLost ?? false,
+        sortOrder: data.sortOrder,
+        isActive: data.isActive ?? true,
+        isClosedWon: data.isClosedWon ?? false,
+        isClosedLost: data.isClosedLost ?? false,
       }
     }
   }
@@ -167,12 +169,12 @@ export function transformLeadFormToJsonApi(
         status: data.status,
         rating: data.rating,
         source: data.source || null,
-        company_name: data.companyName || null,
-        contact_person: data.contactPerson || null,
+        companyName: data.companyName || null,
+        contactPerson: data.contactPerson || null,
         email: data.email || null,
         phone: data.phone || null,
-        estimated_value: data.estimatedValue ?? null,
-        estimated_close_date: data.estimatedCloseDate || null,
+        estimatedValue: data.estimatedValue ?? null,
+        estimatedCloseDate: data.estimatedCloseDate || null,
         notes: data.notes || null,
       },
       relationships: {
@@ -287,13 +289,13 @@ export function transformCampaignFormToJsonApi(
         name: data.name,
         type: data.type,
         status: data.status,
-        start_date: data.startDate,
-        end_date: data.endDate || null,
+        startDate: data.startDate,
+        endDate: data.endDate || null,
         budget: data.budget ?? null,
-        actual_cost: data.actualCost ?? null,
-        expected_revenue: data.expectedRevenue ?? null,
-        actual_revenue: data.actualRevenue ?? null,
-        target_audience: data.targetAudience || null,
+        actualCost: data.actualCost ?? null,
+        expectedRevenue: data.expectedRevenue ?? null,
+        actualRevenue: data.actualRevenue ?? null,
+        targetAudience: data.targetAudience || null,
         description: data.description || null,
       },
       relationships: {
@@ -413,11 +415,11 @@ export function transformActivityFormToJsonApi(
       type,
       attributes: {
         subject: data.subject,
-        activity_type: data.activityType,
+        activityType: data.activityType,
         status: data.status,
         description: data.description || null,
-        activity_date: data.activityDate,
-        due_date: data.dueDate || null,
+        activityDate: data.activityDate,
+        dueDate: data.dueDate || null,
         duration: data.duration ?? null,
         outcome: data.outcome || null,
         priority: data.priority || null,
@@ -576,14 +578,14 @@ export function transformOpportunityFormToJsonApi(
         description: data.description || null,
         amount: data.amount,
         probability: data.probability,
-        close_date: data.closeDate,
+        closeDate: data.closeDate,
         status: data.status,
         stage: data.stage,
-        forecast_category: data.forecastCategory,
+        forecastCategory: data.forecastCategory,
         source: data.source || null,
-        next_step: data.nextStep || null,
-        loss_reason: data.lossReason || null,
-        actual_revenue: data.actualRevenue ?? null,
+        nextStep: data.nextStep || null,
+        lossReason: data.lossReason || null,
+        actualRevenue: data.actualRevenue ?? null,
       },
       relationships: {
         user: {

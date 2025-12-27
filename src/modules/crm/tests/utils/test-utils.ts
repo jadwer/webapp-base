@@ -9,10 +9,17 @@ import type {
   PipelineStage,
   Lead,
   Campaign,
+  Activity,
+  Opportunity,
   LeadStatus,
   LeadRating,
   CampaignType,
   CampaignStatus,
+  ActivityType,
+  ActivityStatus,
+  ActivityPriority,
+  OpportunityStatus,
+  ForecastCategory,
 } from '../../types';
 
 // ============================================================================
@@ -143,6 +150,116 @@ export const createMockCampaigns = (count: number = 3): Campaign[] => {
       expectedRevenue: (index + 1) * 25000,
     })
   );
+};
+
+/**
+ * Creates a mock Activity object with optional overrides
+ */
+export const createMockActivity = (overrides?: Partial<Activity>): Activity => ({
+  id: '1',
+  subject: 'Follow-up call with prospect',
+  activityType: 'call' as ActivityType,
+  status: 'pending' as ActivityStatus,
+  description: 'Discuss pricing and timeline',
+  activityDate: '2025-01-15',
+  dueDate: '2025-01-20',
+  duration: 30,
+  outcome: undefined,
+  priority: 'medium' as ActivityPriority,
+  metadata: {},
+  createdAt: '2025-01-01T00:00:00.000Z',
+  updatedAt: '2025-01-01T00:00:00.000Z',
+  userId: 1,
+  leadId: 1,
+  ...overrides,
+});
+
+/**
+ * Creates a list of mock activities
+ */
+export const createMockActivities = (count: number = 3): Activity[] => {
+  const types: ActivityType[] = ['call', 'email', 'meeting', 'note', 'task'];
+  const statuses: ActivityStatus[] = ['pending', 'in_progress', 'completed'];
+  const priorities: ActivityPriority[] = ['low', 'medium', 'high'];
+  const subjects = [
+    'Follow-up call',
+    'Send proposal email',
+    'Client meeting',
+    'Internal note',
+    'Review contract',
+  ];
+
+  return Array.from({ length: count }, (_, index) =>
+    createMockActivity({
+      id: String(index + 1),
+      subject: subjects[index % subjects.length],
+      activityType: types[index % types.length],
+      status: statuses[index % statuses.length],
+      priority: priorities[index % priorities.length],
+      activityDate: `2025-01-${String(index + 10).padStart(2, '0')}`,
+      dueDate: `2025-01-${String(index + 15).padStart(2, '0')}`,
+      duration: (index + 1) * 15,
+    })
+  );
+};
+
+/**
+ * Creates a mock Opportunity object with optional overrides
+ */
+export const createMockOpportunity = (overrides?: Partial<Opportunity>): Opportunity => {
+  const amount = overrides?.amount ?? 100000;
+  const probability = overrides?.probability ?? 50;
+  return {
+    id: '1',
+    name: 'Enterprise Software License',
+    description: 'Annual software license for enterprise client',
+    amount,
+    probability,
+    expectedRevenue: amount * probability / 100,
+    closeDate: '2025-06-30',
+    status: 'open' as OpportunityStatus,
+    stage: 'proposal',
+    forecastCategory: 'pipeline' as ForecastCategory,
+    source: 'website',
+    nextStep: 'Schedule demo',
+    metadata: {},
+    createdAt: '2025-01-01T00:00:00.000Z',
+    updatedAt: '2025-01-01T00:00:00.000Z',
+    userId: 1,
+    leadId: 1,
+    pipelineStageId: 3,
+    ...overrides,
+  };
+};
+
+/**
+ * Creates a list of mock opportunities
+ */
+export const createMockOpportunities = (count: number = 3): Opportunity[] => {
+  const statuses: OpportunityStatus[] = ['open', 'won', 'lost'];
+  const stages = ['proposal', 'negotiation', 'closed'];
+  const categories: ForecastCategory[] = ['pipeline', 'best_case', 'commit'];
+  const names = [
+    'Enterprise License',
+    'Consulting Project',
+    'Support Contract',
+  ];
+
+  return Array.from({ length: count }, (_, index) => {
+    const amount = (index + 1) * 50000;
+    const probability = [50, 75, 25][index % 3];
+    return createMockOpportunity({
+      id: String(index + 1),
+      name: names[index % names.length],
+      amount,
+      probability,
+      expectedRevenue: amount * probability / 100,
+      status: statuses[index % statuses.length],
+      stage: stages[index % stages.length],
+      forecastCategory: categories[index % categories.length],
+      closeDate: `2025-0${index + 3}-30`,
+    });
+  });
 };
 
 // ============================================================================

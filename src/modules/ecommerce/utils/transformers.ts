@@ -1,8 +1,9 @@
 /**
  * Ecommerce Module Transformers
  *
- * JSON:API transformers for converting between backend (snake_case) and frontend (camelCase) formats.
- * Handles proper data transformation and relationship resolution.
+ * JSON:API transformers for converting between backend and frontend formats.
+ * IMPORTANT: Backend now requires camelCase for request attributes.
+ * Response parsing still handles both snake_case and camelCase for backwards compatibility.
  */
 
 import type {
@@ -21,40 +22,40 @@ import type {
 // ============================================
 
 /**
- * Transform EcommerceOrder from frontend (camelCase) to backend (snake_case)
+ * Transform EcommerceOrder from frontend to backend (camelCase attributes)
  */
 export function ecommerceOrderToAPI(order: Partial<EcommerceOrder>): Record<string, unknown> {
   return {
-    order_number: order.orderNumber,
-    customer_id: order.customerId,
-    customer_email: order.customerEmail,
-    customer_name: order.customerName,
-    customer_phone: order.customerPhone,
+    orderNumber: order.orderNumber,
+    customerId: order.customerId,
+    customerEmail: order.customerEmail,
+    customerName: order.customerName,
+    customerPhone: order.customerPhone,
     status: order.status,
-    payment_status: order.paymentStatus,
-    shipping_status: order.shippingStatus,
-    subtotal_amount: order.subtotalAmount,
-    tax_amount: order.taxAmount,
-    shipping_amount: order.shippingAmount,
-    discount_amount: order.discountAmount,
-    total_amount: order.totalAmount,
-    shipping_address_line1: order.shippingAddressLine1,
-    shipping_address_line2: order.shippingAddressLine2,
-    shipping_city: order.shippingCity,
-    shipping_state: order.shippingState,
-    shipping_postal_code: order.shippingPostalCode,
-    shipping_country: order.shippingCountry,
-    billing_address_line1: order.billingAddressLine1,
-    billing_address_line2: order.billingAddressLine2,
-    billing_city: order.billingCity,
-    billing_state: order.billingState,
-    billing_postal_code: order.billingPostalCode,
-    billing_country: order.billingCountry,
-    payment_method_id: order.paymentMethodId,
-    payment_reference: order.paymentReference,
+    paymentStatus: order.paymentStatus,
+    shippingStatus: order.shippingStatus,
+    subtotalAmount: order.subtotalAmount,
+    taxAmount: order.taxAmount,
+    shippingAmount: order.shippingAmount,
+    discountAmount: order.discountAmount,
+    totalAmount: order.totalAmount,
+    shippingAddressLine1: order.shippingAddressLine1,
+    shippingAddressLine2: order.shippingAddressLine2,
+    shippingCity: order.shippingCity,
+    shippingState: order.shippingState,
+    shippingPostalCode: order.shippingPostalCode,
+    shippingCountry: order.shippingCountry,
+    billingAddressLine1: order.billingAddressLine1,
+    billingAddressLine2: order.billingAddressLine2,
+    billingCity: order.billingCity,
+    billingState: order.billingState,
+    billingPostalCode: order.billingPostalCode,
+    billingCountry: order.billingCountry,
+    paymentMethodId: order.paymentMethodId,
+    paymentReference: order.paymentReference,
     notes: order.notes,
-    order_date: order.orderDate,
-    completed_date: order.completedDate,
+    orderDate: order.orderDate,
+    completedDate: order.completedDate,
   };
 }
 
@@ -106,20 +107,20 @@ export function ecommerceOrderFromAPI(data: Record<string, unknown>): EcommerceO
 // ============================================
 
 /**
- * Transform EcommerceOrderItem from frontend (camelCase) to backend (snake_case)
+ * Transform EcommerceOrderItem from frontend to backend (camelCase attributes)
  */
 export function ecommerceOrderItemToAPI(item: Partial<EcommerceOrderItem>): Record<string, unknown> {
   return {
-    ecommerce_order_id: item.ecommerceOrderId,
-    product_id: item.productId,
-    product_name: item.productName,
-    product_sku: item.productSku,
-    product_image: item.productImage,
+    ecommerceOrderId: item.ecommerceOrderId,
+    productId: item.productId,
+    productName: item.productName,
+    productSku: item.productSku,
+    productImage: item.productImage,
     quantity: item.quantity,
-    unit_price: item.unitPrice,
+    unitPrice: item.unitPrice,
     discount: item.discount,
-    tax_amount: item.taxAmount,
-    total_price: item.totalPrice,
+    taxAmount: item.taxAmount,
+    totalPrice: item.totalPrice,
   };
 }
 
@@ -151,24 +152,24 @@ export function ecommerceOrderItemFromAPI(data: Record<string, unknown>): Ecomme
 // ============================================
 
 /**
- * Transform ShoppingCart from frontend (camelCase) to backend (snake_case)
+ * Transform ShoppingCart from frontend to backend (camelCase attributes)
  */
 export function shoppingCartToAPI(cart: Partial<ShoppingCart>): Record<string, unknown> {
   return {
-    session_id: cart.sessionId,
-    customer_id: cart.customerId,
-    user_id: cart.userId,
+    sessionId: cart.sessionId,
+    customerId: cart.customerId,
+    userId: cart.userId,
     status: cart.status,
     currency: cart.currency,
-    coupon_code: cart.couponCode,
-    subtotal_amount: cart.subtotalAmount,
-    tax_amount: cart.taxAmount,
-    discount_amount: cart.discountAmount,
-    shipping_amount: cart.shippingAmount,
-    total_amount: cart.totalAmount,
+    couponCode: cart.couponCode,
+    subtotalAmount: cart.subtotalAmount,
+    taxAmount: cart.taxAmount,
+    discountAmount: cart.discountAmount,
+    shippingAmount: cart.shippingAmount,
+    totalAmount: cart.totalAmount,
     notes: cart.notes,
     metadata: cart.metadata,
-    expires_at: cart.expiresAt,
+    expiresAt: cart.expiresAt,
   };
 }
 
@@ -208,18 +209,18 @@ export function shoppingCartFromAPI(data: Record<string, unknown>): ShoppingCart
 // ============================================
 
 /**
- * Transform ShoppingCartItem from frontend (camelCase) to backend (snake_case)
+ * Transform ShoppingCartItem from frontend to backend (camelCase attributes)
  */
 export function shoppingCartItemToAPI(item: Partial<ShoppingCartItem>): Record<string, unknown> {
   return {
-    shopping_cart_id: item.shoppingCartId,
-    product_id: item.productId,
-    product_name: item.productName,
-    product_sku: item.productSku,
-    product_image: item.productImage,
+    shoppingCartId: item.shoppingCartId,
+    productId: item.productId,
+    productName: item.productName,
+    productSku: item.productSku,
+    productImage: item.productImage,
     quantity: item.quantity,
-    unit_price: item.unitPrice,
-    total_price: item.totalPrice,
+    unitPrice: item.unitPrice,
+    totalPrice: item.totalPrice,
   };
 }
 
