@@ -76,6 +76,7 @@ export interface AuditSingleJsonApiResponse {
 }
 
 // Entity type mapping for display
+// Complete list from backend: 37 of 74 models (50%) are audited
 export const AUDITABLE_TYPE_LABELS: Record<string, string> = {
   // Product Module
   'Modules\\Product\\Models\\Product': 'Producto',
@@ -99,6 +100,7 @@ export const AUDITABLE_TYPE_LABELS: Record<string, string> = {
   'Modules\\Inventory\\Models\\InventoryMovement': 'Movimiento de Inventario',
   // Billing Module
   'Modules\\Billing\\Models\\CFDIInvoice': 'Factura CFDI',
+  'Modules\\Billing\\Models\\PaymentTransaction': 'Transaccion de Pago',
   // HR Module
   'Modules\\HR\\Models\\Employee': 'Empleado',
   'Modules\\HR\\Models\\Department': 'Departamento',
@@ -113,6 +115,7 @@ export const AUDITABLE_TYPE_LABELS: Record<string, string> = {
   'Modules\\Finance\\Models\\APInvoice': 'Factura por Pagar',
   'Modules\\Finance\\Models\\ARInvoice': 'Factura por Cobrar',
   'Modules\\Finance\\Models\\Payment': 'Pago',
+  'Modules\\Finance\\Models\\PaymentApplication': 'Aplicacion de Pago',
   'Modules\\Finance\\Models\\BankAccount': 'Cuenta Bancaria',
   // Accounting Module
   'Modules\\Accounting\\Models\\Account': 'Cuenta Contable',
@@ -123,6 +126,9 @@ export const AUDITABLE_TYPE_LABELS: Record<string, string> = {
   // Ecommerce Module
   'Modules\\Ecommerce\\Models\\CartItem': 'Item de Carrito',
   'Modules\\Ecommerce\\Models\\CheckoutSession': 'Sesion de Checkout',
+  'Modules\\Ecommerce\\Models\\ShoppingCart': 'Carrito de Compras',
+  'Modules\\Ecommerce\\Models\\Wishlist': 'Lista de Deseos',
+  'Modules\\Ecommerce\\Models\\ProductReview': 'Resena de Producto',
   // PageBuilder Module
   'Modules\\PageBuilder\\Models\\Page': 'Pagina',
 }
