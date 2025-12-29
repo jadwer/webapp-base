@@ -126,10 +126,14 @@ export interface CFDIInvoiceFormData {
 export interface CFDIItem {
   id: string
   cfdiInvoiceId: number
+  productId: number | null
+
+  // Item positioning
+  numeroLinea: number
 
   // SAT Catalogs
   claveProdServ: string // SAT product/service code
-  noIdentificacion?: string // SKU or internal code
+  noIdentificacion: string | null // SKU or internal code
   cantidad: number
   claveUnidad: string // SAT unit code
   unidad: string // Unit description
@@ -139,7 +143,10 @@ export interface CFDIItem {
   descuento: number // In cents
 
   // Taxes
+  impuestos: Record<string, unknown> // Backend stores all taxes as JSON
   objetoImp: string // 01, 02, 03, etc.
+
+  // Legacy frontend tax fields (kept for backward compatibility)
   trasladoImpuesto?: string // 002 = IVA
   trasladoTipoFactor?: string // Tasa, Cuota, Exento
   trasladoTasaOCuota?: string // 0.160000 for 16% IVA
@@ -149,12 +156,18 @@ export interface CFDIItem {
   retencionTasaOCuota?: string
   retencionImporte?: number // In cents
 
-  metadata?: Record<string, unknown>
+  // Optional fields from backend
+  numeroPedimento: string | null
+  cuentaPredial: Record<string, unknown> | null
+  informacionAduanera: Record<string, unknown> | null
+
+  metadata: Record<string, unknown> | null
   createdAt: string
   updatedAt: string
 
   // Included relationships
   cfdiInvoice?: CFDIInvoice
+  product?: Record<string, unknown>
 }
 
 export interface CFDIItemFormData {
@@ -298,4 +311,69 @@ export interface CFDIDownloadInfo {
 export interface CreateCFDIInvoiceData {
   invoice: CFDIInvoiceFormData
   items: CFDIItemFormData[]
+}
+
+// ============================================================================
+// PAYMENT TRANSACTION (Added from BILLING_FRONTEND_GUIDE.md)
+// ============================================================================
+
+export type PaymentGateway = 'stripe' | 'paypal' | 'mercadopago' | 'openpay' | 'conekta'
+export type PaymentTransactionStatus = 'pending' | 'authorized' | 'captured' | 'failed' | 'refunded' | 'cancelled'
+
+export interface PaymentTransaction {
+  id: string
+
+  // Foreign keys
+  checkoutSessionId: number | null
+  salesOrderId: number | null
+  arInvoiceId: number | null
+
+  // Gateway Info
+  gateway: PaymentGateway
+  paymentIntentId: string | null
+  transactionId: string | null
+  // clientSecret: hidden (sensitive)
+
+  // Payment Details
+  amount: number
+  currency: string
+  status: PaymentTransactionStatus
+  paymentMethod: string
+
+  // Card Info
+  cardBrand: string | null
+  cardLast4: string | null
+
+  // Gateway Response & Error
+  gatewayResponse: Record<string, unknown> | null
+  errorMessage: string | null
+
+  // Event Timestamps
+  authorizedAt: string | null
+  capturedAt: string | null
+  failedAt: string | null
+  refundedAt: string | null
+
+  metadata: Record<string, unknown> | null
+  createdAt: string
+  updatedAt: string
+}
+
+export interface PaymentTransactionFormData {
+  checkoutSessionId?: number | null
+  salesOrderId?: number | null
+  arInvoiceId?: number | null
+  gateway: PaymentGateway
+  amount: number
+  currency: string
+  paymentMethod: string
+}
+
+export interface PaymentTransactionFilters {
+  gateway?: PaymentGateway
+  status?: PaymentTransactionStatus
+  salesOrderId?: number
+  arInvoiceId?: number
+  dateFrom?: string
+  dateTo?: string
 }

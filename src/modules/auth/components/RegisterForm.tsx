@@ -145,13 +145,13 @@ export function RegisterForm() {
       <div className="mb-3">
         <div style={{ position: 'relative' }}>
           <Input
-            id="password_confirmation"
+            id="passwordConfirmation"
             type={showPasswordConfirmation ? 'text' : 'password'}
             label="Confirmar contraseña"
             placeholder="Confirma tu contraseña"
             leftIcon="bi-lock-fill"
-            errorText={errors.password_confirmation?.message}
-            {...register("password_confirmation")}
+            errorText={errors.passwordConfirmation?.message}
+            {...register("passwordConfirmation")}
           />
           <button
             type="button"

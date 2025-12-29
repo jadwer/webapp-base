@@ -85,7 +85,7 @@ export function useOffers() {
           unit: product.unit ? {
             id: product.unit.id,
             name: product.unit.name,
-            abbreviation: product.unit.code ?? null // Using code as abbreviation
+            abbreviation: product.unit.code ?? null
           } : undefined,
           category: product.category ? {
             id: product.category.id,

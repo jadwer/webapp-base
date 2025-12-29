@@ -89,10 +89,8 @@ export const JournalEntriesTableSimple = ({
     )
   }
 
-  const isBalanced = (debit: string, credit: string) => {
-    const debitNum = parseFloat(debit) || 0
-    const creditNum = parseFloat(credit) || 0
-    return Math.abs(debitNum - creditNum) < 0.01
+  const isBalanced = (debit: number, credit: number) => {
+    return Math.abs(debit - credit) < 0.01
   }
 
   if (isLoading) {
@@ -243,13 +241,13 @@ export const JournalEntriesTableSimple = ({
           <div className="col-md-3">
             <small className="text-muted">Débitos totales:</small>
             <div className="fw-bold text-success">
-              {formatCurrency(journalEntries.reduce((sum, entry) => sum + (parseFloat(entry.totalDebit) || 0), 0))}
+              {formatCurrency(journalEntries.reduce((sum, entry) => sum + (entry.totalDebit || 0), 0))}
             </div>
           </div>
           <div className="col-md-3">
             <small className="text-muted">Créditos totales:</small>
             <div className="fw-bold text-primary">
-              {formatCurrency(journalEntries.reduce((sum, entry) => sum + (parseFloat(entry.totalCredit) || 0), 0))}
+              {formatCurrency(journalEntries.reduce((sum, entry) => sum + (entry.totalCredit || 0), 0))}
             </div>
           </div>
           <div className="col-md-3">

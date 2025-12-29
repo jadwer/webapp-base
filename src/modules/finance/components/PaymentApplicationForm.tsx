@@ -8,7 +8,16 @@
 
 import React, { useState, useEffect } from 'react'
 import { usePaymentApplication, usePaymentApplicationMutations } from '../hooks'
-import { PaymentApplicationForm as PaymentApplicationFormType } from '../types'
+import type { PaymentApplicationForm as PaymentApplicationFormType } from '../types'
+
+// Internal form state type (uses strings for input handling)
+interface FormState {
+  paymentId: string
+  arInvoiceId: string | null
+  apInvoiceId: string | null
+  amount: string
+  applicationDate: string
+}
 
 interface PaymentApplicationFormProps {
   applicationId?: string
@@ -26,7 +35,7 @@ export const PaymentApplicationForm: React.FC<PaymentApplicationFormProps> = ({
   const { createApplication, updateApplication } = usePaymentApplicationMutations()
 
   const [applicationType, setApplicationType] = useState<'ar' | 'ap'>('ar')
-  const [formData, setFormData] = useState<PaymentApplicationFormType>({
+  const [formData, setFormData] = useState<FormState>({
     paymentId: '',
     arInvoiceId: null,
     apInvoiceId: null,
@@ -41,11 +50,11 @@ export const PaymentApplicationForm: React.FC<PaymentApplicationFormProps> = ({
   useEffect(() => {
     if (application && isEditing) {
       setFormData({
-        paymentId: application.paymentId,
-        arInvoiceId: application.arInvoiceId,
-        apInvoiceId: application.apInvoiceId,
-        amount: application.amount,
-        applicationDate: application.applicationDate
+        paymentId: String(application.paymentId),
+        arInvoiceId: application.arInvoiceId != null ? String(application.arInvoiceId) : null,
+        apInvoiceId: application.apInvoiceId != null ? String(application.apInvoiceId) : null,
+        amount: String(application.appliedAmount || application.amount || ''),
+        applicationDate: application.applicationDate || application.createdAt?.split('T')[0] || ''
       })
       setApplicationType(application.arInvoiceId ? 'ar' : 'ap')
     }
@@ -85,13 +94,12 @@ export const PaymentApplicationForm: React.FC<PaymentApplicationFormProps> = ({
 
     if (!validate()) return
 
-    // Prepare data based on application type
+    // Prepare data based on application type - convert strings to numbers
     const submitData: PaymentApplicationFormType = {
-      paymentId: formData.paymentId,
-      arInvoiceId: applicationType === 'ar' ? formData.arInvoiceId : null,
-      apInvoiceId: applicationType === 'ap' ? formData.apInvoiceId : null,
-      amount: formData.amount,
-      applicationDate: formData.applicationDate
+      paymentId: parseInt(formData.paymentId, 10),
+      arInvoiceId: applicationType === 'ar' && formData.arInvoiceId ? parseInt(formData.arInvoiceId, 10) : null,
+      apInvoiceId: applicationType === 'ap' && formData.apInvoiceId ? parseInt(formData.apInvoiceId, 10) : null,
+      appliedAmount: parseFloat(formData.amount),
     }
 
     setIsSubmitting(true)

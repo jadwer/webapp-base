@@ -31,6 +31,7 @@ const paymentStatusColors: Record<PaymentStatus, string> = {
   completed: 'bg-success text-white',
   failed: 'bg-danger text-white',
   refunded: 'bg-dark text-white',
+  cancelled: 'bg-secondary text-white',
 }
 
 const shippingStatusColors: Record<ShippingStatus, string> = {
@@ -59,6 +60,7 @@ const paymentStatusIcons: Record<PaymentStatus, string> = {
   completed: 'bi-check-circle-fill',
   failed: 'bi-x-circle-fill',
   refunded: 'bi-arrow-counterclockwise',
+  cancelled: 'bi-x-circle',
 }
 
 const shippingStatusIcons: Record<ShippingStatus, string> = {

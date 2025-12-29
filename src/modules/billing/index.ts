@@ -91,3 +91,5 @@ export {
 
 export { CFDIInvoicesAdminPage } from './components/CFDIInvoicesAdminPage'
 export { BillingIndexPage } from './components/BillingIndexPage'
+export { default as CFDIInvoiceForm } from './components/CFDIInvoiceForm'
+export { default as CFDIInvoicesTable } from './components/CFDIInvoicesTable'

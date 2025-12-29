@@ -283,8 +283,8 @@ export function useCart(filters?: ShoppingCartFilters) {
         expiresAt.setDate(expiresAt.getDate() + 7);
 
         currentCart = await cartMutations.createCart({
-          sessionId: filters?.sessionId,
-          userId: filters?.customerId ? filters.customerId : null,
+          sessionId: filters?.sessionId || null,
+          userId: filters?.customerId ? String(filters.customerId) : null,
           status: 'active',
           currency: 'MXN',
           expiresAt: expiresAt.toISOString(),

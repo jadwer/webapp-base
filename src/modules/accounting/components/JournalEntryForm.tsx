@@ -42,8 +42,8 @@ export const JournalEntryForm: React.FC<JournalEntryFormProps> = ({
         date: journalEntry.date,
         description: journalEntry.description,
         reference: journalEntry.reference || '',
-        currency: journalEntry.currency,
-        exchangeRate: journalEntry.exchangeRate
+        currency: journalEntry.currency || 'MXN',
+        exchangeRate: journalEntry.exchangeRate || '1.0'
       })
     }
   }, [journalEntry])

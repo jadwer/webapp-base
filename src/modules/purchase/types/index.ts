@@ -1,31 +1,61 @@
+// Backend API status values
+export type PurchaseOrderStatus =
+  | 'draft'
+  | 'pending'
+  | 'approved'
+  | 'received'
+  | 'cancelled'
+  // Legacy frontend value
+  | 'completed'
+
+export type InvoicingStatus = 'pending' | 'partial' | 'invoiced' | 'not_required'
+// Legacy frontend financial status
+export type FinancialStatus = 'not_invoiced' | 'invoiced' | 'paid'
+
 export interface PurchaseOrder {
   id: string
   contactId: number
   contact?: Contact
-  orderNumber: string
+  orderNumber?: string // Frontend-generated, not in backend
   orderDate: string
-  status: 'pending' | 'approved' | 'received' | 'completed' | 'cancelled'
-  financialStatus?: 'not_invoiced' | 'invoiced' | 'paid'
-  apInvoiceId?: number | null
+  status: PurchaseOrderStatus
+  totalAmount: number
+  notes: string | null
+  // Finance integration fields
+  apInvoiceId: number | null
+  invoicingStatus: InvoicingStatus | string | null
+  invoicingNotes: string | null
+  // Legacy frontend fields (not in backend)
+  financialStatus?: FinancialStatus
   subtotalAmount?: number
   taxAmount?: number
   discountTotal?: number
-  totalAmount: number
-  notes?: string
-  createdAt?: string
-  updatedAt?: string
+  // Metadata
+  createdAt: string
+  updatedAt: string
 }
 
 export interface PurchaseOrderItem {
   id: string
-  purchaseOrderId: string
+  purchaseOrderId: number
   productId: number
-  product?: Record<string, unknown>
-  purchaseOrder?: Record<string, unknown>
   quantity: number
   unitPrice: number
-  totalPrice: number
-  discount?: number
+  discount: number
+  subtotal: number
+  total: number
+  totalPrice?: number // Legacy frontend alias for total
+  metadata?: Record<string, unknown> | null
+  // Finance integration fields
+  apInvoiceLineId: number | null
+  invoicedQuantity: number | null
+  invoicedAmount: number | null
+  // Metadata
+  createdAt: string
+  updatedAt: string
+  // Relationships
+  product?: Record<string, unknown>
+  purchaseOrder?: PurchaseOrder | Record<string, unknown>
 }
 
 export interface Contact {
@@ -38,10 +68,10 @@ export interface Contact {
 
 export interface PurchaseOrderFormData {
   contactId: number
-  orderNumber: string
+  orderNumber?: string
   orderDate: string
-  status: string
-  notes?: string
+  status: PurchaseOrderStatus
+  notes?: string | null
   items?: PurchaseOrderItem[]
 }
 

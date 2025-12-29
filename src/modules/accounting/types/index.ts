@@ -1,92 +1,267 @@
-// Accounting Module Types - Phase 1 - Updated según backend documentation
+// Accounting Module Types - Synced with backend ACCOUNTING_FRONTEND_GUIDE.md
+
+// Type aliases for enums
+export type AccountType = 'asset' | 'liability' | 'equity' | 'revenue' | 'expense'
+export type Nature = 'debit' | 'credit'
+export type AccountStatus = 'active' | 'inactive' | 'archived'
+export type JournalType = 'general' | 'sales' | 'purchases' | 'cash' | 'bank' | 'payroll'
+export type JournalStatus = 'active' | 'inactive'
+export type JournalEntryStatus = 'draft' | 'pending' | 'approved' | 'posted' | 'reversed'
+export type FiscalPeriodStatus = 'open' | 'closed' | 'locked'
+export type ExchangeRateStatus = 'active' | 'inactive'
+export type IdempotencyStatus = 'pending' | 'completed' | 'failed'
 
 export interface Account {
-  id: string;
-  code: string;          // ✅ string, único, máx 255
-  name: string;          // ✅ string, máx 255
-  accountType: 'asset' | 'liability' | 'equity' | 'revenue' | 'expense';
-  level: number;         // ✅ integer, nivel jerárquico
-  parentId: string | null;  // ✅ string ID for consistency
-  currency: string;      // ✅ Optional en backend
-  isPostable: boolean;   // ✅ boolean requerido
-  status: 'active' | 'inactive';  // ✅ string requerido
-  metadata?: Record<string, unknown>; // ✅ object opcional
-  createdAt: string;
-  updatedAt: string;
+  id: string
+  code: string
+  name: string
+  accountType: AccountType
+  nature: Nature
+  level: number
+  parentId: number | null
+  currency: string
+  isPostable: boolean
+  isCashFlow: boolean
+  status: AccountStatus
+  metadata: Record<string, unknown> | null
+  createdAt: string
+  updatedAt: string
+}
+
+// Journal (new entity from backend)
+export interface Journal {
+  id: string
+  code: string
+  name: string
+  description: string | null
+  prefix: string
+  type: JournalType
+  status: JournalStatus
+  metadata: Record<string, unknown> | null
+  createdAt: string
+  updatedAt: string
+}
+
+// JournalSequence (new entity from backend)
+export interface JournalSequence {
+  id: string
+  journalId: number
+  fiscalYear: number
+  currentNumber: number
+  metadata: Record<string, unknown> | null
+  createdAt: string
+  updatedAt: string
 }
 
 export interface JournalEntry {
-  id: string;
-  journalId?: string;      // ✅ ID como string
-  periodId?: string;       // ✅ ID como string
-  number: string;
-  date: string;            // ✅ formato YYYY-MM-DD
-  currency: string;
-  exchangeRate: string;    // ✅ Decimal como string
-  reference?: string;
-  description: string;
-  status: 'draft' | 'posted';
-  approvedById?: string;   // ✅ ID como string
-  postedById?: string;     // ✅ ID como string
-  postedAt?: string;
-  reversalOfId?: string;   // ✅ ID como string
-  sourceType?: string;
-  sourceId?: string;       // ✅ ID como string
-  totalDebit: string;      // ✅ Decimal como string
-  totalCredit: string;     // ✅ Decimal como string
-  metadata?: Record<string, unknown>;
-  createdAt: string;
-  updatedAt: string;
+  id: string
+  journalId: number
+  fiscalPeriodId: number
+  number: string
+  date: string
+  reference: string | null
+  description: string
+  totalDebit: number // Read-only, auto-calculated
+  totalCredit: number // Read-only, auto-calculated
+  status: JournalEntryStatus
+  approvedAt: string | null
+  approvedById: number | null
+  postedAt: string | null
+  postedById: number | null
+  reversalOfId: number | null
+  reversalReason: string | null
+  metadata: Record<string, unknown> | null
+  createdAt: string
+  updatedAt: string
+  // Legacy frontend fields (not in backend guide but may be used)
+  periodId?: string // Legacy alias for fiscalPeriodId
+  currency?: string
+  exchangeRate?: string
+  sourceType?: string
+  sourceId?: string
 }
 
 export interface JournalLine {
-  id: string;
-  journalEntryId: string;  // ✅ Consistente con IDs como string
-  accountId: string;       // ✅ Consistente con IDs como string
-  debit: string;           // ✅ Decimal como string para consistency
-  credit: string;          // ✅ Decimal como string para consistency
-  baseAmount?: string;     // ✅ Decimal como string
-  costCenterId?: string;   // ✅ ID como string
-  partnerId?: string;      // ✅ ID como string
-  memo?: string;
-  currency?: string;
-  exchangeRate?: string;   // ✅ Decimal como string
-  metadata?: Record<string, unknown>;
-  createdAt: string;
-  updatedAt: string;
+  id: string
+  journalEntryId: number
+  accountId: number
+  contactId: number | null
+  debit: number
+  credit: number
+  description: string | null
+  reference: string | null
+  metadata: Record<string, unknown> | null
+  createdAt: string
+  updatedAt: string
+  // Legacy frontend fields (not in backend guide but may be used)
+  memo?: string // Legacy alias for description
+  baseAmount?: string
+  costCenterId?: string
+  partnerId?: string
+  currency?: string
+  exchangeRate?: string
 }
 
-// Form interfaces - Exact backend requirements
+// FiscalPeriod (new entity from backend)
+export interface FiscalPeriod {
+  id: string
+  name: string
+  year: number
+  month: number
+  startDate: string
+  endDate: string
+  status: FiscalPeriodStatus
+  closedAt: string | null
+  closedById: number | null
+  closingEntryId: number | null
+  metadata: Record<string, unknown> | null
+  createdAt: string
+  updatedAt: string
+}
+
+// ExchangeRate (new entity from backend)
+export interface ExchangeRate {
+  id: string
+  fromCurrency: string
+  toCurrency: string
+  rate: number
+  effectiveDate: string
+  source: string | null
+  status: ExchangeRateStatus
+  metadata: Record<string, unknown> | null
+  createdAt: string
+  updatedAt: string
+}
+
+// ExchangeRatePolicy (new entity from backend)
+export interface ExchangeRatePolicy {
+  id: string
+  currency: string
+  source: string
+  scope: string
+  maxAgeDays: number
+  tolerancePercentage: number
+  requireApprovalOver: number
+  isActive: boolean
+  metadata: Record<string, unknown> | null
+  createdAt: string
+  updatedAt: string
+}
+
+// AccountBalance (new entity from backend)
+export interface AccountBalance {
+  id: string
+  accountId: number
+  fiscalYear: number
+  fiscalMonth: number
+  openingBalance: number
+  periodDebits: number
+  periodCredits: number
+  closingBalance: number
+  metadata: Record<string, unknown> | null
+  createdAt: string
+  updatedAt: string
+}
+
+// AccountMapping (new entity from backend)
+export interface AccountMapping {
+  id: string
+  mappingType: string
+  accountId: number
+  version: number
+  effectiveFrom: string
+  effectiveTo: string | null
+  isActive: boolean
+  createdById: number
+  notes: string | null
+  metadata: Record<string, unknown> | null
+  createdAt: string
+  updatedAt: string
+}
+
+// AuditLog (new entity from backend)
+export interface AuditLog {
+  id: string
+  modelType: string
+  modelId: number
+  action: string
+  userId: number
+  changes: Record<string, unknown>
+  ipAddress: string | null
+  userAgent: string | null
+  sessionId: string | null
+  payloadHash: string | null
+  requiresRetention: boolean
+  retentionUntil: string | null
+  metadata: Record<string, unknown> | null
+  createdAt: string
+  updatedAt: string
+}
+
+// IdempotencyKey (new entity from backend)
+export interface IdempotencyKey {
+  id: string
+  userId: number
+  endpoint: string
+  idempotencyKey: string
+  requestHash: string
+  responseData: Record<string, unknown> | null
+  status: IdempotencyStatus
+  expiresAt: string
+  metadata: Record<string, unknown> | null
+  createdAt: string
+  updatedAt: string
+}
+
+// Form interfaces
 export interface AccountFormData {
-  code: string;          // ✅ REQUERIDO: string, único, máx 255
-  name: string;          // ✅ REQUERIDO: string, máx 255
-  accountType: 'asset' | 'liability' | 'equity' | 'revenue' | 'expense'; // ✅ REQUERIDO
-  level: number;         // ✅ REQUERIDO: integer, nivel jerárquico
-  isPostable: boolean;   // ✅ REQUERIDO: boolean
-  status: 'active' | 'inactive';  // ✅ REQUERIDO: string
-  parentId?: string;     // ✅ OPCIONAL: string, ID cuenta padre
-  currency?: string;     // ✅ OPCIONAL: string
-  metadata?: Record<string, unknown>; // ✅ OPCIONAL: object
+  code: string
+  name: string
+  accountType: AccountType
+  nature: Nature
+  level: number
+  isPostable: boolean
+  isCashFlow?: boolean
+  status: AccountStatus
+  parentId?: number | null
+  currency?: string
+  metadata?: Record<string, unknown>
 }
 
 export interface JournalEntryFormData {
-  date: string;          // ✅ formato YYYY-MM-DD
-  description: string;
-  reference?: string;
-  currency?: string;
-  exchangeRate?: string; // ✅ Decimal como string
+  journalId?: number
+  fiscalPeriodId?: number
+  number?: string
+  date: string
+  description: string
+  reference?: string | null
+  status?: JournalEntryStatus
+  // Legacy fields for backward compatibility
+  currency?: string
+  exchangeRate?: string
 }
 
-export interface JournalLineForm {
-  accountId: string;     // ✅ ID como string
-  debit: string;         // ✅ Decimal como string
-  credit: string;        // ✅ Decimal como string
-  memo?: string;
-  journalEntryId?: string; // ✅ ID como string
+export interface JournalLineFormData {
+  journalEntryId?: number
+  accountId: number
+  contactId?: number | null
+  debit: number
+  credit: number
+  description?: string | null
+  reference?: string | null
 }
 
 export interface JournalEntryWithLines extends JournalEntryFormData {
-  lines: JournalLineForm[];
+  lines: JournalLineFormData[] | JournalLineForm[]
+}
+
+// Legacy form interfaces for backward compatibility
+export interface JournalLineForm {
+  accountId: string
+  debit: string
+  credit: string
+  memo?: string
+  journalEntryId?: string
 }
 
 // API Response types - JSON:API v1.1 compliant

@@ -69,10 +69,11 @@ export const transformAPPaymentFromAPI = (apiData: Record<string, unknown>, incl
   const attributes = (apiData.attributes || {}) as Record<string, unknown>
 
   // Find contact information from included data
-  let contactName = `Proveedor ID: ${attributes.contactId}`
-  if (includedData && attributes.contactId) {
+  let contactName = `Proveedor ID: ${attributes.contactId || attributes.contact_id}`
+  const contactIdValue = (attributes.contactId || attributes.contact_id) as number
+  if (includedData && contactIdValue) {
     const contact = includedData.find((item: Record<string, unknown>) =>
-      item.type === 'contacts' && item.id === String(attributes.contactId)
+      item.type === 'contacts' && item.id === String(contactIdValue)
     )
     if (contact && contact.attributes) {
       const contactAttrs = contact.attributes as Record<string, unknown>
@@ -82,18 +83,27 @@ export const transformAPPaymentFromAPI = (apiData: Record<string, unknown>, incl
 
   return {
     id: apiData.id as string,
-    contactId: attributes.contactId as number,              // ✅ CORREGIDO - mantener como number
-    contactName,                                  // ✅ Resolved contact name
-    apInvoiceId: (attributes.apInvoiceId as number) || null,  // ✅ AGREGADO - nuevo campo
-    paymentDate: attributes.paymentDate as string,
-    amount: String(attributes.amount || 0),       // ✅ Ensure string format
-    paymentMethod: (attributes.paymentMethod as string) || '',
-    currency: (attributes.currency as string) || 'MXN',
-    reference: (attributes.reference as string) || '',
-    bankAccountId: attributes.bankAccountId as number,      // ✅ CORREGIDO - mantener como number
-    status: (attributes.status as string) || 'draft',
-    createdAt: attributes.createdAt as string,
-    updatedAt: attributes.updatedAt as string,
+    paymentNumber: (attributes.paymentNumber || attributes.payment_number || '') as string,
+    paymentDate: (attributes.paymentDate || attributes.payment_date || '') as string,
+    contactId: contactIdValue,
+    bankAccountId: Number(attributes.bankAccountId || attributes.bank_account_id || 0),
+    paymentMethodId: Number(attributes.paymentMethodId || attributes.payment_method_id || 0),
+    amount: Number(attributes.amount || 0),
+    currency: (attributes.currency || 'MXN') as string,
+    appliedAmount: Number(attributes.appliedAmount || attributes.applied_amount || 0),
+    unappliedAmount: Number(attributes.unappliedAmount || attributes.unapplied_amount || 0),
+    status: (attributes.status || 'draft') as APPayment['status'],
+    journalEntryId: (attributes.journalEntryId ?? attributes.journal_entry_id ?? null) as number | null,
+    reference: (attributes.reference ?? null) as string | null,
+    notes: (attributes.notes ?? null) as string | null,
+    metadata: (attributes.metadata ?? null) as Record<string, unknown> | null,
+    isActive: (attributes.isActive ?? attributes.is_active ?? true) as boolean,
+    createdAt: (attributes.createdAt || attributes.created_at || '') as string,
+    updatedAt: (attributes.updatedAt || attributes.updated_at || '') as string,
+    contactName,
+    // Legacy fields for backward compatibility
+    apInvoiceId: (attributes.apInvoiceId ?? attributes.ap_invoice_id ?? null) as number | null,
+    paymentMethod: (attributes.paymentMethod || '') as string,
   }
 }
 
@@ -147,10 +157,11 @@ export const transformARReceiptFromAPI = (apiData: Record<string, unknown>, incl
   const attributes = (apiData.attributes || {}) as Record<string, unknown>
 
   // Find contact information from included data
-  let contactName = `Cliente ID: ${attributes.contactId}`
-  if (includedData && attributes.contactId) {
+  let contactName = `Cliente ID: ${attributes.contactId || attributes.contact_id}`
+  const contactIdValue = (attributes.contactId || attributes.contact_id) as number
+  if (includedData && contactIdValue) {
     const contact = includedData.find((item: Record<string, unknown>) =>
-      item.type === 'contacts' && item.id === String(attributes.contactId)
+      item.type === 'contacts' && item.id === String(contactIdValue)
     )
     if (contact && contact.attributes) {
       const contactAttrs = contact.attributes as Record<string, unknown>
@@ -160,18 +171,28 @@ export const transformARReceiptFromAPI = (apiData: Record<string, unknown>, incl
 
   return {
     id: apiData.id as string,
-    contactId: attributes.contactId as number,              // ✅ CORREGIDO - mantener como number
-    contactName,                                  // ✅ Resolved contact name
-    arInvoiceId: (attributes.arInvoiceId as number) || null,  // ✅ CORREGIDO - campo confirmado
-    receiptDate: attributes.receiptDate as string,          // ✅ Key difference from paymentDate
-    amount: String(attributes.amount || 0),       // ✅ Keep as string decimal
-    paymentMethod: (attributes.paymentMethod as string) || '',
-    currency: (attributes.currency as string) || 'MXN',       // ✅ AGREGADO - campo del backend
-    reference: (attributes.reference as string) || '',
-    bankAccountId: attributes.bankAccountId as number,      // ✅ CORREGIDO - mantener como number
-    status: (attributes.status as string) || 'draft',
-    createdAt: attributes.createdAt as string,
-    updatedAt: attributes.updatedAt as string,
+    paymentNumber: (attributes.paymentNumber || attributes.payment_number || '') as string,
+    paymentDate: (attributes.paymentDate || attributes.payment_date || attributes.receiptDate || attributes.receipt_date || '') as string,
+    contactId: contactIdValue,
+    bankAccountId: Number(attributes.bankAccountId || attributes.bank_account_id || 0),
+    paymentMethodId: Number(attributes.paymentMethodId || attributes.payment_method_id || 0),
+    amount: Number(attributes.amount || 0),
+    currency: (attributes.currency || 'MXN') as string,
+    appliedAmount: Number(attributes.appliedAmount || attributes.applied_amount || 0),
+    unappliedAmount: Number(attributes.unappliedAmount || attributes.unapplied_amount || 0),
+    status: (attributes.status || 'draft') as ARReceipt['status'],
+    journalEntryId: (attributes.journalEntryId ?? attributes.journal_entry_id ?? null) as number | null,
+    reference: (attributes.reference ?? null) as string | null,
+    notes: (attributes.notes ?? null) as string | null,
+    metadata: (attributes.metadata ?? null) as Record<string, unknown> | null,
+    isActive: (attributes.isActive ?? attributes.is_active ?? true) as boolean,
+    createdAt: (attributes.createdAt || attributes.created_at || '') as string,
+    updatedAt: (attributes.updatedAt || attributes.updated_at || '') as string,
+    contactName,
+    // Legacy fields for backward compatibility
+    arInvoiceId: (attributes.arInvoiceId ?? attributes.ar_invoice_id ?? null) as number | null,
+    receiptDate: (attributes.receiptDate || attributes.receipt_date || attributes.paymentDate || '') as string,
+    paymentMethod: (attributes.paymentMethod || '') as string,
   }
 }
 
@@ -180,15 +201,19 @@ export const transformBankAccountFromAPI = (apiData: Record<string, unknown>): B
 
   return {
     id: apiData.id as string,
-    bankName: attributes.bankName as string,
-    accountNumber: attributes.accountNumber as string,
-    clabe: attributes.clabe as string,
-    currency: attributes.currency as string,
-    accountType: attributes.accountType as string,
-    openingBalance: attributes.openingBalance as string, // ✅ Keep as string decimal
-    status: attributes.status as 'active' | 'inactive' | 'closed',
-    createdAt: attributes.createdAt as string,
-    updatedAt: attributes.updatedAt as string,
+    accountName: (attributes.accountName || attributes.account_name || '') as string,
+    accountNumber: (attributes.accountNumber || attributes.account_number || '') as string,
+    bankName: (attributes.bankName || attributes.bank_name || '') as string,
+    currency: (attributes.currency || 'MXN') as string,
+    currentBalance: Number(attributes.currentBalance || attributes.current_balance || 0),
+    accountType: (attributes.accountType || attributes.account_type || '') as string,
+    isActive: (attributes.isActive ?? attributes.is_active ?? true) as boolean,
+    createdAt: (attributes.createdAt || attributes.created_at || '') as string,
+    updatedAt: (attributes.updatedAt || attributes.updated_at || '') as string,
+    // Legacy fields for backward compatibility
+    clabe: (attributes.clabe || '') as string,
+    openingBalance: String(attributes.openingBalance || attributes.opening_balance || '0'),
+    status: (attributes.status || (attributes.isActive ? 'active' : 'inactive')) as BankAccount['status'],
   }
 }
 
@@ -392,7 +417,7 @@ export const transformPaymentApplicationFromAPI = (apiData: Record<string, unkno
     )
     if (invoice && invoice.attributes) {
       const invoiceAttrs = invoice.attributes as Record<string, unknown>
-      invoiceNumber = invoiceAttrs.invoiceNumber as string
+      invoiceNumber = (invoiceAttrs.invoiceNumber || invoiceAttrs.invoice_number) as string
     }
   }
 
@@ -404,21 +429,26 @@ export const transformPaymentApplicationFromAPI = (apiData: Record<string, unkno
     )
     if (payment && payment.attributes) {
       const paymentAttrs = payment.attributes as Record<string, unknown>
-      paymentNumber = (paymentAttrs.paymentNumber as string) || `Payment #${attributes.paymentId}`
+      paymentNumber = (paymentAttrs.paymentNumber || paymentAttrs.payment_number) as string || `Payment #${attributes.paymentId}`
     }
   }
 
   return {
     id: apiData.id as string,
-    paymentId: String(attributes.paymentId),
-    arInvoiceId: attributes.arInvoiceId ? String(attributes.arInvoiceId) : null,
-    apInvoiceId: attributes.apInvoiceId ? String(attributes.apInvoiceId) : null,
-    amount: String(attributes.amount || 0),
-    applicationDate: attributes.applicationDate as string,
+    paymentId: Number(attributes.paymentId || attributes.payment_id || 0),
+    arInvoiceId: attributes.arInvoiceId != null ? Number(attributes.arInvoiceId) : (attributes.ar_invoice_id != null ? Number(attributes.ar_invoice_id) : null),
+    apInvoiceId: attributes.apInvoiceId != null ? Number(attributes.apInvoiceId) : (attributes.ap_invoice_id != null ? Number(attributes.ap_invoice_id) : null),
+    appliedAmount: Number(attributes.appliedAmount || attributes.applied_amount || 0),
+    notes: (attributes.notes ?? null) as string | null,
+    metadata: (attributes.metadata ?? null) as Record<string, unknown> | null,
+    createdAt: (attributes.createdAt || attributes.created_at || '') as string,
+    updatedAt: (attributes.updatedAt || attributes.updated_at || '') as string,
+    // Resolved from includes
     invoiceNumber,
     paymentNumber,
-    createdAt: attributes.createdAt as string,
-    updatedAt: attributes.updatedAt as string,
+    // Legacy fields
+    applicationDate: (attributes.applicationDate || attributes.application_date || attributes.createdAt || '') as string,
+    amount: String(attributes.appliedAmount || attributes.applied_amount || 0),
   }
 }
 
@@ -441,8 +471,9 @@ export const transformPaymentApplicationToAPI = (data: PaymentApplicationForm) =
         paymentId: data.paymentId,
         arInvoiceId: data.arInvoiceId || null,
         apInvoiceId: data.apInvoiceId || null,
-        amount: data.amount,
-        applicationDate: data.applicationDate,
+        appliedAmount: data.appliedAmount,
+        notes: data.notes || null,
+        metadata: data.metadata || null,
       },
     },
   }
@@ -455,13 +486,14 @@ export const transformPaymentMethodFromAPI = (apiData: Record<string, unknown>):
 
   return {
     id: apiData.id as string,
-    name: attributes.name as string,
-    code: attributes.code as string,
-    description: (attributes.description as string) || '',
-    requiresReference: (attributes.requiresReference as boolean) ?? false,
-    isActive: (attributes.isActive as boolean) ?? true,
-    createdAt: attributes.createdAt as string,
-    updatedAt: attributes.updatedAt as string,
+    name: (attributes.name || '') as string,
+    code: (attributes.code || '') as string,
+    isActive: (attributes.isActive ?? attributes.is_active ?? true) as boolean,
+    createdAt: (attributes.createdAt || attributes.created_at || '') as string,
+    updatedAt: (attributes.updatedAt || attributes.updated_at || '') as string,
+    // Legacy fields for backward compatibility
+    description: (attributes.description || '') as string,
+    requiresReference: (attributes.requiresReference ?? attributes.requires_reference ?? false) as boolean,
   }
 }
 
@@ -482,8 +514,6 @@ export const transformPaymentMethodToAPI = (data: PaymentMethodForm) => {
       attributes: {
         name: data.name,
         code: data.code,
-        description: data.description || '',
-        requiresReference: data.requiresReference ?? false,
         isActive: data.isActive ?? true,
       },
     },

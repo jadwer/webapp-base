@@ -182,13 +182,13 @@ export const journalEntryService = {
     const { lines, ...entryData } = data;
     const entryResult = await journalEntriesService.create(entryData);
 
-    // Then create the lines
+    // Then create the lines - convert accountId to string if needed
     const linePromises = lines.map(line =>
       journalLinesService.create({
-        accountId: line.accountId,
-        debit: line.debit,
-        credit: line.credit,
-        memo: line.memo,
+        accountId: String(line.accountId),
+        debit: String(line.debit),
+        credit: String(line.credit),
+        memo: 'memo' in line ? line.memo : ('description' in line ? String(line.description) : undefined),
       })
     );
 

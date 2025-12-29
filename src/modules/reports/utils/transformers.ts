@@ -65,12 +65,23 @@ export function transformJsonApiIncomeStatement(resource: Record<string, unknown
 
   return {
     id: resource.id as string,
+    // Backend uses startDate/endDate directly
+    startDate: (attributes.start_date || attributes.startDate) as string,
+    endDate: (attributes.end_date || attributes.endDate) as string,
     period: {
       startDate: (attributes.start_date || attributes.startDate) as string,
       endDate: (attributes.end_date || attributes.endDate) as string,
     },
     currency: attributes.currency as string,
 
+    // Backend structure
+    revenues: (attributes.revenues as IncomeStatement['revenues']) || [],
+    totalRevenues: (attributes.total_revenues || attributes.totalRevenues || 0) as number,
+    expenses: (attributes.expenses as IncomeStatement['expenses']) || [],
+    totalExpenses: (attributes.total_expenses || attributes.totalExpenses || 0) as number,
+    netIncome: (attributes.net_income || attributes.netIncome) as number,
+
+    // Legacy fields
     revenue: attributes.revenue as IncomeStatement['revenue'],
     costOfGoodsSold: (attributes.cost_of_goods_sold || attributes.costOfGoodsSold) as number,
     grossProfit: (attributes.gross_profit || attributes.grossProfit) as number,
@@ -81,7 +92,6 @@ export function transformJsonApiIncomeStatement(resource: Record<string, unknown
     operatingMargin: (attributes.operating_margin || attributes.operatingMargin) as number,
 
     otherIncomeExpenses: (attributes.other_income_expenses || attributes.otherIncomeExpenses) as IncomeStatement['otherIncomeExpenses'],
-    netIncome: (attributes.net_income || attributes.netIncome) as number,
     netProfitMargin: (attributes.net_profit_margin || attributes.netProfitMargin) as number,
 
     generatedAt: (attributes.generated_at || attributes.generatedAt) as string,
@@ -108,24 +118,34 @@ export function transformJsonApiCashFlow(resource: Record<string, unknown>): Cas
 
   return {
     id: resource.id as string,
+    // Backend uses startDate/endDate directly
+    startDate: (attributes.start_date || attributes.startDate) as string,
+    endDate: (attributes.end_date || attributes.endDate) as string,
     period: {
       startDate: (attributes.start_date || attributes.startDate) as string,
       endDate: (attributes.end_date || attributes.endDate) as string,
     },
     currency: attributes.currency as string,
 
-    operatingActivities: (attributes.operating_activities || attributes.operatingActivities) as CashFlow['operatingActivities'],
+    // Backend structure (simpler, just totals)
+    beginningCash: (attributes.beginning_cash || attributes.beginningCash) as number,
+    operatingActivities: (attributes.operating_activities || attributes.operatingActivities) as number,
+    investingActivities: (attributes.investing_activities || attributes.investingActivities) as number,
+    financingActivities: (attributes.financing_activities || attributes.financingActivities) as number,
+    netCashFlow: (attributes.net_cash_flow || attributes.netCashFlow) as number,
+    endingCash: (attributes.ending_cash || attributes.endingCash) as number,
+
+    // Legacy fields (detailed lines)
+    operatingActivitiesLines: (attributes.operating_activities_lines || attributes.operatingActivitiesLines) as CashFlow['operatingActivitiesLines'],
     netCashFromOperations: (attributes.net_cash_from_operations || attributes.netCashFromOperations) as number,
 
-    investingActivities: (attributes.investing_activities || attributes.investingActivities) as CashFlow['investingActivities'],
+    investingActivitiesLines: (attributes.investing_activities_lines || attributes.investingActivitiesLines) as CashFlow['investingActivitiesLines'],
     netCashFromInvesting: (attributes.net_cash_from_investing || attributes.netCashFromInvesting) as number,
 
-    financingActivities: (attributes.financing_activities || attributes.financingActivities) as CashFlow['financingActivities'],
+    financingActivitiesLines: (attributes.financing_activities_lines || attributes.financingActivitiesLines) as CashFlow['financingActivitiesLines'],
     netCashFromFinancing: (attributes.net_cash_from_financing || attributes.netCashFromFinancing) as number,
 
     netCashChange: (attributes.net_cash_change || attributes.netCashChange) as number,
-    beginningCash: (attributes.beginning_cash || attributes.beginningCash) as number,
-    endingCash: (attributes.ending_cash || attributes.endingCash) as number,
 
     generatedAt: (attributes.generated_at || attributes.generatedAt) as string,
   }
@@ -154,11 +174,18 @@ export function transformJsonApiTrialBalance(resource: Record<string, unknown>):
     asOfDate: (attributes.as_of_date || attributes.asOfDate) as string,
     currency: attributes.currency as string,
 
+    // Backend structure
     accounts: attributes.accounts as TrialBalance['accounts'],
+    totals: (attributes.totals as TrialBalance['totals']) || {
+      debit: (attributes.total_debit || attributes.totalDebit) as number,
+      credit: (attributes.total_credit || attributes.totalCredit) as number,
+    },
+    summaryByType: (attributes.summary_by_type || attributes.summaryByType) as TrialBalance['summaryByType'],
+    balanced: attributes.balanced as boolean,
 
+    // Legacy fields
     totalDebit: (attributes.total_debit || attributes.totalDebit) as number,
     totalCredit: (attributes.total_credit || attributes.totalCredit) as number,
-    balanced: attributes.balanced as boolean,
 
     generatedAt: (attributes.generated_at || attributes.generatedAt) as string,
   }
@@ -181,20 +208,35 @@ export function transformTrialBalanceResponse(response: Record<string, unknown>)
 
 export function transformJsonApiARAgingReport(resource: Record<string, unknown>): ARAgingReport {
   const attributes = resource.attributes as Record<string, unknown>
+  const summaryData = attributes.summary as Record<string, unknown> | undefined
+  const totalsData = attributes.totals as Record<string, unknown> | undefined
+
+  const defaultTotals: ARAgingReport['totals'] = {
+    current: 0,
+    days1To30: 0,
+    days31To60: 0,
+    days61To90: 0,
+    daysOver90: 0,
+    total: 0,
+  }
 
   return {
     id: resource.id as string,
     asOfDate: (attributes.as_of_date || attributes.asOfDate) as string,
     currency: attributes.currency as string,
 
-    summary: {
-      current: (attributes.summary as Record<string, unknown>).current as number,
-      days30: (attributes.summary as Record<string, unknown>).days30 as number,
-      days60: (attributes.summary as Record<string, unknown>).days60 as number,
-      days90Plus: (attributes.summary as Record<string, unknown>).days90Plus as number,
-      total: (attributes.summary as Record<string, unknown>).total as number,
-    },
+    // Backend structure
+    agingBuckets: (attributes.aging_buckets || attributes.agingBuckets) as ARAgingReport['agingBuckets'],
+    totals: totalsData ? (totalsData as unknown as ARAgingReport['totals']) : defaultTotals,
 
+    // Legacy frontend structure
+    summary: summaryData ? {
+      current: summaryData.current as number,
+      days30: summaryData.days30 as number,
+      days60: summaryData.days60 as number,
+      days90Plus: summaryData.days90Plus as number,
+      total: summaryData.total as number,
+    } : undefined,
     customers: attributes.customers as ARAgingReport['customers'],
 
     generatedAt: (attributes.generated_at || attributes.generatedAt) as string,
@@ -218,20 +260,35 @@ export function transformARAgingReportResponse(response: Record<string, unknown>
 
 export function transformJsonApiAPAgingReport(resource: Record<string, unknown>): APAgingReport {
   const attributes = resource.attributes as Record<string, unknown>
+  const summaryData = attributes.summary as Record<string, unknown> | undefined
+  const totalsData = attributes.totals as Record<string, unknown> | undefined
+
+  const defaultTotals: APAgingReport['totals'] = {
+    current: 0,
+    days1To30: 0,
+    days31To60: 0,
+    days61To90: 0,
+    daysOver90: 0,
+    total: 0,
+  }
 
   return {
     id: resource.id as string,
     asOfDate: (attributes.as_of_date || attributes.asOfDate) as string,
     currency: attributes.currency as string,
 
-    summary: {
-      current: (attributes.summary as Record<string, unknown>).current as number,
-      days30: (attributes.summary as Record<string, unknown>).days30 as number,
-      days60: (attributes.summary as Record<string, unknown>).days60 as number,
-      days90Plus: (attributes.summary as Record<string, unknown>).days90Plus as number,
-      total: (attributes.summary as Record<string, unknown>).total as number,
-    },
+    // Backend structure
+    agingBuckets: (attributes.aging_buckets || attributes.agingBuckets) as APAgingReport['agingBuckets'],
+    totals: totalsData ? (totalsData as unknown as APAgingReport['totals']) : defaultTotals,
 
+    // Legacy frontend structure
+    summary: summaryData ? {
+      current: summaryData.current as number,
+      days30: summaryData.days30 as number,
+      days60: summaryData.days60 as number,
+      days90Plus: summaryData.days90Plus as number,
+      total: summaryData.total as number,
+    } : undefined,
     suppliers: attributes.suppliers as APAgingReport['suppliers'],
 
     generatedAt: (attributes.generated_at || attributes.generatedAt) as string,
@@ -258,15 +315,27 @@ export function transformJsonApiSalesByCustomer(resource: Record<string, unknown
 
   return {
     id: resource.id as string,
+    // Backend uses startDate/endDate directly
+    startDate: (attributes.start_date || attributes.startDate) as string,
+    endDate: (attributes.end_date || attributes.endDate) as string,
     period: {
       startDate: (attributes.start_date || attributes.startDate) as string,
       endDate: (attributes.end_date || attributes.endDate) as string,
     },
     currency: attributes.currency as string,
 
-    customers: attributes.customers as SalesByCustomer['customers'],
+    // Backend structure
+    salesByCustomer: (attributes.sales_by_customer || attributes.salesByCustomer) as SalesByCustomer['salesByCustomer'],
+    summary: (attributes.summary as SalesByCustomer['summary']) || {
+      totalCustomers: 0,
+      totalOrders: 0,
+      totalSales: (attributes.total_sales || attributes.totalSales || 0) as number,
+    },
 
+    // Legacy frontend structure
+    customers: attributes.customers as SalesByCustomer['customers'],
     totalSales: (attributes.total_sales || attributes.totalSales) as number,
+
     generatedAt: (attributes.generated_at || attributes.generatedAt) as string,
   }
 }
@@ -291,15 +360,27 @@ export function transformJsonApiSalesByProduct(resource: Record<string, unknown>
 
   return {
     id: resource.id as string,
+    // Backend uses startDate/endDate directly
+    startDate: (attributes.start_date || attributes.startDate) as string,
+    endDate: (attributes.end_date || attributes.endDate) as string,
     period: {
       startDate: (attributes.start_date || attributes.startDate) as string,
       endDate: (attributes.end_date || attributes.endDate) as string,
     },
     currency: attributes.currency as string,
 
-    products: attributes.products as SalesByProduct['products'],
+    // Backend structure
+    salesByProduct: (attributes.sales_by_product || attributes.salesByProduct) as SalesByProduct['salesByProduct'],
+    summary: (attributes.summary as SalesByProduct['summary']) || {
+      totalProducts: 0,
+      totalQuantity: 0,
+      totalRevenue: (attributes.total_revenue || attributes.totalRevenue || 0) as number,
+    },
 
+    // Legacy frontend structure
+    products: attributes.products as SalesByProduct['products'],
     totalRevenue: (attributes.total_revenue || attributes.totalRevenue) as number,
+
     generatedAt: (attributes.generated_at || attributes.generatedAt) as string,
   }
 }
@@ -324,15 +405,27 @@ export function transformJsonApiPurchaseBySupplier(resource: Record<string, unkn
 
   return {
     id: resource.id as string,
+    // Backend uses startDate/endDate directly
+    startDate: (attributes.start_date || attributes.startDate) as string,
+    endDate: (attributes.end_date || attributes.endDate) as string,
     period: {
       startDate: (attributes.start_date || attributes.startDate) as string,
       endDate: (attributes.end_date || attributes.endDate) as string,
     },
     currency: attributes.currency as string,
 
-    suppliers: attributes.suppliers as PurchaseBySupplier['suppliers'],
+    // Backend structure
+    purchaseBySupplier: (attributes.purchase_by_supplier || attributes.purchaseBySupplier) as PurchaseBySupplier['purchaseBySupplier'],
+    summary: (attributes.summary as PurchaseBySupplier['summary']) || {
+      totalSuppliers: 0,
+      totalOrders: 0,
+      totalPurchases: (attributes.total_purchases || attributes.totalPurchases || 0) as number,
+    },
 
+    // Legacy frontend structure
+    suppliers: attributes.suppliers as PurchaseBySupplier['suppliers'],
     totalPurchases: (attributes.total_purchases || attributes.totalPurchases) as number,
+
     generatedAt: (attributes.generated_at || attributes.generatedAt) as string,
   }
 }
@@ -357,15 +450,27 @@ export function transformJsonApiPurchaseByProduct(resource: Record<string, unkno
 
   return {
     id: resource.id as string,
+    // Backend uses startDate/endDate directly
+    startDate: (attributes.start_date || attributes.startDate) as string,
+    endDate: (attributes.end_date || attributes.endDate) as string,
     period: {
       startDate: (attributes.start_date || attributes.startDate) as string,
       endDate: (attributes.end_date || attributes.endDate) as string,
     },
     currency: attributes.currency as string,
 
-    products: attributes.products as PurchaseByProduct['products'],
+    // Backend structure
+    purchaseByProduct: (attributes.purchase_by_product || attributes.purchaseByProduct) as PurchaseByProduct['purchaseByProduct'],
+    summary: (attributes.summary as PurchaseByProduct['summary']) || {
+      totalProducts: 0,
+      totalQuantity: 0,
+      totalCost: (attributes.total_cost || attributes.totalCost || 0) as number,
+    },
 
+    // Legacy frontend structure
+    products: attributes.products as PurchaseByProduct['products'],
     totalCost: (attributes.total_cost || attributes.totalCost) as number,
+
     generatedAt: (attributes.generated_at || attributes.generatedAt) as string,
   }
 }

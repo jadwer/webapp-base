@@ -23,7 +23,8 @@ export type PaymentStatus =
   | 'processing'
   | 'completed'
   | 'failed'
-  | 'refunded';
+  | 'refunded'
+  | 'cancelled'; // Added from backend
 
 export type ShippingStatus =
   | 'pending'
@@ -148,9 +149,9 @@ export type CartStatus = 'active' | 'abandoned' | 'converted' | 'expired';
 
 export interface ShoppingCart {
   id: string;
-  sessionId?: string;
-  customerId?: number;
-  userId?: number | null;
+  sessionId: string | null;
+  userId: string | null; // Backend uses userId, not customerId
+  customerId?: number; // Legacy frontend field
 
   // Cart status and metadata
   status: CartStatus;
@@ -175,13 +176,15 @@ export interface ShoppingCart {
   metadata: Record<string, unknown> | null;
 
   // Timestamps
-  createdAt?: string;
-  updatedAt?: string;
-  expiresAt?: string;
+  createdAt: string;
+  updatedAt: string;
+  expiresAt: string;
 
   // Relationships
-  items?: ShoppingCartItem[];
+  items?: CartItem[];
+  cartItems?: CartItem[]; // Backend relationship name
   customer?: unknown; // Contact type from contacts module
+  user?: unknown;
 }
 
 export interface ShoppingCartItem {
@@ -211,6 +214,477 @@ export interface ShoppingCartItem {
 export interface ShoppingCartItemFormData {
   productId: number;
   quantity: number;
+}
+
+// ============================================
+// Cart Item (Backend entity name)
+// ============================================
+
+export interface CartItem {
+  id: string;
+  shoppingCartId: string;
+  productId: string;
+  quantity: number;
+  unitPrice: number;
+  originalPrice: number;
+  discountPercent: number;
+  discountAmount: number;
+  subtotal: number;
+  taxRate: number;
+  taxAmount: number;
+  total: number;
+  status: string;
+  metadata: Record<string, unknown> | null;
+  createdAt: string;
+  updatedAt: string;
+
+  // Relationships
+  shoppingCart?: ShoppingCart;
+  product?: unknown;
+}
+
+export interface CartItemFormData {
+  shoppingCartId: number;
+  productId: number;
+  quantity: number;
+  unitPrice: number;
+  currency?: string;
+}
+
+// ============================================
+// Checkout Session Types
+// ============================================
+
+export type CheckoutStatus = 'pending' | 'processing' | 'completed' | 'failed' | 'expired';
+export type CheckoutStep = 'cart' | 'shipping' | 'payment' | 'confirmation';
+
+export interface Address {
+  street: string;
+  city: string;
+  state: string;
+  postalCode: string;
+  country: string;
+}
+
+export interface CheckoutSession {
+  id: string;
+  shoppingCartId: number;
+  userId: number;
+  shippingMethodId: number | null;
+  status: CheckoutStatus;
+  step: CheckoutStep;
+
+  // Contact information
+  contactEmail: string;
+  contactPhone: string | null;
+
+  // Addresses (JSON objects)
+  billingAddress: Address;
+  shippingAddress: Address;
+
+  // Payment
+  paymentMethod: string | null;
+  paymentIntentId: string | null;
+
+  // Amounts
+  subtotalAmount: number;
+  shippingAmount: number;
+  taxAmount: number;
+  discountAmount: number;
+  totalAmount: number;
+  currency: string;
+
+  notes: string | null;
+  metadata: Record<string, unknown> | null;
+
+  expiresAt: string;
+  completedAt: string | null;
+
+  // Calculated fields (read-only)
+  isExpired: boolean;
+  canProceedToPayment: boolean;
+  timeRemaining: number; // seconds
+
+  createdAt: string;
+  updatedAt: string;
+
+  // Relationships
+  shoppingCart?: ShoppingCart;
+  user?: unknown;
+  shippingMethod?: ShippingMethod;
+  inventoryReservations?: InventoryReservation[];
+  paymentTransactions?: EcommercePaymentTransaction[];
+}
+
+export interface CheckoutSessionFormData {
+  shoppingCartId: number;
+  userId?: number;
+  contactEmail: string;
+  contactPhone?: string;
+  billingAddress: Address;
+  shippingAddress: Address;
+  shippingMethodId?: number;
+  step?: CheckoutStep;
+  status?: CheckoutStatus;
+  currency?: string;
+}
+
+// ============================================
+// Payment Transaction Types (Ecommerce-specific)
+// ============================================
+
+export type EcommercePaymentStatus = 'pending' | 'processing' | 'completed' | 'failed' | 'refunded' | 'cancelled';
+export type PaymentGateway = 'stripe' | 'paypal' | 'mercadopago' | 'openpay' | 'conekta';
+
+export interface EcommercePaymentTransaction {
+  id: string;
+  checkoutSessionId: number;
+  salesOrderId: number | null;
+  arInvoiceId: number | null;
+  transactionId: string;
+  paymentGateway: PaymentGateway;
+  paymentMethod: string;
+  status: EcommercePaymentStatus;
+  amount: number;
+  currency: string;
+  gatewayResponse: Record<string, unknown> | null;
+  errorMessage: string | null;
+  metadata: Record<string, unknown> | null;
+  processedAt: string | null;
+
+  // Calculated fields (read-only)
+  isSuccessful: boolean;
+  isFailed: boolean;
+  isRefunded: boolean;
+
+  createdAt: string;
+  updatedAt: string;
+
+  // Relationships
+  checkoutSession?: CheckoutSession;
+  salesOrder?: unknown;
+  arInvoice?: unknown;
+}
+
+export interface EcommercePaymentTransactionFormData {
+  checkoutSessionId: number;
+  paymentGateway: PaymentGateway;
+  paymentMethod: string;
+  amount: number;
+  currency: string;
+  status?: EcommercePaymentStatus;
+  metadata?: Record<string, unknown>;
+}
+
+// ============================================
+// Wishlist Types
+// ============================================
+
+export interface Wishlist {
+  id: string;
+  userId: number;
+  name: string;
+  isDefault: boolean;
+  isPublic: boolean;
+  createdAt: string;
+  updatedAt: string;
+
+  // Relationships
+  user?: unknown;
+  items?: WishlistItem[];
+  products?: unknown[];
+}
+
+export interface WishlistFormData {
+  name: string;
+  isDefault?: boolean;
+  isPublic?: boolean;
+}
+
+export type WishlistItemPriority = 'low' | 'medium' | 'high';
+
+export interface WishlistItem {
+  id: string;
+  wishlistId: number;
+  productId: number;
+  quantity: number;
+  priority: WishlistItemPriority;
+  notes: string | null;
+  createdAt: string;
+  updatedAt: string;
+
+  // Relationships
+  wishlist?: Wishlist;
+  product?: unknown;
+}
+
+export interface WishlistItemFormData {
+  wishlistId: number;
+  productId: number;
+  quantity?: number;
+  priority?: WishlistItemPriority;
+  notes?: string;
+}
+
+// ============================================
+// Product Review Types
+// ============================================
+
+export type ReviewStatus = 'pending' | 'approved' | 'rejected';
+
+export interface ProductReview {
+  id: string;
+  productId: number;
+  userId: number;
+  rating: number; // 1-5
+  title: string;
+  comment: string;
+  isVerifiedPurchase: boolean;
+  helpfulCount: number;
+  status: ReviewStatus;
+  createdAt: string;
+  updatedAt: string;
+
+  // Relationships
+  product?: unknown;
+  user?: unknown;
+}
+
+export interface ProductReviewFormData {
+  productId: number;
+  rating: number;
+  title: string;
+  comment: string;
+  status?: ReviewStatus;
+}
+
+// ============================================
+// Coupon Types
+// ============================================
+
+export type CouponType = 'percentage' | 'fixed' | 'free_shipping';
+
+export interface Coupon {
+  id: string;
+  code: string;
+  name: string;
+  description: string | null;
+  couponType: CouponType;
+  value: number;
+  minAmount: number;
+  maxAmount: number | null;
+  maxUses: number;
+  usedCount: number;
+  startsAt: string;
+  expiresAt: string;
+  isActive: boolean;
+  customerIds: number[];
+  productIds: number[];
+  categoryIds: number[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CouponFormData {
+  code: string;
+  name: string;
+  description?: string;
+  couponType: CouponType;
+  value: number;
+  minAmount?: number;
+  maxAmount?: number;
+  maxUses?: number;
+  startsAt: string;
+  expiresAt: string;
+  isActive?: boolean;
+  customerIds?: number[];
+  productIds?: number[];
+  categoryIds?: number[];
+}
+
+// ============================================
+// Shipping Method Types
+// ============================================
+
+export interface ShippingMethod {
+  id: string;
+  name: string;
+  code: string;
+  description: string | null;
+  carrier: string;
+  baseCost: number;
+  costPerKg: number;
+  estimatedDaysMin: number;
+  estimatedDaysMax: number;
+  isActive: boolean;
+  availableCountries: string[];
+  metadata: Record<string, unknown> | null;
+
+  // Calculated field (read-only)
+  estimatedDelivery: string;
+
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ShippingMethodFormData {
+  name: string;
+  code: string;
+  description?: string;
+  carrier: string;
+  baseCost: number;
+  costPerKg?: number;
+  estimatedDaysMin: number;
+  estimatedDaysMax: number;
+  isActive?: boolean;
+  availableCountries?: string[];
+}
+
+// ============================================
+// Currency Types
+// ============================================
+
+export interface Currency {
+  id: string;
+  code: string; // ISO 4217 (USD, EUR, GBP, etc.)
+  name: string;
+  symbol: string;
+  exchangeRate: number;
+  isActive: boolean;
+  isDefault: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CurrencyFormData {
+  code: string;
+  name: string;
+  symbol: string;
+  exchangeRate: number;
+  isActive?: boolean;
+  isDefault?: boolean;
+}
+
+// ============================================
+// Inventory Reservation Types
+// ============================================
+
+export type ReservationStatus = 'active' | 'released' | 'fulfilled' | 'expired';
+
+export interface InventoryReservation {
+  id: string;
+  checkoutSessionId: number;
+  stockId: number;
+  productId: number;
+  warehouseId: number;
+  quantityReserved: number;
+  status: ReservationStatus;
+  expiresAt: string;
+  releasedAt: string | null;
+  fulfilledAt: string | null;
+  notes: string | null;
+
+  // Calculated fields (read-only)
+  isExpired: boolean;
+  isActive: boolean;
+  timeRemaining: number;
+
+  createdAt: string;
+  updatedAt: string;
+
+  // Relationships
+  checkoutSession?: CheckoutSession;
+  stock?: unknown;
+  product?: unknown;
+  warehouse?: unknown;
+}
+
+// ============================================
+// Product Question & Answer Types
+// ============================================
+
+export type QuestionStatus = 'pending' | 'approved' | 'rejected';
+
+export interface ProductQuestion {
+  id: string;
+  productId: number;
+  userId: number;
+  question: string;
+  status: QuestionStatus;
+  createdAt: string;
+  updatedAt: string;
+
+  // Relationships
+  product?: unknown;
+  user?: unknown;
+  answers?: ProductAnswer[];
+}
+
+export interface ProductQuestionFormData {
+  productId: number;
+  question: string;
+  status?: QuestionStatus;
+}
+
+export interface ProductAnswer {
+  id: string;
+  questionId: number;
+  userId: number;
+  answer: string;
+  isVerified: boolean;
+  createdAt: string;
+  updatedAt: string;
+
+  // Relationships
+  question?: ProductQuestion;
+  user?: unknown;
+}
+
+export interface ProductAnswerFormData {
+  questionId: number;
+  answer: string;
+  isVerified?: boolean;
+}
+
+// ============================================
+// Product Comparison Types
+// ============================================
+
+export interface ProductComparison {
+  id: string;
+  userId: number;
+  name: string;
+  isPublic: boolean;
+  createdAt: string;
+  updatedAt: string;
+
+  // Relationships
+  user?: unknown;
+  items?: ProductComparisonItem[];
+}
+
+export interface ProductComparisonFormData {
+  name: string;
+  isPublic?: boolean;
+}
+
+export interface ProductComparisonItem {
+  id: string;
+  comparisonId: number;
+  productId: number;
+  position: number;
+  createdAt: string;
+  updatedAt: string;
+
+  // Relationships
+  comparison?: ProductComparison;
+  product?: unknown;
+}
+
+export interface ProductComparisonItemFormData {
+  comparisonId: number;
+  productId: number;
+  position?: number;
 }
 
 // ============================================

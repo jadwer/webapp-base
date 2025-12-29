@@ -1,7 +1,7 @@
 export interface Unit {
   id: string
-  unitType: string
-  code: string
+  unitType?: string
+  code?: string
   name: string
   description?: string
   createdAt: string
@@ -10,10 +10,9 @@ export interface Unit {
 }
 
 export interface CreateUnitData {
-  unitType: string
-  code: string
+  unitType?: string
+  code?: string
   name: string
-  description?: string
 }
 
 export type UpdateUnitData = Partial<CreateUnitData>

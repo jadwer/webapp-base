@@ -12,12 +12,28 @@
 export interface AccountLine {
   code: string
   name: string
-  amount: number
+  accountType: string // Backend includes account_type
+  balance: number // Backend uses balance
+  amount?: number // Legacy frontend field
+}
+
+export interface CategoryGroup {
+  category: string
+  accounts: AccountLine[]
+  subtotal: number
 }
 
 export interface ReportPeriod {
   startDate: string // YYYY-MM-DD
   endDate: string   // YYYY-MM-DD
+}
+
+export interface TrialBalanceAccount {
+  code: string
+  name: string
+  type: string
+  debit: number
+  credit: number
 }
 
 // ============================================================================
@@ -30,19 +46,14 @@ export interface BalanceSheet {
   currency: string
   balanced: boolean
 
-  assets: {
-    current: AccountLine[]
-    nonCurrent: AccountLine[]
-  }
+  // Backend structure (CategoryGroup[])
+  assets: CategoryGroup[]
   totalAssets: number
 
-  liabilities: {
-    current: AccountLine[]
-    nonCurrent: AccountLine[]
-  }
+  liabilities: CategoryGroup[]
   totalLiabilities: number
 
-  equity: AccountLine[]
+  equity: CategoryGroup[]
   totalEquity: number
 
   generatedAt: string // ISO 8601
@@ -50,42 +61,59 @@ export interface BalanceSheet {
 
 export interface IncomeStatement {
   id: string
-  period: ReportPeriod
+  // Backend uses startDate/endDate directly, not nested period
+  startDate: string
+  endDate: string
+  period?: ReportPeriod // Legacy frontend field
   currency: string
 
-  revenue: AccountLine[]
-  costOfGoodsSold: number
-  grossProfit: number
-  grossProfitMargin: number // Percentage
+  // Backend structure
+  revenues: CategoryGroup[]
+  totalRevenues: number
 
-  operatingExpenses: AccountLine[]
-  operatingIncome: number
-  operatingMargin: number // Percentage
+  expenses: CategoryGroup[]
+  totalExpenses: number
 
-  otherIncomeExpenses: AccountLine[]
   netIncome: number
-  netProfitMargin: number // Percentage
+
+  // Legacy frontend fields
+  revenue?: AccountLine[]
+  costOfGoodsSold?: number
+  grossProfit?: number
+  grossProfitMargin?: number
+  operatingExpenses?: AccountLine[]
+  operatingIncome?: number
+  operatingMargin?: number
+  otherIncomeExpenses?: AccountLine[]
+  netProfitMargin?: number
 
   generatedAt: string // ISO 8601
 }
 
 export interface CashFlow {
   id: string
-  period: ReportPeriod
+  // Backend uses startDate/endDate directly
+  startDate: string
+  endDate: string
+  period?: ReportPeriod // Legacy frontend field
   currency: string
 
-  operatingActivities: AccountLine[]
-  netCashFromOperations: number
-
-  investingActivities: AccountLine[]
-  netCashFromInvesting: number
-
-  financingActivities: AccountLine[]
-  netCashFromFinancing: number
-
-  netCashChange: number
+  // Backend structure (simpler, just totals)
   beginningCash: number
+  operatingActivities: number
+  investingActivities: number
+  financingActivities: number
+  netCashFlow: number
   endingCash: number
+
+  // Legacy frontend fields (detailed lines)
+  operatingActivitiesLines?: AccountLine[]
+  netCashFromOperations?: number
+  investingActivitiesLines?: AccountLine[]
+  netCashFromInvesting?: number
+  financingActivitiesLines?: AccountLine[]
+  netCashFromFinancing?: number
+  netCashChange?: number
 
   generatedAt: string // ISO 8601
 }
@@ -95,16 +123,23 @@ export interface TrialBalance {
   asOfDate: string // YYYY-MM-DD
   currency: string
 
-  accounts: {
-    code: string
-    name: string
+  // Backend structure
+  accounts: TrialBalanceAccount[]
+  totals: {
     debit: number
     credit: number
+  }
+  summaryByType: {
+    type: string
+    totalDebit: number
+    totalCredit: number
+    count: number
   }[]
+  balanced: boolean
 
-  totalDebit: number
-  totalCredit: number
-  balanced: boolean // totalDebit === totalCredit
+  // Legacy frontend fields
+  totalDebit?: number
+  totalCredit?: number
 
   generatedAt: string // ISO 8601
 }
@@ -113,21 +148,54 @@ export interface TrialBalance {
 // AGING REPORTS
 // ============================================================================
 
+// Backend structure for aging totals
+export interface AgingTotals {
+  current: number
+  days1To30: number
+  days31To60: number
+  days61To90: number
+  daysOver90: number
+  total: number
+}
+
+// Backend structure for aging bucket (per customer/supplier)
+export interface AgingBucket {
+  customerId: number | null
+  customerName: string
+  current: number
+  days1To30: number
+  days31To60: number
+  days61To90: number
+  daysOver90: number
+  total: number
+}
+
+// Legacy frontend structures
 export interface AgingSummary {
-  current: number      // 0-30 days
-  days30: number       // 31-60 days
-  days60: number       // 61-90 days
-  days90Plus: number   // 90+ days
+  current: number
+  days30?: number // Legacy
+  days60?: number // Legacy
+  days90Plus?: number // Legacy
+  days1To30?: number // Backend
+  days31To60?: number // Backend
+  days61To90?: number // Backend
+  daysOver90?: number // Backend
   total: number
 }
 
 export interface AgingCustomerLine {
-  contactId: number
-  contactName: string
+  contactId?: number // Legacy
+  customerId?: number | null // Backend
+  contactName?: string // Legacy
+  customerName?: string // Backend
   current: number
-  days30: number
-  days60: number
-  days90Plus: number
+  days30?: number
+  days60?: number
+  days90Plus?: number
+  days1To30?: number
+  days31To60?: number
+  days61To90?: number
+  daysOver90?: number
   total: number
 }
 
@@ -136,8 +204,13 @@ export interface ARAgingReport {
   asOfDate: string // YYYY-MM-DD
   currency: string
 
-  summary: AgingSummary
-  customers: AgingCustomerLine[]
+  // Backend structure
+  agingBuckets: AgingBucket[]
+  totals: AgingTotals
+
+  // Legacy frontend structure
+  summary?: AgingSummary
+  customers?: AgingCustomerLine[]
 
   generatedAt: string // ISO 8601
 }
@@ -147,8 +220,13 @@ export interface APAgingReport {
   asOfDate: string // YYYY-MM-DD
   currency: string
 
-  summary: AgingSummary
-  suppliers: AgingCustomerLine[] // Same structure, different label
+  // Backend structure (same as AR)
+  agingBuckets: AgingBucket[]
+  totals: AgingTotals
+
+  // Legacy frontend structure
+  summary?: AgingSummary
+  suppliers?: AgingCustomerLine[]
 
   generatedAt: string // ISO 8601
 }
@@ -157,71 +235,142 @@ export interface APAgingReport {
 // MANAGEMENT REPORTS
 // ============================================================================
 
+// Backend structure for customer sales
+export interface CustomerSales {
+  customerId: number | null
+  customerName: string
+  orderCount: number
+  totalSales: number
+}
+
+// Backend structure for product sales
+export interface ProductSales {
+  productId: number
+  productName: string
+  quantitySold: number
+  totalRevenue: number
+}
+
 export interface SalesByCustomer {
   id: string
-  period: ReportPeriod
+  // Backend uses startDate/endDate directly
+  startDate: string
+  endDate: string
+  period?: ReportPeriod // Legacy
   currency: string
 
-  customers: {
+  // Backend structure
+  salesByCustomer: CustomerSales[]
+  summary: {
+    totalCustomers: number
+    totalOrders: number
+    totalSales: number
+  }
+
+  // Legacy frontend structure
+  customers?: {
     contactId: number
     contactName: string
     orderCount: number
     totalSales: number
     averageOrderValue: number
   }[]
+  totalSales?: number
 
-  totalSales: number
   generatedAt: string // ISO 8601
 }
 
 export interface SalesByProduct {
   id: string
-  period: ReportPeriod
+  startDate: string
+  endDate: string
+  period?: ReportPeriod // Legacy
   currency: string
 
-  products: {
+  // Backend structure
+  salesByProduct: ProductSales[]
+  summary: {
+    totalProducts: number
+    totalQuantity: number
+    totalRevenue: number
+  }
+
+  // Legacy frontend structure
+  products?: {
     productId: number
     productName: string
     quantitySold: number
     totalRevenue: number
     averagePrice: number
   }[]
+  totalRevenue?: number
 
-  totalRevenue: number
   generatedAt: string // ISO 8601
 }
 
 export interface PurchaseBySupplier {
   id: string
-  period: ReportPeriod
+  startDate: string
+  endDate: string
+  period?: ReportPeriod // Legacy
   currency: string
 
-  suppliers: {
+  // Backend structure (similar to SalesByCustomer)
+  purchaseBySupplier: {
+    supplierId: number | null
+    supplierName: string
+    orderCount: number
+    totalPurchases: number
+  }[]
+  summary: {
+    totalSuppliers: number
+    totalOrders: number
+    totalPurchases: number
+  }
+
+  // Legacy frontend structure
+  suppliers?: {
     contactId: number
     contactName: string
     orderCount: number
     totalPurchases: number
     averageOrderValue: number
   }[]
+  totalPurchases?: number
 
-  totalPurchases: number
   generatedAt: string // ISO 8601
 }
 
 export interface PurchaseByProduct {
   id: string
-  period: ReportPeriod
+  startDate: string
+  endDate: string
+  period?: ReportPeriod // Legacy
   currency: string
 
-  products: {
+  // Backend structure (similar to SalesByProduct)
+  purchaseByProduct: {
+    productId: number
+    productName: string
+    quantityPurchased: number
+    totalCost: number
+  }[]
+  summary: {
+    totalProducts: number
+    totalQuantity: number
+    totalCost: number
+  }
+
+  // Legacy frontend structure
+  products?: {
     productId: number
     productName: string
     quantityPurchased: number
     totalCost: number
     averagePrice: number
   }[]
+  totalCost?: number
 
-  totalCost: number
   generatedAt: string // ISO 8601
 }
 

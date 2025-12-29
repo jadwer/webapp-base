@@ -22,7 +22,7 @@ interface ContactAddressesProps {
 }
 
 interface AddressFormData {
-  addressType: 'billing' | 'shipping' | 'main' | 'other'
+  addressType: 'billing' | 'shipping' | 'fiscal' | 'other'
   addressLine1: string
   addressLine2: string
   city: string
@@ -33,7 +33,7 @@ interface AddressFormData {
 }
 
 const initialAddressForm: AddressFormData = {
-  addressType: 'main',
+  addressType: 'billing',
   addressLine1: '',
   addressLine2: '',
   city: '',
@@ -56,9 +56,9 @@ export const ContactAddresses: React.FC<ContactAddressesProps> = ({
   const [formData, setFormData] = useState<AddressFormData>(initialAddressForm)
 
   const addressTypeLabels = {
-    main: 'Principal',
     billing: 'Facturación',
     shipping: 'Envío',
+    fiscal: 'Fiscal',
     other: 'Otra'
   }
 
@@ -140,7 +140,7 @@ export const ContactAddresses: React.FC<ContactAddressesProps> = ({
                     <div className="d-flex justify-content-between align-items-start mb-2">
                       <div className="d-flex align-items-center">
                         <span className={`badge ${
-                          address.addressType === 'main' ? 'bg-primary' :
+                          address.addressType === 'fiscal' ? 'bg-primary' :
                           address.addressType === 'billing' ? 'bg-success' :
                           address.addressType === 'shipping' ? 'bg-info' : 'bg-secondary'
                         } me-2`}>
@@ -222,9 +222,9 @@ export const ContactAddresses: React.FC<ContactAddressesProps> = ({
                     disabled={isLoading}
                     required
                   >
-                    <option value="main">Principal</option>
                     <option value="billing">Facturación</option>
                     <option value="shipping">Envío</option>
+                    <option value="fiscal">Fiscal</option>
                     <option value="other">Otra</option>
                   </select>
                 </div>

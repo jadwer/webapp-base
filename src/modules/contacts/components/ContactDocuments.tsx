@@ -22,13 +22,13 @@ interface ContactDocumentsProps {
 }
 
 interface DocumentUploadData {
-  documentType: 'tax_certificate' | 'business_license' | 'rfc' | 'other'
+  documentType: 'id_card' | 'tax_certificate' | 'contract' | 'license' | 'other'
   notes: string
   file: File | null
 }
 
 const initialUploadForm: DocumentUploadData = {
-  documentType: 'rfc',
+  documentType: 'tax_certificate',
   notes: '',
   file: null
 }
@@ -48,16 +48,18 @@ export const ContactDocuments: React.FC<ContactDocumentsProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const documentTypeLabels = {
-    rfc: 'RFC (Registro Federal de Contribuyentes)',
-    tax_certificate: 'Certificado de Situación Fiscal',
-    business_license: 'Licencia de Funcionamiento',
+    id_card: 'Identificación Oficial',
+    tax_certificate: 'Certificado Fiscal (RFC)',
+    contract: 'Contrato',
+    license: 'Licencia de Funcionamiento',
     other: 'Otro Documento'
   }
 
   const documentTypeIcons = {
-    rfc: 'bi-file-earmark-text',
+    id_card: 'bi-person-badge',
     tax_certificate: 'bi-file-earmark-check',
-    business_license: 'bi-file-earmark-lock',
+    contract: 'bi-file-earmark-text',
+    license: 'bi-file-earmark-lock',
     other: 'bi-file-earmark'
   }
 
@@ -284,9 +286,10 @@ export const ContactDocuments: React.FC<ContactDocumentsProps> = ({
                     disabled={isLoading}
                     required
                   >
-                    <option value="rfc">RFC (Registro Federal de Contribuyentes)</option>
-                    <option value="tax_certificate">Certificado de Situación Fiscal</option>
-                    <option value="business_license">Licencia de Funcionamiento</option>
+                    <option value="id_card">Identificación Oficial</option>
+                    <option value="tax_certificate">Certificado Fiscal (RFC)</option>
+                    <option value="contract">Contrato</option>
+                    <option value="license">Licencia de Funcionamiento</option>
                     <option value="other">Otro Documento</option>
                   </select>
                 </div>

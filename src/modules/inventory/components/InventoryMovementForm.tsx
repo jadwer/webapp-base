@@ -61,7 +61,7 @@ export const InventoryMovementForm = memo<InventoryMovementFormProps>(({
   const { productBatches: availableBatches, isLoading: isBatchesLoading } = useProductBatches({
     filters: {
       productId: formData.productId,
-      status: ['active'] // Only active batches for movements
+      status: ['available'] // Only available batches for movements
     },
     enabled: !!formData.productId
   })

@@ -90,6 +90,7 @@ export function transformJsonApiProduct(
     price: resource.attributes.price as number | undefined,
     cost: resource.attributes.cost as number | undefined,
     iva: Boolean(resource.attributes.iva),
+    isActive: Boolean(resource.attributes.isActive ?? true),
     imgPath: resource.attributes.imgPath as string | undefined,
     datasheetPath: resource.attributes.datasheetPath as string | undefined,
     unitId: (resource.relationships?.unit?.data?.id || '') as string,

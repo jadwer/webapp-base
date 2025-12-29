@@ -44,9 +44,13 @@ export const mockPurchaseOrder = (overrides?: Partial<PurchaseOrder>): PurchaseO
   contact: mockContact(),
   orderNumber: 'PO-2025-001',
   orderDate: '2025-01-01',
-  status: 'pending',
+  status: 'draft',
   totalAmount: 1000.00,
   notes: 'Test purchase order notes',
+  // Finance integration fields
+  apInvoiceId: null,
+  invoicingStatus: 'pending',
+  invoicingNotes: null,
   createdAt: '2025-01-01T00:00:00.000Z',
   updatedAt: '2025-01-01T00:00:00.000Z',
   ...overrides,
@@ -56,7 +60,7 @@ export const mockPurchaseOrder = (overrides?: Partial<PurchaseOrder>): PurchaseO
  * Creates a list of mock purchase orders
  */
 export const mockPurchaseOrders = (count: number = 3): PurchaseOrder[] => {
-  const statuses: ('pending' | 'approved' | 'received' | 'cancelled')[] = ['pending', 'approved', 'received']
+  const statuses: ('draft' | 'pending' | 'approved' | 'received' | 'cancelled')[] = ['draft', 'pending', 'approved']
   return Array.from({ length: count }, (_, index) =>
     mockPurchaseOrder({
       id: (index + 1).toString(),
@@ -75,17 +79,26 @@ export const mockPurchaseOrderItem = (overrides?: Partial<PurchaseOrderItem>): P
   const productId = overrides?.productId || 1
   return {
     id: '1',
-    purchaseOrderId: '1',
+    purchaseOrderId: 1,
     productId,
+    quantity: 10,
+    unitPrice: 100.00,
+    discount: 0,
+    subtotal: 1000.00,
+    total: 1000.00,
+    totalPrice: 1000.00,
+    // Finance integration fields
+    apInvoiceLineId: null,
+    invoicedQuantity: null,
+    invoicedAmount: null,
+    createdAt: '2025-01-01T00:00:00.000Z',
+    updatedAt: '2025-01-01T00:00:00.000Z',
+    // Relationships
     product: {
       id: productId,
       name: 'Test Product',
       sku: 'TEST-001',
     },
-    quantity: 10,
-    unitPrice: 100.00,
-    totalPrice: 1000.00,
-    discount: 0,
     ...overrides,
   }
 }
@@ -94,15 +107,20 @@ export const mockPurchaseOrderItem = (overrides?: Partial<PurchaseOrderItem>): P
  * Creates a list of mock purchase order items
  */
 export const mockPurchaseOrderItems = (count: number = 3): PurchaseOrderItem[] => {
-  return Array.from({ length: count }, (_, index) =>
-    mockPurchaseOrderItem({
+  return Array.from({ length: count }, (_, index) => {
+    const quantity = (index + 1) * 10
+    const unitPrice = 100 + (index * 50)
+    const subtotal = quantity * unitPrice
+    return mockPurchaseOrderItem({
       id: (index + 1).toString(),
       productId: index + 1,
-      quantity: (index + 1) * 10,
-      unitPrice: 100 + (index * 50),
-      totalPrice: (index + 1) * 10 * (100 + (index * 50)),
+      quantity,
+      unitPrice,
+      subtotal,
+      total: subtotal,
+      totalPrice: subtotal,
     })
-  )
+  })
 }
 
 /**
@@ -127,14 +145,16 @@ export const mockJsonApiPurchaseOrderResponse = (purchaseOrder: PurchaseOrder) =
     id: purchaseOrder.id.toString(),
     type: 'purchase-orders',
     attributes: {
-      contact_id: purchaseOrder.contactId,
-      order_number: purchaseOrder.orderNumber,
-      order_date: purchaseOrder.orderDate,
+      contactId: purchaseOrder.contactId,
+      orderDate: purchaseOrder.orderDate,
       status: purchaseOrder.status,
-      total_amount: purchaseOrder.totalAmount,
+      totalAmount: purchaseOrder.totalAmount,
       notes: purchaseOrder.notes,
-      created_at: purchaseOrder.createdAt,
-      updated_at: purchaseOrder.updatedAt,
+      apInvoiceId: purchaseOrder.apInvoiceId,
+      invoicingStatus: purchaseOrder.invoicingStatus,
+      invoicingNotes: purchaseOrder.invoicingNotes,
+      createdAt: purchaseOrder.createdAt,
+      updatedAt: purchaseOrder.updatedAt,
     },
     relationships: purchaseOrder.contact
       ? {
@@ -180,14 +200,16 @@ export const mockJsonApiPurchaseOrdersResponse = (purchaseOrders: PurchaseOrder[
       id: order.id.toString(),
       type: 'purchase-orders',
       attributes: {
-        contact_id: order.contactId,
-        order_number: order.orderNumber,
-        order_date: order.orderDate,
+        contactId: order.contactId,
+        orderDate: order.orderDate,
         status: order.status,
-        total_amount: order.totalAmount,
+        totalAmount: order.totalAmount,
         notes: order.notes,
-        created_at: order.createdAt,
-        updated_at: order.updatedAt,
+        apInvoiceId: order.apInvoiceId,
+        invoicingStatus: order.invoicingStatus,
+        invoicingNotes: order.invoicingNotes,
+        createdAt: order.createdAt,
+        updatedAt: order.updatedAt,
       },
       relationships: order.contact
         ? {
@@ -230,12 +252,18 @@ export const mockJsonApiPurchaseOrderItemsResponse = (items: PurchaseOrderItem[]
       id: item.id.toString(),
       type: 'purchase-order-items',
       attributes: {
-        purchase_order_id: item.purchaseOrderId,
-        product_id: item.productId,
+        purchaseOrderId: item.purchaseOrderId,
+        productId: item.productId,
         quantity: item.quantity,
-        unit_price: item.unitPrice,
-        total_price: item.totalPrice,
+        unitPrice: item.unitPrice,
         discount: item.discount,
+        subtotal: item.subtotal,
+        total: item.total,
+        apInvoiceLineId: item.apInvoiceLineId,
+        invoicedQuantity: item.invoicedQuantity,
+        invoicedAmount: item.invoicedAmount,
+        createdAt: item.createdAt,
+        updatedAt: item.updatedAt,
       },
       relationships: item.product
         ? {
@@ -252,8 +280,8 @@ export const mockJsonApiPurchaseOrderItemsResponse = (items: PurchaseOrderItem[]
       id,
       type: 'products',
       attributes: {
-        name: product.name,
-        sku: product.sku,
+        name: (product as Record<string, unknown>).name,
+        sku: (product as Record<string, unknown>).sku,
       },
     })),
   }

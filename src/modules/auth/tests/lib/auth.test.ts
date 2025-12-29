@@ -223,7 +223,7 @@ describe('useAuth Hook', () => {
         await result.current.logout()
       })
 
-      expect(axios.post).toHaveBeenCalledWith('/api/v1/auth/logout')
+      expect(axios.post).toHaveBeenCalledWith('/api/auth/logout')
     })
 
     it('should clear localStorage even if backend logout fails', async () => {
@@ -273,7 +273,7 @@ describe('useAuth Hook', () => {
           name: 'New User',
           email: 'new@example.com',
           password: 'password123',
-          password_confirmation: 'password123',
+          passwordConfirmation: 'password123',
           setErrors,
         })
       })
@@ -282,7 +282,7 @@ describe('useAuth Hook', () => {
         name: 'New User',
         email: 'new@example.com',
         password: 'password123',
-        password_confirmation: 'password123',
+        passwordConfirmation: 'password123',
       })
     })
 
@@ -300,7 +300,7 @@ describe('useAuth Hook', () => {
           name: 'Test',
           email: 'existing@example.com',
           password: 'password123',
-          password_confirmation: 'password123',
+          passwordConfirmation: 'password123',
           setErrors,
         })
       })
@@ -320,7 +320,7 @@ describe('useAuth Hook', () => {
           name: 'New User',
           email: 'new@example.com',
           password: 'password123',
-          password_confirmation: 'password123',
+          passwordConfirmation: 'password123',
           setErrors,
         })
       })

@@ -97,6 +97,32 @@ export const ROUTES = {
   reportsFinancial: '/dashboard/reports/financial-statements',
   reportsAging: '/dashboard/reports/aging-reports',
   reportsManagement: '/dashboard/reports/management-reports',
+
+  // Users
+  users: '/dashboard/users',
+  usersCreate: '/dashboard/users/create',
+
+  // Roles
+  roles: '/dashboard/roles',
+  rolesCreate: '/dashboard/roles/create',
+
+  // Permissions
+  permissions: '/dashboard/permissions',
+  permissionsCreate: '/dashboard/permissions/create',
+
+  // Ecommerce
+  ecommerceOrders: '/dashboard/ecommerce/orders',
+  ecommerceOrdersCreate: '/dashboard/ecommerce/orders/create',
+
+  // Catalog
+  catalog: '/dashboard/catalog',
+  catalogOffers: '/dashboard/catalog/offers',
+  catalogOffersCreate: '/dashboard/catalog/offers/create',
+
+  // Public pages
+  publicCatalog: '/catalog',
+  publicCart: '/cart',
+  publicCheckout: '/checkout',
 }
 
 /**

@@ -28,6 +28,7 @@ export const createMockProduct = (overrides: Partial<Product> = {}): Product => 
   sku: 'TEST-001',
   price: 99.99,
   iva: false,
+  isActive: true,
   unitId: '1',
   categoryId: '1',
   brandId: '1',

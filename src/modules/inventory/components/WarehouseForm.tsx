@@ -88,7 +88,7 @@ export const WarehouseForm = memo<WarehouseFormProps>(({
     if (!formData.code.trim()) {
       newErrors.code = 'Code is required'
     }
-    if (!formData.slug.trim()) {
+    if (!formData.slug?.trim()) {
       newErrors.slug = 'Slug is required'
     }
     

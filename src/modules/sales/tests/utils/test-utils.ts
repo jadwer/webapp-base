@@ -46,12 +46,15 @@ export const mockSalesOrder = (overrides?: Partial<SalesOrder>): SalesOrder => (
   contact: mockContact(),
   orderNumber: 'SO-2025-001',
   orderDate: '2025-01-01',
-  status: 'pending',
+  status: 'draft',
   approvedAt: null,
   deliveredAt: null,
+  arInvoiceId: null,
+  invoicingStatus: 'pending',
   invoicingNotes: null,
+  discountTotal: 0,
   totalAmount: 1000.00,
-  notes: 'Test sales order notes',
+  notes: null,
   createdAt: '2025-01-01T00:00:00.000Z',
   updatedAt: '2025-01-01T00:00:00.000Z',
   ...overrides,
@@ -79,7 +82,7 @@ export const mockSalesOrderItem = (overrides?: Partial<SalesOrderItem>): SalesOr
   const productId = overrides?.productId || 1
   return {
     id: '1',
-    salesOrderId: '1',
+    salesOrderId: 1,
     productId,
     product: {
       id: productId,
@@ -88,8 +91,14 @@ export const mockSalesOrderItem = (overrides?: Partial<SalesOrderItem>): SalesOr
     },
     quantity: 10,
     unitPrice: 100.00,
-    totalPrice: 1000.00,
     discount: 0,
+    total: 1000.00,
+    totalPrice: 1000.00,
+    arInvoiceLineId: null,
+    invoicedQuantity: null,
+    invoicedAmount: null,
+    createdAt: '2025-01-01T00:00:00.000Z',
+    updatedAt: '2025-01-01T00:00:00.000Z',
     ...overrides,
   }
 }

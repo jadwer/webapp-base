@@ -81,8 +81,8 @@ export const JournalEntriesAdminPageReal = () => {
   }
 
   // Calculate totals
-  const totalDebit = journalEntries?.reduce((sum, entry) => sum + (parseFloat(entry.totalDebit) || 0), 0) || 0
-  const totalCredit = journalEntries?.reduce((sum, entry) => sum + (parseFloat(entry.totalCredit) || 0), 0) || 0
+  const totalDebit = journalEntries?.reduce((sum, entry) => sum + (entry.totalDebit || 0), 0) || 0
+  const totalCredit = journalEntries?.reduce((sum, entry) => sum + (entry.totalCredit || 0), 0) || 0
 
   return (
     <div className="p-6">

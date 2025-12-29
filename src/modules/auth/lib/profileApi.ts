@@ -12,14 +12,19 @@ async function getCurrentUser() {
 
 /**
  * Cambiar la contraseña del usuario autenticado
+ * Accepts camelCase payload and transforms to API format
  */
 async function changePassword(payload: {
-  current_password: string;
+  currentPassword: string;
   password: string;
-  password_confirmation: string;
+  passwordConfirmation: string;
 }) {
   return axiosClient
-    .patch("/api/v1/profile/password", payload)
+    .patch("/api/v1/profile/password", {
+      currentPassword: payload.currentPassword,
+      password: payload.password,
+      passwordConfirmation: payload.passwordConfirmation,
+    })
     .then((res) => res.data)
     .catch((error) => {
       // Si es un error 422 de validación, extraemos los errores y los lanzamos en el formato esperado

@@ -5,9 +5,9 @@ import { changePassword } from "../lib/profileApi";
 
 export default function ChangePasswordForm() {
   const [form, setForm] = useState({
-    current_password: "",
+    currentPassword: "",
     password: "",
-    password_confirmation: "",
+    passwordConfirmation: "",
   });
 
   const [errors, setErrors] = useState<Record<string, string[]>>({});
@@ -26,9 +26,9 @@ export default function ChangePasswordForm() {
       await changePassword(form);
       setSuccess(true);
       setForm({
-        current_password: "",
+        currentPassword: "",
         password: "",
-        password_confirmation: "",
+        passwordConfirmation: "",
       });
     } catch (err: unknown) {
       // Si es un objeto con el formato de errores de validación
@@ -51,13 +51,13 @@ export default function ChangePasswordForm() {
         <label className="form-label">Contraseña actual</label>
         <input
           type="password"
-          name="current_password"
-          className={`form-control ${errors.current_password ? "is-invalid" : ""}`}
-          value={form.current_password}
+          name="currentPassword"
+          className={`form-control ${errors.currentPassword ? "is-invalid" : ""}`}
+          value={form.currentPassword}
           onChange={handleChange}
         />
-        {errors.current_password && (
-          <div className="invalid-feedback">{errors.current_password[0]}</div>
+        {errors.currentPassword && (
+          <div className="invalid-feedback">{errors.currentPassword[0]}</div>
         )}
       </div>
 
@@ -79,9 +79,9 @@ export default function ChangePasswordForm() {
         <label className="form-label">Confirmar contraseña</label>
         <input
           type="password"
-          name="password_confirmation"
+          name="passwordConfirmation"
           className="form-control"
-          value={form.password_confirmation}
+          value={form.passwordConfirmation}
           onChange={handleChange}
         />
       </div>

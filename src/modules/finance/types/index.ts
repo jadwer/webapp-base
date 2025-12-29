@@ -1,60 +1,12 @@
-// Finance Module Types - Updated 2025-11-11 según backend documentation
+// Finance Module Types - Synced with FINANCE_FRONTEND_GUIDE.md 2025-12-28
 
+// ===== TYPE ALIASES FOR ENUMS =====
 export type InvoiceStatus = 'draft' | 'pending' | 'sent' | 'partial' | 'paid' | 'overdue' | 'cancelled' | 'void';
+export type PaymentStatus = 'draft' | 'pending' | 'completed' | 'cancelled' | 'void'
+  | 'posted';  // Legacy frontend value (backend uses 'completed')
+export type BankAccountStatus = 'active' | 'inactive' | 'closed';  // Legacy, backend only uses isActive
 
-export interface APInvoice {
-  id: string;
-  invoiceNumber: string;
-  invoiceDate: string;
-  dueDate: string;
-  contactId: number;
-  purchaseOrderId: number | null;
-  currency: string;
-  subtotal: number;
-  taxAmount: number;
-  totalAmount: number;
-
-  // Payment tracking (writable fields)
-  paidAmount: number;
-  paidDate: string | null;
-
-  status: InvoiceStatus;
-  journalEntryId: number | null;
-  fiscalPeriodId: number | null;
-
-  // Refund/void handling
-  isRefund: boolean;
-  refundOfInvoiceId: number | null;
-  voidedAt: string | null;
-  voidedById: number | null;
-  voidReason: string | null;
-
-  notes: string | null;
-  metadata: Record<string, unknown> | null;
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
-
-  // Resolved from includes
-  contactName?: string;
-}
-
-export interface APPayment {
-  id: string;
-  contactId: number;           // ✅ CORREGIDO - es number según backend
-  contactName?: string;        // ✅ Resolved from includes
-  apInvoiceId: number | null;  // ✅ AGREGADO - campo confirmado por backend
-  paymentDate: string;         // ✅ ISO date
-  amount: string;              // ✅ Decimal como string para consistency
-  paymentMethod: string;
-  currency: string;            // ✅ Currency field from backend
-  reference?: string;          // ✅ Puede ser opcional
-  bankAccountId: number;       // ✅ CORREGIDO - es number según backend
-  status: string;              // ✅ Ampliado - puede tener más valores
-  createdAt: string;
-  updatedAt: string;
-}
-
+// ===== ARINVOICE (Accounts Receivable) =====
 export interface ARInvoice {
   id: string;
   invoiceNumber: string;
@@ -92,71 +44,154 @@ export interface ARInvoice {
   contactName?: string;
 }
 
-export interface ARReceipt {
+// ===== APINVOICE (Accounts Payable) =====
+export interface APInvoice {
   id: string;
-  contactId: number;           // ✅ CORREGIDO - es number según backend
-  contactName?: string;        // ✅ Resolved from includes
-  arInvoiceId: number | null;  // ✅ CORREGIDO - campo confirmado por backend
-  receiptDate: string;         // ✅ NO paymentDate - específico para receipts
-  amount: string;              // ✅ Decimal como string para consistency
-  paymentMethod: string;
-  currency: string;            // ✅ Currency field from backend
-  reference?: string;          // ✅ Puede ser opcional
-  bankAccountId: number;       // ✅ CORREGIDO - es number según backend
-  status: string;              // ✅ Ampliado - puede tener más valores
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface BankAccount {
-  id: string;
-  bankName: string;
-  accountNumber: string;
-  clabe: string;
-  currency: string;
-  accountType: string;
-  openingBalance: string;  // ✅ Decimal como string para consistency
-  status: 'active' | 'inactive' | 'closed';
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface BankAccountForm {
-  bankName: string;        // ✅ Backend field: bankName
-  accountNumber: string;   // ✅ Backend field: accountNumber
-  clabe: string;          // ✅ Backend field: clabe (not routingNumber)
-  currency: string;       // ✅ Backend field: currency
-  accountType: string;    // ✅ Backend field: accountType
-  openingBalance: string; // ✅ Backend field: openingBalance
-  status: 'active' | 'inactive' | 'closed'; // ✅ Backend field: status
-}
-
-// Form interfaces for creating/editing
-export interface APInvoiceForm {
-  contactId: number;
   invoiceNumber: string;
   invoiceDate: string;
   dueDate: string;
-  purchaseOrderId?: number | null;
-  currency?: string;
+  contactId: number;
+  purchaseOrderId: number | null;
+  currency: string;
   subtotal: number;
   taxAmount: number;
   totalAmount: number;
+
+  // Payment tracking (writable fields)
+  paidAmount: number;
+  paidDate: string | null;
+
   status: InvoiceStatus;
-  notes?: string;
-  metadata?: Record<string, unknown>;
+  journalEntryId: number | null;
+  fiscalPeriodId: number | null;
+
+  // Refund/void handling
+  isRefund: boolean;
+  refundOfInvoiceId: number | null;
+  voidedAt: string | null;
+  voidedById: number | null;
+  voidReason: string | null;
+
+  notes: string | null;
+  metadata: Record<string, unknown> | null;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+
+  // Resolved from includes
+  contactName?: string;
 }
 
-export interface APPaymentForm {
-  contactId: number;
-  apInvoiceId?: number | null;
+// ===== PAYMENT (Unified for AR/AP) =====
+// Backend uses unified Payment entity, NOT separate APPayment/ARReceipt
+export interface Payment {
+  id: string;
+  paymentNumber: string;
   paymentDate: string;
-  paymentMethod: string;
-  currency: string;
+  contactId: number;
+  bankAccountId: number;
+  paymentMethodId: number;
   amount: number;
-  bankAccountId?: number | null;
-  reference?: string;
-  status: string;
+  currency: string;
+
+  // Payment application tracking
+  appliedAmount: number;
+  unappliedAmount: number;
+
+  status: PaymentStatus;
+  journalEntryId: number | null;
+  reference: string | null;
+  notes: string | null;
+  metadata: Record<string, unknown> | null;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+
+  // Resolved from includes
+  contactName?: string;
+  bankAccountName?: string;
+  paymentMethodName?: string;
+}
+
+// Legacy aliases for backward compatibility
+export type APPayment = Payment & {
+  apInvoiceId?: number | null;  // Legacy field
+  paymentMethod?: string;       // Legacy field (now use paymentMethodId)
+};
+
+export type ARReceipt = Payment & {
+  arInvoiceId?: number | null;  // Legacy field
+  receiptDate?: string;         // Legacy alias for paymentDate
+  paymentMethod?: string;       // Legacy field (now use paymentMethodId)
+};
+
+// ===== PAYMENT APPLICATION =====
+export interface PaymentApplication {
+  id: string;
+  paymentId: number;
+  arInvoiceId: number | null;
+  apInvoiceId: number | null;
+  appliedAmount: number;
+  notes: string | null;
+  metadata: Record<string, unknown> | null;
+  createdAt: string;
+  updatedAt: string;
+
+  // Resolved from includes
+  invoiceNumber?: string;
+  paymentNumber?: string;
+  // Legacy field
+  applicationDate?: string;
+  amount?: string;  // Legacy alias for appliedAmount as string
+}
+
+// ===== BANK ACCOUNT =====
+export interface BankAccount {
+  id: string;
+  accountName: string;
+  accountNumber: string;
+  bankName: string;
+  currency: string;
+  currentBalance: number;
+  accountType: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+
+  // Legacy fields for backward compatibility
+  clabe?: string;
+  openingBalance?: string;
+  status?: BankAccountStatus;
+}
+
+// ===== PAYMENT METHOD =====
+export interface PaymentMethod {
+  id: string;
+  name: string;
+  code: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+
+  // Legacy fields for backward compatibility
+  description?: string;
+  requiresReference?: boolean;
+}
+
+// ===== FORM INTERFACES =====
+
+export interface BankAccountForm {
+  accountName: string;
+  accountNumber: string;
+  bankName: string;
+  currency: string;
+  currentBalance?: number;
+  accountType: string;
+  isActive?: boolean;
+  // Legacy fields
+  clabe?: string;
+  openingBalance?: string;
+  status?: BankAccountStatus;
 }
 
 export interface ARInvoiceForm {
@@ -174,11 +209,44 @@ export interface ARInvoiceForm {
   metadata?: Record<string, unknown>;
 }
 
-export interface ARReceiptForm {
+export interface APInvoiceForm {
   contactId: number;
-  arInvoiceId?: number | null;
-  receiptDate: string;
-  paymentMethod: string;
+  invoiceNumber: string;
+  invoiceDate: string;
+  dueDate: string;
+  purchaseOrderId?: number | null;
+  currency?: string;
+  subtotal: number;
+  taxAmount: number;
+  totalAmount: number;
+  status: InvoiceStatus;
+  notes?: string;
+  metadata?: Record<string, unknown>;
+}
+
+export interface PaymentForm {
+  paymentNumber: string;
+  paymentDate: string;
+  contactId: number;
+  bankAccountId: number;
+  paymentMethodId: number;
+  amount: number;
+  currency: string;
+  appliedAmount?: number;
+  unappliedAmount?: number;
+  status: PaymentStatus;
+  reference?: string;
+  notes?: string;
+  metadata?: Record<string, unknown>;
+}
+
+// Legacy form interfaces for backward compatibility
+export interface APPaymentForm {
+  contactId: number;
+  apInvoiceId?: number | null;
+  paymentDate: string;
+  paymentMethod?: string;  // Legacy, use paymentMethodId
+  paymentMethodId?: number;
   currency: string;
   amount: number;
   bankAccountId?: number | null;
@@ -186,16 +254,48 @@ export interface ARReceiptForm {
   status: string;
 }
 
-// API Response types - JSON:API v1.1 compliant
+export interface ARReceiptForm {
+  contactId: number;
+  arInvoiceId?: number | null;
+  receiptDate: string;  // Legacy alias for paymentDate
+  paymentMethod?: string;  // Legacy, use paymentMethodId
+  paymentMethodId?: number;
+  currency: string;
+  amount: number;
+  bankAccountId?: number | null;
+  reference?: string;
+  status: string;
+}
+
+export interface PaymentApplicationForm {
+  paymentId: number;
+  arInvoiceId?: number | null;
+  apInvoiceId?: number | null;
+  appliedAmount: number;
+  notes?: string;
+  metadata?: Record<string, unknown>;
+}
+
+export interface PaymentMethodForm {
+  name: string;
+  code: string;
+  isActive?: boolean;
+  // Legacy fields
+  description?: string;
+  requiresReference?: boolean;
+}
+
+// ===== API RESPONSE TYPES =====
+
 export interface FinanceAPIResponse<T> {
   jsonapi: { version: string };
   data: T[];
   meta?: {
     page?: {
-      currentPage: number;  // ✅ Backend usa currentPage
+      currentPage: number;
       from: number;
-      lastPage: number;     // ✅ Backend usa lastPage
-      perPage: number;      // ✅ Backend usa perPage
+      lastPage: number;
+      perPage: number;
       to: number;
       total: number;
     };
@@ -212,53 +312,11 @@ export interface FinanceAPIResponse<T> {
 export interface FinanceAPIError {
   jsonapi: { version: string };
   errors: Array<{
-    status: string;     // ✅ "422", "401", etc.
-    title: string;      // ✅ "Unprocessable Entity"
-    detail: string;     // ✅ "El campo Invoice number es obligatorio."
+    status: string;
+    title: string;
+    detail: string;
     source?: {
-      pointer?: string; // ✅ "/data/attributes/invoiceNumber"
+      pointer?: string;
     };
   }>;
-}
-
-// Payment Application - Unifies payments with invoices (AR/AP)
-export interface PaymentApplication {
-  id: string;
-  paymentId: string;            // FK to payments
-  arInvoiceId: string | null;   // FK to ar_invoices (nullable if AP)
-  apInvoiceId: string | null;   // FK to ap_invoices (nullable if AR)
-  amount: string;               // Decimal as string for precision
-  applicationDate: string;      // ISO date
-  invoiceNumber?: string;       // Resolved from invoice relationship
-  paymentNumber?: string;       // Resolved from payment relationship
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface PaymentApplicationForm {
-  paymentId: string;            // Required
-  arInvoiceId?: string | null;  // Either arInvoiceId OR apInvoiceId required
-  apInvoiceId?: string | null;  // Either arInvoiceId OR apInvoiceId required
-  amount: string;               // Required - decimal as string
-  applicationDate: string;      // Required - ISO date format
-}
-
-// Payment Method - Defines available payment methods (cash, transfer, card, etc.)
-export interface PaymentMethod {
-  id: string;
-  name: string;                 // e.g., "Cash", "Bank Transfer", "Credit Card"
-  code: string;                 // e.g., "CASH", "TRANSFER", "CARD"
-  description?: string;         // Optional description
-  requiresReference: boolean;   // Whether this method requires a reference number
-  isActive: boolean;            // Active status
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface PaymentMethodForm {
-  name: string;                 // Required
-  code: string;                 // Required - unique identifier
-  description?: string;         // Optional
-  requiresReference: boolean;   // Default: false
-  isActive: boolean;            // Default: true
 }

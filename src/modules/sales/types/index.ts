@@ -1,13 +1,20 @@
+// Backend API status values
 export type OrderStatus =
-  | 'pending'
+  | 'draft'
   | 'confirmed'
   | 'processing'
   | 'shipped'
   | 'delivered'
-  | 'completed'
   | 'cancelled'
+  // Extended status from workflow (returned -> refunded)
   | 'returned'
   | 'refunded'
+  | 'completed'
+  // Legacy frontend value
+  | 'pending'
+
+export type InvoicingStatus = 'pending' | 'partial' | 'invoiced' | 'not_required'
+export type FinancialStatus = 'pending' | 'partial' | 'paid' | 'overdue'
 
 export interface SalesOrder {
   id: string
@@ -18,29 +25,43 @@ export interface SalesOrder {
   status: OrderStatus
   approvedAt: string | null
   deliveredAt: string | null
-  financialStatus?: 'not_invoiced' | 'invoiced' | 'paid'
-  invoicingStatus?: 'not_invoiced' | 'partially_invoiced' | 'fully_invoiced'
-  arInvoiceId?: number | null
+  // Finance integration fields
+  arInvoiceId: number | null
+  invoicingStatus: InvoicingStatus
+  financialStatus?: FinancialStatus
+  invoicingNotes: string | null
+  // Amounts
+  discountTotal: number
+  totalAmount: number
   subtotalAmount?: number
   taxAmount?: number
-  discountTotal?: number
-  totalAmount: number
-  invoicingNotes: string | null
-  notes?: string
-  createdAt?: string
-  updatedAt?: string
+  // Metadata
+  notes: string | null
+  metadata?: Record<string, unknown> | null
+  createdAt: string
+  updatedAt: string
 }
 
 export interface SalesOrderItem {
   id: string
-  salesOrderId: string
+  salesOrderId: number
   productId: number
-  product?: Record<string, unknown>
-  salesOrder?: Record<string, unknown>
   quantity: number
   unitPrice: number
-  totalPrice: number
-  discount?: number
+  discount: number
+  total: number
+  totalPrice?: number // Legacy frontend alias for total
+  // Finance integration fields
+  arInvoiceLineId: number | null
+  invoicedQuantity: number | null
+  invoicedAmount: number | null
+  // Metadata
+  metadata?: Record<string, unknown> | null
+  createdAt: string
+  updatedAt: string
+  // Relationships
+  product?: Record<string, unknown>
+  salesOrder?: SalesOrder | Record<string, unknown>
 }
 
 export interface Contact {
@@ -104,6 +125,32 @@ export interface PaginationMeta {
   last_page: number
   from: number
   to: number
+}
+
+// Order Tracking types (custom REST endpoints, not JSON:API)
+export interface OrderTracking {
+  orderNumber: string
+  status: string
+  trackingNumber: string | null
+  trackingUrl: string | null
+  orderDate: string
+  estimatedDelivery: string | null
+  currentLocation: string | null
+  timeline: OrderTimelineEvent[]
+}
+
+export interface OrderTimelineEvent {
+  status: string
+  label: string
+  timestamp: string | null
+  completed: boolean
+}
+
+export interface StatusHistoryEntry {
+  status: string
+  changedAt: string
+  changedBy: number
+  notes: string | null
 }
 
 // Reports types

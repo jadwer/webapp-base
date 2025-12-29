@@ -145,7 +145,7 @@ const isLoading = shouldFetch && !user && !error;
   const logout = async () => {
     try {
       // 1. Invalidar token en el backend
-      await axios.post("/api/v1/auth/logout");
+      await axios.post("/api/auth/logout");
     } catch (error) {
       // Log error pero continuar con logout local
       // No queremos bloquear el logout si el backend falla

@@ -420,7 +420,7 @@ export const WarehouseDetail = ({ warehouseId }: WarehouseDetailProps) => {
                       <>
                         <dt className="col-sm-5">Metadatos:</dt>
                         <dd className="col-sm-7">
-                          <pre className="text-muted small">{attrs.metadata}</pre>
+                          <pre className="text-muted small">{JSON.stringify(attrs.metadata, null, 2)}</pre>
                         </dd>
                       </>
                     )}

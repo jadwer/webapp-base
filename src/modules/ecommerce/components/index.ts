@@ -11,6 +11,7 @@ export { OrderFilters } from './OrderFilters'
 export { OrderStatusBadge } from './OrderStatusBadge'
 export { PaginationSimple } from './PaginationSimple'
 export { OrderViewTabs } from './OrderViewTabs'
+export { default as OrderForm } from './OrderForm'
 
 // Public components
 export { CartPage } from './CartPage'

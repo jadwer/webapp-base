@@ -212,7 +212,7 @@ export const PaymentApplicationsAdminPage: React.FC<PaymentApplicationsAdminPage
                       <tr key={application.id}>
                         <td>
                           <span className="text-muted">
-                            {formatDate(application.applicationDate)}
+                            {formatDate(application.applicationDate || application.createdAt)}
                           </span>
                         </td>
                         <td>
@@ -240,7 +240,7 @@ export const PaymentApplicationsAdminPage: React.FC<PaymentApplicationsAdminPage
                           )}
                         </td>
                         <td>
-                          <strong>{formatCurrency(application.amount)}</strong>
+                          <strong>{formatCurrency(String(application.appliedAmount || application.amount || 0))}</strong>
                         </td>
                         <td>
                           <div className="btn-group btn-group-sm float-end">

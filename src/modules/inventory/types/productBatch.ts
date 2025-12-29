@@ -47,11 +47,14 @@ export interface ProductBatch {
   } | null
 }
 
-// ProductBatch status enum
-export type ProductBatchStatus = 
-  | 'active'
+// ProductBatch status enum (includes both backend API values and legacy frontend values)
+export type ProductBatchStatus =
+  | 'available'
+  | 'reserved'
   | 'quarantine'
   | 'expired'
+  | 'depleted'
+  | 'active'
   | 'recalled'
   | 'consumed'
 
@@ -257,10 +260,15 @@ export interface ProductBatchStatusConfig {
 }
 
 export const PRODUCT_BATCH_STATUS_CONFIG: Record<ProductBatchStatus, ProductBatchStatusConfig> = {
-  active: {
-    label: 'Activo',
+  available: {
+    label: 'Disponible',
     variant: 'success',
     icon: 'bi-check-circle-fill'
+  },
+  reserved: {
+    label: 'Reservado',
+    variant: 'info',
+    icon: 'bi-bookmark-fill'
   },
   quarantine: {
     label: 'Cuarentena',
@@ -271,6 +279,16 @@ export const PRODUCT_BATCH_STATUS_CONFIG: Record<ProductBatchStatus, ProductBatc
     label: 'Vencido',
     variant: 'danger',
     icon: 'bi-exclamation-triangle-fill'
+  },
+  depleted: {
+    label: 'Agotado',
+    variant: 'secondary',
+    icon: 'bi-archive-fill'
+  },
+  active: {
+    label: 'Activo',
+    variant: 'success',
+    icon: 'bi-check-circle-fill'
   },
   recalled: {
     label: 'Retirado',
@@ -286,9 +304,12 @@ export const PRODUCT_BATCH_STATUS_CONFIG: Record<ProductBatchStatus, ProductBatc
 
 // Constants
 export const PRODUCT_BATCH_STATUS_OPTIONS = [
-  { value: 'active', label: 'Activo' },
+  { value: 'available', label: 'Disponible' },
+  { value: 'reserved', label: 'Reservado' },
   { value: 'quarantine', label: 'Cuarentena' },
   { value: 'expired', label: 'Vencido' },
+  { value: 'depleted', label: 'Agotado' },
+  { value: 'active', label: 'Activo' },
   { value: 'recalled', label: 'Retirado' },
   { value: 'consumed', label: 'Consumido' }
 ] as const

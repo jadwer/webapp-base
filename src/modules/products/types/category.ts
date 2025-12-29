@@ -2,10 +2,10 @@ export interface Category {
   id: string
   name: string
   description?: string
-  slug: string
+  slug?: string
   createdAt: string
   updatedAt: string
-  productsCount?: number // TODO: Backend needs to provide this count
+  productsCount?: number
 }
 
 export interface CreateCategoryData {

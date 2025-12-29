@@ -12,12 +12,14 @@ export const createMockAccount = (overrides?: Partial<Account>): Account => ({
   code: '1000',
   name: 'Caja General',
   accountType: 'asset',
+  nature: 'debit',
   level: 1,
   parentId: null,
   currency: 'MXN',
   isPostable: true,
+  isCashFlow: true,
   status: 'active',
-  metadata: undefined,
+  metadata: null,
   createdAt: '2025-08-20T10:00:00.000Z',
   updatedAt: '2025-08-20T10:00:00.000Z',
   ...overrides,
@@ -26,41 +28,50 @@ export const createMockAccount = (overrides?: Partial<Account>): Account => ({
 // Mock Journal Entry factory
 export const createMockJournalEntry = (overrides?: Partial<JournalEntry>): JournalEntry => ({
   id: '1',
-  journalId: '1',
-  periodId: '1',
+  journalId: 1,
+  fiscalPeriodId: 1,
   number: 'JE-2025-001',
   date: '2025-08-20',
-  currency: 'MXN',
-  exchangeRate: '1.0',
   reference: 'REF-001',
   description: 'Asiento de prueba',
+  totalDebit: 1000.00,
+  totalCredit: 1000.00,
   status: 'draft',
-  approvedById: undefined,
-  postedById: undefined,
-  postedAt: undefined,
-  reversalOfId: undefined,
-  sourceType: 'manual',
-  sourceId: undefined,
-  totalDebit: '1000.00',
-  totalCredit: '1000.00',
-  metadata: undefined,
+  approvedAt: null,
+  approvedById: null,
+  postedAt: null,
+  postedById: null,
+  reversalOfId: null,
+  reversalReason: null,
+  metadata: null,
   createdAt: '2025-08-20T10:00:00.000Z',
   updatedAt: '2025-08-20T10:00:00.000Z',
+  // Legacy fields
+  periodId: '1',
+  currency: 'MXN',
+  exchangeRate: '1.0',
+  sourceType: 'manual',
+  sourceId: undefined,
   ...overrides,
 })
 
 // Mock Journal Line factory
 export const createMockJournalLine = (overrides?: Partial<JournalLine>): JournalLine => ({
   id: '1',
-  journalEntryId: '1',
-  accountId: '1',
-  debit: '500.00',
-  credit: '0.00',
+  journalEntryId: 1,
+  accountId: 1,
+  contactId: null,
+  debit: 500.00,
+  credit: 0.00,
+  description: 'Línea de asiento',
+  reference: null,
+  metadata: null,
+  createdAt: '2025-08-20T10:00:00.000Z',
+  updatedAt: '2025-08-20T10:00:00.000Z',
+  // Legacy fields
   memo: 'Línea de asiento',
   currency: 'MXN',
   exchangeRate: '1.0',
-  createdAt: '2025-08-20T10:00:00.000Z',
-  updatedAt: '2025-08-20T10:00:00.000Z',
   ...overrides,
 })
 
@@ -168,25 +179,25 @@ export const cleanupMocks = () => {
 // Test data sets for different scenarios
 export const testDataSets = {
   balancedJournalEntry: {
-    entry: createMockJournalEntry({ totalDebit: '1000', totalCredit: '1000' }),
+    entry: createMockJournalEntry({ totalDebit: 1000, totalCredit: 1000 }),
     lines: [
-      createMockJournalLine({ debit: '1000', credit: '0', accountId: '1' }),
-      createMockJournalLine({ debit: '0', credit: '1000', accountId: '2' })
+      createMockJournalLine({ debit: 1000, credit: 0, accountId: 1 }),
+      createMockJournalLine({ debit: 0, credit: 1000, accountId: 2 })
     ]
   },
   unbalancedJournalEntry: {
-    entry: createMockJournalEntry({ totalDebit: '1000', totalCredit: '800' }),
+    entry: createMockJournalEntry({ totalDebit: 1000, totalCredit: 800 }),
     lines: [
-      createMockJournalLine({ debit: '1000', credit: '0', accountId: '1' }),
-      createMockJournalLine({ debit: '0', credit: '800', accountId: '2' })
+      createMockJournalLine({ debit: 1000, credit: 0, accountId: 1 }),
+      createMockJournalLine({ debit: 0, credit: 800, accountId: 2 })
     ]
   },
   chartOfAccounts: [
-    createMockAccount({ id: '1', code: '1000', name: 'Caja', accountType: 'asset' }),
-    createMockAccount({ id: '2', code: '2000', name: 'Proveedores', accountType: 'liability' }),
-    createMockAccount({ id: '3', code: '3000', name: 'Capital', accountType: 'equity' }),
-    createMockAccount({ id: '4', code: '4000', name: 'Ventas', accountType: 'revenue' }),
-    createMockAccount({ id: '5', code: '5000', name: 'Gastos', accountType: 'expense' })
+    createMockAccount({ id: '1', code: '1000', name: 'Caja', accountType: 'asset', nature: 'debit' }),
+    createMockAccount({ id: '2', code: '2000', name: 'Proveedores', accountType: 'liability', nature: 'credit' }),
+    createMockAccount({ id: '3', code: '3000', name: 'Capital', accountType: 'equity', nature: 'credit' }),
+    createMockAccount({ id: '4', code: '4000', name: 'Ventas', accountType: 'revenue', nature: 'credit' }),
+    createMockAccount({ id: '5', code: '5000', name: 'Gastos', accountType: 'expense', nature: 'debit' })
   ]
 }
 

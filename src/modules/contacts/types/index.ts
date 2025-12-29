@@ -4,17 +4,23 @@
  * Basado en documentación API generada el 2025-08-19
  */
 
+// ===== TYPE CONSTANTS =====
+export type ContactType = 'individual' | 'company' | 'government'
+export type ContactStatus = 'active' | 'inactive' | 'suspended' | 'archived'
+export type AddressType = 'billing' | 'shipping' | 'fiscal' | 'other'
+export type DocumentType = 'id_card' | 'tax_certificate' | 'contract' | 'license' | 'other'
+
 // ===== MAIN CONTACT ENTITY =====
 export interface Contact {
   id: string
-  contactType: 'individual' | 'company'
+  contactType: ContactType
   name: string
   legalName?: string
   taxId?: string
   email?: string
   phone?: string
   website?: string
-  status: 'active' | 'inactive' | 'suspended'
+  status: ContactStatus
   isCustomer: boolean
   isSupplier: boolean
   creditLimit?: number
@@ -27,11 +33,11 @@ export interface Contact {
   updatedAt: string
 }
 
-// ===== RELATED ENTITIES (for future phases) =====
+// ===== RELATED ENTITIES =====
 export interface ContactAddress {
   id: string
   contactId: number
-  addressType: 'billing' | 'shipping' | 'main' | 'other'
+  addressType: AddressType
   addressLine1: string
   addressLine2?: string
   city: string
@@ -47,7 +53,7 @@ export interface ContactAddress {
 export interface ContactDocument {
   id: string
   contactId: number
-  documentType: 'tax_certificate' | 'business_license' | 'rfc' | 'other'
+  documentType: DocumentType
   filePath: string
   originalFilename: string
   mimeType: string
@@ -119,14 +125,14 @@ export interface UseContactsParams {
 
 // ===== FORM DATA TYPES =====
 export interface CreateContactData {
-  contactType: 'individual' | 'company'
+  contactType: ContactType
   name: string
   legalName?: string
   taxId?: string
   email?: string
   phone?: string
   website?: string
-  status: 'active' | 'inactive' | 'suspended'
+  status: ContactStatus
   isCustomer: boolean
   isSupplier: boolean
   creditLimit?: number

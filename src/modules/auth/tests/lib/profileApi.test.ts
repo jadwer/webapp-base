@@ -64,9 +64,9 @@ describe('profileApi', () => {
 
   describe('changePassword', () => {
     const validPayload = {
-      current_password: 'old-password',
+      currentPassword: 'old-password',
       password: 'new-password',
-      password_confirmation: 'new-password',
+      passwordConfirmation: 'new-password',
     }
 
     it('should successfully change password', async () => {
@@ -80,22 +80,26 @@ describe('profileApi', () => {
 
       expect(axiosClient.patch).toHaveBeenCalledWith(
         '/api/v1/profile/password',
-        validPayload
+        {
+          currentPassword: validPayload.currentPassword,
+          password: validPayload.password,
+          passwordConfirmation: validPayload.passwordConfirmation,
+        }
       )
       expect(result).toEqual(mockResponse.data)
     })
 
     it('should parse and throw 422 validation errors', async () => {
       const error422 = mock422Error(
-        'current_password',
+        'currentPassword',
         'Current password is incorrect'
       )
 
       vi.mocked(axiosClient.patch).mockRejectedValueOnce(error422)
 
-      // parseJsonApiErrors includes the full path
+      // parseJsonApiErrors extracts field name from /data/attributes/fieldName
       await expect(changePassword(validPayload)).rejects.toMatchObject({
-        'data/attributes/current_password': ['Current password is incorrect'],
+        currentPassword: ['Current password is incorrect'],
       })
     })
 

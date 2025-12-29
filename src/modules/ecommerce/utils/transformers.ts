@@ -181,9 +181,9 @@ export function shoppingCartFromAPI(data: Record<string, unknown>): ShoppingCart
 
   return {
     id: (data.id as string | number | undefined)?.toString() || (attributes.id as string | number | undefined)?.toString() || '',
-    sessionId: attributes.session_id as string | undefined,
+    sessionId: (attributes.session_id as string | null) ?? null,
     customerId: attributes.customer_id as number | undefined,
-    userId: (attributes.user_id as number | null) ?? null,
+    userId: (attributes.user_id as string | null) ?? null,
     status: ((attributes.status as string) || 'active') as CartStatus,
     currency: (attributes.currency as string) || 'MXN',
     couponCode: (attributes.coupon_code as string | null) ?? null,
@@ -198,9 +198,9 @@ export function shoppingCartFromAPI(data: Record<string, unknown>): ShoppingCart
     canApplyCoupon: (attributes.can_apply_coupon as boolean) ?? true,
     notes: (attributes.notes as string | null) ?? null,
     metadata: (attributes.metadata as Record<string, unknown> | null) ?? null,
-    createdAt: attributes.created_at as string | undefined,
-    updatedAt: attributes.updated_at as string | undefined,
-    expiresAt: attributes.expires_at as string | undefined,
+    createdAt: (attributes.created_at as string) || '',
+    updatedAt: (attributes.updated_at as string) || '',
+    expiresAt: (attributes.expires_at as string) || '',
   };
 }
 

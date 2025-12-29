@@ -118,14 +118,14 @@ export const UnitView: React.FC<UnitViewProps> = ({
           <div className="card-header bg-white border-bottom">
             <div className="d-flex align-items-center">
               <div className="bg-primary-subtle rounded-circle p-3 me-3">
-                <i className={`${getUnitTypeIcon(unit.unitType)} text-primary fs-4`} />
+                <i className={`${getUnitTypeIcon(unit.unitType || '')} text-primary fs-4`} />
               </div>
               <div className="flex-fill">
                 <h2 className="h4 mb-0 fw-bold">{unit.name}</h2>
                 <div className="d-flex align-items-center gap-2 mt-1">
-                  <code className="bg-light px-2 py-1 rounded">{unit.code}</code>
+                  <code className="bg-light px-2 py-1 rounded">{unit.code || '-'}</code>
                   <span className="badge bg-primary-subtle text-primary">
-                    {getUnitTypeLabel(unit.unitType)}
+                    {getUnitTypeLabel(unit.unitType || '')}
                   </span>
                 </div>
               </div>
@@ -150,11 +150,11 @@ export const UnitView: React.FC<UnitViewProps> = ({
               <div className="col-sm-4">
                 <div className="d-flex align-items-center">
                   <div className="bg-success-subtle rounded p-2 me-3">
-                    <i className={`${getUnitTypeIcon(unit.unitType)} text-success`} />
+                    <i className={`${getUnitTypeIcon(unit.unitType || '')} text-success`} />
                   </div>
                   <div>
                     <div className="fw-semibold small text-muted">TIPO</div>
-                    <div className="fw-bold">{getUnitTypeLabel(unit.unitType)}</div>
+                    <div className="fw-bold">{getUnitTypeLabel(unit.unitType || '')}</div>
                   </div>
                 </div>
               </div>
@@ -186,7 +186,7 @@ export const UnitView: React.FC<UnitViewProps> = ({
                     {unit.unitType === 'cantidad' && ' productos individuales, artículos unitarios'}
                     {unit.unitType === 'tiempo' && ' servicios por tiempo, suscripciones'}
                     {unit.unitType === 'area' && ' superficies, terrenos, materiales planos'}
-                    {(unit.unitType === 'otro' || !['peso', 'longitud', 'volumen', 'cantidad', 'tiempo', 'area'].includes(unit.unitType)) && ' productos diversos según su naturaleza'}
+                    {(unit.unitType === 'otro' || !['peso', 'longitud', 'volumen', 'cantidad', 'tiempo', 'area'].includes(unit.unitType || '')) && ' productos diversos según su naturaleza'}
                   </div>
                 </div>
               </div>
@@ -291,7 +291,7 @@ export const UnitView: React.FC<UnitViewProps> = ({
               
               <div className="mb-3">
                 <strong>Clasificación:</strong>
-                <div className="text-muted">{getUnitTypeLabel(unit.unitType)}</div>
+                <div className="text-muted">{getUnitTypeLabel(unit.unitType || '')}</div>
               </div>
             </div>
           </div>

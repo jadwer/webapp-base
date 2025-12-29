@@ -1,7 +1,8 @@
 // Finance Module Test Utilities
 // Mock factories and utilities for testing Finance module
+// Synced with FINANCE_FRONTEND_GUIDE.md 2025-12-28
 
-import type { APInvoice, APPayment, ARInvoice, ARReceipt, BankAccount, PaymentApplication, PaymentMethod } from '../../types'
+import type { APInvoice, APPayment, ARInvoice, ARReceipt, BankAccount, PaymentApplication, PaymentMethod, Payment } from '../../types'
 
 // Mock AP Invoice factory
 export const createMockAPInvoice = (overrides?: Partial<APInvoice>): APInvoice => ({
@@ -29,24 +30,6 @@ export const createMockAPInvoice = (overrides?: Partial<APInvoice>): APInvoice =
   notes: null,
   metadata: null,
   isActive: true,
-  createdAt: '2025-08-20T10:00:00.000Z',
-  updatedAt: '2025-08-20T10:00:00.000Z',
-  ...overrides,
-})
-
-// Mock AP Payment factory
-export const createMockAPPayment = (overrides?: Partial<APPayment>): APPayment => ({
-  id: '1',
-  contactId: 1,
-  contactName: 'Test Supplier',
-  apInvoiceId: 1,
-  bankAccountId: 1,
-  paymentDate: '2025-08-20',
-  amount: '1160.00',
-  paymentMethod: 'transfer',
-  currency: 'MXN',
-  reference: 'TXN-12345',
-  status: 'draft',
   createdAt: '2025-08-20T10:00:00.000Z',
   updatedAt: '2025-08-20T10:00:00.000Z',
   ...overrides,
@@ -83,51 +66,81 @@ export const createMockARInvoice = (overrides?: Partial<ARInvoice>): ARInvoice =
   ...overrides,
 })
 
-// Mock AR Receipt factory
-export const createMockARReceipt = (overrides?: Partial<ARReceipt>): ARReceipt => ({
+// Mock Payment factory (unified for AR/AP per backend)
+export const createMockPayment = (overrides?: Partial<Payment>): Payment => ({
   id: '1',
-  contactId: 10,
-  contactName: 'Test Customer',
-  arInvoiceId: 1,
+  paymentNumber: 'PAY-001',
+  paymentDate: '2025-08-20',
+  contactId: 1,
   bankAccountId: 1,
-  receiptDate: '2025-08-20',
-  amount: '500.00',
-  paymentMethod: 'transfer',
+  paymentMethodId: 1,
+  amount: 1160.00,
   currency: 'MXN',
-  reference: 'DEP-67890',
-  status: 'posted',
+  appliedAmount: 0,
+  unappliedAmount: 1160.00,
+  status: 'pending',
+  journalEntryId: null,
+  reference: 'TXN-12345',
+  notes: null,
+  metadata: null,
+  isActive: true,
   createdAt: '2025-08-20T10:00:00.000Z',
   updatedAt: '2025-08-20T10:00:00.000Z',
+  ...overrides,
+})
+
+// Legacy: Mock AP Payment factory (alias for Payment with AP-specific fields)
+export const createMockAPPayment = (overrides?: Partial<APPayment>): APPayment => ({
+  ...createMockPayment(),
+  apInvoiceId: 1,
+  paymentMethod: 'transfer',
+  ...overrides,
+})
+
+// Legacy: Mock AR Receipt factory (alias for Payment with AR-specific fields)
+export const createMockARReceipt = (overrides?: Partial<ARReceipt>): ARReceipt => ({
+  ...createMockPayment(),
+  arInvoiceId: 1,
+  receiptDate: '2025-08-20',
+  paymentMethod: 'transfer',
   ...overrides,
 })
 
 // Mock Bank Account factory
 export const createMockBankAccount = (overrides?: Partial<BankAccount>): BankAccount => ({
   id: '1',
-  bankName: 'BBVA',
+  accountName: 'Main Operations Account',
   accountNumber: '012345678901',
-  clabe: '012180001234567890',
+  bankName: 'BBVA',
   currency: 'MXN',
+  currentBalance: 50000.00,
   accountType: 'checking',
-  openingBalance: '50000.00',
-  status: 'active',
+  isActive: true,
   createdAt: '2025-08-20T10:00:00.000Z',
   updatedAt: '2025-08-20T10:00:00.000Z',
+  // Legacy fields
+  clabe: '012180001234567890',
+  openingBalance: '50000.00',
+  status: 'active',
   ...overrides,
 })
 
 // Mock Payment Application factory
 export const createMockPaymentApplication = (overrides?: Partial<PaymentApplication>): PaymentApplication => ({
   id: '1',
-  paymentId: '1',
-  arInvoiceId: '1',
+  paymentId: 1,
+  arInvoiceId: 1,
   apInvoiceId: null,
-  amount: '500.00',
-  applicationDate: '2025-08-20',
-  invoiceNumber: 'INV-001',
-  paymentNumber: 'PAY-001',
+  appliedAmount: 500.00,
+  notes: null,
+  metadata: null,
   createdAt: '2025-08-20T10:00:00.000Z',
   updatedAt: '2025-08-20T10:00:00.000Z',
+  invoiceNumber: 'INV-001',
+  paymentNumber: 'PAY-001',
+  // Legacy fields
+  applicationDate: '2025-08-20',
+  amount: '500.00',
   ...overrides,
 })
 
@@ -136,11 +149,12 @@ export const createMockPaymentMethod = (overrides?: Partial<PaymentMethod>): Pay
   id: '1',
   name: 'Bank Transfer',
   code: 'TRANSFER',
-  description: 'Electronic bank transfer',
-  requiresReference: true,
   isActive: true,
   createdAt: '2025-08-20T10:00:00.000Z',
   updatedAt: '2025-08-20T10:00:00.000Z',
+  // Legacy fields
+  description: 'Electronic bank transfer',
+  requiresReference: true,
   ...overrides,
 })
 

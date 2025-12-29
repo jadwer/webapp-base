@@ -2,6 +2,7 @@
 
 import { useState, useEffect, use } from 'react'
 import { usePurchaseOrder, usePurchaseOrderMutations, usePurchaseContacts } from '@/modules/purchase'
+import type { PurchaseOrderStatus } from '@/modules/purchase/types'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
 
 interface PageProps {
@@ -19,7 +20,7 @@ interface Contact {
 export default function EditPurchaseOrderPage({ params }: PageProps) {
   const resolvedParams = use(params)
   const navigation = useNavigationProgress()
-  
+
   const { purchaseOrder, isLoading, error } = usePurchaseOrder(resolvedParams.id)
   const { updatePurchaseOrder } = usePurchaseOrderMutations()
   const { contacts, isLoading: contactsLoading } = usePurchaseContacts()
@@ -28,7 +29,7 @@ export default function EditPurchaseOrderPage({ params }: PageProps) {
     contactId: '',
     orderNumber: '',
     orderDate: '',
-    status: 'pending' as 'pending' | 'approved' | 'received' | 'completed' | 'cancelled',
+    status: 'draft' as PurchaseOrderStatus,
     notes: ''
   })
 
@@ -42,7 +43,7 @@ export default function EditPurchaseOrderPage({ params }: PageProps) {
         contactId: purchaseOrder.contactId?.toString() || '',
         orderNumber: purchaseOrder.orderNumber || '',
         orderDate: purchaseOrder.orderDate || '',
-        status: purchaseOrder.status || 'pending',
+        status: purchaseOrder.status || 'draft',
         notes: purchaseOrder.notes || ''
       })
     }
@@ -217,9 +218,9 @@ export default function EditPurchaseOrderPage({ params }: PageProps) {
                       onChange={handleInputChange}
                       required
                     >
+                      <option value="draft">Borrador</option>
                       <option value="pending">Pendiente</option>
                       <option value="approved">Aprobada</option>
-                      <option value="processing">En Proceso</option>
                       <option value="received">Recibida</option>
                       <option value="cancelled">Cancelada</option>
                     </select>

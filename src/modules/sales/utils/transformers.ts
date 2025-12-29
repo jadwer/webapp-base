@@ -1,4 +1,4 @@
-import { JsonApiResource, SalesOrder, SalesOrderItem, Contact, SalesOrderFormData, OrderStatus } from '../types'
+import { JsonApiResource, SalesOrder, SalesOrderItem, Contact, SalesOrderFormData, OrderStatus, InvoicingStatus } from '../types'
 
 export function transformContact(resource: JsonApiResource | Record<string, unknown>): Contact {
   if (!resource) return { id: '', name: '', type: 'individual' }
@@ -20,42 +20,54 @@ export function transformJsonApiSalesOrder(resource: JsonApiResource): SalesOrde
     contactId: (attributes.contact_id || attributes.contactId) as number,
     orderNumber: (attributes.order_number || attributes.orderNumber || '') as string,
     orderDate: (attributes.order_date || attributes.orderDate || '') as string,
-    status: (attributes.status || 'pending') as OrderStatus,
+    status: (attributes.status || 'draft') as OrderStatus,
     approvedAt: (attributes.approved_at ?? attributes.approvedAt ?? null) as string | null,
     deliveredAt: (attributes.delivered_at ?? attributes.deliveredAt ?? null) as string | null,
-    totalAmount: (attributes.total_amount || attributes.totalAmount || 0) as number,
+    // Finance integration fields
+    arInvoiceId: (attributes.ar_invoice_id ?? attributes.arInvoiceId ?? null) as number | null,
+    invoicingStatus: (attributes.invoicing_status || attributes.invoicingStatus || 'pending') as InvoicingStatus,
     invoicingNotes: (attributes.invoicing_notes ?? attributes.invoicingNotes ?? null) as string | null,
-    notes: (attributes.notes || '') as string,
-    createdAt: (attributes.created_at || attributes.createdAt) as string | undefined,
-    updatedAt: (attributes.updated_at || attributes.updatedAt) as string | undefined,
+    // Amounts
+    discountTotal: (attributes.discount_total || attributes.discountTotal || 0) as number,
+    totalAmount: (attributes.total_amount || attributes.totalAmount || 0) as number,
+    // Metadata
+    notes: (attributes.notes ?? null) as string | null,
+    createdAt: (attributes.created_at || attributes.createdAt || '') as string,
+    updatedAt: (attributes.updated_at || attributes.updatedAt || '') as string,
     contact: resource.relationships?.contact ? transformContact((resource.relationships.contact as Record<string, unknown>).data as JsonApiResource) : undefined
   }
 }
 
 export function transformJsonApiSalesOrderItem(resource: JsonApiResource): SalesOrderItem {
   const attributes = resource.attributes
-  
+
   // Get basic values
   const quantity = (attributes.quantity || 0) as number
   const unitPrice = (attributes.unit_price || attributes.unitPrice || 0) as number
-  const discount = Math.abs((attributes.discount || 0) as number) // Make discount positive for calculation
+  const discount = Math.abs((attributes.discount || 0) as number)
 
   // Try to get total from API, if not available calculate it
-  let totalPrice = (attributes.total_price || attributes.totalPrice || attributes.subtotal || attributes.line_total || attributes.amount || 0) as number
-
-  // If no total price from API, calculate it
-  if (totalPrice === 0 && quantity > 0 && unitPrice > 0) {
-    totalPrice = (quantity * unitPrice) - discount
+  let total = (attributes.total || attributes.total_price || attributes.totalPrice || 0) as number
+  if (total === 0 && quantity > 0 && unitPrice > 0) {
+    total = (quantity * unitPrice) - discount
   }
 
   return {
     id: resource.id,
-    salesOrderId: (attributes.sales_order_id || attributes.salesOrderId) as string,
+    salesOrderId: (attributes.sales_order_id || attributes.salesOrderId) as number,
     productId: (attributes.product_id || attributes.productId) as number,
     quantity,
     unitPrice,
-    totalPrice,
     discount,
+    total,
+    totalPrice: total, // Legacy alias
+    // Finance integration fields
+    arInvoiceLineId: (attributes.ar_invoice_line_id ?? attributes.arInvoiceLineId ?? null) as number | null,
+    invoicedQuantity: (attributes.invoiced_quantity ?? attributes.invoicedQuantity ?? null) as number | null,
+    invoicedAmount: (attributes.invoiced_amount ?? attributes.invoicedAmount ?? null) as number | null,
+    // Metadata
+    createdAt: (attributes.created_at || attributes.createdAt || '') as string,
+    updatedAt: (attributes.updated_at || attributes.updatedAt || '') as string,
     product: resource.relationships?.product ? (resource.relationships.product as Record<string, unknown>).data as Record<string, unknown> | undefined : undefined
   }
 }

@@ -3,12 +3,14 @@
  * Basado en API responses reales de Fase 1 testing
  */
 
+export type WarehouseType = 'main' | 'distribution' | 'retail' | 'storage' | 'cross-dock'
+
 export interface WarehouseAttributes {
   name: string
   slug: string
   description?: string
   code: string
-  warehouseType: 'main' | 'secondary' | 'distribution' | 'returns'
+  warehouseType: WarehouseType
   address?: string
   city?: string
   state?: string
@@ -20,7 +22,7 @@ export interface WarehouseAttributes {
   maxCapacity?: number
   capacityUnit?: string
   operatingHours?: string
-  metadata?: string
+  metadata?: Record<string, unknown> | null
   isActive: boolean
   createdAt: string
   updatedAt: string
@@ -40,10 +42,10 @@ export interface WarehouseParsed extends WarehouseAttributes {
 
 export interface CreateWarehouseData {
   name: string
-  slug: string
+  slug?: string
   description?: string
   code: string
-  warehouseType: 'main' | 'secondary' | 'distribution' | 'returns'
+  warehouseType?: WarehouseType
   address?: string
   city?: string
   state?: string
@@ -54,9 +56,7 @@ export interface CreateWarehouseData {
   managerName?: string
   maxCapacity?: number
   capacityUnit?: string
-  operatingHours?: string
-  metadata?: string
-  isActive: boolean
+  isActive?: boolean
 }
 
 export interface UpdateWarehouseData {
@@ -64,7 +64,7 @@ export interface UpdateWarehouseData {
   slug?: string
   description?: string
   code?: string
-  warehouseType?: 'main' | 'secondary' | 'distribution' | 'returns'
+  warehouseType?: WarehouseType
   address?: string
   city?: string
   state?: string
@@ -75,8 +75,6 @@ export interface UpdateWarehouseData {
   managerName?: string
   maxCapacity?: number
   capacityUnit?: string
-  operatingHours?: string
-  metadata?: string
   isActive?: boolean
 }
 

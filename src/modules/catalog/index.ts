@@ -11,3 +11,6 @@ export type {
   OfferProduct,
   OffersMetrics
 } from './hooks/useOffers'
+
+// Components
+export * from './components'

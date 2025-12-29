@@ -11,14 +11,15 @@ export interface Product {
   price?: number
   cost?: number
   iva: boolean
+  isActive: boolean
   imgPath?: string
   datasheetPath?: string
   unitId: string
-  categoryId: string
-  brandId: string
+  categoryId: string | null
+  brandId: string | null
   createdAt: string
   updatedAt: string
-  
+
   // Relationships
   unit?: Unit
   category?: Category
@@ -33,11 +34,12 @@ export interface CreateProductData {
   price?: number
   cost?: number
   iva?: boolean
+  isActive?: boolean
   imgPath?: string
   datasheetPath?: string
   unitId: string
-  categoryId: string
-  brandId: string
+  categoryId?: string | null
+  brandId?: string | null
 }
 
 export type UpdateProductData = Partial<CreateProductData>
@@ -45,6 +47,7 @@ export type UpdateProductData = Partial<CreateProductData>
 export interface ProductFilters {
   name?: string
   sku?: string
+  isActive?: boolean
   unitId?: string
   categoryId?: string
   brandId?: string
