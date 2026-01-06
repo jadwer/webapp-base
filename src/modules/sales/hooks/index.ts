@@ -306,3 +306,8 @@ export const useSalesOrderWithItems = (id: string) => {
     }
   }
 }
+
+// DiscountRules Hooks - v1.1 (SA-M003)
+export { useDiscountRules } from './useDiscountRules'
+export { useDiscountRule } from './useDiscountRule'
+export { useDiscountRuleMutations } from './useDiscountRuleMutations'

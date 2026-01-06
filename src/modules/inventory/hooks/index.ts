@@ -68,3 +68,8 @@ export {
   useStockAlerts,
   useRecentActivity
 } from './useDashboard'
+
+// Cycle Count hooks - Backend v1.1
+export { useCycleCounts } from './useCycleCounts'
+export { useCycleCount } from './useCycleCount'
+export { useCycleCountMutations } from './useCycleCountMutations'

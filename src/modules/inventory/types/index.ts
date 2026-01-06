@@ -61,6 +61,33 @@ export type {
   UseProductBatchMutationsResult
 } from './productBatch'
 
+// CycleCount types - Backend v1.1
+export type {
+  CycleCount,
+  ParsedCycleCount,
+  CreateCycleCountRequest,
+  UpdateCycleCountRequest,
+  CycleCountFilters,
+  CycleCountSortOptions,
+  CycleCountFormData,
+  CycleCountStatus,
+  ABCClass,
+  CycleCountMetadata,
+  CycleCountStatusConfig,
+  ABCClassConfig,
+  RecordCountFormData,
+  UseCycleCountsResult,
+  UseCycleCountResult,
+  UseCycleCountMutationsResult
+} from './cycleCount'
+
+export {
+  CYCLE_COUNT_STATUS_CONFIG,
+  ABC_CLASS_CONFIG,
+  CYCLE_COUNT_STATUS_OPTIONS,
+  ABC_CLASS_OPTIONS
+} from './cycleCount'
+
 // Common pagination and response types
 export interface PaginationParams {
   page?: number

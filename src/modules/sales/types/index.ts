@@ -181,3 +181,29 @@ export interface PeriodSalesData {
   totalSales: number
   orderCount: number
 }
+
+// DiscountRule types - Backend v1.1 (SA-M003)
+export type {
+  DiscountType,
+  DiscountAppliesTo,
+  DiscountRule,
+  ParsedDiscountRule,
+  CreateDiscountRuleRequest,
+  UpdateDiscountRuleRequest,
+  DiscountRuleFilters,
+  DiscountRuleSortOptions,
+  DiscountRuleFormData,
+  JsonApiDiscountRuleResponse,
+  UseDiscountRulesResult,
+  UseDiscountRuleResult,
+  UseDiscountRuleMutationsResult,
+  DiscountRuleStatusConfig,
+  DiscountTypeConfig
+} from './discountRule'
+
+export {
+  DISCOUNT_TYPE_CONFIG,
+  APPLIES_TO_CONFIG,
+  DISCOUNT_TYPE_OPTIONS,
+  APPLIES_TO_OPTIONS
+} from './discountRule'

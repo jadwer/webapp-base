@@ -355,3 +355,205 @@ export const mockRouter = () => ({
   query: {},
   asPath: '/',
 })
+
+// ========================================
+// DISCOUNT RULES MOCK FACTORIES (v1.1 SA-M003)
+// ========================================
+
+import type {
+  DiscountRule,
+  ParsedDiscountRule,
+  CreateDiscountRuleRequest,
+  UpdateDiscountRuleRequest,
+  DiscountRuleFormData
+} from '../../types'
+
+/**
+ * Creates a mock DiscountRule with optional overrides
+ */
+export const mockDiscountRule = (overrides?: Partial<DiscountRule>): DiscountRule => ({
+  id: '1',
+  name: 'Summer Sale',
+  code: 'SUMMER2025',
+  description: 'Summer discount promotion',
+  discountType: 'percentage',
+  discountValue: 10,
+  buyQuantity: null,
+  getQuantity: null,
+  appliesTo: 'order',
+  minOrderAmount: 100,
+  minQuantity: null,
+  maxDiscountAmount: 50,
+  productIds: null,
+  categoryIds: null,
+  customerIds: null,
+  customerClassifications: null,
+  startDate: '2025-06-01',
+  endDate: '2025-08-31',
+  usageLimit: 1000,
+  usagePerCustomer: 5,
+  currentUsage: 150,
+  priority: 10,
+  isCombinable: true,
+  isActive: true,
+  isValid: true,
+  isExpired: false,
+  usageRemaining: 850,
+  createdAt: '2025-01-15T10:00:00.000Z',
+  updatedAt: '2025-01-15T10:00:00.000Z',
+  ...overrides,
+})
+
+/**
+ * Creates a mock ParsedDiscountRule with UI-friendly fields
+ */
+export const mockParsedDiscountRule = (overrides?: Partial<ParsedDiscountRule>): ParsedDiscountRule => ({
+  ...mockDiscountRule(overrides),
+  discountDisplay: '10%',
+  statusLabel: 'Activo',
+  validityLabel: 'Valido hasta 31 ago 2025',
+  ...overrides,
+})
+
+/**
+ * Creates a list of mock discount rules
+ */
+export const mockDiscountRules = (count: number = 3): ParsedDiscountRule[] => {
+  const types = ['percentage', 'fixed', 'buy_x_get_y'] as const
+  const appliesTo = ['order', 'product', 'category'] as const
+
+  return Array.from({ length: count }, (_, index) => {
+    const type = types[index % 3]
+    return mockParsedDiscountRule({
+      id: (index + 1).toString(),
+      name: `Discount ${index + 1}`,
+      code: `DISC${index + 1}`,
+      discountType: type,
+      discountValue: type === 'buy_x_get_y' ? 0 : (index + 1) * 5,
+      buyQuantity: type === 'buy_x_get_y' ? 2 : null,
+      getQuantity: type === 'buy_x_get_y' ? 1 : null,
+      appliesTo: appliesTo[index % 3],
+      priority: index + 1,
+      discountDisplay: type === 'percentage' ? `${(index + 1) * 5}%` :
+        type === 'fixed' ? `$${(index + 1) * 5}.00` :
+          `Compra 2 Lleva 1`,
+    })
+  })
+}
+
+/**
+ * Creates mock form data for creating discount rules
+ */
+export const mockDiscountRuleFormData = (
+  overrides?: Partial<DiscountRuleFormData>
+): DiscountRuleFormData => ({
+  name: 'Test Discount',
+  code: 'TESTDISC',
+  description: 'Test discount description',
+  discountType: 'percentage',
+  discountValue: 15,
+  buyQuantity: undefined,
+  getQuantity: undefined,
+  appliesTo: 'order',
+  minOrderAmount: 50,
+  minQuantity: undefined,
+  maxDiscountAmount: 100,
+  productIds: [],
+  categoryIds: [],
+  customerIds: [],
+  customerClassifications: [],
+  startDate: '2025-01-01',
+  endDate: '2025-12-31',
+  usageLimit: 500,
+  usagePerCustomer: 3,
+  priority: 5,
+  isCombinable: true,
+  isActive: true,
+  ...overrides,
+})
+
+/**
+ * Creates a mock JSON:API response for a single discount rule
+ */
+export const mockJsonApiDiscountRuleResponse = (rule: DiscountRule) => ({
+  data: {
+    id: rule.id,
+    type: 'discount-rules',
+    attributes: {
+      name: rule.name,
+      code: rule.code,
+      description: rule.description,
+      discount_type: rule.discountType,
+      discount_value: rule.discountValue,
+      buy_quantity: rule.buyQuantity,
+      get_quantity: rule.getQuantity,
+      applies_to: rule.appliesTo,
+      min_order_amount: rule.minOrderAmount,
+      min_quantity: rule.minQuantity,
+      max_discount_amount: rule.maxDiscountAmount,
+      product_ids: rule.productIds,
+      category_ids: rule.categoryIds,
+      customer_ids: rule.customerIds,
+      customer_classifications: rule.customerClassifications,
+      start_date: rule.startDate,
+      end_date: rule.endDate,
+      usage_limit: rule.usageLimit,
+      usage_per_customer: rule.usagePerCustomer,
+      current_usage: rule.currentUsage,
+      priority: rule.priority,
+      is_combinable: rule.isCombinable,
+      is_active: rule.isActive,
+      is_valid: rule.isValid,
+      is_expired: rule.isExpired,
+      usage_remaining: rule.usageRemaining,
+      created_at: rule.createdAt,
+      updated_at: rule.updatedAt,
+    },
+  },
+})
+
+/**
+ * Creates a mock JSON:API response for multiple discount rules
+ */
+export const mockJsonApiDiscountRulesResponse = (rules: DiscountRule[], meta?: Record<string, unknown>) => ({
+  data: rules.map(rule => ({
+    id: rule.id,
+    type: 'discount-rules',
+    attributes: {
+      name: rule.name,
+      code: rule.code,
+      description: rule.description,
+      discount_type: rule.discountType,
+      discount_value: rule.discountValue,
+      buy_quantity: rule.buyQuantity,
+      get_quantity: rule.getQuantity,
+      applies_to: rule.appliesTo,
+      min_order_amount: rule.minOrderAmount,
+      min_quantity: rule.minQuantity,
+      max_discount_amount: rule.maxDiscountAmount,
+      product_ids: rule.productIds,
+      category_ids: rule.categoryIds,
+      customer_ids: rule.customerIds,
+      customer_classifications: rule.customerClassifications,
+      start_date: rule.startDate,
+      end_date: rule.endDate,
+      usage_limit: rule.usageLimit,
+      usage_per_customer: rule.usagePerCustomer,
+      current_usage: rule.currentUsage,
+      priority: rule.priority,
+      is_combinable: rule.isCombinable,
+      is_active: rule.isActive,
+      is_valid: rule.isValid,
+      is_expired: rule.isExpired,
+      usage_remaining: rule.usageRemaining,
+      created_at: rule.createdAt,
+      updated_at: rule.updatedAt,
+    },
+  })),
+  meta: meta || {
+    currentPage: 1,
+    perPage: 20,
+    total: rules.length,
+    lastPage: 1,
+  },
+})

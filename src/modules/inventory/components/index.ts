@@ -68,3 +68,13 @@ export { CreateProductBatchWrapper } from './CreateProductBatchWrapper'
 export { EditProductBatchWrapper } from './EditProductBatchWrapper'
 export { ProductBatchStatusBadge } from './ProductBatchStatusBadge'
 export { ProductBatchFiltersSimple } from './ProductBatchFiltersSimple'
+
+// Cycle Count Components - Backend v1.1
+export { CycleCountsAdminPageReal } from './CycleCountsAdminPageReal'
+export { CycleCountsTableSimple } from './CycleCountsTableSimple'
+export { CycleCountForm } from './CycleCountForm'
+export { CycleCountDetail } from './CycleCountDetail'
+export { CycleCountStatusBadge, ABCClassBadge, VarianceBadge } from './CycleCountStatusBadge'
+export { CreateCycleCountWrapper } from './CreateCycleCountWrapper'
+export { EditCycleCountWrapper } from './EditCycleCountWrapper'
+export { ViewCycleCountWrapper } from './ViewCycleCountWrapper'

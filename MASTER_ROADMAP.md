@@ -1,46 +1,87 @@
-# 🎯 MASTER ROADMAP - Webapp Base ATM
-**Estrategia: Módulo por Módulo al 100%**
+# MASTER ROADMAP - Webapp Base ATM
+**Estrategia: Modulo por Modulo al 100%**
 
-> **Fecha de actualizacion:** Diciembre 2025
-> **Status:** COMPLETADO - Todos los modulos sincronizados con backend (15/15 = 100%)
+> **Fecha de actualizacion:** Enero 2026
+> **Status:** EN PROGRESO - Sincronizacion con Backend v1.1
 > **Politica:** Cada modulo debe estar 100% completo antes de avanzar al siguiente
 > **Objetivo:** Production-ready modules con testing >70% y documentacion completa
 
 ---
 
-## 📋 Estado Actual del Proyecto
+## Estado Actual del Proyecto
 
-### ✅ Módulos Completados (100%)
+### Modulos Completados (17/17 = 100%)
 
-| Módulo | Testing | UI | Docs | Backend API | Notas |
+| Modulo | Testing | UI | Docs | Backend API | Notas |
 |--------|---------|----|----|-------------|-------|
-| **Auth** | ✅ 70%+ | ✅ | ✅ | ✅ | Laravel Sanctum integration completa |
-| **Permissions** | ✅ 70%+ | ✅ | ✅ | ✅ | Permission Manager funcional |
-| **Roles** | ✅ 70%+ | ✅ | ✅ | ✅ | CRUD completo con assignments |
-| **Users** | ✅ 70%+ | ✅ | ✅ | ✅ | User management completo |
-| **Inventory** | ✅ 235 tests | ✅ | ✅ | ✅ | 5 entidades: Warehouses, Locations, Stock, Movements, ProductBatch |
-| **Products** | ✅ 70%+ | ✅ | ✅ | ✅ | Enterprise-level con 5 view modes + virtualization |
-| **Contacts** | ✅ 70%+ | ✅ | ✅ | ✅ | Full CRUD con documentos y addresses |
-| **Page Builder Pro** | ✅ | ✅ | ✅ | ✅ | GrapeJS integration + dynamic pages |
-| **Finance** | ✅ 70%+ | ✅ | ✅ | ✅ | 176 tests - AP/AR Invoices, Payments, Bank Accounts, Payment Methods |
-| **Sales** | ✅ 70%+ | ✅ | ✅ | ✅ | 72 tests - Sales Orders, Items, Reports, Customer Analytics |
-| **Purchase** | ✅ 81.92%+ | ✅ | ✅ | ✅ | 69 tests - Purchase Orders, Items, Reports, Supplier Analytics |
-| **Ecommerce** | ✅ 70%+ | ✅ | ✅ | ✅ | 78 tests - Orders, Shopping Cart, Checkout, Admin Dashboard |
-| **Accounting** | ✅ 70%+ | ✅ | ⏳ | ✅ | 174 tests - Chart of Accounts, Journal Entries, Ledger, Reports |
-| **CRM** | 98.81%+ | OK | OK | OK | 112 tests - 5 entidades completas: PipelineStages, Leads, Campaigns, Activity, Opportunity |
-| **Reports** | ✅ 73.82%+ | ✅ | ✅ | ✅ | 53 tests - 10 read-only reports - Financial Statements, Aging, Management |
-| **HR** | ✅ 82.1%+ | ✅ | ✅ | ✅ | 52 tests - 9 entities - Employees, Attendance, Leave, Payroll, Performance |
-| **Billing/CFDI** | ✅ 84.13%+ | ✅ | ✅ | ✅ | 54 tests - Mexican CFDI 4.0 - Complete workflow with SW PAC integration |
+| **Auth** | 70%+ | OK | OK | OK | Laravel Sanctum integration completa |
+| **Permissions** | 70%+ | OK | OK | OK | Permission Manager funcional |
+| **Roles** | 70%+ | OK | OK | OK | CRUD completo con assignments |
+| **Users** | 70%+ | OK | OK | OK | User management completo |
+| **Inventory** | 235 tests | OK | OK | OK | 5 entidades: Warehouses, Locations, Stock, Movements, ProductBatch |
+| **Products** | 70%+ | OK | OK | OK | Enterprise-level con 5 view modes + virtualization |
+| **Contacts** | 70%+ | OK | OK | OK | Full CRUD con documentos y addresses |
+| **Page Builder Pro** | OK | OK | OK | OK | GrapeJS integration + dynamic pages |
+| **Finance** | 70%+ | OK | OK | OK | 176 tests - AP/AR Invoices, Payments, Bank Accounts, Payment Methods |
+| **Sales** | 70%+ | OK | OK | OK | 72 tests - Sales Orders, Items, Reports, Customer Analytics |
+| **Purchase** | 81.92%+ | OK | OK | OK | 69 tests - Purchase Orders, Items, Reports, Supplier Analytics |
+| **Ecommerce** | 70%+ | OK | OK | OK | 78 tests - Orders, Shopping Cart, Checkout, Admin Dashboard |
+| **Accounting** | 70%+ | OK | Pendiente | OK | 174 tests - Chart of Accounts, Journal Entries, Ledger, Reports |
+| **CRM** | 98.81%+ | OK | OK | OK | 112 tests - 5 entidades: PipelineStages, Leads, Campaigns, Activity, Opportunity |
+| **Reports** | 73.82%+ | OK | OK | OK | 53 tests - 10 read-only reports |
+| **HR** | 82.1%+ | OK | OK | OK | 52 tests - 9 entities |
+| **Billing/CFDI** | 84.13%+ | OK | OK | OK | 54 tests - Mexican CFDI 4.0 |
+| **Audit** | Pendiente | OK | OK | OK | **NUEVO Enero 2026** - 37 modelos auditados, activity tracking |
+| **System Health** | Pendiente | OK | OK | OK | **NUEVO Enero 2026** - Dashboard de monitoreo del sistema |
 
-### Modulos En Progreso
+### Modulos Pendientes (Backend v1.1)
 
-| Modulo | Status | Progreso |
-|--------|--------|----------|
-| - | - | Todos los modulos completados y sincronizados con backend |
+| Modulo | Entidad | Endpoint | Prioridad | Estado |
+|--------|---------|----------|-----------|--------|
+| **Inventory** | CycleCounts | `/api/v1/cycle-counts` | Alta | COMPLETADO |
+| **Sales** | DiscountRules | `/api/v1/discount-rules` | Alta | COMPLETADO |
+| **Finance** | BankTransactions | `/api/v1/bank-transactions` | Alta | PENDIENTE |
+| **Purchase** | Budgets | `/api/v1/budgets` | Media | PENDIENTE |
+| **Finance** | Early Payment Discount | AR Invoice fields | Media | PENDIENTE |
+| **Ecommerce** | Stripe PaymentIntent | `/checkout-sessions/{id}/payment-intent` | Baja | PENDIENTE |
 
 ---
 
-## 🔄 Sincronizacion Backend (Diciembre 2025)
+## Sincronizacion Backend v1.1 (Enero 2026)
+
+### Nuevos Modulos Implementados
+
+**Fecha de implementacion:** 2026-01-06
+
+| Modulo | Entidades | Componentes | Routes | Estado |
+|--------|-----------|-------------|--------|--------|
+| **Audit** | Audit (37 modelos) | AuditAdminPage, AuditTable, AuditDetail, AuditFilters, AuditTimeline, EntityHistoryTab, UserLoginHistory, RecentActivityWidget | /dashboard/audit, /dashboard/audit/[id] | COMPLETADO |
+| **System Health** | SystemHealthStatus | SystemHealthAdminPage, HealthCheckCard, DatabaseMetricsTable, ApplicationMetricsGrid, RecentErrorsList, StatusBadge, SystemHealthWidget | /dashboard/system-health | COMPLETADO |
+
+### E2E Tests Implementados
+
+| Test File | Flujos Cubiertos | Backend Reference |
+|-----------|------------------|-------------------|
+| `11-online-sales-flow.spec.ts` | Cart -> Checkout -> SalesOrder -> ARInvoice -> GL | OnlineSalesE2ETest.php |
+| `12-payment-application-flow.spec.ts` | Payment -> Application -> Balance Update -> GL | PaymentApplicationIntegrationTest.php |
+| `13-system-health-audit.spec.ts` | System Health Dashboard, Audit Log Management | SystemHealth + Audit endpoints |
+
+### Features Backend v1.1 Pendientes
+
+| Feature | Descripcion | Prioridad | Estimado |
+|---------|-------------|-----------|----------|
+| **CycleCounts** | Conteo ciclico de inventario (ABC analysis) | Alta | 4-6 horas |
+| **DiscountRules** | Descuentos automaticos (%, fijo, buy X get Y) | Alta | 6-8 horas |
+| **BankTransactions** | Transacciones bancarias y reconciliacion | Alta | 4-6 horas |
+| **Budgets** | Control presupuestal por departamento/categoria | Media | 6-8 horas |
+| **Early Payment Discount** | Descuento por pronto pago (2/10 Net 30) | Media | 2-4 horas |
+| **Stripe PaymentIntent** | Integracion Stripe para checkout | Baja | 4-6 horas |
+
+**Total estimado:** 26-38 horas para completar sync v1.1
+
+---
+
+## Sincronizacion Backend (Diciembre 2025)
 
 ### Cambios Detectados en Backend
 
@@ -221,10 +262,28 @@ Todos los módulos del backend han sido implementados en el frontend:
 
 ---
 
-### **🎯 FASES PENDIENTES**
+### FASES PENDIENTES
 
-#### **Fase 9: Polish & Production** - ⏳ PRÓXIMO (2-3 semanas)
-- [ ] Week 1: Integration testing de los 4 nuevos módulos
+#### Fase 9: Backend v1.1 Sync - EN PROGRESO
+
+**Modulos Nuevos Completados (Enero 2026):**
+- [x] Audit Module - 37 modelos auditados, activity tracking
+- [x] System Health Module - Dashboard de monitoreo
+- [x] E2E Tests - 3 archivos de tests para flujos de trabajo
+
+**Entidades v1.1 Pendientes:**
+- [x] CycleCounts (Inventory) - Conteo ciclico ABC - COMPLETADO
+- [x] DiscountRules (Sales) - Descuentos automaticos - COMPLETADO
+- [ ] BankTransactions (Finance) - Transacciones y reconciliacion
+- [ ] Budgets (Purchase) - Control presupuestal
+- [ ] Early Payment Discount (Finance) - Campos AR Invoice
+- [ ] Stripe PaymentIntent (Ecommerce) - Payment gateway
+
+**Estimado:** 26-38 horas
+
+#### Fase 10: Polish & Production - PROXIMO
+
+- [ ] Week 1: Integration testing de todos los modulos
 - [ ] Week 2: Performance optimization global
 - [ ] Week 3: Final documentation review
 - [ ] Week 4: Production deployment preparation
@@ -399,46 +458,63 @@ Después de 2 módulos fallidos por falta de tests:
 
 ---
 
-## 📞 Contacto y Mantenimiento
+## Contacto y Mantenimiento
 
-**Mantenedor:** Labor Wasser de México
+**Mantenedor:** Labor Wasser de Mexico
 **Framework:** Next.js 15 + App Router
-**Backend:** Laravel JSON:API
-**Testing:** Vitest + React Testing Library
+**Backend:** Laravel JSON:API v1.1
+**Testing:** Vitest + React Testing Library + Playwright E2E
 
-**Última actualización:** Enero 2025
-**Status:** Todos los módulos completados (15/15 = 100%)
-**Próxima revisión:** Fase 9 - Polish & Production
+**Ultima actualizacion:** Enero 2026
+**Status:** Fase 9 en progreso - Backend v1.1 Sync
+**Proxima revision:** Completar entidades v1.1 pendientes
 
 ---
 
-## 🎯 Objetivo Final
+## Objetivo Final
 
 **Production-Ready ERP System** con:
-- 15 módulos completamente funcionales (15 ✅)
-- Testing coverage > 70% en TODOS los 15 módulos (100% ✅)
+- 17 modulos completamente funcionales (17/17)
+- Testing coverage > 70% en todos los modulos
 - Total de tests: 1,000+ tests across all modules
-- Documentación completa y actualizada
+- E2E tests con Playwright para flujos criticos
+- Documentacion completa y actualizada
 - Performance optimizado
 - Error handling profesional
 - Mobile responsive
-- Accesibilidad (a11y) básica
+- Accesibilidad (a11y) basica
 
-**Módulos completados:** 15/15 (100%)
-**Módulos con testing >70%:** 15/15 (100%)
-**Backend → Frontend coverage:** 100%
-**Fecha de completado:** Enero 2025
+**Modulos base completados:** 17/17 (100%)
+**Entidades v1.1 pendientes:** 4
+**Backend v1.1 coverage:** ~90% (4 entidades pendientes)
+**Fecha base completada:** Enero 2025
+**Sync v1.1 iniciado:** Enero 2026
 
 ---
 
-## 📈 Orden de Implementación Completado
+## Orden de Implementacion
 
-**Estrategia aplicada:** Módulo por módulo completo, sin testing hasta que sea necesario
+**Estrategia aplicada:** Modulo por modulo completo
 
-1. ✅ **CRM Module** - 8-10 horas - Pipeline de ventas (Completado Enero 2025)
-2. ✅ **Reports Module** - 12-16 horas - Dashboards financieros (Completado Enero 2025)
-3. ✅ **HR Module** - 20-24 horas - Sistema de nómina (Completado Enero 2025)
-4. ✅ **Billing/CFDI Module** - 16-20 horas - Facturación mexicana (Completado Enero 2025)
+### Completados (2025):
+1. CRM Module - 8-10 horas - Pipeline de ventas
+2. Reports Module - 12-16 horas - Dashboards financieros
+3. HR Module - 20-24 horas - Sistema de nomina
+4. Billing/CFDI Module - 16-20 horas - Facturacion mexicana
 
-**Total invertido:** 56-70 horas en los 4 módulos finales
-**Status:** Todos los módulos backend implementados en frontend (15/15 = 100%)
+### Completados (Enero 2026):
+5. Audit Module - 4-6 horas - Activity tracking (37 modelos)
+6. System Health Module - 4-6 horas - Monitoreo del sistema
+7. E2E Tests - 4-6 horas - 3 flujos de trabajo
+
+### Pendientes (Backend v1.1):
+8. CycleCounts - 4-6 horas - Conteo ciclico inventario - COMPLETADO
+9. DiscountRules - 6-8 horas - Descuentos automaticos - COMPLETADO
+10. BankTransactions - 4-6 horas - Transacciones bancarias - EN PROGRESO
+11. Budgets - 6-8 horas - Control presupuestal
+12. Early Payment Discount - 2-4 horas - Descuento pronto pago
+13. Stripe PaymentIntent - 4-6 horas - Payment gateway
+
+**Total invertido (2025):** 56-70 horas
+**Total invertido (Enero 2026):** 12-18 horas
+**Pendiente v1.1:** 26-38 horas

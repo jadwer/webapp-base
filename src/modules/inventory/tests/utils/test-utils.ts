@@ -5,13 +5,14 @@
  */
 
 import { vi, expect } from 'vitest'
-import type { 
-  WarehouseParsed, 
-  WarehouseLocation, 
-  Stock, 
+import type {
+  WarehouseParsed,
+  WarehouseLocation,
+  Stock,
   InventoryMovement,
   ProductBatch,
-  JsonApiResponse 
+  ParsedCycleCount,
+  JsonApiResponse
 } from '../../types'
 import type { Product } from '@/modules/products/types'
 
@@ -159,6 +160,49 @@ export const createMockMovement = (overrides: Partial<InventoryMovement> = {}): 
   userId: 'user1',
   createdAt: '2025-01-14T10:00:00.000Z',
   updatedAt: '2025-01-14T10:00:00.000Z',
+  ...overrides
+})
+
+/**
+ * Factory para crear mock de ParsedCycleCount
+ */
+export const createMockCycleCount = (overrides: Partial<ParsedCycleCount> = {}): ParsedCycleCount => ({
+  id: '1',
+  countNumber: 'CC-2025-0001',
+  scheduledDate: '2025-01-15',
+  completedDate: null,
+  status: 'scheduled',
+  systemQuantity: 100,
+  countedQuantity: null,
+  varianceQuantity: null,
+  varianceValue: null,
+  abcClass: 'A',
+  notes: 'Test cycle count',
+  hasVariance: false,
+  variancePercentage: null,
+  createdAt: '2025-01-14T10:00:00.000Z',
+  updatedAt: '2025-01-14T10:00:00.000Z',
+  product: {
+    id: '1',
+    name: 'Test Product',
+    sku: 'TEST-001'
+  },
+  warehouse: {
+    id: '1',
+    name: 'Test Warehouse',
+    code: 'WH-001'
+  },
+  warehouseLocation: {
+    id: '1',
+    name: 'Zone A - Aisle 1',
+    code: 'A-1-1'
+  },
+  assignedTo: {
+    id: '1',
+    name: 'Test User',
+    email: 'test@example.com'
+  },
+  countedBy: null,
   ...overrides
 })
 
@@ -340,6 +384,23 @@ export const createMockProductBatchService = () => ({
   create: vi.fn(),
   update: vi.fn(),
   delete: vi.fn()
+})
+
+/**
+ * Mock para cycleCountsService
+ */
+export const createMockCycleCountsService = () => ({
+  getAll: vi.fn(),
+  getById: vi.fn(),
+  create: vi.fn(),
+  update: vi.fn(),
+  delete: vi.fn(),
+  startCount: vi.fn(),
+  recordCount: vi.fn(),
+  cancelCount: vi.fn(),
+  getDueToday: vi.fn(),
+  getOverdue: vi.fn(),
+  getWithVariance: vi.fn()
 })
 
 // =================

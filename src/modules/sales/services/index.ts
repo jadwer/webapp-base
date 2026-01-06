@@ -307,10 +307,10 @@ export const salesProductsService = {
   getAll: async (params?: Record<string, string>) => {
     try {
       console.log('🚀 [Service] Fetching products for sales:', params)
-      
+
       const queryParams = new URLSearchParams()
       queryParams.append('include', 'unit,category,brand')
-      
+
       if (params) {
         Object.keys(params).forEach(key => {
           if (params[key] !== undefined && params[key] !== null && params[key] !== '') {
@@ -318,10 +318,10 @@ export const salesProductsService = {
           }
         })
       }
-      
+
       const queryString = queryParams.toString()
       const url = `/api/v1/products?${queryString}`
-      
+
       const response = await axiosClient.get(url)
       console.log('✅ [Service] Products response:', response.data)
       return response.data
@@ -331,3 +331,6 @@ export const salesProductsService = {
     }
   }
 }
+
+// DiscountRules Service - v1.1 (SA-M003)
+export { discountRulesService } from './discountRulesService'
