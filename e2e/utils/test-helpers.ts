@@ -119,8 +119,13 @@ export const ROUTES = {
   catalogOffers: '/dashboard/catalog/offers',
   catalogOffersCreate: '/dashboard/catalog/offers/create',
 
+  // System Health & Audit
+  systemHealth: '/dashboard/system-health',
+  audit: '/dashboard/audit',
+
   // Public pages
   publicCatalog: '/catalog',
+  publicProducts: '/productos',
   publicCart: '/cart',
   publicCheckout: '/checkout',
 }
