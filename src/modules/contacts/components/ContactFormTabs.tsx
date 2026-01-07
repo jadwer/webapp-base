@@ -14,6 +14,7 @@ import { Button } from '@/ui/components/base/Button'
 import { Input } from '@/ui/components/base/Input'
 import { useContactAddresses, useContactDocuments, useContactPeople } from '../hooks'
 import { contactAddressesService, contactPeopleService, contactDocumentsService } from '../services'
+import { useAuth } from '@/modules/auth'
 import type { 
   ContactFormData, 
   ContactParsed, 
@@ -45,6 +46,7 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
   className = ''
 }) => {
   const [activeTab, setActiveTab] = useState<TabType>('basic')
+  const { user } = useAuth()
   
   // Estado controlado para los datos básicos del contacto (persistente entre pestañas)
   const [formData, setFormData] = useState<ContactFormData>(() => ({
@@ -373,26 +375,38 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
     console.log('✅ Address added:', newAddress)
   }
 
-  const handleUpdateAddress = (id: string, updatedAddress: Partial<ContactAddress>) => {
+  const handleUpdateAddress = async (id: string, updatedAddress: Partial<ContactAddress>) => {
     // Check if it's a local address (temp ID) or API address
     if (id.startsWith('temp-')) {
-      setLocalAddresses(prev => prev.map(addr => 
+      setLocalAddresses(prev => prev.map(addr =>
         addr.id === id ? { ...addr, ...updatedAddress } : addr
       ))
     } else {
-      // TODO: Call API to update existing address
-      console.log('🚀 TODO: Update existing address via API:', { id, updatedAddress })
+      // Call API to update existing address
+      try {
+        await contactAddressesService.update(id, updatedAddress)
+        console.log('✅ Address updated via API:', { id, updatedAddress })
+      } catch (error) {
+        console.error('❌ Error updating address:', error)
+        alert('Error al actualizar la direccion')
+      }
     }
     console.log('✅ Address updated:', { id, updatedAddress })
   }
 
-  const handleDeleteAddress = (id: string) => {
+  const handleDeleteAddress = async (id: string) => {
     // Check if it's a local address (temp ID) or API address
     if (id.startsWith('temp-')) {
       setLocalAddresses(prev => prev.filter(addr => addr.id !== id))
     } else {
-      // TODO: Call API to delete existing address
-      console.log('🚀 TODO: Delete existing address via API:', { id })
+      // Call API to delete existing address
+      try {
+        await contactAddressesService.delete(id)
+        console.log('✅ Address deleted via API:', { id })
+      } catch (error) {
+        console.error('❌ Error deleting address:', error)
+        alert('Error al eliminar la direccion')
+      }
     }
     console.log('✅ Address deleted:', id)
   }
@@ -416,7 +430,7 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
       originalFilename: file.name,
       mimeType: file.type,
       fileSize: file.size,
-      uploadedBy: 1, // TODO: obtener del usuario actual
+      uploadedBy: user?.id ? parseInt(user.id) : 1, // Get from current user
       notes: notes || undefined,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -440,28 +454,40 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
     }
   }
 
-  const handleDeleteDocument = (id: string) => {
+  const handleDeleteDocument = async (id: string) => {
     // Check if it's a local document (temp ID) or API document
     if (id.startsWith('temp-')) {
       setLocalDocuments(prev => prev.filter(doc => doc.id !== id))
     } else {
-      // TODO: Call API to delete existing document
-      console.log('🚀 TODO: Delete existing document via API:', { id })
+      // Call API to delete existing document
+      try {
+        await contactDocumentsService.delete(id)
+        console.log('✅ Document deleted via API:', { id })
+      } catch (error) {
+        console.error('❌ Error deleting document:', error)
+        alert('Error al eliminar el documento')
+      }
     }
     console.log('✅ Document deleted:', id)
   }
 
-  const handleVerifyDocument = (id: string) => {
+  const handleVerifyDocument = async (id: string) => {
     // Check if it's a local document (temp ID) or API document
     if (id.startsWith('temp-')) {
-      setLocalDocuments(prev => prev.map(doc => 
-        doc.id === id 
+      setLocalDocuments(prev => prev.map(doc =>
+        doc.id === id
           ? { ...doc, verifiedAt: new Date().toISOString(), verifiedBy: 1 }
           : doc
       ))
     } else {
-      // TODO: Call API to verify existing document
-      console.log('🚀 TODO: Verify existing document via API:', { id })
+      // Call API to verify existing document
+      try {
+        await contactDocumentsService.verify(id)
+        console.log('✅ Document verified via API:', { id })
+      } catch (error) {
+        console.error('❌ Error verifying document:', error)
+        alert('Error al verificar el documento')
+      }
     }
     console.log('✅ Document verified:', id)
   }
@@ -479,26 +505,38 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
     console.log('✅ Person added:', newPerson)
   }
 
-  const handleUpdatePerson = (id: string, updatedPerson: Partial<ContactPerson>) => {
+  const handleUpdatePerson = async (id: string, updatedPerson: Partial<ContactPerson>) => {
     // Check if it's a local person (temp ID) or API person
     if (id.startsWith('temp-')) {
-      setLocalPeople(prev => prev.map(person => 
+      setLocalPeople(prev => prev.map(person =>
         person.id === id ? { ...person, ...updatedPerson } : person
       ))
     } else {
-      // TODO: Call API to update existing person
-      console.log('🚀 TODO: Update existing person via API:', { id, updatedPerson })
+      // Call API to update existing person
+      try {
+        await contactPeopleService.update(id, updatedPerson)
+        console.log('✅ Person updated via API:', { id, updatedPerson })
+      } catch (error) {
+        console.error('❌ Error updating person:', error)
+        alert('Error al actualizar la persona')
+      }
     }
     console.log('✅ Person updated:', { id, updatedPerson })
   }
 
-  const handleDeletePerson = (id: string) => {
+  const handleDeletePerson = async (id: string) => {
     // Check if it's a local person (temp ID) or API person
     if (id.startsWith('temp-')) {
       setLocalPeople(prev => prev.filter(person => person.id !== id))
     } else {
-      // TODO: Call API to delete existing person
-      console.log('🚀 TODO: Delete existing person via API:', { id })
+      // Call API to delete existing person
+      try {
+        await contactPeopleService.delete(id)
+        console.log('✅ Person deleted via API:', { id })
+      } catch (error) {
+        console.error('❌ Error deleting person:', error)
+        alert('Error al eliminar la persona')
+      }
     }
     console.log('✅ Person deleted:', id)
   }

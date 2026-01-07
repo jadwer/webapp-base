@@ -1,10 +1,11 @@
 # MASTER ROADMAP - Webapp Base ATM
 **Estrategia: Modulo por Modulo al 100%**
 
-> **Fecha de actualizacion:** 2026-01-06
-> **Status:** COMPLETADO - Backend v1.1 sync al 100%
+> **Fecha de actualizacion:** 2026-01-07
+> **Status:** EN PROGRESO - Fase 10: Polish & TODOs Cleanup
 > **Politica:** Cada modulo debe estar 100% completo antes de avanzar al siguiente
 > **Objetivo:** Production-ready modules con testing >70% y documentacion completa
+> **E2E Tests:** 66/66 passing (100%)
 
 ---
 
@@ -281,12 +282,58 @@ Todos los módulos del backend han sido implementados en el frontend:
 
 **Backend v1.1 sync 100% completado - 2026-01-06**
 
-#### Fase 10: Polish & Production - PROXIMO
+#### Fase 10: Polish & Production - EN PROGRESO
 
-- [ ] Week 1: Integration testing de todos los modulos
-- [ ] Week 2: Performance optimization global
-- [ ] Week 3: Final documentation review
-- [ ] Week 4: Production deployment preparation
+**Estado:** Cleanup de TODOs y polish final
+
+##### 10.1 TODOs Criticos - Contacts Module (7 COMPLETADOS - 2026-01-07)
+
+| Archivo | Linea | TODO | Estado |
+|---------|-------|------|--------|
+| `ContactFormTabs.tsx` | 383 | Call API to update existing address | COMPLETADO |
+| `ContactFormTabs.tsx` | 394 | Call API to delete existing address | COMPLETADO |
+| `ContactFormTabs.tsx` | 419 | Get uploadedBy from current user | COMPLETADO |
+| `ContactFormTabs.tsx` | 448 | Call API to delete existing document | COMPLETADO |
+| `ContactFormTabs.tsx` | 463 | Call API to verify existing document | COMPLETADO |
+| `ContactFormTabs.tsx` | 489 | Call API to update existing person | COMPLETADO |
+| `ContactFormTabs.tsx` | 500 | Call API to delete existing person | COMPLETADO |
+
+##### 10.2 TODOs HR Module (2 COMPLETADOS - 2026-01-07)
+
+| Archivo | Linea | TODO | Estado |
+|---------|-------|------|--------|
+| `leaves/create/page.tsx` | 52 | Implement leave creation via service | COMPLETADO |
+| `attendances/[id]/page.tsx` | 20 | Implement useAttendance hook | COMPLETADO |
+
+##### 10.3 TODOs Landing/Public Features (6 pendientes - Baja prioridad)
+
+| Archivo | Linea | TODO | Prioridad |
+|---------|-------|------|-----------|
+| `NecesitasCotizacion.tsx` | 18 | Implement quote request submission | Media |
+| `Header.tsx` | 82 | Implement search functionality | Baja |
+| `UltimosProductosEnhanced.tsx` | 56 | Implement cart functionality | Baja |
+| `UltimosProductosEnhanced.tsx` | 63 | Implement wishlist functionality | Baja |
+| `productos/page.tsx` | 96 | Implement wishlist functionality | Baja |
+| `PublicCatalogFilters.tsx` | 321,361 | Show more categories/brands modal | Baja |
+
+##### 10.4 TODOs Refactor/Mejoras (Baja prioridad)
+
+| Archivo | Linea | TODO | Prioridad |
+|---------|-------|------|-----------|
+| `purchase/hooks/index.ts` | 153 | filter[status]=active | Baja |
+| `sales/hooks/index.ts` | 170 | filter[status]=active | Baja |
+| `ProductsTable.tsx` | 31-42 | Props para futuro refactor | Baja |
+| `pagesService.ts` | 111-112 | Get user from included resources | Baja |
+| `inventoryMovementsService.ts` | 134 | Get userId from auth context | Baja |
+
+##### Prioridades de Implementacion
+
+- [x] E2E Tests - 66/66 passing
+- [x] Documentation cleanup
+- [x] **ALTA:** Contacts CRUD operations (7 TODOs) - COMPLETADO 2026-01-07
+- [x] **MEDIA:** HR leaves/attendances hooks (2 TODOs) - COMPLETADO 2026-01-07
+- [ ] **BAJA:** Landing page features (6 TODOs)
+- [ ] **BAJA:** Refactors varios (5 TODOs)
 
 ---
 
@@ -465,9 +512,9 @@ Después de 2 módulos fallidos por falta de tests:
 **Backend:** Laravel JSON:API v1.1
 **Testing:** Vitest + React Testing Library + Playwright E2E
 
-**Ultima actualizacion:** 2026-01-06
-**Status:** Backend v1.1 Sync COMPLETADO
-**Proxima fase:** Fase 10 - Polish & Production
+**Ultima actualizacion:** 2026-01-07
+**Status:** Fase 10 - Polish & TODOs Cleanup EN PROGRESO
+**TODOs pendientes:** 20 (7 Alta, 2 Media, 11 Baja)
 
 ---
 
