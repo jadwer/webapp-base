@@ -2,10 +2,10 @@
 
 import React, { useState, useEffect } from 'react'
 import { Button, Input } from '@/ui/components/base'
-import type { OfferProduct } from '../hooks/useOffers'
+import type { Offer } from '../types'
 
 interface OfferFormProps {
-  offer?: OfferProduct
+  offer?: Offer
   isLoading?: boolean
   onSubmit: (data: { price: number; cost?: number }) => Promise<void>
   onCancel?: () => void

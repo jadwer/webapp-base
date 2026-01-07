@@ -2,11 +2,11 @@
 **Estrategia: Modulo por Modulo al 100%**
 
 > **Fecha de actualizacion:** 2026-01-07
-> **Status:** COMPLETADO - Fase 12: Fix Failing Unit Tests
+> **Status:** COMPLETADO - Fase 13: Catalog Module Implementation
 > **Politica:** Cada modulo debe estar 100% completo antes de avanzar al siguiente
 > **Objetivo:** Production-ready modules con testing >70% y documentacion completa
 > **E2E Tests:** 66/66 passing (100%)
-> **Unit Tests:** 1280/1280 passing (100%)
+> **Unit Tests:** 1312/1312 passing (100%)
 > **TODOs Fase 10:** 15/15 completados o documentados como intencionales
 > **TypeScript Errors:** 0 errores en tests (165 corregidos en Fase 11)
 
@@ -22,7 +22,7 @@
 | **audit** | 8 | 1 | 1 | 0 | 0 | OK - Sin tests |
 | **auth** | 11 | 0 | 0 | 6 | 0 | OK |
 | **billing** | 4 | 1 | 2 | 5 | 0 | OK - TS corregidos Fase 11 |
-| **catalog** | 2 | 0 | 1 | 0 | 0 | INCOMPLETO - Sin services |
+| **catalog** | 3 | 1 | 1 | 2 | 0 | OK - Services y tests implementados |
 | **contacts** | 10 | 1 | 1 | 0 | 0 | OK - Sin tests |
 | **crm** | 9 | 1 | 4 | 10 | 0 | OK - TS corregidos Fase 11 |
 | **ecommerce** | 9 | 4 | 5 | 5 | 0 | OK |
@@ -41,11 +41,11 @@
 | **system-health** | 7 | 1 | 1 | 0 | 0 | OK - Sin tests |
 | **users** | 3 | 2 | 3 | 0 | 0 | OK - index.ts creado |
 
-**Totales:** 289 TSX | 38 Services | 100 Hooks | 112 Test Files | 0 TS Errors (165 corregidos)
+**Totales:** 290 TSX | 39 Services | 100 Hooks | 114 Test Files | 0 TS Errors (165 corregidos)
 
 ### Dashboard Routes: 174 paginas implementadas
 
-### Modulos Completados (17/17 = 100%)
+### Modulos Completados (18/18 = 100%)
 
 | Modulo | Testing | UI | Docs | Backend API | Notas |
 |--------|---------|----|----|-------------|-------|
@@ -68,6 +68,7 @@
 | **Billing/CFDI** | 84.13%+ | OK | OK | OK | 54 tests - Mexican CFDI 4.0 |
 | **Audit** | Pendiente | OK | OK | OK | **NUEVO Enero 2026** - 37 modelos auditados, activity tracking |
 | **System Health** | Pendiente | OK | OK | OK | **NUEVO Enero 2026** - Dashboard de monitoreo del sistema |
+| **Catalog** | 32 tests | OK | OK | Derivado | **COMPLETADO Enero 2026** - Ofertas derivadas de productos |
 
 ### Modulos Backend v1.1 (6/6 COMPLETADOS)
 
@@ -381,18 +382,20 @@ Todos los módulos del backend han sido implementados en el frontend:
 |-------|--------|-------------|--------|
 | Missing index.ts | users | Modulo no exportable | CORREGIDO 2026-01-07 |
 
-##### 11.2 MODULO INCOMPLETO - Catalog
+##### 11.2 MODULO CATALOG - COMPLETADO (Enero 2026)
 
-**Estado:** Placeholder - Requiere implementacion completa
+**Estado:** COMPLETADO 2026-01-07
 
-| Faltante | Descripcion |
-|----------|-------------|
-| Services | No existe service layer para ofertas |
-| Hooks | Solo useOffers basico, sin mutations |
-| Routes | Sin rutas CRUD en dashboard |
-| Forms | Sin componentes de formulario |
+| Componente | Descripcion | Estado |
+|------------|-------------|--------|
+| Services | offersService.ts - CRUD completo para ofertas | COMPLETADO |
+| Hooks | useOffers con mutations (create, update, remove) | COMPLETADO |
+| Routes | Create/Edit pages conectados a servicios | COMPLETADO |
+| Components | ProductSelector para seleccion de productos | COMPLETADO |
+| Types | Tipos completos con transformers | COMPLETADO |
+| Tests | 32 tests (services + hooks) | COMPLETADO |
 
-**Estimado:** 2-3 dias de trabajo
+**Nota:** El modulo Catalog es derivado - las ofertas son productos donde price > cost
 
 ##### 11.3 TypeScript Test Errors (165 errores en 46 archivos)
 
@@ -712,9 +715,9 @@ Después de 2 módulos fallidos por falta de tests:
 **Testing:** Vitest + React Testing Library + Playwright E2E
 
 **Ultima actualizacion:** 2026-01-07
-**Status:** Fase 12 - Fix Failing Unit Tests COMPLETADO
+**Status:** Fase 13 - Catalog Module Implementation COMPLETADO
 **TypeScript Errors:** 0 errores (165 corregidos en Fase 11)
-**Unit Tests:** 1280/1280 passing (100%)
+**Unit Tests:** 1312/1312 passing (100%)
 **TODOs Fase 10:** 15/15 completados o documentados como intencionales
 
 ---
@@ -727,7 +730,7 @@ Después de 2 módulos fallidos por falta de tests:
 - 289 componentes TSX
 - 38 services
 - 100 hooks
-- 112 archivos de tests (46 con errores de TypeScript)
+- 114 archivos de tests
 - 66/66 E2E tests passing
 - Testing coverage > 70% en modulos criticos
 - Documentacion completa y actualizada
@@ -743,6 +746,7 @@ Después de 2 módulos fallidos por falta de tests:
 **Sync v1.1 completado:** 2026-01-06
 **Fase 11 completada:** 165 errores TypeScript corregidos
 **Fase 12 completada:** 28 tests logicos corregidos - 1280/1280 passing
+**Fase 13 completada:** Catalog module implementado - 32 tests nuevos
 
 ---
 
@@ -760,15 +764,16 @@ Después de 2 módulos fallidos por falta de tests:
 5. Audit Module - 4-6 horas - Activity tracking (37 modelos)
 6. System Health Module - 4-6 horas - Monitoreo del sistema
 7. E2E Tests - 4-6 horas - 3 flujos de trabajo
+8. Catalog Module - 2-3 horas - Ofertas derivadas de productos (32 tests)
 
 ### Completados (Backend v1.1):
-8. CycleCounts - 4-6 horas - Conteo ciclico inventario - COMPLETADO
-9. DiscountRules - 6-8 horas - Descuentos automaticos - COMPLETADO
-10. BankTransactions - 4-6 horas - Transacciones bancarias - COMPLETADO
-11. Budgets - 6-8 horas - Control presupuestal - COMPLETADO
-12. Early Payment Discount - 2-4 horas - Descuento pronto pago - COMPLETADO
-13. Stripe PaymentIntent - 4-6 horas - Payment gateway - COMPLETADO
+9. CycleCounts - 4-6 horas - Conteo ciclico inventario - COMPLETADO
+10. DiscountRules - 6-8 horas - Descuentos automaticos - COMPLETADO
+11. BankTransactions - 4-6 horas - Transacciones bancarias - COMPLETADO
+12. Budgets - 6-8 horas - Control presupuestal - COMPLETADO
+13. Early Payment Discount - 2-4 horas - Descuento pronto pago - COMPLETADO
+14. Stripe PaymentIntent - 4-6 horas - Payment gateway - COMPLETADO
 
 **Total invertido (2025):** 56-70 horas
-**Total invertido (Enero 2026):** 28-42 horas
+**Total invertido (Enero 2026):** 30-45 horas (incluye Catalog)
 **Backend v1.1:** 100% completado

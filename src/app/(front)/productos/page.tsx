@@ -50,6 +50,7 @@ export default function ProductosPage() {
   const toast = useToast()
   const [sessionId, setSessionId] = useState<string>('')
   const [isClient, setIsClient] = useState(false)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [wishlistIds, setWishlistIds] = useState<number[]>([])
 
   // Client-side only initialization

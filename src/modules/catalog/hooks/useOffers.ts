@@ -1,116 +1,51 @@
 /**
- * OFFERS HOOKS
- * Conecta con el módulo de productos para gestionar ofertas
- * Una oferta es un producto donde price != cost
+ * CATALOG MODULE - OFFERS HOOKS
+ * SWR hooks for offers management
  */
 
 import useSWR from 'swr'
-import { productService } from '@/modules/products'
+import { offersService } from '../services'
+import type { Offer, OffersMetrics, OffersFilters } from '../types'
 
-export interface OfferProduct {
-  id: string
-  name: string
-  description: string | null
-  price: number
-  cost: number | null
-  sku: string | null
-  discount: number // Calculado: price - cost
-  discountPercent: number // Calculado: (discount / price) * 100
-  unit?: {
-    id: string
-    name: string
-    abbreviation: string | null
-  }
-  category?: {
-    id: string
-    name: string
-  }
-  brand?: {
-    id: string
-    name: string
-  }
-}
-
-export interface OffersMetrics {
-  activeOffers: number
-  totalDiscount: number
-  averageDiscount: number
-  productsOnOffer: number
-}
+// Re-export types for backward compatibility
+export type { Offer as OfferProduct, OffersMetrics }
 
 /**
- * Hook para obtener productos que están en oferta (price > cost)
+ * Hook to fetch all offers with optional filters
  */
-export function useOffers() {
-  const { data: productsData, error, isLoading, mutate } = useSWR(
-    'products-offers',
-    () => productService.getProducts({
-      include: ['unit', 'category', 'brand']
-      // Note: API doesn't support hasPrice/hasCost filters, will filter client-side
-    }),
+export function useOffers(filters?: OffersFilters) {
+  const {
+    data: response,
+    error,
+    isLoading,
+    mutate
+  } = useSWR(
+    ['offers', filters],
+    () => offersService.getAll(filters),
     {
-      refreshInterval: 30000, // 30 segundos
+      refreshInterval: 30000,
       revalidateOnFocus: false
     }
   )
 
-  // Procesar productos para encontrar ofertas
-  const offers: OfferProduct[] = []
+  const offers = response?.data || []
+
+  // Calculate metrics from offers
   const metrics: OffersMetrics = {
-    activeOffers: 0,
-    totalDiscount: 0,
-    averageDiscount: 0,
-    productsOnOffer: 0
-  }
-
-  if (productsData?.data) {
-    productsData.data.forEach((product) => {
-      const price = parseFloat(String(product.price)) || 0
-      const cost = parseFloat(String(product.cost)) || 0
-      
-      // Solo considerar como oferta si price > cost
-      if (price > cost && cost > 0) {
-        const discount = price - cost
-        const discountPercent = (discount / price) * 100
-
-        offers.push({
-          id: product.id,
-          name: product.name,
-          description: product.description ?? null,
-          price,
-          cost,
-          sku: product.sku ?? null,
-          discount,
-          discountPercent,
-          unit: product.unit ? {
-            id: product.unit.id,
-            name: product.unit.name,
-            abbreviation: product.unit.code ?? null
-          } : undefined,
-          category: product.category ? {
-            id: product.category.id,
-            name: product.category.name
-          } : undefined,
-          brand: product.brand ? {
-            id: product.brand.id,
-            name: product.brand.name
-          } : undefined
-        })
-
-        metrics.totalDiscount += discount
-        metrics.activeOffers++
-        metrics.productsOnOffer++
-      }
-    })
-
-    metrics.averageDiscount = metrics.activeOffers > 0 
-      ? metrics.totalDiscount / metrics.activeOffers 
-      : 0
+    activeOffers: offers.length,
+    totalDiscount: offers.reduce((sum, o) => sum + o.discount, 0),
+    averageDiscount: offers.length > 0
+      ? offers.reduce((sum, o) => sum + o.discount, 0) / offers.length
+      : 0,
+    productsOnOffer: offers.length,
+    topCategory: null,
+    topBrand: null
   }
 
   return {
     offers,
     metrics,
+    total: response?.meta?.total || 0,
     isLoading,
     error,
     mutate
@@ -118,34 +53,129 @@ export function useOffers() {
 }
 
 /**
- * Hook para obtener un producto específico para editar como oferta
+ * Hook to fetch a single offer by product ID
  */
-export function useProductForOffer(productId: string | null) {
-  return useSWR(
-    productId ? ['product-for-offer', productId] : null,
-    () => productId ? productService.getProduct(productId, ['unit', 'category', 'brand']) : null,
+export function useOffer(productId: string | null) {
+  const {
+    data: response,
+    error,
+    isLoading,
+    mutate
+  } = useSWR(
+    productId ? ['offer', productId] : null,
+    () => productId ? offersService.getById(productId) : null,
     {
       revalidateOnFocus: false
     }
   )
+
+  return {
+    offer: response?.data || null,
+    isLoading,
+    error,
+    mutate
+  }
 }
 
 /**
- * Hook para actualizar precios de un producto (crear/editar oferta)
+ * Hook to fetch products available for offers
  */
-export function useUpdateProductOffer() {
+export function useProductsForOffer(search?: string) {
+  const {
+    data: response,
+    error,
+    isLoading,
+    mutate
+  } = useSWR(
+    ['products-for-offer', search],
+    () => offersService.getProductsForOffer(search),
+    {
+      revalidateOnFocus: false,
+      dedupingInterval: 2000
+    }
+  )
+
   return {
-    async updateProductPrices(productId: string, data: { price: number; cost?: number }) {
+    products: response?.data || [],
+    isLoading,
+    error,
+    mutate
+  }
+}
+
+/**
+ * Hook to fetch a single product for offer editing
+ */
+export function useProductForOffer(productId: string | null) {
+  const { offer, isLoading, error, mutate } = useOffer(productId)
+
+  return {
+    data: offer,
+    isLoading,
+    error,
+    mutate
+  }
+}
+
+/**
+ * Hook for offer mutations (create, update, delete)
+ */
+export function useOffersMutations() {
+  return {
+    /**
+     * Create a new offer
+     */
+    async createOffer(data: { productId: string; price: number; cost: number }) {
       try {
-        const result = await productService.updateProduct(productId, {
-          price: data.price,
-          ...(data.cost !== undefined && { cost: data.cost })
-        })
+        const result = await offersService.create(data)
         return result
       } catch (error) {
-        console.error('Error updating product offer:', error)
+        console.error('Error creating offer:', error)
         throw error
       }
+    },
+
+    /**
+     * Update an existing offer
+     */
+    async updateOffer(productId: string, data: { price: number; cost: number }) {
+      try {
+        const result = await offersService.update(productId, data)
+        return result
+      } catch (error) {
+        console.error('Error updating offer:', error)
+        throw error
+      }
+    },
+
+    /**
+     * Remove an offer (sets cost = price)
+     */
+    async removeOffer(productId: string) {
+      try {
+        const result = await offersService.remove(productId)
+        return result
+      } catch (error) {
+        console.error('Error removing offer:', error)
+        throw error
+      }
+    }
+  }
+}
+
+/**
+ * Hook to update product prices (legacy - use useOffersMutations instead)
+ * @deprecated Use useOffersMutations().updateOffer instead
+ */
+export function useUpdateProductOffer() {
+  const { updateOffer } = useOffersMutations()
+
+  return {
+    async updateProductPrices(productId: string, data: { price: number; cost?: number }) {
+      if (data.cost === undefined) {
+        throw new Error('Cost is required to update an offer')
+      }
+      return updateOffer(productId, { price: data.price, cost: data.cost })
     }
   }
 }
