@@ -7,6 +7,7 @@
  * - Shopping cart with session support
  * - Payment and shipping status management
  * - Customer order tracking
+ * - EC-M003: Stripe PaymentIntent integration
  *
  * @module ecommerce
  */
@@ -29,6 +30,27 @@ export type {
   ShoppingCart,
   ShoppingCartItem,
   ShoppingCartItemFormData,
+
+  // EC-M003: Payment Transaction types
+  EcommercePaymentTransaction,
+  EcommercePaymentTransactionFormData,
+  PaymentTransactionStatus,
+  PaymentGateway,
+  CardBrand,
+
+  // EC-M003: Stripe PaymentIntent types
+  StripePaymentIntentStatus,
+  CreatePaymentIntentRequest,
+  CreatePaymentIntentResponse,
+  ConfirmPaymentIntentRequest,
+  ConfirmPaymentIntentResponse,
+  CapturePaymentIntentRequest,
+  CancelPaymentIntentRequest,
+  RefundPaymentRequest,
+  RefundPaymentResponse,
+  StripeWebhookEventType,
+  PaymentProcessingResult,
+  StripeElementsConfig,
 
   // Response types
   EcommerceOrdersResponse,
@@ -53,6 +75,7 @@ export type {
 
 export { ecommerceService } from './services/ecommerceService';
 export { shoppingCartService } from './services/cartService';
+export { paymentService } from './services/paymentService';
 
 // ============================================
 // Hooks
@@ -92,9 +115,22 @@ export {
   shoppingCartItemFromAPI,
   shoppingCartItemToAPI,
 
+  // EC-M003: Payment transformers
+  paymentTransactionFromAPI,
+  paymentTransactionToAPI,
+
   // Helper functions
   calculateOrderTotals,
   calculateCartTotals,
+
+  // EC-M003: Payment helpers
+  formatPaymentAmount,
+  amountToStripeUnits,
+  stripeUnitsToAmount,
+  getPaymentStatusLabel,
+  getPaymentStatusBadgeClass,
+  getCardBrandInfo,
+  formatCardDisplay,
 } from './utils/transformers';
 
 // ============================================

@@ -4,7 +4,7 @@ import { Page, expect } from '@playwright/test'
  * E2E Test Helpers for ERP Demo Happy Paths
  */
 
-// Demo credentials
+// Demo credentials - Synced with backend UserSeeder.php
 export const DEMO_CREDENTIALS = {
   admin: {
     email: 'admin@example.com',
@@ -12,11 +12,15 @@ export const DEMO_CREDENTIALS = {
   },
   tech: {
     email: 'tech@example.com',
-    password: 'securet3ch'
+    password: 'securetech'  // Fixed: was 'securet3ch'
   },
   customer: {
     email: 'customer@example.com',
-    password: 'secureC0stumer'
+    password: 'customer'  // Fixed: was 'secureC0stumer'
+  },
+  god: {
+    email: 'god@example.com',
+    password: 'supersecure'
   }
 }
 

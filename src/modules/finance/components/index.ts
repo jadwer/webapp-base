@@ -29,4 +29,11 @@ export { PaymentMethodForm as PaymentMethodFormComponent } from './PaymentMethod
 export { PaymentApplicationsAdminPage } from './PaymentApplicationsAdminPage'
 export { PaymentApplicationForm as PaymentApplicationFormComponent } from './PaymentApplicationForm'
 
-// Bank Account components coming next
+// Bank Transaction components (v1.1)
+export { BankTransactionStatusBadge } from './BankTransactionStatusBadge'
+export { BankTransactionsTable } from './BankTransactionsTable'
+export { BankTransactionFormComponent as BankTransactionForm } from './BankTransactionForm'
+export { BankTransactionsAdminPage } from './BankTransactionsAdminPage'
+export { CreateBankTransactionWrapper } from './CreateBankTransactionWrapper'
+export { EditBankTransactionWrapper } from './EditBankTransactionWrapper'
+export { ViewBankTransactionWrapper } from './ViewBankTransactionWrapper'

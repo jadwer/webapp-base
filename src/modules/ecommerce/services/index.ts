@@ -6,3 +6,4 @@
 
 export { ecommerceService } from './ecommerceService';
 export { shoppingCartService } from './cartService';
+export { paymentService } from './paymentService';

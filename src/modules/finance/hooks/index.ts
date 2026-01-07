@@ -488,3 +488,8 @@ export {
   usePaymentMethodsRequiringReference,
   usePaymentMethodMutations,
 } from './usePaymentMethods'
+
+// Bank Transactions Hooks (v1.1)
+export { useBankTransactions } from './useBankTransactions'
+export { useBankTransaction } from './useBankTransaction'
+export { useBankTransactionMutations } from './useBankTransactionMutations'

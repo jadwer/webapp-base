@@ -355,3 +355,218 @@ export const mock500Error = () => ({
     },
   },
 })
+
+// ===== BUDGET MOCKS (v1.1) =====
+
+import type {
+  Budget,
+  ParsedBudget,
+  BudgetType,
+  BudgetPeriodType,
+  BudgetStatusLevel,
+  CreateBudgetRequest,
+  UpdateBudgetRequest,
+  BudgetSummary,
+} from '../../types'
+
+/**
+ * Creates a mock Budget object with optional overrides
+ */
+export const mockBudget = (overrides?: Partial<Budget>): Budget => ({
+  id: '1',
+  name: 'Test Budget',
+  code: 'TEST-BUD-001',
+  description: 'Test budget description',
+  budgetType: 'general' as BudgetType,
+  departmentCode: null,
+  categoryId: null,
+  projectCode: null,
+  contactId: null,
+  periodType: 'annual' as BudgetPeriodType,
+  startDate: '2025-01-01',
+  endDate: '2025-12-31',
+  fiscalYear: 2025,
+  budgetedAmount: 100000,
+  committedAmount: 25000,
+  spentAmount: 15000,
+  availableAmount: 60000,
+  warningThreshold: 80,
+  criticalThreshold: 95,
+  hardLimit: false,
+  allowOvercommit: false,
+  isActive: true,
+  createdAt: '2025-01-01T00:00:00.000Z',
+  updatedAt: '2025-01-01T00:00:00.000Z',
+  utilizationPercent: 40,
+  statusLevel: 'normal' as BudgetStatusLevel,
+  ...overrides,
+})
+
+/**
+ * Creates a list of mock budgets
+ */
+export const mockBudgets = (count: number = 3): Budget[] => {
+  const types: BudgetType[] = ['general', 'department', 'project']
+  const periods: BudgetPeriodType[] = ['annual', 'quarterly', 'monthly']
+
+  return Array.from({ length: count }, (_, index) =>
+    mockBudget({
+      id: (index + 1).toString(),
+      name: `Test Budget ${index + 1}`,
+      code: `TEST-BUD-${String(index + 1).padStart(3, '0')}`,
+      budgetType: types[index % types.length],
+      periodType: periods[index % periods.length],
+      budgetedAmount: (index + 1) * 50000,
+      committedAmount: (index + 1) * 10000,
+      spentAmount: (index + 1) * 5000,
+      utilizationPercent: ((index + 1) * 20) % 100,
+    })
+  )
+}
+
+/**
+ * Creates a mock ParsedBudget object with optional overrides
+ */
+export const mockParsedBudget = (overrides?: Partial<ParsedBudget>): ParsedBudget => {
+  const base = mockBudget(overrides)
+  return {
+    ...base,
+    budgetedAmountDisplay: `$${base.budgetedAmount.toLocaleString('es-MX')}`,
+    committedAmountDisplay: `$${base.committedAmount.toLocaleString('es-MX')}`,
+    spentAmountDisplay: `$${base.spentAmount.toLocaleString('es-MX')}`,
+    availableAmountDisplay: `$${(base.availableAmount || 0).toLocaleString('es-MX')}`,
+    utilizationDisplay: `${(base.utilizationPercent || 0).toFixed(1)}%`,
+    budgetTypeLabel: 'General',
+    periodTypeLabel: 'Anual',
+    statusLevelLabel: 'Normal',
+    ...overrides,
+  }
+}
+
+/**
+ * Creates mock form data for creating budgets
+ */
+export const mockCreateBudgetRequest = (
+  overrides?: Partial<CreateBudgetRequest>
+): CreateBudgetRequest => ({
+  name: 'New Budget',
+  code: 'NEW-BUD-001',
+  description: 'New budget description',
+  budgetType: 'general',
+  periodType: 'annual',
+  startDate: '2025-01-01',
+  endDate: '2025-12-31',
+  budgetedAmount: 50000,
+  warningThreshold: 80,
+  criticalThreshold: 95,
+  hardLimit: false,
+  allowOvercommit: false,
+  isActive: true,
+  ...overrides,
+})
+
+/**
+ * Creates mock form data for updating budgets
+ */
+export const mockUpdateBudgetRequest = (
+  overrides?: Partial<UpdateBudgetRequest>
+): UpdateBudgetRequest => ({
+  name: 'Updated Budget',
+  budgetedAmount: 75000,
+  ...overrides,
+})
+
+/**
+ * Creates a mock BudgetSummary object
+ */
+export const mockBudgetSummary = (overrides?: Partial<BudgetSummary>): BudgetSummary => ({
+  totalBudgets: 10,
+  activeBudgets: 8,
+  totalBudgeted: 500000,
+  totalCommitted: 150000,
+  totalSpent: 75000,
+  totalAvailable: 275000,
+  budgetsOverWarning: 2,
+  budgetsOverCritical: 1,
+  ...overrides,
+})
+
+/**
+ * Creates a mock JSON:API response for a single budget
+ */
+export const mockJsonApiBudgetResponse = (budget: Budget) => ({
+  data: {
+    id: budget.id.toString(),
+    type: 'budgets',
+    attributes: {
+      name: budget.name,
+      code: budget.code,
+      description: budget.description,
+      budget_type: budget.budgetType,
+      department_code: budget.departmentCode,
+      category_id: budget.categoryId,
+      project_code: budget.projectCode,
+      contact_id: budget.contactId,
+      period_type: budget.periodType,
+      start_date: budget.startDate,
+      end_date: budget.endDate,
+      fiscal_year: budget.fiscalYear,
+      budgeted_amount: budget.budgetedAmount,
+      committed_amount: budget.committedAmount,
+      spent_amount: budget.spentAmount,
+      available_amount: budget.availableAmount,
+      warning_threshold: budget.warningThreshold,
+      critical_threshold: budget.criticalThreshold,
+      hard_limit: budget.hardLimit,
+      allow_overcommit: budget.allowOvercommit,
+      is_active: budget.isActive,
+      created_at: budget.createdAt,
+      updated_at: budget.updatedAt,
+      utilization_percent: budget.utilizationPercent,
+      status_level: budget.statusLevel,
+    },
+  },
+})
+
+/**
+ * Creates a mock JSON:API response for multiple budgets
+ */
+export const mockJsonApiBudgetsResponse = (budgets: Budget[]) => ({
+  data: budgets.map((budget) => ({
+    id: budget.id.toString(),
+    type: 'budgets',
+    attributes: {
+      name: budget.name,
+      code: budget.code,
+      description: budget.description,
+      budget_type: budget.budgetType,
+      department_code: budget.departmentCode,
+      category_id: budget.categoryId,
+      project_code: budget.projectCode,
+      contact_id: budget.contactId,
+      period_type: budget.periodType,
+      start_date: budget.startDate,
+      end_date: budget.endDate,
+      fiscal_year: budget.fiscalYear,
+      budgeted_amount: budget.budgetedAmount,
+      committed_amount: budget.committedAmount,
+      spent_amount: budget.spentAmount,
+      available_amount: budget.availableAmount,
+      warning_threshold: budget.warningThreshold,
+      critical_threshold: budget.criticalThreshold,
+      hard_limit: budget.hardLimit,
+      allow_overcommit: budget.allowOvercommit,
+      is_active: budget.isActive,
+      created_at: budget.createdAt,
+      updated_at: budget.updatedAt,
+      utilization_percent: budget.utilizationPercent,
+      status_level: budget.statusLevel,
+    },
+  })),
+  meta: {
+    current_page: 1,
+    per_page: 20,
+    total: budgets.length,
+    last_page: 1,
+  },
+})

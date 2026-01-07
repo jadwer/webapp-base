@@ -1,8 +1,8 @@
-import useSWR from 'swr'
-import { useCallback } from 'react'
-import { purchaseService, purchaseReportsService, purchaseContactsService, purchaseProductsService } from '../services'
+import useSWR, { useSWRConfig } from 'swr'
+import { useCallback, useState } from 'react'
+import { purchaseService, purchaseReportsService, purchaseContactsService, purchaseProductsService, budgetsService } from '../services'
 import { transformPurchaseOrdersResponse, transformPurchaseOrderItemsResponse } from '../utils/transformers'
-import { PurchaseOrderFormData, PurchaseOrderFilters } from '../types'
+import { PurchaseOrderFormData, PurchaseOrderFilters, BudgetFilters, BudgetSortOptions, CreateBudgetRequest, UpdateBudgetRequest, ParsedBudget } from '../types'
 
 // Purchase Orders Hooks
 export const usePurchaseOrders = (params?: PurchaseOrderFilters) => {
@@ -287,5 +287,199 @@ export const usePurchaseOrderWithItems = (id: string) => {
       mutateOrder()
       mutateItems()
     }
+  }
+}
+
+// ===== BUDGET HOOKS (v1.1) =====
+
+interface UseBudgetsOptions {
+  filters?: BudgetFilters;
+  sort?: BudgetSortOptions;
+  page?: number;
+  pageSize?: number;
+}
+
+/**
+ * Hook to fetch budgets with optional filters, sorting, and pagination
+ */
+export const useBudgets = (options?: UseBudgetsOptions) => {
+  const { filters, sort, page = 1, pageSize = 20 } = options || {}
+
+  // Build cache key from options
+  const cacheKey = JSON.stringify({ filters, sort, page, pageSize })
+
+  const { data, error, isLoading, mutate } = useSWR(
+    [`/api/v1/budgets`, cacheKey],
+    () => budgetsService.getAll(filters, sort, page, pageSize),
+    {
+      revalidateOnFocus: false,
+      dedupingInterval: 5000,
+    }
+  )
+
+  return {
+    budgets: data?.data || [],
+    meta: data?.meta,
+    isLoading,
+    error,
+    mutate,
+  }
+}
+
+/**
+ * Hook to fetch a single budget by ID
+ */
+export const useBudget = (options: { id: string | null }) => {
+  const { id } = options
+
+  const { data, error, isLoading, mutate } = useSWR(
+    id ? `/api/v1/budgets/${id}` : null,
+    () => (id ? budgetsService.getById(id) : null),
+    {
+      revalidateOnFocus: false,
+    }
+  )
+
+  return {
+    budget: data || null,
+    isLoading,
+    error,
+    mutate,
+  }
+}
+
+/**
+ * Hook for budget mutations (create, update, delete)
+ */
+export const useBudgetMutations = () => {
+  const { mutate } = useSWRConfig()
+  const [isLoading, setIsLoading] = useState(false)
+
+  const invalidateBudgetCache = useCallback(() => {
+    // Invalidate all budget-related cache keys
+    mutate(
+      (key: unknown) => {
+        if (typeof key === 'string' && key.startsWith('/api/v1/budgets')) {
+          return true
+        }
+        if (Array.isArray(key) && typeof key[0] === 'string' && key[0].startsWith('/api/v1/budgets')) {
+          return true
+        }
+        return false
+      },
+      undefined,
+      { revalidate: true }
+    )
+  }, [mutate])
+
+  const createBudget = useCallback(
+    async (data: CreateBudgetRequest): Promise<ParsedBudget> => {
+      setIsLoading(true)
+      try {
+        const result = await budgetsService.create(data)
+        invalidateBudgetCache()
+        return result
+      } finally {
+        setIsLoading(false)
+      }
+    },
+    [invalidateBudgetCache]
+  )
+
+  const updateBudget = useCallback(
+    async (id: string, data: UpdateBudgetRequest): Promise<ParsedBudget> => {
+      setIsLoading(true)
+      try {
+        const result = await budgetsService.update(id, data)
+        invalidateBudgetCache()
+        return result
+      } finally {
+        setIsLoading(false)
+      }
+    },
+    [invalidateBudgetCache]
+  )
+
+  const deleteBudget = useCallback(
+    async (id: string): Promise<void> => {
+      setIsLoading(true)
+      try {
+        await budgetsService.delete(id)
+        invalidateBudgetCache()
+      } finally {
+        setIsLoading(false)
+      }
+    },
+    [invalidateBudgetCache]
+  )
+
+  return {
+    createBudget,
+    updateBudget,
+    deleteBudget,
+    isLoading,
+  }
+}
+
+/**
+ * Hook to fetch budget summary statistics
+ */
+export const useBudgetSummary = () => {
+  const { data, error, isLoading, mutate } = useSWR(
+    '/api/v1/budgets/summary',
+    () => budgetsService.getSummary(),
+    {
+      revalidateOnFocus: false,
+      dedupingInterval: 30000, // 30 seconds
+    }
+  )
+
+  return {
+    summary: data || null,
+    isLoading,
+    error,
+    mutate,
+  }
+}
+
+/**
+ * Hook to fetch budgets that need attention
+ */
+export const useBudgetsNeedingAttention = () => {
+  const { data, error, isLoading, mutate } = useSWR(
+    '/api/v1/budgets/needs-attention',
+    () => budgetsService.getNeedsAttention(),
+    {
+      revalidateOnFocus: false,
+      dedupingInterval: 30000, // 30 seconds
+    }
+  )
+
+  return {
+    budgets: data || [],
+    isLoading,
+    error,
+    mutate,
+  }
+}
+
+/**
+ * Hook to fetch current/active budgets
+ */
+export const useCurrentBudgets = (page: number = 1, pageSize: number = 20) => {
+  const { data, error, isLoading, mutate } = useSWR(
+    [`/api/v1/budgets/current`, page, pageSize],
+    () => budgetsService.getCurrent(page, pageSize),
+    {
+      revalidateOnFocus: false,
+    }
+  )
+
+  return {
+    budgets: data?.data || [],
+    meta: data?.meta,
+    isLoading,
+    error,
+    mutate,
   }
 }

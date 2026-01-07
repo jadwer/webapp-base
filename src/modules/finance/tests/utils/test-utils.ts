@@ -2,7 +2,7 @@
 // Mock factories and utilities for testing Finance module
 // Synced with FINANCE_FRONTEND_GUIDE.md 2025-12-28
 
-import type { APInvoice, APPayment, ARInvoice, ARReceipt, BankAccount, PaymentApplication, PaymentMethod, Payment } from '../../types'
+import type { APInvoice, APPayment, ARInvoice, ARReceipt, BankAccount, PaymentApplication, PaymentMethod, Payment, BankTransaction, ParsedBankTransaction } from '../../types'
 
 // Mock AP Invoice factory
 export const createMockAPInvoice = (overrides?: Partial<APInvoice>): APInvoice => ({
@@ -58,6 +58,14 @@ export const createMockARInvoice = (overrides?: Partial<ARInvoice>): ARInvoice =
   voidedAt: null,
   voidedById: null,
   voidReason: null,
+  // FI-M002: Early Payment Discount fields
+  discountPercent: null,
+  discountDays: null,
+  discountDate: null,
+  discountAmount: null,
+  discountApplied: false,
+  discountAppliedAmount: null,
+  discountAppliedDate: null,
   notes: null,
   metadata: null,
   isActive: true,
@@ -158,6 +166,38 @@ export const createMockPaymentMethod = (overrides?: Partial<PaymentMethod>): Pay
   ...overrides,
 })
 
+// Mock Bank Transaction factory
+export const createMockBankTransaction = (overrides?: Partial<BankTransaction>): BankTransaction => ({
+  id: '1',
+  bankAccountId: 1,
+  transactionDate: '2025-08-20',
+  amount: 5000.00,
+  transactionType: 'credit',
+  reference: 'DEP-001',
+  description: 'Customer deposit',
+  reconciliationStatus: 'unreconciled',
+  reconciledById: null,
+  reconciledAt: null,
+  reconciliationNotes: null,
+  statementNumber: '2025-08',
+  runningBalance: 55000.00,
+  isActive: true,
+  createdAt: '2025-08-20T10:00:00.000Z',
+  updatedAt: '2025-08-20T10:00:00.000Z',
+  bankAccountName: 'Main Operations Account',
+  reconciledByName: undefined,
+  ...overrides,
+})
+
+// Mock Parsed Bank Transaction factory
+export const createMockParsedBankTransaction = (overrides?: Partial<ParsedBankTransaction>): ParsedBankTransaction => ({
+  ...createMockBankTransaction(),
+  amountDisplay: '$5,000.00',
+  statusLabel: 'Sin Conciliar',
+  typeLabel: 'Credito',
+  ...overrides,
+})
+
 // Mock API response factory
 export const createMockAPIResponse = <T>(data: T[], meta?: any) => ({
   data,
@@ -207,7 +247,26 @@ export const setupCommonMocks = () => {
   // Setup code will be implemented in actual test files where vi is available
 }
 
-// Cleanup function - to be used in actual test files  
+// Cleanup function - to be used in actual test files
 export const cleanupMocks = () => {
   // Cleanup code will be implemented in actual test files where vi is available
+}
+
+// FI-M002: Mock AR Invoice with Early Payment Discount
+export const createMockARInvoiceWithDiscount = (overrides?: Partial<ARInvoice>): ARInvoice => {
+  const invoiceDate = '2025-08-20'
+  const discountDays = 10
+  const discountDate = new Date(invoiceDate)
+  discountDate.setDate(discountDate.getDate() + discountDays)
+
+  return createMockARInvoice({
+    discountPercent: 2.0,
+    discountDays: 10,
+    discountDate: discountDate.toISOString().split('T')[0],
+    discountAmount: 46.40, // 2% of 2320
+    discountApplied: false,
+    discountAppliedAmount: null,
+    discountAppliedDate: null,
+    ...overrides,
+  })
 }

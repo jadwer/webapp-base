@@ -146,3 +146,187 @@ export interface PeriodPurchaseData {
   totalPurchases: number
   orderCount: number
 }
+
+// ===== BUDGET (v1.1) =====
+
+export type BudgetType = 'department' | 'category' | 'project' | 'supplier' | 'general';
+export type BudgetPeriodType = 'monthly' | 'quarterly' | 'annual' | 'custom';
+export type BudgetStatusLevel = 'normal' | 'warning' | 'critical' | 'exceeded';
+export type BudgetAllocationStatus = 'committed' | 'spent' | 'released' | 'cancelled';
+
+export interface Budget {
+  id: string;
+  name: string;
+  code: string;
+  description: string | null;
+  budgetType: BudgetType;
+  departmentCode: string | null;
+  categoryId: number | null;
+  projectCode: string | null;
+  contactId: number | null;
+  periodType: BudgetPeriodType;
+  startDate: string;
+  endDate: string;
+  fiscalYear: number | null;
+  budgetedAmount: number;
+  committedAmount: number;
+  spentAmount: number;
+  availableAmount?: number;
+  warningThreshold: number;
+  criticalThreshold: number;
+  hardLimit: boolean;
+  allowOvercommit: boolean;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+  // Computed
+  utilizationPercent?: number;
+  statusLevel?: BudgetStatusLevel;
+  // Relationships
+  categoryName?: string;
+  contactName?: string;
+}
+
+export interface ParsedBudget extends Budget {
+  budgetedAmountDisplay: string;
+  committedAmountDisplay: string;
+  spentAmountDisplay: string;
+  availableAmountDisplay: string;
+  utilizationDisplay: string;
+  budgetTypeLabel: string;
+  periodTypeLabel: string;
+  statusLevelLabel: string;
+}
+
+export interface BudgetAllocation {
+  id: string;
+  budgetId: number;
+  purchaseOrderId: number;
+  allocatedAmount: number;
+  status: BudgetAllocationStatus;
+  notes: string | null;
+  createdAt: string;
+  updatedAt: string;
+  // Relationships
+  budgetName?: string;
+  purchaseOrderNumber?: string;
+}
+
+export interface BudgetFormData {
+  name: string;
+  code: string;
+  description?: string;
+  budgetType: BudgetType;
+  departmentCode?: string;
+  categoryId?: number;
+  projectCode?: string;
+  contactId?: number;
+  periodType: BudgetPeriodType;
+  startDate: string;
+  endDate: string;
+  fiscalYear?: number;
+  budgetedAmount: number;
+  warningThreshold?: number;
+  criticalThreshold?: number;
+  hardLimit?: boolean;
+  allowOvercommit?: boolean;
+  isActive?: boolean;
+}
+
+export type CreateBudgetRequest = BudgetFormData
+
+export type UpdateBudgetRequest = Partial<BudgetFormData>
+
+export interface BudgetFilters {
+  budgetType?: BudgetType;
+  periodType?: BudgetPeriodType;
+  departmentCode?: string;
+  categoryId?: number;
+  contactId?: number;
+  fiscalYear?: number;
+  isActive?: boolean;
+  current?: boolean;
+  overWarning?: boolean;
+  overCritical?: boolean;
+}
+
+export interface BudgetSortOptions {
+  field: 'name' | 'code' | 'budgetType' | 'periodType' | 'startDate' | 'endDate' | 'budgetedAmount' | 'isActive' | 'createdAt';
+  direction: 'asc' | 'desc';
+}
+
+export interface UseBudgetsResult {
+  budgets: ParsedBudget[];
+  meta?: {
+    currentPage: number;
+    perPage: number;
+    total: number;
+    lastPage: number;
+  };
+  isLoading: boolean;
+  error: Error | null;
+  mutate: () => void;
+}
+
+export interface UseBudgetResult {
+  budget: ParsedBudget | null;
+  isLoading: boolean;
+  error: Error | null;
+  mutate: () => void;
+}
+
+export interface UseBudgetMutationsResult {
+  createBudget: (data: CreateBudgetRequest) => Promise<ParsedBudget>;
+  updateBudget: (id: string, data: UpdateBudgetRequest) => Promise<ParsedBudget>;
+  deleteBudget: (id: string) => Promise<void>;
+  isLoading: boolean;
+}
+
+export interface BudgetSummary {
+  totalBudgets: number;
+  activeBudgets: number;
+  totalBudgeted: number;
+  totalCommitted: number;
+  totalSpent: number;
+  totalAvailable: number;
+  budgetsOverWarning: number;
+  budgetsOverCritical: number;
+}
+
+// UI Config Constants
+export const BUDGET_TYPE_CONFIG: Record<BudgetType, { label: string; icon: string; badgeClass: string }> = {
+  department: { label: 'Departamento', icon: 'bi-building', badgeClass: 'bg-primary' },
+  category: { label: 'Categoria', icon: 'bi-tags', badgeClass: 'bg-info' },
+  project: { label: 'Proyecto', icon: 'bi-folder', badgeClass: 'bg-success' },
+  supplier: { label: 'Proveedor', icon: 'bi-person-badge', badgeClass: 'bg-warning' },
+  general: { label: 'General', icon: 'bi-globe', badgeClass: 'bg-secondary' },
+};
+
+export const BUDGET_PERIOD_TYPE_CONFIG: Record<BudgetPeriodType, { label: string }> = {
+  monthly: { label: 'Mensual' },
+  quarterly: { label: 'Trimestral' },
+  annual: { label: 'Anual' },
+  custom: { label: 'Personalizado' },
+};
+
+export const BUDGET_STATUS_LEVEL_CONFIG: Record<BudgetStatusLevel, { label: string; badgeClass: string; icon: string }> = {
+  normal: { label: 'Normal', badgeClass: 'bg-success', icon: 'bi-check-circle' },
+  warning: { label: 'Advertencia', badgeClass: 'bg-warning text-dark', icon: 'bi-exclamation-triangle' },
+  critical: { label: 'Critico', badgeClass: 'bg-danger', icon: 'bi-exclamation-circle' },
+  exceeded: { label: 'Excedido', badgeClass: 'bg-dark', icon: 'bi-x-circle' },
+};
+
+export const BUDGET_TYPE_OPTIONS: Array<{ value: BudgetType; label: string }> = [
+  { value: 'general', label: 'General' },
+  { value: 'department', label: 'Departamento' },
+  { value: 'category', label: 'Categoria' },
+  { value: 'project', label: 'Proyecto' },
+  { value: 'supplier', label: 'Proveedor' },
+];
+
+export const BUDGET_PERIOD_TYPE_OPTIONS: Array<{ value: BudgetPeriodType; label: string }> = [
+  { value: 'monthly', label: 'Mensual' },
+  { value: 'quarterly', label: 'Trimestral' },
+  { value: 'annual', label: 'Anual' },
+  { value: 'custom', label: 'Personalizado' },
+];

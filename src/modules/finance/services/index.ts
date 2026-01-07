@@ -23,6 +23,11 @@ import {
   transformPaymentMethodsFromAPI,
   transformPaymentMethodFromAPI,
   transformPaymentMethodToAPI,
+  transformBankTransactionsFromAPI,
+  transformBankTransactionFromAPI,
+  transformBankTransactionToParsed,
+  transformBankTransactionToAPI,
+  transformBankTransactionUpdateToAPI,
 } from '../utils/transformers';
 import type {
   APInvoice,
@@ -40,6 +45,11 @@ import type {
   PaymentMethod,
   PaymentMethodForm,
   FinanceAPIResponse,
+  ParsedBankTransaction,
+  CreateBankTransactionRequest,
+  UpdateBankTransactionRequest,
+  BankTransactionFilters,
+  BankTransactionSortOptions,
 } from '../types';
 
 // AP Invoices Service
@@ -603,3 +613,162 @@ export const getPaymentMethod = (id: string) => paymentMethodsService.getById(id
 export const createPaymentMethod = (data: PaymentMethodForm) => paymentMethodsService.create(data).then(response => response.data);
 export const updatePaymentMethod = (id: string, data: Partial<PaymentMethodForm>) => paymentMethodsService.update(id, data).then(response => response.data);
 export const deletePaymentMethod = (id: string) => paymentMethodsService.delete(id);
+
+// ===== BANK TRANSACTIONS SERVICE (v1.1) =====
+
+export const bankTransactionsService = {
+  /**
+   * Get all bank transactions with optional filters, sorting, and pagination
+   */
+  async getAll(
+    filters?: BankTransactionFilters,
+    sort?: BankTransactionSortOptions,
+    page: number = 1,
+    pageSize: number = 20
+  ): Promise<{ data: ParsedBankTransaction[]; meta?: { currentPage: number; perPage: number; total: number; lastPage: number } }> {
+    const params: Record<string, string> = {};
+
+    // Apply filters
+    if (filters?.bankAccountId) params['filter[bank_account_id]'] = String(filters.bankAccountId);
+    if (filters?.transactionType) params['filter[transaction_type]'] = filters.transactionType;
+    if (filters?.reconciliationStatus) params['filter[reconciliation_status]'] = filters.reconciliationStatus;
+    if (filters?.statementNumber) params['filter[statement_number]'] = filters.statementNumber;
+    if (filters?.reference) params['filter[reference]'] = filters.reference;
+    if (filters?.isActive !== undefined) params['filter[is_active]'] = filters.isActive ? '1' : '0';
+
+    // Apply sorting
+    if (sort) {
+      const sortPrefix = sort.direction === 'desc' ? '-' : '';
+      const fieldMap: Record<string, string> = {
+        transactionDate: 'transaction_date',
+        amount: 'amount',
+        transactionType: 'transaction_type',
+        reconciliationStatus: 'reconciliation_status',
+        createdAt: 'created_at',
+        statementNumber: 'statement_number',
+      };
+      params.sort = `${sortPrefix}${fieldMap[sort.field] || sort.field}`;
+    }
+
+    // Apply pagination
+    params['page[number]'] = String(page);
+    params['page[size]'] = String(pageSize);
+
+    // Include relationships
+    params.include = 'bankAccount,reconciledBy';
+
+    const response = await axiosClient.get('/api/v1/bank-transactions', { params });
+    const transformedData = transformBankTransactionsFromAPI(response.data);
+
+    return {
+      data: transformedData,
+      meta: response.data.meta?.page ? {
+        currentPage: response.data.meta.page.currentPage || page,
+        perPage: response.data.meta.page.perPage || pageSize,
+        total: response.data.meta.page.total || transformedData.length,
+        lastPage: response.data.meta.page.lastPage || 1,
+      } : undefined,
+    };
+  },
+
+  /**
+   * Get a single bank transaction by ID
+   */
+  async getById(id: string): Promise<ParsedBankTransaction> {
+    const response = await axiosClient.get(`/api/v1/bank-transactions/${id}?include=bankAccount,reconciledBy`);
+    const transaction = transformBankTransactionFromAPI(response.data.data, response.data.included || []);
+    return transformBankTransactionToParsed(transaction);
+  },
+
+  /**
+   * Create a new bank transaction
+   */
+  async create(data: CreateBankTransactionRequest): Promise<ParsedBankTransaction> {
+    const payload = transformBankTransactionToAPI(data);
+    const response = await axiosClient.post('/api/v1/bank-transactions', payload);
+    const transaction = transformBankTransactionFromAPI(response.data.data);
+    return transformBankTransactionToParsed(transaction);
+  },
+
+  /**
+   * Update an existing bank transaction
+   */
+  async update(id: string, data: UpdateBankTransactionRequest): Promise<ParsedBankTransaction> {
+    const payload = transformBankTransactionUpdateToAPI(id, data);
+    const response = await axiosClient.patch(`/api/v1/bank-transactions/${id}`, payload);
+    const transaction = transformBankTransactionFromAPI(response.data.data);
+    return transformBankTransactionToParsed(transaction);
+  },
+
+  /**
+   * Delete a bank transaction
+   */
+  async delete(id: string): Promise<void> {
+    await axiosClient.delete(`/api/v1/bank-transactions/${id}`);
+  },
+
+  /**
+   * Mark a transaction as reconciled
+   */
+  async reconcile(id: string, notes?: string): Promise<ParsedBankTransaction> {
+    return this.update(id, {
+      reconciliationStatus: 'reconciled',
+      reconciledAt: new Date().toISOString(),
+      reconciliationNotes: notes,
+    });
+  },
+
+  /**
+   * Mark a transaction as unreconciled
+   */
+  async unreconcile(id: string): Promise<ParsedBankTransaction> {
+    return this.update(id, {
+      reconciliationStatus: 'unreconciled',
+      reconciledAt: undefined,
+      reconciledById: undefined,
+      reconciliationNotes: undefined,
+    });
+  },
+
+  /**
+   * Get transactions by bank account ID
+   */
+  async getByBankAccount(
+    bankAccountId: number,
+    page: number = 1,
+    pageSize: number = 20
+  ): Promise<{ data: ParsedBankTransaction[]; meta?: { currentPage: number; perPage: number; total: number; lastPage: number } }> {
+    return this.getAll({ bankAccountId }, { field: 'transactionDate', direction: 'desc' }, page, pageSize);
+  },
+
+  /**
+   * Get unreconciled transactions
+   */
+  async getUnreconciled(
+    bankAccountId?: number,
+    page: number = 1,
+    pageSize: number = 20
+  ): Promise<{ data: ParsedBankTransaction[]; meta?: { currentPage: number; perPage: number; total: number; lastPage: number } }> {
+    return this.getAll(
+      { bankAccountId, reconciliationStatus: 'unreconciled' },
+      { field: 'transactionDate', direction: 'asc' },
+      page,
+      pageSize
+    );
+  },
+};
+
+// Export individual functions for Bank Transactions
+export const getBankTransactions = (params?: {
+  filters?: BankTransactionFilters;
+  sort?: BankTransactionSortOptions;
+  page?: number;
+  pageSize?: number;
+}) => bankTransactionsService.getAll(params?.filters, params?.sort, params?.page, params?.pageSize);
+
+export const getBankTransaction = (id: string) => bankTransactionsService.getById(id);
+export const createBankTransaction = (data: CreateBankTransactionRequest) => bankTransactionsService.create(data);
+export const updateBankTransaction = (id: string, data: UpdateBankTransactionRequest) => bankTransactionsService.update(id, data);
+export const deleteBankTransaction = (id: string) => bankTransactionsService.delete(id);
+export const reconcileBankTransaction = (id: string, notes?: string) => bankTransactionsService.reconcile(id, notes);
+export const unreconcileBankTransaction = (id: string) => bankTransactionsService.unreconcile(id);

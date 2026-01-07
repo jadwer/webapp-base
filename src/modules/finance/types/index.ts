@@ -34,6 +34,15 @@ export interface ARInvoice {
   voidedById: number | null;
   voidReason: string | null;
 
+  // FI-M002: Early Payment Discount fields
+  discountPercent: number | null;
+  discountDays: number | null;
+  discountDate: string | null;
+  discountAmount: number | null;
+  discountApplied: boolean;
+  discountAppliedAmount: number | null;
+  discountAppliedDate: string | null;
+
   notes: string | null;
   metadata: Record<string, unknown> | null;
   isActive: boolean;
@@ -207,6 +216,14 @@ export interface ARInvoiceForm {
   status: InvoiceStatus;
   notes?: string;
   metadata?: Record<string, unknown>;
+  // FI-M002: Early Payment Discount fields
+  discountPercent?: number | null;
+  discountDays?: number | null;
+  discountDate?: string | null;
+  discountAmount?: number | null;
+  discountApplied?: boolean;
+  discountAppliedAmount?: number | null;
+  discountAppliedDate?: string | null;
 }
 
 export interface APInvoiceForm {
@@ -318,5 +335,270 @@ export interface FinanceAPIError {
     source?: {
       pointer?: string;
     };
+  }>;
+}
+
+// ===== BANK TRANSACTION (v1.1) =====
+export type BankTransactionType = 'debit' | 'credit';
+export type ReconciliationStatus = 'unreconciled' | 'reconciled' | 'pending';
+
+export interface BankTransaction {
+  id: string;
+  bankAccountId: number;
+  transactionDate: string;
+  amount: number;
+  transactionType: BankTransactionType;
+  reference: string | null;
+  description: string | null;
+  reconciliationStatus: ReconciliationStatus;
+  reconciledById: number | null;
+  reconciledAt: string | null;
+  reconciliationNotes: string | null;
+  statementNumber: string | null;
+  runningBalance: number | null;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+
+  // Resolved from includes
+  bankAccountName?: string;
+  reconciledByName?: string;
+}
+
+export interface ParsedBankTransaction extends BankTransaction {
+  // UI-friendly computed properties
+  amountDisplay: string;
+  statusLabel: string;
+  typeLabel: string;
+}
+
+export interface BankTransactionFormData {
+  bankAccountId: number;
+  transactionDate: string;
+  amount: number;
+  transactionType: BankTransactionType;
+  reference?: string;
+  description?: string;
+  reconciliationStatus?: ReconciliationStatus;
+  reconciledById?: number;
+  reconciledAt?: string;
+  reconciliationNotes?: string;
+  statementNumber?: string;
+  runningBalance?: number;
+  isActive?: boolean;
+}
+
+export interface CreateBankTransactionRequest {
+  bankAccountId: number;
+  transactionDate: string;
+  amount: number;
+  transactionType: BankTransactionType;
+  reference?: string;
+  description?: string;
+  reconciliationStatus?: ReconciliationStatus;
+  statementNumber?: string;
+  runningBalance?: number;
+  isActive?: boolean;
+}
+
+export interface UpdateBankTransactionRequest {
+  bankAccountId?: number;
+  transactionDate?: string;
+  amount?: number;
+  transactionType?: BankTransactionType;
+  reference?: string;
+  description?: string;
+  reconciliationStatus?: ReconciliationStatus;
+  reconciledById?: number;
+  reconciledAt?: string;
+  reconciliationNotes?: string;
+  statementNumber?: string;
+  runningBalance?: number;
+  isActive?: boolean;
+}
+
+export interface BankTransactionFilters {
+  search?: string;
+  bankAccountId?: number;
+  transactionType?: BankTransactionType;
+  reconciliationStatus?: ReconciliationStatus;
+  statementNumber?: string;
+  reference?: string;
+  isActive?: boolean;
+}
+
+export interface BankTransactionSortOptions {
+  field: 'transactionDate' | 'amount' | 'transactionType' | 'reconciliationStatus' | 'createdAt' | 'statementNumber';
+  direction: 'asc' | 'desc';
+}
+
+// Hook result types
+export interface UseBankTransactionsResult {
+  bankTransactions: ParsedBankTransaction[];
+  isLoading: boolean;
+  error: Error | null;
+  meta?: {
+    currentPage: number;
+    perPage: number;
+    total: number;
+    lastPage: number;
+  };
+  mutate: () => void;
+}
+
+export interface UseBankTransactionResult {
+  bankTransaction?: ParsedBankTransaction;
+  isLoading: boolean;
+  error: Error | null;
+  mutate: () => void;
+}
+
+export interface UseBankTransactionMutationsResult {
+  createBankTransaction: (data: CreateBankTransactionRequest) => Promise<ParsedBankTransaction>;
+  updateBankTransaction: (id: string, data: UpdateBankTransactionRequest) => Promise<ParsedBankTransaction>;
+  deleteBankTransaction: (id: string) => Promise<void>;
+  reconcile: (id: string, notes?: string) => Promise<ParsedBankTransaction>;
+  unreconcile: (id: string) => Promise<ParsedBankTransaction>;
+  isLoading: boolean;
+}
+
+// UI Configuration
+export interface BankTransactionTypeConfig {
+  label: string;
+  icon: string;
+  badgeClass: string;
+  description: string;
+}
+
+export interface ReconciliationStatusConfig {
+  label: string;
+  badgeClass: string;
+  description: string;
+}
+
+// Constants for UI
+export const BANK_TRANSACTION_TYPE_CONFIG: Record<BankTransactionType, BankTransactionTypeConfig> = {
+  debit: {
+    label: 'Debito',
+    icon: 'bi-arrow-down-circle',
+    badgeClass: 'bg-danger',
+    description: 'Salida de dinero de la cuenta'
+  },
+  credit: {
+    label: 'Credito',
+    icon: 'bi-arrow-up-circle',
+    badgeClass: 'bg-success',
+    description: 'Entrada de dinero a la cuenta'
+  }
+};
+
+export const RECONCILIATION_STATUS_CONFIG: Record<ReconciliationStatus, ReconciliationStatusConfig> = {
+  unreconciled: {
+    label: 'Sin Conciliar',
+    badgeClass: 'bg-warning text-dark',
+    description: 'Transaccion pendiente de conciliacion'
+  },
+  pending: {
+    label: 'Pendiente',
+    badgeClass: 'bg-info',
+    description: 'Transaccion en proceso de conciliacion'
+  },
+  reconciled: {
+    label: 'Conciliada',
+    badgeClass: 'bg-success',
+    description: 'Transaccion conciliada correctamente'
+  }
+};
+
+export const BANK_TRANSACTION_TYPE_OPTIONS = [
+  { value: 'debit', label: 'Debito (Salida)' },
+  { value: 'credit', label: 'Credito (Entrada)' }
+];
+
+export const RECONCILIATION_STATUS_OPTIONS = [
+  { value: 'unreconciled', label: 'Sin Conciliar' },
+  { value: 'pending', label: 'Pendiente' },
+  { value: 'reconciled', label: 'Conciliada' }
+];
+
+// ===== EARLY PAYMENT DISCOUNT (FI-M002) =====
+
+/**
+ * Common payment term presets
+ * Format: discount% / days Net fullDays
+ * Example: 2/10 Net 30 = 2% discount if paid in 10 days, full amount due in 30 days
+ */
+export type EarlyPaymentTermPreset = '2/10 Net 30' | '1/15 Net 45' | '3/5 Net 30' | '2/15 Net 60';
+
+export interface EarlyPaymentTermConfig {
+  label: string;
+  discountPercent: number;
+  discountDays: number;
+  description: string;
+}
+
+export const EARLY_PAYMENT_TERM_CONFIG: Record<EarlyPaymentTermPreset, EarlyPaymentTermConfig> = {
+  '2/10 Net 30': {
+    label: '2/10 Net 30',
+    discountPercent: 2.0,
+    discountDays: 10,
+    description: '2% descuento si paga en 10 dias, vencimiento en 30 dias'
+  },
+  '1/15 Net 45': {
+    label: '1/15 Net 45',
+    discountPercent: 1.0,
+    discountDays: 15,
+    description: '1% descuento si paga en 15 dias, vencimiento en 45 dias'
+  },
+  '3/5 Net 30': {
+    label: '3/5 Net 30',
+    discountPercent: 3.0,
+    discountDays: 5,
+    description: '3% descuento si paga en 5 dias, vencimiento en 30 dias'
+  },
+  '2/15 Net 60': {
+    label: '2/15 Net 60',
+    discountPercent: 2.0,
+    discountDays: 15,
+    description: '2% descuento si paga en 15 dias, vencimiento en 60 dias'
+  }
+};
+
+export const EARLY_PAYMENT_TERM_OPTIONS = [
+  { value: '2/10 Net 30', label: '2/10 Net 30 (2% en 10 dias)' },
+  { value: '1/15 Net 45', label: '1/15 Net 45 (1% en 15 dias)' },
+  { value: '3/5 Net 30', label: '3/5 Net 30 (3% en 5 dias)' },
+  { value: '2/15 Net 60', label: '2/15 Net 60 (2% en 15 dias)' }
+];
+
+export interface EarlyPaymentDiscountInfo {
+  originalRemaining: number;
+  discountAvailable: boolean;
+  discountAmount: number;
+  discountedRemaining: number;
+  discountDeadline: string | null;
+  daysUntilDeadline: number | null;
+}
+
+export interface EarlyPaymentAnalysis {
+  worthTaking: boolean;
+  annualizedRate: number;
+  costOfCapital: number;
+  savingsVsCost: number;
+  discountAmount: number;
+  reason: string;
+}
+
+export interface EarlyPaymentSavingsSummary {
+  totalEligibleInvoices: number;
+  totalInvoiceAmount: number;
+  totalRemainingAmount: number;
+  totalDiscountAvailable: number;
+  potentialSavingsPercent: number;
+  byContact: Record<string, {
+    invoiceCount: number;
+    totalDiscount: number;
+    totalRemaining: number;
+    earliestDeadline: string;
   }>;
 }

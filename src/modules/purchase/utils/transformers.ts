@@ -1,4 +1,4 @@
-import { JsonApiResource, PurchaseOrder, PurchaseOrderItem, Contact, PurchaseOrderFormData, PurchaseOrderStatus, InvoicingStatus } from '../types'
+import { JsonApiResource, PurchaseOrder, PurchaseOrderItem, Contact, PurchaseOrderFormData, PurchaseOrderStatus, InvoicingStatus, Budget, ParsedBudget, BudgetType, BudgetPeriodType, BudgetStatusLevel, CreateBudgetRequest, UpdateBudgetRequest, BUDGET_TYPE_CONFIG, BUDGET_PERIOD_TYPE_CONFIG, BUDGET_STATUS_LEVEL_CONFIG } from '../types'
 
 export function transformContact(resource: JsonApiResource | Record<string, unknown>): Contact {
   if (!resource) return { id: '', name: '', type: 'individual' }
@@ -264,4 +264,185 @@ export function transformPurchaseOrderItemFormToJsonApi(data: Record<string, unk
   
   console.log('📦 [Transformer] Purchase Order Item payload:', JSON.stringify(payload, null, 2))
   return payload
+}
+
+// ===== BUDGET TRANSFORMERS (v1.1) =====
+
+const formatCurrency = (amount: number | null | undefined): string => {
+  if (amount === null || amount === undefined) return '$0.00'
+  return amount.toLocaleString('es-MX', {
+    style: 'currency',
+    currency: 'MXN',
+  })
+}
+
+export function transformBudgetFromAPI(
+  resource: JsonApiResource,
+  includedData?: JsonApiResource[]
+): Budget {
+  const attributes = resource.attributes
+
+  // Build included map for relationship resolution
+  const includedMap = new Map<string, JsonApiResource>()
+  if (includedData) {
+    includedData.forEach((item) => {
+      includedMap.set(`${item.type}:${item.id}`, item)
+    })
+  }
+
+  // Resolve category name
+  let categoryName: string | undefined
+  const categoryRel = resource.relationships?.category as { data?: { type: string; id: string } } | undefined
+  if (categoryRel?.data) {
+    const categoryData = includedMap.get(`${categoryRel.data.type}:${categoryRel.data.id}`)
+    if (categoryData) {
+      categoryName = (categoryData.attributes?.name as string) || undefined
+    }
+  }
+
+  // Resolve contact name
+  let contactName: string | undefined
+  const contactRel = resource.relationships?.contact as { data?: { type: string; id: string } } | undefined
+  if (contactRel?.data) {
+    const contactData = includedMap.get(`${contactRel.data.type}:${contactRel.data.id}`)
+    if (contactData) {
+      contactName = (contactData.attributes?.name as string) || undefined
+    }
+  }
+
+  // Calculate available amount
+  const budgetedAmount = (attributes.budgetedAmount ?? attributes.budgeted_amount ?? 0) as number
+  const committedAmount = (attributes.committedAmount ?? attributes.committed_amount ?? 0) as number
+  const spentAmount = (attributes.spentAmount ?? attributes.spent_amount ?? 0) as number
+  const availableAmount = budgetedAmount - committedAmount - spentAmount
+
+  return {
+    id: resource.id,
+    name: (attributes.name ?? '') as string,
+    code: (attributes.code ?? '') as string,
+    description: (attributes.description ?? null) as string | null,
+    budgetType: (attributes.budgetType ?? attributes.budget_type ?? 'general') as BudgetType,
+    departmentCode: (attributes.departmentCode ?? attributes.department_code ?? null) as string | null,
+    categoryId: (attributes.categoryId ?? attributes.category_id ?? null) as number | null,
+    projectCode: (attributes.projectCode ?? attributes.project_code ?? null) as string | null,
+    contactId: (attributes.contactId ?? attributes.contact_id ?? null) as number | null,
+    periodType: (attributes.periodType ?? attributes.period_type ?? 'monthly') as BudgetPeriodType,
+    startDate: (attributes.startDate ?? attributes.start_date ?? '') as string,
+    endDate: (attributes.endDate ?? attributes.end_date ?? '') as string,
+    fiscalYear: (attributes.fiscalYear ?? attributes.fiscal_year ?? null) as number | null,
+    budgetedAmount,
+    committedAmount,
+    spentAmount,
+    availableAmount,
+    warningThreshold: (attributes.warningThreshold ?? attributes.warning_threshold ?? 80) as number,
+    criticalThreshold: (attributes.criticalThreshold ?? attributes.critical_threshold ?? 95) as number,
+    hardLimit: (attributes.hardLimit ?? attributes.hard_limit ?? false) as boolean,
+    allowOvercommit: (attributes.allowOvercommit ?? attributes.allow_overcommit ?? false) as boolean,
+    isActive: (attributes.isActive ?? attributes.is_active ?? true) as boolean,
+    createdAt: (attributes.createdAt ?? attributes.created_at ?? '') as string,
+    updatedAt: (attributes.updatedAt ?? attributes.updated_at ?? '') as string,
+    // Computed
+    utilizationPercent: (attributes.utilizationPercent ?? attributes.utilization_percent ?? 0) as number,
+    statusLevel: (attributes.statusLevel ?? attributes.status_level ?? 'normal') as BudgetStatusLevel,
+    // Relationships
+    categoryName,
+    contactName,
+  }
+}
+
+export function transformBudgetToParsed(budget: Budget): ParsedBudget {
+  return {
+    ...budget,
+    budgetedAmountDisplay: formatCurrency(budget.budgetedAmount),
+    committedAmountDisplay: formatCurrency(budget.committedAmount),
+    spentAmountDisplay: formatCurrency(budget.spentAmount),
+    availableAmountDisplay: formatCurrency(budget.availableAmount),
+    utilizationDisplay: `${(budget.utilizationPercent ?? 0).toFixed(1)}%`,
+    budgetTypeLabel: BUDGET_TYPE_CONFIG[budget.budgetType]?.label || budget.budgetType,
+    periodTypeLabel: BUDGET_PERIOD_TYPE_CONFIG[budget.periodType]?.label || budget.periodType,
+    statusLevelLabel: BUDGET_STATUS_LEVEL_CONFIG[budget.statusLevel || 'normal']?.label || 'Normal',
+  }
+}
+
+export function transformBudgetsFromAPI(
+  response: Record<string, unknown>
+): ParsedBudget[] {
+  if (!response?.data) {
+    return []
+  }
+
+  const includedData = (response.included || []) as JsonApiResource[]
+
+  if (Array.isArray(response.data)) {
+    return (response.data as JsonApiResource[]).map((resource) => {
+      const budget = transformBudgetFromAPI(resource, includedData)
+      return transformBudgetToParsed(budget)
+    })
+  }
+
+  // Single resource
+  const budget = transformBudgetFromAPI(response.data as JsonApiResource, includedData)
+  return [transformBudgetToParsed(budget)]
+}
+
+export function transformBudgetToAPI(data: CreateBudgetRequest): Record<string, unknown> {
+  return {
+    data: {
+      type: 'budgets',
+      attributes: {
+        name: data.name,
+        code: data.code,
+        description: data.description || null,
+        budget_type: data.budgetType,
+        department_code: data.departmentCode || null,
+        category_id: data.categoryId || null,
+        project_code: data.projectCode || null,
+        contact_id: data.contactId || null,
+        period_type: data.periodType,
+        start_date: data.startDate,
+        end_date: data.endDate,
+        fiscal_year: data.fiscalYear || null,
+        budgeted_amount: data.budgetedAmount,
+        warning_threshold: data.warningThreshold ?? 80,
+        critical_threshold: data.criticalThreshold ?? 95,
+        hard_limit: data.hardLimit ?? false,
+        allow_overcommit: data.allowOvercommit ?? false,
+        is_active: data.isActive ?? true,
+      },
+    },
+  }
+}
+
+export function transformBudgetUpdateToAPI(
+  id: string,
+  data: UpdateBudgetRequest
+): Record<string, unknown> {
+  const attributes: Record<string, unknown> = {}
+
+  if (data.name !== undefined) attributes.name = data.name
+  if (data.code !== undefined) attributes.code = data.code
+  if (data.description !== undefined) attributes.description = data.description
+  if (data.budgetType !== undefined) attributes.budget_type = data.budgetType
+  if (data.departmentCode !== undefined) attributes.department_code = data.departmentCode
+  if (data.categoryId !== undefined) attributes.category_id = data.categoryId
+  if (data.projectCode !== undefined) attributes.project_code = data.projectCode
+  if (data.contactId !== undefined) attributes.contact_id = data.contactId
+  if (data.periodType !== undefined) attributes.period_type = data.periodType
+  if (data.startDate !== undefined) attributes.start_date = data.startDate
+  if (data.endDate !== undefined) attributes.end_date = data.endDate
+  if (data.fiscalYear !== undefined) attributes.fiscal_year = data.fiscalYear
+  if (data.budgetedAmount !== undefined) attributes.budgeted_amount = data.budgetedAmount
+  if (data.warningThreshold !== undefined) attributes.warning_threshold = data.warningThreshold
+  if (data.criticalThreshold !== undefined) attributes.critical_threshold = data.criticalThreshold
+  if (data.hardLimit !== undefined) attributes.hard_limit = data.hardLimit
+  if (data.allowOvercommit !== undefined) attributes.allow_overcommit = data.allowOvercommit
+  if (data.isActive !== undefined) attributes.is_active = data.isActive
+
+  return {
+    data: {
+      type: 'budgets',
+      id,
+      attributes,
+    },
+  }
 }

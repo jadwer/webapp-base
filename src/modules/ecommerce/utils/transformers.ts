@@ -11,10 +11,14 @@ import type {
   EcommerceOrderItem,
   ShoppingCart,
   ShoppingCartItem,
+  EcommercePaymentTransaction,
   OrderStatus,
   PaymentStatus,
   ShippingStatus,
   CartStatus,
+  PaymentTransactionStatus,
+  PaymentGateway,
+  CardBrand,
 } from '../types';
 
 // ============================================
@@ -285,4 +289,189 @@ export function calculateCartTotals(items: ShoppingCartItem[], taxRate: number =
     taxAmount: parseFloat(taxAmount.toFixed(2)),
     totalAmount: parseFloat(totalAmount.toFixed(2)),
   };
+}
+
+// ============================================
+// Payment Transaction Transformers
+// EC-M003: Stripe PaymentIntent Integration
+// ============================================
+
+/**
+ * Transform PaymentTransaction from backend (snake_case) to frontend (camelCase)
+ */
+export function paymentTransactionFromAPI(data: Record<string, unknown>): EcommercePaymentTransaction {
+  const attributes = (data.attributes || data) as Record<string, unknown>;
+
+  return {
+    id: (data.id as string | number | undefined)?.toString() || (attributes.id as string | number | undefined)?.toString() || '',
+    checkoutSessionId: (attributes.checkout_session_id ?? attributes.checkoutSessionId) as number,
+    salesOrderId: (attributes.sales_order_id ?? attributes.salesOrderId ?? null) as number | null,
+    arInvoiceId: (attributes.ar_invoice_id ?? attributes.arInvoiceId ?? null) as number | null,
+
+    // EC-M003: Stripe PaymentIntent fields
+    gateway: ((attributes.gateway as string) || 'stripe') as PaymentGateway,
+    paymentIntentId: (attributes.payment_intent_id ?? attributes.paymentIntentId ?? null) as string | null,
+    transactionId: (attributes.transaction_id ?? attributes.transactionId ?? '') as string,
+    clientSecret: (attributes.client_secret ?? attributes.clientSecret ?? null) as string | null,
+
+    // Payment details
+    amount: parseFloat(String(attributes.amount || 0)),
+    currency: (attributes.currency as string) || 'MXN',
+    status: ((attributes.status as string) || 'pending') as PaymentTransactionStatus,
+    paymentMethod: (attributes.payment_method ?? attributes.paymentMethod ?? 'card') as string,
+
+    // EC-M003: Card information
+    cardBrand: (attributes.card_brand ?? attributes.cardBrand ?? null) as CardBrand | null,
+    cardLast4: (attributes.card_last4 ?? attributes.cardLast4 ?? null) as string | null,
+
+    // Gateway response and error handling
+    gatewayResponse: (attributes.gateway_response ?? attributes.gatewayResponse ?? null) as Record<string, unknown> | null,
+    errorMessage: (attributes.error_message ?? attributes.errorMessage ?? null) as string | null,
+    metadata: (attributes.metadata ?? null) as Record<string, unknown> | null,
+
+    // Timestamps
+    processedAt: (attributes.processed_at ?? attributes.processedAt ?? null) as string | null,
+    createdAt: (attributes.created_at ?? attributes.createdAt ?? '') as string,
+    updatedAt: (attributes.updated_at ?? attributes.updatedAt ?? '') as string,
+
+    // Calculated fields
+    isSuccessful: (attributes.is_successful ?? attributes.isSuccessful ?? false) as boolean,
+    isFailed: (attributes.is_failed ?? attributes.isFailed ?? false) as boolean,
+    isRefunded: (attributes.is_refunded ?? attributes.isRefunded ?? false) as boolean,
+    canBeRefunded: (attributes.can_be_refunded ?? attributes.canBeRefunded ?? false) as boolean,
+    canBeCaptured: (attributes.can_be_captured ?? attributes.canBeCaptured ?? false) as boolean,
+    canBeCancelled: (attributes.can_be_cancelled ?? attributes.canBeCancelled ?? false) as boolean,
+
+    // Legacy alias
+    paymentGateway: ((attributes.gateway as string) || 'stripe') as PaymentGateway,
+  };
+}
+
+/**
+ * Transform PaymentTransaction from frontend to backend (camelCase attributes)
+ */
+export function paymentTransactionToAPI(transaction: Partial<EcommercePaymentTransaction>): Record<string, unknown> {
+  return {
+    checkoutSessionId: transaction.checkoutSessionId,
+    salesOrderId: transaction.salesOrderId,
+    arInvoiceId: transaction.arInvoiceId,
+    gateway: transaction.gateway,
+    paymentIntentId: transaction.paymentIntentId,
+    transactionId: transaction.transactionId,
+    clientSecret: transaction.clientSecret,
+    amount: transaction.amount,
+    currency: transaction.currency,
+    status: transaction.status,
+    paymentMethod: transaction.paymentMethod,
+    cardBrand: transaction.cardBrand,
+    cardLast4: transaction.cardLast4,
+    gatewayResponse: transaction.gatewayResponse,
+    errorMessage: transaction.errorMessage,
+    metadata: transaction.metadata,
+  };
+}
+
+// ============================================
+// Stripe PaymentIntent Helpers
+// EC-M003: Payment processing utilities
+// ============================================
+
+/**
+ * Format currency amount for display (in MXN)
+ */
+export function formatPaymentAmount(amount: number, currency: string = 'MXN'): string {
+  return new Intl.NumberFormat('es-MX', {
+    style: 'currency',
+    currency: currency.toUpperCase(),
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(amount);
+}
+
+/**
+ * Convert amount to Stripe's smallest currency unit (centavos for MXN)
+ * Stripe requires amounts in the smallest unit (e.g., cents for USD, centavos for MXN)
+ */
+export function amountToStripeUnits(amount: number, currency: string = 'MXN'): number {
+  // Most currencies use 2 decimal places
+  const zeroDecimalCurrencies = ['JPY', 'KRW', 'VND'];
+
+  if (zeroDecimalCurrencies.includes(currency.toUpperCase())) {
+    return Math.round(amount);
+  }
+
+  return Math.round(amount * 100);
+}
+
+/**
+ * Convert Stripe's smallest currency unit back to decimal amount
+ */
+export function stripeUnitsToAmount(stripeAmount: number, currency: string = 'MXN'): number {
+  const zeroDecimalCurrencies = ['JPY', 'KRW', 'VND'];
+
+  if (zeroDecimalCurrencies.includes(currency.toUpperCase())) {
+    return stripeAmount;
+  }
+
+  return stripeAmount / 100;
+}
+
+/**
+ * Get human-readable label for payment transaction status
+ */
+export function getPaymentStatusLabel(status: PaymentTransactionStatus): string {
+  const labels: Record<PaymentTransactionStatus, string> = {
+    pending: 'Pendiente',
+    authorized: 'Autorizado',
+    captured: 'Capturado',
+    cancelled: 'Cancelado',
+    failed: 'Fallido',
+    refunded: 'Reembolsado',
+  };
+
+  return labels[status] || status;
+}
+
+/**
+ * Get CSS class for payment status badge
+ */
+export function getPaymentStatusBadgeClass(status: PaymentTransactionStatus): string {
+  const classes: Record<PaymentTransactionStatus, string> = {
+    pending: 'bg-warning text-dark',
+    authorized: 'bg-info text-white',
+    captured: 'bg-success text-white',
+    cancelled: 'bg-secondary text-white',
+    failed: 'bg-danger text-white',
+    refunded: 'bg-purple text-white',
+  };
+
+  return classes[status] || 'bg-secondary';
+}
+
+/**
+ * Get card brand display name and icon
+ */
+export function getCardBrandInfo(brand: CardBrand | null): { name: string; icon: string } {
+  const brandInfo: Record<CardBrand, { name: string; icon: string }> = {
+    visa: { name: 'Visa', icon: 'bi-credit-card-2-front' },
+    mastercard: { name: 'Mastercard', icon: 'bi-credit-card-2-front' },
+    amex: { name: 'American Express', icon: 'bi-credit-card-2-front' },
+    discover: { name: 'Discover', icon: 'bi-credit-card-2-front' },
+    diners: { name: 'Diners Club', icon: 'bi-credit-card-2-front' },
+    jcb: { name: 'JCB', icon: 'bi-credit-card-2-front' },
+    unionpay: { name: 'UnionPay', icon: 'bi-credit-card-2-front' },
+    unknown: { name: 'Tarjeta', icon: 'bi-credit-card' },
+  };
+
+  return brandInfo[brand || 'unknown'] || brandInfo.unknown;
+}
+
+/**
+ * Format card display (e.g., "Visa ****1234")
+ */
+export function formatCardDisplay(brand: CardBrand | null, last4: string | null): string {
+  const brandInfo = getCardBrandInfo(brand);
+  const maskedNumber = last4 ? `****${last4}` : '****';
+
+  return `${brandInfo.name} ${maskedNumber}`;
 }

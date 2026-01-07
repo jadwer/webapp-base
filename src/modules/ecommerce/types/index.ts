@@ -331,49 +331,226 @@ export interface CheckoutSessionFormData {
 
 // ============================================
 // Payment Transaction Types (Ecommerce-specific)
+// EC-M003: Stripe PaymentIntent Integration
 // ============================================
 
-export type EcommercePaymentStatus = 'pending' | 'processing' | 'completed' | 'failed' | 'refunded' | 'cancelled';
-export type PaymentGateway = 'stripe' | 'paypal' | 'mercadopago' | 'openpay' | 'conekta';
+/**
+ * Payment transaction status values
+ * Matches backend PaymentTransaction::STATUS_* constants
+ */
+export type PaymentTransactionStatus =
+  | 'pending'
+  | 'authorized'
+  | 'captured'
+  | 'cancelled'
+  | 'failed'
+  | 'refunded';
 
+// Legacy alias for backward compatibility
+export type EcommercePaymentStatus = 'pending' | 'processing' | 'completed' | 'failed' | 'refunded' | 'cancelled';
+
+/**
+ * Supported payment gateways
+ * EC-M003: Added 'mock' for testing
+ */
+export type PaymentGateway = 'stripe' | 'mock' | 'paypal' | 'mercadopago' | 'openpay' | 'conekta';
+
+/**
+ * Card brands supported by Stripe
+ */
+export type CardBrand = 'visa' | 'mastercard' | 'amex' | 'discover' | 'diners' | 'jcb' | 'unionpay' | 'unknown';
+
+/**
+ * Payment Transaction entity
+ * EC-M003: Enhanced with Stripe PaymentIntent fields
+ */
 export interface EcommercePaymentTransaction {
   id: string;
   checkoutSessionId: number;
   salesOrderId: number | null;
   arInvoiceId: number | null;
+
+  // EC-M003: Stripe PaymentIntent fields
+  gateway: PaymentGateway;
+  paymentIntentId: string | null;
   transactionId: string;
-  paymentGateway: PaymentGateway;
-  paymentMethod: string;
-  status: EcommercePaymentStatus;
+  clientSecret: string | null;
+
+  // Payment details
   amount: number;
   currency: string;
+  status: PaymentTransactionStatus;
+  paymentMethod: string;
+
+  // EC-M003: Card information (from Stripe)
+  cardBrand: CardBrand | null;
+  cardLast4: string | null;
+
+  // Gateway response and error handling
   gatewayResponse: Record<string, unknown> | null;
   errorMessage: string | null;
   metadata: Record<string, unknown> | null;
+
+  // Timestamps
   processedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
 
   // Calculated fields (read-only)
   isSuccessful: boolean;
   isFailed: boolean;
   isRefunded: boolean;
-
-  createdAt: string;
-  updatedAt: string;
+  canBeRefunded: boolean;
+  canBeCaptured: boolean;
+  canBeCancelled: boolean;
 
   // Relationships
   checkoutSession?: CheckoutSession;
   salesOrder?: unknown;
   arInvoice?: unknown;
+
+  // Legacy field mapping
+  paymentGateway?: PaymentGateway; // Alias for gateway
 }
 
+/**
+ * Form data for creating payment transactions
+ */
 export interface EcommercePaymentTransactionFormData {
   checkoutSessionId: number;
-  paymentGateway: PaymentGateway;
+  gateway: PaymentGateway;
   paymentMethod: string;
   amount: number;
   currency: string;
-  status?: EcommercePaymentStatus;
+  status?: PaymentTransactionStatus;
   metadata?: Record<string, unknown>;
+}
+
+// ============================================
+// Stripe PaymentIntent Types
+// EC-M003: New types for Stripe integration
+// ============================================
+
+/**
+ * Stripe PaymentIntent status values
+ */
+export type StripePaymentIntentStatus =
+  | 'requires_payment_method'
+  | 'requires_confirmation'
+  | 'requires_action'
+  | 'processing'
+  | 'requires_capture'
+  | 'canceled'
+  | 'succeeded';
+
+/**
+ * Request to create a PaymentIntent
+ */
+export interface CreatePaymentIntentRequest {
+  checkoutSessionId: number;
+  amount: number;
+  currency: string;
+  paymentMethod?: string;
+  captureMethod?: 'automatic' | 'manual';
+  metadata?: Record<string, unknown>;
+}
+
+/**
+ * Response from creating a PaymentIntent
+ */
+export interface CreatePaymentIntentResponse {
+  paymentIntentId: string;
+  clientSecret: string;
+  status: StripePaymentIntentStatus;
+  amount: number;
+  currency: string;
+}
+
+/**
+ * Request to confirm a PaymentIntent
+ */
+export interface ConfirmPaymentIntentRequest {
+  paymentIntentId: string;
+  paymentMethodId?: string;
+  returnUrl?: string;
+}
+
+/**
+ * Response from confirming a PaymentIntent
+ */
+export interface ConfirmPaymentIntentResponse {
+  paymentIntentId: string;
+  status: StripePaymentIntentStatus;
+  requiresAction: boolean;
+  nextActionUrl?: string;
+}
+
+/**
+ * Request to capture a PaymentIntent (for manual capture)
+ */
+export interface CapturePaymentIntentRequest {
+  paymentIntentId: string;
+  amountToCapture?: number;
+}
+
+/**
+ * Request to cancel a PaymentIntent
+ */
+export interface CancelPaymentIntentRequest {
+  paymentIntentId: string;
+  cancellationReason?: 'duplicate' | 'fraudulent' | 'requested_by_customer' | 'abandoned';
+}
+
+/**
+ * Request to refund a payment
+ */
+export interface RefundPaymentRequest {
+  paymentIntentId: string;
+  amount?: number;
+  reason?: string;
+}
+
+/**
+ * Response from refund operation
+ */
+export interface RefundPaymentResponse {
+  refundId: string;
+  status: 'succeeded' | 'pending' | 'failed' | 'canceled';
+  amount: number;
+  currency: string;
+}
+
+/**
+ * Stripe webhook event types we handle
+ */
+export type StripeWebhookEventType =
+  | 'payment_intent.succeeded'
+  | 'payment_intent.payment_failed'
+  | 'payment_intent.canceled'
+  | 'charge.refunded';
+
+/**
+ * Payment processing result
+ */
+export interface PaymentProcessingResult {
+  success: boolean;
+  transaction?: EcommercePaymentTransaction;
+  error?: string;
+  requiresAction?: boolean;
+  clientSecret?: string;
+  nextActionUrl?: string;
+}
+
+/**
+ * Configuration for Stripe Elements
+ */
+export interface StripeElementsConfig {
+  clientSecret: string;
+  appearance?: {
+    theme: 'stripe' | 'night' | 'flat';
+    variables?: Record<string, string>;
+  };
+  locale?: string;
 }
 
 // ============================================
