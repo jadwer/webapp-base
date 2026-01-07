@@ -21,8 +21,9 @@ Password: secureadmin
 | Rol | Email | Password |
 |-----|-------|----------|
 | Admin (god) | admin@example.com | secureadmin |
-| Tech (read-only) | tech@example.com | securet3ch |
-| Customer | customer@example.com | secureC0stumer |
+| Tech (read-only) | tech@example.com | securetech |
+| Customer | customer@example.com | customer |
+| God (super admin) | god@example.com | supersecure |
 
 **URLs:**
 - Frontend: `http://localhost:3000`
