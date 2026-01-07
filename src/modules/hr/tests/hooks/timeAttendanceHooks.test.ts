@@ -63,7 +63,7 @@ describe('HR Time & Attendance Hooks', () => {
 
     it('should accept optional filters', () => {
       // Act
-      const filters = { employeeId: '1', dateFrom: '2025-01-01', dateTo: '2025-01-31' };
+      const filters = { employeeId: 1, dateFrom: '2025-01-01', dateTo: '2025-01-31' };
       renderHook(() => useAttendances(filters));
 
       // Assert - Filters are passed to SWR key
@@ -108,7 +108,7 @@ describe('HR Time & Attendance Hooks', () => {
 
     it('should accept optional filters', () => {
       // Act
-      const filters = { employeeId: '1', status: 'approved' as const, leaveTypeId: '1' };
+      const filters = { employeeId: 1, status: 'approved' as const, leaveTypeId: 1 };
       renderHook(() => useLeaves(filters));
 
       // Assert - Filters are passed to SWR key

@@ -205,7 +205,7 @@ describe('useLocationsMutations', () => {
     it('should create a new location', async () => {
       // Arrange
       const locationData = {
-        warehouseId: 1,
+        warehouseId: '1',
         name: 'New Location',
         code: 'A-1-NEW',
         locationType: 'shelf' as const,
@@ -233,7 +233,7 @@ describe('useLocationsMutations', () => {
     it('should handle creation errors', async () => {
       // Arrange
       const locationData = {
-        warehouseId: 1,
+        warehouseId: '1',
         name: '',
         code: '',
         locationType: 'shelf' as const,

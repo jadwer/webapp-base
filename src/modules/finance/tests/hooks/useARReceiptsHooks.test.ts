@@ -168,12 +168,14 @@ describe('AR Receipts Hooks', () => {
     it('should call create service on createARReceipt', async () => {
       // Arrange
       const mockReceipt = {
+        contactId: 1,
         arInvoiceId: 1,
         paymentMethodId: 1,
         receiptDate: '2025-01-15',
+        currency: 'MXN',
         amount: 2000,
-        referenceNumber: 'REC-001',
-        status: 'pending' as const
+        reference: 'REC-001',
+        status: 'pending'
       }
       vi.mocked(arReceiptsService.create).mockResolvedValue({ data: { id: '1' } } as any)
 

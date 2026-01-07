@@ -122,8 +122,8 @@ describe('Campaigns Hooks', () => {
     it('should accept date range filter parameters', () => {
       // Act
       const filters = {
-        startDateFrom: '2025-01-01',
-        startDateTo: '2025-12-31',
+        dateFrom: '2025-01-01',
+        dateTo: '2025-12-31',
       };
       renderHook(() => useCampaigns(filters));
 
@@ -178,7 +178,7 @@ describe('Campaigns Hooks', () => {
         type: 'email' as const,
         status: 'planning' as const,
         startDate: '2025-06-01',
-        userId: '1',
+        userId: 1,
       };
 
       // Act
@@ -196,7 +196,7 @@ describe('Campaigns Hooks', () => {
         type: 'social_media' as const,
         status: 'active' as const,
         startDate: '2025-06-01',
-        userId: '1',
+        userId: 1,
       };
 
       // Act

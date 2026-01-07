@@ -564,8 +564,11 @@ describe('productBatchService', () => {
         productId: '1',
         warehouseId: '2',
         batchNumber: 'BATCH-NEW-002',
+        manufacturingDate: '2025-01-01',
+        expirationDate: '2026-01-01',
         initialQuantity: 50,
         currentQuantity: 50,
+        unitCost: 10.50,
         status: 'active' as const
       }
       const createdBatch = createMockProductBatch({
@@ -607,8 +610,11 @@ describe('productBatchService', () => {
         productId: '1',
         warehouseId: '2',
         batchNumber: '',
+        manufacturingDate: '2025-01-01',
+        expirationDate: '2026-01-01',
         initialQuantity: -10, // invalid
         currentQuantity: -10,
+        unitCost: 10.50,
         status: 'active' as const
       }
       const error = new Error('Validation failed')

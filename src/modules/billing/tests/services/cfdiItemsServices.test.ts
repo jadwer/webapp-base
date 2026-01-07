@@ -63,7 +63,7 @@ describe('CFDI Items Services', () => {
       vi.mocked(axiosClient.get).mockResolvedValue({ data: mockResponse });
 
       // Act
-      const result = await cfdiItemsService.getAll({ cfdiInvoiceId: '1' });
+      const result = await cfdiItemsService.getAll({ cfdiInvoiceId: 1 });
 
       // Assert
       expect(axiosClient.get).toHaveBeenCalledWith(
@@ -97,12 +97,15 @@ describe('CFDI Items Services', () => {
       vi.mocked(axiosClient.post).mockResolvedValue({ data: mockResponse });
 
       const formData = {
-        cfdiInvoiceId: '1',
+        cfdiInvoiceId: 1,
         claveProdServ: '01010101',
         cantidad: 1,
         claveUnidad: 'H87',
+        unidad: 'Pieza',
         descripcion: 'Test Product',
-        valorUnitario: 1000,
+        valorUnitario: 100000,
+        importe: 100000,
+        objetoImp: '02',
       };
 
       // Act
@@ -129,12 +132,15 @@ describe('CFDI Items Services', () => {
       vi.mocked(axiosClient.patch).mockResolvedValue({ data: mockResponse });
 
       const formData = {
-        cfdiInvoiceId: '1',
+        cfdiInvoiceId: 1,
         claveProdServ: '01010101',
         cantidad: 2,
         claveUnidad: 'H87',
+        unidad: 'Pieza',
         descripcion: 'Updated Product',
-        valorUnitario: 1500,
+        valorUnitario: 150000,
+        importe: 300000,
+        objetoImp: '02',
       };
 
       // Act
@@ -178,12 +184,15 @@ describe('CFDI Items Services', () => {
       vi.mocked(axiosClient.post).mockRejectedValue(error);
 
       const formData = {
-        cfdiInvoiceId: '1',
+        cfdiInvoiceId: 1,
         claveProdServ: '',
         cantidad: 0,
         claveUnidad: '',
+        unidad: '',
         descripcion: '',
         valorUnitario: 0,
+        importe: 0,
+        objetoImp: '',
       };
 
       // Act & Assert

@@ -258,7 +258,7 @@ describe('purchaseService', () => {
 
     it('should fetch items filtered by purchase order ID', async () => {
       // Arrange
-      const items = [mockPurchaseOrderItem({ purchaseOrderId: '5' })]
+      const items = [mockPurchaseOrderItem({ purchaseOrderId: 5 })]
       const apiResponse = mockJsonApiPurchaseOrderItemsResponse(items)
       vi.mocked(axios.get).mockResolvedValue({ data: apiResponse })
 

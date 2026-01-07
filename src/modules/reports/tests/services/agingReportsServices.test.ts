@@ -33,7 +33,7 @@ describe('Aging Reports Services', () => {
       const result = await arAgingReportService.get();
 
       // Assert
-      expect(axiosClient.get).toHaveBeenCalledWith('/api/v1/ar-aging-reports');
+      expect(axiosClient.get).toHaveBeenCalledWith('/api/v1/reports/ar-aging-reports');
       expect(result).toEqual(mockResponse);
     });
 
@@ -81,7 +81,7 @@ describe('Aging Reports Services', () => {
       const result = await apAgingReportService.get();
 
       // Assert
-      expect(axiosClient.get).toHaveBeenCalledWith('/api/v1/ap-aging-reports');
+      expect(axiosClient.get).toHaveBeenCalledWith('/api/v1/reports/ap-aging-reports');
       expect(result).toEqual(mockResponse);
     });
 

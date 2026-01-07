@@ -167,11 +167,11 @@ describe('Journal Entries Hooks', () => {
       // Act
       await result.current.createJournalEntry({
         journalId: 1,
-        periodId: 1,
+        fiscalPeriodId: 1,
         number: 'JE-2025-001',
         date: '2025-08-20',
         currency: 'MXN',
-        exchangeRate: 1.0,
+        exchangeRate: '1.0',
         reference: 'Test Entry',
         description: 'Test Description',
         status: 'draft'
@@ -207,11 +207,11 @@ describe('Journal Entries Hooks', () => {
       // Act
       await result.current.createJournalEntryWithLines({
         journalId: 1,
-        periodId: 1,
+        fiscalPeriodId: 1,
         number: 'JE-2025-001',
         date: '2025-08-20',
         currency: 'MXN',
-        exchangeRate: 1.0,
+        exchangeRate: '1.0',
         reference: 'Test',
         description: 'Test',
         status: 'draft',

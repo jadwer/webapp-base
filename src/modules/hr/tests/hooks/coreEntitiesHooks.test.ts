@@ -71,7 +71,7 @@ describe('HR Core Entities Hooks', () => {
 
     it('should accept department and position filters', () => {
       // Act
-      const filters = { departmentId: '1', positionId: '2' };
+      const filters = { departmentId: 1, positionId: 2 };
       renderHook(() => useEmployees(filters));
 
       // Assert - Filters are passed to SWR key

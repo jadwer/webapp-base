@@ -37,7 +37,7 @@ describe('Journal Lines Service', () => {
       // Arrange
       const mockLines = [
         createMockJournalLine(),
-        createMockJournalLine({ id: '2', debit: '0.00', credit: '500.00' })
+        createMockJournalLine({ id: '2', debit: 0, credit: 500 })
       ]
       const mockResponse = createMockAPIResponse(mockLines)
       mockAxios.get.mockResolvedValue({ data: mockResponse })
@@ -72,8 +72,8 @@ describe('Journal Lines Service', () => {
     it('should fetch lines for specific journal entry', async () => {
       // Arrange
       const mockLines = [
-        createMockJournalLine({ journalEntryId: '1' }),
-        createMockJournalLine({ id: '2', journalEntryId: '1' })
+        createMockJournalLine({ journalEntryId: 1 }),
+        createMockJournalLine({ id: '2', journalEntryId: 1 })
       ]
       const mockResponse = createMockAPIResponse(mockLines)
       mockAxios.get.mockResolvedValue({ data: mockResponse })
@@ -109,7 +109,12 @@ describe('Journal Lines Service', () => {
         credit: '0.00',
         memo: 'Test line'
       }
-      const mockLine = createMockJournalLine(formData)
+      const mockLine = createMockJournalLine({
+        accountId: 1001,
+        debit: 1000,
+        credit: 0,
+        description: 'Test line'
+      })
       mockAxios.post.mockResolvedValue({ data: { data: mockLine } })
 
       // Act

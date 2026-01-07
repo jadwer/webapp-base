@@ -46,7 +46,7 @@ describe('CFDI Invoices Services', () => {
         mockInvoices.map(inv => ({
           id: inv.id,
           attributes: {
-            serie: inv.serie,
+            series: inv.series,
             folio: inv.folio,
             status: inv.status,
           },
@@ -117,15 +117,25 @@ describe('CFDI Invoices Services', () => {
       vi.mocked(axiosClient.post).mockResolvedValue({ data: mockResponse });
 
       const formData = {
-        serie: 'A',
-        folio: '001',
-        fecha: '2025-01-15T10:00:00Z',
+        series: 'A',
         tipoComprobante: 'I' as const,
         metodoPago: 'PUE' as const,
         formaPago: '01',
         moneda: 'MXN',
-        companySettingId: '1',
-        contactId: '1',
+        tipoCambio: 1,
+        companySettingId: 1,
+        contactId: 1,
+        receptorRfc: 'XAXX010101000',
+        receptorNombre: 'Test Receptor',
+        receptorUsoCfdi: 'G03',
+        receptorRegimenFiscal: '601',
+        receptorDomicilioFiscal: '12345',
+        subtotal: 100000,
+        total: 116000,
+        descuento: 0,
+        iva: 16000,
+        status: 'draft' as const,
+        fechaEmision: '2025-01-15T10:00:00Z',
       };
 
       // Act
@@ -153,23 +163,37 @@ describe('CFDI Invoices Services', () => {
 
       const data = {
         invoice: {
-          serie: 'A',
-          folio: '001',
-          fecha: '2025-01-15T10:00:00Z',
+          series: 'A',
           tipoComprobante: 'I' as const,
           metodoPago: 'PUE' as const,
           formaPago: '01',
           moneda: 'MXN',
-          companySettingId: '1',
-          contactId: '1',
+          tipoCambio: 1,
+          companySettingId: 1,
+          contactId: 1,
+          receptorRfc: 'XAXX010101000',
+          receptorNombre: 'Test Receptor',
+          receptorUsoCfdi: 'G03',
+          receptorRegimenFiscal: '601',
+          receptorDomicilioFiscal: '12345',
+          subtotal: 100000,
+          total: 116000,
+          descuento: 0,
+          iva: 16000,
+          status: 'draft' as const,
+          fechaEmision: '2025-01-15T10:00:00Z',
         },
         items: [
           {
+            cfdiInvoiceId: 1,
             claveProdServ: '01010101',
             cantidad: 1,
             claveUnidad: 'H87',
+            unidad: 'Pieza',
             descripcion: 'Test Product',
-            valorUnitario: 1000,
+            valorUnitario: 100000,
+            importe: 100000,
+            objetoImp: '02',
           },
         ],
       };
@@ -201,15 +225,25 @@ describe('CFDI Invoices Services', () => {
       vi.mocked(axiosClient.patch).mockResolvedValue({ data: mockResponse });
 
       const formData = {
-        serie: 'A',
-        folio: '002',
-        fecha: '2025-01-15T10:00:00Z',
+        series: 'A',
         tipoComprobante: 'I' as const,
         metodoPago: 'PUE' as const,
         formaPago: '01',
         moneda: 'MXN',
-        companySettingId: '1',
-        contactId: '1',
+        tipoCambio: 1,
+        companySettingId: 1,
+        contactId: 1,
+        receptorRfc: 'XAXX010101000',
+        receptorNombre: 'Test Receptor',
+        receptorUsoCfdi: 'G03',
+        receptorRegimenFiscal: '601',
+        receptorDomicilioFiscal: '12345',
+        subtotal: 100000,
+        total: 116000,
+        descuento: 0,
+        iva: 16000,
+        status: 'draft' as const,
+        fechaEmision: '2025-01-15T10:00:00Z',
       };
 
       // Act

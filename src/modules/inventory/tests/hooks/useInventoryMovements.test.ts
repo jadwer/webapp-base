@@ -164,14 +164,13 @@ describe('useInventoryMovementsMutations', () => {
     it('should create a new movement', async () => {
       // Arrange
       const movementData = {
-        productId: 1,
-        warehouseId: 2,
+        productId: '1',
+        warehouseId: '2',
         movementType: 'entry' as const,
-        referenceType: 'purchase_order' as const,
+        referenceType: 'purchase_order',
         movementDate: '2025-01-01',
         quantity: 100,
-        status: 'completed' as const,
-        userId: 1,
+        status: 'completed',
       }
       const createdMovement = createMockMovement({
         id: '10',
@@ -193,14 +192,13 @@ describe('useInventoryMovementsMutations', () => {
     it('should handle creation errors', async () => {
       // Arrange
       const movementData = {
-        productId: 1,
-        warehouseId: 2,
+        productId: '1',
+        warehouseId: '2',
         movementType: 'entry' as const,
-        referenceType: 'purchase_order' as const,
+        referenceType: 'purchase_order',
         movementDate: '2025-01-01',
         quantity: -10,
-        status: 'completed' as const,
-        userId: 1,
+        status: 'completed',
       }
       const error = new Error('Validation failed')
       vi.mocked(inventoryMovementsService.create).mockRejectedValue(error)
@@ -287,8 +285,8 @@ describe('useMovementsByProduct', () => {
   it('should fetch movements by product ID', async () => {
     // Arrange
     const movements = [
-      createMockMovement({ id: '1', productId: 7 }),
-      createMockMovement({ id: '2', productId: 7 }),
+      createMockMovement({ id: '1', productId: '7' }),
+      createMockMovement({ id: '2', productId: '7' }),
     ]
     vi.mocked(inventoryMovementsService.getByProduct).mockResolvedValue({ data: movements })
 
@@ -323,8 +321,8 @@ describe('useMovementsByWarehouse', () => {
   it('should fetch movements by warehouse ID', async () => {
     // Arrange
     const movements = [
-      createMockMovement({ id: '1', warehouseId: 3 }),
-      createMockMovement({ id: '2', warehouseId: 3 }),
+      createMockMovement({ id: '1', warehouseId: '3' }),
+      createMockMovement({ id: '2', warehouseId: '3' }),
     ]
     vi.mocked(inventoryMovementsService.getByWarehouse).mockResolvedValue({ data: movements })
 

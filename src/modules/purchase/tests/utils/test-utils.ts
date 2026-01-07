@@ -87,6 +87,7 @@ export const mockPurchaseOrderItem = (overrides?: Partial<PurchaseOrderItem>): P
     subtotal: 1000.00,
     total: 1000.00,
     totalPrice: 1000.00,
+    metadata: null,
     // Finance integration fields
     apInvoiceLineId: null,
     invoicedQuantity: null,
@@ -146,6 +147,7 @@ export const mockJsonApiPurchaseOrderResponse = (purchaseOrder: PurchaseOrder) =
     type: 'purchase-orders',
     attributes: {
       contactId: purchaseOrder.contactId,
+      orderNumber: purchaseOrder.orderNumber,
       orderDate: purchaseOrder.orderDate,
       status: purchaseOrder.status,
       totalAmount: purchaseOrder.totalAmount,
@@ -201,6 +203,7 @@ export const mockJsonApiPurchaseOrdersResponse = (purchaseOrders: PurchaseOrder[
       type: 'purchase-orders',
       attributes: {
         contactId: order.contactId,
+        orderNumber: order.orderNumber,
         orderDate: order.orderDate,
         status: order.status,
         totalAmount: order.totalAmount,
@@ -259,6 +262,7 @@ export const mockJsonApiPurchaseOrderItemsResponse = (items: PurchaseOrderItem[]
         discount: item.discount,
         subtotal: item.subtotal,
         total: item.total,
+        metadata: item.metadata,
         apInvoiceLineId: item.apInvoiceLineId,
         invoicedQuantity: item.invoicedQuantity,
         invoicedAmount: item.invoicedAmount,

@@ -168,12 +168,14 @@ describe('AP Payments Hooks', () => {
     it('should call create service on createAPPayment', async () => {
       // Arrange
       const mockPayment = {
+        contactId: 1,
         apInvoiceId: 1,
         paymentMethodId: 1,
         paymentDate: '2025-01-15',
+        currency: 'MXN',
         amount: 1000,
-        referenceNumber: 'PAY-001',
-        status: 'pending' as const
+        reference: 'PAY-001',
+        status: 'pending'
       }
       vi.mocked(apPaymentsService.create).mockResolvedValue({ data: { id: '1' } } as any)
 

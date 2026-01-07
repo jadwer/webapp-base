@@ -15,6 +15,33 @@ import {
 import { warehousesService } from '../../services'
 import { createMockWarehouse } from '../utils/test-utils'
 import { processJsonApiResponse } from '../../utils/jsonApi'
+import type { Warehouse, WarehouseParsed, ApiResponse } from '../../types'
+
+// Helper to create Warehouse with attributes structure for service mocks
+const createMockWarehouseApiFormat = (parsedWarehouse: WarehouseParsed): Warehouse => ({
+  id: parsedWarehouse.id,
+  type: 'warehouses',
+  attributes: {
+    name: parsedWarehouse.name,
+    slug: parsedWarehouse.slug,
+    description: parsedWarehouse.description,
+    code: parsedWarehouse.code,
+    warehouseType: parsedWarehouse.warehouseType,
+    address: parsedWarehouse.address,
+    city: parsedWarehouse.city,
+    state: parsedWarehouse.state,
+    country: parsedWarehouse.country,
+    postalCode: parsedWarehouse.postalCode,
+    phone: parsedWarehouse.phone,
+    email: parsedWarehouse.email,
+    managerName: parsedWarehouse.managerName,
+    maxCapacity: parsedWarehouse.maxCapacity,
+    capacityUnit: parsedWarehouse.capacityUnit,
+    isActive: parsedWarehouse.isActive,
+    createdAt: parsedWarehouse.createdAt,
+    updatedAt: parsedWarehouse.updatedAt,
+  }
+})
 
 // Mock the warehouses service
 vi.mock('../../services')
@@ -29,14 +56,15 @@ describe('useWarehouses', () => {
 
   it('should fetch and return warehouses', async () => {
     // Arrange
-    const warehouses = [
+    const parsedWarehouses = [
       createMockWarehouse({ id: '1', name: 'Warehouse 1' }),
       createMockWarehouse({ id: '2', name: 'Warehouse 2' }),
     ]
-    const apiResponse = { data: warehouses, meta: {} }
+    const apiWarehouses = parsedWarehouses.map(createMockWarehouseApiFormat)
+    const apiResponse = { data: apiWarehouses, meta: { page: { currentPage: 1, from: 1, lastPage: 1, perPage: 20, to: 2, total: 2 } } } as unknown as ApiResponse<Warehouse>
     vi.mocked(warehousesService.getAll).mockResolvedValue(apiResponse)
     vi.mocked(processJsonApiResponse).mockReturnValue({
-      data: warehouses,
+      data: parsedWarehouses,
       meta: {},
     })
 
@@ -49,17 +77,18 @@ describe('useWarehouses', () => {
     })
 
     // Assert
-    expect(result.current.warehouses).toEqual(warehouses)
+    expect(result.current.warehouses).toEqual(parsedWarehouses)
     expect(result.current.error).toBeUndefined()
     expect(warehousesService.getAll).toHaveBeenCalled()
   })
 
   it('should fetch warehouses with filters', async () => {
     // Arrange
-    const warehouses = [createMockWarehouse({ id: '1', name: 'Main Warehouse' })]
-    const apiResponse = { data: warehouses }
+    const parsedWarehouses = [createMockWarehouse({ id: '1', name: 'Main Warehouse' })]
+    const apiWarehouses = parsedWarehouses.map(createMockWarehouseApiFormat)
+    const apiResponse = { data: apiWarehouses, meta: { page: { currentPage: 1, from: 1, lastPage: 1, perPage: 20, to: 1, total: 1 } } } as unknown as ApiResponse<Warehouse>
     vi.mocked(warehousesService.getAll).mockResolvedValue(apiResponse)
-    vi.mocked(processJsonApiResponse).mockReturnValue({ data: warehouses })
+    vi.mocked(processJsonApiResponse).mockReturnValue({ data: parsedWarehouses })
 
     // Act
     const { result } = renderHook(() =>
@@ -72,7 +101,7 @@ describe('useWarehouses', () => {
     })
 
     // Assert
-    expect(result.current.warehouses).toEqual(warehouses)
+    expect(result.current.warehouses).toEqual(parsedWarehouses)
     expect(warehousesService.getAll).toHaveBeenCalledWith({
       filters: { search: 'Main' },
     })
@@ -80,10 +109,11 @@ describe('useWarehouses', () => {
 
   it('should fetch warehouses with sorting', async () => {
     // Arrange
-    const warehouses = [createMockWarehouse()]
-    const apiResponse = { data: warehouses }
+    const parsedWarehouses = [createMockWarehouse()]
+    const apiWarehouses = parsedWarehouses.map(createMockWarehouseApiFormat)
+    const apiResponse = { data: apiWarehouses, meta: { page: { currentPage: 1, from: 1, lastPage: 1, perPage: 20, to: 1, total: 1 } } } as unknown as ApiResponse<Warehouse>
     vi.mocked(warehousesService.getAll).mockResolvedValue(apiResponse)
-    vi.mocked(processJsonApiResponse).mockReturnValue({ data: warehouses })
+    vi.mocked(processJsonApiResponse).mockReturnValue({ data: parsedWarehouses })
 
     // Act
     const { result } = renderHook(() =>
@@ -96,7 +126,7 @@ describe('useWarehouses', () => {
     })
 
     // Assert
-    expect(result.current.warehouses).toEqual(warehouses)
+    expect(result.current.warehouses).toEqual(parsedWarehouses)
     expect(warehousesService.getAll).toHaveBeenCalledWith({
       sort: { field: 'name', direction: 'desc' },
     })
@@ -104,10 +134,11 @@ describe('useWarehouses', () => {
 
   it('should provide mutate function for revalidation', async () => {
     // Arrange
-    const warehouses = [createMockWarehouse()]
-    const apiResponse = { data: warehouses }
+    const parsedWarehouses = [createMockWarehouse()]
+    const apiWarehouses = parsedWarehouses.map(createMockWarehouseApiFormat)
+    const apiResponse = { data: apiWarehouses, meta: { page: { currentPage: 1, from: 1, lastPage: 1, perPage: 20, to: 1, total: 1 } } } as unknown as ApiResponse<Warehouse>
     vi.mocked(warehousesService.getAll).mockResolvedValue(apiResponse)
-    vi.mocked(processJsonApiResponse).mockReturnValue({ data: warehouses })
+    vi.mocked(processJsonApiResponse).mockReturnValue({ data: parsedWarehouses })
 
     // Act
     const { result } = renderHook(() => useWarehouses())
@@ -130,10 +161,11 @@ describe('useWarehouse', () => {
 
   it('should fetch a single warehouse by ID', async () => {
     // Arrange
-    const warehouse = createMockWarehouse({ id: '5', name: 'Warehouse 5' })
-    const apiResponse = { data: warehouse }
+    const parsedWarehouse = createMockWarehouse({ id: '5', name: 'Warehouse 5' })
+    const apiWarehouse = createMockWarehouseApiFormat(parsedWarehouse)
+    const apiResponse = { data: [apiWarehouse], meta: { page: { currentPage: 1, from: 1, lastPage: 1, perPage: 20, to: 1, total: 1 } } } as unknown as ApiResponse<Warehouse>
     vi.mocked(warehousesService.getById).mockResolvedValue(apiResponse)
-    vi.mocked(processJsonApiResponse).mockReturnValue({ data: warehouse })
+    vi.mocked(processJsonApiResponse).mockReturnValue({ data: parsedWarehouse })
 
     // Act
     const { result } = renderHook(() => useWarehouse('5'))
@@ -144,17 +176,18 @@ describe('useWarehouse', () => {
     })
 
     // Assert
-    expect(result.current.warehouse).toEqual(warehouse)
+    expect(result.current.warehouse).toEqual(parsedWarehouse)
     expect(result.current.error).toBeUndefined()
     expect(warehousesService.getById).toHaveBeenCalledWith('5', undefined)
   })
 
   it('should fetch warehouse with includes', async () => {
     // Arrange
-    const warehouse = createMockWarehouse({ id: '5' })
-    const apiResponse = { data: warehouse }
+    const parsedWarehouse = createMockWarehouse({ id: '5' })
+    const apiWarehouse = createMockWarehouseApiFormat(parsedWarehouse)
+    const apiResponse = { data: [apiWarehouse], meta: { page: { currentPage: 1, from: 1, lastPage: 1, perPage: 20, to: 1, total: 1 } } } as unknown as ApiResponse<Warehouse>
     vi.mocked(warehousesService.getById).mockResolvedValue(apiResponse)
-    vi.mocked(processJsonApiResponse).mockReturnValue({ data: warehouse })
+    vi.mocked(processJsonApiResponse).mockReturnValue({ data: parsedWarehouse })
 
     // Act
     const { result } = renderHook(() => useWarehouse('5', ['locations', 'stock']))
@@ -165,7 +198,7 @@ describe('useWarehouse', () => {
     })
 
     // Assert
-    expect(result.current.warehouse).toEqual(warehouse)
+    expect(result.current.warehouse).toEqual(parsedWarehouse)
     expect(warehousesService.getById).toHaveBeenCalledWith('5', ['locations', 'stock'])
   })
 
@@ -212,20 +245,22 @@ describe('useWarehousesMutations', () => {
         warehouseType: 'main' as const,
         isActive: true,
       }
-      const createdWarehouse = createMockWarehouse({
+      const parsedWarehouse = createMockWarehouse({
         id: '10',
         ...warehouseData,
       })
+      const apiWarehouse = createMockWarehouseApiFormat(parsedWarehouse)
       vi.mocked(warehousesService.create).mockResolvedValue({
-        data: createdWarehouse,
-      })
+        data: [apiWarehouse],
+        meta: { page: { currentPage: 1, from: 1, lastPage: 1, perPage: 20, to: 1, total: 1 } }
+      } as unknown as ApiResponse<Warehouse>)
 
       // Act
       const { result } = renderHook(() => useWarehousesMutations())
       const createdResult = await result.current.createWarehouse(warehouseData)
 
       // Assert
-      expect(createdResult).toEqual({ data: createdWarehouse })
+      expect(createdResult).toEqual({ data: [apiWarehouse], meta: { page: { currentPage: 1, from: 1, lastPage: 1, perPage: 20, to: 1, total: 1 } } })
       expect(warehousesService.create).toHaveBeenCalledWith(warehouseData)
     })
 
@@ -258,7 +293,10 @@ describe('useWarehousesMutations', () => {
         isActive: true,
       }
       vi.mocked(warehousesService.create).mockImplementation(
-        () => new Promise((resolve) => setTimeout(() => resolve({ data: createMockWarehouse() }), 100))
+        () => new Promise((resolve) => setTimeout(() => resolve({
+          data: [createMockWarehouseApiFormat(createMockWarehouse())],
+          meta: { page: { currentPage: 1, from: 1, lastPage: 1, perPage: 20, to: 1, total: 1 } }
+        } as unknown as ApiResponse<Warehouse>), 100))
       )
 
       // Act
@@ -286,21 +324,23 @@ describe('useWarehousesMutations', () => {
         name: 'Updated Warehouse',
         isActive: false,
       }
-      const updatedWarehouse = createMockWarehouse({
+      const parsedWarehouse = createMockWarehouse({
         id: '1',
         name: 'Updated Warehouse',
         isActive: false,
       })
+      const apiWarehouse = createMockWarehouseApiFormat(parsedWarehouse)
       vi.mocked(warehousesService.update).mockResolvedValue({
-        data: updatedWarehouse,
-      })
+        data: [apiWarehouse],
+        meta: { page: { currentPage: 1, from: 1, lastPage: 1, perPage: 20, to: 1, total: 1 } }
+      } as unknown as ApiResponse<Warehouse>)
 
       // Act
       const { result } = renderHook(() => useWarehousesMutations())
       const updatedResult = await result.current.updateWarehouse('1', updateData)
 
       // Assert
-      expect(updatedResult).toEqual({ data: updatedWarehouse })
+      expect(updatedResult).toEqual({ data: [apiWarehouse], meta: { page: { currentPage: 1, from: 1, lastPage: 1, perPage: 20, to: 1, total: 1 } } })
       expect(warehousesService.update).toHaveBeenCalledWith('1', updateData)
     })
 

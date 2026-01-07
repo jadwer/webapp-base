@@ -34,7 +34,7 @@ describe('leadsService', () => {
           attributes: {
             title: lead.title,
             status: lead.status,
-            value: lead.value,
+            estimatedValue: lead.estimatedValue,
             source: lead.source,
             rating: lead.rating,
           },
@@ -101,7 +101,7 @@ describe('leadsService', () => {
       const mockResponse = createMockAPIResponse('5', 'leads', {
         title: mockLead.title,
         status: mockLead.status,
-        value: mockLead.value,
+        estimatedValue: mockLead.estimatedValue,
         source: mockLead.source,
         rating: mockLead.rating,
       });
@@ -138,9 +138,9 @@ describe('leadsService', () => {
         estimatedValue: 50000,
         source: 'website',
         rating: 'hot' as const,
-        userId: '1',
-        pipelineStageId: '2',
-        contactId: '3',
+        userId: 1,
+        pipelineStageId: 2,
+        contactId: 3,
       };
 
       const mockResponse = createMockAPIResponse('10', 'leads', {
@@ -186,8 +186,8 @@ describe('leadsService', () => {
         estimatedValue: -1000,
         source: '',
         rating: 'hot' as const,
-        userId: '',
-        pipelineStageId: '',
+        userId: 0,
+        pipelineStageId: 0,
       };
 
       const error = createMockAxiosError(422, 'Validation Error');
@@ -208,8 +208,8 @@ describe('leadsService', () => {
         estimatedValue: 75000,
         source: 'referral',
         rating: 'warm' as const,
-        userId: '1',
-        pipelineStageId: '3',
+        userId: 1,
+        pipelineStageId: 3,
       };
 
       const mockResponse = createMockAPIResponse('3', 'leads', {
@@ -250,8 +250,8 @@ describe('leadsService', () => {
         estimatedValue: 75000,
         source: 'referral',
         rating: 'warm' as const,
-        userId: '1',
-        pipelineStageId: '3',
+        userId: 1,
+        pipelineStageId: 3,
       };
 
       const error = createMockAxiosError(404, 'Not Found');

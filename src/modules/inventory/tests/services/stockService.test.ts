@@ -57,54 +57,54 @@ describe('stockService', () => {
 
     it('should fetch stock with productId filter', async () => {
       // Arrange
-      const stock = [createMockStock({ id: '1', productId: 5 })]
+      const stock = [createMockStock({ id: '1', productId: '5' })]
       const apiResponse = { data: stock }
       vi.mocked(axios.get).mockResolvedValue({ data: apiResponse })
 
       // Act
       const result = await stockService.getAll({
-        filters: { productId: 5 }
+        filters: { productId: '5' }
       })
 
       // Assert
       expect(axios.get).toHaveBeenCalledWith('/api/v1/stocks', {
-        params: { 'filter[product_id]': 5 }
+        params: { 'filter[product_id]': '5' }
       })
       expect(result).toEqual(apiResponse)
     })
 
     it('should fetch stock with warehouseId filter', async () => {
       // Arrange
-      const stock = [createMockStock({ id: '1', warehouseId: 3 })]
+      const stock = [createMockStock({ id: '1', warehouseId: '3' })]
       const apiResponse = { data: stock }
       vi.mocked(axios.get).mockResolvedValue({ data: apiResponse })
 
       // Act
       const result = await stockService.getAll({
-        filters: { warehouseId: 3 }
+        filters: { warehouseId: '3' }
       })
 
       // Assert
       expect(axios.get).toHaveBeenCalledWith('/api/v1/stocks', {
-        params: { 'filter[warehouse_id]': 3 }
+        params: { 'filter[warehouse_id]': '3' }
       })
       expect(result).toEqual(apiResponse)
     })
 
     it('should fetch stock with warehouseLocationId filter', async () => {
       // Arrange
-      const stock = [createMockStock({ id: '1', warehouseLocationId: 10 })]
+      const stock = [createMockStock({ id: '1', warehouseLocationId: '10' })]
       const apiResponse = { data: stock }
       vi.mocked(axios.get).mockResolvedValue({ data: apiResponse })
 
       // Act
       const result = await stockService.getAll({
-        filters: { warehouseLocationId: 10 }
+        filters: { warehouseLocationId: '10' }
       })
 
       // Assert
       expect(axios.get).toHaveBeenCalledWith('/api/v1/stocks', {
-        params: { 'filter[warehouse_location_id]': 10 }
+        params: { 'filter[warehouse_location_id]': '10' }
       })
       expect(result).toEqual(apiResponse)
     })
@@ -319,10 +319,11 @@ describe('stockService', () => {
     it('should create a new stock entry', async () => {
       // Arrange
       const stockData = {
-        productId: 1,
-        warehouseId: 2,
-        warehouseLocationId: 3,
+        productId: '1',
+        warehouseId: '2',
+        warehouseLocationId: '3',
         quantity: 100,
+        availableQuantity: 100,
         status: 'available' as const,
       }
       const createdStock = createMockStock({
@@ -348,10 +349,11 @@ describe('stockService', () => {
     it('should throw validation error on invalid data', async () => {
       // Arrange
       const invalidData = {
-        productId: 1,
-        warehouseId: 2,
-        warehouseLocationId: 3,
+        productId: '1',
+        warehouseId: '2',
+        warehouseLocationId: '3',
         quantity: -10, // invalid negative quantity
+        availableQuantity: -10,
         status: 'available' as const,
       }
       const error = new Error('Validation failed')
@@ -477,8 +479,8 @@ describe('stockService', () => {
     it('should fetch stock by product ID', async () => {
       // Arrange
       const stock = [
-        createMockStock({ id: '1', productId: 7, warehouseId: 1 }),
-        createMockStock({ id: '2', productId: 7, warehouseId: 2 }),
+        createMockStock({ id: '1', productId: '7', warehouseId: '1' }),
+        createMockStock({ id: '2', productId: '7', warehouseId: '2' }),
       ]
       const apiResponse = { data: stock }
       vi.mocked(axios.get).mockResolvedValue({ data: apiResponse })
@@ -495,7 +497,7 @@ describe('stockService', () => {
 
     it('should fetch stock by product with includes', async () => {
       // Arrange
-      const stock = [createMockStock({ id: '1', productId: 7 })]
+      const stock = [createMockStock({ id: '1', productId: '7' })]
       const apiResponse = { data: stock }
       vi.mocked(axios.get).mockResolvedValue({ data: apiResponse })
 

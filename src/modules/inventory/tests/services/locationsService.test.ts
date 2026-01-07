@@ -75,18 +75,18 @@ describe('locationsService', () => {
 
     it('should fetch locations with warehouseId filter', async () => {
       // Arrange
-      const locations = [createMockLocation({ id: '1', warehouseId: 5 })]
+      const locations = [createMockLocation({ id: '1' })]
       const apiResponse = { data: locations }
       vi.mocked(axios.get).mockResolvedValue({ data: apiResponse })
 
       // Act
       const result = await locationsService.getAll({
-        filters: { warehouseId: 5 }
+        filters: { warehouseId: '5' }
       })
 
       // Assert
       expect(axios.get).toHaveBeenCalledWith('/api/v1/warehouse-locations', {
-        params: { 'filter[warehouse_id]': 5 }
+        params: { 'filter[warehouse_id]': '5' }
       })
       expect(result).toEqual(apiResponse)
     })
@@ -283,7 +283,7 @@ describe('locationsService', () => {
     it('should create a new location', async () => {
       // Arrange
       const locationData = {
-        warehouseId: 1,
+        warehouseId: '1',
         name: 'New Location',
         code: 'A-1-NEW',
         locationType: 'shelf' as const,
@@ -314,7 +314,7 @@ describe('locationsService', () => {
     it('should throw validation error on invalid data', async () => {
       // Arrange
       const invalidData = {
-        warehouseId: 1,
+        warehouseId: '1',
         name: '',
         code: '',
         locationType: 'shelf' as const,

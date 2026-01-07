@@ -40,7 +40,7 @@ describe('Company Settings Services', () => {
         mockSettings.map(setting => ({
           id: setting.id,
           attributes: {
-            razon_social: setting.razonSocial,
+            company_name: setting.companyName,
             rfc: setting.rfc,
             is_active: setting.isActive,
           },
@@ -114,15 +114,21 @@ describe('Company Settings Services', () => {
       vi.mocked(axiosClient.post).mockResolvedValue({ data: mockResponse });
 
       const formData = {
-        razonSocial: 'Test Company SA de CV',
+        companyName: 'Test Company SA de CV',
         rfc: 'XAXX010101000',
-        regimenFiscal: '601',
-        codigoPostal: '12345',
-        isActive: true,
-        pacProvider: 'SW' as const,
-        pacUser: 'test@example.com',
+        taxRegime: '601',
+        postalCode: '12345',
+        invoiceSeries: 'A',
+        creditNoteSeries: 'NC',
+        nextInvoiceFolio: 1,
+        nextCreditNoteFolio: 1,
+        pacProvider: 'sw',
+        pacUsername: 'test@example.com',
         pacPassword: 'password123',
-        pacUrl: 'https://services.test.sw.com.mx',
+        pacProductionMode: false,
+        certificateFile: '/path/to/cert.cer',
+        keyFile: '/path/to/key.key',
+        isActive: true,
       };
 
       // Act
@@ -149,15 +155,21 @@ describe('Company Settings Services', () => {
       vi.mocked(axiosClient.patch).mockResolvedValue({ data: mockResponse });
 
       const formData = {
-        razonSocial: 'Updated Company SA de CV',
+        companyName: 'Updated Company SA de CV',
         rfc: 'XAXX010101000',
-        regimenFiscal: '601',
-        codigoPostal: '12345',
-        isActive: true,
-        pacProvider: 'SW' as const,
-        pacUser: 'updated@example.com',
+        taxRegime: '601',
+        postalCode: '12345',
+        invoiceSeries: 'A',
+        creditNoteSeries: 'NC',
+        nextInvoiceFolio: 1,
+        nextCreditNoteFolio: 1,
+        pacProvider: 'sw',
+        pacUsername: 'updated@example.com',
         pacPassword: 'newpassword',
-        pacUrl: 'https://services.test.sw.com.mx',
+        pacProductionMode: false,
+        certificateFile: '/path/to/cert.cer',
+        keyFile: '/path/to/key.key',
+        isActive: true,
       };
 
       // Act

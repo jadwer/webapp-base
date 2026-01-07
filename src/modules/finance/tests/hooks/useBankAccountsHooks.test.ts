@@ -117,11 +117,12 @@ describe('Bank Accounts Hooks', () => {
     it('should call create service on createBankAccount', async () => {
       // Arrange
       const mockAccount = {
+        accountName: 'Test Operations Account',
         bankName: 'Test Bank',
         accountNumber: '1234567890',
-        accountType: 'checking' as const,
+        accountType: 'checking',
         currency: 'USD',
-        balance: 10000,
+        currentBalance: 10000,
         isActive: true
       }
       vi.mocked(bankAccountsService.create).mockResolvedValue({ data: { id: '1' } } as any)

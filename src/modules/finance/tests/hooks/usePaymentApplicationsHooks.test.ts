@@ -139,12 +139,11 @@ describe('Payment Applications Hooks', () => {
     it('should call create service on createApplication', async () => {
       // Arrange
       const mockApplication = {
-        paymentType: 'ar_receipt' as const,
         paymentId: 1,
-        invoiceType: 'ar_invoice' as const,
-        invoiceId: 1,
-        amountApplied: 500,
-        applicationDate: '2025-01-15'
+        arInvoiceId: 1,
+        apInvoiceId: null,
+        appliedAmount: 500,
+        notes: 'Payment application for AR invoice'
       }
       vi.mocked(paymentApplicationsService.create).mockResolvedValue({ data: { id: '1' } } as any)
 

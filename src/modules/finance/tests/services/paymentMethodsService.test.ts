@@ -331,14 +331,13 @@ describe('Payment Methods Service', () => {
       const result = await paymentMethodsService.create(formData)
 
       // Assert
+      // Transformer only includes name, code, and isActive (not description or requiresReference)
       expect(mockAxios.post).toHaveBeenCalledWith('/api/v1/payment-methods', {
         data: {
           type: 'payment-methods',
           attributes: {
             name: formData.name,
             code: formData.code,
-            description: formData.description,
-            requiresReference: formData.requiresReference,
             isActive: formData.isActive
           }
         }

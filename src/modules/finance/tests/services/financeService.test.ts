@@ -83,14 +83,14 @@ describe('Finance Service', () => {
     it('should create AP invoice successfully', async () => {
       // Arrange
       const invoiceData = {
-        contactId: '1',
+        contactId: 1,
         invoiceNumber: 'FACT-TEST',
         invoiceDate: '2025-08-20',
         dueDate: '2025-09-20',
         currency: 'MXN',
-        subtotal: '1000.00',
-        taxAmount: '160.00',
-        totalAmount: '1160.00',
+        subtotal: 1000.00,
+        taxAmount: 160.00,
+        totalAmount: 1160.00,
         status: 'draft' as const
       }
       const mockInvoice = createMockAPInvoice(invoiceData)
@@ -112,15 +112,15 @@ describe('Finance Service', () => {
         data: {
           type: 'a-p-invoices',
           attributes: {
-            contact_id: '1',
+            contact_id: 1,
             invoice_number: 'FACT-TEST',
             invoice_date: '2025-08-20',
             due_date: '2025-09-20',
             purchase_order_id: null,
             currency: 'MXN',
-            subtotal: '1000.00',
-            tax_amount: '160.00',
-            total_amount: '1160.00',
+            subtotal: 1000.00,
+            tax_amount: 160.00,
+            total_amount: 1160.00,
             status: 'draft',
             notes: null,
             metadata: {}
@@ -132,7 +132,7 @@ describe('Finance Service', () => {
 
     it('should update AP invoice successfully', async () => {
       // Arrange
-      const updateData = { status: 'posted' as const }
+      const updateData = { status: 'sent' as const }
       const mockResponse = createMockAPInvoice({ ...updateData, id: '1' })
       mockAxios.patch.mockResolvedValue({ data: { data: mockResponse } })
 
@@ -188,14 +188,14 @@ describe('Finance Service', () => {
     it('should create AR invoice with correct data transformation', async () => {
       // Arrange
       const invoiceData = {
-        contactId: '10',
+        contactId: 10,
         invoiceNumber: 'INV-TEST',
         invoiceDate: '2025-08-20',
         dueDate: '2025-09-20',
         currency: 'MXN',
-        subtotal: '2000.00',
-        taxAmount: '320.00',
-        totalAmount: '2320.00',
+        subtotal: 2000.00,
+        taxAmount: 320.00,
+        totalAmount: 2320.00,
         status: 'draft' as const
       }
       const mockInvoice = createMockARInvoice(invoiceData)
@@ -213,22 +213,31 @@ describe('Finance Service', () => {
 
       // Assert
       // Service uses transformer with snake_case attributes for AR Invoices
+      // FI-M002: Includes early payment discount fields
       expect(mockAxios.post).toHaveBeenCalledWith('/api/v1/ar-invoices', {
         data: {
           type: 'a-r-invoices',
           attributes: {
-            contact_id: '10',
+            contact_id: 10,
             invoice_number: 'INV-TEST',
             invoice_date: '2025-08-20',
             due_date: '2025-09-20',
             sales_order_id: null,
             currency: 'MXN',
-            subtotal: '2000.00',
-            tax_amount: '320.00',
-            total_amount: '2320.00',
+            subtotal: 2000.00,
+            tax_amount: 320.00,
+            total_amount: 2320.00,
             status: 'draft',
             notes: null,
-            metadata: {}
+            metadata: {},
+            // FI-M002: Early Payment Discount fields
+            discount_percent: null,
+            discount_days: null,
+            discount_date: null,
+            discount_amount: null,
+            discount_applied: false,
+            discount_applied_amount: null,
+            discount_applied_date: null
           }
         }
       })
@@ -262,12 +271,12 @@ describe('Finance Service', () => {
     it('should create AP payment with proper validation', async () => {
       // Arrange
       const paymentData = {
-        contactId: '1',
+        contactId: 1,
         paymentDate: '2025-08-20',
         paymentMethod: 'transfer',
         currency: 'MXN',
-        amount: '500.00',
-        bankAccountId: '1',
+        amount: 500.00,
+        bankAccountId: 1,
         status: 'draft' as const
       }
       const mockPayment = createMockAPPayment(paymentData)
@@ -289,17 +298,17 @@ describe('Finance Service', () => {
         data: {
           type: 'a-p-payments',
           attributes: {
-            contactId: '1',
+            contactId: 1,
             paymentDate: '2025-08-20',
             paymentMethod: 'transfer',
             currency: 'MXN',
-            amount: '500.00',
-            bankAccountId: '1',
+            amount: 500.00,
+            bankAccountId: 1,
             status: 'draft'
           }
         }
       })
-      expect(result.amount).toBe('500.00')
+      expect(result.amount).toBe(500.00)
     })
   })
 
@@ -329,12 +338,12 @@ describe('Finance Service', () => {
     it('should create AR receipt with receiptDate field', async () => {
       // Arrange
       const receiptData = {
-        contactId: '1',
+        contactId: 1,
         receiptDate: '2025-08-20', // Key field per documentation
         paymentMethod: 'transfer',
         currency: 'MXN',
-        amount: '1000.00',
-        bankAccountId: '1',
+        amount: 1000.00,
+        bankAccountId: 1,
         status: 'draft' as const
       }
       const mockReceipt = createMockARReceipt(receiptData)
@@ -356,12 +365,12 @@ describe('Finance Service', () => {
         data: {
           type: 'a-r-receipts',
           attributes: {
-            contactId: '1',
+            contactId: 1,
             receiptDate: '2025-08-20',
             paymentMethod: 'transfer',
             currency: 'MXN',
-            amount: '1000.00',
-            bankAccountId: '1',
+            amount: 1000.00,
+            bankAccountId: 1,
             status: 'draft'
           }
         }
@@ -396,11 +405,12 @@ describe('Finance Service', () => {
     it('should create bank account with all required fields', async () => {
       // Arrange
       const accountData = {
+        accountName: 'HSBC Savings Account',
         bankName: 'HSBC',
         accountNumber: '987654321098',
         clabe: '021180009876543210',
         currency: 'MXN',
-        accountType: 'savings' as const,
+        accountType: 'savings',
         openingBalance: '25000.00',
         status: 'active' as const
       }
@@ -453,7 +463,7 @@ describe('Finance Service', () => {
   describe('Query Parameters', () => {
     it('should handle filters and pagination correctly', async () => {
       // Arrange
-      const filters = { status: 'posted', contactId: 5 }
+      const filters = { status: 'sent', contactId: 5 }
       const pagination = { page: 2, size: 10 }
       mockAxios.get.mockResolvedValue({ data: createMockAPIResponse([]) })
 
@@ -463,7 +473,7 @@ describe('Finance Service', () => {
       // Assert
       expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/ap-invoices', {
         params: {
-          'filter[status]': 'posted',
+          'filter[status]': 'sent',
           'filter[contactId]': 5,
           'page[number]': 2,
           'page[size]': 10

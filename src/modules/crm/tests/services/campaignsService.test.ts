@@ -140,7 +140,7 @@ describe('campaignsService', () => {
         budget: 10000,
         startDate: '2025-06-01',
         endDate: '2025-08-31',
-        userId: '1',
+        userId: 1,
         description: 'Promotional summer campaign',
       };
 
@@ -184,7 +184,7 @@ describe('campaignsService', () => {
         status: 'planning' as const,
         budget: -5000,
         startDate: '',
-        userId: '',
+        userId: 0,
       };
 
       const error = createMockAxiosError(422, 'Validation Error');
@@ -206,7 +206,7 @@ describe('campaignsService', () => {
         budget: 15000,
         startDate: '2025-06-01',
         endDate: '2025-09-30',
-        userId: '1',
+        userId: 1,
       };
 
       const mockResponse = createMockAPIResponse('3', 'campaigns', {
@@ -246,7 +246,7 @@ describe('campaignsService', () => {
         status: 'active' as const,
         budget: 15000,
         startDate: '2025-06-01',
-        userId: '1',
+        userId: 1,
       };
 
       const error = createMockAxiosError(404, 'Not Found');

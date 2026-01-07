@@ -144,7 +144,8 @@ describe('Pipeline Stages Hooks', () => {
       const { result } = renderHook(() => usePipelineStagesMutations());
       const mockData = {
         name: 'Test Stage',
-        order: 1,
+        stageType: 'lead' as const,
+        sortOrder: 1,
         probability: 50,
         isActive: true,
       };
@@ -161,7 +162,8 @@ describe('Pipeline Stages Hooks', () => {
       const { result } = renderHook(() => usePipelineStagesMutations());
       const mockData = {
         name: 'Updated Stage',
-        order: 2,
+        stageType: 'opportunity' as const,
+        sortOrder: 2,
         probability: 75,
         isActive: true,
       };

@@ -106,7 +106,9 @@ describe('AR Invoices Service', () => {
         invoiceNumber: 'AR-001',
         invoiceDate: '2025-01-15',
         dueDate: '2025-02-15',
-        amount: 2000,
+        subtotal: 1724.14,
+        taxAmount: 275.86,
+        totalAmount: 2000,
         status: 'pending'
       }
       const mockInvoice = createMockARInvoice()
@@ -173,7 +175,7 @@ describe('AR Invoices Service', () => {
   describe('post', () => {
     it('should post AR invoice', async () => {
       // Arrange
-      const mockInvoice = createMockARInvoice({ status: 'posted' })
+      const mockInvoice = createMockARInvoice({ status: 'sent' })
       mockAxios.post.mockResolvedValue({
         data: { data: mockInvoice }
       })

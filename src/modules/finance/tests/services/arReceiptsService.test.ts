@@ -39,7 +39,7 @@ describe('AR Receipts Service', () => {
       // Arrange
       const mockReceipts = [
         createMockARReceipt(),
-        createMockARReceipt({ id: '2', referenceNumber: 'REC-002' })
+        createMockARReceipt({ id: '2', reference: 'REC-002' })
       ]
       const mockResponse = createMockAPIResponse(mockReceipts)
       mockAxios.get.mockResolvedValue({ data: mockResponse })
@@ -102,11 +102,13 @@ describe('AR Receipts Service', () => {
     it('should create new AR receipt', async () => {
       // Arrange
       const formData: ARReceiptForm = {
+        contactId: 1,
         arInvoiceId: 1,
         paymentMethodId: 1,
         receiptDate: '2025-01-15',
+        currency: 'MXN',
         amount: 2000,
-        referenceNumber: 'REC-001',
+        reference: 'REC-001',
         status: 'pending'
       }
       const mockReceipt = createMockARReceipt()
@@ -173,7 +175,7 @@ describe('AR Receipts Service', () => {
   describe('post', () => {
     it('should post AR receipt', async () => {
       // Arrange
-      const mockReceipt = createMockARReceipt({ status: 'posted' })
+      const mockReceipt = createMockARReceipt({ status: 'completed' })
       mockAxios.post.mockResolvedValue({
         data: { data: mockReceipt }
       })

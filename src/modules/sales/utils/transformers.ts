@@ -6,10 +6,10 @@ export function transformContact(resource: JsonApiResource | Record<string, unkn
   const attributes = (resource as JsonApiResource).attributes || resource
   return {
     id: (resource as JsonApiResource).id || '',
-    name: (attributes.name || '') as string,
-    email: attributes.email as string,
-    phone: attributes.phone as string,
-    type: (attributes.type || 'individual') as 'individual' | 'company'
+    name: ((attributes as Record<string, unknown>).name || '') as string,
+    email: (attributes as Record<string, unknown>).email as string,
+    phone: (attributes as Record<string, unknown>).phone as string,
+    type: ((attributes as Record<string, unknown>).type || 'individual') as 'individual' | 'company'
   }
 }
 

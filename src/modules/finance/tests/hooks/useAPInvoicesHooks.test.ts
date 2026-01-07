@@ -169,10 +169,12 @@ describe('AP Invoices Hooks', () => {
       // Arrange
       const mockInvoice = {
         contactId: 1,
-        invoiceNumber: 'INV-001',
+        invoiceNumber: 'AP-001',
         invoiceDate: '2025-01-15',
         dueDate: '2025-02-15',
-        amount: 1000,
+        subtotal: 862.07,
+        taxAmount: 137.93,
+        totalAmount: 1000,
         status: 'pending' as const
       }
       vi.mocked(apInvoicesService.create).mockResolvedValue({ data: { id: '1' } } as any)

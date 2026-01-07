@@ -19,7 +19,7 @@ import {
   validateJournalEntryData,
   validateJournalLineData,
 } from '../../utils/transformers'
-import { AccountFormData } from '../../types'
+import { AccountFormData, JournalEntryFormData, JournalLineForm } from '../../types'
 
 describe('Account Transformers', () => {
   describe('transformAccountFromAPI', () => {
@@ -57,7 +57,7 @@ describe('Account Transformers', () => {
       expect(result.currency).toBe('MXN')
     })
 
-    it('should handle parentId as string conversion', () => {
+    it('should handle parentId as number conversion', () => {
       // Arrange
       const apiData = {
         id: '2',
@@ -75,9 +75,9 @@ describe('Account Transformers', () => {
       // Act
       const result = transformAccountFromAPI(apiData)
 
-      // Assert
-      expect(result.parentId).toBe('1')
-      expect(typeof result.parentId).toBe('string')
+      // Assert - transformer returns number, not string
+      expect(result.parentId).toBe(1)
+      expect(typeof result.parentId).toBe('number')
     })
 
     it('should default currency to MXN when not provided', () => {
@@ -131,6 +131,7 @@ describe('Account Transformers', () => {
         code: '1000',
         name: 'Caja General',
         accountType: 'asset',
+        nature: 'debit',
         level: 1,
         isPostable: true,
         status: 'active',
@@ -156,6 +157,7 @@ describe('Account Transformers', () => {
         code: '1000',
         name: 'Test',
         accountType: 'asset',
+        nature: 'debit',
         level: 1,
         isPostable: true,
         status: 'active',
@@ -174,6 +176,7 @@ describe('Account Transformers', () => {
         code: '1000',
         name: 'Test',
         accountType: 'asset',
+        nature: 'debit',
         level: 1,
         isPostable: true,
         status: 'active',
@@ -192,8 +195,9 @@ describe('Account Transformers', () => {
         code: '1001',
         name: 'Bancos',
         accountType: 'asset',
+        nature: 'debit',
         level: 2,
-        parentId: '1',
+        parentId: 1,
         isPostable: true,
         status: 'active',
       }
@@ -201,8 +205,8 @@ describe('Account Transformers', () => {
       // Act
       const result = transformAccountToAPI(formData)
 
-      // Assert
-      expect(result.data.attributes.parentId).toBe('1')
+      // Assert - parentId is passed through as-is (number)
+      expect(result.data.attributes.parentId).toBe(1)
     })
   })
 
@@ -280,7 +284,7 @@ describe('Journal Entry Transformers', () => {
         type: 'journal-entries',
         attributes: {
           journalId: 1,
-          periodId: 1,
+          fiscalPeriodId: 1,
           number: 'JE-2025-001',
           date: '2025-08-20',
           currency: 'MXN',
@@ -288,8 +292,8 @@ describe('Journal Entry Transformers', () => {
           reference: 'Test Entry',
           description: 'Test Description',
           status: 'draft',
-          totalDebit: '1000.00',
-          totalCredit: '1000.00',
+          totalDebit: 1000.00,
+          totalCredit: 1000.00,
           createdAt: '2025-08-20T10:00:00.000Z',
           updatedAt: '2025-08-20T10:00:00.000Z',
         },
@@ -298,24 +302,24 @@ describe('Journal Entry Transformers', () => {
       // Act
       const result = transformJournalEntryFromAPI(apiData)
 
-      // Assert
+      // Assert - journalId and fiscalPeriodId are numbers, totals are numbers
       expect(result.id).toBe('1')
-      expect(result.journalId).toBe('1')
-      expect(result.periodId).toBe('1')
+      expect(result.journalId).toBe(1)
+      expect(result.fiscalPeriodId).toBe(1)
       expect(result.number).toBe('JE-2025-001')
       expect(result.date).toBe('2025-08-20')
       expect(result.status).toBe('draft')
-      expect(result.totalDebit).toBe('1000.00')
-      expect(result.totalCredit).toBe('1000.00')
+      expect(result.totalDebit).toBe(1000)
+      expect(result.totalCredit).toBe(1000)
     })
 
-    it('should convert numeric IDs to strings', () => {
+    it('should keep numeric IDs as numbers', () => {
       // Arrange
       const apiData = {
         id: '1',
         attributes: {
           journalId: 5,
-          periodId: 10,
+          fiscalPeriodId: 10,
           approvedById: 25,
           postedById: 30,
           number: 'JE-001',
@@ -324,23 +328,23 @@ describe('Journal Entry Transformers', () => {
           exchangeRate: '1.0',
           description: 'Test',
           status: 'posted',
-          totalDebit: '100.00',
-          totalCredit: '100.00',
+          totalDebit: 100.00,
+          totalCredit: 100.00,
         },
       }
 
       // Act
       const result = transformJournalEntryFromAPI(apiData)
 
-      // Assert
-      expect(result.journalId).toBe('5')
-      expect(result.periodId).toBe('10')
-      expect(result.approvedById).toBe('25')
-      expect(result.postedById).toBe('30')
-      expect(typeof result.journalId).toBe('string')
+      // Assert - IDs stay as numbers per transformer implementation
+      expect(result.journalId).toBe(5)
+      expect(result.fiscalPeriodId).toBe(10)
+      expect(result.approvedById).toBe(25)
+      expect(result.postedById).toBe(30)
+      expect(typeof result.journalId).toBe('number')
     })
 
-    it('should handle undefined optional fields', () => {
+    it('should handle missing optional fields with defaults', () => {
       // Arrange
       const apiData = {
         id: '1',
@@ -351,20 +355,20 @@ describe('Journal Entry Transformers', () => {
           exchangeRate: '1.0',
           description: 'Test',
           status: 'draft',
-          totalDebit: '0.00',
-          totalCredit: '0.00',
+          totalDebit: 0,
+          totalCredit: 0,
         },
       }
 
       // Act
       const result = transformJournalEntryFromAPI(apiData)
 
-      // Assert
-      expect(result.journalId).toBeUndefined()
-      expect(result.periodId).toBeUndefined()
-      expect(result.approvedById).toBeUndefined()
-      expect(result.postedById).toBeUndefined()
-      expect(result.reversalOfId).toBeUndefined()
+      // Assert - transformer defaults missing numeric fields to 0 or null
+      expect(result.journalId).toBe(0)
+      expect(result.fiscalPeriodId).toBe(0)
+      expect(result.approvedById).toBeNull()
+      expect(result.postedById).toBeNull()
+      expect(result.reversalOfId).toBeNull()
     })
   })
 
@@ -373,11 +377,11 @@ describe('Journal Entry Transformers', () => {
       // Arrange
       const formData: JournalEntryFormData = {
         journalId: 1,
-        periodId: 1,
+        fiscalPeriodId: 1,
         number: 'JE-2025-001',
         date: '2025-08-20',
         currency: 'MXN',
-        exchangeRate: 1.0,
+        exchangeRate: '1.0',
         reference: 'Test',
         description: 'Test Description',
         status: 'draft',
@@ -397,10 +401,10 @@ describe('Journal Entry Transformers', () => {
       // Arrange
       const formData: JournalEntryFormData = {
         journalId: 1,
-        periodId: 1,
+        fiscalPeriodId: 1,
         number: 'JE-001',
         date: '2025-08-20',
-        exchangeRate: 1.0,
+        exchangeRate: '1.0',
         description: 'Test',
         status: 'draft',
       }
@@ -481,8 +485,8 @@ describe('Journal Line Transformers', () => {
         attributes: {
           journalEntryId: 1,
           accountId: 5,
-          debit: '1000.00',
-          credit: '0.00',
+          debit: 1000.00,
+          credit: 0.00,
           baseAmount: '1000.00',
           memo: 'Test line',
           currency: 'MXN',
@@ -495,16 +499,16 @@ describe('Journal Line Transformers', () => {
       // Act
       const result = transformJournalLineFromAPI(apiData)
 
-      // Assert
+      // Assert - journalEntryId and accountId are numbers, debit/credit are numbers
       expect(result.id).toBe('1')
-      expect(result.journalEntryId).toBe('1')
-      expect(result.accountId).toBe('5')
-      expect(result.debit).toBe('1000.00')
-      expect(result.credit).toBe('0.00')
+      expect(result.journalEntryId).toBe(1)
+      expect(result.accountId).toBe(5)
+      expect(result.debit).toBe(1000)
+      expect(result.credit).toBe(0)
       expect(result.memo).toBe('Test line')
     })
 
-    it('should convert numeric IDs to strings', () => {
+    it('should keep numeric IDs as numbers and legacy fields as strings', () => {
       // Arrange
       const apiData = {
         id: '1',
@@ -513,8 +517,8 @@ describe('Journal Line Transformers', () => {
           accountId: 20,
           costCenterId: 30,
           partnerId: 40,
-          debit: '500.00',
-          credit: '0.00',
+          debit: 500.00,
+          credit: 0.00,
           baseAmount: '500.00',
           currency: 'MXN',
           exchangeRate: '1.0',
@@ -524,13 +528,13 @@ describe('Journal Line Transformers', () => {
       // Act
       const result = transformJournalLineFromAPI(apiData)
 
-      // Assert
-      expect(result.journalEntryId).toBe('10')
-      expect(result.accountId).toBe('20')
+      // Assert - journalEntryId and accountId are numbers, legacy fields are strings
+      expect(result.journalEntryId).toBe(10)
+      expect(result.accountId).toBe(20)
       expect(result.costCenterId).toBe('30')
       expect(result.partnerId).toBe('40')
-      expect(typeof result.journalEntryId).toBe('string')
-      expect(typeof result.accountId).toBe('string')
+      expect(typeof result.journalEntryId).toBe('number')
+      expect(typeof result.accountId).toBe('number')
     })
 
     it('should handle undefined optional fields', () => {
@@ -608,8 +612,8 @@ describe('Journal Line Transformers', () => {
             attributes: {
               journalEntryId: 1,
               accountId: 5,
-              debit: '500.00',
-              credit: '0.00',
+              debit: 500.00,
+              credit: 0.00,
               baseAmount: '500.00',
               currency: 'MXN',
               exchangeRate: '1.0',
@@ -620,8 +624,8 @@ describe('Journal Line Transformers', () => {
             attributes: {
               journalEntryId: 1,
               accountId: 10,
-              debit: '0.00',
-              credit: '500.00',
+              debit: 0.00,
+              credit: 500.00,
               baseAmount: '500.00',
               currency: 'MXN',
               exchangeRate: '1.0',
@@ -633,12 +637,12 @@ describe('Journal Line Transformers', () => {
       // Act
       const result = transformJournalLinesFromAPI(apiResponse)
 
-      // Assert
+      // Assert - debit/credit are numbers
       expect(result).toHaveLength(2)
       expect(result[0].id).toBe('1')
-      expect(result[0].debit).toBe('500.00')
+      expect(result[0].debit).toBe(500)
       expect(result[1].id).toBe('2')
-      expect(result[1].credit).toBe('500.00')
+      expect(result[1].credit).toBe(500)
     })
 
     it('should return empty array when data is not valid', () => {

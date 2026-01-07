@@ -95,6 +95,7 @@ describe('Accounts Service', () => {
         code: '1003',
         name: 'Test Account',
         accountType: 'asset',
+        nature: 'debit',
         level: 1,
         isPostable: true,
         status: 'active'

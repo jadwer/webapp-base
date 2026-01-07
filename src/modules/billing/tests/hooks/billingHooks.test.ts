@@ -173,7 +173,7 @@ describe('Billing Module Hooks', () => {
 
     it('should accept invoice filter', () => {
       // Act
-      const filters = { cfdiInvoiceId: '1' };
+      const filters = { cfdiInvoiceId: 1 };
       renderHook(() => useCFDIItems(filters));
 
       // Assert - Invoice filter is passed

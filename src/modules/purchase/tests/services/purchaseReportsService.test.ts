@@ -213,7 +213,7 @@ describe('purchaseReportsService', () => {
 
       // Assert
       expect(result.suppliers).toEqual([])
-      expect(result.meta.totalSuppliers).toBe(0)
+      expect((result.meta as Record<string, unknown>).totalSuppliers).toBe(0)
     })
 
     it('should throw error on API failure', async () => {

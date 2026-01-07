@@ -31,9 +31,10 @@ describe('HR Payroll Services', () => {
           id: period.id,
           attributes: {
             name: period.name,
+            period_type: period.periodType,
             start_date: period.startDate,
             end_date: period.endDate,
-            pay_date: period.payDate,
+            payment_date: period.paymentDate,
             status: period.status,
           },
         })),
@@ -87,10 +88,11 @@ describe('HR Payroll Services', () => {
 
       const formData = {
         name: 'January 2024',
+        periodType: 'monthly' as const,
         startDate: '2024-01-01',
         endDate: '2024-01-31',
-        payDate: '2024-02-05',
-        status: 'open' as const,
+        paymentDate: '2024-02-05',
+        status: 'draft' as const,
       };
 
       // Act
@@ -113,9 +115,10 @@ describe('HR Payroll Services', () => {
 
       const formData = {
         name: 'January 2024',
+        periodType: 'monthly' as const,
         startDate: '2024-01-01',
         endDate: '2024-01-31',
-        payDate: '2024-02-05',
+        paymentDate: '2024-02-05',
         status: 'closed' as const,
       };
 

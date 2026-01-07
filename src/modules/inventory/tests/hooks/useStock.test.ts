@@ -57,14 +57,14 @@ describe('useStock', () => {
 
   it('should fetch stock with filters', async () => {
     // Arrange
-    const stock = [createMockStock({ id: '1', productId: 5 })]
+    const stock = [createMockStock({ id: '1', productId: '5' })]
     const apiResponse = { data: stock }
     vi.mocked(stockService.getAll).mockResolvedValue(apiResponse)
     vi.mocked(processJsonApiResponse).mockReturnValue({ data: stock })
 
     // Act
     const { result } = renderHook(() =>
-      useStock({ filters: { productId: 5 } })
+      useStock({ filters: { productId: '5' } })
     )
 
     // Wait for data to load
@@ -75,7 +75,7 @@ describe('useStock', () => {
     // Assert
     expect(result.current.stock).toEqual(stock)
     expect(stockService.getAll).toHaveBeenCalledWith({
-      filters: { productId: 5 },
+      filters: { productId: '5' },
     })
   })
 
@@ -209,10 +209,11 @@ describe('useStockMutations', () => {
     it('should create a new stock entry', async () => {
       // Arrange
       const stockData = {
-        productId: 1,
-        warehouseId: 2,
-        warehouseLocationId: 3,
+        productId: '1',
+        warehouseId: '2',
+        warehouseLocationId: '3',
         quantity: 100,
+        availableQuantity: 100,
         status: 'available' as const,
       }
       const createdStock = createMockStock({
@@ -235,10 +236,11 @@ describe('useStockMutations', () => {
     it('should handle creation errors', async () => {
       // Arrange
       const stockData = {
-        productId: 1,
-        warehouseId: 2,
-        warehouseLocationId: 3,
+        productId: '1',
+        warehouseId: '2',
+        warehouseLocationId: '3',
         quantity: -10, // invalid
+        availableQuantity: -10,
         status: 'available' as const,
       }
       const error = new Error('Validation failed')
@@ -326,8 +328,8 @@ describe('useStockByProduct', () => {
   it('should fetch stock by product ID', async () => {
     // Arrange
     const stock = [
-      createMockStock({ id: '1', productId: 7, warehouseId: 1 }),
-      createMockStock({ id: '2', productId: 7, warehouseId: 2 }),
+      createMockStock({ id: '1', productId: '7', warehouseId: '1' }),
+      createMockStock({ id: '2', productId: '7', warehouseId: '2' }),
     ]
     vi.mocked(stockService.getByProduct).mockResolvedValue({ data: stock })
 
@@ -355,7 +357,7 @@ describe('useStockByProduct', () => {
 
   it('should fetch stock by product with includes', async () => {
     // Arrange
-    const stock = [createMockStock({ id: '1', productId: 7 })]
+    const stock = [createMockStock({ id: '1', productId: '7' })]
     vi.mocked(stockService.getByProduct).mockResolvedValue({ data: stock })
 
     // Act

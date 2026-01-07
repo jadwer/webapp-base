@@ -88,11 +88,12 @@ describe('Bank Accounts Service', () => {
     it('should create new bank account', async () => {
       // Arrange
       const formData: BankAccountForm = {
+        accountName: 'Test Operations Account',
         bankName: 'Test Bank',
         accountNumber: '1234567890',
         accountType: 'checking',
         currency: 'USD',
-        balance: 10000,
+        currentBalance: 10000,
         isActive: true
       }
       const mockAccount = createMockBankAccount()

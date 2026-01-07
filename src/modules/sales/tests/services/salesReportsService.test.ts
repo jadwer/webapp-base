@@ -196,7 +196,7 @@ describe('salesReportsService', () => {
 
       // Assert
       expect(result.customers).toEqual([])
-      expect(result.meta.totalCustomers).toBe(0)
+      expect((result.meta as Record<string, unknown>).totalCustomers).toBe(0)
     })
 
     it('should throw error on API failure', async () => {

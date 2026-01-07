@@ -134,7 +134,9 @@ describe('AR Invoices Hooks', () => {
         invoiceNumber: 'AR-001',
         invoiceDate: '2025-01-15',
         dueDate: '2025-02-15',
-        amount: 2000,
+        subtotal: 1724.14,
+        taxAmount: 275.86,
+        totalAmount: 2000,
         status: 'pending' as const
       }
       vi.mocked(arInvoicesService.create).mockResolvedValue({ data: { id: '1' } } as any)

@@ -40,7 +40,7 @@ describe('Financial Statements Services', () => {
       const result = await balanceSheetService.get();
 
       // Assert
-      expect(axiosClient.get).toHaveBeenCalledWith('/api/v1/balance-sheets');
+      expect(axiosClient.get).toHaveBeenCalledWith('/api/v1/reports/balance-sheets');
       expect(result).toEqual(mockResponse);
     });
 
@@ -151,7 +151,7 @@ describe('Financial Statements Services', () => {
 
       // Assert
       expect(axiosClient.get).toHaveBeenCalledWith(
-        expect.stringContaining('/api/v1/cash-flows')
+        expect.stringContaining('/api/v1/reports/cash-flows')
       );
       expect(axiosClient.get).toHaveBeenCalledWith(
         expect.stringContaining('filter%5BstartDate%5D=2025-01-01')
@@ -186,7 +186,7 @@ describe('Financial Statements Services', () => {
       const result = await trialBalanceService.get();
 
       // Assert
-      expect(axiosClient.get).toHaveBeenCalledWith('/api/v1/trial-balances');
+      expect(axiosClient.get).toHaveBeenCalledWith('/api/v1/reports/trial-balances');
       expect(result).toEqual(mockResponse);
     });
 

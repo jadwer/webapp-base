@@ -107,15 +107,19 @@ export const mockSalesOrderItem = (overrides?: Partial<SalesOrderItem>): SalesOr
  * Creates a list of mock sales order items
  */
 export const mockSalesOrderItems = (count: number = 3): SalesOrderItem[] => {
-  return Array.from({ length: count }, (_, index) =>
-    mockSalesOrderItem({
+  return Array.from({ length: count }, (_, index) => {
+    const quantity = (index + 1) * 10
+    const unitPrice = 100 + (index * 50)
+    const total = quantity * unitPrice
+    return mockSalesOrderItem({
       id: (index + 1).toString(),
       productId: index + 1,
-      quantity: (index + 1) * 10,
-      unitPrice: 100 + (index * 50),
-      totalPrice: (index + 1) * 10 * (100 + (index * 50)),
+      quantity,
+      unitPrice,
+      total,
+      totalPrice: total,
     })
-  )
+  })
 }
 
 /**
@@ -247,8 +251,14 @@ export const mockJsonApiSalesOrderItemsResponse = (items: SalesOrderItem[]) => {
         product_id: item.productId,
         quantity: item.quantity,
         unit_price: item.unitPrice,
+        total: item.total,
         total_price: item.totalPrice,
         discount: item.discount,
+        ar_invoice_line_id: item.arInvoiceLineId,
+        invoiced_quantity: item.invoicedQuantity,
+        invoiced_amount: item.invoicedAmount,
+        created_at: item.createdAt,
+        updated_at: item.updatedAt,
       },
       relationships: item.product
         ? {

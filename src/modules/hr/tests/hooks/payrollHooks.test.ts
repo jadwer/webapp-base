@@ -60,7 +60,7 @@ describe('HR Payroll Hooks', () => {
 
     it('should accept optional filters', () => {
       // Act
-      const filters = { status: 'open' as const, periodType: 'monthly' };
+      const filters = { status: 'draft' as const, periodType: 'monthly' as const };
       renderHook(() => usePayrollPeriods(filters));
 
       // Assert - Filters are passed to SWR key

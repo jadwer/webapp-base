@@ -177,8 +177,8 @@ describe('Leads Hooks', () => {
         status: 'new' as const,
         rating: 'hot' as const,
         source: 'website',
-        userId: '1',
-        pipelineStageId: '2',
+        userId: 1,
+        pipelineStageId: 2,
       };
 
       // Act
@@ -196,8 +196,8 @@ describe('Leads Hooks', () => {
         status: 'qualified' as const,
         rating: 'warm' as const,
         source: 'referral',
-        userId: '1',
-        pipelineStageId: '3',
+        userId: 1,
+        pipelineStageId: 3,
       };
 
       // Act

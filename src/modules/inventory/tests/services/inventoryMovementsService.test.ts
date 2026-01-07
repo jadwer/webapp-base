@@ -96,36 +96,36 @@ describe('inventoryMovementsService', () => {
 
     it('should fetch movements with productId filter', async () => {
       // Arrange
-      const movements = [createMockMovement({ id: '1', productId: 5 })]
+      const movements = [createMockMovement({ id: '1', productId: '5' })]
       const apiResponse = { data: movements }
       vi.mocked(axios.get).mockResolvedValue({ data: apiResponse })
 
       // Act
       const result = await inventoryMovementsService.getAll({
-        filters: { productId: 5 }
+        filters: { productId: '5' }
       })
 
       // Assert
       expect(axios.get).toHaveBeenCalledWith('/api/v1/inventory-movements', {
-        params: { 'filter[product_id]': 5, sort: '-movementDate' }
+        params: { 'filter[product_id]': '5', sort: '-movementDate' }
       })
       expect(result).toEqual(apiResponse)
     })
 
     it('should fetch movements with warehouseId filter', async () => {
       // Arrange
-      const movements = [createMockMovement({ id: '1', warehouseId: 3 })]
+      const movements = [createMockMovement({ id: '1', warehouseId: '3' })]
       const apiResponse = { data: movements }
       vi.mocked(axios.get).mockResolvedValue({ data: apiResponse })
 
       // Act
       const result = await inventoryMovementsService.getAll({
-        filters: { warehouseId: 3 }
+        filters: { warehouseId: '3' }
       })
 
       // Assert
       expect(axios.get).toHaveBeenCalledWith('/api/v1/inventory-movements', {
-        params: { 'filter[warehouse_id]': 3, sort: '-movementDate' }
+        params: { 'filter[warehouse_id]': '3', sort: '-movementDate' }
       })
       expect(result).toEqual(apiResponse)
     })
@@ -220,14 +220,14 @@ describe('inventoryMovementsService', () => {
     it('should create a new movement', async () => {
       // Arrange
       const movementData = {
-        productId: 1,
-        warehouseId: 2,
+        productId: '1',
+        warehouseId: '2',
         movementType: 'entry' as const,
         referenceType: 'purchase_order' as const,
         movementDate: '2025-01-01',
         quantity: 100,
         status: 'completed' as const,
-        userId: 1,
+        userId: '1',
       }
       const createdMovement = createMockMovement({
         id: '10',
@@ -244,8 +244,8 @@ describe('inventoryMovementsService', () => {
         data: expect.objectContaining({
           type: 'inventory-movements',
           attributes: expect.objectContaining({
-            productId: 1,
-            warehouseId: 2,
+            productId: 1, // Service converts string to number for API
+            warehouseId: 2, // Service converts string to number for API
             movementType: 'entry',
           }),
         }),
@@ -256,14 +256,14 @@ describe('inventoryMovementsService', () => {
     it('should throw validation error on invalid data', async () => {
       // Arrange
       const invalidData = {
-        productId: 1,
-        warehouseId: 2,
+        productId: '1',
+        warehouseId: '2',
         movementType: 'entry' as const,
         referenceType: 'purchase_order' as const,
         movementDate: '2025-01-01',
         quantity: -10, // invalid
         status: 'completed' as const,
-        userId: 1,
+        userId: '1',
       }
       const error = new Error('Validation failed')
       vi.mocked(axios.post).mockRejectedValue(error)
@@ -338,8 +338,8 @@ describe('inventoryMovementsService', () => {
     it('should fetch movements by product ID', async () => {
       // Arrange
       const movements = [
-        createMockMovement({ id: '1', productId: 7 }),
-        createMockMovement({ id: '2', productId: 7 }),
+        createMockMovement({ id: '1', productId: '7' }),
+        createMockMovement({ id: '2', productId: '7' }),
       ]
       const apiResponse = { data: movements }
       vi.mocked(axios.get).mockResolvedValue({ data: apiResponse })
@@ -359,8 +359,8 @@ describe('inventoryMovementsService', () => {
     it('should fetch movements by warehouse ID', async () => {
       // Arrange
       const movements = [
-        createMockMovement({ id: '1', warehouseId: 3 }),
-        createMockMovement({ id: '2', warehouseId: 3 }),
+        createMockMovement({ id: '1', warehouseId: '3' }),
+        createMockMovement({ id: '2', warehouseId: '3' }),
       ]
       const apiResponse = { data: movements }
       vi.mocked(axios.get).mockResolvedValue({ data: apiResponse })

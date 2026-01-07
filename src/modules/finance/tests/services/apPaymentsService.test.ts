@@ -39,7 +39,7 @@ describe('AP Payments Service', () => {
       // Arrange
       const mockPayments = [
         createMockAPPayment(),
-        createMockAPPayment({ id: '2', referenceNumber: 'PAY-002' })
+        createMockAPPayment({ id: '2', reference: 'PAY-002' })
       ]
       const mockResponse = createMockAPIResponse(mockPayments)
       mockAxios.get.mockResolvedValue({ data: mockResponse })
@@ -102,11 +102,13 @@ describe('AP Payments Service', () => {
     it('should create new AP payment', async () => {
       // Arrange
       const formData: APPaymentForm = {
+        contactId: 1,
         apInvoiceId: 1,
         paymentMethodId: 1,
         paymentDate: '2025-01-15',
+        currency: 'MXN',
         amount: 1000,
-        referenceNumber: 'PAY-001',
+        reference: 'PAY-001',
         status: 'pending'
       }
       const mockPayment = createMockAPPayment()
@@ -173,7 +175,7 @@ describe('AP Payments Service', () => {
   describe('post', () => {
     it('should post AP payment', async () => {
       // Arrange
-      const mockPayment = createMockAPPayment({ status: 'posted' })
+      const mockPayment = createMockAPPayment({ status: 'completed' })
       mockAxios.post.mockResolvedValue({
         data: { data: mockPayment }
       })

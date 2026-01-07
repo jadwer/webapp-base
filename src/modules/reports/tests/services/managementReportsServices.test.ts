@@ -44,7 +44,7 @@ describe('Management Reports Services', () => {
 
       // Assert
       expect(axiosClient.get).toHaveBeenCalledWith(
-        expect.stringContaining('/api/v1/sales-by-customer-reports')
+        expect.stringContaining('/api/v1/reports/sales-by-customer-reports')
       );
       expect(axiosClient.get).toHaveBeenCalledWith(
         expect.stringContaining('filter%5BstartDate%5D=2025-01-01')
@@ -103,7 +103,7 @@ describe('Management Reports Services', () => {
 
       // Assert
       expect(axiosClient.get).toHaveBeenCalledWith(
-        expect.stringContaining('/api/v1/sales-by-product-reports')
+        expect.stringContaining('/api/v1/reports/sales-by-product-reports')
       );
       expect(result).toEqual(mockResponse);
     });
@@ -139,7 +139,7 @@ describe('Management Reports Services', () => {
 
       // Assert
       expect(axiosClient.get).toHaveBeenCalledWith(
-        expect.stringContaining('/api/v1/purchase-by-supplier-reports')
+        expect.stringContaining('/api/v1/reports/purchase-by-supplier-reports')
       );
       expect(result).toEqual(mockResponse);
     });
@@ -175,7 +175,7 @@ describe('Management Reports Services', () => {
 
       // Assert
       expect(axiosClient.get).toHaveBeenCalledWith(
-        expect.stringContaining('/api/v1/purchase-by-product-reports')
+        expect.stringContaining('/api/v1/reports/purchase-by-product-reports')
       );
       expect(result).toEqual(mockResponse);
     });

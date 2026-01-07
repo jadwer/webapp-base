@@ -66,18 +66,43 @@ describe('Journal Entries Service', () => {
 
   describe('getById', () => {
     it('should fetch single journal entry by id', async () => {
-      // Arrange
-      const mockEntry = createMockJournalEntry()
+      // Arrange - Mock the raw JSON:API response format (with attributes wrapper)
+      const mockApiResponse = {
+        id: '1',
+        type: 'journal-entries',
+        attributes: {
+          journalId: 1,
+          fiscalPeriodId: 1,
+          number: 'JE-2025-001',
+          date: '2025-08-20',
+          reference: 'REF-001',
+          description: 'Asiento de prueba',
+          totalDebit: 1000,
+          totalCredit: 1000,
+          status: 'draft',
+          approvedAt: null,
+          approvedById: null,
+          postedAt: null,
+          postedById: null,
+          reversalOfId: null,
+          reversalReason: null,
+          metadata: null,
+          createdAt: '2025-08-20T10:00:00.000Z',
+          updatedAt: '2025-08-20T10:00:00.000Z',
+        },
+      }
       mockAxios.get.mockResolvedValue({
-        data: { data: mockEntry }
+        data: { data: mockApiResponse }
       })
 
       // Act
       const result = await journalEntriesService.getById('1')
 
-      // Assert
+      // Assert - service transforms the data
       expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/journal-entries/1')
-      expect(result.data).toEqual(mockEntry)
+      expect(result.data.id).toBe('1')
+      expect(result.data.journalId).toBe(1)
+      expect(result.data.status).toBe('draft')
     })
 
     it('should include relationships when specified', async () => {
@@ -161,18 +186,43 @@ describe('Journal Entries Service', () => {
 
   describe('getWithLines', () => {
     it('should fetch journal entry with lines included', async () => {
-      // Arrange
-      const mockEntry = createMockJournalEntry()
+      // Arrange - Mock the raw JSON:API response format (with attributes wrapper)
+      const mockApiResponse = {
+        id: '1',
+        type: 'journal-entries',
+        attributes: {
+          journalId: 1,
+          fiscalPeriodId: 1,
+          number: 'JE-2025-001',
+          date: '2025-08-20',
+          reference: 'REF-001',
+          description: 'Asiento de prueba',
+          totalDebit: 1000,
+          totalCredit: 1000,
+          status: 'draft',
+          approvedAt: null,
+          approvedById: null,
+          postedAt: null,
+          postedById: null,
+          reversalOfId: null,
+          reversalReason: null,
+          metadata: null,
+          createdAt: '2025-08-20T10:00:00.000Z',
+          updatedAt: '2025-08-20T10:00:00.000Z',
+        },
+      }
       mockAxios.get.mockResolvedValue({
-        data: { data: mockEntry, included: [] }
+        data: { data: mockApiResponse, included: [] }
       })
 
       // Act
       const result = await journalEntriesService.getWithLines('1')
 
-      // Assert
+      // Assert - service transforms the data
       expect(mockAxios.get).toHaveBeenCalled()
-      expect(result.data).toEqual(mockEntry)
+      expect(result.data.id).toBe('1')
+      expect(result.data.journalId).toBe(1)
+      expect(result.data.status).toBe('draft')
     })
   })
 })
