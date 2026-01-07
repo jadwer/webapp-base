@@ -6,11 +6,14 @@
 
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { PublicCatalogTemplate } from '@/modules/public-catalog'
 import type { EnhancedPublicProduct } from '@/modules/public-catalog'
 import { useCart } from '@/modules/ecommerce'
 import { useToast } from '@/ui/hooks/useToast'
+
+// Local storage key for wishlist
+const WISHLIST_KEY = 'laborwasser_wishlist'
 
 // Mock data for demonstration - in real app, this would come from API
 const mockCategories = [
@@ -47,6 +50,7 @@ export default function ProductosPage() {
   const toast = useToast()
   const [sessionId, setSessionId] = useState<string>('')
   const [isClient, setIsClient] = useState(false)
+  const [wishlistIds, setWishlistIds] = useState<number[]>([])
 
   // Client-side only initialization
   useEffect(() => {
@@ -61,6 +65,16 @@ export default function ProductosPage() {
     }
 
     setSessionId(storedSessionId)
+
+    // Load wishlist from localStorage
+    const savedWishlist = localStorage.getItem(WISHLIST_KEY)
+    if (savedWishlist) {
+      try {
+        setWishlistIds(JSON.parse(savedWishlist))
+      } catch {
+        setWishlistIds([])
+      }
+    }
   }, [])
 
   // Initialize cart hook only on client side
@@ -91,11 +105,29 @@ export default function ProductosPage() {
     }
   }
 
-  const handleAddToWishlist = (product: EnhancedPublicProduct) => {
-    console.log('Add to wishlist:', product.displayName)
-    // TODO: Implement wishlist functionality
-    toast.info(`${product.displayName} agregado a favoritos`)
-  }
+  const handleAddToWishlist = useCallback((product: EnhancedPublicProduct) => {
+    const productId = parseInt(product.id)
+    setWishlistIds(prev => {
+      const isInWishlist = prev.includes(productId)
+      const updated = isInWishlist
+        ? prev.filter(id => id !== productId)
+        : [...prev, productId]
+
+      // Save to localStorage
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(WISHLIST_KEY, JSON.stringify(updated))
+      }
+
+      // Show feedback
+      if (isInWishlist) {
+        toast.info(`${product.displayName} eliminado de favoritos`)
+      } else {
+        toast.success(`${product.displayName} agregado a favoritos`)
+      }
+
+      return updated
+    })
+  }, [toast])
 
   return (
     <div className="container-fluid py-4">

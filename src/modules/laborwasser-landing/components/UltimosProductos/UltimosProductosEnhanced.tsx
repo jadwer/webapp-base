@@ -1,22 +1,26 @@
 /**
- * ENHANCED ÚLTIMOS PRODUCTOS COMPONENT
+ * ENHANCED ULTIMOS PRODUCTOS COMPONENT
  * Advanced version using the public-catalog module with all enterprise features
  * Showcases the full power of the new public catalog architecture
  */
 
 'use client'
 
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Button } from '@/ui/components/base'
-import { 
-  PublicProductsGrid, 
+import {
+  PublicProductsGrid,
   useFeaturedProducts,
   type EnhancedPublicProduct,
-  type ProductViewMode 
+  type ProductViewMode
 } from '@/modules/public-catalog'
+import { useCart } from '@/modules/ecommerce'
 import styles from './UltimosProductos.module.scss'
+
+// Local storage key for wishlist
+const WISHLIST_KEY = 'laborwasser_wishlist'
 
 interface UltimosProductosEnhancedProps {
   limit?: number
@@ -35,9 +39,27 @@ export const UltimosProductosEnhanced: React.FC<UltimosProductosEnhancedProps> =
 }) => {
   const [viewMode, setViewMode] = useState<ProductViewMode>('grid')
   const [selectedProduct, setSelectedProduct] = useState<EnhancedPublicProduct | null>(null)
+  const [wishlistIds, setWishlistIds] = useState<number[]>([])
 
   // Use the enhanced public catalog hook
   const { products, isLoading, error, mutate } = useFeaturedProducts(limit, 'unit,category,brand')
+
+  // Use ecommerce cart hook
+  const { addProduct, isAdding } = useCart()
+
+  // Load wishlist from localStorage on mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem(WISHLIST_KEY)
+      if (saved) {
+        try {
+          setWishlistIds(JSON.parse(saved))
+        } catch {
+          setWishlistIds([])
+        }
+      }
+    }
+  }, [])
 
   // Handle product click
   const handleProductClick = useCallback((product: EnhancedPublicProduct) => {
@@ -49,18 +71,39 @@ export const UltimosProductosEnhanced: React.FC<UltimosProductosEnhancedProps> =
     }
   }, [enableProductModal])
 
-  // Handle add to cart (for future implementation)
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const handleAddToCart = useCallback((_product: EnhancedPublicProduct) => {
-    // console.log('Add to cart:', _product.displayName)
-    // TODO: Implement cart functionality
-  }, [])
+  // Handle add to cart using ecommerce module
+  const handleAddToCart = useCallback(async (product: EnhancedPublicProduct) => {
+    try {
+      await addProduct(parseInt(product.id), 1)
+      alert(`${product.displayName} agregado al carrito`)
+    } catch {
+      alert('Error al agregar al carrito. Intenta nuevamente.')
+    }
+  }, [addProduct])
 
-  // Handle add to wishlist (for future implementation)
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const handleAddToWishlist = useCallback((_product: EnhancedPublicProduct) => {
-    // console.log('Add to wishlist:', _product.displayName)
-    // TODO: Implement wishlist functionality
+  // Handle add to wishlist using localStorage
+  const handleAddToWishlist = useCallback((product: EnhancedPublicProduct) => {
+    const productId = parseInt(product.id)
+    setWishlistIds(prev => {
+      const isInWishlist = prev.includes(productId)
+      const updated = isInWishlist
+        ? prev.filter(id => id !== productId)
+        : [...prev, productId]
+
+      // Save to localStorage
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(WISHLIST_KEY, JSON.stringify(updated))
+      }
+
+      // Show feedback
+      if (isInWishlist) {
+        alert(`${product.displayName} eliminado de favoritos`)
+      } else {
+        alert(`${product.displayName} agregado a favoritos`)
+      }
+
+      return updated
+    })
   }, [])
 
   // Handle refresh

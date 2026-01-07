@@ -7,7 +7,7 @@
 'use client'
 
 import React, { useState, useCallback, useMemo } from 'react'
-import { Button, Input } from '@/ui/components/base'
+import { Button, Input, Modal } from '@/ui/components/base'
 import type {
   PublicProductFilters,
   PublicProductSortField,
@@ -81,6 +81,10 @@ export const PublicCatalogFilters: React.FC<PublicCatalogFiltersProps> = ({
   // Local state for price range inputs
   const [priceMin, setPriceMin] = useState(filters.priceMin?.toString() || '')
   const [priceMax, setPriceMax] = useState(filters.priceMax?.toString() || '')
+
+  // Modal state for showing more categories/brands
+  const [showCategoriesModal, setShowCategoriesModal] = useState(false)
+  const [showBrandsModal, setShowBrandsModal] = useState(false)
 
   // Handle search change with debouncing
   const handleSearchChange = useCallback((value: string) => {
@@ -318,9 +322,9 @@ export const PublicCatalogFilters: React.FC<PublicCatalogFiltersProps> = ({
               <button
                 type="button"
                 className="btn btn-sm btn-link text-decoration-none"
-                onClick={() => {/* TODO: Show more categories modal */}}
+                onClick={() => setShowCategoriesModal(true)}
               >
-                +{categories.length - (variant === 'sidebar' ? 10 : 6)} más
+                +{categories.length - (variant === 'sidebar' ? 10 : 6)} mas
               </button>
             )}
           </div>
@@ -358,9 +362,9 @@ export const PublicCatalogFilters: React.FC<PublicCatalogFiltersProps> = ({
               <button
                 type="button"
                 className="btn btn-sm btn-link text-decoration-none"
-                onClick={() => {/* TODO: Show more brands modal */}}
+                onClick={() => setShowBrandsModal(true)}
               >
-                +{brands.length - (variant === 'sidebar' ? 8 : 5)} más
+                +{brands.length - (variant === 'sidebar' ? 8 : 5)} mas
               </button>
             )}
           </div>
@@ -451,6 +455,60 @@ export const PublicCatalogFilters: React.FC<PublicCatalogFiltersProps> = ({
           )}
         </div>
       )}
+
+      {/* Categories Modal */}
+      <Modal
+        show={showCategoriesModal}
+        onHide={() => setShowCategoriesModal(false)}
+        title="Todas las Categorias"
+        size="large"
+      >
+        <div className="d-flex flex-wrap gap-2">
+          {categories.map(category => {
+            const isSelected = selectedCategories.some(sel => sel.value === category.value)
+            return (
+              <button
+                key={category.value}
+                type="button"
+                className={`btn btn-sm ${isSelected ? 'btn-primary' : 'btn-outline-secondary'}`}
+                onClick={() => handleCategoryChange(category.value)}
+              >
+                {category.label}
+                {category.count && (
+                  <span className="ms-1 small">({category.count})</span>
+                )}
+              </button>
+            )
+          })}
+        </div>
+      </Modal>
+
+      {/* Brands Modal */}
+      <Modal
+        show={showBrandsModal}
+        onHide={() => setShowBrandsModal(false)}
+        title="Todas las Marcas"
+        size="large"
+      >
+        <div className="d-flex flex-wrap gap-2">
+          {brands.map(brand => {
+            const isSelected = selectedBrands.some(sel => sel.value === brand.value)
+            return (
+              <button
+                key={brand.value}
+                type="button"
+                className={`btn btn-sm ${isSelected ? 'btn-primary' : 'btn-outline-secondary'}`}
+                onClick={() => handleBrandChange(brand.value)}
+              >
+                {brand.label}
+                {brand.count && (
+                  <span className="ms-1 small">({brand.count})</span>
+                )}
+              </button>
+            )
+          })}
+        </div>
+      </Modal>
     </div>
   )
 }

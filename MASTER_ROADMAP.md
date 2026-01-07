@@ -2,10 +2,11 @@
 **Estrategia: Modulo por Modulo al 100%**
 
 > **Fecha de actualizacion:** 2026-01-07
-> **Status:** EN PROGRESO - Fase 10: Polish & TODOs Cleanup
+> **Status:** COMPLETADO - Fase 10: Polish & TODOs Cleanup
 > **Politica:** Cada modulo debe estar 100% completo antes de avanzar al siguiente
 > **Objetivo:** Production-ready modules con testing >70% y documentacion completa
 > **E2E Tests:** 66/66 passing (100%)
+> **TODOs Fase 10:** 15/15 completados o documentados como intencionales
 
 ---
 
@@ -305,26 +306,26 @@ Todos los módulos del backend han sido implementados en el frontend:
 | `leaves/create/page.tsx` | 52 | Implement leave creation via service | COMPLETADO |
 | `attendances/[id]/page.tsx` | 20 | Implement useAttendance hook | COMPLETADO |
 
-##### 10.3 TODOs Landing/Public Features (6 pendientes - Baja prioridad)
+##### 10.3 TODOs Landing/Public Features (6 COMPLETADOS - 2026-01-07)
 
-| Archivo | Linea | TODO | Prioridad |
-|---------|-------|------|-----------|
-| `NecesitasCotizacion.tsx` | 18 | Implement quote request submission | Media |
-| `Header.tsx` | 82 | Implement search functionality | Baja |
-| `UltimosProductosEnhanced.tsx` | 56 | Implement cart functionality | Baja |
-| `UltimosProductosEnhanced.tsx` | 63 | Implement wishlist functionality | Baja |
-| `productos/page.tsx` | 96 | Implement wishlist functionality | Baja |
-| `PublicCatalogFilters.tsx` | 321,361 | Show more categories/brands modal | Baja |
+| Archivo | Linea | TODO | Estado |
+|---------|-------|------|--------|
+| `NecesitasCotizacion.tsx` | 18 | Implement quote request submission | COMPLETADO |
+| `Header.tsx` | 82 | Implement search functionality | COMPLETADO |
+| `UltimosProductosEnhanced.tsx` | 56 | Implement cart functionality | COMPLETADO |
+| `UltimosProductosEnhanced.tsx` | 63 | Implement wishlist functionality | COMPLETADO |
+| `productos/page.tsx` | 96 | Implement wishlist functionality | COMPLETADO |
+| `PublicCatalogFilters.tsx` | 321,361 | Show more categories/brands modal | COMPLETADO |
 
-##### 10.4 TODOs Refactor/Mejoras (Baja prioridad)
+##### 10.4 TODOs Refactor/Mejoras (Intencionales - Futuras iteraciones)
 
-| Archivo | Linea | TODO | Prioridad |
-|---------|-------|------|-----------|
-| `purchase/hooks/index.ts` | 153 | filter[status]=active | Baja |
-| `sales/hooks/index.ts` | 170 | filter[status]=active | Baja |
-| `ProductsTable.tsx` | 31-42 | Props para futuro refactor | Baja |
-| `pagesService.ts` | 111-112 | Get user from included resources | Baja |
-| `inventoryMovementsService.ts` | 134 | Get userId from auth context | Baja |
+| Archivo | Linea | TODO | Razon |
+|---------|-------|------|-------|
+| `purchase/hooks/index.ts` | 153 | filter[status]=active | Intencional: "despues de la presentacion" |
+| `sales/hooks/index.ts` | 170 | filter[status]=active | Intencional: "despues de la presentacion" |
+| `ProductsTable.tsx` | 31-42 | Props para futuro refactor | Intencional: Props comentados para futura expansion |
+| `pagesService.ts` | 111-112 | Get user from included resources | Requiere cambio en API (include=user) |
+| `inventoryMovementsService.ts` | 134 | Get userId from auth context | userId debe venir del form, no del service |
 
 ##### Prioridades de Implementacion
 
@@ -332,8 +333,8 @@ Todos los módulos del backend han sido implementados en el frontend:
 - [x] Documentation cleanup
 - [x] **ALTA:** Contacts CRUD operations (7 TODOs) - COMPLETADO 2026-01-07
 - [x] **MEDIA:** HR leaves/attendances hooks (2 TODOs) - COMPLETADO 2026-01-07
-- [ ] **BAJA:** Landing page features (6 TODOs)
-- [ ] **BAJA:** Refactors varios (5 TODOs)
+- [x] **BAJA:** Landing page features (6 TODOs) - COMPLETADO 2026-01-07
+- [x] **BAJA:** Refactors varios (5 TODOs) - Documentados como intencionales
 
 ---
 

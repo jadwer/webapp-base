@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { Button, Input } from '@/ui/components/base'
 import styles from './Header.module.scss'
 import type { NavigationItem } from '../../types'
@@ -13,6 +14,7 @@ const baseNavigationItems: NavigationItem[] = [
 ]
 
 export const Header: React.FC = () => {
+  const router = useRouter()
   const [searchQuery, setSearchQuery] = useState('')
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
@@ -79,8 +81,10 @@ export const Header: React.FC = () => {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
-    // TODO: Implement search functionality
-    // console.log('Searching for:', searchQuery)
+    if (searchQuery.trim()) {
+      // Navigate to products page with search query
+      router.push(`/productos?search=${encodeURIComponent(searchQuery.trim())}`)
+    }
   }
 
   return (
