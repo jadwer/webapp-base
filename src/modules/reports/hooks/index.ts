@@ -267,3 +267,185 @@ export const usePurchaseByProduct = (filters: PeriodReportFilters) => {
     mutate,
   }
 }
+
+// ============================================================================
+// INVENTORY REPORTS
+// ============================================================================
+
+import {
+  inventoryValuationService,
+  stockLevelsService,
+  salesSummaryService,
+  analyticsService,
+  reportExportService,
+  type ExportFormat,
+} from '../services'
+
+export const useInventoryValuation = (filters?: {
+  asOfDate?: string
+  warehouseId?: number
+  categoryId?: number
+}) => {
+  const key = filters
+    ? ['inventory-valuation', filters]
+    : 'inventory-valuation'
+
+  const { data, error, isLoading, mutate } = useSWR(
+    key,
+    () => inventoryValuationService.get(filters)
+  )
+
+  return {
+    inventoryValuation: data,
+    isLoading,
+    error,
+    mutate,
+  }
+}
+
+export const useStockLevels = (filters?: { warehouseId?: number }) => {
+  const key = filters
+    ? ['stock-levels', filters]
+    : 'stock-levels'
+
+  const { data, error, isLoading, mutate } = useSWR(
+    key,
+    () => stockLevelsService.get(filters)
+  )
+
+  return {
+    stockLevels: data,
+    isLoading,
+    error,
+    mutate,
+  }
+}
+
+// ============================================================================
+// SALES REPORTS
+// ============================================================================
+
+export const useSalesSummary = (filters: { startDate: string; endDate: string }) => {
+  const key = ['sales-summary', filters]
+
+  const { data, error, isLoading, mutate } = useSWR(
+    key,
+    () => salesSummaryService.get(filters)
+  )
+
+  return {
+    salesSummary: data,
+    isLoading,
+    error,
+    mutate,
+  }
+}
+
+// ============================================================================
+// ANALYTICS
+// ============================================================================
+
+export const useAnalyticsDashboard = () => {
+  const { data, error, isLoading, mutate } = useSWR(
+    'analytics-dashboard',
+    () => analyticsService.getDashboard()
+  )
+
+  return {
+    dashboard: data,
+    isLoading,
+    error,
+    mutate,
+  }
+}
+
+export const useAnalyticsKpis = () => {
+  const { data, error, isLoading, mutate } = useSWR(
+    'analytics-kpis',
+    () => analyticsService.getKpis()
+  )
+
+  return {
+    kpis: data,
+    isLoading,
+    error,
+    mutate,
+  }
+}
+
+export const useAnalyticsTrends = (params: {
+  metric: string
+  period?: 'daily' | 'weekly' | 'monthly'
+  months?: number
+}) => {
+  const key = ['analytics-trends', params]
+
+  const { data, error, isLoading, mutate } = useSWR(
+    key,
+    () => analyticsService.getTrends(params)
+  )
+
+  return {
+    trends: data,
+    isLoading,
+    error,
+    mutate,
+  }
+}
+
+export const useAnalyticsMetrics = (params: {
+  metrics: string[]
+  groupBy: 'day' | 'week' | 'month'
+  startDate: string
+  endDate: string
+}) => {
+  const key = ['analytics-metrics', params]
+
+  const { data, error, isLoading, mutate } = useSWR(
+    key,
+    () => analyticsService.getMetrics(params)
+  )
+
+  return {
+    metrics: data,
+    isLoading,
+    error,
+    mutate,
+  }
+}
+
+// ============================================================================
+// REPORT EXPORT
+// ============================================================================
+
+import { useState, useCallback } from 'react'
+
+export const useReportExport = () => {
+  const [isExporting, setIsExporting] = useState(false)
+  const [error, setError] = useState<Error | null>(null)
+
+  const exportReport = useCallback(async (
+    reportType: string,
+    params: Record<string, string | number>,
+    format: ExportFormat,
+    filename: string
+  ) => {
+    setIsExporting(true)
+    setError(null)
+    try {
+      const blob = await reportExportService.export(reportType, params, format)
+      reportExportService.download(blob, filename)
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error('Export failed'))
+      throw err
+    } finally {
+      setIsExporting(false)
+    }
+  }, [])
+
+  return {
+    exportReport,
+    isExporting,
+    error,
+  }
+}

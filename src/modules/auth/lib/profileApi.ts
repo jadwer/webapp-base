@@ -37,16 +37,36 @@ async function changePassword(payload: {
     });
 }
 
-//TODO:
-
-function updateProfile() {
-  console.log("TODO: updateProfile");
-  return true;
+/**
+ * Actualizar informacion del perfil del usuario
+ */
+async function updateProfile(payload: {
+  name?: string;
+  email?: string;
+  phone?: string;
+}) {
+  const res = await axiosClient.patch("/api/v1/profile", {
+    data: {
+      type: "users",
+      attributes: payload
+    }
+  });
+  return res.data?.data?.attributes ?? null;
 }
 
-function uploadAvatar() {
-  console.log("TODO: uploadAvatar");
-  return true;
+/**
+ * Subir avatar del usuario
+ */
+async function uploadAvatar(file: File) {
+  const formData = new FormData();
+  formData.append("avatar", file);
+
+  const res = await axiosClient.post("/api/v1/profile/avatar", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data"
+    }
+  });
+  return res.data?.data?.attributes ?? null;
 }
 
 export { 

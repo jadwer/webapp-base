@@ -7,3 +7,7 @@
 export { ecommerceService } from './ecommerceService';
 export { shoppingCartService } from './cartService';
 export { paymentService } from './paymentService';
+export { checkoutSessionsService } from './checkoutSessionsService';
+export { wishlistService } from './wishlistService';
+export { productReviewsService } from './productReviewsService';
+export { couponsService } from './couponsService';

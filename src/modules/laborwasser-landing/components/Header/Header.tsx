@@ -1,140 +1,46 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import { Button, Input } from '@/ui/components/base'
+import { useLocalCartCount } from '@/modules/public-catalog'
 import styles from './Header.module.scss'
-import type { NavigationItem } from '../../types'
-
-// Base navigation items (fixed pages)
-const baseNavigationItems: NavigationItem[] = [
-  { label: 'Home', href: '/' },
-  { label: 'Roadmap Financiero', href: '/roadmap-financiero' }
-]
 
 export const Header: React.FC = () => {
   const router = useRouter()
   const [searchQuery, setSearchQuery] = useState('')
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-
-  const [dynamicPages, setDynamicPages] = useState<NavigationItem[]>([])
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-
-  // Obtener páginas dinámicas disponibles
-  useEffect(() => {
-    const fetchPages = async () => {
-      setIsLoading(true)
-      setError(null)
-      try {
-        const response = await fetch('/api/v1/pages?filter[status]=published')
-        
-        // Si el endpoint no existe (404), usar páginas conocidas que existen
-        if (response.status === 404) {
-          console.warn('Pages API not available, using fallback pages')
-          setDynamicPages([
-            { label: 'Nosotros', href: '/p/nosotros' }
-          ])
-          return
-        }
-        
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`)
-        }
-        
-        const contentType = response.headers.get('content-type')
-        if (!contentType || !contentType.includes('application/json')) {
-          console.warn('API returned non-JSON response, using base navigation only')
-          setDynamicPages([])
-          return
-        }
-        
-        const data = await response.json()
-
-        if (data.data) {
-          const pages = data.data.map((page: Record<string, unknown>) => ({
-            label: (page.attributes as Record<string, unknown>).title,
-            href: `/p/${(page.attributes as Record<string, unknown>).slug}`
-          }))
-          setDynamicPages(pages)
-        } else {
-          setDynamicPages([])
-        }
-      } catch (fetchError) {
-        console.warn('Error fetching pages (graceful fallback):', fetchError)
-        // No establecer error en UI, solo usar navegación base
-        setDynamicPages([])
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    fetchPages()
-  }, [])
-
-  // Combinar navegación base con páginas dinámicas
-  const navigationItems: NavigationItem[] = [
-    ...baseNavigationItems,
-    ...dynamicPages
-  ]
+  const cartItemCount = useLocalCartCount()
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
     if (searchQuery.trim()) {
-      // Navigate to products page with search query
       router.push(`/productos?search=${encodeURIComponent(searchQuery.trim())}`)
     }
   }
 
+  const handleWhatsApp = () => {
+    window.open('https://wa.me/525557621412', '_blank', 'noopener,noreferrer')
+  }
+
   return (
     <header className={styles.header}>
-      {/* Top bar */}
-      <div className={styles.topBar}>
+      {/* Desktop Header */}
+      <div className={`${styles.desktopHeader} d-none d-lg-block`}>
         <div className="container">
-          <div className="row align-items-center">
-            <div className="col-md-6">
-              <span className={styles.topBarText}>
-                Distribuidora de reactivos y material de laboratorio
-              </span>
-            </div>
-            <div className="col-md-6 text-end">
-              <div className={styles.topBarActions}>
-                <span className={styles.topBarText}>Profesional</span>
-                <span className={styles.separator}>•</span>
-                <span className={styles.topBarText}>Empresas</span>
-                <span className={styles.separator}>•</span>
-                <span className={styles.topBarText}>Gobierno</span>
-                <Button 
-                  variant="primary" 
-                  size="small"
-                  className={styles.loginButton}
-                >
-                  <i className="bi bi-person" />
-                  Login
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Main header */}
-      <div className={styles.mainHeader}>
-        <div className="container">
-          <div className="row align-items-center">
+          <div className="row align-items-center py-3">
             {/* Logo */}
             <div className="col-lg-3">
               <Link href="/" className={styles.logo}>
-                <div className={styles.logoContainer}>
-                  <div className={styles.logoIcon}>
-                    <span className={styles.logoLetter}>W</span>
-                  </div>
-                  <div className={styles.logoText}>
-                    <div className={styles.logoTitle}>LABOR WASSER</div>
-                    <div className={styles.logoSubtitle}>DE MÉXICO</div>
-                  </div>
-                </div>
+                <Image
+                  src="/images/laborwasser/labor-wasser-mexico-logo2.webp"
+                  alt="Labor Wasser de Mexico"
+                  width={200}
+                  height={60}
+                  className={styles.logoImage}
+                  priority
+                />
               </Link>
             </div>
 
@@ -142,99 +48,128 @@ export const Header: React.FC = () => {
             <div className="col-lg-6">
               <form onSubmit={handleSearch} className={styles.searchForm}>
                 <div className="input-group">
-                  <Input
+                  <input
                     type="text"
-                    placeholder="Encuentra tu reactivo por producto..."
+                    className="form-control"
+                    placeholder="Buscar productos..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className={styles.searchInput}
                   />
-                  <Button 
-                    type="submit" 
-                    variant="success"
-                    className={styles.searchButton}
-                  >
+                  <button type="submit" className="btn btn-primary">
                     <i className="bi bi-search" />
-                  </Button>
+                  </button>
                 </div>
               </form>
             </div>
 
-            {/* Cart & User */}
-            <div className="col-lg-3 text-end">
-              <div className={styles.headerActions}>
-                <Button 
-                  variant="secondary"
-                  buttonStyle="outline"
-                  className={styles.actionButton}
-                >
-                  <i className="bi bi-cart" />
-                  <span className={styles.cartCount}>0</span>
-                </Button>
-                <Button 
-                  variant="secondary"
-                  buttonStyle="outline"
-                  className={styles.actionButton}
-                >
-                  <i className="bi bi-person" />
-                </Button>
-              </div>
+            {/* Cart and Contact */}
+            <div className="col-lg-3 text-end d-flex align-items-center justify-content-end gap-3">
+              <Link href="/cart" className={styles.cartButton}>
+                <i className="bi bi-cart3" />
+                {cartItemCount > 0 && (
+                  <span className={styles.cartBadge}>{cartItemCount}</span>
+                )}
+              </Link>
+              <button
+                type="button"
+                className={styles.contactBtn}
+                onClick={handleWhatsApp}
+              >
+                <i className="bi bi-whatsapp me-2" />
+                Contactanos
+              </button>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Navigation */}
-      <nav className={styles.navigation}>
+      {/* Mobile Header */}
+      <div className={`${styles.mobileHeader} d-lg-none`}>
         <div className="container">
-          <div className="row">
-            <div className="col-12">
-              <div className={styles.navContent}>
-                {/* Mobile menu button */}
-                <Button
-                  variant="secondary"
-                  buttonStyle="ghost"
-                  className={`${styles.mobileMenuButton} d-lg-none`}
-                  onClick={() => setIsMenuOpen(!isMenuOpen)}
-                >
-                  <i className={`bi ${isMenuOpen ? 'bi-x' : 'bi-list'}`} />
-                </Button>
-
-                {/* Navigation items */}
-                <ul className={`${styles.navItems} ${isMenuOpen ? styles.navItemsOpen : ''}`}>
-                  {navigationItems.map((item) => (
-                    <li key={item.href} className={styles.navItem}>
-                      <Link href={item.href} className={styles.navLink}>
-                        {item.label}
-                      </Link>
-                    </li>
-                  ))}
-                  {isLoading && (
-                    <li className={styles.navItem}>
-                      <span className={styles.navLink}>
-                        <i className="bi bi-three-dots" />
-                      </span>
-                    </li>
-                  )}
-                  {error && (
-                    <li className={styles.navItem}>
-                      <span className={styles.navLink} title="Error al cargar páginas dinámicas">
-                        <i className="bi bi-exclamation-triangle text-warning" />
-                      </span>
-                    </li>
-                  )}
-                </ul>
-
-                {/* Contact info */}
-                <div className={styles.contactInfo}>
-                  <i className="bi bi-telephone" />
-                  <span>01 55 5762 1412</span>
-                </div>
-              </div>
+          <div className="row align-items-center py-2">
+            <div className="col-8">
+              <Link href="/" className={styles.logo}>
+                <Image
+                  src="/images/laborwasser/labor-wasser-mexico-logo2.webp"
+                  alt="Labor Wasser de Mexico"
+                  width={160}
+                  height={48}
+                  className={styles.logoImage}
+                  priority
+                />
+              </Link>
+            </div>
+            <div className="col-4 text-end">
+              <button
+                type="button"
+                className={styles.menuToggle}
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                aria-label="Toggle menu"
+              >
+                <i className={`bi ${isMenuOpen ? 'bi-x-lg' : 'bi-list'}`} />
+              </button>
             </div>
           </div>
+
+          {/* Mobile Menu */}
+          {isMenuOpen && (
+            <div className={styles.mobileMenu}>
+              <form onSubmit={handleSearch} className={styles.mobileSearchForm}>
+                <div className="input-group">
+                  <input
+                    type="text"
+                    className="form-control"
+                    placeholder="Buscar productos..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                  <button type="submit" className="btn btn-primary">
+                    <i className="bi bi-search" />
+                  </button>
+                </div>
+              </form>
+
+              <nav className={styles.mobileNav}>
+                <Link href="/" className={styles.mobileNavLink}>
+                  Inicio
+                </Link>
+                <Link href="/productos" className={styles.mobileNavLink}>
+                  Productos
+                </Link>
+                <Link href="/cart" className={styles.mobileNavLink}>
+                  <i className="bi bi-cart3 me-2" />
+                  Carrito
+                  {cartItemCount > 0 && (
+                    <span className={styles.mobileCartBadge}>{cartItemCount}</span>
+                  )}
+                </Link>
+                <Link href="/contacto" className={styles.mobileNavLink}>
+                  Contacto
+                </Link>
+              </nav>
+
+              <button
+                type="button"
+                className={styles.mobileWhatsApp}
+                onClick={handleWhatsApp}
+              >
+                <i className="bi bi-whatsapp me-2" />
+                WhatsApp
+              </button>
+            </div>
+          )}
         </div>
-      </nav>
+      </div>
+
+      {/* Floating WhatsApp Button */}
+      <button
+        type="button"
+        className={styles.floatingWhatsApp}
+        onClick={handleWhatsApp}
+        aria-label="Contactar por WhatsApp"
+      >
+        <i className="bi bi-whatsapp" />
+      </button>
     </header>
   )
 }

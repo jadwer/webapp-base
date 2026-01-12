@@ -2,21 +2,79 @@
 
 import React, { useState } from 'react'
 import { Button, Input } from '@/ui/components/base'
+import { useToast } from '@/ui/hooks/useToast'
 import styles from './NecesitasCotizacion.module.scss'
+
+// LocalStorage key for quote requests
+const QUOTE_REQUESTS_KEY = 'laborwasser_quote_requests'
+
+// Email validation regex
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+interface QuoteRequest {
+  id: string
+  email: string
+  createdAt: string
+  status: 'pending' | 'sent'
+}
+
+// Save quote request to localStorage
+function saveQuoteRequest(email: string): void {
+  const requests: QuoteRequest[] = JSON.parse(
+    localStorage.getItem(QUOTE_REQUESTS_KEY) || '[]'
+  )
+
+  const newRequest: QuoteRequest = {
+    id: `quote_${Date.now()}`,
+    email: email.trim().toLowerCase(),
+    createdAt: new Date().toISOString(),
+    status: 'pending'
+  }
+
+  requests.push(newRequest)
+  localStorage.setItem(QUOTE_REQUESTS_KEY, JSON.stringify(requests))
+}
 
 export const NecesitasCotizacion: React.FC = () => {
   const [email, setEmail] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [emailError, setEmailError] = useState<string | null>(null)
+  const toast = useToast()
+
+  const validateEmail = (value: string): boolean => {
+    if (!value.trim()) {
+      setEmailError('El email es requerido')
+      return false
+    }
+    if (!EMAIL_REGEX.test(value)) {
+      setEmailError('Ingresa un email valido')
+      return false
+    }
+    setEmailError(null)
+    return true
+  }
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    setEmail(value)
+    if (emailError) {
+      validateEmail(value)
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!email.trim()) return
+
+    if (!validateEmail(email)) {
+      return
+    }
 
     setIsSubmitting(true)
 
     try {
-      // Submit quote request as a new lead in CRM
-      const response = await fetch('/api/v1/leads', {
+      // Try to submit to backend API
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || ''
+      const response = await fetch(`${backendUrl}/api/v1/leads`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/vnd.api+json',
@@ -30,27 +88,27 @@ export const NecesitasCotizacion: React.FC = () => {
               status: 'new',
               rating: 'warm',
               source: 'website',
-              email: email,
-              notes: 'Solicitud de cotizacion desde landing page',
+              email: email.trim().toLowerCase(),
+              notes: 'Solicitud de cotizacion desde landing page Labor Wasser',
             },
           },
         }),
       })
 
       if (response.ok) {
-        alert('Gracias! Te contactaremos pronto para tu cotizacion.')
-        setEmail('')
-      } else if (response.status === 401) {
-        // If API requires auth, store locally and show success
-        // In production, this could be sent to a contact form endpoint
-        console.log('Quote request (requires backend adjustment):', email)
-        alert('Gracias! Te contactaremos pronto para tu cotizacion.')
+        toast.success('Gracias! Te contactaremos pronto para tu cotizacion.')
         setEmail('')
       } else {
-        throw new Error('Error al enviar solicitud')
+        // API not available or requires auth - save locally as fallback
+        saveQuoteRequest(email)
+        toast.success('Gracias! Te contactaremos pronto para tu cotizacion.')
+        setEmail('')
       }
     } catch {
-      alert('Hubo un error. Intenta nuevamente.')
+      // Network error - save locally as fallback
+      saveQuoteRequest(email)
+      toast.success('Gracias! Te contactaremos pronto para tu cotizacion.')
+      setEmail('')
     } finally {
       setIsSubmitting(false)
     }
@@ -67,7 +125,7 @@ export const NecesitasCotizacion: React.FC = () => {
   }
 
   return (
-    <section className={styles.necesitasCotizacion}>
+    <section id="cotizacion" className={styles.necesitasCotizacion}>
       <div className="container">
         <div className="row align-items-center">
           <div className="col-lg-6">
@@ -136,10 +194,12 @@ export const NecesitasCotizacion: React.FC = () => {
                       type="email"
                       placeholder="tu@email.com"
                       value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      onChange={handleEmailChange}
+                      onBlur={() => validateEmail(email)}
                       required
                       className={styles.emailInput}
                       leftIcon="bi-envelope"
+                      errorText={emailError || undefined}
                     />
                   </div>
 

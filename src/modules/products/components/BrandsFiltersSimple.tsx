@@ -34,7 +34,6 @@ export const BrandsFiltersSimple = React.memo(() => {
     useCallback((searchValue: string) => {
       // console.log('🔍 Applying debounced brand search:', searchValue)
       setFilters({ search: searchValue || undefined })
-      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [setFilters]),
     300
   )

@@ -5,7 +5,7 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { renderHook, waitFor } from '@testing-library/react'
+import { renderHook } from '@testing-library/react'
 import {
   useJournalEntries,
   useJournalEntry,
@@ -13,7 +13,7 @@ import {
   useJournalEntryMutations
 } from '../../hooks'
 import * as journalEntriesService from '../../services/index'
-import { createMockJournalEntry, createMockAPIResponse } from '../utils/test-utils'
+import { createMockJournalEntry } from '../utils/test-utils'
 
 // Mock SWR
 vi.mock('swr', () => ({

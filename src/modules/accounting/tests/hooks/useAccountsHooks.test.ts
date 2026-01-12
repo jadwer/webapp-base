@@ -5,10 +5,10 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { renderHook, waitFor } from '@testing-library/react'
+import { renderHook } from '@testing-library/react'
 import { useAccounts, useAccount, usePostableAccounts, useAccountMutations } from '../../hooks'
 import * as accountsService from '../../services/index'
-import { createMockAccount, createMockAPIResponse } from '../utils/test-utils'
+import { createMockAccount } from '../utils/test-utils'
 
 // Mock SWR
 vi.mock('swr', () => ({

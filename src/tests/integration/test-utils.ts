@@ -4,8 +4,6 @@
  * Common utilities for integration testing across modules
  */
 
-import { vi } from 'vitest';
-
 /**
  * Mock localStorage for browser APIs
  */

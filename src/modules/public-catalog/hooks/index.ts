@@ -16,6 +16,19 @@ export {
   useProductsByPriceRange
 } from './usePublicProducts'
 
+// Export localStorage cart hooks
+export {
+  useLocalCart,
+  useLocalCartCount
+} from './useLocalCart'
+
+// Export cart types
+export type {
+  LocalCartItem,
+  LocalCart,
+  CartTotals
+} from './useLocalCart'
+
 // Re-export types needed for hooks
 export type {
   UsePublicProductsResult,

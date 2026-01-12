@@ -5,11 +5,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { offersService } from '../../services/offersService'
 import { productService } from '@/modules/products'
-import {
-  createMockOffer,
-  createMockOffers,
-  createMockProductsForOffer
-} from '../utils/test-utils'
 
 // Mock product service
 vi.mock('@/modules/products', () => ({
@@ -200,7 +195,7 @@ describe('Offers Service', () => {
       })
 
       // Act
-      const result = await offersService.getProductsForOffer('Searched')
+      await offersService.getProductsForOffer('Searched')
 
       // Assert
       expect(productService.getProducts).toHaveBeenCalledWith({

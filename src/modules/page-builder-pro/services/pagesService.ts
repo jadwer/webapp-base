@@ -37,12 +37,23 @@ interface JsonApiPageResource {
   }
 }
 
+interface JsonApiUserResource {
+  id: string
+  type: 'users'
+  attributes: {
+    name: string
+    email: string
+  }
+}
+
 interface JsonApiResponse {
   data: JsonApiPageResource[]
+  included?: JsonApiUserResource[]
 }
 
 interface JsonApiSingleResponse {
   data: JsonApiPageResource
+  included?: JsonApiUserResource[]
 }
 
 // JSON:API request payload types
@@ -71,8 +82,21 @@ interface JsonApiUpdatePagePayload {
   }
 }
 
+// Helper function to find user data from included resources
+function findUserFromIncluded(userId: string, included?: JsonApiUserResource[]): { name: string; email: string } | undefined {
+  if (!included) return undefined
+  const user = included.find(inc => inc.type === 'users' && inc.id === userId)
+  if (user) {
+    return {
+      name: user.attributes.name,
+      email: user.attributes.email
+    }
+  }
+  return undefined
+}
+
 // Helper function to convert JsonApiPageResource to Page
-function convertJsonApiToPage(item: JsonApiPageResource): Page {
+function convertJsonApiToPage(item: JsonApiPageResource, included?: JsonApiUserResource[]): Page {
   // Safely parse JSON field - could be string JSON, object, or empty
   let parsedJson: object | undefined = undefined
   
@@ -106,11 +130,15 @@ function convertJsonApiToPage(item: JsonApiPageResource): Page {
     publishedAt: item.attributes.publishedAt,
     createdAt: item.attributes.createdAt,
     updatedAt: item.attributes.updatedAt,
-    user: item.relationships?.user?.data ? {
-      id: item.relationships.user.data.id,
-      name: 'Usuario', // TODO: Get from included resources
-      email: 'user@example.com' // TODO: Get from included resources
-    } : undefined
+    user: item.relationships?.user?.data ? (() => {
+      const userId = item.relationships.user.data.id
+      const userData = findUserFromIncluded(userId, included)
+      return {
+        id: userId,
+        name: userData?.name ?? 'Usuario',
+        email: userData?.email ?? ''
+      }
+    })() : undefined
   }
 }
 
@@ -120,8 +148,8 @@ export class PagesService {
     // For now, we'll fetch all pages and handle pagination/filtering on the frontend
     // since the API doesn't support the expected parameters yet
     
-    const response = await axios.get<JsonApiResponse>(API_BASE)
-    const allPages: Page[] = response.data.data.map(convertJsonApiToPage)
+    const response = await axios.get<JsonApiResponse>(API_BASE, { params: { include: 'user' } })
+    const allPages: Page[] = response.data.data.map(item => convertJsonApiToPage(item, response.data.included))
 
     // Client-side filtering and pagination
     let filteredPages = allPages
@@ -198,15 +226,15 @@ export class PagesService {
   }
 
   static async getPage(id: string): Promise<Page> {
-    const response = await axios.get<JsonApiSingleResponse>(`${API_BASE}/${id}`)
-    return convertJsonApiToPage(response.data.data)
+    const response = await axios.get<JsonApiSingleResponse>(`${API_BASE}/${id}`, { params: { include: 'user' } })
+    return convertJsonApiToPage(response.data.data, response.data.included)
   }
 
   static async getPageBySlug(slug: string): Promise<Page | null> {
     try {
-      const response = await axios.get<JsonApiResponse>(`${API_BASE}?filter[slug]=${slug}`)
+      const response = await axios.get<JsonApiResponse>(`${API_BASE}?filter[slug]=${slug}&include=user`)
       const pages = response.data.data
-      return pages.length > 0 ? convertJsonApiToPage(pages[0]) : null
+      return pages.length > 0 ? convertJsonApiToPage(pages[0], response.data.included) : null
     } catch (error) {
       console.error('Error fetching page by slug:', error)
       return null
@@ -259,7 +287,7 @@ export class PagesService {
     }
     
     const response = await axios.post<JsonApiSingleResponse>(API_BASE, payload)
-    return convertJsonApiToPage(response.data.data)
+    return convertJsonApiToPage(response.data.data, response.data.included)
   }
 
   static async updatePage(id: string, data: UpdatePageData): Promise<Page> {
@@ -303,7 +331,7 @@ export class PagesService {
     }
     try {
       const response = await axios.patch<JsonApiSingleResponse>(`${API_BASE}/${id}`, payload)
-      return convertJsonApiToPage(response.data.data)
+      return convertJsonApiToPage(response.data.data, response.data.included)
     } catch (error) {
       console.error('PATCH request failed:', error)
       if (error && typeof error === 'object' && 'response' in error) {
@@ -492,7 +520,7 @@ export class PagesService {
     try {
       const response = await axios.get<JsonApiResponse>(`${API_BASE}?filter[status]=published`)
       const pages = response.data.data || []
-      
+
       return pages
         .filter((page: JsonApiPageResource) => page.attributes.status === 'published')
         .map((page: JsonApiPageResource) => ({
@@ -504,6 +532,26 @@ export class PagesService {
     } catch (error) {
       console.error('Error fetching published pages for navigation:', error)
       return []
+    }
+  }
+
+  /**
+   * Get published page by slug using public endpoint (no auth required)
+   * Used for public website pages (about-us, terms, privacy, etc.)
+   */
+  static async getPublicPageBySlug(slug: string): Promise<Page | null> {
+    try {
+      const response = await axios.get<JsonApiSingleResponse>(`/api/public/v1/pages/${slug}`)
+      return convertJsonApiToPage(response.data.data, response.data.included)
+    } catch (error) {
+      if (error && typeof error === 'object' && 'response' in error) {
+        const axiosError = error as { response?: { status?: number } }
+        if (axiosError.response?.status === 404) {
+          return null
+        }
+      }
+      console.error('Error fetching public page by slug:', error)
+      return null
     }
   }
 }

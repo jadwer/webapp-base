@@ -68,7 +68,7 @@ describe('budgetsService', () => {
       vi.mocked(axios.get).mockResolvedValue({ data: apiResponse })
 
       // Act
-      const result = await budgetsService.getAll({ periodType: 'annual' })
+      await budgetsService.getAll({ periodType: 'annual' })
 
       // Assert
       expect(axios.get).toHaveBeenCalled()
@@ -83,7 +83,7 @@ describe('budgetsService', () => {
       vi.mocked(axios.get).mockResolvedValue({ data: apiResponse })
 
       // Act
-      const result = await budgetsService.getAll({ isActive: true })
+      await budgetsService.getAll({ isActive: true })
 
       // Assert
       expect(axios.get).toHaveBeenCalled()
@@ -98,7 +98,7 @@ describe('budgetsService', () => {
       vi.mocked(axios.get).mockResolvedValue({ data: apiResponse })
 
       // Act
-      const result = await budgetsService.getAll(undefined, { field: 'name', direction: 'desc' })
+      await budgetsService.getAll(undefined, { field: 'name', direction: 'desc' })
 
       // Assert
       expect(axios.get).toHaveBeenCalled()
@@ -113,7 +113,7 @@ describe('budgetsService', () => {
       vi.mocked(axios.get).mockResolvedValue({ data: apiResponse })
 
       // Act
-      const result = await budgetsService.getAll(undefined, undefined, 2, 10)
+      await budgetsService.getAll(undefined, undefined, 2, 10)
 
       // Assert
       expect(axios.get).toHaveBeenCalled()
@@ -403,7 +403,7 @@ describe('budgetsService', () => {
       vi.mocked(axios.get).mockResolvedValue({ data: apiResponse })
 
       // Act
-      const result = await budgetsService.getCurrent(2, 10)
+      await budgetsService.getCurrent(2, 10)
 
       // Assert
       expect(axios.get).toHaveBeenCalled()
@@ -421,7 +421,7 @@ describe('budgetsService', () => {
       vi.mocked(axios.get).mockResolvedValue({ data: apiResponse })
 
       // Act
-      const result = await budgetsService.getByType('department')
+      await budgetsService.getByType('department')
 
       // Assert
       expect(axios.get).toHaveBeenCalled()

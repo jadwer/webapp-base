@@ -8,8 +8,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { paymentMethodsService } from '../../services'
 import axiosClient from '@/lib/axiosClient'
 import {
-  createMockPaymentMethod,
-  createMockAPIResponse
+  createMockPaymentMethod
 } from '../utils/test-utils'
 import type { PaymentMethodForm } from '../../types'
 

@@ -10,13 +10,14 @@ import React, { useState, useCallback, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Button } from '@/ui/components/base'
+import { useToast } from '@/ui/hooks/useToast'
 import {
   PublicProductsGrid,
   useFeaturedProducts,
+  useLocalCart,
   type EnhancedPublicProduct,
   type ProductViewMode
 } from '@/modules/public-catalog'
-import { useCart } from '@/modules/ecommerce'
 import styles from './UltimosProductos.module.scss'
 
 // Local storage key for wishlist
@@ -41,13 +42,13 @@ export const UltimosProductosEnhanced: React.FC<UltimosProductosEnhancedProps> =
   const [selectedProduct, setSelectedProduct] = useState<EnhancedPublicProduct | null>(null)
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [wishlistIds, setWishlistIds] = useState<number[]>([])
+  const toast = useToast()
 
   // Use the enhanced public catalog hook
   const { products, isLoading, error, mutate } = useFeaturedProducts(limit, 'unit,category,brand')
 
-  // Use ecommerce cart hook
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { addProduct, isAdding } = useCart()
+  // Use localStorage cart
+  const { addToCart } = useLocalCart()
 
   // Load wishlist from localStorage on mount
   useEffect(() => {
@@ -73,15 +74,11 @@ export const UltimosProductosEnhanced: React.FC<UltimosProductosEnhancedProps> =
     }
   }, [enableProductModal])
 
-  // Handle add to cart using ecommerce module
-  const handleAddToCart = useCallback(async (product: EnhancedPublicProduct) => {
-    try {
-      await addProduct(parseInt(product.id), 1)
-      alert(`${product.displayName} agregado al carrito`)
-    } catch {
-      alert('Error al agregar al carrito. Intenta nuevamente.')
-    }
-  }, [addProduct])
+  // Handle add to cart using localStorage
+  const handleAddToCart = useCallback((product: EnhancedPublicProduct) => {
+    addToCart(product, 1)
+    toast.success(`${product.displayName} agregado al carrito`)
+  }, [addToCart, toast])
 
   // Handle add to wishlist using localStorage
   const handleAddToWishlist = useCallback((product: EnhancedPublicProduct) => {
@@ -97,16 +94,16 @@ export const UltimosProductosEnhanced: React.FC<UltimosProductosEnhancedProps> =
         localStorage.setItem(WISHLIST_KEY, JSON.stringify(updated))
       }
 
-      // Show feedback
+      // Show feedback with toast
       if (isInWishlist) {
-        alert(`${product.displayName} eliminado de favoritos`)
+        toast.info(`${product.displayName} eliminado de favoritos`)
       } else {
-        alert(`${product.displayName} agregado a favoritos`)
+        toast.success(`${product.displayName} agregado a favoritos`)
       }
 
       return updated
     })
-  }, [])
+  }, [toast])
 
   // Handle refresh
   const handleRefresh = useCallback(() => {

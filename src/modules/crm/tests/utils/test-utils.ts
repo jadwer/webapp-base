@@ -4,7 +4,6 @@
  * Mock factories and test helpers for CRM entities
  */
 
-import { vi } from 'vitest';
 import type {
   PipelineStage,
   Lead,

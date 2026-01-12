@@ -40,7 +40,6 @@ export const CategoriesFiltersSimple = React.memo(() => {
       setFilters({
         search: searchValue || undefined
       })
-      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [setFilters]),
     300
   )

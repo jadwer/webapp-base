@@ -1,8 +1,8 @@
 // Finance Hooks - Phase 1
 // Simple SWR-based data fetching following existing patterns
+'use client'
 
-import useSWR from 'swr';
-import { useSWRConfig } from 'swr';
+import useSWR, { useSWRConfig } from 'swr';
 import {
   apInvoicesService,
   apPaymentsService,

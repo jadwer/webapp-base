@@ -1,3 +1,5 @@
+'use client'
+
 import useSWR from 'swr'
 import { useCallback } from 'react'
 import { salesService, salesReportsService, salesContactsService, salesProductsService } from '../services'

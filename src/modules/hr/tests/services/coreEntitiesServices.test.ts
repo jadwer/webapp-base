@@ -11,9 +11,7 @@ import {
   employeesService,
 } from '../../services';
 import {
-  createMockDepartment,
   createMockDepartments,
-  createMockPosition,
   createMockPositions,
   createMockEmployee,
   createMockEmployees,

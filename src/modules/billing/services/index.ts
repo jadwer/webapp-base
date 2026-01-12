@@ -228,6 +228,40 @@ export const cfdiInvoicesService = {
       email,
     })
   },
+
+  /**
+   * Preview PDF in browser
+   */
+  previewPDF: (id: string): string => {
+    return `/api/v1/cfdi-invoices/${id}/preview-pdf`
+  },
+
+  /**
+   * Validate CFDI status with SAT
+   */
+  validateSAT: async (id: string): Promise<{
+    valid: boolean
+    uuid: string
+    status: 'Vigente' | 'Cancelado'
+    fechaEmision: string
+    rfcEmisor: string
+    rfcReceptor: string
+  }> => {
+    const response = await axiosClient.get(`/cfdi-invoices/${id}/validate-sat`)
+    return response.data
+  },
+
+  /**
+   * Get cancellation status
+   */
+  getCancellationStatus: async (id: string): Promise<{
+    status: 'cancellation_pending' | 'cancelled'
+    fechaCancelacion?: string
+    acuse?: string
+  }> => {
+    const response = await axiosClient.get(`/cfdi-invoices/${id}/cancellation-status`)
+    return response.data
+  },
 }
 
 // ============================================================================
@@ -398,5 +432,60 @@ export const companySettingsService = {
       }
     )
     return response.data
+  },
+}
+
+// ============================================================================
+// SAT CATALOGS SERVICE
+// ============================================================================
+
+export interface SATCatalogItem {
+  code: string
+  description: string
+}
+
+export const satCatalogsService = {
+  /**
+   * Search product codes (ClaveProdServ)
+   */
+  searchProducts: async (search: string): Promise<SATCatalogItem[]> => {
+    const response = await axiosClient.get('/api/v1/sat-catalogs/productos', {
+      params: { search }
+    })
+    return response.data.data || []
+  },
+
+  /**
+   * Search unit codes (ClaveUnidad)
+   */
+  searchUnits: async (search: string): Promise<SATCatalogItem[]> => {
+    const response = await axiosClient.get('/api/v1/sat-catalogs/unidades', {
+      params: { search }
+    })
+    return response.data.data || []
+  },
+
+  /**
+   * Get tax regimes
+   */
+  getRegimenes: async (): Promise<SATCatalogItem[]> => {
+    const response = await axiosClient.get('/api/v1/sat-catalogs/regimenes')
+    return response.data.data || []
+  },
+
+  /**
+   * Get payment forms
+   */
+  getFormasPago: async (): Promise<SATCatalogItem[]> => {
+    const response = await axiosClient.get('/api/v1/sat-catalogs/formas-pago')
+    return response.data.data || []
+  },
+
+  /**
+   * Get CFDI usage types
+   */
+  getUsoCfdi: async (): Promise<SATCatalogItem[]> => {
+    const response = await axiosClient.get('/api/v1/sat-catalogs/uso-cfdi')
+    return response.data.data || []
   },
 }

@@ -18,6 +18,8 @@ import type {
   JournalLineForm,
   JournalEntryWithLines,
   AccountingAPIResponse,
+  ExchangeRate,
+  FiscalPeriod,
 } from '../types';
 
 // Accounts Service
@@ -117,6 +119,19 @@ export const journalEntriesService = {
 
   async post(id: string): Promise<{ data: JournalEntry }> {
     const response = await axiosClient.post(`/api/v1/journal-entries/${id}/post`);
+    return response.data;
+  },
+
+  async approve(id: string): Promise<{ data: JournalEntry }> {
+    const response = await axiosClient.post(`/api/v1/journal-entries/${id}/approve`);
+    return response.data;
+  },
+
+  async reverse(id: string, reason: string, reversalDate: string): Promise<{ data: JournalEntry }> {
+    const response = await axiosClient.post(`/api/v1/journal-entries/${id}/reverse`, {
+      reason,
+      reversal_date: reversalDate
+    });
     return response.data;
   },
 
@@ -303,4 +318,199 @@ export const getJournalLines = (params?: { entryId?: string; filters?: Record<st
 
 export const createJournalLine = (data: JournalLineForm) => {
   return journalLinesService.create(data).then(response => response.data);
+};
+
+// ===== FISCAL PERIODS SERVICE =====
+
+export interface PeriodSummary {
+  period: { name: string; status: string };
+  entries: { count: number; totalDebit: number };
+  accounts: { revenue: number; expenses: number; netIncome: number };
+}
+
+export interface CloseChecklist {
+  checklist: Array<{ item: string; status: 'complete' | 'pending' }>;
+  canClose: boolean;
+  pendingItems: number;
+}
+
+export const fiscalPeriodsService = {
+  async getAll(params: Record<string, unknown> = {}): Promise<{ data: FiscalPeriod[] }> {
+    const response = await axiosClient.get('/api/v1/fiscal-periods', { params });
+    return {
+      data: (response.data.data || []).map((item: { id: string; attributes: Record<string, unknown> }) => ({
+        id: item.id,
+        name: item.attributes.name as string,
+        year: (item.attributes.year || item.attributes.fiscalYear || item.attributes.fiscal_year) as number,
+        month: (item.attributes.month || item.attributes.periodNumber || item.attributes.period_number) as number,
+        startDate: (item.attributes.startDate || item.attributes.start_date) as string,
+        endDate: (item.attributes.endDate || item.attributes.end_date) as string,
+        status: item.attributes.status as FiscalPeriod['status'],
+        closedAt: (item.attributes.closedAt || item.attributes.closed_at) as string | null,
+        closedById: (item.attributes.closedById || item.attributes.closed_by_id) as number | null,
+        closingEntryId: (item.attributes.closingEntryId || item.attributes.closing_entry_id) as number | null,
+        metadata: item.attributes.metadata as Record<string, unknown> | null,
+        createdAt: (item.attributes.createdAt || item.attributes.created_at) as string,
+        updatedAt: (item.attributes.updatedAt || item.attributes.updated_at) as string,
+      }))
+    };
+  },
+
+  async getById(id: string): Promise<{ data: FiscalPeriod }> {
+    const response = await axiosClient.get(`/api/v1/fiscal-periods/${id}`);
+    const item = response.data.data;
+    return {
+      data: {
+        id: item.id,
+        name: item.attributes.name as string,
+        year: (item.attributes.year || item.attributes.fiscalYear || item.attributes.fiscal_year) as number,
+        month: (item.attributes.month || item.attributes.periodNumber || item.attributes.period_number) as number,
+        startDate: (item.attributes.startDate || item.attributes.start_date) as string,
+        endDate: (item.attributes.endDate || item.attributes.end_date) as string,
+        status: item.attributes.status as FiscalPeriod['status'],
+        closedAt: (item.attributes.closedAt || item.attributes.closed_at) as string | null,
+        closedById: (item.attributes.closedById || item.attributes.closed_by_id) as number | null,
+        closingEntryId: (item.attributes.closingEntryId || item.attributes.closing_entry_id) as number | null,
+        metadata: item.attributes.metadata as Record<string, unknown> | null,
+        createdAt: (item.attributes.createdAt || item.attributes.created_at) as string,
+        updatedAt: (item.attributes.updatedAt || item.attributes.updated_at) as string,
+      }
+    };
+  },
+
+  async getSummary(id: string): Promise<PeriodSummary> {
+    const response = await axiosClient.get(`/api/v1/fiscal-periods/${id}/summary`);
+    return response.data;
+  },
+
+  async getCloseChecklist(id: string): Promise<CloseChecklist> {
+    const response = await axiosClient.get(`/api/v1/fiscal-periods/${id}/close-checklist`);
+    return response.data;
+  },
+
+  async close(id: string): Promise<{ data: FiscalPeriod }> {
+    const response = await axiosClient.post(`/api/v1/fiscal-periods/${id}/close`);
+    return response.data;
+  },
+
+  async reopen(id: string): Promise<{ data: FiscalPeriod }> {
+    const response = await axiosClient.post(`/api/v1/fiscal-periods/${id}/reopen`);
+    return response.data;
+  },
+
+  async getOpenPeriods(): Promise<{ data: FiscalPeriod[] }> {
+    return this.getAll({ 'filter[status]': 'open' });
+  },
+
+  async getByYear(year: number): Promise<{ data: FiscalPeriod[] }> {
+    return this.getAll({ 'filter[year]': year, sort: 'month' });
+  }
+};
+
+// ===== EXCHANGE RATES SERVICE =====
+
+export const exchangeRatesService = {
+  async getAll(params: Record<string, unknown> = {}): Promise<{ data: ExchangeRate[] }> {
+    const response = await axiosClient.get('/api/v1/exchange-rates', { params });
+    return {
+      data: (response.data.data || []).map((item: { id: string; attributes: Record<string, unknown> }) => ({
+        id: item.id,
+        fromCurrency: (item.attributes.fromCurrency || item.attributes.from_currency) as string,
+        toCurrency: (item.attributes.toCurrency || item.attributes.to_currency) as string,
+        rate: item.attributes.rate as number,
+        effectiveDate: (item.attributes.effectiveDate || item.attributes.effective_date) as string,
+        source: item.attributes.source as string | null,
+        status: item.attributes.status as ExchangeRate['status'],
+        metadata: item.attributes.metadata as Record<string, unknown> | null,
+        createdAt: (item.attributes.createdAt || item.attributes.created_at) as string,
+        updatedAt: (item.attributes.updatedAt || item.attributes.updated_at) as string,
+      }))
+    };
+  },
+
+  async create(data: {
+    fromCurrency: string;
+    toCurrency: string;
+    rate: number;
+    effectiveDate: string;
+    source?: string;
+  }): Promise<{ data: ExchangeRate }> {
+    const response = await axiosClient.post('/api/v1/exchange-rates', {
+      data: {
+        type: 'exchange-rates',
+        attributes: {
+          fromCurrency: data.fromCurrency,
+          toCurrency: data.toCurrency,
+          rate: data.rate,
+          effectiveDate: data.effectiveDate,
+          source: data.source
+        }
+      }
+    });
+    const item = response.data.data;
+    return {
+      data: {
+        id: item.id,
+        fromCurrency: (item.attributes.fromCurrency || item.attributes.from_currency) as string,
+        toCurrency: (item.attributes.toCurrency || item.attributes.to_currency) as string,
+        rate: item.attributes.rate as number,
+        effectiveDate: (item.attributes.effectiveDate || item.attributes.effective_date) as string,
+        source: item.attributes.source as string | null,
+        status: item.attributes.status as ExchangeRate['status'],
+        metadata: item.attributes.metadata as Record<string, unknown> | null,
+        createdAt: (item.attributes.createdAt || item.attributes.created_at) as string,
+        updatedAt: (item.attributes.updatedAt || item.attributes.updated_at) as string,
+      }
+    };
+  },
+
+  async getCurrentRate(fromCurrency: string, toCurrency: string): Promise<ExchangeRate | null> {
+    const response = await this.getAll({
+      'filter[from_currency]': fromCurrency,
+      'filter[to_currency]': toCurrency,
+      'sort': '-effectiveDate',
+      'page[size]': 1
+    });
+    return response.data[0] || null;
+  },
+
+  async delete(id: string): Promise<void> {
+    await axiosClient.delete(`/api/v1/exchange-rates/${id}`);
+  }
+};
+
+// ===== ACCOUNT BALANCES SERVICE =====
+
+// Trial balance entry type for reports view (different from entity AccountBalance in types)
+export interface TrialBalanceEntry {
+  id: string;
+  accountId: number;
+  accountCode: string;
+  accountName: string;
+  debitBalance: number;
+  creditBalance: number;
+  balance: number;
+}
+
+export const accountBalancesService = {
+  async getByPeriod(fiscalPeriodId: number | string): Promise<{ data: TrialBalanceEntry[] }> {
+    const response = await axiosClient.get('/api/v1/account-balances', {
+      params: { 'filter[fiscal_period_id]': fiscalPeriodId }
+    });
+    return {
+      data: (response.data.data || []).map((item: { id: string; attributes: Record<string, unknown> }) => ({
+        id: item.id,
+        accountId: item.attributes.accountId || item.attributes.account_id,
+        accountCode: item.attributes.accountCode || item.attributes.account_code,
+        accountName: item.attributes.accountName || item.attributes.account_name,
+        debitBalance: item.attributes.debitBalance || item.attributes.debit_balance || 0,
+        creditBalance: item.attributes.creditBalance || item.attributes.credit_balance || 0,
+        balance: item.attributes.balance || 0,
+      }))
+    };
+  },
+
+  async getTrialBalance(fiscalPeriodId: number | string): Promise<{ data: TrialBalanceEntry[] }> {
+    return this.getByPeriod(fiscalPeriodId);
+  }
 };

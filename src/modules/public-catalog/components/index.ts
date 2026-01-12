@@ -16,6 +16,12 @@ export { default as PublicCatalogPagination } from './PublicCatalogPagination'
 // Export complete template
 export { default as PublicCatalogTemplate } from './PublicCatalogTemplate'
 
+// Export cart components
+export { default as LocalCartPage } from './LocalCartPage'
+
+// Export detail page component
+export { default as ProductDetailPage } from './ProductDetailPage'
+
 // Re-export types needed for components
 export type {
   PublicProductFilters,

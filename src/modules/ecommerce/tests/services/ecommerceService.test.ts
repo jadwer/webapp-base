@@ -6,7 +6,6 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ecommerceService } from '../../services/ecommerceService';
-import * as transformers from '../../utils/transformers';
 import {
   createMockEcommerceOrder,
   createMockEcommerceOrderItem,

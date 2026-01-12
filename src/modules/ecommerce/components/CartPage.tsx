@@ -7,6 +7,7 @@
 'use client'
 
 import React, { useState, useCallback } from 'react'
+import Image from 'next/image'
 import { Button } from '@/ui/components/base'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
 import { useToast } from '@/ui/hooks/useToast'
@@ -167,11 +168,13 @@ export const CartPage = React.memo<CartPageProps>(({ sessionId }) => {
                     <div className="col-md-6">
                       <div className="d-flex align-items-center">
                         {item.productImage && (
-                          <img
+                          <Image
                             src={item.productImage}
                             alt={item.productName || 'Product'}
+                            width={80}
+                            height={80}
                             className="rounded me-3"
-                            style={{ width: 80, height: 80, objectFit: 'cover' }}
+                            style={{ objectFit: 'cover' }}
                           />
                         )}
                         <div className="flex-fill">

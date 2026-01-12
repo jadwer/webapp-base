@@ -67,7 +67,17 @@ export {
   useFeaturedProducts,
   useProductsOnOffer,
   useProductSuggestions,
-  useProductsByPriceRange
+  useProductsByPriceRange,
+  // LocalStorage cart hooks
+  useLocalCart,
+  useLocalCartCount
+} from './hooks'
+
+// Export cart types
+export type {
+  LocalCartItem,
+  LocalCart,
+  CartTotals
 } from './hooks'
 
 // Export components
@@ -75,7 +85,9 @@ export {
   PublicProductCard,
   PublicProductsGrid,
   PublicCatalogPagination,
-  PublicCatalogTemplate
+  PublicCatalogTemplate,
+  LocalCartPage,
+  ProductDetailPage
 } from './components'
 
 // Export utility functions if any are created later

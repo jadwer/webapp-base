@@ -1,61 +1,53 @@
 'use client'
 
 import React from 'react'
-import { Button } from '@/ui/components/base'
-import { useFeaturedProducts } from '../../hooks'
-// Define transformed product type that matches the hook return
-interface TransformedProduct {
-  id: string
-  name: string
-  description: string | null
-  price: number | null
-  sku: string | null
-  barcode: string | null
-  imageUrl: string | null
-  isActive: boolean
-  createdAt: string
-  updatedAt: string
-  unit: {
-    id: string
-    name: string
-    abbreviation: string | null
-    description: string | null
-  } | null
-  category: {
-    id: string
-    name: string
-    description: string | null
-    slug: string | null
-    imageUrl: string | null
-  } | null
-  brand: {
-    id: string
-    name: string
-    description: string | null
-    slug: string | null
-    logoUrl: string | null
-    websiteUrl: string | null
-  } | null
-  iva: boolean
-  cost: number | null
-}
+import Image from 'next/image'
+import Link from 'next/link'
 import styles from './OfertasDelMes.module.scss'
 
-export const OfertasDelMes: React.FC = () => {
-  const { products, isLoading, error } = useFeaturedProducts({ limit: 3 })
+interface OfertaProducto {
+  id: string
+  nombre: string
+  descripcion: string
+  imagen: string
+  precioUSD: number
+  colorClass: 'blue1' | 'blue2' | 'blue3'
+  link: string
+}
 
-  if (error) {
-    return (
-      <section className={styles.ofertas}>
-        <div className="container">
-          <div className="alert alert-warning">
-            No se pudieron cargar las ofertas del mes. Intenta nuevamente más tarde.
-          </div>
-        </div>
-      </section>
-    )
+// Ofertas estaticas basadas en el sitio real de Labor Wasser de Mexico
+// Los enlaces usan busqueda por nombre para encontrar productos reales en el catalogo
+const ofertasDelMes: OfertaProducto[] = [
+  {
+    id: '1',
+    nombre: 'Guantes de Nitrilo Libre de Polvo',
+    descripcion: 'Caja de 100 piezas, tallas disponibles: XS, S, M, L, XL. Ideales para laboratorio y uso industrial.',
+    imagen: '/images/laborwasser/labor-wasser-guantes-nitrilo.webp',
+    precioUSD: 9.80,
+    colorClass: 'blue1',
+    link: '/productos?search=guantes+nitrilo'
+  },
+  {
+    id: '2',
+    nombre: 'Viales de Digestion DQO',
+    descripcion: 'Viales para determinacion de Demanda Quimica de Oxigeno. Rango de medicion configurable.',
+    imagen: '/images/laborwasser/labor-wasser-mexico-viales-digestion-dqo.webp',
+    precioUSD: 85.00,
+    colorClass: 'blue2',
+    link: '/productos?search=viales+dqo'
+  },
+  {
+    id: '3',
+    nombre: 'Kit de Frascos Tampon pH',
+    descripcion: 'Kit completo de soluciones buffer para calibracion de medidores de pH. pH 4, 7 y 10.',
+    imagen: '/images/laborwasser/labor-wasser-kit-frascos-tampon.webp',
+    precioUSD: 45.00,
+    colorClass: 'blue1',
+    link: '/productos?search=tampon+ph'
   }
+]
 
+export const OfertasDelMes: React.FC = () => {
   return (
     <section className={styles.ofertas}>
       <div className="container">
@@ -63,105 +55,46 @@ export const OfertasDelMes: React.FC = () => {
           <div className="col-12">
             <div className={styles.sectionHeader}>
               <h2 className={styles.sectionTitle}>OFERTAS DEL MES</h2>
-              <p className={styles.sectionSubtitle}>
-                Aprovecha nuestras mejores promociones en reactivos y equipos de laboratorio
-              </p>
             </div>
           </div>
         </div>
 
-        <div className="row">
-          {isLoading ? (
-            // Loading skeleton
-            Array.from({ length: 3 }).map((_, index) => (
-              <div key={index} className="col-lg-4 col-md-6 mb-4">
-                <div className={styles.productCard}>
-                  <div className={styles.productImageSkeleton}></div>
-                  <div className={styles.productContent}>
-                    <div className={styles.textSkeleton}></div>
-                    <div className={styles.textSkeleton}></div>
-                    <div className={styles.priceSkeleton}></div>
-                  </div>
-                </div>
-              </div>
-            ))
-          ) : products.length > 0 ? (
-            // Actual products
-            products.map((product: TransformedProduct) => (
-              <div key={product.id} className="col-lg-4 col-md-6 mb-4">
-                <div className={styles.productCard}>
-                  <div className={styles.productBadge}>
-                    <span className={styles.badge}>EXCLUSIVA</span>
-                  </div>
-                  
+        <div className="row justify-content-center">
+          {ofertasDelMes.map((oferta) => (
+            <div key={oferta.id} className="col-lg-4 col-md-6 mb-4">
+              <Link href={oferta.link} className={styles.productCardLink}>
+                <div className={`${styles.productCard} ${styles[oferta.colorClass]}`}>
                   <div className={styles.productImage}>
-                    <div className={styles.productImagePlaceholder}>
-                      <i className="bi bi-box" />
-                    </div>
+                    <Image
+                      src={oferta.imagen}
+                      alt={oferta.nombre}
+                      width={280}
+                      height={200}
+                      className={styles.productImg}
+                    />
                   </div>
 
                   <div className={styles.productContent}>
                     <h3 className={styles.productName}>
-                      {product.name}
+                      {oferta.nombre}
                     </h3>
                     <p className={styles.productDescription}>
-                      {product.description || 'Producto de alta calidad para laboratorio'}
+                      {oferta.descripcion}
                     </p>
 
                     <div className={styles.productPricing}>
-                      {product.cost && product.price && product.price > product.cost && (
-                        <span className={styles.originalPrice}>
-                          ${product.price.toLocaleString('es-MX')}
-                        </span>
-                      )}
-                      <span className={styles.salePrice}>
-                        ${(product.price || product.cost || 0).toLocaleString('es-MX')}
+                      <span className={styles.precioLabel}>Desde</span>
+                      <span className={styles.precio}>
+                        ${oferta.precioUSD.toFixed(2)} USD
                       </span>
-                      {product.cost && product.price && product.price > product.cost && (
-                        <span className={styles.savings}>
-                          ¡Ahorra ${(product.price - product.cost).toLocaleString('es-MX')}!
-                        </span>
-                      )}
+                      <span className={styles.iva}>+ IVA</span>
                     </div>
-
-                    <Button 
-                      variant="success" 
-                      className={styles.productButton}
-                      size="small"
-                    >
-                      Ver Producto
-                    </Button>
                   </div>
                 </div>
-              </div>
-            ))
-          ) : (
-            // No products fallback
-            <div className="col-12">
-              <div className={styles.noProducts}>
-                <i className="bi bi-info-circle" />
-                <h3>Próximamente nuevas ofertas</h3>
-                <p>Estamos preparando increíbles ofertas para ti. ¡Vuelve pronto!</p>
-              </div>
+              </Link>
             </div>
-          )}
+          ))}
         </div>
-
-        {products.length > 0 && (
-          <div className="row">
-            <div className="col-12 text-center">
-              <Button 
-                variant="primary" 
-                buttonStyle="outline"
-                size="large"
-                className={styles.viewAllButton}
-              >
-                Ver Todas las Ofertas
-                <i className="bi bi-arrow-right ms-2" />
-              </Button>
-            </div>
-          </div>
-        )}
       </div>
     </section>
   )

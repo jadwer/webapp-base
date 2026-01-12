@@ -106,6 +106,30 @@ export const employeesService = {
       throw error
     }
   },
+
+  // ===== EMPLOYEE SPECIFIC ENDPOINTS =====
+
+  getLeaveBalance: async (id: string): Promise<{
+    balances: Array<{ leaveType: string; entitled: number; used: number; remaining: number }>
+  }> => {
+    const response = await axiosClient.get(`/api/v1/employees/${id}/leave-balance`)
+    return response.data
+  },
+
+  getPayrollSummary: async (id: string, periodId: number): Promise<{
+    employee: { id: number; name: string }
+    period: { id: number; name: string }
+    earnings: Array<{ type: string; amount: number }>
+    deductions: Array<{ type: string; amount: number }>
+    grossPay: number
+    totalDeductions: number
+    netPay: number
+  }> => {
+    const response = await axiosClient.get(`/api/v1/employees/${id}/payroll-summary`, {
+      params: { period_id: periodId }
+    })
+    return response.data
+  },
 }
 
 // ============================================================================
@@ -256,6 +280,18 @@ export const leavesService = {
       throw error
     }
   },
+
+  // ===== LEAVE APPROVAL WORKFLOW =====
+
+  approve: async (id: string) => {
+    const response = await axiosClient.post(`/api/v1/leaves/${id}/approve`)
+    return response.data
+  },
+
+  reject: async (id: string, reason: string) => {
+    const response = await axiosClient.post(`/api/v1/leaves/${id}/reject`, { reason })
+    return response.data
+  },
 }
 
 // ============================================================================
@@ -373,5 +409,124 @@ export const leaveTypesService = {
       console.error('❌ [Service] Error fetching leave types:', error)
       throw error
     }
+  },
+}
+
+// ============================================================================
+// PERFORMANCE REVIEWS SERVICE
+// ============================================================================
+
+export interface PerformanceReview {
+  id: string
+  employeeId: number
+  reviewerId: number
+  reviewPeriod: string
+  status: 'draft' | 'submitted' | 'reviewed' | 'completed'
+  overallRating: number | null
+  goals: Record<string, unknown>
+  achievements: string | null
+  areasForImprovement: string | null
+  comments: string | null
+  employeeComments: string | null
+  completedAt: string | null
+  createdAt: string
+}
+
+export const performanceReviewsService = {
+  getAll: async (params?: Record<string, unknown>) => {
+    const queryParams = new URLSearchParams()
+    queryParams.append('include', 'employee,reviewer')
+
+    if (params) {
+      Object.keys(params).forEach(key => {
+        if (params[key] !== undefined && params[key] !== null && params[key] !== '') {
+          queryParams.append(key, String(params[key]))
+        }
+      })
+    }
+
+    const response = await axiosClient.get(`/api/v1/performance-reviews?${queryParams.toString()}`)
+    return response.data
+  },
+
+  getById: async (id: string) => {
+    const response = await axiosClient.get(`/api/v1/performance-reviews/${id}?include=employee,reviewer`)
+    return response.data
+  },
+
+  create: async (data: Partial<PerformanceReview>) => {
+    const response = await axiosClient.post('/api/v1/performance-reviews', {
+      data: {
+        type: 'performance-reviews',
+        attributes: data
+      }
+    })
+    return response.data
+  },
+
+  update: async (id: string, data: Partial<PerformanceReview>) => {
+    const response = await axiosClient.patch(`/api/v1/performance-reviews/${id}`, {
+      data: {
+        type: 'performance-reviews',
+        id,
+        attributes: data
+      }
+    })
+    return response.data
+  },
+
+  delete: async (id: string) => {
+    await axiosClient.delete(`/api/v1/performance-reviews/${id}`)
+  },
+
+  submit: async (id: string) => {
+    const response = await axiosClient.post(`/api/v1/performance-reviews/${id}/submit`)
+    return response.data
+  },
+
+  complete: async (id: string, data: {
+    overall_rating: number
+    achievements?: string
+    areas_for_improvement?: string
+  }) => {
+    const response = await axiosClient.post(`/api/v1/performance-reviews/${id}/complete`, data)
+    return response.data
+  },
+}
+
+// ============================================================================
+// EMPLOYEE SELF-SERVICE
+// ============================================================================
+
+export const employeeSelfService = {
+  getMe: async () => {
+    const response = await axiosClient.get('/api/v1/employees/me')
+    return response.data
+  },
+
+  getMyAttendances: async (month?: string) => {
+    const params = month ? { month } : {}
+    const response = await axiosClient.get('/api/v1/employees/me/attendances', { params })
+    return response.data
+  },
+
+  getMyLeaveBalance: async () => {
+    const response = await axiosClient.get('/api/v1/employees/me/leave-balance')
+    return response.data
+  },
+
+  getMyPayslips: async () => {
+    const response = await axiosClient.get('/api/v1/employees/me/payslips')
+    return response.data
+  },
+
+  clockIn: async () => {
+    const response = await axiosClient.post('/api/v1/employees/me/clock-in')
+    return response.data
+  },
+
+  clockOut: async () => {
+    const response = await axiosClient.post('/api/v1/employees/me/clock-out')
+    return response.data
   },
 }

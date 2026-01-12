@@ -163,3 +163,59 @@ export const updateUser = async (id: string, payload: Partial<User>): Promise<Us
 export const deleteUser = async (id: string): Promise<void> => {
   await axiosClient.delete(`${RESOURCE}/${id}`)
 }
+
+/**
+ * Change user's own password
+ * Requires current_password for verification
+ */
+export const changePassword = async (
+  id: string,
+  payload: {
+    current_password: string
+    password: string
+    password_confirmation: string
+  }
+): Promise<void> => {
+  await axiosClient.post(`${RESOURCE}/${id}/change-password`, payload)
+}
+
+/**
+ * Reset user password (admin only)
+ * Does not require current password
+ */
+export const resetPassword = async (
+  id: string,
+  payload: { password: string }
+): Promise<void> => {
+  await axiosClient.post(`${RESOURCE}/${id}/reset-password`, payload)
+}
+
+/**
+ * Assign a role to user
+ */
+export const assignRole = async (
+  userId: string,
+  role: string
+): Promise<void> => {
+  await axiosClient.post(`${RESOURCE}/${userId}/assign-role`, { role })
+}
+
+/**
+ * Remove a role from user
+ */
+export const removeRole = async (
+  userId: string,
+  role: string
+): Promise<void> => {
+  await axiosClient.post(`${RESOURCE}/${userId}/remove-role`, { role })
+}
+
+/**
+ * Sync user roles (replace all)
+ */
+export const syncRoles = async (
+  userId: string,
+  roles: string[]
+): Promise<void> => {
+  await axiosClient.post(`${RESOURCE}/${userId}/sync-roles`, { roles })
+}

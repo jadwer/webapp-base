@@ -96,11 +96,26 @@ export const rolesService = {
     withoutPermissions: number
   }> {
     const roles = await this.getAll(['permissions'])
-    
+
     return {
       total: roles.length,
       withPermissions: roles.filter(role => role.permissions && role.permissions.length > 0).length,
       withoutPermissions: roles.filter(role => !role.permissions || role.permissions.length === 0).length
     }
+  },
+
+  // Give permission to role
+  async givePermission(roleId: string | number, permission: string): Promise<void> {
+    await axios.post(`/api/v1/roles/${roleId}/give-permission`, { permission })
+  },
+
+  // Revoke permission from role
+  async revokePermission(roleId: string | number, permission: string): Promise<void> {
+    await axios.post(`/api/v1/roles/${roleId}/revoke-permission`, { permission })
+  },
+
+  // Sync permissions (replace all)
+  async syncPermissions(roleId: string | number, permissions: string[]): Promise<void> {
+    await axios.post(`/api/v1/roles/${roleId}/sync-permissions`, { permissions })
   }
 }

@@ -432,9 +432,9 @@ export default function DashboardPage() {
               <i className="bi bi-people display-5 text-secondary me-3" aria-hidden="true"></i>
               <div>
                 <h5 className="card-title mb-1">
-                  <a href="/dashboard/users" className="text-decoration-none">
+                  <Link href="/dashboard/users" className="text-decoration-none">
                     Usuarios
-                  </a>
+                  </Link>
                 </h5>
                 <p className="card-text text-muted small">Gestión de usuarios del sistema</p>
                 <span className="badge bg-secondary">Administración</span>

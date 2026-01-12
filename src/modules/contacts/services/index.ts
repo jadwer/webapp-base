@@ -221,10 +221,57 @@ export const contactsService = {
    */
   delete: async (id: string): Promise<void> => {
     console.log('🌐 [contactsService.delete] Request:', { id })
-    
+
     await axiosClient.delete(`/api/v1/contacts/${id}`)
-    
+
     console.log('✅ [contactsService.delete] Deleted contact:', { id })
+  },
+
+  /**
+   * Check for potential duplicates before creating
+   */
+  checkDuplicates: async (params: { name?: string; email?: string; taxId?: string }): Promise<{
+    duplicates: Array<{
+      id: number
+      name: string
+      email: string | null
+      matchScore: number
+      matchReasons: string[]
+    }>
+    hasDuplicates: boolean
+  }> => {
+    const queryParams = new URLSearchParams()
+    if (params.name) queryParams.append('name', params.name)
+    if (params.email) queryParams.append('email', params.email)
+    if (params.taxId) queryParams.append('tax_id', params.taxId)
+
+    console.log('🌐 [contactsService.checkDuplicates] Request:', params)
+
+    const response = await axiosClient.get(`/api/v1/contacts/check-duplicates?${queryParams.toString()}`)
+
+    console.log('✅ [contactsService.checkDuplicates] Response:', response.data)
+
+    return response.data
+  },
+
+  /**
+   * Get customer credit status
+   */
+  getCreditStatus: async (id: string): Promise<{
+    creditLimit: number
+    currentBalance: number
+    availableCredit: number
+    overdueAmount: number
+    paymentScore: number
+    isOnCreditHold: boolean
+  }> => {
+    console.log('🌐 [contactsService.getCreditStatus] Request:', { id })
+
+    const response = await axiosClient.get(`/api/v1/contacts/${id}/credit-status`)
+
+    console.log('✅ [contactsService.getCreditStatus] Response:', response.data)
+
+    return response.data
   }
 }
 
@@ -327,6 +374,17 @@ export const contactDocumentsService = {
   download: async (id: string) => {
     console.log('🌐 [contactDocumentsService.download] Request:', { id })
     const response = await axiosClient.get(`/api/v1/contact-documents/${id}/download`, {
+      responseType: 'blob'
+    })
+    return response.data
+  },
+
+  /**
+   * View document inline (returns URL for inline viewing)
+   */
+  view: async (id: string) => {
+    console.log('🌐 [contactDocumentsService.view] Request:', { id })
+    const response = await axiosClient.get(`/api/v1/contact-documents/${id}/view`, {
       responseType: 'blob'
     })
     return response.data

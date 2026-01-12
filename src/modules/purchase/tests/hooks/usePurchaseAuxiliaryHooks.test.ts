@@ -4,14 +4,13 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { renderHook, waitFor } from '@testing-library/react'
+import { renderHook } from '@testing-library/react'
 import {
   usePurchaseReports,
   usePurchaseSuppliers,
   usePurchaseContacts,
   usePurchaseProducts
 } from '../../hooks'
-import { purchaseReportsService, purchaseContactsService, purchaseProductsService } from '../../services'
 
 // Mock the services
 vi.mock('../../services', () => ({

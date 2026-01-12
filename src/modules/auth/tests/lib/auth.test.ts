@@ -353,7 +353,7 @@ describe('useAuth Hook', () => {
         })
       })
 
-      expect(axios.post).toHaveBeenCalledWith('/forgot-password', {
+      expect(axios.post).toHaveBeenCalledWith('/api/auth/forgot-password', {
         email: 'test@example.com',
       })
     })
@@ -377,7 +377,7 @@ describe('useAuth Hook', () => {
         await result.current.resendEmailVerification({ setStatus })
       })
 
-      expect(axios.post).toHaveBeenCalledWith('/email/verification-notification')
+      expect(axios.post).toHaveBeenCalledWith('/api/auth/email/verification-notification')
     })
   })
 

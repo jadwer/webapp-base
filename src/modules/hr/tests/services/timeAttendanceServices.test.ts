@@ -11,11 +11,8 @@ import {
   leavesService,
 } from '../../services';
 import {
-  createMockAttendance,
   createMockAttendances,
-  createMockLeaveType,
   createMockLeaveTypes,
-  createMockLeave,
   createMockLeaves,
   createMockAPIResponse,
   createMockAPICollectionResponse,

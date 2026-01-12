@@ -25,6 +25,29 @@ import {
 
 const cartService = {
   /**
+   * Get or create shopping cart
+   */
+  async getOrCreate(): Promise<ShoppingCart> {
+    const response = await axiosClient.post<ShoppingCartResponse>(
+      '/api/v1/shopping-carts/get-or-create'
+    );
+
+    return shoppingCartFromAPI(response.data.data as unknown as Record<string, unknown>);
+  },
+
+  /**
+   * Merge guest cart after login
+   */
+  async merge(guestSessionId: string): Promise<ShoppingCart> {
+    const response = await axiosClient.post<ShoppingCartResponse>(
+      '/api/v1/shopping-carts/merge',
+      { guest_session_id: guestSessionId }
+    );
+
+    return shoppingCartFromAPI(response.data.data as unknown as Record<string, unknown>);
+  },
+
+  /**
    * Get current shopping cart (by session or customer)
    */
   async getCurrent(filters?: ShoppingCartFilters): Promise<ShoppingCart | null> {

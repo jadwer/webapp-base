@@ -373,8 +373,6 @@ export const mockRouter = () => ({
 import type {
   DiscountRule,
   ParsedDiscountRule,
-  CreateDiscountRuleRequest,
-  UpdateDiscountRuleRequest,
   DiscountRuleFormData
 } from '../../types'
 

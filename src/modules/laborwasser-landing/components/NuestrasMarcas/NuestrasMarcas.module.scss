@@ -1,100 +1,78 @@
 // NUESTRAS MARCAS COMPONENT STYLES
-// Brand logos grid section
+// Brand logos grid section - Labor Wasser de Mexico
 
 .nuestrasMarcas {
-  padding: 80px 0;
+  padding: 60px 0;
   background: #f8f9fa;
 }
 
 .sectionHeader {
   text-align: center;
-  margin-bottom: 60px;
+  margin-bottom: 40px;
 }
 
 .sectionTitle {
-  font-size: 2.5rem;
-  font-weight: bold;
+  font-size: 2rem;
+  font-weight: 700;
   color: #212529;
-  margin-bottom: 16px;
-  position: relative;
-  
-  &::after {
-    content: '';
-    width: 80px;
-    height: 4px;
-    background: linear-gradient(45deg, #007bff, #28a745);
-    position: absolute;
-    bottom: -8px;
-    left: 50%;
-    transform: translateX(-50%);
-    border-radius: 2px;
-  }
-  
-  @media (max-width: 767px) {
-    font-size: 2rem;
-  }
-}
-
-.sectionSubtitle {
-  font-size: 1.1rem;
-  color: #6c757d;
   margin-bottom: 0;
-  line-height: 1.6;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+
+  @media (max-width: 767px) {
+    font-size: 1.5rem;
+  }
 }
 
-// Brands grid
+// Brands grid - estilo similar al sitio original
 .brandsGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 24px;
-  margin-bottom: 60px;
-  
-  @media (max-width: 767px) {
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 16px;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 16px;
+
+  @media (max-width: 1199px) {
+    grid-template-columns: repeat(5, 1fr);
   }
-  
+
+  @media (max-width: 991px) {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  @media (max-width: 767px) {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+
   @media (max-width: 480px) {
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
 .brandCard {
   background: white;
-  border: 1px solid #e9ecef;
-  border-radius: 12px;
-  padding: 24px;
+  border-radius: 8px;
+  padding: 16px;
   text-align: center;
   transition: all 0.3s ease;
   cursor: pointer;
-  position: relative;
-  aspect-ratio: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  
+  aspect-ratio: 16/9;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+
   &:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
-    border-color: #007bff;
-    
-    .brandLogo {
-      transform: scale(1.1);
-    }
-    
-    .brandTooltip {
-      opacity: 1;
-      transform: translateY(-10px);
-    }
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
   }
-  
+
   &:focus {
-    outline: 2px solid #007bff;
+    outline: 2px solid #0d6efd;
     outline-offset: 2px;
   }
-  
+
   @media (max-width: 767px) {
-    padding: 16px;
+    padding: 12px;
   }
 }
 
@@ -104,217 +82,36 @@
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.brandImage {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
   transition: transform 0.3s ease;
-}
 
-.brandLogoPlaceholder {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #f8f9fa;
-  border-radius: 8px;
-  border: 2px dashed #dee2e6;
-  transition: all 0.3s ease;
-  
   .brandCard:hover & {
-    background: #e7f3ff;
-    border-color: #007bff;
-  }
-}
-
-.brandName {
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: #495057;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  line-height: 1.2;
-  text-align: center;
-  word-break: break-word;
-  hyphens: auto;
-  
-  @media (max-width: 767px) {
-    font-size: 0.7rem;
-  }
-  
-  @media (max-width: 480px) {
-    font-size: 0.65rem;
-  }
-}
-
-.brandTooltip {
-  position: absolute;
-  bottom: -40px;
-  left: 50%;
-  transform: translateX(-50%) translateY(0);
-  background: #212529;
-  color: white;
-  padding: 6px 12px;
-  border-radius: 6px;
-  font-size: 0.85rem;
-  font-weight: 500;
-  white-space: nowrap;
-  opacity: 0;
-  transition: all 0.3s ease;
-  z-index: 10;
-  pointer-events: none;
-  
-  &::before {
-    content: '';
-    position: absolute;
-    top: -4px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 0;
-    height: 0;
-    border-left: 4px solid transparent;
-    border-right: 4px solid transparent;
-    border-bottom: 4px solid #212529;
-  }
-}
-
-// Stats section
-.brandsStats {
-  background: white;
-  border-radius: 16px;
-  padding: 40px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-  margin-bottom: 40px;
-  
-  @media (max-width: 767px) {
-    padding: 32px 24px;
-  }
-}
-
-.statNumber {
-  font-size: 2.5rem;
-  font-weight: bold;
-  color: #007bff;
-  margin-bottom: 8px;
-  line-height: 1;
-  
-  @media (max-width: 767px) {
-    font-size: 2rem;
-  }
-}
-
-.statLabel {
-  font-size: 1rem;
-  color: #6c757d;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  
-  @media (max-width: 767px) {
-    font-size: 0.9rem;
-  }
-}
-
-// Call to action
-.callToAction {
-  font-size: 1.1rem;
-  color: #6c757d;
-  background: white;
-  padding: 24px;
-  border-radius: 12px;
-  border-left: 4px solid #007bff;
-  margin-bottom: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  
-  i {
-    color: #007bff;
-    font-size: 1.2rem;
-    flex-shrink: 0;
-  }
-  
-  @media (max-width: 767px) {
-    font-size: 1rem;
-    padding: 20px;
-    text-align: center;
-    flex-direction: column;
-    gap: 8px;
+    transform: scale(1.05);
   }
 }
 
 // Responsive adjustments
 @media (max-width: 991px) {
   .nuestrasMarcas {
-    padding: 60px 0;
+    padding: 50px 0;
   }
-  
+
   .sectionHeader {
-    margin-bottom: 50px;
-  }
-  
-  .brandsGrid {
-    margin-bottom: 50px;
+    margin-bottom: 30px;
   }
 }
 
 @media (max-width: 767px) {
   .nuestrasMarcas {
-    padding: 50px 0;
+    padding: 40px 0;
   }
-  
+
   .sectionHeader {
-    margin-bottom: 40px;
-  }
-  
-  .brandsGrid {
-    margin-bottom: 40px;
-  }
-  
-  .brandsStats {
-    margin-bottom: 32px;
-  }
-}
-
-// Hover effects for better interactivity
-@media (hover: hover) {
-  .brandCard {
-    &::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: linear-gradient(45deg, transparent, rgba(0, 123, 255, 0.05));
-      opacity: 0;
-      transition: opacity 0.3s ease;
-      border-radius: 12px;
-    }
-    
-    &:hover::after {
-      opacity: 1;
-    }
-  }
-}
-
-// Loading animation for future enhancement
-@keyframes brandFadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.brandCard {
-  animation: brandFadeIn 0.6s ease-out;
-  animation-fill-mode: both;
-  
-  @for $i from 1 through 30 {
-    &:nth-child(#{$i}) {
-      animation-delay: #{$i * 0.05}s;
-    }
+    margin-bottom: 24px;
   }
 }

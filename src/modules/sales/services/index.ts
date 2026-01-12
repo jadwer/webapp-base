@@ -334,3 +334,224 @@ export const salesProductsService = {
 
 // DiscountRules Service - v1.1 (SA-M003)
 export { discountRulesService } from './discountRulesService'
+
+// ============================================================================
+// ORDER TRACKING SERVICE
+// ============================================================================
+
+export const orderTrackingService = {
+  /**
+   * Get tracking info for an order
+   */
+  getTracking: async (orderId: string) => {
+    const response = await axiosClient.get(`/api/v1/orders/${orderId}/tracking`)
+    return response.data
+  },
+
+  /**
+   * Update order status (admin)
+   */
+  updateStatus: async (orderId: string, data: {
+    status: string
+    notes?: string
+    tracking_number?: string
+  }) => {
+    const response = await axiosClient.post(`/api/v1/orders/${orderId}/status`, data)
+    return response.data
+  },
+
+  /**
+   * Mark order as shipped (admin)
+   */
+  ship: async (orderId: string, data: {
+    tracking_number: string
+    tracking_url?: string
+    carrier?: string
+  }) => {
+    const response = await axiosClient.post(`/api/v1/orders/${orderId}/ship`, data)
+    return response.data
+  },
+
+  /**
+   * Get status history for an order
+   */
+  getStatusHistory: async (orderId: string) => {
+    const response = await axiosClient.get(`/api/v1/orders/${orderId}/status-history`)
+    return response.data
+  }
+}
+
+// ============================================================================
+// MY ORDERS SERVICE (Customer Portal)
+// ============================================================================
+
+export const myOrdersService = {
+  /**
+   * List customer's own orders
+   */
+  getAll: async () => {
+    const response = await axiosClient.get('/api/v1/my-orders')
+    return response.data
+  },
+
+  /**
+   * Get customer's order details
+   */
+  getById: async (id: string) => {
+    const response = await axiosClient.get(`/api/v1/my-orders/${id}`)
+    return response.data
+  },
+
+  /**
+   * Cancel customer's order (draft/confirmed only)
+   */
+  cancel: async (id: string) => {
+    const response = await axiosClient.post(`/api/v1/my-orders/${id}/cancel`)
+    return response.data
+  },
+
+  /**
+   * Request return (delivered only)
+   */
+  requestReturn: async (id: string, data: {
+    reason: string
+    items: Array<{ itemId: number; quantity: number; reason: string }>
+  }) => {
+    const response = await axiosClient.post(`/api/v1/my-orders/${id}/return`, data)
+    return response.data
+  },
+
+  /**
+   * Download invoice
+   */
+  downloadInvoice: async (id: string) => {
+    const response = await axiosClient.get(`/api/v1/my-orders/${id}/invoice`, {
+      responseType: 'blob'
+    })
+    return response.data
+  }
+}
+
+// ============================================================================
+// BACKORDERS SERVICE
+// ============================================================================
+
+export const backordersService = {
+  /**
+   * Get all backorders with optional status filter
+   */
+  getAll: async (params?: { status?: string }) => {
+    const queryParams = new URLSearchParams()
+    if (params?.status) {
+      queryParams.append('filter[status]', params.status)
+    }
+    const url = queryParams.toString()
+      ? `/api/v1/backorders?${queryParams.toString()}`
+      : '/api/v1/backorders'
+    const response = await axiosClient.get(url)
+    return response.data
+  },
+
+  /**
+   * Get pending backorders for a specific product
+   */
+  getPendingForProduct: async (productId: number) => {
+    const response = await axiosClient.get(`/api/v1/backorders/pending-for-product/${productId}`)
+    return response.data
+  },
+
+  /**
+   * Fulfill backorder (partial or full)
+   */
+  fulfill: async (id: string, data: { quantity: number; notes?: string }) => {
+    const response = await axiosClient.post(`/api/v1/backorders/${id}/fulfill`, data)
+    return response.data
+  },
+
+  /**
+   * Cancel backorder
+   */
+  cancel: async (id: string) => {
+    const response = await axiosClient.post(`/api/v1/backorders/${id}/cancel`)
+    return response.data
+  },
+
+  /**
+   * Auto-fulfill backorders when stock arrives
+   */
+  fulfillForProduct: async (data: { product_id: number; quantity_available: number }) => {
+    const response = await axiosClient.post('/api/v1/backorders/fulfill-for-product', data)
+    return response.data
+  }
+}
+
+// ============================================================================
+// SHIPMENTS SERVICE
+// ============================================================================
+
+export const shipmentsService = {
+  /**
+   * Get all shipments
+   */
+  getAll: async (params?: Record<string, string | number>) => {
+    const queryParams = new URLSearchParams()
+    if (params) {
+      Object.keys(params).forEach(key => {
+        if (params[key] !== undefined && params[key] !== null && params[key] !== '') {
+          queryParams.append(key, String(params[key]))
+        }
+      })
+    }
+    const url = queryParams.toString()
+      ? `/api/v1/shipments?${queryParams.toString()}`
+      : '/api/v1/shipments'
+    const response = await axiosClient.get(url)
+    return response.data
+  },
+
+  /**
+   * Get shipment by ID
+   */
+  getById: async (id: string) => {
+    const response = await axiosClient.get(`/api/v1/shipments/${id}`)
+    return response.data
+  },
+
+  /**
+   * Create shipment
+   */
+  create: async (data: Record<string, unknown>) => {
+    const payload = {
+      data: {
+        type: 'shipments',
+        attributes: data
+      }
+    }
+    const response = await axiosClient.post('/api/v1/shipments', payload)
+    return response.data
+  },
+
+  /**
+   * Update shipment
+   */
+  update: async (id: string, data: Record<string, unknown>) => {
+    const payload = {
+      data: {
+        type: 'shipments',
+        id,
+        attributes: data
+      }
+    }
+    const response = await axiosClient.patch(`/api/v1/shipments/${id}`, payload)
+    return response.data
+  }
+}
+
+// ============================================================================
+// APPLY DISCOUNTS TO ORDER
+// ============================================================================
+
+export const applyDiscountsToOrder = async (orderId: string) => {
+  const response = await axiosClient.post(`/api/v1/sales-orders/${orderId}/apply-discounts`)
+  return response.data
+}

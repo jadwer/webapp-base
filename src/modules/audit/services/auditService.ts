@@ -216,6 +216,25 @@ export const auditService = {
 
     return combined
   },
+
+  /**
+   * Get user activity summary for a period
+   */
+  async getUserSummary(userId: string | number, startDate: string, endDate: string): Promise<{
+    user: { id: number; name: string }
+    period: { start: string; end: string }
+    summary: { created: number; updated: number; deleted: number; total: number }
+    byEntity: Array<{ entity: string; created: number; updated: number; deleted: number }>
+  }> {
+    const response = await axiosClient.get(`${BASE_URL}/user-summary`, {
+      params: {
+        user_id: userId,
+        start_date: startDate,
+        end_date: endDate
+      }
+    })
+    return response.data
+  },
 }
 
 export default auditService

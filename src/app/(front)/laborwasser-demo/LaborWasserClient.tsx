@@ -2,10 +2,10 @@
 
 import dynamic from 'next/dynamic'
 
-// Cargar el componente dinámicamente para evitar problemas de SSR/hidratación
-const LaborWasserLandingEnhanced = dynamic(
-  () => import('@/modules/laborwasser-landing').then((mod) => ({ default: mod.LaborWasserLandingEnhanced })),
-  { 
+// Cargar el componente dinamicamente para evitar problemas de SSR/hidratacion
+const LaborWasserLanding = dynamic(
+  () => import('@/modules/laborwasser-landing').then((mod) => ({ default: mod.LaborWasserLanding })),
+  {
     ssr: false,
     loading: () => (
       <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '100vh' }}>
@@ -13,7 +13,7 @@ const LaborWasserLandingEnhanced = dynamic(
           <div className="spinner-border text-primary mb-3" role="status">
             <span className="visually-hidden">Cargando...</span>
           </div>
-          <p className="text-muted">Cargando Labor Wasser Demo...</p>
+          <p className="text-muted">Cargando Labor Wasser...</p>
         </div>
       </div>
     )
@@ -25,11 +25,6 @@ export interface LaborWasserClientProps {
   enableProductModal?: boolean
 }
 
-export default function LaborWasserClient({ showFullCatalog = false, enableProductModal = true }: LaborWasserClientProps) {
-  return (
-    <LaborWasserLandingEnhanced 
-      showFullCatalog={showFullCatalog}
-      enableProductModal={enableProductModal}
-    />
-  )
+export default function LaborWasserClient({ }: LaborWasserClientProps) {
+  return <LaborWasserLanding />
 }

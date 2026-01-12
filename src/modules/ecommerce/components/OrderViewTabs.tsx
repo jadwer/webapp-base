@@ -8,6 +8,7 @@
 'use client'
 
 import React, { useState } from 'react'
+import Image from 'next/image'
 import { Button } from '@/ui/components/base'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
 import { OrderStatusBadge } from './OrderStatusBadge'
@@ -279,11 +280,13 @@ export const OrderViewTabs = React.memo<OrderViewTabsProps>(({
                           <td>
                             <div className="d-flex align-items-center">
                               {item.productImage && (
-                                <img
+                                <Image
                                   src={item.productImage}
                                   alt={item.productName}
+                                  width={48}
+                                  height={48}
                                   className="rounded me-3"
-                                  style={{ width: 48, height: 48, objectFit: 'cover' }}
+                                  style={{ objectFit: 'cover' }}
                                 />
                               )}
                               <div>

@@ -7,6 +7,7 @@
 'use client'
 
 import React, { useState, useCallback } from 'react'
+import Image from 'next/image'
 import { Button, Input } from '@/ui/components/base'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
 import { useToast } from '@/ui/hooks/useToast'
@@ -379,11 +380,13 @@ export const CheckoutPage = React.memo<CheckoutPageProps>(({ sessionId }) => {
                   {cartItems.map((item) => (
                     <div key={item.id} className="d-flex align-items-center mb-3 pb-3 border-bottom">
                       {item.productImage && (
-                        <img
+                        <Image
                           src={item.productImage}
                           alt={item.productName || 'Product'}
+                          width={50}
+                          height={50}
                           className="rounded me-3"
-                          style={{ width: 50, height: 50, objectFit: 'cover' }}
+                          style={{ objectFit: 'cover' }}
                         />
                       )}
                       <div className="flex-fill">

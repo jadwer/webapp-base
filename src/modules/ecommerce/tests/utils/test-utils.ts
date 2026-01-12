@@ -262,9 +262,9 @@ export function setupSuccessfulResponse(mockAxios: any, data: any) {
   mockAxios.delete.mockResolvedValue({});
 }
 
-export function setupErrorResponse(mockAxios: any, statusCode: number, message: string) {
+export function setupErrorResponse(mockAxios: ReturnType<typeof createMockAxiosClient>, statusCode: number, message: string) {
   const error = new Error(message);
-  (error as any).response = {
+  (error as Error & { response?: { status: number; data: { errors: Array<{ status: string; title: string }> } } }).response = {
     status: statusCode,
     data: {
       errors: [
@@ -280,4 +280,212 @@ export function setupErrorResponse(mockAxios: any, statusCode: number, message: 
   mockAxios.post.mockRejectedValue(error);
   mockAxios.patch.mockRejectedValue(error);
   mockAxios.delete.mockRejectedValue(error);
+}
+
+// ============================================
+// New Service Mock Factories
+// ============================================
+
+export interface MockWishlist {
+  id: string
+  userId: number
+  name: string
+  isPublic: boolean
+  items: MockWishlistItem[]
+  createdAt: string
+  updatedAt: string
+}
+
+export interface MockWishlistItem {
+  id: string
+  wishlistId: number
+  productId: number
+  addedAt: string
+  product?: {
+    id: number
+    name: string
+    price: number
+    image?: string
+  }
+}
+
+export function createMockWishlist(overrides?: Partial<MockWishlist>): MockWishlist {
+  return {
+    id: '1',
+    userId: 1,
+    name: 'Mi Lista de Deseos',
+    isPublic: false,
+    items: [],
+    createdAt: '2025-01-15T10:00:00Z',
+    updatedAt: '2025-01-15T10:00:00Z',
+    ...overrides,
+  }
+}
+
+export function createMockWishlistItem(overrides?: Partial<MockWishlistItem>): MockWishlistItem {
+  return {
+    id: '1',
+    wishlistId: 1,
+    productId: 100,
+    addedAt: '2025-01-15T10:00:00Z',
+    product: {
+      id: 100,
+      name: 'Test Product',
+      price: 99.99,
+      image: '/images/test.jpg',
+    },
+    ...overrides,
+  }
+}
+
+export interface MockProductReview {
+  id: string
+  productId: number
+  userId: number
+  rating: number
+  title: string
+  content: string
+  isVerifiedPurchase: boolean
+  helpfulCount: number
+  status: 'pending' | 'approved' | 'rejected'
+  createdAt: string
+  updatedAt: string
+  user?: {
+    id: number
+    name: string
+  }
+}
+
+export function createMockProductReview(overrides?: Partial<MockProductReview>): MockProductReview {
+  return {
+    id: '1',
+    productId: 100,
+    userId: 1,
+    rating: 5,
+    title: 'Great product!',
+    content: 'This product exceeded my expectations.',
+    isVerifiedPurchase: true,
+    helpfulCount: 10,
+    status: 'approved',
+    createdAt: '2025-01-15T10:00:00Z',
+    updatedAt: '2025-01-15T10:00:00Z',
+    user: {
+      id: 1,
+      name: 'Test User',
+    },
+    ...overrides,
+  }
+}
+
+export interface MockRatingSummary {
+  averageRating: number
+  totalReviews: number
+  distribution: {
+    1: number
+    2: number
+    3: number
+    4: number
+    5: number
+  }
+}
+
+export function createMockRatingSummary(overrides?: Partial<MockRatingSummary>): MockRatingSummary {
+  return {
+    averageRating: 4.5,
+    totalReviews: 100,
+    distribution: {
+      1: 5,
+      2: 5,
+      3: 10,
+      4: 30,
+      5: 50,
+    },
+    ...overrides,
+  }
+}
+
+export interface MockCoupon {
+  id: string
+  code: string
+  name: string
+  description?: string
+  discountType: 'percentage' | 'fixed_amount' | 'free_shipping'
+  discountValue: number
+  minimumOrderAmount?: number
+  maximumDiscount?: number
+  usageLimit?: number
+  usageCount: number
+  perUserLimit?: number
+  startsAt?: string
+  expiresAt?: string
+  isActive: boolean
+  applicableProducts?: number[]
+  applicableCategories?: number[]
+  createdAt: string
+  updatedAt: string
+}
+
+export function createMockCoupon(overrides?: Partial<MockCoupon>): MockCoupon {
+  return {
+    id: '1',
+    code: 'SAVE10',
+    name: '10% Discount',
+    description: 'Save 10% on your order',
+    discountType: 'percentage',
+    discountValue: 10,
+    minimumOrderAmount: 100,
+    maximumDiscount: 50,
+    usageLimit: 100,
+    usageCount: 25,
+    perUserLimit: 1,
+    startsAt: '2025-01-01T00:00:00Z',
+    expiresAt: '2025-12-31T23:59:59Z',
+    isActive: true,
+    applicableProducts: [],
+    applicableCategories: [],
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z',
+    ...overrides,
+  }
+}
+
+export interface MockCheckoutSession {
+  id: string
+  shoppingCartId: number
+  contactId: number | null
+  status: 'pending' | 'payment_pending' | 'completed' | 'failed' | 'cancelled'
+  shippingAddressId: number | null
+  billingAddressId: number | null
+  subtotal: number
+  shippingAmount: number
+  taxAmount: number
+  discountAmount: number
+  total: number
+  paymentMethod: string | null
+  paymentIntentId: string | null
+  salesOrderId: number | null
+  completedAt: string | null
+  createdAt: string
+}
+
+export function createMockCheckoutSession(overrides?: Partial<MockCheckoutSession>): MockCheckoutSession {
+  return {
+    id: 'session-123',
+    shoppingCartId: 1,
+    contactId: 1,
+    status: 'pending',
+    shippingAddressId: 10,
+    billingAddressId: 11,
+    subtotal: 100.00,
+    shippingAmount: 10.00,
+    taxAmount: 16.00,
+    discountAmount: 0,
+    total: 126.00,
+    paymentMethod: null,
+    paymentIntentId: null,
+    salesOrderId: null,
+    completedAt: null,
+    createdAt: '2025-01-15T10:00:00Z',
+    ...overrides,
+  }
 }

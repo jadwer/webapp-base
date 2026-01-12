@@ -1,277 +1,258 @@
 // HEADER COMPONENT STYLES
-// Professional header with top bar, logo, search, and navigation
+// Labor Wasser de Mexico - Header styles matching the original site
 
 .header {
   background: white;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   position: sticky;
   top: 0;
   z-index: 1000;
 }
 
-// Top bar styles
-.topBar {
-  background: #f8f9fa;
-  border-bottom: 1px solid #e9ecef;
-  padding: 8px 0;
-  font-size: 12px;
-}
-
-.topBarText {
-  color: #6c757d;
-  font-size: 12px;
-}
-
-.topBarActions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.separator {
-  color: #dee2e6;
-}
-
-.loginButton {
-  font-size: 11px;
-  padding: 4px 12px;
-  
-  i {
-    margin-right: 4px;
-  }
-}
-
-// Main header styles
-.mainHeader {
-  padding: 16px 0;
+// Desktop Header
+.desktopHeader {
   background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .logo {
+  display: inline-block;
   text-decoration: none;
-  color: inherit;
-  
-  &:hover {
-    text-decoration: none;
-    color: inherit;
+}
+
+.logoImage {
+  max-width: 100%;
+  height: auto;
+}
+
+.searchForm {
+  .input-group {
+    border-radius: 50px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+
+  .form-control {
+    border: 1px solid #e9ecef;
+    border-right: none;
+    padding: 12px 20px;
+    font-size: 14px;
+
+    &:focus {
+      border-color: #0d6efd;
+      box-shadow: none;
+    }
+  }
+
+  .btn {
+    padding: 12px 20px;
+    border-radius: 0;
+
+    i {
+      font-size: 16px;
+    }
   }
 }
 
-.logoContainer {
-  display: flex;
+// Cart Button
+.cartButton {
+  position: relative;
+  display: inline-flex;
   align-items: center;
-  gap: 12px;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  background: #f8f9fa;
+  color: #212529;
+  border: 1px solid #e9ecef;
+  border-radius: 50%;
+  text-decoration: none;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: #0d6efd;
+    color: white;
+    border-color: #0d6efd;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
+  }
+
+  i {
+    font-size: 20px;
+  }
 }
 
-.logoIcon {
-  width: 48px;
-  height: 48px;
-  background: linear-gradient(45deg, #007bff, #0056b3);
-  border-radius: 8px;
+.cartBadge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  background: #dc3545;
+  color: white;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.logoLetter {
-  color: white;
-  font-weight: bold;
-  font-size: 24px;
-}
-
-.logoText {
-  display: flex;
-  flex-direction: column;
-}
-
-.logoTitle {
-  font-weight: bold;
-  font-size: 16px;
-  color: #212529;
   line-height: 1;
 }
 
-.logoSubtitle {
-  font-size: 11px;
-  color: #6c757d;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-// Search form styles
-.searchForm {
-  max-width: 500px;
-  margin: 0 auto;
-}
-
-.searchInput {
-  border-top-right-radius: 0 !important;
-  border-bottom-right-radius: 0 !important;
-  border-right: none;
-}
-
-.searchButton {
-  border-top-left-radius: 0 !important;
-  border-bottom-left-radius: 0 !important;
-  padding: 0 16px;
-  
-  i {
-    font-size: 14px;
-  }
-}
-
-// Header actions styles
-.headerActions {
-  display: flex;
+.contactBtn {
+  display: inline-flex;
   align-items: center;
-  gap: 8px;
-}
+  padding: 12px 24px;
+  background: #25d366;
+  color: white;
+  border: none;
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
 
-.actionButton {
-  position: relative;
-  padding: 8px 12px;
-  
+  &:hover {
+    background: #128c7e;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(37, 211, 102, 0.4);
+  }
+
   i {
     font-size: 18px;
   }
 }
 
-.cartCount {
-  position: absolute;
-  top: -4px;
-  right: -4px;
+// Mobile Header
+.mobileHeader {
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.menuToggle {
+  background: none;
+  border: none;
+  padding: 8px;
+  cursor: pointer;
+
+  i {
+    font-size: 24px;
+    color: #212529;
+  }
+}
+
+.mobileMenu {
+  padding: 16px 0;
+  border-top: 1px solid #e9ecef;
+}
+
+.mobileSearchForm {
+  margin-bottom: 16px;
+
+  .form-control {
+    border-radius: 50px 0 0 50px;
+    padding: 10px 16px;
+  }
+
+  .btn {
+    border-radius: 0 50px 50px 0;
+    padding: 10px 16px;
+  }
+}
+
+.mobileNav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.mobileNavLink {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  color: #212529;
+  text-decoration: none;
+  font-weight: 500;
+  border-radius: 8px;
+  transition: background 0.2s ease;
+
+  &:hover {
+    background: #f8f9fa;
+    color: #0d6efd;
+  }
+}
+
+.mobileCartBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  margin-left: 8px;
   background: #dc3545;
   color: white;
-  border-radius: 50%;
-  width: 18px;
-  height: 18px;
-  font-size: 10px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 10px;
+  line-height: 1;
+}
+
+.mobileWhatsApp {
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-// Navigation styles
-.navigation {
-  background: #f8f9fa;
-  border-top: 1px solid #e9ecef;
-  padding: 0;
-}
-
-.navContent {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 0;
-}
-
-.mobileMenuButton {
-  padding: 8px;
+  padding: 12px;
+  background: #25d366;
+  color: white;
   border: none;
-  background: none;
-  
-  i {
-    font-size: 20px;
-  }
-}
+  border-radius: 50px;
+  font-weight: 600;
+  cursor: pointer;
 
-.navItems {
-  display: flex;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  gap: 32px;
-  
-  @media (max-width: 991px) {
-    display: none;
-    
-    &.navItemsOpen {
-      display: flex;
-      flex-direction: column;
-      position: absolute;
-      top: 100%;
-      left: 0;
-      right: 0;
-      background: white;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      padding: 16px;
-      z-index: 1000;
-    }
-  }
-}
-
-.navItem {
-  margin: 0;
-}
-
-.navLink {
-  color: #495057;
-  text-decoration: none;
-  font-weight: 500;
-  font-size: 14px;
-  padding: 8px 0;
-  transition: color 0.2s ease;
-  
   &:hover {
-    color: #007bff;
-    text-decoration: none;
+    background: #128c7e;
   }
 }
 
-.contactInfo {
+// Floating WhatsApp Button
+.floatingWhatsApp {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 60px;
+  height: 60px;
+  background: #25d366;
+  color: white;
+  border: none;
+  border-radius: 50%;
   display: flex;
   align-items: center;
-  gap: 8px;
-  color: #28a745;
-  font-weight: 500;
-  font-size: 14px;
-  
-  i {
-    font-size: 16px;
-  }
-  
-  @media (max-width: 991px) {
-    display: none;
-  }
-}
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(37, 211, 102, 0.4);
+  z-index: 999;
+  transition: all 0.3s ease;
 
-// Responsive adjustments
-@media (max-width: 767px) {
-  .topBar {
-    display: none;
+  &:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(37, 211, 102, 0.5);
   }
-  
-  .mainHeader {
-    padding: 12px 0;
+
+  i {
+    font-size: 28px;
   }
-  
-  .logoContainer {
-    gap: 8px;
-  }
-  
-  .logoIcon {
-    width: 40px;
-    height: 40px;
-  }
-  
-  .logoLetter {
-    font-size: 20px;
-  }
-  
-  .logoTitle {
-    font-size: 14px;
-  }
-  
-  .logoSubtitle {
-    font-size: 10px;
-  }
-  
-  .searchForm {
-    margin-top: 12px;
-  }
-  
-  .headerActions {
-    margin-top: 12px;
-    justify-content: center;
+
+  @media (max-width: 767px) {
+    width: 50px;
+    height: 50px;
+    bottom: 16px;
+    right: 16px;
+
+    i {
+      font-size: 24px;
+    }
   }
 }

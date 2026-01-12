@@ -8,8 +8,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { bankTransactionsService } from '../../services'
 import axiosClient from '@/lib/axiosClient'
 import {
-  createMockBankTransaction,
-  createMockParsedBankTransaction
+  createMockBankTransaction
 } from '../utils/test-utils'
 import type { CreateBankTransactionRequest, UpdateBankTransactionRequest } from '../../types'
 

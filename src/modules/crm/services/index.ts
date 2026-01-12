@@ -210,6 +210,20 @@ export const leadsService = {
       throw error
     }
   },
+
+  // ===== LEAD CONVERSION =====
+
+  convert: async (id: string, options: { create_contact?: boolean; create_opportunity?: boolean } = {}): Promise<{
+    lead: { id: number; status: string }
+    contact?: { id: number; name: string }
+    opportunity?: { id: number; title: string }
+  }> => {
+    const response = await axiosClient.post(`/api/v1/leads/${id}/convert`, {
+      create_contact: options.create_contact ?? true,
+      create_opportunity: options.create_opportunity ?? true
+    })
+    return response.data
+  },
 }
 
 // ============================================================================
@@ -446,6 +460,20 @@ export const activitiesService = {
       throw error
     }
   },
+
+  // ===== QUICK LOG =====
+
+  log: async (data: {
+    type: string
+    subject: string
+    description?: string
+    contact_id?: number
+    lead_id?: number
+    opportunity_id?: number
+  }) => {
+    const response = await axiosClient.post('/api/v1/activities/log', data)
+    return response.data
+  },
 }
 
 // ============================================================================
@@ -541,5 +569,54 @@ export const opportunitiesService = {
       console.error('❌ [Service] Error deleting opportunity:', error)
       throw error
     }
+  },
+
+  // ===== PIPELINE & FORECAST =====
+
+  getPipeline: async (): Promise<{
+    pipeline: Array<{ stage: string; count: number; value: number }>
+    total: number
+    totalValue: number
+    weightedValue: number
+  }> => {
+    const response = await axiosClient.get('/api/v1/opportunities/pipeline')
+    return response.data
+  },
+
+  getForecast: async (): Promise<{
+    thisMonth: { expected: number; weighted: number; closed: number }
+    nextMonth: { expected: number; weighted: number }
+    quarter: { target: number; achieved: number; pipeline: number }
+  }> => {
+    const response = await axiosClient.get('/api/v1/opportunities/forecast')
+    return response.data
+  },
+
+  // ===== CLOSE ACTIONS =====
+
+  closeWon: async (id: string, notes?: string) => {
+    const response = await axiosClient.post(`/api/v1/opportunities/${id}/close-won`, { notes })
+    return response.data
+  },
+
+  closeLost: async (id: string, reason: string, notes?: string) => {
+    const response = await axiosClient.post(`/api/v1/opportunities/${id}/close-lost`, { reason, notes })
+    return response.data
+  },
+}
+
+// ============================================================================
+// CRM DASHBOARD SERVICE
+// ============================================================================
+
+export const crmDashboardService = {
+  getDashboard: async (): Promise<{
+    leads: { new: number; contacted: number; qualified: number }
+    opportunities: { active: number; closingThisMonth: number; value: number }
+    activities: { overdue: number; today: number; thisWeek: number }
+    performance: { conversionRate: number; winRate: number; avgDealSize: number }
+  }> => {
+    const response = await axiosClient.get('/api/v1/crm/dashboard')
+    return response.data
   },
 }

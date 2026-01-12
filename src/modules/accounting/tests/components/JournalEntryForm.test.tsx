@@ -367,7 +367,6 @@ describe('JournalEntryForm', () => {
 
       const dateInput = screen.getByLabelText(/fecha/i)
       const descriptionInput = screen.getByLabelText(/descripción/i)
-      const accountSelects = screen.getAllByRole('combobox')
       const allInputs = screen.getAllByRole('spinbutton')
 
       // Add a third line

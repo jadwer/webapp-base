@@ -10,8 +10,6 @@ import {
   createMockCFDIInvoices,
   createMockStampResponse,
   createMockCancelResponse,
-  createMockGenerateResponse,
-  createMockAPIResponse,
   createMockAPICollectionResponse,
   createMockAxiosError,
 } from '../utils/test-utils';

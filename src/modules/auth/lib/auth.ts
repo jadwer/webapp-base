@@ -171,7 +171,7 @@ const isLoading = shouldFetch && !user && !error;
     setStatus(null);
 
     axios
-      .post("/forgot-password", { email })
+      .post("/api/auth/forgot-password", { email })
       .then((response) => setStatus(response.data.status))
       .catch((error) => {
         if (error.response?.status === 422) {
@@ -186,7 +186,7 @@ const isLoading = shouldFetch && !user && !error;
     setStatus,
   }: ResendEmailVerificationParams) => {
     axios
-      .post("/email/verification-notification")
+      .post("/api/auth/email/verification-notification")
       .then((response) => setStatus(response.data.status));
   };
 

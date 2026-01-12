@@ -2,14 +2,14 @@
  * PUBLIC PRODUCTS CATALOG PAGE
  * Complete showcase of the public-catalog module integration
  * Enterprise-level product catalog with all features
+ * Uses localStorage cart for guest users (no backend required)
  */
 
 'use client'
 
 import React, { useState, useEffect, useCallback } from 'react'
-import { PublicCatalogTemplate } from '@/modules/public-catalog'
+import { PublicCatalogTemplate, useLocalCart } from '@/modules/public-catalog'
 import type { EnhancedPublicProduct } from '@/modules/public-catalog'
-import { useCart } from '@/modules/ecommerce'
 import { useToast } from '@/ui/hooks/useToast'
 
 // Local storage key for wishlist
@@ -17,12 +17,12 @@ const WISHLIST_KEY = 'laborwasser_wishlist'
 
 // Mock data for demonstration - in real app, this would come from API
 const mockCategories = [
-  { value: '1', label: 'Reactivos Químicos', count: 45 },
+  { value: '1', label: 'Reactivos Quimicos', count: 45 },
   { value: '2', label: 'Equipos de Laboratorio', count: 23 },
   { value: '3', label: 'Material de Vidrio', count: 67 },
-  { value: '4', label: 'Instrumentos de Medición', count: 34 },
+  { value: '4', label: 'Instrumentos de Medicion', count: 34 },
   { value: '5', label: 'Consumibles', count: 89 },
-  { value: '6', label: 'Kits de Análisis', count: 12 }
+  { value: '6', label: 'Kits de Analisis', count: 12 }
 ]
 
 const mockBrands = [
@@ -48,26 +48,15 @@ const priceRange = {
 
 export default function ProductosPage() {
   const toast = useToast()
-  const [sessionId, setSessionId] = useState<string>('')
-  const [isClient, setIsClient] = useState(false)
+  // wishlistIds stored for future visual indicators (e.g., heart icon filled/empty)
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [wishlistIds, setWishlistIds] = useState<number[]>([])
 
-  // Client-side only initialization
+  // Use localStorage cart (no backend required)
+  const { addToCart, totals } = useLocalCart()
+
+  // Load wishlist from localStorage on mount
   useEffect(() => {
-    setIsClient(true)
-
-    let storedSessionId = localStorage.getItem('ecommerce_session_id')
-
-    if (!storedSessionId) {
-      // Generate new session ID
-      storedSessionId = `sess_${Date.now()}_${Math.random().toString(36).substring(7)}`
-      localStorage.setItem('ecommerce_session_id', storedSessionId)
-    }
-
-    setSessionId(storedSessionId)
-
-    // Load wishlist from localStorage
     const savedWishlist = localStorage.getItem(WISHLIST_KEY)
     if (savedWishlist) {
       try {
@@ -78,33 +67,17 @@ export default function ProductosPage() {
     }
   }, [])
 
-  // Initialize cart hook only on client side
-  const { addProduct, cartItems } = useCart({ sessionId: isClient ? sessionId : '' })
-
   // Event handlers
   const handleProductClick = (product: EnhancedPublicProduct) => {
-    console.log('Product clicked:', product.displayName)
     // Navigate to product detail page
     window.location.href = `/productos/${product.id}`
   }
 
-  const handleAddToCart = async (product: EnhancedPublicProduct) => {
-    if (!sessionId) {
-      toast.error('Inicializando carrito...')
-      return
-    }
-
-    try {
-      await addProduct(parseInt(product.id), 1)
-      toast.success(`${product.displayName} agregado al carrito`)
-
-      // Optional: Show cart item count
-      console.log('Cart items:', cartItems?.length || 0)
-    } catch (error) {
-      console.error('Error adding to cart:', error)
-      toast.error('Error al agregar el producto al carrito')
-    }
-  }
+  const handleAddToCart = useCallback((product: EnhancedPublicProduct) => {
+    addToCart(product, 1)
+    toast.success(`${product.displayName} agregado al carrito`)
+    console.log('Cart items:', totals.itemCount + 1)
+  }, [addToCart, toast, totals.itemCount])
 
   const handleAddToWishlist = useCallback((product: EnhancedPublicProduct) => {
     const productId = parseInt(product.id)

@@ -120,6 +120,125 @@ export const purchaseService = {
         console.error('❌ [Service] Error deleting purchase order:', error)
         throw error
       }
+    },
+
+    // ===== APPROVAL WORKFLOW =====
+
+    /**
+     * Submit purchase order for approval
+     * Amount-based approval tiers:
+     * - < $5,000: Auto-approved
+     * - $5,000 - $25,000: Manager approval
+     * - $25,000 - $100,000: Director approval
+     * - > $100,000: Executive approval
+     */
+    submitForApproval: async (id: string): Promise<void> => {
+      await axiosClient.post(`/api/v1/purchase-orders/${id}/submit-for-approval`)
+    },
+
+    /**
+     * Approve a purchase order (requires appropriate permission)
+     */
+    approve: async (id: string, notes?: string): Promise<void> => {
+      await axiosClient.post(`/api/v1/purchase-orders/${id}/approve`, { notes })
+    },
+
+    /**
+     * Reject a purchase order
+     */
+    reject: async (id: string, reason: string): Promise<void> => {
+      await axiosClient.post(`/api/v1/purchase-orders/${id}/reject`, { reason })
+    },
+
+    /**
+     * Get approval status for a purchase order
+     */
+    getApprovalStatus: async (id: string): Promise<{
+      status: string
+      requiredLevel: string
+      submittedAt: string | null
+      submittedBy: { id: number; name: string } | null
+      approvers: Array<{ level: string; user: { id: number; name: string } | null; status: string }>
+    }> => {
+      const response = await axiosClient.get(`/api/v1/purchase-orders/${id}/approval-status`)
+      return response.data
+    },
+
+    // ===== RECEIVING =====
+
+    /**
+     * Receive items for a purchase order
+     * Creates inventory movements and potentially an AP Invoice if fully received
+     */
+    receive: async (id: string, data: {
+      items: Array<{ itemId: number; receivedQuantity: number; batchNumber?: string; notes?: string }>
+      receivedDate: string
+      notes?: string
+    }): Promise<{
+      received: boolean
+      inventoryMovements: Array<{ id: number; productId: number; quantity: number; movementType: string }>
+      apInvoice?: { id: number; invoiceNumber: string }
+    }> => {
+      const response = await axiosClient.post(`/api/v1/purchase-orders/${id}/receive`, data)
+      return response.data
+    },
+
+    // ===== BUDGET VALIDATION =====
+
+    /**
+     * Check budget availability before creating a PO
+     */
+    checkBudget: async (categoryId: number, amount: number): Promise<{
+      approved: boolean
+      error?: string
+      budget: {
+        id: number
+        name: string
+        remaining: number
+        requested?: number
+        overage?: number
+      }
+    }> => {
+      const response = await axiosClient.post('/api/v1/purchase-orders/check-budget', {
+        categoryId,
+        amount
+      })
+      return response.data
+    },
+
+    // ===== THREE-WAY MATCH =====
+
+    /**
+     * Get three-way match status (PO vs Receipt vs Invoice)
+     */
+    getThreeWayMatch: async (id: string): Promise<{
+      status: 'matched' | 'variance_detected' | 'pending'
+      purchaseOrder: {
+        total: number
+        items: Array<{ productId: number; quantity: number; unitPrice: number }>
+      }
+      receipt: {
+        total: number
+        items: Array<{ productId: number; receivedQuantity: number }>
+      } | null
+      invoice: {
+        total: number
+        items: Array<{ productId: number; quantity: number; unitPrice: number }>
+      } | null
+      variances: Array<{
+        type: 'price' | 'quantity'
+        productId: number
+        poPrice?: number
+        invoicePrice?: number
+        poQuantity?: number
+        receivedQuantity?: number
+        variance: number
+        percentVariance: number
+      }>
+      requiresApproval: boolean
+    }> => {
+      const response = await axiosClient.get(`/api/v1/purchase-orders/${id}/three-way-match`)
+      return response.data
     }
   },
 

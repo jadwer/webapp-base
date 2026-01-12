@@ -4,9 +4,8 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { renderHook, waitFor } from '@testing-library/react'
+import { renderHook } from '@testing-library/react'
 import { useSalesReports, useSalesCustomers, useSalesAnalytics } from '../../hooks'
-import { salesReportsService } from '../../services'
 
 // Mock the service
 vi.mock('../../services', () => ({
@@ -18,8 +17,8 @@ vi.mock('../../services', () => ({
 
 // Mock SWR
 vi.mock('swr', () => ({
-  default: vi.fn((key, fetcher) => {
-    if (fetcher) {
+  default: vi.fn((key) => {
+    if (key) {
       return {
         data: undefined,
         error: undefined,

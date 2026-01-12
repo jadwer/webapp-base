@@ -9,7 +9,7 @@ import { useSalesContacts, useSalesProducts, useSalesOrderWithItems } from '../.
 
 // Mock SWR
 vi.mock('swr', () => ({
-  default: vi.fn((key, fetcher) => {
+  default: vi.fn((key) => {
     // Return different mock data based on the key
     if (!key) {
       return {
