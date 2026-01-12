@@ -31,9 +31,12 @@ import {
 const ordersService = {
   /**
    * Get all ecommerce orders with optional filters
+   * Uses sales-orders endpoint with orderType=ecommerce filter
    */
   async getAll(filters?: EcommerceOrderFilters): Promise<EcommerceOrder[]> {
-    const params: Record<string, string | number> = {};
+    const params: Record<string, string | number> = {
+      'filter[orderType]': 'ecommerce',
+    };
 
     if (filters?.search) {
       params['filter[search]'] = filters.search;
@@ -58,7 +61,7 @@ const ordersService = {
     }
 
     const response = await axiosClient.get<EcommerceOrdersResponse>(
-      '/api/v1/ecommerce-orders',
+      '/api/v1/sales-orders',
       { params }
     );
 
@@ -67,13 +70,14 @@ const ordersService = {
 
   /**
    * Get a single ecommerce order by ID
+   * Uses sales-orders endpoint
    */
   async getById(id: string): Promise<EcommerceOrder> {
     const response = await axiosClient.get<EcommerceOrderResponse>(
-      `/api/v1/ecommerce-orders/${id}`,
+      `/api/v1/sales-orders/${id}`,
       {
         params: {
-          include: 'items,items.product,customer,paymentMethod',
+          include: 'items,items.product,customer',
         },
       }
     );
@@ -83,17 +87,21 @@ const ordersService = {
 
   /**
    * Create a new ecommerce order
+   * Uses sales-orders endpoint with orderType=ecommerce
    */
   async create(order: Partial<EcommerceOrder>): Promise<EcommerceOrder> {
     const payload = {
       data: {
-        type: 'ecommerce-orders',
-        attributes: ecommerceOrderToAPI(order),
+        type: 'sales-orders',
+        attributes: {
+          ...ecommerceOrderToAPI(order),
+          order_type: 'ecommerce',
+        },
       },
     };
 
     const response = await axiosClient.post<EcommerceOrderResponse>(
-      '/api/v1/ecommerce-orders',
+      '/api/v1/sales-orders',
       payload
     );
 
@@ -102,18 +110,19 @@ const ordersService = {
 
   /**
    * Update an existing ecommerce order
+   * Uses sales-orders endpoint
    */
   async update(id: string, order: Partial<EcommerceOrder>): Promise<EcommerceOrder> {
     const payload = {
       data: {
-        type: 'ecommerce-orders',
+        type: 'sales-orders',
         id,
         attributes: ecommerceOrderToAPI(order),
       },
     };
 
     const response = await axiosClient.patch<EcommerceOrderResponse>(
-      `/api/v1/ecommerce-orders/${id}`,
+      `/api/v1/sales-orders/${id}`,
       payload
     );
 
@@ -168,9 +177,10 @@ const ordersService = {
 
   /**
    * Delete an ecommerce order
+   * Uses sales-orders endpoint
    */
   async delete(id: string): Promise<void> {
-    await axiosClient.delete(`/api/v1/ecommerce-orders/${id}`);
+    await axiosClient.delete(`/api/v1/sales-orders/${id}`);
   },
 
   /**
@@ -191,16 +201,17 @@ const ordersService = {
 const itemsService = {
   /**
    * Get all order items with optional filters
+   * Uses sales-order-items endpoint
    */
-  async getAll(ecommerceOrderId?: number): Promise<EcommerceOrderItem[]> {
+  async getAll(salesOrderId?: number): Promise<EcommerceOrderItem[]> {
     const params: Record<string, string | number> = {};
 
-    if (ecommerceOrderId) {
-      params['filter[ecommerce_order_id]'] = ecommerceOrderId;
+    if (salesOrderId) {
+      params['filter[sales_order_id]'] = salesOrderId;
     }
 
     const response = await axiosClient.get<EcommerceOrderItemsResponse>(
-      '/api/v1/ecommerce-order-items',
+      '/api/v1/sales-order-items',
       { params }
     );
 
@@ -209,10 +220,11 @@ const itemsService = {
 
   /**
    * Get a single order item by ID
+   * Uses sales-order-items endpoint
    */
   async getById(id: string): Promise<EcommerceOrderItem> {
     const response = await axiosClient.get<{ data: Record<string, unknown> }>(
-      `/api/v1/ecommerce-order-items/${id}`,
+      `/api/v1/sales-order-items/${id}`,
       {
         params: {
           include: 'product',
@@ -225,17 +237,18 @@ const itemsService = {
 
   /**
    * Create a new order item
+   * Uses sales-order-items endpoint
    */
   async create(item: Partial<EcommerceOrderItem>): Promise<EcommerceOrderItem> {
     const payload = {
       data: {
-        type: 'ecommerce-order-items',
+        type: 'sales-order-items',
         attributes: ecommerceOrderItemToAPI(item),
       },
     };
 
     const response = await axiosClient.post<{ data: Record<string, unknown> }>(
-      '/api/v1/ecommerce-order-items',
+      '/api/v1/sales-order-items',
       payload
     );
 
@@ -244,18 +257,19 @@ const itemsService = {
 
   /**
    * Update an existing order item
+   * Uses sales-order-items endpoint
    */
   async update(id: string, item: Partial<EcommerceOrderItem>): Promise<EcommerceOrderItem> {
     const payload = {
       data: {
-        type: 'ecommerce-order-items',
+        type: 'sales-order-items',
         id,
         attributes: ecommerceOrderItemToAPI(item),
       },
     };
 
     const response = await axiosClient.patch<{ data: Record<string, unknown> }>(
-      `/api/v1/ecommerce-order-items/${id}`,
+      `/api/v1/sales-order-items/${id}`,
       payload
     );
 
@@ -264,9 +278,10 @@ const itemsService = {
 
   /**
    * Delete an order item
+   * Uses sales-order-items endpoint
    */
   async delete(id: string): Promise<void> {
-    await axiosClient.delete(`/api/v1/ecommerce-order-items/${id}`);
+    await axiosClient.delete(`/api/v1/sales-order-items/${id}`);
   },
 };
 

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useLibroMayor } from '../hooks/useReports'
+import { useARAgingReport } from '../hooks/useReports'
 
 export function LibroMayorReport() {
   const [filters, setFilters] = useState({
@@ -9,10 +9,10 @@ export function LibroMayorReport() {
     startDate: '',
     endDate: ''
   })
-  
-  const { libroMayor, isLoading, error } = useLibroMayor(
-    filters.accountId, 
-    filters.startDate || undefined, 
+
+  // Using AR Aging Report as Libro Mayor is not available
+  // This component will need to be updated when the correct endpoint is available
+  const { arAgingReport: libroMayor, isLoading, error } = useARAgingReport(
     filters.endDate || undefined
   )
 

@@ -1,0 +1,505 @@
+// Labor Wasser Landing Page Styles
+// Based on original laborwasserdemexico.com styles
+// SCOPED: All styles are inside .laborwasser-landing to avoid affecting other pages
+
+// Import Google Fonts (these are global but only used within the scoped styles)
+@import url('https://fonts.googleapis.com/css2?family=Anek+Bangla:wght@100..800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+// ============================================
+// SCOPED STYLES - Only apply within .laborwasser-landing
+// ============================================
+.laborwasser-landing {
+  // Typography
+  p {
+    font-family: "Poppins", sans-serif;
+  }
+
+  h1,
+  .h1,
+  h2,
+  .h2,
+  h3,
+  .h3,
+  h4,
+  .h4,
+  h5,
+  .h5,
+  h6,
+  .h6 {
+    font-family: "Anek Bangla", sans-serif;
+  }
+
+  h1,
+  .h1 {
+    font-weight: 800;
+
+    @media (max-width: 575.98px) {
+      text-align: center;
+      font-size: 2.5em !important;
+    }
+  }
+
+  a {
+    text-decoration: none !important;
+  }
+
+  // Container Fluid Sections
+  .container-fluid {
+    &.offers {
+      h1 {
+        color: #012A94;
+        font-size: 3em;
+        margin-top: 1em;
+      }
+
+      .card-offer {
+        padding: 2em;
+
+        &.blue-1 {
+          background-color: #0094FF;
+          color: #ffffff;
+        }
+
+        &.blue-2 {
+          background-color: #012A94;
+          color: #ffffff;
+        }
+
+        .img-fluid {
+          width: 65%;
+        }
+      }
+    }
+
+    &.hero-1 {
+      background-image: url("/images/laborwasser/labor-wasser-mexico-hero-1.webp");
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: cover;
+
+      @media (max-width: 575.98px) {
+        height: 80vh;
+      }
+
+      .hero-left {
+        background-color: rgba(0, 148, 255, 0.8);
+        height: 100vh;
+        padding: 5%;
+        align-content: center;
+
+        @media (max-width: 575.98px) {
+          height: 80vh;
+          align-items: center !important;
+          display: grid;
+        }
+
+        h1 {
+          font-size: 3.8em;
+          line-height: 1em;
+          color: white;
+        }
+
+        .highlight-hero {
+          background-color: #012A94;
+          padding: 1em;
+          color: white;
+        }
+      }
+    }
+
+    &.about {
+      background-color: #F4F4F4;
+      height: 100vh;
+      margin-top: inherit;
+
+      .left-info {
+        padding: 3%;
+
+        h4 {
+          color: #8AC905;
+        }
+
+        @media (max-width: 575.98px) {
+          padding: 4em 2em;
+        }
+      }
+
+      .hero-2 {
+        height: 100vh;
+        background-image: url("/images/laborwasser/labor-wasser-mexico-hero-2.webp");
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: cover;
+
+        @media (max-width: 575.98px) {
+          height: 50vh;
+        }
+      }
+    }
+
+    &.cta {
+      height: 70vh;
+
+      @media (max-width: 575.98px) {
+        height: auto !important;
+      }
+
+      .left {
+        height: 70vh;
+        background-image: url("/images/laborwasser/labor-wasser-mexico-hero-4.webp");
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: cover;
+        border-right: #8AC905 solid 10px;
+
+        @media (max-width: 575.98px) {
+          height: 45vh;
+        }
+      }
+
+      .right {
+        height: 70vh;
+        align-content: center;
+        background-image: url("/images/laborwasser/labor-wasser-mexico-hero-3.webp");
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: cover;
+        color: white;
+
+        @media (max-width: 575.98px) {
+          height: auto !important;
+          padding: 5em 1em;
+        }
+      }
+    }
+
+    // Footer styles
+    .footer {
+      padding-top: 3.5em;
+      padding-bottom: 2.5em;
+      background-color: #eeeeee;
+
+      .social {
+        i {
+          color: #8AC905;
+          font-size: 2em;
+
+          &.bi-whatsapp::before {
+            vertical-align: 0;
+          }
+        }
+
+        a {
+          color: #000000;
+          text-decoration: none;
+          padding-left: 1em;
+          padding-bottom: .5em;
+
+          &:hover {
+            color: #012A94;
+          }
+        }
+      }
+
+      .logo-footer {
+        width: 50%;
+
+        @media (max-width: 575.98px) {
+          width: 75%;
+          margin-bottom: 2em;
+        }
+      }
+
+      h4 {
+        color: #012A94;
+        text-transform: uppercase;
+        font-weight: 600;
+
+        @media (max-width: 575.98px) {
+          text-align: center;
+        }
+      }
+
+      ul {
+        @media (max-width: 575.98px) {
+          padding-left: 0rem;
+          text-align: center;
+        }
+
+        li {
+          list-style: none;
+
+          a {
+            color: #8AC905;
+            font-size: 1em;
+            text-transform: uppercase;
+            line-height: 2.5em;
+          }
+
+          a:hover {
+            color: #012A94;
+          }
+        }
+      }
+
+      .login-contact {
+        @media (max-width: 575.98px) {
+          text-align: center;
+          padding-bottom: 1.25em;
+        }
+      }
+    }
+
+    .text-muted {
+      padding: 15px 0 5px 0;
+      background-color: #012A94;
+      color: white !important;
+      font-size: .9em;
+
+      a {
+        color: white !important;
+      }
+    }
+  }
+
+  // Offcanvas styles
+  .offcanvas {
+    .offcanvas-header {
+      h3 {
+        &.offcanvas-title {
+          color: #0094FF;
+          padding-top: 2em;
+        }
+      }
+    }
+  }
+
+  .offcanvas-body {
+    .form-control {
+      margin-bottom: 1.25em;
+    }
+  }
+
+  // Login contact section
+  .login-contact {
+    i {
+      color: #8AC905;
+
+      &.bi-whatsapp::before {
+        vertical-align: 0;
+      }
+    }
+
+    a {
+      color: #000000;
+      text-decoration: none;
+      padding-left: 1em;
+      padding-bottom: .5em;
+
+      &:hover {
+        color: #012A94;
+      }
+    }
+  }
+
+  // Container styles
+  .container {
+    form {
+      width: 80%;
+      display: flex;
+
+      .form-control {
+        margin-right: .5em;
+      }
+    }
+
+    &.clients {
+      margin-bottom: 3em;
+
+      h1 {
+        color: #012A94;
+        font-size: 3em;
+        margin-top: 1em;
+      }
+    }
+  }
+
+  // Logo styles
+  img {
+    &.logo {
+      width: 60%;
+
+      @media (max-width: 991.98px) {
+        width: 70%;
+      }
+    }
+  }
+
+  // Card styles (scoped to landing)
+  .card {
+    border-radius: 10px;
+    padding: 8px;
+    border: none;
+    box-shadow: 0px 4px 12px 1px rgba(0, 0, 0, 0.36);
+    -webkit-box-shadow: 0px 4px 12px 1px rgba(0, 0, 0, 0.36);
+    -moz-box-shadow: 0px 4px 12px 1px rgba(0, 0, 0, 0.36);
+  }
+
+  // Separator
+  .separator {
+    border-top: 8px solid #4EC8FC;
+    opacity: 1;
+    width: 15%;
+    display: block;
+    margin: 0 auto 4em auto !important;
+  }
+
+  hr {
+    margin-top: 1rem !important;
+    margin-bottom: 1rem !important;
+  }
+
+  // Button styles (scoped to landing)
+  .btn-primary,
+  .btn-secondary {
+    border-radius: 0 !important;
+    font-size: 1em;
+    padding: .45em 2em;
+    text-transform: uppercase;
+
+    @media (max-width: 575.98px) {
+      display: block;
+      width: 100%;
+    }
+  }
+
+  .btn-primary {
+    background-color: #8AC905;
+    border: 2px solid #8AC905;
+  }
+
+  .btn-secondary {
+    background-color: white;
+    border: 2px solid #8AC905;
+    color: #8AC905;
+  }
+
+  .btn-primary:hover,
+  .btn-secondary:hover {
+    background-color: #0094FF;
+    border: 2px solid white;
+  }
+
+  // Burger button styles
+  .burger {
+    &.btn-primary {
+      border-radius: 0 !important;
+      font-size: 1.5em;
+      padding: .35em;
+      text-transform: uppercase;
+      line-height: 0;
+      font-weight: 600;
+      margin-left: 25px;
+      color: #8AC905;
+      font-size: .9rem;
+      background-color: #ffffff;
+      border: none;
+      width: auto;
+    }
+
+    img {
+      &.contact-head {
+        width: 2.5em;
+
+        @media (max-width: 575.98px) {
+          width: 2em;
+        }
+      }
+    }
+  }
+
+  // Pagination styles (scoped)
+  ul {
+    &.pagination {
+      margin: 3em auto;
+
+      .page-item {
+        &.active>.page-link {
+          background-color: #012A94;
+        }
+      }
+
+      a {
+        &.page-link {
+          &:hover {
+            background-color: #8AC905;
+            color: #ffffff;
+          }
+        }
+      }
+    }
+  }
+}
+
+// ============================================
+// GLOBAL STYLES - WhatsApp widget (needs to be global for fixed positioning)
+// ============================================
+.whatsapp {
+  position: fixed;
+  width: 60px;
+  height: 60px;
+  bottom: 40px;
+  right: 40px;
+  background-color: #25d366;
+  color: #FFF;
+  border-radius: 50px;
+  text-align: center;
+  font-size: 30px;
+  z-index: 100;
+
+  .bi-whatsapp::before {
+    vertical-align: -9px;
+  }
+}
+
+.whatsapp-icon {
+  margin-top: 13px;
+}
+
+// Global offcanvas styles for contact form (used outside the landing wrapper)
+#navMenu {
+  .offcanvas-header {
+    h3.offcanvas-title {
+      color: #0094FF;
+      padding-top: 2em;
+    }
+  }
+
+  .offcanvas-body {
+    .form-control {
+      margin-bottom: 1.25em;
+    }
+
+    .login-contact {
+      i {
+        color: #8AC905;
+
+        &.bi-whatsapp::before {
+          vertical-align: 0;
+        }
+      }
+
+      a {
+        color: #000000;
+        text-decoration: none;
+        padding-left: 1em;
+        padding-bottom: .5em;
+
+        &:hover {
+          color: #012A94;
+        }
+      }
+    }
+  }
+}

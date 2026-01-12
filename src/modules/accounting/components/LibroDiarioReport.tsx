@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useLibroDiario } from '../hooks/useReports'
+import { useCashFlow } from '../hooks/useReports'
 
 export function LibroDiarioReport() {
   const [filters, setFilters] = useState({
@@ -10,8 +10,12 @@ export function LibroDiarioReport() {
     page: 1,
     perPage: 50
   })
-  
-  const { libroDiario, isLoading, error } = useLibroDiario(filters)
+
+  // Using Cash Flow endpoint as Libro Diario is not available
+  const { cashFlow: libroDiario, isLoading, error } = useCashFlow(
+    filters.startDate || undefined,
+    filters.endDate || undefined
+  )
 
   const formatCurrency = (amount: string | number) => {
     const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount

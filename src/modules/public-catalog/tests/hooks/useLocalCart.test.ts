@@ -10,7 +10,6 @@ import type { EnhancedPublicProduct } from '../../types/publicProduct'
 
 // Constants matching the hook
 const CART_STORAGE_KEY = 'laborwasser_cart'
-const CART_UPDATE_EVENT = 'cart-updated'
 
 // Mock product factory
 function createMockProduct(id: string = '1', overrides: Partial<EnhancedPublicProduct> = {}): EnhancedPublicProduct {
@@ -633,14 +632,14 @@ describe('useLocalCartCount', () => {
     })
   })
 
-  it('should update count when cart changes via event', async () => {
+  it('should update count when cart changes via storage event (cross-tab)', async () => {
     const { result } = renderHook(() => useLocalCartCount())
 
     await waitFor(() => {
       expect(result.current).toBe(0)
     })
 
-    // Simulate cart update
+    // Simulate cart update from another browser tab via storage event
     const newCart = {
       items: [
         {
@@ -662,13 +661,94 @@ describe('useLocalCartCount', () => {
     }
     localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(newCart))
 
-    // Dispatch the cart update event
+    // Dispatch storage event (simulates change from another tab)
     act(() => {
-      window.dispatchEvent(new CustomEvent(CART_UPDATE_EVENT))
+      window.dispatchEvent(new StorageEvent('storage', {
+        key: CART_STORAGE_KEY,
+        newValue: JSON.stringify(newCart),
+        oldValue: null,
+        storageArea: localStorage,
+      }))
     })
 
     await waitFor(() => {
       expect(result.current).toBe(4)
+    })
+  })
+
+  it('should update count when cart changes from same tab via useLocalCart', async () => {
+    // Render both hooks to test same-tab sync
+    const { result: cartResult } = renderHook(() => useLocalCart())
+    const { result: countResult } = renderHook(() => useLocalCartCount())
+
+    // Wait for initialization
+    await waitFor(() => {
+      expect(cartResult.current.isInitialized).toBe(true)
+    })
+
+    await waitFor(() => {
+      expect(countResult.current).toBe(0)
+    })
+
+    // Create a mock product
+    const mockProduct: EnhancedPublicProduct = {
+      id: '1',
+      type: 'public-products',
+      attributes: {
+        name: 'Test Product',
+        description: 'Test description',
+        price: 100,
+        sku: 'SKU-1',
+        barcode: 'BAR-1',
+        imageUrl: null,
+        isActive: true,
+        createdAt: '2024-01-01T00:00:00Z',
+        updatedAt: '2024-01-01T00:00:00Z',
+      },
+      relationships: {
+        unit: { data: { id: '1', type: 'units' } },
+        category: { data: { id: '1', type: 'categories' } },
+        brand: { data: { id: '1', type: 'brands' } },
+      },
+      displayName: 'Test Product',
+      displayPrice: '$100.00',
+      displayUnit: 'pz',
+      displayCategory: 'Category 1',
+      displayBrand: 'Brand 1',
+      unit: {
+        id: '1',
+        type: 'units',
+        attributes: { name: 'Pieces', abbreviation: 'pz', description: null },
+      },
+      category: {
+        id: '1',
+        type: 'categories',
+        attributes: { name: 'Category 1', description: null, slug: 'cat-1', imageUrl: null },
+      },
+      brand: {
+        id: '1',
+        type: 'brands',
+        attributes: { name: 'Brand 1', description: null, slug: 'brand-1', logoUrl: null, websiteUrl: null },
+      },
+    }
+
+    // Add product to cart using useLocalCart
+    act(() => {
+      cartResult.current.addToCart(mockProduct, 3)
+    })
+
+    // Verify the count hook updates (same-tab sync)
+    await waitFor(() => {
+      expect(countResult.current).toBe(3)
+    })
+
+    // Add more of the same product
+    act(() => {
+      cartResult.current.addToCart(mockProduct, 2)
+    })
+
+    await waitFor(() => {
+      expect(countResult.current).toBe(5)
     })
   })
 })

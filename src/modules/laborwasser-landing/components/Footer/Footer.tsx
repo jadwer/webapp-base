@@ -2,149 +2,128 @@
 
 import React from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
-import styles from './Footer.module.scss'
-
-const productCategories = [
-  { name: 'Reactivos', href: '/productos/reactivos' },
-  { name: 'Medios de cultivo', href: '/productos/medios-cultivo' },
-  { name: 'Cristaleria', href: '/productos/cristaleria' },
-  { name: 'Analisis de agua', href: '/productos/analisis-agua' }
-]
-
-const resourceLinks = [
-  { name: 'Aviso de privacidad', href: '/aviso-privacidad' }
-]
-
-const contactInfo = {
-  phones: ['01 55 5762 1412', '01 55 5771 1893'],
-  email: 'ventas@laborwasserdemexico.com',
-  whatsapp: '+52 55 5762 1412',
-  address: 'Calz. de Tlalpan No. 1924, Local A-1, Col. Country Club, Del. Coyoacan, CDMX'
-}
-
-const socialMedia = [
-  { platform: 'facebook', url: 'https://facebook.com/laborwasser', icon: 'bi-facebook' },
-  { platform: 'instagram', url: 'https://instagram.com/laborwasser', icon: 'bi-instagram' },
-  { platform: 'twitter', url: 'https://twitter.com/laborwasser', icon: 'bi-twitter-x' }
-]
 
 export const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear()
 
-  const handleWhatsApp = () => {
-    window.open('https://wa.me/525557621412', '_blank', 'noopener,noreferrer')
-  }
-
   return (
-    <footer className={styles.footer}>
-      <div className="container">
-        <div className="row">
-          {/* Logo and Social */}
-          <div className="col-lg-3 col-md-6 mb-4">
-            <div className={styles.footerSection}>
-              <Link href="/" className={styles.footerLogo}>
-                <Image
-                  src="/images/laborwasser/labor-wasser-mexico-logo2.webp"
-                  alt="Labor Wasser de Mexico"
-                  width={180}
-                  height={54}
-                  className={styles.logoImage}
+    <footer>
+      <div className="container-fluid">
+        <div className="row footer">
+          <div className="col-12 col-md-3">
+            <div className="row align-items-md-center d-flex">
+              <div className="col social">
+                <img
+                  src="/images/laborwasser/labor-wasser-mexico-logo-1.png"
+                  className="img-fluid logo-footer d-block mx-auto"
+                  alt="Labor Wasser Mexico"
                 />
-              </Link>
-
-              <div className={styles.socialMedia}>
-                {socialMedia.map((social) => (
-                  <a
-                    key={social.platform}
-                    href={social.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={styles.socialIcon}
-                    aria-label={`Seguir en ${social.platform}`}
-                  >
-                    <i className={social.icon} />
+                <div className="d-flex justify-content-around mt-4">
+                  <a href="#" aria-label="Facebook">
+                    <i className="bi bi-facebook"></i>
                   </a>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Products */}
-          <div className="col-lg-3 col-md-6 mb-4">
-            <div className={styles.footerSection}>
-              <h3 className={styles.sectionTitle}>Productos</h3>
-              <ul className={styles.linksList}>
-                {productCategories.map((category) => (
-                  <li key={category.name}>
-                    <Link href={category.href} className={styles.footerLink}>
-                      {category.name}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-
-          {/* Resources */}
-          <div className="col-lg-3 col-md-6 mb-4">
-            <div className={styles.footerSection}>
-              <h3 className={styles.sectionTitle}>Recursos</h3>
-              <ul className={styles.linksList}>
-                {resourceLinks.map((link) => (
-                  <li key={link.name}>
-                    <Link href={link.href} className={styles.footerLink}>
-                      {link.name}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-
-          {/* Contact */}
-          <div className="col-lg-3 col-md-6 mb-4">
-            <div className={styles.footerSection}>
-              <h3 className={styles.sectionTitle}>Contacto</h3>
-              <div className={styles.contactInfo}>
-                {contactInfo.phones.map((phone) => (
-                  <div key={phone} className={styles.contactItem}>
-                    <i className="bi bi-telephone" />
-                    <a href={`tel:${phone.replace(/\s/g, '')}`}>{phone}</a>
-                  </div>
-                ))}
-                <div className={styles.contactItem}>
-                  <i className="bi bi-envelope" />
-                  <a href={`mailto:${contactInfo.email}`}>{contactInfo.email}</a>
-                </div>
-                <div className={styles.contactItem}>
-                  <i className="bi bi-whatsapp" />
-                  <button
-                    type="button"
-                    className={styles.whatsappBtn}
-                    onClick={handleWhatsApp}
-                  >
-                    {contactInfo.whatsapp}
-                  </button>
-                </div>
-                <div className={styles.contactItem}>
-                  <i className="bi bi-geo-alt" />
-                  <span>{contactInfo.address}</span>
+                  <a href="#" aria-label="Instagram">
+                    <i className="bi bi-instagram"></i>
+                  </a>
+                  <a href="#" aria-label="LinkedIn">
+                    <i className="bi bi-linkedin"></i>
+                  </a>
                 </div>
               </div>
+            </div>
+          </div>
+          <div className="col-12 col-md-3">
+            <h4>Productos</h4>
+            <ul>
+              <li>
+                <Link className="dropdown-item" href="/productos?category=reactivos">
+                  Reactivos
+                </Link>
+              </li>
+              <li>
+                <Link className="dropdown-item" href="/productos?category=medios-de-cultivo">
+                  Medios de cultivo
+                </Link>
+              </li>
+              <li>
+                <Link className="dropdown-item" href="/productos?category=cristaleria">
+                  Cristaleria
+                </Link>
+              </li>
+              <li>
+                <Link className="dropdown-item" href="/productos?category=analisis-de-agua">
+                  Analisis de agua
+                </Link>
+              </li>
+              <li>
+                <Link className="dropdown-item" href="/productos?category=proceso">
+                  Procesos
+                </Link>
+              </li>
+            </ul>
+          </div>
+          <div className="col-12 col-md-3">
+            <h4>Recursos</h4>
+            <ul>
+              <li>
+                <Link className="dropdown-item" href="/catalogos">
+                  Catalogos
+                </Link>
+              </li>
+              <li>
+                <Link className="dropdown-item" href="/certificados">
+                  Certificados
+                </Link>
+              </li>
+              <li>
+                <Link className="dropdown-item" href="/precios">
+                  Lista de precios
+                </Link>
+              </li>
+            </ul>
+          </div>
+          <div className="col-12 col-md-3 login-contact">
+            <h4>Contacto</h4>
+            <div className="d-block d-md-flex mb-2">
+              <i className="bi bi-telephone-fill"></i>
+              <a href="tel:5575751661">55 7575 1661</a>
+            </div>
+            <div className="d-block d-md-flex mb-2">
+              <i className="bi bi-telephone-fill"></i>
+              <a href="tel:5575751662">55 7575 1662</a>
+            </div>
+            <div className="d-block d-md-flex mb-2">
+              <i className="bi bi-telephone-fill"></i>
+              <a href="tel:5571602454">55 7160 2454</a>
+            </div>
+            <div className="d-block d-md-flex mb-2">
+              <i className="bi bi-whatsapp"></i>
+              <a href="https://wa.link/4e5cqt">56 1040 0441</a>
+            </div>
+            <div className="d-block d-md-flex mb-2">
+              <i className="bi bi-envelope"></i>
+              <a href="mailto:ventas@laborwasserdemexico.com">
+                ventas@laborwasserdemexico.com
+              </a>
+            </div>
+            <div className="d-block d-md-flex mb-2">
+              <i className="bi bi-geo-alt"></i>
+              <a href="#">CDMX y Area metropolitana</a>
             </div>
           </div>
         </div>
-
-        {/* Footer bottom */}
-        <div className="row">
-          <div className="col-12">
-            <div className={styles.footerBottom}>
-              <p className={styles.copyright}>
-                Copyright {currentYear} Labor Wasser de Mexico
-              </p>
-            </div>
-          </div>
+        <div className="row text-muted">
+          <p className="text-center">
+            {currentYear}. Labor Wasser de Mexico. Todos los Derechos Reservados.
+            &nbsp;
+            <Link href="/aviso-privacidad" target="_blank">
+              Aviso de privacidad.
+            </Link>
+            &nbsp;Designed and developed by{' '}
+            <a href="http://atomosoluciones.com" target="_blank" rel="noopener noreferrer">
+              AtomoSoluciones.com
+            </a>
+          </p>
         </div>
       </div>
     </footer>

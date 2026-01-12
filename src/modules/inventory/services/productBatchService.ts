@@ -167,15 +167,17 @@ function buildQueryParams(
   pageSize: number = 20
 ): Record<string, string> {
   const params: Record<string, string> = {}
-  
+
   // Include relationships
   params.include = 'product,warehouse,warehouseLocation'
-  
+
   // Pagination
-  if (page && page > 1) {
+  if (page && page > 0) {
     params['page[number]'] = page.toString()
   }
-  params['page[size]'] = pageSize.toString()
+  if (pageSize) {
+    params['page[size]'] = pageSize.toString()
+  }
   
   // Sorting - keep camelCase for backend compatibility
   if (sort?.field) {
@@ -205,41 +207,35 @@ function buildQueryParams(
       params['filter[warehouse_location_id]'] = filters.warehouseLocationId
     }
     
-    if (filters.expiresAfter) {
-      params['filter[expires_after]'] = filters.expiresAfter
-    }
-    
-    if (filters.expiresBefore) {
-      params['filter[expires_before]'] = filters.expiresBefore
-    }
-    
-    if (filters.manufacturedAfter) {
-      params['filter[manufactured_after]'] = filters.manufacturedAfter
-    }
-    
-    if (filters.manufacturedBefore) {
-      params['filter[manufactured_before]'] = filters.manufacturedBefore
-    }
-    
-    if (filters.supplierName) {
-      params['filter[supplier_name]'] = filters.supplierName
-    }
-    
-    if (filters.minQuantity !== undefined) {
-      params['filter[min_quantity]'] = filters.minQuantity.toString()
-    }
-    
-    if (filters.maxQuantity !== undefined) {
-      params['filter[max_quantity]'] = filters.maxQuantity.toString()
-    }
-    
-    if (filters.hasTestResults !== undefined) {
-      params['filter[has_test_results]'] = filters.hasTestResults.toString()
-    }
-    
-    if (filters.hasCertifications !== undefined) {
-      params['filter[has_certifications]'] = filters.hasCertifications.toString()
-    }
+    // NOTE: The following filters are not supported by the backend yet
+    // Uncomment when backend adds support for these filters:
+    // if (filters.expiresAfter) {
+    //   params['filter[expires_after]'] = filters.expiresAfter
+    // }
+    // if (filters.expiresBefore) {
+    //   params['filter[expires_before]'] = filters.expiresBefore
+    // }
+    // if (filters.manufacturedAfter) {
+    //   params['filter[manufactured_after]'] = filters.manufacturedAfter
+    // }
+    // if (filters.manufacturedBefore) {
+    //   params['filter[manufactured_before]'] = filters.manufacturedBefore
+    // }
+    // if (filters.supplierName) {
+    //   params['filter[supplier_name]'] = filters.supplierName
+    // }
+    // if (filters.minQuantity !== undefined) {
+    //   params['filter[min_quantity]'] = filters.minQuantity.toString()
+    // }
+    // if (filters.maxQuantity !== undefined) {
+    //   params['filter[max_quantity]'] = filters.maxQuantity.toString()
+    // }
+    // if (filters.hasTestResults !== undefined) {
+    //   params['filter[has_test_results]'] = filters.hasTestResults.toString()
+    // }
+    // if (filters.hasCertifications !== undefined) {
+    //   params['filter[has_certifications]'] = filters.hasCertifications.toString()
+    // }
   }
   
   return params

@@ -69,7 +69,7 @@ export const cfdiInvoicesService = {
     queryParams.append('include', 'companySetting,contact,items')
 
     const query = queryParams.toString()
-    const url = query ? `/cfdi-invoices?${query}` : '/cfdi-invoices'
+    const url = query ? `/api/v1/cfdi-invoices?${query}` : '/api/v1/cfdi-invoices'
 
     const response = await axiosClient.get(url)
     return transformCFDIInvoicesResponse(response.data)
@@ -80,7 +80,7 @@ export const cfdiInvoicesService = {
    */
   getById: async (id: string) => {
     const response = await axiosClient.get(
-      `/cfdi-invoices/${id}?include=companySetting,contact,items`
+      `/api/v1/cfdi-invoices/${id}?include=companySetting,contact,items`
     )
     return transformJsonApiCFDIInvoice(response.data.data, response.data.included)
   },
@@ -92,7 +92,7 @@ export const cfdiInvoicesService = {
     const payload = {
       data: transformCFDIInvoiceFormToJsonApi(data),
     }
-    const response = await axiosClient.post('/cfdi-invoices', payload)
+    const response = await axiosClient.post('/api/v1/cfdi-invoices', payload)
     return transformJsonApiCFDIInvoice(response.data.data, response.data.included)
   },
 
@@ -111,7 +111,7 @@ export const cfdiInvoicesService = {
         },
       },
     }
-    const response = await axiosClient.post('/cfdi-invoices', payload)
+    const response = await axiosClient.post('/api/v1/cfdi-invoices', payload)
     return transformJsonApiCFDIInvoice(response.data.data, response.data.included)
   },
 
@@ -125,7 +125,7 @@ export const cfdiInvoicesService = {
         ...transformCFDIInvoiceFormToJsonApi(data),
       },
     }
-    const response = await axiosClient.patch(`/cfdi-invoices/${id}`, payload)
+    const response = await axiosClient.patch(`/api/v1/cfdi-invoices/${id}`, payload)
     return transformJsonApiCFDIInvoice(response.data.data, response.data.included)
   },
 
@@ -133,7 +133,7 @@ export const cfdiInvoicesService = {
    * Delete CFDI invoice
    */
   delete: async (id: string) => {
-    await axiosClient.delete(`/cfdi-invoices/${id}`)
+    await axiosClient.delete(`/api/v1/cfdi-invoices/${id}`)
   },
 
   // ============================================================================
@@ -145,7 +145,7 @@ export const cfdiInvoicesService = {
    * Workflow: draft → generated
    */
   generateXML: async (id: string): Promise<CFDIGenerateResponse> => {
-    const response = await axiosClient.post(`/cfdi-invoices/${id}/generate-xml`)
+    const response = await axiosClient.post(`/api/v1/cfdi-invoices/${id}/generate-xml`)
     return {
       cfdiId: response.data.data.id,
       xmlPath: response.data.data.attributes.xml_path,
@@ -158,7 +158,7 @@ export const cfdiInvoicesService = {
    * Workflow: generated → generated (with PDF)
    */
   generatePDF: async (id: string): Promise<CFDIGenerateResponse> => {
-    const response = await axiosClient.post(`/cfdi-invoices/${id}/generate-pdf`)
+    const response = await axiosClient.post(`/api/v1/cfdi-invoices/${id}/generate-pdf`)
     return {
       cfdiId: response.data.data.id,
       pdfPath: response.data.data.attributes.pdf_path,
@@ -172,7 +172,7 @@ export const cfdiInvoicesService = {
    * This sends the XML to SW (Smarter Web) for certification
    */
   stamp: async (id: string): Promise<CFDIStampResponse> => {
-    const response = await axiosClient.post(`/cfdi-invoices/${id}/stamp`)
+    const response = await axiosClient.post(`/api/v1/cfdi-invoices/${id}/stamp`)
     return {
       cfdiId: response.data.data.id,
       uuid: response.data.data.attributes.uuid,
@@ -189,7 +189,7 @@ export const cfdiInvoicesService = {
     id: string,
     cancelRequest: CFDICancelRequest
   ): Promise<CFDICancelResponse> => {
-    const response = await axiosClient.post(`/cfdi-invoices/${id}/cancel`, {
+    const response = await axiosClient.post(`/api/v1/cfdi-invoices/${id}/cancel`, {
       motivo: cancelRequest.motivo,
       uuid_reemplazo: cancelRequest.uuidReemplazo || null,
     })
@@ -204,7 +204,7 @@ export const cfdiInvoicesService = {
    * Download XML file
    */
   downloadXML: async (id: string): Promise<Blob> => {
-    const response = await axiosClient.get(`/cfdi-invoices/${id}/download-xml`, {
+    const response = await axiosClient.get(`/api/v1/cfdi-invoices/${id}/download-xml`, {
       responseType: 'blob',
     })
     return response.data
@@ -214,7 +214,7 @@ export const cfdiInvoicesService = {
    * Download PDF file
    */
   downloadPDF: async (id: string): Promise<Blob> => {
-    const response = await axiosClient.get(`/cfdi-invoices/${id}/download-pdf`, {
+    const response = await axiosClient.get(`/api/v1/cfdi-invoices/${id}/download-pdf`, {
       responseType: 'blob',
     })
     return response.data
@@ -224,7 +224,7 @@ export const cfdiInvoicesService = {
    * Send CFDI by email
    */
   sendEmail: async (id: string, email: string) => {
-    await axiosClient.post(`/cfdi-invoices/${id}/send-email`, {
+    await axiosClient.post(`/api/v1/cfdi-invoices/${id}/send-email`, {
       email,
     })
   },
@@ -247,7 +247,7 @@ export const cfdiInvoicesService = {
     rfcEmisor: string
     rfcReceptor: string
   }> => {
-    const response = await axiosClient.get(`/cfdi-invoices/${id}/validate-sat`)
+    const response = await axiosClient.get(`/api/v1/cfdi-invoices/${id}/validate-sat`)
     return response.data
   },
 
@@ -259,7 +259,7 @@ export const cfdiInvoicesService = {
     fechaCancelacion?: string
     acuse?: string
   }> => {
-    const response = await axiosClient.get(`/cfdi-invoices/${id}/cancellation-status`)
+    const response = await axiosClient.get(`/api/v1/cfdi-invoices/${id}/cancellation-status`)
     return response.data
   },
 }
@@ -280,7 +280,7 @@ export const cfdiItemsService = {
     }
 
     const query = queryParams.toString()
-    const url = query ? `/cfdi-items?${query}` : '/cfdi-items'
+    const url = query ? `/api/v1/cfdi-items?${query}` : '/api/v1/cfdi-items'
 
     const response = await axiosClient.get(url)
     return transformCFDIItemsResponse(response.data)
@@ -290,7 +290,7 @@ export const cfdiItemsService = {
    * Get single CFDI item by ID
    */
   getById: async (id: string) => {
-    const response = await axiosClient.get(`/cfdi-items/${id}`)
+    const response = await axiosClient.get(`/api/v1/cfdi-items/${id}`)
     return transformJsonApiCFDIItem(response.data.data, response.data.included)
   },
 
@@ -301,7 +301,7 @@ export const cfdiItemsService = {
     const payload = {
       data: transformCFDIItemFormToJsonApi(data),
     }
-    const response = await axiosClient.post('/cfdi-items', payload)
+    const response = await axiosClient.post('/api/v1/cfdi-items', payload)
     return transformJsonApiCFDIItem(response.data.data, response.data.included)
   },
 
@@ -315,7 +315,7 @@ export const cfdiItemsService = {
         ...transformCFDIItemFormToJsonApi(data),
       },
     }
-    const response = await axiosClient.patch(`/cfdi-items/${id}`, payload)
+    const response = await axiosClient.patch(`/api/v1/cfdi-items/${id}`, payload)
     return transformJsonApiCFDIItem(response.data.data, response.data.included)
   },
 
@@ -323,7 +323,7 @@ export const cfdiItemsService = {
    * Delete CFDI item
    */
   delete: async (id: string) => {
-    await axiosClient.delete(`/cfdi-items/${id}`)
+    await axiosClient.delete(`/api/v1/cfdi-items/${id}`)
   },
 }
 
@@ -336,7 +336,7 @@ export const companySettingsService = {
    * Get all company settings
    */
   getAll: async () => {
-    const response = await axiosClient.get('/company-settings')
+    const response = await axiosClient.get('/api/v1/company-settings')
     return transformCompanySettingsResponse(response.data)
   },
 
@@ -344,7 +344,7 @@ export const companySettingsService = {
    * Get single company setting by ID
    */
   getById: async (id: string) => {
-    const response = await axiosClient.get(`/company-settings/${id}`)
+    const response = await axiosClient.get(`/api/v1/company-settings/${id}`)
     return transformJsonApiCompanySetting(response.data.data)
   },
 
@@ -352,7 +352,7 @@ export const companySettingsService = {
    * Get active company setting
    */
   getActive: async (): Promise<CompanySetting | null> => {
-    const response = await axiosClient.get('/company-settings?filter[isActive]=true')
+    const response = await axiosClient.get('/api/v1/company-settings?filter[isActive]=true')
     const transformed = transformCompanySettingsResponse(response.data)
     return transformed.data[0] || null
   },
@@ -364,7 +364,7 @@ export const companySettingsService = {
     const payload = {
       data: transformCompanySettingFormToJsonApi(data),
     }
-    const response = await axiosClient.post('/company-settings', payload)
+    const response = await axiosClient.post('/api/v1/company-settings', payload)
     return transformJsonApiCompanySetting(response.data.data)
   },
 
@@ -378,7 +378,7 @@ export const companySettingsService = {
         ...transformCompanySettingFormToJsonApi(data),
       },
     }
-    const response = await axiosClient.patch(`/company-settings/${id}`, payload)
+    const response = await axiosClient.patch(`/api/v1/company-settings/${id}`, payload)
     return transformJsonApiCompanySetting(response.data.data)
   },
 
@@ -386,14 +386,14 @@ export const companySettingsService = {
    * Delete company setting
    */
   delete: async (id: string) => {
-    await axiosClient.delete(`/company-settings/${id}`)
+    await axiosClient.delete(`/api/v1/company-settings/${id}`)
   },
 
   /**
    * Test PAC connection
    */
   testPACConnection: async (id: string): Promise<{ success: boolean; message: string }> => {
-    const response = await axiosClient.post(`/company-settings/${id}/test-pac`)
+    const response = await axiosClient.post(`/api/v1/company-settings/${id}/test-pac`)
     return response.data
   },
 
@@ -404,7 +404,7 @@ export const companySettingsService = {
     const formData = new FormData()
     formData.append('certificate', file)
     const response = await axiosClient.post(
-      `/company-settings/${id}/upload-certificate`,
+      `/api/v1/company-settings/${id}/upload-certificate`,
       formData,
       {
         headers: {
@@ -423,7 +423,7 @@ export const companySettingsService = {
     formData.append('key', file)
     formData.append('password', password)
     const response = await axiosClient.post(
-      `/company-settings/${id}/upload-key`,
+      `/api/v1/company-settings/${id}/upload-key`,
       formData,
       {
         headers: {

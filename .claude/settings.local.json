@@ -50,7 +50,8 @@
       "Bash(npx playwright install chromium)",
       "Bash(npm run test:e2e:*)",
       "Bash(pgrep:*)",
-      "Bash(cut:*)"
+      "Bash(cut:*)",
+      "Bash(npx sass:*)"
     ],
     "deny": [],
     "defaultMode": "acceptEdits"

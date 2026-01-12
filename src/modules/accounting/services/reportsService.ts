@@ -119,55 +119,111 @@ export interface LibroMayorResponse {
 }
 
 // Accounting Reports Service
+// Correct endpoints: /api/v1/reports/{report-type}
 export const accountingReportsService = {
-  // Balance General
-  async getBalanceGeneral(endDate?: string): Promise<BalanceGeneralResponse> {
-    const params = endDate ? { end_date: endDate } : {};
-    const response = await axiosClient.get('/api/v1/accounting/reports/balance-general', { params });
+  // Balance General (Balance Sheet)
+  // GET /api/v1/reports/balance-sheets?filter[asOfDate]=2026-01-12&filter[currency]=MXN
+  async getBalanceGeneral(asOfDate?: string, currency: string = 'MXN'): Promise<BalanceGeneralResponse> {
+    const params: Record<string, string> = { 'filter[currency]': currency };
+    if (asOfDate) params['filter[asOfDate]'] = asOfDate;
+
+    const response = await axiosClient.get('/api/v1/reports/balance-sheets', { params });
     return response.data;
   },
 
-  // Estado de Resultados
+  // Estado de Resultados (Income Statement)
+  // GET /api/v1/reports/income-statements?filter[startDate]=2026-01-01&filter[endDate]=2026-01-12
   async getEstadoResultados(startDate?: string, endDate?: string): Promise<{ report_type: string; data: EstadoResultadosData }> {
     const params: Record<string, string> = {};
-    if (startDate) params.start_date = startDate;
-    if (endDate) params.end_date = endDate;
-    
-    const response = await axiosClient.get('/api/v1/accounting/reports/estado-resultados', { params });
+    if (startDate) params['filter[startDate]'] = startDate;
+    if (endDate) params['filter[endDate]'] = endDate;
+
+    const response = await axiosClient.get('/api/v1/reports/income-statements', { params });
     return response.data;
   },
 
-  // Balanza de Comprobación
-  async getBalanzaComprobacion(endDate?: string): Promise<BalanzaComprobacionResponse> {
-    const params = endDate ? { end_date: endDate } : {};
-    const response = await axiosClient.get('/api/v1/accounting/reports/balanza-comprobacion', { params });
+  // Balanza de Comprobacion (Trial Balance)
+  // GET /api/v1/reports/trial-balances?filter[asOfDate]=2026-01-12
+  async getBalanzaComprobacion(asOfDate?: string): Promise<BalanzaComprobacionResponse> {
+    const params: Record<string, string> = {};
+    if (asOfDate) params['filter[asOfDate]'] = asOfDate;
+
+    const response = await axiosClient.get('/api/v1/reports/trial-balances', { params });
     return response.data;
   },
 
-  // Libro Diario
-  async getLibroDiario(params: {
-    startDate?: string;
-    endDate?: string;
-    page?: number;
-    perPage?: number;
-  } = {}): Promise<LibroDiarioResponse> {
-    const queryParams: Record<string, string | number> = {};
-    if (params.startDate) queryParams.start_date = params.startDate;
-    if (params.endDate) queryParams.end_date = params.endDate;
-    if (params.page) queryParams.page = params.page;
-    if (params.perPage) queryParams.per_page = params.perPage;
-    
-    const response = await axiosClient.get('/api/v1/accounting/reports/libro-diario', { params: queryParams });
+  // Flujo de Efectivo (Cash Flow)
+  // GET /api/v1/reports/cash-flows?filter[startDate]=2026-01-01&filter[endDate]=2026-01-12
+  async getCashFlow(startDate?: string, endDate?: string): Promise<LibroDiarioResponse> {
+    const params: Record<string, string> = {};
+    if (startDate) params['filter[startDate]'] = startDate;
+    if (endDate) params['filter[endDate]'] = endDate;
+
+    const response = await axiosClient.get('/api/v1/reports/cash-flows', { params });
     return response.data;
   },
 
-  // Libro Mayor
-  async getLibroMayor(accountId: number, startDate?: string, endDate?: string): Promise<LibroMayorResponse> {
-    const params: Record<string, string | number> = { account_id: accountId };
-    if (startDate) params.start_date = startDate;
-    if (endDate) params.end_date = endDate;
-    
-    const response = await axiosClient.get('/api/v1/accounting/reports/libro-mayor', { params });
+  // Antiguedad Cuentas por Cobrar (AR Aging)
+  // GET /api/v1/reports/ar-aging-reports
+  async getARAgingReport(asOfDate?: string): Promise<LibroMayorResponse> {
+    const params: Record<string, string> = {};
+    if (asOfDate) params['filter[asOfDate]'] = asOfDate;
+
+    const response = await axiosClient.get('/api/v1/reports/ar-aging-reports', { params });
+    return response.data;
+  },
+
+  // Antiguedad Cuentas por Pagar (AP Aging)
+  // GET /api/v1/reports/ap-aging-reports
+  async getAPAgingReport(asOfDate?: string): Promise<LibroMayorResponse> {
+    const params: Record<string, string> = {};
+    if (asOfDate) params['filter[asOfDate]'] = asOfDate;
+
+    const response = await axiosClient.get('/api/v1/reports/ap-aging-reports', { params });
+    return response.data;
+  },
+
+  // Ventas por Cliente
+  // GET /api/v1/reports/sales-by-customer-reports
+  async getSalesByCustomerReport(startDate?: string, endDate?: string): Promise<unknown> {
+    const params: Record<string, string> = {};
+    if (startDate) params['filter[startDate]'] = startDate;
+    if (endDate) params['filter[endDate]'] = endDate;
+
+    const response = await axiosClient.get('/api/v1/reports/sales-by-customer-reports', { params });
+    return response.data;
+  },
+
+  // Ventas por Producto
+  // GET /api/v1/reports/sales-by-product-reports
+  async getSalesByProductReport(startDate?: string, endDate?: string): Promise<unknown> {
+    const params: Record<string, string> = {};
+    if (startDate) params['filter[startDate]'] = startDate;
+    if (endDate) params['filter[endDate]'] = endDate;
+
+    const response = await axiosClient.get('/api/v1/reports/sales-by-product-reports', { params });
+    return response.data;
+  },
+
+  // Compras por Proveedor
+  // GET /api/v1/reports/purchase-by-supplier-reports
+  async getPurchaseBySupplierReport(startDate?: string, endDate?: string): Promise<unknown> {
+    const params: Record<string, string> = {};
+    if (startDate) params['filter[startDate]'] = startDate;
+    if (endDate) params['filter[endDate]'] = endDate;
+
+    const response = await axiosClient.get('/api/v1/reports/purchase-by-supplier-reports', { params });
+    return response.data;
+  },
+
+  // Compras por Producto
+  // GET /api/v1/reports/purchase-by-product-reports
+  async getPurchaseByProductReport(startDate?: string, endDate?: string): Promise<unknown> {
+    const params: Record<string, string> = {};
+    if (startDate) params['filter[startDate]'] = startDate;
+    if (endDate) params['filter[endDate]'] = endDate;
+
+    const response = await axiosClient.get('/api/v1/reports/purchase-by-product-reports', { params });
     return response.data;
   },
 };

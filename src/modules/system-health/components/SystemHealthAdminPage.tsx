@@ -7,6 +7,63 @@ import { DatabaseMetricsTable } from './DatabaseMetricsTable'
 import { ApplicationMetricsGrid } from './ApplicationMetricsGrid'
 import { RecentErrorsList } from './RecentErrorsList'
 import { Button } from '@/ui/components/base'
+import type {
+  HealthCheck,
+  CacheCheck,
+  QueueCheck,
+  StorageCheck,
+  DatabaseMetrics,
+  ApplicationMetrics,
+  ErrorMetrics,
+} from '../types'
+
+// Default values for when API returns incomplete data
+const defaultHealthCheck: HealthCheck = {
+  status: 'warning',
+  message: 'No disponible',
+}
+
+const defaultCacheCheck: CacheCheck = {
+  ...defaultHealthCheck,
+  driver: 'unknown',
+}
+
+const defaultQueueCheck: QueueCheck = {
+  ...defaultHealthCheck,
+  pendingJobs: 0,
+  failedJobs: 0,
+}
+
+const defaultStorageCheck: StorageCheck = {
+  ...defaultHealthCheck,
+  totalGb: 0,
+  usedGb: 0,
+  freeGb: 0,
+  usedPercent: 0,
+}
+
+const defaultDatabaseMetrics: DatabaseMetrics = {
+  driver: 'unknown',
+  database: 'unknown',
+  totalSizeMb: '0',
+  topTables: [],
+}
+
+const defaultApplicationMetrics: ApplicationMetrics = {
+  users: 0,
+  products: 0,
+  salesOrders: 0,
+  purchaseOrders: 0,
+  contacts: 0,
+  activityLast24h: 0,
+  totalActivityLogs: 0,
+}
+
+const defaultErrorMetrics: ErrorMetrics = {
+  recentExceptions: [],
+  last24hCounts: {},
+  totalExceptionsLast24h: 0,
+}
 
 export function SystemHealthAdminPage() {
   const { health, isLoading, isError, error, refresh } = useSystemHealth(30000)
@@ -41,6 +98,19 @@ export function SystemHealthAdminPage() {
     )
   }
 
+  // Safely extract data with defaults
+  const checks = health.checks || {}
+  const metrics = health.metrics || {}
+
+  const databaseCheck = checks.database || defaultHealthCheck
+  const cacheCheck = checks.cache || defaultCacheCheck
+  const queueCheck = checks.queue || defaultQueueCheck
+  const storageCheck = checks.storage || defaultStorageCheck
+
+  const databaseMetrics = metrics.database || defaultDatabaseMetrics
+  const applicationMetrics = metrics.application || defaultApplicationMetrics
+  const errorMetrics = metrics.errors || defaultErrorMetrics
+
   return (
     <div className="container-fluid py-4">
       {/* Header */}
@@ -55,13 +125,16 @@ export function SystemHealthAdminPage() {
           </p>
         </div>
         <div className="d-flex align-items-center gap-3">
-          <StatusBadge status={health.status} size="lg" />
+          <StatusBadge status={health.status || 'warning'} size="lg" />
           <div className="text-end">
             <small className="text-muted d-block">
-              Entorno: <strong>{health.environment}</strong>
+              Entorno: <strong>{health.environment || 'unknown'}</strong>
             </small>
             <small className="text-muted d-block">
-              Actualizado: {new Date(health.timestamp).toLocaleTimeString('es-MX')}
+              Actualizado:{' '}
+              {health.timestamp
+                ? new Date(health.timestamp).toLocaleTimeString('es-MX')
+                : 'N/A'}
             </small>
           </div>
           <Button variant="secondary" size="small" onClick={() => refresh()}>
@@ -74,47 +147,31 @@ export function SystemHealthAdminPage() {
       {/* Health Checks Grid */}
       <div className="row g-3 mb-4">
         <div className="col-12 col-md-6 col-lg-3">
-          <HealthCheckCard
-            title="Base de Datos"
-            icon="bi-database"
-            check={health.checks.database}
-          />
+          <HealthCheckCard title="Base de Datos" icon="bi-database" check={databaseCheck} />
         </div>
         <div className="col-12 col-md-6 col-lg-3">
-          <HealthCheckCard
-            title="Cache"
-            icon="bi-lightning"
-            check={health.checks.cache}
-          />
+          <HealthCheckCard title="Cache" icon="bi-lightning" check={cacheCheck} />
         </div>
         <div className="col-12 col-md-6 col-lg-3">
-          <HealthCheckCard
-            title="Cola de Trabajos"
-            icon="bi-list-task"
-            check={health.checks.queue}
-          />
+          <HealthCheckCard title="Cola de Trabajos" icon="bi-list-task" check={queueCheck} />
         </div>
         <div className="col-12 col-md-6 col-lg-3">
-          <HealthCheckCard
-            title="Almacenamiento"
-            icon="bi-hdd"
-            check={health.checks.storage}
-          />
+          <HealthCheckCard title="Almacenamiento" icon="bi-hdd" check={storageCheck} />
         </div>
       </div>
 
       {/* Application Metrics */}
       <div className="mb-4">
-        <ApplicationMetricsGrid metrics={health.metrics.application} />
+        <ApplicationMetricsGrid metrics={applicationMetrics} />
       </div>
 
       {/* Two columns: Database Metrics and Errors */}
       <div className="row g-3">
         <div className="col-12 col-lg-7">
-          <DatabaseMetricsTable metrics={health.metrics.database} />
+          <DatabaseMetricsTable metrics={databaseMetrics} />
         </div>
         <div className="col-12 col-lg-5">
-          <RecentErrorsList errors={health.metrics.errors} />
+          <RecentErrorsList errors={errorMetrics} />
         </div>
       </div>
     </div>

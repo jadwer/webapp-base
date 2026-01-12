@@ -10,8 +10,15 @@ import styles from '@/ui/styles/modules/Sidebar.module.scss'
 const links = [
   { href: '/dashboard', label: 'Panel Principal', icon: 'bi-house' },
   { href: '/dashboard/profile', label: 'Mi perfil', icon: 'bi-person-circle' },
-  { href: '/dashboard/design-system', label: 'Design System', icon: 'bi-palette' },
   { href: '/dashboard/users', label: 'Usuarios', icon: 'bi-people' }
+]
+
+// Sistema y Diagnóstico
+const systemLinks = [
+  { href: '/dashboard/audit', label: 'Auditoría', icon: 'bi-journal-text' },
+  { href: '/dashboard/system-health', label: 'Estado del Sistema', icon: 'bi-heart-pulse' },
+  { href: '/dashboard/diagnostic', label: 'Diagnóstico', icon: 'bi-bug' },
+  { href: '/dashboard/design-system', label: 'Design System', icon: 'bi-palette' }
 ]
 
 // Page Builder
@@ -114,8 +121,10 @@ const hrLinks = [
 // Facturación CFDI
 const billingLinks = [
   { href: '/dashboard/billing', label: 'Dashboard Facturación', icon: 'bi-speedometer2' },
-  { href: '/dashboard/billing/cfdi-invoices', label: 'Facturas CFDI', icon: 'bi-file-earmark-text' },
-  { href: '/dashboard/billing/company-settings', label: 'Configuración Fiscal', icon: 'bi-gear-fill' }
+  { href: '/dashboard/billing/invoices', label: 'Facturas CFDI', icon: 'bi-file-earmark-text' },
+  { href: '/dashboard/billing/invoices/create', label: 'Nueva Factura', icon: 'bi-plus-circle' },
+  { href: '/dashboard/billing/settings', label: 'Configuración Fiscal', icon: 'bi-gear-fill' },
+  { href: '/dashboard/billing/payments', label: 'Pagos Stripe', icon: 'bi-credit-card' }
 ]
 
 // Catálogo Público
@@ -202,6 +211,12 @@ export default function Sidebar() {
   const [billingOpen, setBillingOpen] = useState(pathname?.startsWith('/dashboard/billing'))
   const [catalogOpen, setCatalogOpen] = useState(pathname?.startsWith('/dashboard/catalog'))
   const [ecommerceOpen, setEcommerceOpen] = useState(pathname?.startsWith('/dashboard/ecommerce'))
+  const [systemOpen, setSystemOpen] = useState(
+    pathname?.startsWith('/dashboard/audit') ||
+    pathname?.startsWith('/dashboard/system-health') ||
+    pathname?.startsWith('/dashboard/diagnostic') ||
+    pathname?.startsWith('/dashboard/design-system')
+  )
 
   // Función helper para renderizar un grupo
   const renderGroup = (
@@ -337,15 +352,18 @@ export default function Sidebar() {
             {renderGroup('Finanzas', 'bi-cash-stack', financeOpen, setFinanceOpen, financeLinks)}
             {renderGroup('Contabilidad', 'bi-calculator', accountingOpen, setAccountingOpen, accountingLinks)}
             {renderGroup('Reportes', 'bi-file-earmark-bar-graph', reportsOpen, setReportsOpen, reportsLinks)}
-            {renderGroup('Facturación CFDI', 'bi-receipt-cutoff', billingOpen, setBillingOpen, billingLinks, { text: 'NUEVO', color: '#0d6efd' })}
+            {renderGroup('Facturación CFDI', 'bi-receipt-cutoff', billingOpen, setBillingOpen, billingLinks)}
 
             {/* Módulos de cliente */}
-            {renderGroup('CRM', 'bi-bar-chart-line', crmOpen, setCrmOpen, crmLinks, { text: 'NUEVO', color: '#0d6efd' })}
+            {renderGroup('CRM', 'bi-bar-chart-line', crmOpen, setCrmOpen, crmLinks)}
             {renderGroup('Catálogo Público', 'bi-grid-3x3-gap', catalogOpen, setCatalogOpen, catalogLinks)}
             {renderGroup('E-commerce', 'bi-shop', ecommerceOpen, setEcommerceOpen, ecommerceLinks)}
 
             {/* Módulos de gestión */}
-            {renderGroup('Recursos Humanos', 'bi-people-fill', hrOpen, setHrOpen, hrLinks, { text: 'NUEVO', color: '#0d6efd' })}
+            {renderGroup('Recursos Humanos', 'bi-people-fill', hrOpen, setHrOpen, hrLinks)}
+
+            {/* Sistema y administración */}
+            {renderGroup('Sistema', 'bi-gear-wide-connected', systemOpen, setSystemOpen, systemLinks)}
 
             {/* Separador */}
             <li className={styles.navItem} style={{ margin: '16px 0', borderTop: '1px solid rgba(0,0,0,0.1)', paddingTop: '16px' }}>

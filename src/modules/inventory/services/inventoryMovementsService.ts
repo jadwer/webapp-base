@@ -75,14 +75,14 @@ export const inventoryMovementsService = {
       queryParams.sort = '-movementDate'
     }
     
-    // Paginación
+    // Pagination
     if (pagination?.page) {
       queryParams['page[number]'] = pagination.page
     }
     if (pagination?.size) {
       queryParams['page[size]'] = pagination.size
     }
-    
+
     // Includes (muy importante para movements)
     if (include && include.length > 0) {
       queryParams.include = include.join(',')

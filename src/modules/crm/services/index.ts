@@ -127,8 +127,8 @@ export const leadsService = {
 
       const queryParams = new URLSearchParams()
 
-      // Add includes for relationships
-      queryParams.append('include', 'user,pipelineStage')
+      // Add includes for relationships (valid: user, contact, campaigns, activities, opportunity)
+      queryParams.append('include', 'user,contact')
 
       // Add filters if provided
       if (params) {
@@ -142,7 +142,7 @@ export const leadsService = {
       const queryString = queryParams.toString()
       const url = queryString
         ? `/api/v1/leads?${queryString}`
-        : '/api/v1/leads?include=user,pipelineStage'
+        : '/api/v1/leads?include=user,contact'
 
       console.log('📡 [Service] Making request to:', url)
       const response = await axiosClient.get(url)
@@ -158,8 +158,9 @@ export const leadsService = {
   getById: async (id: string) => {
     try {
       console.log('🚀 [Service] Fetching lead by ID:', id)
+      // Valid includes: user, contact, campaigns, activities, opportunity
       const response = await axiosClient.get(
-        `/api/v1/leads/${id}?include=user,contact,pipelineStage,campaigns`
+        `/api/v1/leads/${id}?include=user,contact,campaigns,activities`
       )
       console.log('✅ [Service] Lead response:', response.data)
       return response.data

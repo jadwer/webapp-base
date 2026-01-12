@@ -9,6 +9,18 @@ const axios = Axios.create({
     Accept: "application/vnd.api+json",
     "Content-Type": "application/vnd.api+json",
   },
+  // Custom params serializer to properly encode brackets for JSON:API
+  paramsSerializer: {
+    serialize: (params) => {
+      const searchParams = new URLSearchParams();
+      for (const [key, value] of Object.entries(params)) {
+        if (value !== undefined && value !== null && value !== '') {
+          searchParams.append(key, String(value));
+        }
+      }
+      return searchParams.toString();
+    }
+  }
 });
 
 axios.interceptors.request.use((config) => {

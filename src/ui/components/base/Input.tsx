@@ -1,6 +1,6 @@
 'use client'
 
-import React, { forwardRef, InputHTMLAttributes, TextareaHTMLAttributes, SelectHTMLAttributes, useState } from 'react'
+import React, { forwardRef, InputHTMLAttributes, TextareaHTMLAttributes, SelectHTMLAttributes, useState, useId } from 'react'
 import clsx from 'clsx'
 import styles from '@/ui/styles/modules/Input.module.scss'
 
@@ -43,7 +43,8 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(({
   multiple,
   ...props
 }, ref) => {
-  const inputId = id || `input-${Math.random().toString(36).substr(2, 9)}`
+  const generatedId = useId()
+  const inputId = id || `input-${generatedId}`
   const hasError = Boolean(errorText)
   const hasSuccess = Boolean(successText) && !hasError
   const isFloating = variant === 'floating'
@@ -222,7 +223,8 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(({
   id,
   ...props
 }, ref) => {
-  const textareaId = id || `textarea-${Math.random().toString(36).substr(2, 9)}`
+  const generatedId = useId()
+  const textareaId = id || `textarea-${generatedId}`
   const hasError = Boolean(errorText)
   const hasSuccess = Boolean(successText) && !hasError
 
@@ -292,7 +294,8 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(({
   children,
   ...props
 }, ref) => {
-  const selectId = id || `select-${Math.random().toString(36).substr(2, 9)}`
+  const generatedId = useId()
+  const selectId = id || `select-${generatedId}`
   const hasError = Boolean(errorText)
   const hasSuccess = Boolean(successText) && !hasError
 

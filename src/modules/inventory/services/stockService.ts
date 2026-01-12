@@ -65,14 +65,14 @@ export const stockService = {
       queryParams.sort = `${sortDirection}${sort.field}`
     }
     
-    // Paginación
+    // Pagination
     if (pagination?.page) {
       queryParams['page[number]'] = pagination.page
     }
     if (pagination?.size) {
       queryParams['page[size]'] = pagination.size
     }
-    
+
     // Includes (muy importante para stock)
     if (include && include.length > 0) {
       queryParams.include = include.join(',')

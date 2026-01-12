@@ -1,47 +1,35 @@
 'use client'
 
 import React from 'react'
-import styles from './PorQueComprar.module.scss'
-
-// Estadisticas del sitio real de Labor Wasser de Mexico
-const stats = [
-  { number: '180k', label: 'Productos' },
-  { number: '2k', label: 'Clientes' },
-  { number: '27', label: 'Marcas' }
-]
+import Link from 'next/link'
 
 export const PorQueComprar: React.FC = () => {
   return (
-    <section className={styles.porQueComprar}>
-      <div className="container">
-        {/* Stats section - basado en el sitio real */}
-        <div className="row justify-content-center mb-5">
-          {stats.map((stat, index) => (
-            <div key={index} className="col-md-4 col-sm-4 mb-4 mb-md-0">
-              <div className={styles.statItem}>
-                <div className={styles.statNumber}>{stat.number}</div>
-                <div className={styles.statLabel}>{stat.label}</div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Por que comprar section */}
-        <div className="row">
-          <div className="col-12">
-            <div className={styles.sectionHeader}>
-              <h2 className={styles.sectionTitle}>Por que comprar con nosotros?</h2>
-              <p className={styles.sectionDescription}>
-                Somos lideres en el sector por nuestra dedicacion a la excelencia y el servicio personalizado.
-                Nuestro compromiso es proporcionarte las mejores soluciones para que empresas comerciales
-                con tecnologias de vanguardia, trabajemos de la mano en tu crecimiento constante, brindandote
-                los recursos de calidad y la asesoria especializada que necesitas para destacar en tu area
-                de trabajo con productos de marcas reconocidas mundialmente.
-              </p>
-            </div>
+    <div className="container-fluid about">
+      <div className="row align-items-center">
+        <div className="col-12 col-md-6 left-info">
+          <h4 className="text-center text-md-start">
+            Por que comprar con nosotros?
+          </h4>
+          <p className="text-center text-md-start">
+            Por la calidad en nuestro servicio, por la experiencia tecnica y la
+            resolucion de la problematica tanto en la parte analitica como en la
+            parte de proceso, ademas de que somos una empresa innovadora con
+            tecnologia de vanguardia, trabajamos a traves de un CRM y un ERP
+            para un mejor servicio, asi como la concentracion de las mejores
+            marcas para la parte analitica y de proceso para la industria y la
+            investigacion, especialistas en quimicos y tratamientos en aguas.
+          </p>
+          <div className="col d-block d-md-flex mt-4">
+            <Link href="/nosotros">
+              <button type="button" className="btn btn-secondary mx-0">
+                Mas sobre nosotros
+              </button>
+            </Link>
           </div>
         </div>
+        <div className="col-12 col-md-6 hero-2"></div>
       </div>
-    </section>
+    </div>
   )
 }

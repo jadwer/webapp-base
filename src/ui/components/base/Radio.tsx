@@ -1,6 +1,6 @@
 'use client'
 
-import React, { forwardRef, InputHTMLAttributes } from 'react'
+import React, { forwardRef, InputHTMLAttributes, useId } from 'react'
 import clsx from 'clsx'
 import styles from '@/ui/styles/modules/Radio.module.scss'
 
@@ -21,7 +21,8 @@ export const Radio = forwardRef<HTMLInputElement, RadioProps>(({
   checked,
   ...props
 }, ref) => {
-  const radioId = id || `radio-${Math.random().toString(36).substr(2, 9)}`
+  const generatedId = useId()
+  const radioId = id || `radio-${generatedId}`
 
   const wrapperClasses = clsx(
     styles.radioWrapper,

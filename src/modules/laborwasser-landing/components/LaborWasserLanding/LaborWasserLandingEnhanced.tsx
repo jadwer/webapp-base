@@ -89,7 +89,7 @@ export const LaborWasserLandingEnhanced: React.FC<LaborWasserLandingEnhancedProp
   }
 
   return (
-    <div className={`${styles.landingPage} ${className || ''}`}>
+    <div className={`laborwasser-landing ${styles.landingPage} ${className || ''}`}>
       {/* Header with navigation */}
       <Header />
       

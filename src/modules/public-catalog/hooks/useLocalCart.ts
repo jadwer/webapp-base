@@ -53,8 +53,24 @@ export interface CartTotals {
 
 const CART_STORAGE_KEY = 'laborwasser_cart'
 
-// Custom event for cross-component updates
-const CART_UPDATE_EVENT = 'cart-updated'
+// ============================================
+// Internal Sync System (same-tab updates)
+// ============================================
+
+type CartListener = () => void
+const cartListeners = new Set<CartListener>()
+
+function notifyCartListeners() {
+  // Use queueMicrotask to avoid updating state during render of another component
+  queueMicrotask(() => {
+    cartListeners.forEach(listener => listener())
+  })
+}
+
+function subscribeToCart(listener: CartListener): () => void {
+  cartListeners.add(listener)
+  return () => cartListeners.delete(listener)
+}
 
 // ============================================
 // Helper Functions
@@ -95,9 +111,8 @@ function saveCartToStorage(cart: LocalCart): void {
   try {
     const updated = { ...cart, updatedAt: new Date().toISOString() }
     localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(updated))
-
-    // Dispatch event for other components
-    window.dispatchEvent(new CustomEvent(CART_UPDATE_EVENT))
+    // Notify same-tab listeners
+    notifyCartListeners()
   } catch (error) {
     console.error('Error saving cart to localStorage:', error)
   }
@@ -134,7 +149,7 @@ export function useLocalCart() {
     setIsInitialized(true)
   }, [])
 
-  // Listen for cart updates from other tabs/components
+  // Listen for cart updates from OTHER browser tabs only
   useEffect(() => {
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === CART_STORAGE_KEY) {
@@ -142,16 +157,10 @@ export function useLocalCart() {
       }
     }
 
-    const handleCartUpdate = () => {
-      setCart(loadCartFromStorage())
-    }
-
     window.addEventListener('storage', handleStorageChange)
-    window.addEventListener(CART_UPDATE_EVENT, handleCartUpdate)
 
     return () => {
       window.removeEventListener('storage', handleStorageChange)
-      window.removeEventListener(CART_UPDATE_EVENT, handleCartUpdate)
     }
   }, [])
 
@@ -314,14 +323,18 @@ export function useLocalCartCount(): number {
       }
     }
 
+    // Initial load
     updateCount()
 
+    // Listen for changes from OTHER browser tabs
     window.addEventListener('storage', updateCount)
-    window.addEventListener(CART_UPDATE_EVENT, updateCount)
+
+    // Listen for changes from SAME browser tab
+    const unsubscribe = subscribeToCart(updateCount)
 
     return () => {
       window.removeEventListener('storage', updateCount)
-      window.removeEventListener(CART_UPDATE_EVENT, updateCount)
+      unsubscribe()
     }
   }, [])
 

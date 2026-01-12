@@ -1,6 +1,6 @@
 'use client'
 
-import React, { forwardRef } from 'react'
+import React, { forwardRef, useId } from 'react'
 import clsx from 'clsx'
 import styles from '@/ui/styles/modules/ToggleSwitch.module.scss'
 
@@ -29,7 +29,8 @@ export const ToggleSwitch = forwardRef<HTMLInputElement, ToggleSwitchProps>(({
   rightIcon,
   className
 }, ref) => {
-  const switchId = id || `toggle-${Math.random().toString(36).substr(2, 9)}`
+  const generatedId = useId()
+  const switchId = id || `toggle-${generatedId}`
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (onChange) {

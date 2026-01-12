@@ -11,6 +11,7 @@ export { UltimosProductos, UltimosProductosEnhanced } from './UltimosProductos'
 export { NecesitasCotizacion } from './NecesitasCotizacion'
 export { NuestrasMarcas } from './NuestrasMarcas'
 export { Footer } from './Footer'
+export { ContactOffcanvas } from './ContactOffcanvas'
 
 // Main landing page component
 export { LaborWasserLanding, LaborWasserLandingEnhanced } from './LaborWasserLanding'

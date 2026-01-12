@@ -56,14 +56,14 @@ export const warehousesService = {
       queryParams.sort = `${sortDirection}${sort.field}`
     }
     
-    // Paginación - Testing if warehouses endpoint supports it
+    // Pagination
     if (pagination?.page) {
       queryParams['page[number]'] = pagination.page
     }
     if (pagination?.size) {
       queryParams['page[size]'] = pagination.size
     }
-    
+
     console.log('🔧 [warehousesService] Query params:', queryParams)
     
     // Includes

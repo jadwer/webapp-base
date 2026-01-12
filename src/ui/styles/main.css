@@ -1,4 +1,6 @@
 @charset "UTF-8";
+@import url("https://fonts.googleapis.com/css2?family=Anek+Bangla:wght@100..800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 /*!
  * Bootstrap  v5.3.7 (https://getbootstrap.com/)
  * Copyright 2011-2025 The Bootstrap Authors
@@ -11854,5 +11856,392 @@ textarea.form-control-lg {
     display: none !important;
   }
 }
+.laborwasser-landing p {
+  font-family: "Poppins", sans-serif;
+}
+.laborwasser-landing h1,
+.laborwasser-landing .h1,
+.laborwasser-landing h2,
+.laborwasser-landing .h2,
+.laborwasser-landing h3,
+.laborwasser-landing .h3,
+.laborwasser-landing h4,
+.laborwasser-landing .h4,
+.laborwasser-landing h5,
+.laborwasser-landing .h5,
+.laborwasser-landing h6,
+.laborwasser-landing .h6 {
+  font-family: "Anek Bangla", sans-serif;
+}
+.laborwasser-landing h1,
+.laborwasser-landing .h1 {
+  font-weight: 800;
+}
+@media (max-width: 575.98px) {
+  .laborwasser-landing h1,
+  .laborwasser-landing .h1 {
+    text-align: center;
+    font-size: 2.5em !important;
+  }
+}
+.laborwasser-landing a {
+  text-decoration: none !important;
+}
+.laborwasser-landing .container-fluid.offers h1 {
+  color: #012A94;
+  font-size: 3em;
+  margin-top: 1em;
+}
+.laborwasser-landing .container-fluid.offers .card-offer {
+  padding: 2em;
+}
+.laborwasser-landing .container-fluid.offers .card-offer.blue-1 {
+  background-color: #0094FF;
+  color: #ffffff;
+}
+.laborwasser-landing .container-fluid.offers .card-offer.blue-2 {
+  background-color: #012A94;
+  color: #ffffff;
+}
+.laborwasser-landing .container-fluid.offers .card-offer .img-fluid {
+  width: 65%;
+}
+.laborwasser-landing .container-fluid.hero-1 {
+  background-image: url("/images/laborwasser/labor-wasser-mexico-hero-1.webp");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+@media (max-width: 575.98px) {
+  .laborwasser-landing .container-fluid.hero-1 {
+    height: 80vh;
+  }
+}
+.laborwasser-landing .container-fluid.hero-1 .hero-left {
+  background-color: rgba(0, 148, 255, 0.8);
+  height: 100vh;
+  padding: 5%;
+  align-content: center;
+}
+@media (max-width: 575.98px) {
+  .laborwasser-landing .container-fluid.hero-1 .hero-left {
+    height: 80vh;
+    align-items: center !important;
+    display: grid;
+  }
+}
+.laborwasser-landing .container-fluid.hero-1 .hero-left h1 {
+  font-size: 3.8em;
+  line-height: 1em;
+  color: white;
+}
+.laborwasser-landing .container-fluid.hero-1 .hero-left .highlight-hero {
+  background-color: #012A94;
+  padding: 1em;
+  color: white;
+}
+.laborwasser-landing .container-fluid.about {
+  background-color: #F4F4F4;
+  height: 100vh;
+  margin-top: inherit;
+}
+.laborwasser-landing .container-fluid.about .left-info {
+  padding: 3%;
+}
+.laborwasser-landing .container-fluid.about .left-info h4 {
+  color: #8AC905;
+}
+@media (max-width: 575.98px) {
+  .laborwasser-landing .container-fluid.about .left-info {
+    padding: 4em 2em;
+  }
+}
+.laborwasser-landing .container-fluid.about .hero-2 {
+  height: 100vh;
+  background-image: url("/images/laborwasser/labor-wasser-mexico-hero-2.webp");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+@media (max-width: 575.98px) {
+  .laborwasser-landing .container-fluid.about .hero-2 {
+    height: 50vh;
+  }
+}
+.laborwasser-landing .container-fluid.cta {
+  height: 70vh;
+}
+@media (max-width: 575.98px) {
+  .laborwasser-landing .container-fluid.cta {
+    height: auto !important;
+  }
+}
+.laborwasser-landing .container-fluid.cta .left {
+  height: 70vh;
+  background-image: url("/images/laborwasser/labor-wasser-mexico-hero-4.webp");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  border-right: #8AC905 solid 10px;
+}
+@media (max-width: 575.98px) {
+  .laborwasser-landing .container-fluid.cta .left {
+    height: 45vh;
+  }
+}
+.laborwasser-landing .container-fluid.cta .right {
+  height: 70vh;
+  align-content: center;
+  background-image: url("/images/laborwasser/labor-wasser-mexico-hero-3.webp");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  color: white;
+}
+@media (max-width: 575.98px) {
+  .laborwasser-landing .container-fluid.cta .right {
+    height: auto !important;
+    padding: 5em 1em;
+  }
+}
+.laborwasser-landing .container-fluid .footer {
+  padding-top: 3.5em;
+  padding-bottom: 2.5em;
+  background-color: #eeeeee;
+}
+.laborwasser-landing .container-fluid .footer .social i {
+  color: #8AC905;
+  font-size: 2em;
+}
+.laborwasser-landing .container-fluid .footer .social i.bi-whatsapp::before {
+  vertical-align: 0;
+}
+.laborwasser-landing .container-fluid .footer .social a {
+  color: #000000;
+  text-decoration: none;
+  padding-left: 1em;
+  padding-bottom: 0.5em;
+}
+.laborwasser-landing .container-fluid .footer .social a:hover {
+  color: #012A94;
+}
+.laborwasser-landing .container-fluid .footer .logo-footer {
+  width: 50%;
+}
+@media (max-width: 575.98px) {
+  .laborwasser-landing .container-fluid .footer .logo-footer {
+    width: 75%;
+    margin-bottom: 2em;
+  }
+}
+.laborwasser-landing .container-fluid .footer h4 {
+  color: #012A94;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+@media (max-width: 575.98px) {
+  .laborwasser-landing .container-fluid .footer h4 {
+    text-align: center;
+  }
+}
+@media (max-width: 575.98px) {
+  .laborwasser-landing .container-fluid .footer ul {
+    padding-left: 0rem;
+    text-align: center;
+  }
+}
+.laborwasser-landing .container-fluid .footer ul li {
+  list-style: none;
+}
+.laborwasser-landing .container-fluid .footer ul li a {
+  color: #8AC905;
+  font-size: 1em;
+  text-transform: uppercase;
+  line-height: 2.5em;
+}
+.laborwasser-landing .container-fluid .footer ul li a:hover {
+  color: #012A94;
+}
+@media (max-width: 575.98px) {
+  .laborwasser-landing .container-fluid .footer .login-contact {
+    text-align: center;
+    padding-bottom: 1.25em;
+  }
+}
+.laborwasser-landing .container-fluid .text-muted {
+  padding: 15px 0 5px 0;
+  background-color: #012A94;
+  color: white !important;
+  font-size: 0.9em;
+}
+.laborwasser-landing .container-fluid .text-muted a {
+  color: white !important;
+}
+.laborwasser-landing .offcanvas .offcanvas-header h3.offcanvas-title {
+  color: #0094FF;
+  padding-top: 2em;
+}
+.laborwasser-landing .offcanvas-body .form-control {
+  margin-bottom: 1.25em;
+}
+.laborwasser-landing .login-contact i {
+  color: #8AC905;
+}
+.laborwasser-landing .login-contact i.bi-whatsapp::before {
+  vertical-align: 0;
+}
+.laborwasser-landing .login-contact a {
+  color: #000000;
+  text-decoration: none;
+  padding-left: 1em;
+  padding-bottom: 0.5em;
+}
+.laborwasser-landing .login-contact a:hover {
+  color: #012A94;
+}
+.laborwasser-landing .container form {
+  width: 80%;
+  display: flex;
+}
+.laborwasser-landing .container form .form-control {
+  margin-right: 0.5em;
+}
+.laborwasser-landing .container.clients {
+  margin-bottom: 3em;
+}
+.laborwasser-landing .container.clients h1 {
+  color: #012A94;
+  font-size: 3em;
+  margin-top: 1em;
+}
+.laborwasser-landing img.logo {
+  width: 60%;
+}
+@media (max-width: 991.98px) {
+  .laborwasser-landing img.logo {
+    width: 70%;
+  }
+}
+.laborwasser-landing .card {
+  border-radius: 10px;
+  padding: 8px;
+  border: none;
+  box-shadow: 0px 4px 12px 1px rgba(0, 0, 0, 0.36);
+  -webkit-box-shadow: 0px 4px 12px 1px rgba(0, 0, 0, 0.36);
+  -moz-box-shadow: 0px 4px 12px 1px rgba(0, 0, 0, 0.36);
+}
+.laborwasser-landing .separator {
+  border-top: 8px solid #4EC8FC;
+  opacity: 1;
+  width: 15%;
+  display: block;
+  margin: 0 auto 4em auto !important;
+}
+.laborwasser-landing hr {
+  margin-top: 1rem !important;
+  margin-bottom: 1rem !important;
+}
+.laborwasser-landing .btn-primary,
+.laborwasser-landing .btn-secondary {
+  border-radius: 0 !important;
+  font-size: 1em;
+  padding: 0.45em 2em;
+  text-transform: uppercase;
+}
+@media (max-width: 575.98px) {
+  .laborwasser-landing .btn-primary,
+  .laborwasser-landing .btn-secondary {
+    display: block;
+    width: 100%;
+  }
+}
+.laborwasser-landing .btn-primary {
+  background-color: #8AC905;
+  border: 2px solid #8AC905;
+}
+.laborwasser-landing .btn-secondary {
+  background-color: white;
+  border: 2px solid #8AC905;
+  color: #8AC905;
+}
+.laborwasser-landing .btn-primary:hover,
+.laborwasser-landing .btn-secondary:hover {
+  background-color: #0094FF;
+  border: 2px solid white;
+}
+.laborwasser-landing .burger.btn-primary {
+  border-radius: 0 !important;
+  font-size: 1.5em;
+  padding: 0.35em;
+  text-transform: uppercase;
+  line-height: 0;
+  font-weight: 600;
+  margin-left: 25px;
+  color: #8AC905;
+  font-size: 0.9rem;
+  background-color: #ffffff;
+  border: none;
+  width: auto;
+}
+.laborwasser-landing .burger img.contact-head {
+  width: 2.5em;
+}
+@media (max-width: 575.98px) {
+  .laborwasser-landing .burger img.contact-head {
+    width: 2em;
+  }
+}
+.laborwasser-landing ul.pagination {
+  margin: 3em auto;
+}
+.laborwasser-landing ul.pagination .page-item.active > .page-link {
+  background-color: #012A94;
+}
+.laborwasser-landing ul.pagination a.page-link:hover {
+  background-color: #8AC905;
+  color: #ffffff;
+}
 
-/*# sourceMappingURL=main.css.map */
+.whatsapp {
+  position: fixed;
+  width: 60px;
+  height: 60px;
+  bottom: 40px;
+  right: 40px;
+  background-color: #25d366;
+  color: #FFF;
+  border-radius: 50px;
+  text-align: center;
+  font-size: 30px;
+  z-index: 100;
+}
+.whatsapp .bi-whatsapp::before {
+  vertical-align: -9px;
+}
+
+.whatsapp-icon {
+  margin-top: 13px;
+}
+
+#navMenu .offcanvas-header h3.offcanvas-title {
+  color: #0094FF;
+  padding-top: 2em;
+}
+#navMenu .offcanvas-body .form-control {
+  margin-bottom: 1.25em;
+}
+#navMenu .offcanvas-body .login-contact i {
+  color: #8AC905;
+}
+#navMenu .offcanvas-body .login-contact i.bi-whatsapp::before {
+  vertical-align: 0;
+}
+#navMenu .offcanvas-body .login-contact a {
+  color: #000000;
+  text-decoration: none;
+  padding-left: 1em;
+  padding-bottom: 0.5em;
+}
+#navMenu .offcanvas-body .login-contact a:hover {
+  color: #012A94;
+}

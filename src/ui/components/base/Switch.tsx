@@ -1,6 +1,6 @@
 'use client'
 
-import React, { forwardRef, InputHTMLAttributes } from 'react'
+import React, { forwardRef, InputHTMLAttributes, useId } from 'react'
 import clsx from 'clsx'
 import styles from '@/ui/styles/modules/Switch.module.scss'
 
@@ -39,7 +39,8 @@ export const Switch = forwardRef<HTMLInputElement, SwitchProps>(({
   checked,
   ...props
 }, ref) => {
-  const switchId = id || `switch-${Math.random().toString(36).substr(2, 9)}`
+  const generatedId = useId()
+  const switchId = id || `switch-${generatedId}`
   const hasError = Boolean(errorText)
   const hasSuccess = Boolean(successText && !hasError)
 

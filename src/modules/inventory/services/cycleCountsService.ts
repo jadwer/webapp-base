@@ -213,10 +213,12 @@ function buildQueryParams(
   params.include = 'product,warehouse,warehouseLocation,assignedTo,countedBy'
 
   // Pagination
-  if (page && page > 1) {
+  if (page && page > 0) {
     params['page[number]'] = page.toString()
   }
-  params['page[size]'] = pageSize.toString()
+  if (pageSize) {
+    params['page[size]'] = pageSize.toString()
+  }
 
   // Sorting - convert camelCase to snake_case for backend
   if (sort?.field) {

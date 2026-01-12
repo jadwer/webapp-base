@@ -68,16 +68,11 @@ export function useBalanzaComprobacion(endDate?: string) {
   };
 }
 
-// Libro Diario Hook
-export function useLibroDiario(params: {
-  startDate?: string;
-  endDate?: string;
-  page?: number;
-  perPage?: number;
-} = {}) {
+// Cash Flow Hook (replaces Libro Diario)
+export function useCashFlow(startDate?: string, endDate?: string) {
   const { data, error, isLoading } = useSWR<LibroDiarioResponse>(
-    ['libro-diario', params],
-    () => accountingReportsService.getLibroDiario(params),
+    ['cash-flow', startDate, endDate],
+    () => accountingReportsService.getCashFlow(startDate, endDate),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
@@ -85,17 +80,17 @@ export function useLibroDiario(params: {
   );
 
   return {
-    libroDiario: data,
+    cashFlow: data,
     isLoading,
     error,
   };
 }
 
-// Libro Mayor Hook
-export function useLibroMayor(accountId: number | null, startDate?: string, endDate?: string) {
+// AR Aging Report Hook
+export function useARAgingReport(asOfDate?: string) {
   const { data, error, isLoading } = useSWR<LibroMayorResponse>(
-    accountId ? ['libro-mayor', accountId, startDate, endDate] : null,
-    accountId ? () => accountingReportsService.getLibroMayor(accountId, startDate, endDate) : null,
+    ['ar-aging', asOfDate],
+    () => accountingReportsService.getARAgingReport(asOfDate),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
@@ -103,7 +98,25 @@ export function useLibroMayor(accountId: number | null, startDate?: string, endD
   );
 
   return {
-    libroMayor: data,
+    arAgingReport: data,
+    isLoading,
+    error,
+  };
+}
+
+// AP Aging Report Hook
+export function useAPAgingReport(asOfDate?: string) {
+  const { data, error, isLoading } = useSWR<LibroMayorResponse>(
+    ['ap-aging', asOfDate],
+    () => accountingReportsService.getAPAgingReport(asOfDate),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+    }
+  );
+
+  return {
+    apAgingReport: data,
     isLoading,
     error,
   };

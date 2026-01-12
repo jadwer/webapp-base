@@ -1,6 +1,6 @@
 'use client'
 
-import React, { forwardRef, InputHTMLAttributes } from 'react'
+import React, { forwardRef, InputHTMLAttributes, useId } from 'react'
 import clsx from 'clsx'
 import styles from '@/ui/styles/modules/Checkbox.module.scss'
 
@@ -28,7 +28,8 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(({
   disabled,
   ...props
 }, ref) => {
-  const checkboxId = id || `checkbox-${Math.random().toString(36).substr(2, 9)}`
+  const generatedId = useId()
+  const checkboxId = id || `checkbox-${generatedId}`
   const hasError = Boolean(errorText)
 
   // Handle indeterminate state
