@@ -22,15 +22,6 @@ export const MovementsTableSimple = ({
   isLoading = false,
   _onView // eslint-disable-line @typescript-eslint/no-unused-vars
 }: MovementsTableSimpleProps) => {
-  // Debug logs
-  console.log('📊 [MovementsTableSimple] Debug info:', {
-    movementsReceived: movements,
-    movementsLength: movements?.length,
-    firstMovement: movements?.[0],
-    firstMovementKeys: movements?.[0] ? Object.keys(movements[0]) : null,
-    isLoading
-  })
-
   const formatDate = (dateString?: string) => {
     if (!dateString) return '-'
     try {

@@ -199,7 +199,7 @@ const cartItemsService = {
     };
 
     const response = await axiosClient.get<ShoppingCartItemsResponse>(
-      '/api/v1/shopping-cart-items',
+      '/api/v1/cart-items',
       { params }
     );
 
@@ -211,7 +211,7 @@ const cartItemsService = {
    */
   async getById(id: string): Promise<ShoppingCartItem> {
     const response = await axiosClient.get<{ data: Record<string, unknown> }>(
-      `/api/v1/shopping-cart-items/${id}`,
+      `/api/v1/cart-items/${id}`,
       {
         params: {
           include: 'product',
@@ -232,7 +232,7 @@ const cartItemsService = {
   ): Promise<ShoppingCartItem> {
     const payload = {
       data: {
-        type: 'shopping-cart-items',
+        type: 'cart-items',
         attributes: {
           shopping_cart_id: shoppingCartId,
           product_id: productId,
@@ -242,7 +242,7 @@ const cartItemsService = {
     };
 
     const response = await axiosClient.post<{ data: Record<string, unknown> }>(
-      '/api/v1/shopping-cart-items',
+      '/api/v1/cart-items',
       payload
     );
 
@@ -255,7 +255,7 @@ const cartItemsService = {
   async updateQuantity(id: string, quantity: number): Promise<ShoppingCartItem> {
     const payload = {
       data: {
-        type: 'shopping-cart-items',
+        type: 'cart-items',
         id,
         attributes: {
           quantity,
@@ -264,7 +264,7 @@ const cartItemsService = {
     };
 
     const response = await axiosClient.patch<{ data: Record<string, unknown> }>(
-      `/api/v1/shopping-cart-items/${id}`,
+      `/api/v1/cart-items/${id}`,
       payload
     );
 
@@ -277,14 +277,14 @@ const cartItemsService = {
   async update(id: string, item: Partial<ShoppingCartItem>): Promise<ShoppingCartItem> {
     const payload = {
       data: {
-        type: 'shopping-cart-items',
+        type: 'cart-items',
         id,
         attributes: shoppingCartItemToAPI(item),
       },
     };
 
     const response = await axiosClient.patch<{ data: Record<string, unknown> }>(
-      `/api/v1/shopping-cart-items/${id}`,
+      `/api/v1/cart-items/${id}`,
       payload
     );
 
@@ -295,7 +295,7 @@ const cartItemsService = {
    * Remove item from cart
    */
   async remove(id: string): Promise<void> {
-    await axiosClient.delete(`/api/v1/shopping-cart-items/${id}`);
+    await axiosClient.delete(`/api/v1/cart-items/${id}`);
   },
 };
 

@@ -92,14 +92,10 @@ export const ContactsAdminPageReal = ({ defaultFilters = {} }: ContactsAdminPage
     }
     
     try {
-      console.log('🗑️ [ContactsAdminPageReal] Deleting contact:', contact.id)
-      
       await deleteContact(contact.id)
-      
-      console.log('✅ [ContactsAdminPageReal] Contact deleted successfully')
-      
+
       // SWR will automatically refetch the data
-      
+
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'Error desconocido'
       const axiosError = error && typeof error === 'object' && 'response' in error ? 
@@ -119,21 +115,6 @@ export const ContactsAdminPageReal = ({ defaultFilters = {} }: ContactsAdminPage
       }
     }
   }
-
-  // Debug logs
-  console.log('📋 [ContactsAdminPageReal] Debug info:', {
-    contacts,
-    contactsLength: contacts?.length,
-    meta,
-    paginationInfo,
-    currentPage,
-    totalPages,
-    isLoading,
-    error,
-    searchTerm,
-    statusFilter,
-    contactTypeFilter
-  })
 
   // Dynamic page title based on filters
   const getPageTitle = () => {

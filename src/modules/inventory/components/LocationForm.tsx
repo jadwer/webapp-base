@@ -24,8 +24,6 @@ export const LocationForm = memo<LocationFormProps>(({
   onSubmit,
   isLoading = false
 }) => {
-  console.log('🔄 [LocationForm] Rendering', location ? 'edit' : 'create', 'mode')
-  
   const router = useRouter()
   
   // Fetch warehouses for selection

@@ -24,8 +24,6 @@ export const StockForm = memo<StockFormProps>(({
   onSubmit,
   isLoading = false
 }) => {
-  console.log('🔄 [StockForm] Rendering', stock ? 'edit' : 'create', 'mode')
-  
   const router = useRouter()
   
   // Fetch warehouses and locations

@@ -31,14 +31,11 @@ export function useCycleCountMutations(): UseCycleCountMutationsResult {
     async (data: CreateCycleCountRequest) => {
       setIsLoading(true)
       try {
-        console.log('Creating CycleCount:', data)
-
         const result = await cycleCountsService.create(data)
 
         // Invalidate caches to refresh lists
         invalidateCycleCountCaches()
 
-        console.log('CycleCount created:', result.countNumber)
         return result
       } catch (error) {
         console.error('CycleCount creation failed:', error)
@@ -54,8 +51,6 @@ export function useCycleCountMutations(): UseCycleCountMutationsResult {
     async (id: string, data: UpdateCycleCountRequest) => {
       setIsLoading(true)
       try {
-        console.log('Updating CycleCount:', id, data)
-
         const result = await cycleCountsService.update(id, data)
 
         // Invalidate specific cycle count cache
@@ -64,7 +59,6 @@ export function useCycleCountMutations(): UseCycleCountMutationsResult {
         // Invalidate all cycle count lists
         invalidateCycleCountCaches()
 
-        console.log('CycleCount updated:', result.countNumber)
         return result
       } catch (error) {
         console.error('CycleCount update failed:', error)
@@ -80,8 +74,6 @@ export function useCycleCountMutations(): UseCycleCountMutationsResult {
     async (id: string) => {
       setIsLoading(true)
       try {
-        console.log('Deleting CycleCount:', id)
-
         await cycleCountsService.delete(id)
 
         // Remove specific cycle count from cache
@@ -89,8 +81,6 @@ export function useCycleCountMutations(): UseCycleCountMutationsResult {
 
         // Invalidate all cycle count lists
         invalidateCycleCountCaches()
-
-        console.log('CycleCount deleted:', id)
       } catch (error) {
         console.error('CycleCount deletion failed:', error)
         throw error
@@ -105,8 +95,6 @@ export function useCycleCountMutations(): UseCycleCountMutationsResult {
     async (id: string) => {
       setIsLoading(true)
       try {
-        console.log('Starting CycleCount:', id)
-
         const result = await cycleCountsService.startCount(id)
 
         // Invalidate specific cycle count cache
@@ -115,7 +103,6 @@ export function useCycleCountMutations(): UseCycleCountMutationsResult {
         // Invalidate all cycle count lists
         invalidateCycleCountCaches()
 
-        console.log('CycleCount started:', result.countNumber)
         return result
       } catch (error) {
         console.error('CycleCount start failed:', error)
@@ -131,8 +118,6 @@ export function useCycleCountMutations(): UseCycleCountMutationsResult {
     async (id: string, countedQuantity: number, notes?: string) => {
       setIsLoading(true)
       try {
-        console.log('Recording CycleCount:', id, countedQuantity)
-
         const result = await cycleCountsService.recordCount(id, countedQuantity, notes)
 
         // Invalidate specific cycle count cache
@@ -141,7 +126,6 @@ export function useCycleCountMutations(): UseCycleCountMutationsResult {
         // Invalidate all cycle count lists
         invalidateCycleCountCaches()
 
-        console.log('CycleCount recorded:', result.countNumber, 'variance:', result.varianceQuantity)
         return result
       } catch (error) {
         console.error('CycleCount record failed:', error)
@@ -157,8 +141,6 @@ export function useCycleCountMutations(): UseCycleCountMutationsResult {
     async (id: string, reason?: string) => {
       setIsLoading(true)
       try {
-        console.log('Cancelling CycleCount:', id)
-
         const result = await cycleCountsService.cancelCount(id, reason)
 
         // Invalidate specific cycle count cache
@@ -167,7 +149,6 @@ export function useCycleCountMutations(): UseCycleCountMutationsResult {
         // Invalidate all cycle count lists
         invalidateCycleCountCaches()
 
-        console.log('CycleCount cancelled:', result.countNumber)
         return result
       } catch (error) {
         console.error('CycleCount cancellation failed:', error)

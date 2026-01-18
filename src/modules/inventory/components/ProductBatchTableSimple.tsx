@@ -22,15 +22,6 @@ export const ProductBatchTableSimple = ({
   isLoading = false,
   _onView // eslint-disable-line @typescript-eslint/no-unused-vars
 }: ProductBatchTableSimpleProps) => {
-  // Debug logs
-  console.log('📦 [ProductBatchTableSimple] Debug info:', {
-    productBatchesReceived: productBatches,
-    productBatchesLength: productBatches?.length,
-    firstProductBatch: productBatches?.[0],
-    firstProductBatchKeys: productBatches?.[0] ? Object.keys(productBatches[0]) : null,
-    isLoading
-  })
-
   const formatDate = (dateString?: string) => {
     if (!dateString) return '-'
     try {

@@ -44,19 +44,6 @@ export const LocationsAdminPageReal = () => {
     setCurrentPage(page)
   }
 
-  // Debug logs para desarrollo
-  console.log('🏢 [LocationsAdminPageReal] Debug info:', {
-    locations,
-    locationsLength: locations?.length,
-    meta,
-    paginationInfo,
-    currentPage,
-    totalPages,
-    isLoading,
-    error,
-    searchTerm
-  })
-
   return (
     <div className="container-fluid py-4">
       {/* Header */}

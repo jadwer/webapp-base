@@ -71,19 +71,6 @@ export const ProductBatchesAdminPageReal = () => {
     setCurrentPage(page)
   }
 
-  // Debug logs para desarrollo
-  console.log('📦 [ProductBatchesAdminPageReal] Debug info:', {
-    productBatches,
-    productBatchesLength: productBatches?.length,
-    meta,
-    currentPage,
-    totalPages,
-    isLoading,
-    error,
-    searchTerm,
-    batchMetrics
-  })
-
   return (
     <div className="container-fluid py-4">
       {/* Header */}

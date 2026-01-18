@@ -64,22 +64,7 @@ export const useStockItem = (id: string | null, include?: string[]) => {
     async () => {
       const response = await stockService.getById(id!, include)
       const processed = processJsonApiResponse<Stock>(response)
-      
-      // Debug logging
-      console.log('🔄 [useStockItem] Debug info:', {
-        stockId: id,
-        rawResponse: response,
-        rawResponseIncluded: response.included,
-        processedData: processed,
-        processedDataData: processed.data,
-        hasProduct: processed.data?.product,
-        hasWarehouse: processed.data?.warehouse,
-        hasLocation: processed.data?.location,
-        productName: processed.data?.product?.name,
-        warehouseName: processed.data?.warehouse?.name,
-        locationName: processed.data?.location?.name
-      })
-      
+
       return processed
     },
     {

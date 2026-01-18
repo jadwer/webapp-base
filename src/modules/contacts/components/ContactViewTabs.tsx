@@ -54,18 +54,6 @@ export const ContactViewTabs: React.FC<ContactViewTabsProps> = ({
   
   // Data is now passed from parent component using includes
   const isLoading = false
-  
-  // Debug logging
-  console.log('🔍 [ContactViewTabs] Debug data:', {
-    contactId: contact.id,
-    addresses: addresses?.length || 0,
-    documents: documents?.length || 0,
-    people: people?.length || 0,
-    isLoading,
-    addressesData: addresses,
-    documentsData: documents,
-    peopleData: people
-  })
 
   const tabs = [
     {
@@ -376,24 +364,11 @@ export const ContactViewTabs: React.FC<ContactViewTabsProps> = ({
                         size="small"
                         onClick={async () => {
                           try {
-                            console.log('👁️ [ContactViewTabs] Opening document:', document.id)
-                            
-                            // DEBUG: Document viewing confirmed working via manual test
-                            
                             // Use documented view endpoint with Bearer token
                             const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://127.0.0.1:8000'
                             // Use the same token key as axiosClient (access_token)
                             const token = localStorage.getItem('access_token') || ''
-                            
-                            console.log('🔐 [ContactViewTabs] Debug token info:', {
-                              auth_token: localStorage.getItem('auth_token'),
-                              token: localStorage.getItem('token'),
-                              access_token: localStorage.getItem('access_token'),
-                              selectedToken: token,
-                              tokenLength: token.length,
-                              tokenPreview: token.substring(0, 20) + '...'
-                            })
-                            
+
                             if (!token) {
                               throw new Error('No se encontró token de autenticación. Por favor inicia sesión nuevamente.')
                             }
@@ -408,15 +383,7 @@ export const ContactViewTabs: React.FC<ContactViewTabsProps> = ({
                               mode: 'cors',
                               credentials: 'omit'
                             })
-                            
-                            console.log('🔍 [ContactViewTabs] Response details:', {
-                              status: response.status,
-                              statusText: response.statusText,
-                              headers: Object.fromEntries(response.headers.entries()),
-                              url: response.url,
-                              contentType: response.headers.get('content-type')
-                            })
-                            
+
                             if (!response.ok) {
                               // Try to get error details from response
                               let errorMessage = `HTTP ${response.status}: ${response.statusText}`
@@ -432,7 +399,6 @@ export const ContactViewTabs: React.FC<ContactViewTabsProps> = ({
                             
                             // Verificar que el contenido sea realmente un PDF/documento
                             const contentType = response.headers.get('content-type') || ''
-                            console.log('🔍 [ContactViewTabs] Content-Type received:', contentType)
                             
                             if (contentType.includes('text/html')) {
                               // Si recibimos HTML, es probablemente una página de error
@@ -466,9 +432,7 @@ export const ContactViewTabs: React.FC<ContactViewTabsProps> = ({
                             newWindow.addEventListener('load', () => {
                               setTimeout(() => URL.revokeObjectURL(url), 1000)
                             })
-                            
-                            console.log('✅ [ContactViewTabs] Document opened successfully')
-                            
+
                           } catch (error: unknown) {
                             const errorMessage = error instanceof Error ? error.message : 'Error desconocido'
                             console.error('❌ [ContactViewTabs] Error opening document:', {
@@ -499,19 +463,11 @@ export const ContactViewTabs: React.FC<ContactViewTabsProps> = ({
                         size="small"
                         onClick={async () => {
                           try {
-                            console.log('📎 [ContactViewTabs] Downloading document:', document.id)
-                            
                             // Use documented download endpoint with Bearer token
                             const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://127.0.0.1:8000'
                             // Use the same token key as axiosClient (access_token)
                             const token = localStorage.getItem('access_token') || ''
-                            
-                            console.log('🔐 [ContactViewTabs] Download token info:', {
-                              hasToken: !!token,
-                              tokenLength: token.length,
-                              tokenPreview: token.substring(0, 20) + '...'
-                            })
-                            
+
                             if (!token) {
                               throw new Error('No se encontró token de autenticación. Por favor inicia sesión nuevamente.')
                             }
@@ -522,13 +478,7 @@ export const ContactViewTabs: React.FC<ContactViewTabsProps> = ({
                                 'Accept': '*/*'
                               }
                             })
-                            
-                            console.log('🔍 [ContactViewTabs] Download response:', {
-                              status: response.status,
-                              statusText: response.statusText,
-                              contentType: response.headers.get('content-type')
-                            })
-                            
+
                             if (!response.ok) {
                               // Try to get error details from response
                               let errorMessage = `HTTP ${response.status}: ${response.statusText}`
@@ -555,9 +505,7 @@ export const ContactViewTabs: React.FC<ContactViewTabsProps> = ({
                             
                             // Clean up
                             URL.revokeObjectURL(url)
-                            
-                            console.log('✅ [ContactViewTabs] Document downloaded successfully')
-                            
+
                           } catch (error: unknown) {
                             const errorMessage = error instanceof Error ? error.message : 'Error desconocido'
                             console.error('❌ [ContactViewTabs] Error downloading document:', {
@@ -589,8 +537,6 @@ export const ContactViewTabs: React.FC<ContactViewTabsProps> = ({
                           size="small"
                           onClick={async () => {
                             try {
-                              console.log('🔍 [ContactViewTabs] Verifying document:', document.id)
-                              
                               // Professional confirmation modal
                               const shouldVerify = await confirmModalRef.current?.confirm(
                                 `¿Estás seguro de que quieres verificar este documento?\n\n"${document.originalFilename}"\n\nEsta acción marcará el documento como verificado y activo.`,
@@ -612,9 +558,7 @@ export const ContactViewTabs: React.FC<ContactViewTabsProps> = ({
                               const { contactDocumentsService } = await import('@/modules/contacts/services')
                               
                               const result = await contactDocumentsService.verify(document.id)
-                              
-                              console.log('✅ [ContactViewTabs] Document verified successfully:', result)
-                              
+
                               // Show success message with details
                               await confirmModalRef.current?.confirm(
                                 `Documento verificado exitosamente.\n\nEstado: ${result.data?.attributes?.status}\nVerificado por: Usuario ${result.data?.attributes?.verifiedBy}`,
@@ -661,8 +605,6 @@ export const ContactViewTabs: React.FC<ContactViewTabsProps> = ({
                           size="small"
                           onClick={async () => {
                             try {
-                              console.log('🔍 [ContactViewTabs] Removing verification for document:', document.id)
-                              
                               // Professional confirmation modal for unverify
                               const shouldUnverify = await confirmModalRef.current?.confirm(
                                 `¿Estás seguro de que quieres quitar la verificación de este documento?\n\n"${document.originalFilename}"\n\nEsta acción marcará el documento como no verificado.`,
@@ -683,10 +625,8 @@ export const ContactViewTabs: React.FC<ContactViewTabsProps> = ({
                               // Import the service dynamically
                               const { contactDocumentsService } = await import('@/modules/contacts/services')
                               
-                              const result = await contactDocumentsService.unverify(document.id)
-                              
-                              console.log('✅ [ContactViewTabs] Document verification removed successfully:', result)
-                              
+                              await contactDocumentsService.unverify(document.id)
+
                               // Show success message
                               await confirmModalRef.current?.confirm(
                                 `Verificación removida exitosamente.\n\nEl documento ahora está marcado como no verificado.`,

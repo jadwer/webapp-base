@@ -35,35 +35,6 @@ export const useInventoryDashboard = () => {
     pagination: { size: 10 }
   })
 
-  // Debug logging
-  console.log('🔍 [useDashboard] Debug info:', {
-    warehouses: warehouses?.length,
-    locations: locations?.length,
-    stock: stock?.length,
-    todayMovements: todayMovements?.length,
-    isLoading: { warehousesLoading, locationsLoading, stockLoading, movementsLoading }
-  })
-
-  // Debug stockMetrics calculation
-  console.log('🔍 [useDashboard] Stock metrics calculation:', {
-    totalStock: stock?.length || 0,
-    availableStock: stock?.filter(s => s.status === 'available' && (s.quantity || 0) > 0)?.length || 0,
-    stockWithStatus: stock?.filter(s => s.status === 'available')?.length || 0,
-    stockWithQuantity: stock?.filter(s => (s.quantity || 0) > 0)?.length || 0,
-    firstStockItem: stock?.[0]
-  })
-  
-  // Debug specific data
-  if (todayMovements?.length > 0) {
-    console.log('🔍 [useDashboard] First movement:', todayMovements[0])
-  }
-  if (stock?.length > 0) {
-    console.log('🔍 [useDashboard] First stock item:', stock[0])
-  }
-  if (warehouses?.length > 0) {
-    console.log('🔍 [useDashboard] First warehouse:', warehouses[0])
-  }
-
   // Calcular métricas de stock (API devuelve strings, convertir a números)
   const stockMetrics = {
     totalProducts: stock?.length || 0,

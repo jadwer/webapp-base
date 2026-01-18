@@ -21,13 +21,17 @@ export const categoryService = {
     const queryParams: QueryParams = {}
     
     if (params?.page) {
-      queryParams.page = params.page
+      if (params.page.number !== undefined) {
+        queryParams['page[number]'] = params.page.number
+      }
+      if (params.page.size !== undefined) {
+        queryParams['page[size]'] = params.page.size
+      }
     }
     
     if (params?.filter) {
-      queryParams.filter = {}
-      if (params.filter.name) queryParams.filter.name = params.filter.name
-      if (params.filter.slug) queryParams.filter.slug = params.filter.slug
+      if (params.filter.name) queryParams['filter[name]'] = params.filter.name
+      if (params.filter.slug) queryParams['filter[slug]'] = params.filter.slug
     }
     
     if (params?.sort) {

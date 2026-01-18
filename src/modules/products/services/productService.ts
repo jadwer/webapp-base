@@ -23,7 +23,12 @@ export const productService = {
     const queryParams: Record<string, unknown> = {}
     
     if (params?.page) {
-      queryParams.page = params.page
+      if (params.page.number !== undefined) {
+        queryParams['page[number]'] = params.page.number
+      }
+      if (params.page.size !== undefined) {
+        queryParams['page[size]'] = params.page.size
+      }
     }
     
     if (params?.filters) {

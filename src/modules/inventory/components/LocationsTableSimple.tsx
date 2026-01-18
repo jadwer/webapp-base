@@ -23,15 +23,6 @@ export const LocationsTableSimple = ({
   onEdit: _onEdit, // eslint-disable-line @typescript-eslint/no-unused-vars
   onDelete
 }: LocationsTableSimpleProps) => {
-  // Debug logs
-  console.log('📊 [LocationsTableSimple] Debug info:', {
-    locationsReceived: locations,
-    locationsLength: locations?.length,
-    firstLocation: locations?.[0],
-    firstLocationKeys: locations?.[0] ? Object.keys(locations[0]) : null,
-    isLoading
-  })
-
   const formatDate = (dateString?: string) => {
     if (!dateString) return '-'
     try {

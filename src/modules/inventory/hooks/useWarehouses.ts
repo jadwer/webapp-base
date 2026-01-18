@@ -42,16 +42,6 @@ export const useWarehouses = (params: {
     }
   )
 
-  // Debug: Log raw data from API
-  console.log('🔄 [useWarehouses] Debug info:', {
-    rawData: data,
-    dataKeys: data ? Object.keys(data) : null,
-    dataData: data?.data,
-    dataDataLength: data?.data?.length,
-    isLoading,
-    error: error?.message
-  })
-  
   return {
     warehouses: data?.data || [],
     meta: data?.meta,

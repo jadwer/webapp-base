@@ -38,8 +38,6 @@ export const ProductBatchForm = memo<ProductBatchFormProps>(({
   warehouses,
   locations
 }) => {
-  console.log('🔄 [ProductBatchForm] Rendering with productBatch', productBatch?.id || 'new')
-  
   // Form state
   const [formData, setFormData] = useState({
     batchNumber: productBatch?.batchNumber || '',
@@ -73,11 +71,6 @@ export const ProductBatchForm = memo<ProductBatchFormProps>(({
 
   // Filter locations by warehouse
   useEffect(() => {
-    console.log('🏢 [ProductBatchForm] Filtering locations by warehouse:', {
-      selectedWarehouseId: formData.warehouseId,
-      allLocations: locations?.length || 0
-    })
-    
     if (formData.warehouseId && locations?.length > 0) {
       // TEMPORAL: Filter client-side until backend supports warehouseId filter
       const filtered = locations.filter((location, index) => {
@@ -85,8 +78,7 @@ export const ProductBatchForm = memo<ProductBatchFormProps>(({
         const warehouseId = String(Math.floor(index / 10) + 1)
         return warehouseId === String(formData.warehouseId)
       })
-      
-      console.log(`🔍 Filtered ${filtered.length} locations for warehouse ${formData.warehouseId}`)
+
       setAvailableLocations(filtered)
     } else {
       setAvailableLocations([])

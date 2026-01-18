@@ -306,12 +306,18 @@ export const useDepartments = () => {
     '/api/v1/departments',
     async () => {
       const response = await departmentsService.getAll()
-      return response
+      // Transform JSON:API response to flat objects
+      const departments = (response?.data || []).map((item: { id: string; attributes: { name: string; description?: string } }) => ({
+        id: item.id,
+        name: item.attributes?.name || '',
+        description: item.attributes?.description || '',
+      }))
+      return departments
     }
   )
 
   return {
-    departments: data?.data || [],
+    departments: data || [],
     isLoading,
     error,
     mutate,
@@ -323,12 +329,18 @@ export const usePositions = () => {
     '/api/v1/positions',
     async () => {
       const response = await positionsService.getAll()
-      return response
+      // Transform JSON:API response to flat objects
+      const positions = (response?.data || []).map((item: { id: string; attributes: { title: string; description?: string } }) => ({
+        id: item.id,
+        title: item.attributes?.title || '',
+        description: item.attributes?.description || '',
+      }))
+      return positions
     }
   )
 
   return {
-    positions: data?.data || [],
+    positions: data || [],
     isLoading,
     error,
     mutate,

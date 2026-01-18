@@ -293,8 +293,6 @@ export const cycleCountsService = {
       params
     })
 
-    console.log('CycleCount API Response:', response.data)
-
     const cycleCounts = response.data.data.map(item =>
       parseCycleCount(
         item as unknown as { id: string; attributes: Record<string, unknown>; relationships?: JsonApiRelationships },
@@ -315,8 +313,6 @@ export const cycleCountsService = {
     const params = { include: 'product,warehouse,warehouseLocation,assignedTo,countedBy' }
 
     const response = await axios.get<JsonApiResponse<CycleCount>>(`${BASE_URL}/${id}`, { params })
-
-    console.log('CycleCount Single API Response:', response.data)
 
     return parseCycleCount(
       response.data.data as unknown as {
@@ -360,11 +356,7 @@ export const cycleCountsService = {
       }
     }
 
-    console.log('CycleCount Create Request:', requestData)
-
     const response = await axios.post<JsonApiResponse<CycleCount>>(BASE_URL, requestData)
-
-    console.log('CycleCount Create Response:', response.data)
 
     return parseCycleCount(
       response.data.data as unknown as {
@@ -420,11 +412,7 @@ export const cycleCountsService = {
       }
     }
 
-    console.log('CycleCount Update Request:', requestData)
-
     const response = await axios.patch<JsonApiResponse<CycleCount>>(`${BASE_URL}/${id}`, requestData)
-
-    console.log('CycleCount Update Response:', response.data)
 
     return parseCycleCount(
       response.data.data as unknown as {
@@ -440,11 +428,7 @@ export const cycleCountsService = {
    * Delete cycle count
    */
   async delete(id: string): Promise<void> {
-    console.log('CycleCount Delete Request:', id)
-
     await axios.delete(`${BASE_URL}/${id}`)
-
-    console.log('CycleCount Deleted:', id)
   },
 
   /**

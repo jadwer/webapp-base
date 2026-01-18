@@ -24,15 +24,6 @@ export const StockTableSimple = ({
   onEdit: _unused, // eslint-disable-line @typescript-eslint/no-unused-vars
   onAdjust
 }: StockTableSimpleProps) => {
-  // Debug logs
-  console.log('📊 [StockTableSimple] Debug info:', {
-    stockReceived: stock,
-    stockLength: stock?.length,
-    firstStock: stock?.[0],
-    firstStockKeys: stock?.[0] ? Object.keys(stock[0]) : null,
-    isLoading
-  })
-
   const formatDate = (dateString?: string) => {
     if (!dateString) return '-'
     try {

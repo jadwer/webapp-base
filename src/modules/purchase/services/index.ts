@@ -325,10 +325,7 @@ export const purchaseReportsService = {
   // Purchase Reports Summary - fechas específicas, estructura simple (no JSON:API)
   getReports: async (startDate = '1980-01-01', endDate = '2025-12-31'): Promise<Record<string, unknown>> => {
     try {
-      console.log('📊 [Service] Fetching purchase reports summary from:', startDate, 'to:', endDate)
       const response = await axiosClient.get(`/api/v1/purchase-orders/reports?start_date=${startDate}&end_date=${endDate}`)
-      console.log('✅ [Service] Purchase reports response:', response.data)
-      console.log('🔍 [DEBUG] Raw response.data structure:', JSON.stringify(response.data, null, 2))
       
       // Estructura exacta según curl: { data: { summary, by_status, by_supplier, monthly_trend }, period }
       const data = response.data?.data
@@ -363,10 +360,7 @@ export const purchaseReportsService = {
   // Purchase Suppliers Analytics - fechas específicas
   getSuppliers: async (startDate = '1980-01-01', endDate = '2025-12-31'): Promise<Record<string, unknown>> => {
     try {
-      console.log('🏭 [Service] Fetching supplier analytics from:', startDate, 'to:', endDate)
       const response = await axiosClient.get(`/api/v1/purchase-orders/suppliers?start_date=${startDate}&end_date=${endDate}`)
-      console.log('✅ [Service] Supplier analytics response:', response.data)
-      console.log('🔍 [DEBUG] Raw suppliers response structure:', JSON.stringify(response.data, null, 2))
 
 
       // Estructura exacta JSON:API según curl: { data: [{ id, type, attributes }], meta }

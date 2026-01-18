@@ -131,7 +131,7 @@ export const inventoryMovementsService = {
           quantity: Number(data.quantity),
           unitCost: data.unitCost ? Number(data.unitCost) : undefined,
           status: data.status,
-          userId: Number(data.userId || 1), // TODO: Get from auth context
+          userId: Number(data.userId), // Required: must be passed from component using useAuth().user.id
           destinationWarehouseId: data.destinationWarehouseId ? Number(data.destinationWarehouseId) : undefined,
           destinationLocationId: data.destinationLocationId ? Number(data.destinationLocationId) : undefined,
           batchInfo: data.batchInfo || undefined,
@@ -146,8 +146,6 @@ export const inventoryMovementsService = {
         delete (payload.data.attributes as Record<string, unknown>)[key]
       }
     })
-    
-    console.log('📤 [inventoryMovementsService] Creating movement with payload:', JSON.stringify(payload, null, 2))
     
     const response = await axiosClient.post('/api/v1/inventory-movements', payload)
     return response.data
@@ -188,8 +186,6 @@ export const inventoryMovementsService = {
         attributes
       }
     }
-    
-    console.log('📤 [inventoryMovementsService] Updating movement with payload:', JSON.stringify(payload, null, 2))
     
     const response = await axiosClient.patch(`/api/v1/inventory-movements/${id}`, payload)
     return response.data

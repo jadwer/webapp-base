@@ -65,14 +65,6 @@ export const useContacts = (params?: UseContactsParams) => {
   const contacts: ContactParsed[] = data?.data?.map(parseContact) || []
   const meta = data?.meta || {}
 
-  console.log('🔍 [useContacts] Debug info:', {
-    queryKey,
-    contactsCount: contacts.length,
-    isLoading,
-    error: error?.message,
-    meta
-  })
-
   return {
     contacts,
     meta,
@@ -95,21 +87,9 @@ export const useContact = (id?: string, include?: string[]) => {
   )
 
   const contact: ContactParsed | undefined = data?.data ? parseContact(data.data) : undefined
-  
+
   // Process included data if available
   const includedData = data?.included ? processIncludedData(data.included) : null
-
-  console.log('🔍 [useContact] Debug info:', {
-    queryKey,
-    contactId: id,
-    contactName: contact?.name,
-    hasIncluded: !!includedData,
-    addresses: includedData?.addresses?.length || 0,
-    documents: includedData?.documents?.length || 0,
-    people: includedData?.people?.length || 0,
-    isLoading,
-    error: error?.message
-  })
 
   return {
     contact,
@@ -125,57 +105,23 @@ export const useContact = (id?: string, include?: string[]) => {
 // ===== MUTATIONS HOOK =====
 export const useContactMutations = () => {
   const createContact = useCallback(async (data: CreateContactData) => {
-    console.log('🚀 [useContactMutations.createContact] Creating contact:', data.name)
-    
-    try {
-      const result = await contactsService.create(data)
-      
-      // Invalidate contacts list cache
-      // Note: Using global mutate to invalidate all contacts queries
-      const { mutate } = await import('swr')
-      mutate(key => Array.isArray(key) && key[0] === 'contacts')
-      
-      console.log('✅ [useContactMutations.createContact] Success:', result.data.id)
-      return result
-    } catch (error) {
-      console.error('❌ [useContactMutations.createContact] Error:', error)
-      throw error
-    }
+    const result = await contactsService.create(data)
+    const { mutate } = await import('swr')
+    mutate(key => Array.isArray(key) && key[0] === 'contacts')
+    return result
   }, [])
 
   const updateContact = useCallback(async (id: string, data: UpdateContactData) => {
-    console.log('🚀 [useContactMutations.updateContact] Updating contact:', { id, name: data.name })
-    
-    try {
-      const result = await contactsService.update(id, data)
-      
-      // Invalidate related cache
-      const { mutate } = await import('swr')
-      mutate(key => Array.isArray(key) && (key[0] === 'contacts' || (key[0] === 'contact' && key[1] === id)))
-      
-      console.log('✅ [useContactMutations.updateContact] Success:', result.data.id)
-      return result
-    } catch (error) {
-      console.error('❌ [useContactMutations.updateContact] Error:', error)
-      throw error
-    }
+    const result = await contactsService.update(id, data)
+    const { mutate } = await import('swr')
+    mutate(key => Array.isArray(key) && (key[0] === 'contacts' || (key[0] === 'contact' && key[1] === id)))
+    return result
   }, [])
 
   const deleteContact = useCallback(async (id: string) => {
-    console.log('🚀 [useContactMutations.deleteContact] Deleting contact:', id)
-    
-    try {
-      await contactsService.delete(id)
-      
-      // Invalidate related cache
-      const { mutate } = await import('swr')
-      mutate(key => Array.isArray(key) && (key[0] === 'contacts' || (key[0] === 'contact' && key[1] === id)))
-      
-      console.log('✅ [useContactMutations.deleteContact] Success:', id)
-    } catch (error) {
-      console.error('❌ [useContactMutations.deleteContact] Error:', error)
-      throw error
-    }
+    await contactsService.delete(id)
+    const { mutate } = await import('swr')
+    mutate(key => Array.isArray(key) && (key[0] === 'contacts' || (key[0] === 'contact' && key[1] === id)))
   }, [])
 
   return {
@@ -217,7 +163,7 @@ export const useActiveContacts = () => {
  */
 export const useContactAddresses = (contactId?: string) => {
   const queryKey = contactId ? ['contact-addresses', contactId] : null
-  
+
   const { data, error, isLoading, mutate } = useSWR(
     queryKey,
     () => contactId ? contactAddressesService.getAll(contactId) : null,
@@ -226,21 +172,11 @@ export const useContactAddresses = (contactId?: string) => {
     }
   )
 
-  console.log('🔍 [useContactAddresses] Debug info:', {
-    queryKey,
-    contactId,
-    addressesCount: data?.data?.length || 0,
-    isLoading,
-    error: error?.message,
-    errorStatus: error?.response?.status
-  })
-
   return {
     addresses: (data?.data || []) as unknown as ContactAddress[],
     error,
     isLoading,
     mutate,
-    // Helper para saber si el endpoint no existe
     endpointNotFound: error?.response?.status === 404 || error?.response?.status === 400
   }
 }
@@ -250,7 +186,7 @@ export const useContactAddresses = (contactId?: string) => {
  */
 export const useContactDocuments = (contactId?: string) => {
   const queryKey = contactId ? ['contact-documents', contactId] : null
-  
+
   const { data, error, isLoading, mutate } = useSWR(
     queryKey,
     () => contactId ? contactDocumentsService.getAll(contactId) : null,
@@ -259,20 +195,11 @@ export const useContactDocuments = (contactId?: string) => {
     }
   )
 
-  console.log('🔍 [useContactDocuments] Debug info:', {
-    queryKey,
-    contactId,
-    documentsCount: data?.data?.length || 0,
-    isLoading,
-    error: error?.message
-  })
-
   return {
     documents: (data?.data || []) as unknown as ContactDocument[],
     error,
     isLoading,
     mutate,
-    // Helper para saber si el endpoint no existe
     endpointNotFound: error?.response?.status === 404 || error?.response?.status === 400
   }
 }
@@ -282,7 +209,7 @@ export const useContactDocuments = (contactId?: string) => {
  */
 export const useContactPeople = (contactId?: string) => {
   const queryKey = contactId ? ['contact-people', contactId] : null
-  
+
   const { data, error, isLoading, mutate } = useSWR(
     queryKey,
     () => contactId ? contactPeopleService.getAll(contactId) : null,
@@ -291,20 +218,11 @@ export const useContactPeople = (contactId?: string) => {
     }
   )
 
-  console.log('🔍 [useContactPeople] Debug info:', {
-    queryKey,
-    contactId,
-    peopleCount: data?.data?.length || 0,
-    isLoading,
-    error: error?.message
-  })
-
   return {
     people: (data?.data || []) as unknown as ContactPerson[],
     error,
     isLoading,
     mutate,
-    // Helper para saber si el endpoint no existe
     endpointNotFound: error?.response?.status === 404 || error?.response?.status === 400
   }
 }

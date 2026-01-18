@@ -222,11 +222,12 @@ export const cfdiInvoicesService = {
 
   /**
    * Send CFDI by email
+   * NOTE: Backend endpoint not yet implemented - requires POST /api/v1/cfdi-invoices/{id}/send-email
    */
   sendEmail: async (id: string, email: string) => {
-    await axiosClient.post(`/api/v1/cfdi-invoices/${id}/send-email`, {
-      email,
-    })
+    // TODO: Backend needs to implement this endpoint
+    // For now, throw a clear error so UI can handle it gracefully
+    throw new Error('El envío de correo electrónico no está disponible. Endpoint pendiente de implementación en backend.')
   },
 
   /**
@@ -391,52 +392,40 @@ export const companySettingsService = {
 
   /**
    * Test PAC connection
+   * NOTE: Backend endpoint not yet implemented - requires POST /api/v1/company-settings/{id}/test-pac
    */
   testPACConnection: async (id: string): Promise<{ success: boolean; message: string }> => {
-    const response = await axiosClient.post(`/api/v1/company-settings/${id}/test-pac`)
-    return response.data
+    // TODO: Backend needs to implement this endpoint
+    throw new Error('La prueba de conexión PAC no está disponible. Endpoint pendiente de implementación en backend.')
   },
 
   /**
    * Upload certificate file (.cer)
+   * NOTE: Backend endpoint not yet implemented - requires POST /api/v1/company-settings/{id}/upload-certificate
    */
   uploadCertificate: async (id: string, file: File) => {
-    const formData = new FormData()
-    formData.append('certificate', file)
-    const response = await axiosClient.post(
-      `/api/v1/company-settings/${id}/upload-certificate`,
-      formData,
-      {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      }
-    )
-    return response.data
+    // TODO: Backend needs to implement this endpoint
+    // The CompanySetting model may need to store certificate data directly in fields:
+    // - certificate_base64 or certificate_path
+    // For now, update via regular PATCH with base64 encoded certificate
+    throw new Error('La carga de certificado no está disponible. Endpoint pendiente de implementación en backend.')
   },
 
   /**
    * Upload key file (.key)
+   * NOTE: Backend endpoint not yet implemented - requires POST /api/v1/company-settings/{id}/upload-key
    */
   uploadKey: async (id: string, file: File, password: string) => {
-    const formData = new FormData()
-    formData.append('key', file)
-    formData.append('password', password)
-    const response = await axiosClient.post(
-      `/api/v1/company-settings/${id}/upload-key`,
-      formData,
-      {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      }
-    )
-    return response.data
+    // TODO: Backend needs to implement this endpoint
+    throw new Error('La carga de llave privada no está disponible. Endpoint pendiente de implementación en backend.')
   },
 }
 
 // ============================================================================
 // SAT CATALOGS SERVICE
+// NOTE: These endpoints DO NOT EXIST in the backend.
+// Backend needs to implement GET /api/v1/sat-catalogs/* endpoints
+// For now, we provide static fallback data for essential catalogs.
 // ============================================================================
 
 export interface SATCatalogItem {
@@ -444,48 +433,131 @@ export interface SATCatalogItem {
   description: string
 }
 
+// Static fallback data for essential SAT catalogs
+// These are the most commonly used values in Mexico
+const FALLBACK_REGIMENES: SATCatalogItem[] = [
+  { code: '601', description: 'General de Ley Personas Morales' },
+  { code: '603', description: 'Personas Morales con Fines no Lucrativos' },
+  { code: '605', description: 'Sueldos y Salarios e Ingresos Asimilados a Salarios' },
+  { code: '606', description: 'Arrendamiento' },
+  { code: '607', description: 'Régimen de Enajenación o Adquisición de Bienes' },
+  { code: '608', description: 'Demás ingresos' },
+  { code: '610', description: 'Residentes en el Extranjero sin Establecimiento Permanente en México' },
+  { code: '611', description: 'Ingresos por Dividendos (socios y accionistas)' },
+  { code: '612', description: 'Personas Físicas con Actividades Empresariales y Profesionales' },
+  { code: '614', description: 'Ingresos por intereses' },
+  { code: '615', description: 'Régimen de los ingresos por obtención de premios' },
+  { code: '616', description: 'Sin obligaciones fiscales' },
+  { code: '620', description: 'Sociedades Cooperativas de Producción que optan por diferir sus ingresos' },
+  { code: '621', description: 'Incorporación Fiscal' },
+  { code: '622', description: 'Actividades Agrícolas, Ganaderas, Silvícolas y Pesqueras' },
+  { code: '623', description: 'Opcional para Grupos de Sociedades' },
+  { code: '624', description: 'Coordinados' },
+  { code: '625', description: 'Régimen de las Actividades Empresariales con ingresos a través de Plataformas Tecnológicas' },
+  { code: '626', description: 'Régimen Simplificado de Confianza' },
+]
+
+const FALLBACK_FORMAS_PAGO: SATCatalogItem[] = [
+  { code: '01', description: 'Efectivo' },
+  { code: '02', description: 'Cheque nominativo' },
+  { code: '03', description: 'Transferencia electrónica de fondos' },
+  { code: '04', description: 'Tarjeta de crédito' },
+  { code: '05', description: 'Monedero electrónico' },
+  { code: '06', description: 'Dinero electrónico' },
+  { code: '08', description: 'Vales de despensa' },
+  { code: '12', description: 'Dación en pago' },
+  { code: '13', description: 'Pago por subrogación' },
+  { code: '14', description: 'Pago por consignación' },
+  { code: '15', description: 'Condonación' },
+  { code: '17', description: 'Compensación' },
+  { code: '23', description: 'Novación' },
+  { code: '24', description: 'Confusión' },
+  { code: '25', description: 'Remisión de deuda' },
+  { code: '26', description: 'Prescripción o caducidad' },
+  { code: '27', description: 'A satisfacción del acreedor' },
+  { code: '28', description: 'Tarjeta de débito' },
+  { code: '29', description: 'Tarjeta de servicios' },
+  { code: '30', description: 'Aplicación de anticipos' },
+  { code: '31', description: 'Intermediario pagos' },
+  { code: '99', description: 'Por definir' },
+]
+
+const FALLBACK_USO_CFDI: SATCatalogItem[] = [
+  { code: 'G01', description: 'Adquisición de mercancías' },
+  { code: 'G02', description: 'Devoluciones, descuentos o bonificaciones' },
+  { code: 'G03', description: 'Gastos en general' },
+  { code: 'I01', description: 'Construcciones' },
+  { code: 'I02', description: 'Mobiliario y equipo de oficina por inversiones' },
+  { code: 'I03', description: 'Equipo de transporte' },
+  { code: 'I04', description: 'Equipo de computo y accesorios' },
+  { code: 'I05', description: 'Dados, troqueles, moldes, matrices y herramental' },
+  { code: 'I06', description: 'Comunicaciones telefónicas' },
+  { code: 'I07', description: 'Comunicaciones satelitales' },
+  { code: 'I08', description: 'Otra maquinaria y equipo' },
+  { code: 'D01', description: 'Honorarios médicos, dentales y gastos hospitalarios' },
+  { code: 'D02', description: 'Gastos médicos por incapacidad o discapacidad' },
+  { code: 'D03', description: 'Gastos funerales' },
+  { code: 'D04', description: 'Donativos' },
+  { code: 'D05', description: 'Intereses reales efectivamente pagados por créditos hipotecarios (casa habitación)' },
+  { code: 'D06', description: 'Aportaciones voluntarias al SAR' },
+  { code: 'D07', description: 'Primas por seguros de gastos médicos' },
+  { code: 'D08', description: 'Gastos de transportación escolar obligatoria' },
+  { code: 'D09', description: 'Depósitos en cuentas para el ahorro, primas que tengan como base planes de pensiones' },
+  { code: 'D10', description: 'Pagos por servicios educativos (colegiaturas)' },
+  { code: 'S01', description: 'Sin efectos fiscales' },
+  { code: 'CP01', description: 'Pagos' },
+  { code: 'CN01', description: 'Nómina' },
+]
+
 export const satCatalogsService = {
   /**
    * Search product codes (ClaveProdServ)
+   * NOTE: Backend endpoint not implemented. Returns empty array.
+   * Backend needs: GET /api/v1/sat-catalogs/productos?search=
    */
   searchProducts: async (search: string): Promise<SATCatalogItem[]> => {
-    const response = await axiosClient.get('/api/v1/sat-catalogs/productos', {
-      params: { search }
-    })
-    return response.data.data || []
+    // TODO: Backend needs to implement this endpoint with full SAT catalog
+    // The SAT product catalog has 50,000+ entries
+    return []
   },
 
   /**
    * Search unit codes (ClaveUnidad)
+   * NOTE: Backend endpoint not implemented. Returns empty array.
+   * Backend needs: GET /api/v1/sat-catalogs/unidades?search=
    */
   searchUnits: async (search: string): Promise<SATCatalogItem[]> => {
-    const response = await axiosClient.get('/api/v1/sat-catalogs/unidades', {
-      params: { search }
-    })
-    return response.data.data || []
+    // TODO: Backend needs to implement this endpoint with full SAT catalog
+    return []
   },
 
   /**
    * Get tax regimes
+   * Uses static fallback since backend endpoint not implemented.
+   * Backend needs: GET /api/v1/sat-catalogs/regimenes
    */
   getRegimenes: async (): Promise<SATCatalogItem[]> => {
-    const response = await axiosClient.get('/api/v1/sat-catalogs/regimenes')
-    return response.data.data || []
+    // Using static fallback data
+    return FALLBACK_REGIMENES
   },
 
   /**
    * Get payment forms
+   * Uses static fallback since backend endpoint not implemented.
+   * Backend needs: GET /api/v1/sat-catalogs/formas-pago
    */
   getFormasPago: async (): Promise<SATCatalogItem[]> => {
-    const response = await axiosClient.get('/api/v1/sat-catalogs/formas-pago')
-    return response.data.data || []
+    // Using static fallback data
+    return FALLBACK_FORMAS_PAGO
   },
 
   /**
    * Get CFDI usage types
+   * Uses static fallback since backend endpoint not implemented.
+   * Backend needs: GET /api/v1/sat-catalogs/uso-cfdi
    */
   getUsoCfdi: async (): Promise<SATCatalogItem[]> => {
-    const response = await axiosClient.get('/api/v1/sat-catalogs/uso-cfdi')
-    return response.data.data || []
+    // Using static fallback data
+    return FALLBACK_USO_CFDI
   },
 }

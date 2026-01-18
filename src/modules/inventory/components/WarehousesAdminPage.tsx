@@ -35,45 +35,20 @@ export const WarehousesAdminPage = () => {
     pagination: { page: currentPage, size: pageSize }
   })
 
-  // Debug: Log data to see what we're getting
-  console.log('🔍 [WarehousesAdminPage] Debug info:', {
-    warehouses,
-    warehousesLength: warehouses?.length,
-    meta,
-    metaKeys: meta ? Object.keys(meta) : null,
-    currentPage,
-    isLoading,
-    error,
-    searchTerm
-  })
-  
   // Backend pagination info - correct structure
   const paginationInfo = meta?.page
   const hasRealPagination = !!(paginationInfo && typeof paginationInfo === 'object' && 'total' in paginationInfo && 'lastPage' in paginationInfo)
-  
-  console.log('📄 [Pagination Debug]:', {
-    hasRealPagination,
-    meta,
-    paginationInfo,
-    backendSupportsPagination: !!hasRealPagination
-  })
-  
+
   // Use backend pagination data
   const totalItems = (paginationInfo && typeof paginationInfo === 'object' && 'total' in paginationInfo) ? (paginationInfo as Record<string, unknown>).total as number : 0
   const totalPages = (paginationInfo && typeof paginationInfo === 'object' && 'lastPage' in paginationInfo) ? (paginationInfo as Record<string, unknown>).lastPage as number : 1
   const currentBackendPage = (paginationInfo && typeof paginationInfo === 'object' && 'currentPage' in paginationInfo) ? (paginationInfo as Record<string, unknown>).currentPage as number : currentPage
-  const pageFrom = (paginationInfo && typeof paginationInfo === 'object' && 'from' in paginationInfo) ? (paginationInfo as Record<string, unknown>).from as number : 0
-  const pageTo = (paginationInfo && typeof paginationInfo === 'object' && 'to' in paginationInfo) ? (paginationInfo as Record<string, unknown>).to as number : 0
-  
-  console.log('📊 [Backend Pagination]:', {
-    totalItems,
-    totalPages,
-    currentPage,
-    currentBackendPage,
-    pageFrom,
-    pageTo,
-    warehousesReceived: warehouses?.length
-  })
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const _pageFrom = (paginationInfo && typeof paginationInfo === 'object' && 'from' in paginationInfo) ? (paginationInfo as Record<string, unknown>).from as number : 0
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const _pageTo = (paginationInfo && typeof paginationInfo === 'object' && 'to' in paginationInfo) ? (paginationInfo as Record<string, unknown>).to as number : 0
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const _hasRealPagination = hasRealPagination
 
   // Reset to page 1 when search changes
   const handleSearchChange = (newSearchTerm: string) => {

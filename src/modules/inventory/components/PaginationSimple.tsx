@@ -31,12 +31,7 @@ export const PaginationSimple = ({
   const safeCurrentPage = Math.max(1, Math.min(currentPage || 1, safeTotalPages))
   const safeTotalItems = Math.max(0, totalItems || 0)
   const safePageSize = Math.max(1, pageSize || 20)
-  
-  console.log('🔢 [PaginationSimple] Props received:', {
-    currentPage, totalPages, totalItems, pageSize,
-    safeCurrentPage, safeTotalPages, safeTotalItems, safePageSize
-  })
-  
+
   if (safeTotalPages <= 1) return null
 
   const startItem = (safeCurrentPage - 1) * safePageSize + 1

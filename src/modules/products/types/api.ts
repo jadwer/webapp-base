@@ -73,7 +73,10 @@ export interface QueryParams {
     number?: number
     size?: number
   }
+  'page[number]'?: number
+  'page[size]'?: number
   filter?: Record<string, unknown>
   sort?: string
   include?: string
+  [key: string]: unknown
 }

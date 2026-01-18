@@ -26,7 +26,6 @@ export const CreateProductBatchWrapper = () => {
   
   const handleSubmit = async (data: CreateProductBatchRequest | UpdateProductBatchRequest) => {
     try {
-      console.log('🔄 [CreateProductBatchWrapper] Creating product batch:', data)
       await createProductBatch(data as CreateProductBatchRequest)
       
       // Show success toast
@@ -52,7 +51,7 @@ export const CreateProductBatchWrapper = () => {
       }, 2000)
       
     } catch (error: unknown) {
-      console.error('❌ [CreateProductBatchWrapper] Error creating product batch:', error)
+      console.error('Error creating product batch:', error)
       
       // Show error toast
       const errorMessage = error instanceof Error ? error.message : 'Error al crear el lote'

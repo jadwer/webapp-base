@@ -24,13 +24,7 @@ export function useCycleCount(params: UseCycleCountParams): UseCycleCountResult 
     revalidateOnReconnect: true,
     dedupingInterval: 30000, // 30 seconds deduping for single items
     errorRetryCount: 3,
-    errorRetryInterval: 1000,
-    onSuccess: data => {
-      console.log('CycleCount loaded:', data?.countNumber)
-    },
-    onError: error => {
-      console.error('CycleCount error:', error)
-    }
+    errorRetryInterval: 1000
   })
 
   return {

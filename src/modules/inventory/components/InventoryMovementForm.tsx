@@ -30,8 +30,6 @@ export const InventoryMovementForm = memo<InventoryMovementFormProps>(({
   products,
   locations
 }) => {
-  console.log('🔄 [InventoryMovementForm] Rendering with movement', movement?.id || 'new')
-  
   // Form state
   const [formData, setFormData] = useState({
     movementType: movement?.movementType || 'entry' as const,
@@ -68,13 +66,6 @@ export const InventoryMovementForm = memo<InventoryMovementFormProps>(({
   
   // TEMPORAL: Filter locations client-side until backend supports warehouseId filter
   useEffect(() => {
-    console.log('🏢 [InventoryMovementForm] Filtering locations client-side:', {
-      selectedWarehouseId: formData.warehouseId,
-      allLocations: locations,
-      locationsLength: locations?.length,
-      firstLocationStructure: locations?.[0]
-    })
-    
     if (formData.warehouseId && locations?.length > 0) {
       // TEMPORAL: Since backend doesn't expose warehouseId, use naming convention or number matching
       // This is a workaround until backend adds warehouseId to attributes or supports filtering
@@ -82,23 +73,20 @@ export const InventoryMovementForm = memo<InventoryMovementFormProps>(({
         // TEMPORAL SOLUTION: Use position-based matching or naming patterns
         // This assumes locations are somewhat organized by warehouse
         // In a real scenario, we'd need backend support or different approach
-        
+
         // Try to extract warehouse info from location name or use mod calculation
         const warehouseId = String(Math.floor(index / 10) + 1) // Simple grouping
-        
-        console.log(`🔍 Location ${location.name} assigned to warehouse ${warehouseId}`)
+
         return warehouseId === String(formData.warehouseId)
       })
-      
-      console.log('✅ Filtered locations:', filtered)
+
       setAvailableLocations(filtered)
-      
+
       // Reset location if not available in new warehouse
       if (!filtered.find(l => l.id === formData.locationId)) {
         setFormData(prev => ({ ...prev, locationId: '' }))
       }
     } else {
-      console.log('❌ No warehouse selected')
       setAvailableLocations([])
       setFormData(prev => ({ ...prev, locationId: '' }))
     }

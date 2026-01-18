@@ -59,20 +59,6 @@ export const StockAdminPageReal = () => {
     }
   }, [stock])
 
-  // Debug logs para desarrollo
-  console.log('📦 [StockAdminPageReal] Debug info:', {
-    stock,
-    stockLength: stock?.length,
-    stockMetrics,
-    meta,
-    paginationInfo,
-    currentPage,
-    totalPages,
-    isLoading,
-    error,
-    searchTerm
-  })
-
   return (
     <div className="container-fluid py-4">
       {/* Header */}

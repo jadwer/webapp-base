@@ -258,8 +258,6 @@ export const productBatchService = {
       params
     })
     
-    console.log('🔄 ProductBatch API Response:', response.data)
-    
     const productBatches = response.data.data.map(item => 
       parseProductBatch(item as unknown as { id: string; attributes: Record<string, unknown>; relationships?: JsonApiRelationships }, response.data.included as JsonApiItem[])
     )
@@ -280,8 +278,6 @@ export const productBatchService = {
       `${BASE_URL}/${id}`,
       { params }
     )
-    
-    console.log('🔄 ProductBatch Single API Response:', response.data)
     
     return parseProductBatch(response.data.data as unknown as { id: string; attributes: Record<string, unknown>; relationships?: JsonApiRelationships }, response.data.included as JsonApiItem[])
   },
@@ -313,14 +309,10 @@ export const productBatchService = {
       }
     }
     
-    console.log('🔄 ProductBatch Create Request:', requestData)
-    
     const response = await axios.post<JsonApiResponse<ProductBatch>>(
       BASE_URL,
       requestData
     )
-    
-    console.log('🔄 ProductBatch Create Response:', response.data)
     
     return parseProductBatch(response.data.data as unknown as { id: string; attributes: Record<string, unknown>; relationships?: JsonApiRelationships }, response.data.included as JsonApiItem[])
   },
@@ -359,14 +351,10 @@ export const productBatchService = {
       }
     }
     
-    console.log('🔄 ProductBatch Update Request:', requestData)
-    
     const response = await axios.put<JsonApiResponse<ProductBatch>>(
       `${BASE_URL}/${id}`,
       requestData
     )
-    
-    console.log('🔄 ProductBatch Update Response:', response.data)
     
     return parseProductBatch(response.data.data as unknown as { id: string; attributes: Record<string, unknown>; relationships?: JsonApiRelationships }, response.data.included as JsonApiItem[])
   },
@@ -375,10 +363,6 @@ export const productBatchService = {
    * Delete product batch
    */
   async delete(id: string): Promise<void> {
-    console.log('🔄 ProductBatch Delete Request:', id)
-    
     await axios.delete(`${BASE_URL}/${id}`)
-    
-    console.log('✅ ProductBatch Deleted:', id)
   }
 }

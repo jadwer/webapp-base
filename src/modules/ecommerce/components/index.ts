@@ -30,3 +30,6 @@ export { CouponInput } from './CouponInput'
 
 // Checkout components
 export { CheckoutStepper } from './CheckoutStepper'
+
+// Payment components
+export { StripePaymentForm, StripePaymentFormSkeleton } from './StripePaymentForm'

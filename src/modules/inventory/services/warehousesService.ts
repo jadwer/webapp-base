@@ -64,8 +64,6 @@ export const warehousesService = {
       queryParams['page[size]'] = pagination.size
     }
 
-    console.log('🔧 [warehousesService] Query params:', queryParams)
-    
     // Includes
     if (include && include.length > 0) {
       queryParams.include = include.join(',')

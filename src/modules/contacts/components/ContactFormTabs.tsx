@@ -70,14 +70,6 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
   // Update form data when contact prop changes (for edit mode)
   React.useEffect(() => {
     if (contact) {
-      console.log('🔄 [ContactFormTabs] Loading contact data into form:', contact.name)
-      console.log('🔄 [ContactFormTabs] Contact details:', {
-        email: contact.email,
-        phone: contact.phone,
-        website: contact.website,
-        taxId: contact.taxId
-      })
-      
       setFormData({
         contactType: contact.contactType || 'company',
         name: contact.name || '',
@@ -195,7 +187,6 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
     }
     
     setFormErrors({})
-    console.log('📝 [ContactFormTabs] Basic data validated and saved:', formData.name)
   }
 
   const handleFinalSubmit = () => {
@@ -218,14 +209,7 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
       creditLimit: formData.creditLimit || undefined,
       paymentTerms: formData.paymentTerms || undefined
     }
-    
-    console.log('🚀 [ContactFormTabs] Submitting complete contact with related data:', {
-      basic: cleanedData.name,
-      addresses: localAddresses.length,
-      documents: localDocuments.length,
-      people: localPeople.length
-    })
-    
+
     // Submit complete contact with related entities
     handleCompleteSubmit(cleanedData)
   }
@@ -233,24 +217,16 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
   const handleCompleteSubmit = async (contactData: ContactFormData) => {
     try {
       setIsSubmitting(true)
-      console.log('🚀 [ContactFormTabs] Creating complete contact...', {
-        contactData: contactData.name,
-        addressesToCreate: localAddresses.length,
-        documentsToUpload: localDocuments.length,
-        peopleToCreate: localPeople.length
-      })
-      
+
       // First create the contact
       const result = await onSubmit(contactData)
-      
+
       // If we have a contact ID, create related entities
       if (result?.id) {
         const createdContact = result
-        console.log('✅ Contact created with ID:', createdContact.id)
-        
+
         // Create addresses
         if (localAddresses.length > 0) {
-          console.log('🏠 Creating', localAddresses.length, 'addresses...')
           for (const address of localAddresses) {
             try {
               const addressData = {
@@ -265,16 +241,14 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
                 isDefault: address.isDefault
               }
               await contactAddressesService.create(addressData)
-              console.log('✅ Address created:', address.addressType)
             } catch (error) {
-              console.error('❌ Error creating address:', error)
+              console.error('Error creating address:', error)
             }
           }
         }
-        
+
         // Create people
         if (localPeople.length > 0) {
-          console.log('👥 Creating', localPeople.length, 'people...')
           for (const person of localPeople) {
             try {
               const personData = {
@@ -288,47 +262,26 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
                 isPrimary: person.isPrimary
               }
               await contactPeopleService.create(personData)
-              console.log('✅ Person created:', person.name)
             } catch (error) {
-              console.error('❌ Error creating person:', error)
+              console.error('Error creating person:', error)
             }
           }
         }
-        
+
         // Upload documents
         if (localDocuments.length > 0) {
-          console.log('📎 Uploading', localDocuments.length, 'documents...')
           for (const document of localDocuments) {
             try {
               if (document.file) {
-                console.log('📎 Starting upload for:', {
-                  filename: document.originalFilename,
-                  contactId: createdContact.id,
-                  documentType: document.documentType,
-                  fileSize: document.file.size,
-                  mimeType: document.file.type
-                })
-                
-                const uploadResult = await contactDocumentsService.upload(
+                await contactDocumentsService.upload(
                   document.file,
                   createdContact.id,
                   document.documentType,
                   document.notes
                 )
-                
-                console.log('✅ Document uploaded successfully:', {
-                  filename: document.originalFilename,
-                  uploadResult: uploadResult.data?.id || 'no id returned'
-                })
-              } else {
-                console.warn('⚠️ Document has no file object:', document.originalFilename)
               }
             } catch (error: unknown) {
-              console.error('❌ Error uploading document:', {
-                filename: document.originalFilename,
-                error: error instanceof Error ? error.message : String(error),
-                response: typeof error === 'object' && error !== null && 'response' in error ? (error as Record<string, unknown>).response : undefined
-              })
+              console.error('Error uploading document:', error)
 
               // Continue with other documents even if one fails
               const errorMessage = typeof error === 'object' && error !== null && 'response' in error
@@ -338,24 +291,19 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
             }
           }
         }
-        
-        console.log('✨ Complete contact creation finished!')
-        
+
         // Invalidate SWR cache for the created contact to ensure fresh data on view
-        console.log('🔄 [ContactFormTabs] Invalidating SWR cache for contact:', createdContact.id)
         const { mutate } = await import('swr')
-        
+
         // Invalidate the specific contact with includes
         mutate(['contact', createdContact.id, ['contactAddresses', 'contactDocuments', 'contactPeople']])
-        
+
         // Also invalidate general contact cache
         mutate(key => Array.isArray(key) && key[0] === 'contact' && key[1] === createdContact.id)
-        
-        console.log('✅ [ContactFormTabs] Cache invalidated - view will show fresh data')
       }
-      
+
     } catch (error) {
-      console.error('❌ Error in complete contact creation:', error)
+      console.error('Error in complete contact creation:', error)
       throw error
     } finally {
       setIsSubmitting(false)
@@ -372,7 +320,6 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
       updatedAt: new Date().toISOString()
     }
     setLocalAddresses(prev => [...prev, newAddress])
-    console.log('✅ Address added:', newAddress)
   }
 
   const handleUpdateAddress = async (id: string, updatedAddress: Partial<ContactAddress>) => {
@@ -385,13 +332,11 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
       // Call API to update existing address
       try {
         await contactAddressesService.update(id, updatedAddress)
-        console.log('✅ Address updated via API:', { id, updatedAddress })
       } catch (error) {
-        console.error('❌ Error updating address:', error)
+        console.error('Error updating address:', error)
         alert('Error al actualizar la direccion')
       }
     }
-    console.log('✅ Address updated:', { id, updatedAddress })
   }
 
   const handleDeleteAddress = async (id: string) => {
@@ -402,25 +347,15 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
       // Call API to delete existing address
       try {
         await contactAddressesService.delete(id)
-        console.log('✅ Address deleted via API:', { id })
       } catch (error) {
-        console.error('❌ Error deleting address:', error)
+        console.error('Error deleting address:', error)
         alert('Error al eliminar la direccion')
       }
     }
-    console.log('✅ Address deleted:', id)
   }
 
   // Document handlers
   const handleUploadDocument = async (file: File, documentType: string, notes?: string) => {
-    console.log('🚀 Adding document for upload:', { 
-      filename: file.name, 
-      documentType, 
-      notes,
-      fileSize: file.size,
-      mimeType: file.type
-    })
-    
     // Store document locally with the File object for later upload
     const newDocument: LocalContactDocument = {
       id: `temp-${Date.now()}`,
@@ -436,19 +371,13 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
       updatedAt: new Date().toISOString(),
       file: file // Store the actual File object for upload
     }
-    
+
     setLocalDocuments(prev => [...prev, newDocument])
-    console.log('✅ Document added locally (will upload when contact is created):', {
-      filename: newDocument.originalFilename,
-      hasFile: !!newDocument.file,
-      totalDocuments: localDocuments.length + 1
-    })
   }
 
   const handleDownloadDocument = (id: string) => {
     const document = documents.find(doc => doc.id === id)
     if (document) {
-      console.log('📥 Downloading document:', document.originalFilename)
       // Aquí iría la lógica real de descarga
       alert(`Descargando: ${document.originalFilename}`)
     }
@@ -462,13 +391,11 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
       // Call API to delete existing document
       try {
         await contactDocumentsService.delete(id)
-        console.log('✅ Document deleted via API:', { id })
       } catch (error) {
-        console.error('❌ Error deleting document:', error)
+        console.error('Error deleting document:', error)
         alert('Error al eliminar el documento')
       }
     }
-    console.log('✅ Document deleted:', id)
   }
 
   const handleVerifyDocument = async (id: string) => {
@@ -483,13 +410,11 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
       // Call API to verify existing document
       try {
         await contactDocumentsService.verify(id)
-        console.log('✅ Document verified via API:', { id })
       } catch (error) {
-        console.error('❌ Error verifying document:', error)
+        console.error('Error verifying document:', error)
         alert('Error al verificar el documento')
       }
     }
-    console.log('✅ Document verified:', id)
   }
 
   // People handlers
@@ -502,7 +427,6 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
       updatedAt: new Date().toISOString()
     }
     setLocalPeople(prev => [...prev, newPerson])
-    console.log('✅ Person added:', newPerson)
   }
 
   const handleUpdatePerson = async (id: string, updatedPerson: Partial<ContactPerson>) => {
@@ -515,13 +439,11 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
       // Call API to update existing person
       try {
         await contactPeopleService.update(id, updatedPerson)
-        console.log('✅ Person updated via API:', { id, updatedPerson })
       } catch (error) {
-        console.error('❌ Error updating person:', error)
+        console.error('Error updating person:', error)
         alert('Error al actualizar la persona')
       }
     }
-    console.log('✅ Person updated:', { id, updatedPerson })
   }
 
   const handleDeletePerson = async (id: string) => {
@@ -532,13 +454,11 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
       // Call API to delete existing person
       try {
         await contactPeopleService.delete(id)
-        console.log('✅ Person deleted via API:', { id })
       } catch (error) {
-        console.error('❌ Error deleting person:', error)
+        console.error('Error deleting person:', error)
         alert('Error al eliminar la persona')
       }
     }
-    console.log('✅ Person deleted:', id)
   }
 
   return (

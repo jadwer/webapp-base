@@ -639,7 +639,7 @@ export interface ProductReviewFormData {
 // Coupon Types
 // ============================================
 
-export type CouponType = 'percentage' | 'fixed' | 'free_shipping';
+export type CouponType = 'percentage' | 'fixed_amount' | 'free_shipping';
 
 export interface Coupon {
   id: string;

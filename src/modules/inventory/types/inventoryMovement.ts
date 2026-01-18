@@ -125,7 +125,7 @@ export interface CreateMovementData {
   locationId?: string
   destinationWarehouseId?: string
   destinationLocationId?: string
-  userId?: string
+  userId: string // Required: pass from useAuth().user.id
 }
 
 export interface UpdateMovementData {

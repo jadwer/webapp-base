@@ -41,17 +41,14 @@ export function useProductBatchMutations(): UseProductBatchMutationsResult {
   const createProductBatch = useCallback(async (data: CreateProductBatchRequest) => {
     setIsLoading(true)
     try {
-      console.log('🔄 Creating ProductBatch:', data)
-      
       const result = await productBatchService.create(data)
-      
+
       // Invalidate caches to refresh lists
       invalidateProductBatchCaches()
-      
-      console.log('✅ ProductBatch created:', result.batchNumber)
+
       return result
     } catch (error) {
-      console.error('❌ ProductBatch creation failed:', error)
+      console.error('ProductBatch creation failed:', error)
       throw error
     } finally {
       setIsLoading(false)
@@ -61,20 +58,17 @@ export function useProductBatchMutations(): UseProductBatchMutationsResult {
   const updateProductBatch = useCallback(async (id: string, data: UpdateProductBatchRequest) => {
     setIsLoading(true)
     try {
-      console.log('🔄 Updating ProductBatch:', id, data)
-      
       const result = await productBatchService.update(id, data)
-      
+
       // Invalidate specific product batch cache
       globalMutate(['product-batch', id])
-      
+
       // Invalidate all product batch lists
       invalidateProductBatchCaches()
-      
-      console.log('✅ ProductBatch updated:', result.batchNumber)
+
       return result
     } catch (error) {
-      console.error('❌ ProductBatch update failed:', error)
+      console.error('ProductBatch update failed:', error)
       throw error
     } finally {
       setIsLoading(false)
@@ -84,19 +78,15 @@ export function useProductBatchMutations(): UseProductBatchMutationsResult {
   const deleteProductBatch = useCallback(async (id: string) => {
     setIsLoading(true)
     try {
-      console.log('🔄 Deleting ProductBatch:', id)
-      
       await productBatchService.delete(id)
-      
+
       // Remove specific product batch from cache
       globalMutate(['product-batch', id], undefined, { revalidate: false })
-      
+
       // Invalidate all product batch lists
       invalidateProductBatchCaches()
-      
-      console.log('✅ ProductBatch deleted:', id)
     } catch (error) {
-      console.error('❌ ProductBatch deletion failed:', error)
+      console.error('ProductBatch deletion failed:', error)
       throw error
     } finally {
       setIsLoading(false)

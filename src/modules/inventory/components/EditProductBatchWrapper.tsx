@@ -29,7 +29,6 @@ export const EditProductBatchWrapper = ({ productBatchId }: EditProductBatchWrap
   
   const handleSubmit = async (data: CreateProductBatchRequest | UpdateProductBatchRequest) => {
     try {
-      console.log('🔄 [EditProductBatchWrapper] Updating product batch:', { productBatchId, data })
       await updateProductBatch(productBatchId, data as UpdateProductBatchRequest)
       
       // Show success toast
@@ -55,7 +54,7 @@ export const EditProductBatchWrapper = ({ productBatchId }: EditProductBatchWrap
       }, 2000)
       
     } catch (error: unknown) {
-      console.error('❌ [EditProductBatchWrapper] Error updating product batch:', error)
+      console.error('Error updating product batch:', error)
       
       // Show error toast
       const errorMessage = error instanceof Error ? error.message : 'Error al actualizar el lote'

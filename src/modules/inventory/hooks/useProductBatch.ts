@@ -27,13 +27,7 @@ export function useProductBatch(params: UseProductBatchParams): UseProductBatchR
       revalidateOnReconnect: true,
       dedupingInterval: 30000, // 30 seconds deduping for single items
       errorRetryCount: 3,
-      errorRetryInterval: 1000,
-      onSuccess: (data) => {
-        console.log('✅ ProductBatch loaded:', data?.batchNumber)
-      },
-      onError: (error) => {
-        console.error('❌ ProductBatch error:', error)
-      }
+      errorRetryInterval: 1000
     }
   )
 

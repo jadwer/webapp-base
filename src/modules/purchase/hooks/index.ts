@@ -150,8 +150,11 @@ export const usePurchaseContacts = (params?: Record<string, string>) => {
 
 // Purchase Products Hook (for order items)
 export const usePurchaseProducts = (params?: Record<string, string>) => {
-  // TODO: Implementar Status - agregar filter[status]=active después de la presentación
-  const queryParams = params || {}
+  // Filter active products by default unless explicitly overridden
+  const queryParams = {
+    'filter[status]': 'active',
+    ...params
+  }
   const key = ['/api/v1/products', queryParams]
   
   const { data, error, isLoading } = useSWR(

@@ -10,15 +10,19 @@ export interface Coupon {
   id: string;
   code: string;
   name: string;
-  discountType: 'percentage' | 'fixed_amount' | 'free_shipping';
-  discountValue: number;
-  minOrderAmount: number | null;
-  maxDiscount: number | null;
-  usageLimit: number | null;
-  usageCount: number;
-  startDate: string | null;
-  endDate: string | null;
+  description?: string;
+  couponType: 'percentage' | 'fixed_amount' | 'free_shipping';
+  value: number;
+  minAmount: number | null;
+  maxAmount: number | null;
+  maxUses: number | null;
+  usedCount: number;
+  startsAt: string | null;
+  expiresAt: string | null;
   isActive: boolean;
+  customerIds?: number[];
+  productIds?: number[];
+  categoryIds?: number[];
 }
 
 export interface ApplyCouponResult {
@@ -64,21 +68,25 @@ export const couponsService = {
   /**
    * Create a coupon
    */
-  async create(data: Omit<Coupon, 'id' | 'usageCount'>): Promise<Coupon> {
+  async create(data: Omit<Coupon, 'id' | 'usedCount'>): Promise<Coupon> {
     const response = await axiosClient.post('/api/v1/coupons', {
       data: {
         type: 'coupons',
         attributes: {
           code: data.code,
           name: data.name,
-          discountType: data.discountType,
-          discountValue: data.discountValue,
-          minOrderAmount: data.minOrderAmount,
-          maxDiscount: data.maxDiscount,
-          usageLimit: data.usageLimit,
-          startDate: data.startDate,
-          endDate: data.endDate,
-          isActive: data.isActive
+          description: data.description,
+          couponType: data.couponType,
+          value: data.value,
+          minAmount: data.minAmount,
+          maxAmount: data.maxAmount,
+          maxUses: data.maxUses,
+          startsAt: data.startsAt,
+          expiresAt: data.expiresAt,
+          isActive: data.isActive,
+          customerIds: data.customerIds,
+          productIds: data.productIds,
+          categoryIds: data.categoryIds
         }
       }
     });
@@ -168,6 +176,7 @@ export const couponsService = {
 
   /**
    * Transform API response to Coupon
+   * Backend uses camelCase in JSON:API attributes
    */
   transformFromAPI(item: JsonApiCoupon): Coupon {
     const attrs = item.attributes;
@@ -175,15 +184,19 @@ export const couponsService = {
       id: item.id,
       code: attrs.code as string,
       name: attrs.name as string,
-      discountType: (attrs.discountType || attrs.discount_type) as Coupon['discountType'],
-      discountValue: (attrs.discountValue || attrs.discount_value) as number,
-      minOrderAmount: (attrs.minOrderAmount || attrs.min_order_amount) as number | null,
-      maxDiscount: (attrs.maxDiscount || attrs.max_discount) as number | null,
-      usageLimit: (attrs.usageLimit || attrs.usage_limit) as number | null,
-      usageCount: (attrs.usageCount || attrs.usage_count || 0) as number,
-      startDate: (attrs.startDate || attrs.start_date) as string | null,
-      endDate: (attrs.endDate || attrs.end_date) as string | null,
-      isActive: (attrs.isActive || attrs.is_active || false) as boolean
+      description: attrs.description as string | undefined,
+      couponType: attrs.couponType as Coupon['couponType'],
+      value: attrs.value as number,
+      minAmount: attrs.minAmount as number | null,
+      maxAmount: attrs.maxAmount as number | null,
+      maxUses: attrs.maxUses as number | null,
+      usedCount: (attrs.usedCount || 0) as number,
+      startsAt: attrs.startsAt as string | null,
+      expiresAt: attrs.expiresAt as string | null,
+      isActive: (attrs.isActive || false) as boolean,
+      customerIds: attrs.customerIds as number[] | undefined,
+      productIds: attrs.productIds as number[] | undefined,
+      categoryIds: attrs.categoryIds as number[] | undefined
     };
   }
 };

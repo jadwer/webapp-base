@@ -49,13 +49,7 @@ export function useProductBatches(params: UseProductBatchesParams = {}): UseProd
       keepPreviousData: true,
       dedupingInterval: 5000, // 5 seconds deduping
       errorRetryCount: 3,
-      errorRetryInterval: 1000,
-      onSuccess: (data) => {
-        console.log('✅ ProductBatches loaded:', data?.data?.length || 0, 'items')
-      },
-      onError: (error) => {
-        console.error('❌ ProductBatches error:', error)
-      }
+      errorRetryInterval: 1000
     }
   )
 

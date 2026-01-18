@@ -138,9 +138,8 @@ const catalogLinks = [
 // E-commerce
 const ecommerceLinks = [
   { href: '/dashboard/ecommerce', label: 'Dashboard E-commerce', icon: 'bi-speedometer2' },
-  { href: '/dashboard/ecommerce/orders', label: 'Órdenes', icon: 'bi-bag-check' },
-  { href: '/dashboard/ecommerce/cart', label: 'Carritos', icon: 'bi-cart4' },
-  { href: '/dashboard/ecommerce/settings', label: 'Configuración', icon: 'bi-gear' }
+  { href: '/dashboard/ecommerce/orders', label: 'Ordenes', icon: 'bi-bag-check' },
+  { href: '/dashboard/ecommerce/orders/create', label: 'Nueva Orden', icon: 'bi-plus-circle' }
 ]
 
 // Módulos planificados (deshabilitados)

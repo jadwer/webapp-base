@@ -61,19 +61,6 @@ export const MovementsAdminPageReal = () => {
     setCurrentPage(page)
   }
 
-  // Debug logs para desarrollo
-  console.log('📋 [MovementsAdminPageReal] Debug info:', {
-    movements,
-    movementsLength: movements?.length,
-    meta,
-    paginationInfo,
-    currentPage,
-    totalPages,
-    isLoading,
-    error,
-    searchTerm
-  })
-
   return (
     <div className="container-fluid py-4">
       {/* Header */}

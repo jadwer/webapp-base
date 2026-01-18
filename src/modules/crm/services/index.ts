@@ -31,12 +31,7 @@ export const pipelineStagesService = {
 
       const queryParams = new URLSearchParams()
 
-      // Add sorting by order by default
-      if (!params?.sort) {
-        queryParams.append('sort', 'order')
-      }
-
-      // Add filters if provided
+      // Add filters if provided (removed sort=order as backend doesn't support it)
       if (params) {
         Object.keys(params).forEach(key => {
           if (params[key] !== undefined && params[key] !== null && params[key] !== '') {
@@ -48,7 +43,7 @@ export const pipelineStagesService = {
       const queryString = queryParams.toString()
       const url = queryString
         ? `/api/v1/pipeline-stages?${queryString}`
-        : '/api/v1/pipeline-stages?sort=order'
+        : '/api/v1/pipeline-stages'
 
       console.log('📡 [Service] Making request to:', url)
       const response = await axiosClient.get(url)

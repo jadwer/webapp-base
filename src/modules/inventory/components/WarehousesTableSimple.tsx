@@ -23,15 +23,6 @@ export const WarehousesTableSimple = ({
   onEdit: _unused, // eslint-disable-line @typescript-eslint/no-unused-vars
   onDelete
 }: WarehousesTableSimpleProps) => {
-  // Debug: Log table data
-  console.log('📊 [WarehousesTableSimple] Debug info:', {
-    warehousesReceived: warehouses,
-    warehousesLength: warehouses?.length,
-    firstWarehouse: warehouses?.[0],
-    firstWarehouseKeys: warehouses?.[0] ? Object.keys(warehouses[0]) : null,
-    isLoading
-  })
-
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('es-ES', {
       year: 'numeric',

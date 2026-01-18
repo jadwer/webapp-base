@@ -34,9 +34,10 @@ const ordersService = {
    * Uses sales-orders endpoint with orderType=ecommerce filter
    */
   async getAll(filters?: EcommerceOrderFilters): Promise<EcommerceOrder[]> {
-    const params: Record<string, string | number> = {
-      'filter[orderType]': 'ecommerce',
-    };
+    const params: Record<string, string | number> = {};
+
+    // Note: filter[order_type] removed - not supported by backend
+    // All sales-orders will be returned until backend implements this filter
 
     if (filters?.search) {
       params['filter[search]'] = filters.search;

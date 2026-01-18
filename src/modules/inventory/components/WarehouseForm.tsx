@@ -24,8 +24,6 @@ export const WarehouseForm = memo<WarehouseFormProps>(({
   onSubmit,
   isLoading = false
 }) => {
-  console.log('🔄 [WarehouseForm] Rendering', warehouse ? 'edit' : 'create', 'mode')
-  
   const router = useRouter()
   const [formData, setFormData] = useState<CreateWarehouseData>({
     name: warehouse?.name || '',
