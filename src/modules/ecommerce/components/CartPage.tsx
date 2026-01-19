@@ -2,25 +2,32 @@
  * CartPage Component
  *
  * Public shopping cart page for viewing and managing cart items.
+ * Includes option to request a quote (cotizacion) directly from cart.
  */
 
 'use client'
 
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useRef } from 'react'
 import Image from 'next/image'
 import { Button } from '@/ui/components/base'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
 import { useToast } from '@/ui/hooks/useToast'
 import { useCart } from '../hooks'
+import { quoteService } from '@/modules/quotes/services/quoteService'
+import { ConfirmModal, ConfirmModalHandle } from '@/ui/components/feedback'
 
 interface CartPageProps {
   sessionId: string
+  userId?: number
+  contactId?: number
 }
 
-export const CartPage = React.memo<CartPageProps>(({ sessionId }) => {
+export const CartPage = React.memo<CartPageProps>(({ sessionId, userId, contactId }) => {
   const navigation = useNavigationProgress()
   const toast = useToast()
   const [updatingItemId, setUpdatingItemId] = useState<string | null>(null)
+  const [isRequestingQuote, setIsRequestingQuote] = useState(false)
+  const confirmModalRef = useRef<ConfirmModalHandle>(null)
 
   // Get cart data and actions
   const {
@@ -88,6 +95,44 @@ export const CartPage = React.memo<CartPageProps>(({ sessionId }) => {
   const handleCheckout = useCallback(() => {
     navigation.push('/checkout')
   }, [navigation])
+
+  // Handle request quote
+  const handleRequestQuote = useCallback(async () => {
+    if (!cart?.id) {
+      toast.error('No hay carrito activo')
+      return
+    }
+
+    // If no contactId, redirect to quote creation page in dashboard
+    if (!contactId) {
+      navigation.push(`/dashboard/quotes/create?cartId=${cart.id}`)
+      return
+    }
+
+    const confirmed = await confirmModalRef.current?.confirm(
+      'Solicitar Cotizacion',
+      'Se creara una cotizacion con los productos de tu carrito. Recibiras la cotizacion por correo electronico.',
+      { confirmText: 'Solicitar', cancelText: 'Cancelar' }
+    )
+
+    if (!confirmed) return
+
+    setIsRequestingQuote(true)
+    try {
+      const response = await quoteService.createFromCart({
+        shopping_cart_id: parseInt(cart.id),
+        contact_id: contactId,
+      })
+
+      toast.success(response.message || 'Cotizacion creada exitosamente')
+      navigation.push(`/dashboard/quotes/${response.data.id}`)
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Error al crear cotizacion'
+      toast.error(errorMessage)
+    } finally {
+      setIsRequestingQuote(false)
+    }
+  }, [cart?.id, contactId, navigation, toast])
 
   // Loading state
   if (isLoading) {
@@ -270,9 +315,16 @@ export const CartPage = React.memo<CartPageProps>(({ sessionId }) => {
               </div>
 
               <div className="d-flex justify-content-between mb-2">
-                <span className="text-muted">Impuestos:</span>
+                <span className="text-muted">IVA (16%):</span>
                 <span className="fw-medium">{formatCurrency(cart.taxAmount)}</span>
               </div>
+
+              {cart.discountAmount > 0 && (
+                <div className="d-flex justify-content-between mb-2">
+                  <span className="text-muted">Descuento:</span>
+                  <span className="fw-medium text-danger">-{formatCurrency(cart.discountAmount)}</span>
+                </div>
+              )}
 
               <hr />
 
@@ -288,10 +340,30 @@ export const CartPage = React.memo<CartPageProps>(({ sessionId }) => {
                 className="w-100 mb-3"
                 size="large"
                 onClick={handleCheckout}
-                disabled={isUpdating || isRemoving}
+                disabled={isUpdating || isRemoving || isRequestingQuote}
               >
                 <i className="bi bi-credit-card me-2" />
                 Proceder al pago
+              </Button>
+
+              <Button
+                variant="secondary"
+                buttonStyle="outline"
+                className="w-100 mb-3"
+                onClick={handleRequestQuote}
+                disabled={isUpdating || isRemoving || isRequestingQuote}
+              >
+                {isRequestingQuote ? (
+                  <>
+                    <span className="spinner-border spinner-border-sm me-2" />
+                    Creando cotizacion...
+                  </>
+                ) : (
+                  <>
+                    <i className="bi bi-file-earmark-text me-2" />
+                    Solicitar Cotizacion
+                  </>
+                )}
               </Button>
 
               <div className="alert alert-info small mb-0">
@@ -302,6 +374,9 @@ export const CartPage = React.memo<CartPageProps>(({ sessionId }) => {
           </div>
         </div>
       </div>
+
+      {/* Confirm Modal */}
+      <ConfirmModal ref={confirmModalRef} />
     </div>
   )
 })
