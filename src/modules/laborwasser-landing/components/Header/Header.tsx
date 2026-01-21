@@ -73,6 +73,12 @@ export const Header: React.FC = () => {
                 )}
               </Link>
 
+              {/* Login Button */}
+              <Link href="/login" className="btn btn-outline-primary me-2">
+                <i className="bi bi-person me-1"></i>
+                Iniciar Sesion
+              </Link>
+
               <button
                 type="button"
                 className="burger btn btn-primary me-3"
@@ -104,6 +110,11 @@ export const Header: React.FC = () => {
               </Link>
             </div>
             <div className="col-4 d-flex justify-content-end align-items-center">
+              {/* Login Icon Mobile */}
+              <Link href="/login" className="btn btn-link" style={{ color: '#8AC905' }}>
+                <i className="bi bi-person" style={{ fontSize: '1.3rem' }}></i>
+              </Link>
+
               {/* Cart Icon Mobile */}
               <Link href="/cart" className="btn btn-link position-relative" style={{ color: '#8AC905' }}>
                 <i className="bi bi-cart3" style={{ fontSize: '1.3rem' }}></i>
