@@ -263,6 +263,19 @@ export const LocalCartPage: React.FC<LocalCartPageProps> = ({
                 </span>
               </div>
 
+              {/* Quote Request Button */}
+              <a
+                href="https://wa.link/4e5cqt"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="d-block mb-3"
+              >
+                <Button variant="success" size="large" className="w-100">
+                  <i className="bi bi-file-earmark-text me-2" />
+                  Solicitar Cotizacion
+                </Button>
+              </a>
+
               {onCheckout ? (
                 <Button
                   variant="primary"
@@ -287,6 +300,12 @@ export const LocalCartPage: React.FC<LocalCartPageProps> = ({
                   <i className="bi bi-shield-check me-1" />
                   Pago seguro garantizado
                 </small>
+              </div>
+
+              {/* Info about quote */}
+              <div className="alert alert-info mt-3 mb-0 small">
+                <i className="bi bi-info-circle me-2"></i>
+                <strong>Solicitar cotizacion:</strong> Te contactaremos con precios especiales y tiempos de entrega.
               </div>
             </div>
           </div>

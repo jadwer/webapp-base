@@ -238,9 +238,9 @@ export const UltimosProductosEnhanced: React.FC<UltimosProductosEnhancedProps> =
                   </Button>
                 </Link>
                 
-                <Link href="/productos?filter[price_min]=0&filter[price_max]=1000">
-                  <Button 
-                    variant="success" 
+                <Link href="/ofertas">
+                  <Button
+                    variant="success"
                     buttonStyle="outline"
                     size="large"
                     startIcon={<i className="bi bi-tag" />}
