@@ -99,11 +99,22 @@ export interface Contact {
   type: 'individual' | 'company'
 }
 
+export interface StockRef {
+  id: string
+  warehouseId: number
+  warehouseName?: string
+  quantity: number
+  reservedQuantity: number
+  availableQuantity: number
+  status: string
+}
+
 export interface ProductRef {
   id: string
   name: string
   sku: string
   price: number
+  stock?: StockRef[]
 }
 
 export interface SalesOrderRef {

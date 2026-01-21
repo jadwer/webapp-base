@@ -515,7 +515,7 @@ function CertificateUpload({ settingId, onSuccess }: CertificateUploadProps) {
 
 export default function BillingSettingsPage() {
   const { settings, isLoading: isLoadingSettings, mutate } = useCompanySettings()
-  const { activeSetting, mutate: mutateActive } = useActiveCompanySetting()
+  const { mutate: mutateActive } = useActiveCompanySetting()
   const { createSetting, updateSetting, deleteSetting, testPACConnection } =
     useCompanySettingsMutations()
 

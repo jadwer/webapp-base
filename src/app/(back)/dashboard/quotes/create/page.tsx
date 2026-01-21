@@ -15,12 +15,12 @@ import {
   SelectValue
 } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
-import { ArrowLeft, FileText, ShoppingCart, User, Calendar, AlertCircle, RefreshCw } from 'lucide-react'
+import { ArrowLeft, FileText, ShoppingCart as ShoppingCartIcon, User, Calendar, AlertCircle, RefreshCw } from 'lucide-react'
 import { useQuoteMutations } from '@/modules/quotes'
 import { contactsService } from '@/modules/contacts/services'
 import { shoppingCartService } from '@/modules/ecommerce'
 import type { ShoppingCart } from '@/modules/ecommerce'
-import { toast } from 'sonner'
+import { toast } from '@/lib/toast'
 
 interface Contact {
   id: string
@@ -71,12 +71,15 @@ export default function CreateQuotePage() {
   const transformCartToDisplay = (cart: ShoppingCart): CartWithItems => {
     return {
       id: String(cart.id),
-      items: (cart.items || []).map((item) => ({
-        id: String(item.id),
-        productName: item.product?.name || item.productName || `Producto #${item.productId}`,
-        quantity: item.quantity,
-        unitPrice: item.unitPrice || item.price || 0
-      })),
+      items: (cart.items || []).map((item) => {
+        const product = item.product as { name?: string } | undefined
+        return {
+          id: String(item.id),
+          productName: product?.name || `Producto #${item.productId}`,
+          quantity: item.quantity,
+          unitPrice: item.unitPrice || 0
+        }
+      }),
       totalAmount: cart.totalAmount || 0
     }
   }
@@ -114,7 +117,7 @@ export default function CreateQuotePage() {
       ])
 
       // Transform contacts to simple format
-      const transformedContacts: Contact[] = (contactsResponse.data || []).map((c) => {
+      const transformedContacts: Contact[] = (contactsResponse.data || []).map((c: { id: string | number; attributes?: { name?: string; email?: string }; name?: string; email?: string }) => {
         const attrs = c.attributes || c
         return {
           id: String(c.id),
@@ -237,7 +240,7 @@ export default function CreateQuotePage() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <ShoppingCart className="h-5 w-5" />
+                  <ShoppingCartIcon className="h-5 w-5" />
                   Carrito de Compras
                 </CardTitle>
                 <CardDescription>

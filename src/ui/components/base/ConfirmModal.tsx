@@ -98,4 +98,5 @@ const ConfirmModal = forwardRef<ConfirmModalHandle>((_, ref) => {
 
 ConfirmModal.displayName = 'ConfirmModal'
 
+export { ConfirmModal }
 export default ConfirmModal

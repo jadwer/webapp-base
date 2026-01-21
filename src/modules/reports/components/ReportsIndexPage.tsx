@@ -164,6 +164,87 @@ export const ReportsIndexPage = () => {
         </div>
       </div>
 
+      {/* Phase 13: Advanced Sales Reports */}
+      <div className="row g-4 mt-2">
+        <div className="col-12">
+          <div className="card border-info">
+            <div className="card-body">
+              <div className="d-flex align-items-start mb-3">
+                <div className="bg-info bg-opacity-10 rounded p-3 me-3">
+                  <i className="bi bi-bar-chart-line text-info" style={{ fontSize: '2rem' }} />
+                </div>
+                <div className="flex-grow-1">
+                  <div className="d-flex justify-content-between align-items-start">
+                    <div>
+                      <h5 className="card-title mb-1">
+                        Reportes Avanzados de Ventas
+                        <span className="badge bg-info ms-2">Nuevo</span>
+                      </h5>
+                      <p className="text-muted small mb-0">
+                        Análisis detallado con métricas de rentabilidad, tendencias y trazabilidad por lote
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="row mb-3">
+                <div className="col-md-3">
+                  <ul className="list-unstyled mb-0 small">
+                    <li className="mb-2">
+                      <i className="bi bi-person-badge text-info me-2" />
+                      <strong>Ventas por Vendedor</strong>
+                    </li>
+                    <li className="text-muted ps-4">
+                      Rendimiento individual, comisiones, ranking
+                    </li>
+                  </ul>
+                </div>
+                <div className="col-md-3">
+                  <ul className="list-unstyled mb-0 small">
+                    <li className="mb-2">
+                      <i className="bi bi-box-seam text-info me-2" />
+                      <strong>Ventas por Lote</strong>
+                    </li>
+                    <li className="text-muted ps-4">
+                      Trazabilidad, control de inventario
+                    </li>
+                  </ul>
+                </div>
+                <div className="col-md-3">
+                  <ul className="list-unstyled mb-0 small">
+                    <li className="mb-2">
+                      <i className="bi bi-currency-dollar text-info me-2" />
+                      <strong>Rentabilidad</strong>
+                    </li>
+                    <li className="text-muted ps-4">
+                      Costo, utilidad, margen por producto
+                    </li>
+                  </ul>
+                </div>
+                <div className="col-md-3">
+                  <ul className="list-unstyled mb-0 small">
+                    <li className="mb-2">
+                      <i className="bi bi-graph-up-arrow text-info me-2" />
+                      <strong>Tendencias</strong>
+                    </li>
+                    <li className="text-muted ps-4">
+                      Gráficas interactivas, comparativos
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <Link
+                href="/dashboard/reports/sales-advanced"
+                className="btn btn-info text-white w-100"
+              >
+                <i className="bi bi-bar-chart-line me-2" />
+                Ver Reportes Avanzados de Ventas
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Info Cards */}
       <div className="row mt-4">
         <div className="col-12">

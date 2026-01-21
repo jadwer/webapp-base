@@ -395,6 +395,142 @@ export interface AgingReportFilters {
 }
 
 // ============================================================================
+// PHASE 13: ADVANCED SALES REPORTS
+// ============================================================================
+
+export interface SalesByEmployeeFilters {
+  startDate: string
+  endDate: string
+  employeeId?: number
+  currency?: string
+}
+
+export interface SalesByBatchFilters {
+  startDate: string
+  endDate: string
+  productId?: number
+  batchNumber?: string
+  currency?: string
+}
+
+export interface SalesTrendFilters {
+  startDate: string
+  endDate: string
+  groupBy: 'day' | 'week' | 'month'
+}
+
+export interface EmployeeSales {
+  employeeId: number | null
+  employeeName: string
+  orderCount: number
+  totalSales: number
+  totalCost: number
+  grossProfit: number
+  marginPercentage: number
+  averageOrderValue: number
+}
+
+export interface SalesByEmployee {
+  period: ReportPeriod
+  reportType: string
+  currency: string
+  employees: EmployeeSales[]
+  summary: {
+    totalEmployees: number
+    totalOrders: number
+    totalSales: number
+    totalCost: number
+    totalProfit: number
+    averageMargin: number
+  }
+}
+
+export interface BatchSales {
+  batchId: number
+  batchNumber: string
+  lotNumber: string | null
+  productId: number
+  productName: string
+  productSku: string
+  expirationDate: string | null
+  isExpiringSoon: boolean
+  quantitySold: number
+  unitCost: number
+  totalCost: number
+  estimatedRevenue: number
+  grossProfit: number
+  marginPercentage: number
+  movementCount: number
+}
+
+export interface SalesByBatch {
+  period: ReportPeriod
+  reportType: string
+  currency: string
+  batches: BatchSales[]
+  summary: {
+    totalBatches: number
+    totalQuantitySold: number
+    totalCost: number
+    totalRevenue: number
+    totalProfit: number
+    averageMargin: number
+  }
+}
+
+export interface ProductProfitability {
+  productId: number
+  productCode: string
+  productName: string
+  categoryName: string
+  quantitySold: number
+  revenue: number
+  cost: number
+  grossProfit: number
+  marginPercentage: number
+  averagePrice: number
+  averageCost: number
+}
+
+export interface SalesProfitability {
+  period: ReportPeriod
+  reportType: string
+  currency: string
+  products: ProductProfitability[]
+  summary: {
+    totalProducts: number
+    totalQuantity: number
+    totalRevenue: number
+    totalCost: number
+    totalProfit: number
+    averageMargin: number
+  }
+}
+
+export interface SalesTrendData {
+  period: string
+  orderCount: number
+  totalSales: number
+  subtotal: number
+  taxTotal: number
+  averageOrderValue: number
+}
+
+export interface SalesTrend {
+  period: ReportPeriod
+  reportType: string
+  groupBy: string
+  currency: string
+  trends: SalesTrendData[]
+  summary: {
+    totalPeriods: number
+    totalOrders: number
+    totalSales: number
+    averagePerPeriod: number
+  }
+}
+
+// ============================================================================
 // RESPONSE TYPES
 // ============================================================================
 

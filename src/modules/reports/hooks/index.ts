@@ -51,9 +51,7 @@ export const useBalanceSheet = (filters?: BalanceSheetFilters) => {
     key,
     async () => {
       const response = await balanceSheetService.get(filters)
-      const transformed = transformBalanceSheetResponse(response)
-      console.log('✅ [Hook] Transformed balance sheet:', transformed)
-      return transformed
+      return transformBalanceSheetResponse(response)
     }
   )
 
@@ -72,9 +70,7 @@ export const useIncomeStatement = (filters: PeriodReportFilters) => {
     key,
     async () => {
       const response = await incomeStatementService.get(filters)
-      const transformed = transformIncomeStatementResponse(response)
-      console.log('✅ [Hook] Transformed income statement:', transformed)
-      return transformed
+      return transformIncomeStatementResponse(response)
     }
   )
 
@@ -93,9 +89,7 @@ export const useCashFlow = (filters: PeriodReportFilters) => {
     key,
     async () => {
       const response = await cashFlowService.get(filters)
-      const transformed = transformCashFlowResponse(response)
-      console.log('✅ [Hook] Transformed cash flow:', transformed)
-      return transformed
+      return transformCashFlowResponse(response)
     }
   )
 
@@ -116,9 +110,7 @@ export const useTrialBalance = (filters?: BalanceSheetFilters) => {
     key,
     async () => {
       const response = await trialBalanceService.get(filters)
-      const transformed = transformTrialBalanceResponse(response)
-      console.log('✅ [Hook] Transformed trial balance:', transformed)
-      return transformed
+      return transformTrialBalanceResponse(response)
     }
   )
 
@@ -143,9 +135,7 @@ export const useARAgingReport = (filters?: AgingReportFilters) => {
     key,
     async () => {
       const response = await arAgingReportService.get(filters)
-      const transformed = transformARAgingReportResponse(response)
-      console.log('✅ [Hook] Transformed AR aging report:', transformed)
-      return transformed
+      return transformARAgingReportResponse(response)
     }
   )
 
@@ -166,9 +156,7 @@ export const useAPAgingReport = (filters?: AgingReportFilters) => {
     key,
     async () => {
       const response = await apAgingReportService.get(filters)
-      const transformed = transformAPAgingReportResponse(response)
-      console.log('✅ [Hook] Transformed AP aging report:', transformed)
-      return transformed
+      return transformAPAgingReportResponse(response)
     }
   )
 
@@ -191,9 +179,7 @@ export const useSalesByCustomer = (filters: PeriodReportFilters) => {
     key,
     async () => {
       const response = await salesByCustomerService.get(filters)
-      const transformed = transformSalesByCustomerResponse(response)
-      console.log('✅ [Hook] Transformed sales by customer:', transformed)
-      return transformed
+      return transformSalesByCustomerResponse(response)
     }
   )
 
@@ -212,9 +198,7 @@ export const useSalesByProduct = (filters: PeriodReportFilters) => {
     key,
     async () => {
       const response = await salesByProductService.get(filters)
-      const transformed = transformSalesByProductResponse(response)
-      console.log('✅ [Hook] Transformed sales by product:', transformed)
-      return transformed
+      return transformSalesByProductResponse(response)
     }
   )
 
@@ -233,9 +217,7 @@ export const usePurchaseBySupplier = (filters: PeriodReportFilters) => {
     key,
     async () => {
       const response = await purchaseBySupplierService.get(filters)
-      const transformed = transformPurchaseBySupplierResponse(response)
-      console.log('✅ [Hook] Transformed purchase by supplier:', transformed)
-      return transformed
+      return transformPurchaseBySupplierResponse(response)
     }
   )
 
@@ -254,9 +236,7 @@ export const usePurchaseByProduct = (filters: PeriodReportFilters) => {
     key,
     async () => {
       const response = await purchaseByProductService.get(filters)
-      const transformed = transformPurchaseByProductResponse(response)
-      console.log('✅ [Hook] Transformed purchase by product:', transformed)
-      return transformed
+      return transformPurchaseByProductResponse(response)
     }
   )
 
@@ -447,5 +427,89 @@ export const useReportExport = () => {
     exportReport,
     isExporting,
     error,
+  }
+}
+
+// ============================================================================
+// PHASE 13: ADVANCED SALES REPORTS
+// ============================================================================
+
+import {
+  salesByEmployeeService,
+  salesByBatchService,
+  salesProfitabilityService,
+  salesTrendService,
+} from '../services'
+import type {
+  SalesByEmployeeFilters,
+  SalesByBatchFilters,
+  SalesTrendFilters,
+  SalesByEmployee,
+  SalesByBatch,
+  SalesProfitability,
+  SalesTrend,
+} from '../types'
+
+export const useSalesByEmployee = (filters: SalesByEmployeeFilters) => {
+  const key = ['sales-by-employee', filters]
+
+  const { data, error, isLoading, mutate } = useSWR<{ data: SalesByEmployee }>(
+    key,
+    () => salesByEmployeeService.get(filters)
+  )
+
+  return {
+    salesByEmployee: data?.data,
+    isLoading,
+    error,
+    mutate,
+  }
+}
+
+export const useSalesByBatch = (filters: SalesByBatchFilters) => {
+  const key = ['sales-by-batch', filters]
+
+  const { data, error, isLoading, mutate } = useSWR<{ data: SalesByBatch }>(
+    key,
+    () => salesByBatchService.get(filters)
+  )
+
+  return {
+    salesByBatch: data?.data,
+    isLoading,
+    error,
+    mutate,
+  }
+}
+
+export const useSalesProfitability = (filters: { startDate: string; endDate: string; categoryId?: number }) => {
+  const key = ['sales-profitability', filters]
+
+  const { data, error, isLoading, mutate } = useSWR<{ data: SalesProfitability }>(
+    key,
+    () => salesProfitabilityService.get(filters)
+  )
+
+  return {
+    salesProfitability: data?.data,
+    isLoading,
+    error,
+    mutate,
+  }
+}
+
+export const useSalesTrend = (filters: SalesTrendFilters) => {
+  const key = ['sales-trend', filters]
+
+  const { data, error, isLoading, mutate } = useSWR<{ data: SalesTrend }>(
+    key,
+    () => salesTrendService.get(filters)
+  )
+
+  return {
+    salesTrend: data?.data,
+    isLoading,
+    error,
+    mutate,
   }
 }

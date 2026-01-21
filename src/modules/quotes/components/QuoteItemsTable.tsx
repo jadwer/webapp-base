@@ -12,10 +12,10 @@ import {
 } from '@/components/ui/table'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Trash2, Pencil, Check, X } from 'lucide-react'
-import type { QuoteItem, UpdateQuoteItemRequest } from '../types'
+import { Trash2, Pencil, Check, X, Package, AlertTriangle, CheckCircle2 } from 'lucide-react'
+import type { QuoteItem } from '../types'
 import { useQuoteItemMutations } from '../hooks'
-import { toast } from 'sonner'
+import { toast } from '@/lib/toast'
 
 interface QuoteItemsTableProps {
   items: QuoteItem[]
@@ -49,6 +49,22 @@ export function QuoteItemsTable({
 
   const formatPercentage = (value: number) => {
     return `${value.toFixed(2)}%`
+  }
+
+  // Calculate total available stock across all warehouses
+  const getTotalAvailableStock = (item: QuoteItem): number => {
+    if (!item.product?.stock || item.product.stock.length === 0) return 0
+    return item.product.stock.reduce((sum, s) => sum + (s.availableQuantity || 0), 0)
+  }
+
+  // Get stock status for display
+  const getStockStatus = (item: QuoteItem): { available: number; sufficient: boolean; lowStock: boolean } => {
+    const available = getTotalAvailableStock(item)
+    return {
+      available,
+      sufficient: available >= item.quantity,
+      lowStock: available > 0 && available < item.quantity
+    }
   }
 
   const handleStartEdit = (item: QuoteItem) => {
@@ -118,6 +134,7 @@ export function QuoteItemsTable({
         <TableRow>
           <TableHead>Producto</TableHead>
           <TableHead>SKU</TableHead>
+          <TableHead className="text-center">Stock</TableHead>
           <TableHead className="text-right">Cantidad</TableHead>
           <TableHead className="text-right">Precio Orig.</TableHead>
           <TableHead className="text-right">Precio Cotiz.</TableHead>
@@ -137,6 +154,33 @@ export function QuoteItemsTable({
                 {item.productName || `Producto #${item.productId}`}
               </TableCell>
               <TableCell className="text-muted-foreground">{item.productSku || '-'}</TableCell>
+              <TableCell className="text-center">
+                {(() => {
+                  const stockStatus = getStockStatus(item)
+                  if (stockStatus.available === 0) {
+                    return (
+                      <span className="inline-flex items-center gap-1 text-red-600" title="Sin stock disponible">
+                        <AlertTriangle className="h-4 w-4" />
+                        <span className="text-xs">0</span>
+                      </span>
+                    )
+                  }
+                  if (stockStatus.lowStock) {
+                    return (
+                      <span className="inline-flex items-center gap-1 text-amber-600" title={`Stock insuficiente: ${stockStatus.available} disponibles, se requieren ${item.quantity}`}>
+                        <Package className="h-4 w-4" />
+                        <span className="text-xs">{stockStatus.available}</span>
+                      </span>
+                    )
+                  }
+                  return (
+                    <span className="inline-flex items-center gap-1 text-green-600" title={`Stock suficiente: ${stockStatus.available} disponibles`}>
+                      <CheckCircle2 className="h-4 w-4" />
+                      <span className="text-xs">{stockStatus.available}</span>
+                    </span>
+                  )
+                })()}
+              </TableCell>
               <TableCell className="text-right">
                 {isEditing ? (
                   <Input
@@ -255,14 +299,14 @@ export function QuoteItemsTable({
       </TableBody>
       <TableFooter>
         <TableRow>
-          <TableCell colSpan={editable ? 6 : 5} />
+          <TableCell colSpan={editable ? 7 : 6} />
           <TableCell className="text-right font-medium">Subtotal:</TableCell>
           <TableCell className="text-right">{formatCurrency(subtotal)}</TableCell>
           {editable && <TableCell />}
         </TableRow>
         {totalDiscount > 0 && (
           <TableRow>
-            <TableCell colSpan={editable ? 6 : 5} />
+            <TableCell colSpan={editable ? 7 : 6} />
             <TableCell className="text-right font-medium text-green-600">Descuento:</TableCell>
             <TableCell className="text-right text-green-600">
               -{formatCurrency(totalDiscount)}
@@ -271,13 +315,13 @@ export function QuoteItemsTable({
           </TableRow>
         )}
         <TableRow>
-          <TableCell colSpan={editable ? 6 : 5} />
+          <TableCell colSpan={editable ? 7 : 6} />
           <TableCell className="text-right font-medium">IVA:</TableCell>
           <TableCell className="text-right">{formatCurrency(totalTax)}</TableCell>
           {editable && <TableCell />}
         </TableRow>
         <TableRow>
-          <TableCell colSpan={editable ? 6 : 5} />
+          <TableCell colSpan={editable ? 7 : 6} />
           <TableCell className="text-right font-bold">Total:</TableCell>
           <TableCell className="text-right font-bold">{formatCurrency(grandTotal)}</TableCell>
           {editable && <TableCell />}

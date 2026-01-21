@@ -43,10 +43,9 @@ import {
   QuoteStatusBadge,
   QuoteItemsTable,
   QUOTE_STATUS_CONFIG,
-  canEditQuote,
-  type Quote
+  canEditQuote
 } from '@/modules/quotes'
-import { toast } from 'sonner'
+import { toast } from '@/lib/toast'
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -57,11 +56,8 @@ export default function QuoteDetailPage({ params }: PageProps) {
   const router = useRouter()
   const mutations = useQuoteMutations()
 
-  const { data: quoteResponse, isLoading: quoteLoading, error: quoteError, refetch } = useQuote(id)
-  const { data: itemsResponse, isLoading: itemsLoading, refetch: refetchItems } = useQuoteItems(id)
-
-  const quote = quoteResponse?.data
-  const items = itemsResponse?.data ?? []
+  const { data: quote, isLoading: quoteLoading, error: quoteError, mutate: refetch } = useQuote(id)
+  const { data: items = [], mutate: refetchItems } = useQuoteItems(id)
 
   const [showConvertDialog, setShowConvertDialog] = useState(false)
   const [showRejectDialog, setShowRejectDialog] = useState(false)

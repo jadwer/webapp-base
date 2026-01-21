@@ -14,7 +14,7 @@ import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
 import { useToast } from '@/ui/hooks/useToast'
 import { useCart } from '../hooks'
 import { quoteService } from '@/modules/quotes/services/quoteService'
-import { ConfirmModal, ConfirmModalHandle } from '@/ui/components/feedback'
+import { ConfirmModal, ConfirmModalHandle } from '@/ui/components/base/ConfirmModal'
 
 interface CartPageProps {
   sessionId: string
@@ -22,7 +22,7 @@ interface CartPageProps {
   contactId?: number
 }
 
-export const CartPage = React.memo<CartPageProps>(({ sessionId, userId, contactId }) => {
+export const CartPage = React.memo<CartPageProps>(({ sessionId, contactId }) => {
   const navigation = useNavigationProgress()
   const toast = useToast()
   const [updatingItemId, setUpdatingItemId] = useState<string | null>(null)
@@ -110,9 +110,8 @@ export const CartPage = React.memo<CartPageProps>(({ sessionId, userId, contactI
     }
 
     const confirmed = await confirmModalRef.current?.confirm(
-      'Solicitar Cotizacion',
       'Se creara una cotizacion con los productos de tu carrito. Recibiras la cotizacion por correo electronico.',
-      { confirmText: 'Solicitar', cancelText: 'Cancelar' }
+      { title: 'Solicitar Cotizacion', confirmText: 'Solicitar', cancelText: 'Cancelar' }
     )
 
     if (!confirmed) return

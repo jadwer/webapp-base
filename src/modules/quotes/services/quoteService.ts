@@ -189,7 +189,7 @@ export const quoteService = {
     if (include && include.length > 0) {
       params.include = include.join(',')
     } else {
-      params.include = 'contact,items,items.product'
+      params.include = 'contact,items,items.product,items.product.stock'
     }
 
     const response = await axios.get<JsonApiResponse<JsonApiResource>>(`${QUOTES_BASE_URL}/${id}`, { params })

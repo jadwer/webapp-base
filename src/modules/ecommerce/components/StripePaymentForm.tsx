@@ -14,7 +14,7 @@ import {
   useStripe,
   useElements,
 } from '@stripe/react-stripe-js'
-import { loadStripe, type Stripe, type StripeElementsOptions } from '@stripe/stripe-js'
+import { loadStripe, type StripeElementsOptions } from '@stripe/stripe-js'
 import { Button } from '@/ui/components/base'
 
 // Initialize Stripe outside of component to avoid recreating on each render

@@ -28,11 +28,12 @@ export default function QuotesPage() {
   const [filters, setFilters] = useState<QuoteFilters>({})
   const [searchTerm, setSearchTerm] = useState('')
 
-  const { data: quotesResponse, isLoading: quotesLoading, refetch } = useQuotes(filters)
+  const { data: quotesResponse, isLoading: quotesLoading, mutate: refetch } = useQuotes(filters)
   const { data: summary, isLoading: summaryLoading } = useQuoteSummary()
-  const { data: expiringSoon } = useExpiringSoonQuotes(7)
+  const { data: expiringSoonResponse } = useExpiringSoonQuotes(7)
 
   const quotes = quotesResponse?.data ?? []
+  const expiringSoon = expiringSoonResponse?.data ?? []
 
   const handleStatusFilter = (status: string) => {
     if (status === 'all') {
@@ -67,10 +68,10 @@ export default function QuotesPage() {
       </div>
 
       {/* Summary Cards */}
-      <QuoteSummaryCards summary={summary?.data} isLoading={summaryLoading} />
+      <QuoteSummaryCards summary={summary} isLoading={summaryLoading} />
 
       {/* Expiring Soon Alert */}
-      {expiringSoon?.data && expiringSoon.data.length > 0 && (
+      {expiringSoon.length > 0 && (
         <Card className="border-yellow-500 bg-yellow-50 dark:bg-yellow-950">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium flex items-center gap-2 text-yellow-700 dark:text-yellow-400">
@@ -80,7 +81,7 @@ export default function QuotesPage() {
           </CardHeader>
           <CardContent>
             <p className="text-sm text-yellow-700 dark:text-yellow-400">
-              Tienes {expiringSoon.data.length} cotizacion(es) que vencen en los proximos 7 dias.
+              Tienes {expiringSoon.length} cotizacion(es) que vencen en los proximos 7 dias.
               {' '}
               <button
                 onClick={() => setFilters({ ...filters, expiringWithinDays: 7 })}

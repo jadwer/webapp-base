@@ -44,7 +44,7 @@ import { QuoteStatusBadge } from './QuoteStatusBadge'
 import type { Quote } from '../types'
 import { QUOTE_STATUS_CONFIG } from '../types'
 import { useQuoteMutations } from '../hooks'
-import { toast } from 'sonner'
+import { toast } from '@/lib/toast'
 
 interface QuotesTableProps {
   quotes: Quote[]

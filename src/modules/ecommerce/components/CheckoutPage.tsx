@@ -594,7 +594,7 @@ export const CheckoutPage = React.memo<CheckoutPageProps>(({ sessionId }) => {
                 buttonStyle="outline"
                 className="w-100"
                 onClick={() => navigation.push('/cart')}
-                disabled={isCheckingOut || currentStep === 'processing'}
+                disabled={isCheckingOut}
               >
                 <i className="bi bi-arrow-left me-2" />
                 Volver al carrito

@@ -85,4 +85,5 @@ export {
   FinancialStatementsPage,
   AgingReportsPage,
   ManagementReportsPage,
+  SalesAdvancedReportsPage,
 } from './components'

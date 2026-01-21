@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import Link from 'next/link'
 import { paymentService } from '@/modules/ecommerce'
 import type { EcommercePaymentTransaction, PaymentTransactionStatus } from '@/modules/ecommerce'
-import { toast } from 'sonner'
+import { toast } from '@/lib/toast'
 import { ConfirmModal, ConfirmModalHandle } from '@/ui/components/base/ConfirmModal'
 
 // Status badge component
@@ -294,7 +294,7 @@ export default function PaymentsPage() {
                                 onClick={async () => {
                                   const confirmed = await confirmModalRef.current?.confirm(
                                     'Deseas procesar un reembolso para esta transaccion?',
-                                    { title: 'Confirmar Reembolso', variant: 'warning' }
+                                    { title: 'Confirmar Reembolso', confirmVariant: 'warning' }
                                   )
                                   if (confirmed) {
                                     const result = await paymentService.processor
@@ -318,7 +318,7 @@ export default function PaymentsPage() {
                                 onClick={async () => {
                                   const confirmed = await confirmModalRef.current?.confirm(
                                     'Deseas cancelar esta transaccion?',
-                                    { title: 'Confirmar Cancelacion', variant: 'danger' }
+                                    { title: 'Confirmar Cancelacion', confirmVariant: 'danger' }
                                   )
                                   if (confirmed) {
                                     const result = await paymentService.processor

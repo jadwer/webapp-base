@@ -225,9 +225,8 @@ export const cfdiInvoicesService = {
    * NOTE: Backend endpoint not yet implemented - requires POST /api/v1/cfdi-invoices/{id}/send-email
    */
   sendEmail: async (id: string, email: string) => {
-    // TODO: Backend needs to implement this endpoint
-    // For now, throw a clear error so UI can handle it gracefully
-    throw new Error('El envío de correo electrónico no está disponible. Endpoint pendiente de implementación en backend.')
+    void id; void email // Backend endpoint pending
+    throw new Error('El envio de correo electronico no esta disponible. Endpoint pendiente de implementacion en backend.')
   },
 
   /**
@@ -395,8 +394,8 @@ export const companySettingsService = {
    * NOTE: Backend endpoint not yet implemented - requires POST /api/v1/company-settings/{id}/test-pac
    */
   testPACConnection: async (id: string): Promise<{ success: boolean; message: string }> => {
-    // TODO: Backend needs to implement this endpoint
-    throw new Error('La prueba de conexión PAC no está disponible. Endpoint pendiente de implementación en backend.')
+    void id // Backend endpoint pending
+    throw new Error('La prueba de conexion PAC no esta disponible. Endpoint pendiente de implementacion en backend.')
   },
 
   /**
@@ -404,11 +403,8 @@ export const companySettingsService = {
    * NOTE: Backend endpoint not yet implemented - requires POST /api/v1/company-settings/{id}/upload-certificate
    */
   uploadCertificate: async (id: string, file: File) => {
-    // TODO: Backend needs to implement this endpoint
-    // The CompanySetting model may need to store certificate data directly in fields:
-    // - certificate_base64 or certificate_path
-    // For now, update via regular PATCH with base64 encoded certificate
-    throw new Error('La carga de certificado no está disponible. Endpoint pendiente de implementación en backend.')
+    void id; void file // Backend endpoint pending
+    throw new Error('La carga de certificado no esta disponible. Endpoint pendiente de implementacion en backend.')
   },
 
   /**
@@ -416,8 +412,8 @@ export const companySettingsService = {
    * NOTE: Backend endpoint not yet implemented - requires POST /api/v1/company-settings/{id}/upload-key
    */
   uploadKey: async (id: string, file: File, password: string) => {
-    // TODO: Backend needs to implement this endpoint
-    throw new Error('La carga de llave privada no está disponible. Endpoint pendiente de implementación en backend.')
+    void id; void file; void password // Backend endpoint pending
+    throw new Error('La carga de llave privada no esta disponible. Endpoint pendiente de implementacion en backend.')
   },
 }
 
@@ -516,8 +512,7 @@ export const satCatalogsService = {
    * Backend needs: GET /api/v1/sat-catalogs/productos?search=
    */
   searchProducts: async (search: string): Promise<SATCatalogItem[]> => {
-    // TODO: Backend needs to implement this endpoint with full SAT catalog
-    // The SAT product catalog has 50,000+ entries
+    void search // Backend endpoint pending - SAT product catalog has 50,000+ entries
     return []
   },
 
@@ -527,7 +522,7 @@ export const satCatalogsService = {
    * Backend needs: GET /api/v1/sat-catalogs/unidades?search=
    */
   searchUnits: async (search: string): Promise<SATCatalogItem[]> => {
-    // TODO: Backend needs to implement this endpoint with full SAT catalog
+    void search // Backend endpoint pending - SAT units catalog
     return []
   },
 

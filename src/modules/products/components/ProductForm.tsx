@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo, useCallback } from 'react'
 import { Button, Input } from '@/ui/components/base'
 import { useUnits, useCategories, useBrands } from '../hooks'
 import type { Product, CreateProductData, UpdateProductData } from '../types'
@@ -40,6 +40,22 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   const { categories, isLoading: categoriesLoading } = useCategories()
   const { brands, isLoading: brandsLoading } = useBrands()
 
+  // Memoize options to prevent re-renders when SWR hooks update
+  const unitOptions = useMemo(() => [
+    { value: '', label: 'Seleccione una unidad' },
+    ...units.map(unit => ({ value: unit.id, label: `${unit.name} (${unit.code})` }))
+  ], [units])
+
+  const categoryOptions = useMemo(() => [
+    { value: '', label: 'Seleccione una categoría' },
+    ...categories.map(category => ({ value: category.id, label: category.name }))
+  ], [categories])
+
+  const brandOptions = useMemo(() => [
+    { value: '', label: 'Seleccione una marca' },
+    ...brands.map(brand => ({ value: brand.id, label: brand.name }))
+  ], [brands])
+
   useEffect(() => {
     if (product) {
       setFormData({
@@ -59,7 +75,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     }
   }, [product])
 
-  const validateForm = (): boolean => {
+  const validateForm = useCallback((): boolean => {
     const newErrors: Record<string, string> = {}
 
     if (!formData.name.trim()) {
@@ -92,19 +108,28 @@ export const ProductForm: React.FC<ProductFormProps> = ({
 
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
-  }
+  }, [formData])
 
-  const handleInputChange = (field: string, value: string | boolean) => {
+  // Memoized input handler to prevent unnecessary re-renders
+  const handleInputChange = useCallback((field: string, value: string | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }))
-    
-    if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: '' }))
-    }
-  }
+    // Clear error for this field without triggering full validation
+    setErrors(prev => {
+      if (prev[field]) {
+        const { [field]: _removed, ...rest } = prev
+        void _removed // Satisfy linter
+        return rest
+      }
+      return prev
+    })
+  }, [])
 
-  const handleBlur = (field: string) => {
-    setTouched(prev => ({ ...prev, [field]: true }))
-  }
+  const handleBlur = useCallback((field: string) => {
+    setTouched(prev => {
+      if (prev[field]) return prev // No update if already touched
+      return { ...prev, [field]: true }
+    })
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -252,10 +277,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               errorText={touched.unitId ? errors.unitId : ''}
               required
               disabled={isFormLoading}
-              options={[
-                { value: '', label: 'Seleccione una unidad' },
-                ...units.map(unit => ({ value: unit.id, label: `${unit.name} (${unit.code})` }))
-              ]}
+              options={unitOptions}
             />
           </div>
 
@@ -269,10 +291,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               errorText={touched.categoryId ? errors.categoryId : ''}
               required
               disabled={isFormLoading}
-              options={[
-                { value: '', label: 'Seleccione una categoría' },
-                ...categories.map(category => ({ value: category.id, label: category.name }))
-              ]}
+              options={categoryOptions}
             />
           </div>
 
@@ -286,10 +305,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               errorText={touched.brandId ? errors.brandId : ''}
               required
               disabled={isFormLoading}
-              options={[
-                { value: '', label: 'Seleccione una marca' },
-                ...brands.map(brand => ({ value: brand.id, label: brand.name }))
-              ]}
+              options={brandOptions}
             />
           </div>
 

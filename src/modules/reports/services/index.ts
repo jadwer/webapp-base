@@ -12,6 +12,9 @@ import type {
   BalanceSheetFilters,
   PeriodReportFilters,
   AgingReportFilters,
+  SalesByEmployeeFilters,
+  SalesByBatchFilters,
+  SalesTrendFilters,
 } from '../types'
 
 // Base URL for all reports
@@ -428,6 +431,71 @@ export const analyticsService = {
     queryParams.append('end', params.endDate)
 
     const response = await axiosClient.get(`/api/v1/analytics/metrics?${queryParams.toString()}`)
+    return response.data
+  },
+}
+
+// ============================================================================
+// PHASE 13: ADVANCED SALES REPORTS
+// ============================================================================
+
+export const salesByEmployeeService = {
+  get: async (filters: SalesByEmployeeFilters) => {
+    const queryParams = new URLSearchParams()
+    queryParams.append('start_date', filters.startDate)
+    queryParams.append('end_date', filters.endDate)
+    if (filters.employeeId) {
+      queryParams.append('employee_id', filters.employeeId.toString())
+    }
+
+    const url = `${REPORTS_BASE}/sales-by-employee?${queryParams.toString()}`
+    const response = await axiosClient.get(url)
+    return response.data
+  },
+}
+
+export const salesByBatchService = {
+  get: async (filters: SalesByBatchFilters) => {
+    const queryParams = new URLSearchParams()
+    queryParams.append('start_date', filters.startDate)
+    queryParams.append('end_date', filters.endDate)
+    if (filters.productId) {
+      queryParams.append('product_id', filters.productId.toString())
+    }
+    if (filters.batchNumber) {
+      queryParams.append('batch_number', filters.batchNumber)
+    }
+
+    const url = `${REPORTS_BASE}/sales-by-batch?${queryParams.toString()}`
+    const response = await axiosClient.get(url)
+    return response.data
+  },
+}
+
+export const salesProfitabilityService = {
+  get: async (filters: { startDate: string; endDate: string; categoryId?: number }) => {
+    const queryParams = new URLSearchParams()
+    queryParams.append('start_date', filters.startDate)
+    queryParams.append('end_date', filters.endDate)
+    if (filters.categoryId) {
+      queryParams.append('category_id', filters.categoryId.toString())
+    }
+
+    const url = `${REPORTS_BASE}/sales-profitability?${queryParams.toString()}`
+    const response = await axiosClient.get(url)
+    return response.data
+  },
+}
+
+export const salesTrendService = {
+  get: async (filters: SalesTrendFilters) => {
+    const queryParams = new URLSearchParams()
+    queryParams.append('start_date', filters.startDate)
+    queryParams.append('end_date', filters.endDate)
+    queryParams.append('group_by', filters.groupBy)
+
+    const url = `${REPORTS_BASE}/sales-trend?${queryParams.toString()}`
+    const response = await axiosClient.get(url)
     return response.data
   },
 }

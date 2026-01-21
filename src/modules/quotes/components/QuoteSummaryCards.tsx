@@ -4,9 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import {
   FileText,
-  Send,
   CheckCircle,
-  XCircle,
   Clock,
   TrendingUp,
   DollarSign,
