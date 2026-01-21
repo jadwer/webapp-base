@@ -164,7 +164,7 @@ export const OfertasPageClient: React.FC = () => {
                     <div className="mt-auto">
                       <div className="d-flex align-items-center justify-content-between mb-3">
                         <span className="fs-4 fw-bold text-primary">
-                          {formatPrice(product.attributes.price)}
+                          {formatPrice(product.attributes.price || 0)}
                         </span>
                         {product.displayUnit && (
                           <small className="text-muted">/ {product.displayUnit}</small>

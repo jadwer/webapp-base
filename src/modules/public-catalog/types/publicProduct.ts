@@ -16,6 +16,12 @@ export interface PublicProduct {
     barcode: string | null
     imageUrl: string | null
     isActive: boolean
+    // Offer/Sale fields
+    compareAtPrice: number | null
+    isOnSale: boolean
+    saleStartsAt: string | null
+    saleEndsAt: string | null
+    saleBadge: string | null
     createdAt: string
     updatedAt: string
     // Additional computed fields
@@ -100,7 +106,10 @@ export interface PublicProductFilters {
   
   // Product status
   isActive?: boolean
-  
+
+  // Offer/Sale filtering
+  isOnSale?: boolean
+
   // SKU filtering
   sku?: string
   
@@ -161,6 +170,7 @@ export interface PublicProductsQueryParams {
   'filter[price_min]'?: string
   'filter[price_max]'?: string
   'filter[is_active]'?: string
+  'filter[is_on_sale]'?: string
   'filter[sku]'?: string
   'filter[barcode]'?: string
   'filter[created_after]'?: string

@@ -164,7 +164,7 @@ export const OfertasDelMes: React.FC = () => {
             </Link>
             <p className="mt-3">{product.displayName}</p>
             {product.attributes.sku && <p>SKU: {product.attributes.sku}</p>}
-            <h4>{formatPrice(product.attributes.price)}</h4>
+            <h4>{formatPrice(product.attributes.price || 0)}</h4>
             <div className="d-flex gap-2 justify-content-center mt-3">
               <button
                 className="btn btn-primary"

@@ -265,6 +265,7 @@ export function useFeaturedProducts(
 
 /**
  * Hook to get products on offer (lowest prices)
+ * @deprecated Use useSaleProducts instead for products with actual discounts
  */
 export function useProductsOnOffer(
   pagination?: PublicProductPagination,
@@ -276,6 +277,40 @@ export function useProductsOnOffer(
   ]), [])
 
   return usePublicProducts(filters, sort, pagination, include)
+}
+
+/**
+ * Hook to get products currently on sale (with discounts)
+ * Filters by is_on_sale=true and returns products with compareAtPrice > price
+ */
+export function useSaleProducts(
+  limit: number = 6,
+  include: PublicProductInclude = 'unit,category,brand'
+): {
+  products: EnhancedPublicProduct[]
+  isLoading: boolean
+  error: Error | null
+  mutate: () => void
+} {
+  const filters = useMemo((): PublicProductFilters => ({
+    isOnSale: true
+  }), [])
+  const sort = useMemo((): PublicProductSort[] => ([
+    { field: 'updated_at', direction: 'desc' }
+  ]), [])
+  const pagination = useMemo((): PublicProductPagination => ({ size: limit }), [limit])
+
+  const result = usePublicProducts(filters, sort, pagination, include, {
+    refreshInterval: 600000, // 10 minutes
+    revalidateOnFocus: false
+  })
+
+  return {
+    products: result.products,
+    isLoading: result.isLoading,
+    error: result.error,
+    mutate: result.mutate
+  }
 }
 
 /**

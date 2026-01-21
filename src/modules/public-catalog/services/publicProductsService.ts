@@ -82,7 +82,12 @@ class PublicProductsService {
       // if (filters.isActive !== undefined) {
       //   params['filter[is_active]'] = filters.isActive ? '1' : '0'
       // }
-      
+
+      // On sale filter
+      if (filters.isOnSale !== undefined) {
+        params['filter[is_on_sale]'] = filters.isOnSale ? '1' : '0'
+      }
+
       if (filters.sku) {
         params['filter[sku]'] = filters.sku
       }

@@ -8,6 +8,7 @@
 
 import React, { useEffect, useState } from 'react'
 import Image from 'next/image'
+import Link from 'next/link'
 import {
   Header,
   Hero,
@@ -17,8 +18,9 @@ import {
   Footer,
   UltimosProductosEnhanced
 } from '../'
-import { PublicCatalogTemplate } from '@/modules/public-catalog'
+import { PublicCatalogTemplate, useSaleProducts, useLocalCart } from '@/modules/public-catalog'
 import type { EnhancedPublicProduct } from '@/modules/public-catalog'
+import { useToast } from '@/ui/hooks/useToast'
 import styles from './LaborWasserLanding.module.scss'
 
 export interface LaborWasserLandingEnhancedProps {
@@ -51,12 +53,37 @@ const mockUnits = [
 
 const priceRange = { min: 0, max: 50000, step: 100 }
 
-export const LaborWasserLandingEnhanced: React.FC<LaborWasserLandingEnhancedProps> = ({ 
+export const LaborWasserLandingEnhanced: React.FC<LaborWasserLandingEnhancedProps> = ({
   className,
   showFullCatalog = false,
   enableProductModal = true
 }) => {
   const [selectedProduct, setSelectedProduct] = useState<EnhancedPublicProduct | null>(null)
+
+  // Hooks for sale products and cart
+  const { products: saleProducts, isLoading: saleLoading } = useSaleProducts(6)
+  const { addToCart } = useLocalCart()
+  const toast = useToast()
+
+  // Helper to format prices
+  const formatPrice = (price: number): string => {
+    return new Intl.NumberFormat('es-MX', {
+      style: 'currency',
+      currency: 'MXN'
+    }).format(price)
+  }
+
+  // Calculate discount percentage
+  const getDiscountPercentage = (price: number, compareAtPrice: number | null): number | null => {
+    if (!compareAtPrice || compareAtPrice <= price) return null
+    return Math.round(((compareAtPrice - price) / compareAtPrice) * 100)
+  }
+
+  // Handle add to cart for sale products
+  const handleSaleAddToCart = (product: EnhancedPublicProduct) => {
+    addToCart(product, 1)
+    toast.success(`${product.displayName} agregado al carrito`)
+  }
 
   // Enable smooth scrolling for the landing page
   useEffect(() => {
@@ -117,130 +144,136 @@ export const LaborWasserLandingEnhanced: React.FC<LaborWasserLandingEnhancedProp
               </div>
             </div>
 
-            {/* Productos en oferta usando el public catalog */}
+            {/* Productos en oferta desde la API */}
             <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 mb-5">
-              <div className="col">
-                <div className="card h-100 shadow border-success position-relative">
-                  <div className="position-absolute top-0 start-0 m-2">
-                    <span className="badge bg-success fs-6">-25%</span>
-                  </div>
-                  <div className="position-absolute top-0 end-0 m-2">
-                    <span className="badge bg-warning text-dark">OFERTA</span>
-                  </div>
-                  <div className="ratio ratio-4x3">
-                    <div className="d-flex align-items-center justify-content-center bg-light">
-                      <i className="bi bi-flask text-success" style={{ fontSize: '4rem' }}></i>
-                    </div>
-                  </div>
-                  <div className="card-body">
-                    <div className="mb-2">
-                      <span className="badge bg-success bg-opacity-10 text-success small">LaborWasser</span>
-                      <span className="badge bg-primary bg-opacity-10 text-primary small">Reactivos</span>
-                    </div>
-                    <h5 className="card-title">Kit de Reactivos Básicos</h5>
-                    <p className="card-text">
-                      Conjunto completo de 12 reactivos esenciales para análisis químico básico.
-                    </p>
-                    <div className="mb-3">
-                      <div className="d-flex align-items-center">
-                        <span className="text-decoration-line-through text-muted me-2">$4,500.00</span>
-                        <span className="fw-bold fs-4 text-success">$3,375.00</span>
+              {saleLoading ? (
+                // Loading skeleton
+                [1, 2, 3].map((i) => (
+                  <div key={i} className="col">
+                    <div className="card h-100 shadow border-success">
+                      <div className="ratio ratio-4x3 placeholder-glow">
+                        <div className="placeholder bg-secondary w-100 h-100"></div>
                       </div>
-                      <small className="text-muted">Ahorra $1,125.00</small>
-                    </div>
-                    <div className="d-flex gap-2">
-                      <button className="btn btn-success flex-grow-1">
-                        <i className="bi bi-cart-plus me-1"></i> Aprovechar Oferta
-                      </button>
-                      <button className="btn btn-outline-secondary">
-                        <i className="bi bi-heart"></i>
-                      </button>
+                      <div className="card-body">
+                        <div className="placeholder-glow">
+                          <span className="placeholder col-6 mb-2"></span>
+                          <span className="placeholder col-8 mb-2"></span>
+                          <span className="placeholder col-4"></span>
+                        </div>
+                      </div>
                     </div>
                   </div>
+                ))
+              ) : saleProducts.length === 0 ? (
+                // No products on sale
+                <div className="col-12 text-center py-5">
+                  <i className="bi bi-tag text-muted display-1 mb-3 d-block"></i>
+                  <h5 className="text-muted">No hay ofertas disponibles en este momento</h5>
+                  <p className="text-muted">Vuelve pronto para ver nuestras promociones</p>
                 </div>
-              </div>
+              ) : (
+                // Products from API
+                saleProducts.slice(0, 3).map((product) => {
+                  const discount = getDiscountPercentage(
+                    product.attributes.price || 0,
+                    product.attributes.compareAtPrice
+                  )
+                  const savings = product.attributes.compareAtPrice
+                    ? product.attributes.compareAtPrice - (product.attributes.price || 0)
+                    : null
 
-              <div className="col">
-                <div className="card h-100 shadow border-success position-relative">
-                  <div className="position-absolute top-0 start-0 m-2">
-                    <span className="badge bg-success fs-6">-15%</span>
-                  </div>
-                  <div className="position-absolute top-0 end-0 m-2">
-                    <span className="badge bg-warning text-dark">OFERTA</span>
-                  </div>
-                  <div className="ratio ratio-4x3">
-                    <div className="d-flex align-items-center justify-content-center bg-light">
-                      <i className="bi bi-thermometer text-info" style={{ fontSize: '4rem' }}></i>
-                    </div>
-                  </div>
-                  <div className="card-body">
-                    <div className="mb-2">
-                      <span className="badge bg-info bg-opacity-10 text-info small">ChemTech</span>
-                      <span className="badge bg-warning bg-opacity-10 text-warning small">Instrumentos</span>
-                    </div>
-                    <h5 className="card-title">Termómetro Digital Premium</h5>
-                    <p className="card-text">
-                      Precisión ±0.1°C, rango -50°C a 300°C, certificación incluida.
-                    </p>
-                    <div className="mb-3">
-                      <div className="d-flex align-items-center">
-                        <span className="text-decoration-line-through text-muted me-2">$2,890.00</span>
-                        <span className="fw-bold fs-4 text-success">$2,456.50</span>
+                  return (
+                    <div key={product.id} className="col">
+                      <div className="card h-100 shadow border-success position-relative">
+                        {/* Discount badge */}
+                        {discount && (
+                          <div className="position-absolute top-0 start-0 m-2">
+                            <span className="badge bg-success fs-6">-{discount}%</span>
+                          </div>
+                        )}
+                        {/* Sale badge */}
+                        <div className="position-absolute top-0 end-0 m-2">
+                          <span className={`badge ${product.attributes.saleBadge === 'ÚLTIMAS PIEZAS' ? 'bg-danger' : 'bg-warning text-dark'}`}>
+                            {product.attributes.saleBadge || 'OFERTA'}
+                          </span>
+                        </div>
+                        {/* Product image */}
+                        <Link href={`/productos/${product.id}`}>
+                          <div className="ratio ratio-4x3">
+                            {product.attributes.imageUrl ? (
+                              <Image
+                                src={product.attributes.imageUrl}
+                                alt={product.displayName}
+                                fill
+                                className="object-fit-contain p-3"
+                                sizes="(max-width: 768px) 100vw, 33vw"
+                              />
+                            ) : (
+                              <div className="d-flex align-items-center justify-content-center bg-light">
+                                <i className="bi bi-box text-muted" style={{ fontSize: '4rem' }}></i>
+                              </div>
+                            )}
+                          </div>
+                        </Link>
+                        <div className="card-body">
+                          {/* Brand and Category badges */}
+                          <div className="mb-2">
+                            {product.displayBrand && (
+                              <span className="badge bg-success bg-opacity-10 text-success small me-1">
+                                {product.displayBrand}
+                              </span>
+                            )}
+                            {product.displayCategory && (
+                              <span className="badge bg-primary bg-opacity-10 text-primary small">
+                                {product.displayCategory}
+                              </span>
+                            )}
+                          </div>
+                          {/* Product name */}
+                          <h5 className="card-title">
+                            <Link href={`/productos/${product.id}`} className="text-decoration-none text-dark">
+                              {product.displayName}
+                            </Link>
+                          </h5>
+                          {/* Description */}
+                          <p className="card-text text-muted small">
+                            {product.attributes.description?.slice(0, 80) || 'Producto de alta calidad'}
+                            {(product.attributes.description?.length || 0) > 80 ? '...' : ''}
+                          </p>
+                          {/* Prices */}
+                          <div className="mb-3">
+                            <div className="d-flex align-items-center">
+                              {product.attributes.compareAtPrice && (
+                                <span className="text-decoration-line-through text-muted me-2">
+                                  {formatPrice(product.attributes.compareAtPrice)}
+                                </span>
+                              )}
+                              <span className="fw-bold fs-4 text-success">
+                                {formatPrice(product.attributes.price || 0)}
+                              </span>
+                            </div>
+                            {savings && savings > 0 && (
+                              <small className="text-muted">Ahorra {formatPrice(savings)}</small>
+                            )}
+                          </div>
+                          {/* Actions */}
+                          <div className="d-flex gap-2">
+                            <button
+                              className="btn btn-success flex-grow-1"
+                              onClick={() => handleSaleAddToCart(product)}
+                            >
+                              <i className="bi bi-cart-plus me-1"></i> Aprovechar Oferta
+                            </button>
+                            <Link href={`/productos/${product.id}`} className="btn btn-outline-secondary">
+                              <i className="bi bi-eye"></i>
+                            </Link>
+                          </div>
+                        </div>
                       </div>
-                      <small className="text-muted">Ahorra $433.50</small>
                     </div>
-                    <div className="d-flex gap-2">
-                      <button className="btn btn-success flex-grow-1">
-                        <i className="bi bi-cart-plus me-1"></i> Aprovechar Oferta
-                      </button>
-                      <button className="btn btn-outline-secondary">
-                        <i className="bi bi-heart"></i>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="col">
-                <div className="card h-100 shadow border-success position-relative">
-                  <div className="position-absolute top-0 start-0 m-2">
-                    <span className="badge bg-success fs-6">-30%</span>
-                  </div>
-                  <div className="position-absolute top-0 end-0 m-2">
-                    <span className="badge bg-danger">ÚLTIMAS PIEZAS</span>
-                  </div>
-                  <div className="ratio ratio-4x3">
-                    <div className="d-flex align-items-center justify-content-center bg-light">
-                      <i className="bi bi-eyedropper text-warning" style={{ fontSize: '4rem' }}></i>
-                    </div>
-                  </div>
-                  <div className="card-body">
-                    <div className="mb-2">
-                      <span className="badge bg-warning bg-opacity-10 text-warning small">LabPro</span>
-                      <span className="badge bg-info bg-opacity-10 text-info small">Material</span>
-                    </div>
-                    <h5 className="card-title">Set Completo de Micropipetas</h5>
-                    <p className="card-text">
-                      4 micropipetas de diferentes volúmenes con puntas incluidas.
-                    </p>
-                    <div className="mb-3">
-                      <div className="d-flex align-items-center">
-                        <span className="text-decoration-line-through text-muted me-2">$8,750.00</span>
-                        <span className="fw-bold fs-4 text-success">$6,125.00</span>
-                      </div>
-                      <small className="text-muted">Ahorra $2,625.00</small>
-                    </div>
-                    <div className="d-flex gap-2">
-                      <button className="btn btn-success flex-grow-1">
-                        <i className="bi bi-cart-plus me-1"></i> Aprovechar Oferta
-                      </button>
-                      <button className="btn btn-outline-secondary">
-                        <i className="bi bi-heart"></i>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
+                  )
+                })
+              )}
             </div>
 
             {/* Call to Action para ofertas */}

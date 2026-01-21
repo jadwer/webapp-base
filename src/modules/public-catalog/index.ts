@@ -66,6 +66,7 @@ export {
   usePublicProductsByBrand,
   useFeaturedProducts,
   useProductsOnOffer,
+  useSaleProducts,
   useProductSuggestions,
   useProductsByPriceRange,
   // LocalStorage cart hooks

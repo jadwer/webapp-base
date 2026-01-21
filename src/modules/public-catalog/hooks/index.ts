@@ -12,6 +12,7 @@ export {
   usePublicProductsByBrand,
   useFeaturedProducts,
   useProductsOnOffer,
+  useSaleProducts,
   useProductSuggestions,
   useProductsByPriceRange
 } from './usePublicProducts'
