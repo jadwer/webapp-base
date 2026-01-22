@@ -198,13 +198,6 @@ export default function ProductDetailPage({
                     </small>
                   </div>
                 )}
-                {product.attributes.barcode && (
-                  <div className="col-auto">
-                    <small className="text-muted">
-                      <strong>Codigo:</strong> {product.attributes.barcode}
-                    </small>
-                  </div>
-                )}
               </div>
 
               {/* Category */}

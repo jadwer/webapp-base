@@ -10,23 +10,23 @@ export interface PublicProduct {
   type: 'public-products'
   attributes: {
     name: string
-    description: string | null
-    price: number | null
     sku: string | null
-    barcode: string | null
-    imageUrl: string | null
-    isActive: boolean
-    // Offer/Sale fields
+    description: string | null
+    fullDescription: string | null
+    price: number | null
+    cost: number | null
     compareAtPrice: number | null
     isOnSale: boolean
     saleStartsAt: string | null
     saleEndsAt: string | null
     saleBadge: string | null
+    iva: boolean
+    imgPath: string | null
+    datasheetPath: string | null
+    imageUrl: string | null
+    datasheetUrl: string | null
     createdAt: string
     updatedAt: string
-    // Additional computed fields
-    formattedPrice?: string
-    priceRange?: string
   }
   relationships: {
     unit: {
