@@ -218,7 +218,7 @@ export default function ProductDetailPage() {
         {/* Sidebar */}
         <div className="col-lg-4">
           {/* Image */}
-          {product.imgPath && (
+          {product.imgUrl && (
             <Card className="mb-4">
               <div className="card-header">
                 <h6 className="mb-0">
@@ -227,8 +227,8 @@ export default function ProductDetailPage() {
                 </h6>
               </div>
               <div className="card-body text-center">
-                <Image 
-                  src={product.imgPath} 
+                <Image
+                  src={product.imgUrl}
                   alt={product.name}
                   width={400}
                   height={300}
@@ -240,7 +240,7 @@ export default function ProductDetailPage() {
           )}
 
           {/* Files */}
-          {product.datasheetPath && (
+          {product.datasheetUrl && (
             <Card className="mb-4">
               <div className="card-header">
                 <h6 className="mb-0">
@@ -250,7 +250,7 @@ export default function ProductDetailPage() {
               </div>
               <div className="card-body">
                 <a
-                  href={product.datasheetPath}
+                  href={product.datasheetUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="btn btn-outline-info w-100"

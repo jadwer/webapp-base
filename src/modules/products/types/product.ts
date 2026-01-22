@@ -14,6 +14,8 @@ export interface Product {
   isActive: boolean
   imgPath?: string
   datasheetPath?: string
+  imgUrl?: string
+  datasheetUrl?: string
   unitId: string
   categoryId: string | null
   brandId: string | null

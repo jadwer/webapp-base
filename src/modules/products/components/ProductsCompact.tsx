@@ -25,7 +25,7 @@ const ProductCompactRow = React.memo<{
     {/* Image */}
     <div className="flex-shrink-0 me-2">
       <Image
-        src={product.imgPath || '/images/product-placeholder.jpg'}
+        src={product.imgUrl || '/images/product-placeholder.jpg'}
         alt={product.name}
         width={32}
         height={32}

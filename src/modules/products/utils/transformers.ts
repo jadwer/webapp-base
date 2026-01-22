@@ -93,6 +93,8 @@ export function transformJsonApiProduct(
     isActive: Boolean(resource.attributes.isActive ?? true),
     imgPath: resource.attributes.imgPath as string | undefined,
     datasheetPath: resource.attributes.datasheetPath as string | undefined,
+    imgUrl: resource.attributes.imgUrl as string | undefined,
+    datasheetUrl: resource.attributes.datasheetUrl as string | undefined,
     unitId: (resource.relationships?.unit?.data?.id || '') as string,
     categoryId: (resource.relationships?.category?.data?.id || '') as string,
     brandId: (resource.relationships?.brand?.data?.id || '') as string,

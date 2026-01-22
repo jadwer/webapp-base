@@ -126,9 +126,9 @@ export const ProductsTable: React.FC<ProductsTableProps> = ({
                 <tr key={product.id} className={clsx({ 'opacity-50': isProductLoading })}>
                   <td>
                     <div className="d-flex align-items-center">
-                      {product.imgPath && (
-                        <Image 
-                          src={product.imgPath} 
+                      {product.imgUrl && (
+                        <Image
+                          src={product.imgUrl}
                           alt={product.name}
                           width={40}
                           height={40}

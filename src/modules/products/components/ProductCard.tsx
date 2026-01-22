@@ -37,9 +37,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   return (
     <Card className={className}>
       <div className="position-relative">
-        {product.imgPath && (
-          <Image 
-            src={product.imgPath} 
+        {product.imgUrl && (
+          <Image
+            src={product.imgUrl}
             alt={product.name}
             width={400}
             height={200}
@@ -154,10 +154,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           )}
         </div>
 
-        {(product.datasheetPath) && (
+        {(product.datasheetUrl) && (
           <div className="mt-2">
             <a
-              href={product.datasheetPath}
+              href={product.datasheetUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="btn btn-sm btn-outline-info w-100"

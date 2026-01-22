@@ -28,7 +28,7 @@ const ProductRow = React.memo<{
     {/* Image */}
     <div className="flex-shrink-0 me-3" style={{ width: '60px' }}>
       <Image
-        src={product.imgPath || '/images/product-placeholder.jpg'}
+        src={product.imgUrl || '/images/product-placeholder.jpg'}
         alt={product.name}
         width={50}
         height={50}
