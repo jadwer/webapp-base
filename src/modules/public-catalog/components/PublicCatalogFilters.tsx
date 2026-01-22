@@ -174,7 +174,7 @@ export const PublicCatalogFilters: React.FC<PublicCatalogFiltersProps> = ({
   const sortOptions: { value: PublicProductSortField; label: string }[] = [
     { value: 'name', label: 'Nombre' },
     { value: 'price', label: 'Precio' },
-    { value: 'created_at', label: 'Más reciente' },
+    { value: 'createdAt', label: 'Más reciente' },
     { value: 'category.name', label: 'Categoría' },
     { value: 'brand.name', label: 'Marca' }
   ]

@@ -124,11 +124,11 @@ export interface PublicProductFilters {
 }
 
 // Sorting Options
-export type PublicProductSortField = 
+export type PublicProductSortField =
   | 'name'
   | 'price'
-  | 'created_at'
-  | 'updated_at'
+  | 'createdAt'
+  | 'updatedAt'
   | 'category.name'
   | 'brand.name'
   | 'unit.name'

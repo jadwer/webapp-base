@@ -296,7 +296,7 @@ export function useSaleProducts(
     isOnSale: true
   }), [])
   const sort = useMemo((): PublicProductSort[] => ([
-    { field: 'updated_at', direction: 'desc' }
+    { field: 'updatedAt', direction: 'desc' }
   ]), [])
   const pagination = useMemo((): PublicProductPagination => ({ size: limit }), [limit])
 

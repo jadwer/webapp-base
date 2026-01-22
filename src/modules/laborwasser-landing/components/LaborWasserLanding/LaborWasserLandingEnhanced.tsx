@@ -329,7 +329,7 @@ export const LaborWasserLandingEnhanced: React.FC<LaborWasserLandingEnhancedProp
               </div>
 
               <PublicCatalogTemplate
-                initialSortField="created_at"
+                initialSortField="createdAt"
                 initialSortDirection="desc"
                 initialViewMode="grid"
                 initialPageSize={12}
