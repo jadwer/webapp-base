@@ -34,9 +34,7 @@ export function useFeaturedProducts(options: FeaturedProductsOptions = {}) {
     description: product.attributes.description,
     price: product.attributes.price,
     sku: product.attributes.sku,
-    barcode: product.attributes.barcode,
     imageUrl: product.attributes.imageUrl,
-    isActive: product.attributes.isActive,
     createdAt: product.attributes.createdAt,
     updatedAt: product.attributes.updatedAt,
     

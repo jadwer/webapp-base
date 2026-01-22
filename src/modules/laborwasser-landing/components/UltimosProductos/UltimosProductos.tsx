@@ -11,9 +11,7 @@ interface TransformedProduct {
   description: string | null
   price: number | null
   sku: string | null
-  barcode: string | null
   imageUrl: string | null
-  isActive: boolean
   createdAt: string
   updatedAt: string
   unit: {
