@@ -67,17 +67,30 @@ export const Footer: React.FC = () => {
             <ul>
               <li>
                 <Link className="dropdown-item" href="/catalogos">
-                  Catalogos
+                  Catalogos PDF
                 </Link>
               </li>
               <li>
                 <Link className="dropdown-item" href="/certificados">
-                  Certificados
+                  Certificaciones
                 </Link>
               </li>
               <li>
-                <Link className="dropdown-item" href="/precios">
-                  Lista de precios
+                <Link className="dropdown-item" href="/productos">
+                  Catalogo en linea
+                </Link>
+              </li>
+            </ul>
+            <h4 className="mt-4">Legal</h4>
+            <ul>
+              <li>
+                <Link className="dropdown-item" href="/aviso-privacidad">
+                  Aviso de privacidad
+                </Link>
+              </li>
+              <li>
+                <Link className="dropdown-item" href="/derechos-reservados">
+                  Terminos y condiciones
                 </Link>
               </li>
             </ul>
@@ -115,11 +128,16 @@ export const Footer: React.FC = () => {
         <div className="row text-muted">
           <p className="text-center">
             {currentYear}. Labor Wasser de Mexico. Todos los Derechos Reservados.
-            &nbsp;
-            <Link href="/aviso-privacidad" target="_blank">
-              Aviso de privacidad.
+            &nbsp;|&nbsp;
+            <Link href="/aviso-privacidad">
+              Aviso de privacidad
             </Link>
-            &nbsp;Designed and developed by{' '}
+            &nbsp;|&nbsp;
+            <Link href="/derechos-reservados">
+              Terminos de uso
+            </Link>
+            &nbsp;|&nbsp;
+            Designed and developed by{' '}
             <a href="http://atomosoluciones.com" target="_blank" rel="noopener noreferrer">
               AtomoSoluciones.com
             </a>

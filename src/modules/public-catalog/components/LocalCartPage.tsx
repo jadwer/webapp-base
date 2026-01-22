@@ -6,12 +6,15 @@
 
 'use client'
 
-import React from 'react'
+import React, { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { Button } from '@/ui/components/base'
 import { useLocalCart } from '../hooks/useLocalCart'
 import type { LocalCartItem } from '../hooks/useLocalCart'
+import { useAuth } from '@/modules/auth'
+import { toast } from '@/lib/toast'
 
 interface LocalCartPageProps {
   onCheckout?: () => void
@@ -24,6 +27,10 @@ export const LocalCartPage: React.FC<LocalCartPageProps> = ({
   checkoutUrl = '/checkout',
   continueShoppingUrl = '/productos'
 }) => {
+  const router = useRouter()
+  const { isAuthenticated, isLoading: authLoading } = useAuth()
+  const [isRequestingQuote, setIsRequestingQuote] = useState(false)
+
   const {
     items,
     totals,
@@ -35,6 +42,36 @@ export const LocalCartPage: React.FC<LocalCartPageProps> = ({
     decrementQuantity,
     clearCart
   } = useLocalCart()
+
+  // Handle quote request
+  const handleRequestQuote = async () => {
+    if (items.length === 0) {
+      toast.error('El carrito esta vacio')
+      return
+    }
+
+    setIsRequestingQuote(true)
+
+    try {
+      // Save cart items to sessionStorage for quote creation
+      sessionStorage.setItem('pendingQuoteCart', JSON.stringify(items))
+
+      if (!isAuthenticated) {
+        // Redirect to login with return URL
+        toast.info('Inicia sesion para solicitar una cotizacion')
+        router.push('/auth/login?redirect=/dashboard/quotes/create&action=quote')
+        return
+      }
+
+      // User is authenticated, redirect to quote creation
+      router.push('/dashboard/quotes/create?source=public-cart')
+    } catch (error) {
+      console.error('Error requesting quote:', error)
+      toast.error('Error al procesar la solicitud')
+    } finally {
+      setIsRequestingQuote(false)
+    }
+  }
 
   // Format price
   const formatPrice = (price: number): string => {
@@ -264,17 +301,25 @@ export const LocalCartPage: React.FC<LocalCartPageProps> = ({
               </div>
 
               {/* Quote Request Button */}
-              <a
-                href="https://wa.link/4e5cqt"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="d-block mb-3"
+              <Button
+                variant="success"
+                size="large"
+                className="w-100 mb-3"
+                onClick={handleRequestQuote}
+                disabled={isRequestingQuote || authLoading}
               >
-                <Button variant="success" size="large" className="w-100">
-                  <i className="bi bi-file-earmark-text me-2" />
-                  Solicitar Cotizacion
-                </Button>
-              </a>
+                {isRequestingQuote ? (
+                  <>
+                    <span className="spinner-border spinner-border-sm me-2" />
+                    Procesando...
+                  </>
+                ) : (
+                  <>
+                    <i className="bi bi-file-earmark-text me-2" />
+                    Solicitar Cotizacion
+                  </>
+                )}
+              </Button>
 
               {onCheckout ? (
                 <Button

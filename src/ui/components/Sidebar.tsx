@@ -60,6 +60,12 @@ const inventoryLinks = [
   { href: '/dashboard/inventory/product-batch', label: 'Lotes de Productos', icon: 'bi-calendar-check' }
 ]
 
+// Cotizaciones
+const quotesLinks = [
+  { href: '/dashboard/quotes', label: 'Lista Cotizaciones', icon: 'bi-list-ul' },
+  { href: '/dashboard/quotes/create', label: 'Nueva Cotización', icon: 'bi-plus-circle' }
+]
+
 // Ventas
 const salesLinks = [
   { href: '/dashboard/sales', label: 'Órdenes de Venta', icon: 'bi-cart-check' },
@@ -200,6 +206,7 @@ export default function Sidebar() {
   const [productsOpen, setProductsOpen] = useState(pathname?.startsWith('/dashboard/products'))
   const [contactsOpen, setContactsOpen] = useState(pathname?.startsWith('/dashboard/contacts'))
   const [inventoryOpen, setInventoryOpen] = useState(pathname?.startsWith('/dashboard/inventory'))
+  const [quotesOpen, setQuotesOpen] = useState(pathname?.startsWith('/dashboard/quotes'))
   const [salesOpen, setSalesOpen] = useState(pathname?.startsWith('/dashboard/sales'))
   const [purchaseOpen, setPurchaseOpen] = useState(pathname?.startsWith('/dashboard/purchase'))
   const [financeOpen, setFinanceOpen] = useState(pathname?.startsWith('/dashboard/finance'))
@@ -344,6 +351,7 @@ export default function Sidebar() {
             {renderGroup('Productos', 'bi-box-seam', productsOpen, setProductsOpen, productsLinks)}
             {renderGroup('Inventario', 'bi-archive', inventoryOpen, setInventoryOpen, inventoryLinks)}
             {renderGroup('Contactos', 'bi-person-rolodex', contactsOpen, setContactsOpen, contactsLinks)}
+            {renderGroup('Cotizaciones', 'bi-file-earmark-text', quotesOpen, setQuotesOpen, quotesLinks)}
             {renderGroup('Ventas', 'bi-cart-check', salesOpen, setSalesOpen, salesLinks)}
             {renderGroup('Compras', 'bi-cart-plus', purchaseOpen, setPurchaseOpen, purchaseLinks)}
 

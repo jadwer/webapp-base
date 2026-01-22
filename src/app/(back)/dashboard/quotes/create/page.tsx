@@ -15,12 +15,13 @@ import {
   SelectValue
 } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
-import { ArrowLeft, FileText, ShoppingCart as ShoppingCartIcon, User, Calendar, AlertCircle, RefreshCw } from 'lucide-react'
+import { ArrowLeft, FileText, ShoppingCart as ShoppingCartIcon, User, Calendar, AlertCircle, RefreshCw, Package } from 'lucide-react'
 import { useQuoteMutations } from '@/modules/quotes'
 import { contactsService } from '@/modules/contacts/services'
 import { shoppingCartService } from '@/modules/ecommerce'
 import type { ShoppingCart } from '@/modules/ecommerce'
 import { toast } from '@/lib/toast'
+import type { LocalCartItem } from '@/modules/public-catalog'
 
 interface Contact {
   id: string
@@ -33,9 +34,16 @@ interface CartWithItems {
   items: Array<{
     id: string
     productName: string
+    productId: string
     quantity: number
     unitPrice: number
   }>
+  totalAmount: number
+}
+
+// Items from localStorage public cart
+interface PublicCartPreview {
+  items: LocalCartItem[]
   totalAmount: number
 }
 
@@ -44,6 +52,7 @@ export default function CreateQuotePage() {
   const searchParams = useSearchParams()
   const cartIdFromUrl = searchParams.get('cart_id')
   const contactIdFromUrl = searchParams.get('contact_id')
+  const sourceFromUrl = searchParams.get('source')
 
   const mutations = useQuoteMutations()
 
@@ -60,12 +69,34 @@ export default function CreateQuotePage() {
   const [isLoadingData, setIsLoadingData] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
 
+  // Public cart from localStorage
+  const [publicCartPreview, setPublicCartPreview] = useState<PublicCartPreview | null>(null)
+  const [isCreatingBackendCart, setIsCreatingBackendCart] = useState(false)
+
   // Set default validity date (30 days from now)
   useEffect(() => {
     const defaultDate = new Date()
     defaultDate.setDate(defaultDate.getDate() + 30)
     setValidUntil(defaultDate.toISOString().split('T')[0])
   }, [])
+
+  // Load public cart from sessionStorage if coming from public cart
+  useEffect(() => {
+    if (sourceFromUrl === 'public-cart') {
+      try {
+        const pendingCart = sessionStorage.getItem('pendingQuoteCart')
+        if (pendingCart) {
+          const items: LocalCartItem[] = JSON.parse(pendingCart)
+          if (items.length > 0) {
+            const totalAmount = items.reduce((sum, item) => sum + (item.price * item.quantity), 0)
+            setPublicCartPreview({ items, totalAmount })
+          }
+        }
+      } catch (error) {
+        console.error('Error loading public cart:', error)
+      }
+    }
+  }, [sourceFromUrl])
 
   // Transform ShoppingCart to display format
   const transformCartToDisplay = (cart: ShoppingCart): CartWithItems => {
@@ -75,12 +106,56 @@ export default function CreateQuotePage() {
         const product = item.product as { name?: string } | undefined
         return {
           id: String(item.id),
+          productId: String(item.productId),
           productName: product?.name || `Producto #${item.productId}`,
           quantity: item.quantity,
           unitPrice: item.unitPrice || 0
         }
       }),
       totalAmount: cart.totalAmount || 0
+    }
+  }
+
+  // Create backend cart from public cart items
+  const createBackendCartFromPublicCart = async (): Promise<string | null> => {
+    if (!publicCartPreview || publicCartPreview.items.length === 0) {
+      return null
+    }
+
+    setIsCreatingBackendCart(true)
+    try {
+      // Create or get current cart
+      const cart = await shoppingCartService.cart.getOrCreate()
+
+      // Clear existing items
+      if (cart.items && cart.items.length > 0) {
+        for (const item of cart.items) {
+          await shoppingCartService.items.remove(String(item.id))
+        }
+      }
+
+      // Add items from public cart
+      for (const item of publicCartPreview.items) {
+        await shoppingCartService.items.add(
+          Number(cart.id),
+          Number(item.productId),
+          item.quantity
+        )
+      }
+
+      // Clear public cart from sessionStorage
+      sessionStorage.removeItem('pendingQuoteCart')
+
+      // Refresh carts list
+      await loadData()
+
+      return String(cart.id)
+    } catch (error) {
+      console.error('Error creating backend cart:', error)
+      toast.error('Error al sincronizar el carrito')
+      return null
+    } finally {
+      setIsCreatingBackendCart(false)
     }
   }
 
@@ -148,14 +223,32 @@ export default function CreateQuotePage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!selectedCartId || !selectedContactId) {
-      toast.error('Selecciona un carrito y un cliente')
+    if (!selectedContactId) {
+      toast.error('Selecciona un cliente')
+      return
+    }
+
+    let cartIdToUse = selectedCartId
+
+    // If we have a public cart preview but no selected cart, create backend cart first
+    if (!cartIdToUse && publicCartPreview && publicCartPreview.items.length > 0) {
+      toast.info('Sincronizando carrito...')
+      const newCartId = await createBackendCartFromPublicCart()
+      if (!newCartId) {
+        toast.error('Error al sincronizar el carrito')
+        return
+      }
+      cartIdToUse = newCartId
+    }
+
+    if (!cartIdToUse) {
+      toast.error('Selecciona un carrito')
       return
     }
 
     try {
       const result = await mutations.createFromCart.mutateAsync({
-        shopping_cart_id: parseInt(selectedCartId),
+        shopping_cart_id: parseInt(cartIdToUse),
         contact_id: parseInt(selectedContactId),
         valid_until: validUntil || undefined,
         notes: notes || undefined,
@@ -244,11 +337,43 @@ export default function CreateQuotePage() {
                   Carrito de Compras
                 </CardTitle>
                 <CardDescription>
-                  Selecciona el carrito con los productos a cotizar
+                  {publicCartPreview
+                    ? 'Productos seleccionados desde la tienda'
+                    : 'Selecciona el carrito con los productos a cotizar'
+                  }
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                {carts.length === 0 ? (
+                {/* Show public cart preview if coming from public cart */}
+                {publicCartPreview && publicCartPreview.items.length > 0 ? (
+                  <div className="space-y-4">
+                    <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                      <div className="flex items-center gap-2 text-green-700 mb-2">
+                        <Package className="h-5 w-5" />
+                        <span className="font-medium">Productos desde la tienda</span>
+                      </div>
+                      <p className="text-sm text-green-600">
+                        Se creara un carrito automaticamente con estos productos
+                      </p>
+                    </div>
+
+                    <div className="border rounded-lg p-4 space-y-2">
+                      <p className="text-sm font-medium">Productos a cotizar:</p>
+                      <ul className="text-sm space-y-1">
+                        {publicCartPreview.items.map((item) => (
+                          <li key={item.productId} className="flex justify-between text-muted-foreground">
+                            <span>{item.name} x {item.quantity}</span>
+                            <span>{formatCurrency(item.price * item.quantity)}</span>
+                          </li>
+                        ))}
+                      </ul>
+                      <div className="border-t pt-2 flex justify-between font-medium">
+                        <span>Total</span>
+                        <span>{formatCurrency(publicCartPreview.totalAmount)}</span>
+                      </div>
+                    </div>
+                  </div>
+                ) : carts.length === 0 ? (
                   <div className="text-center py-8 text-muted-foreground">
                     <AlertCircle className="mx-auto h-12 w-12 mb-4" />
                     <p>No hay carritos disponibles</p>
@@ -424,9 +549,19 @@ export default function CreateQuotePage() {
                   <Button
                     type="submit"
                     className="flex-1"
-                    disabled={!selectedCartId || !selectedContactId || mutations.createFromCart.isPending}
+                    disabled={
+                      (!selectedCartId && !publicCartPreview) ||
+                      !selectedContactId ||
+                      mutations.createFromCart.isPending ||
+                      isCreatingBackendCart
+                    }
                   >
-                    {mutations.createFromCart.isPending ? 'Creando...' : 'Crear Cotizacion'}
+                    {isCreatingBackendCart
+                      ? 'Sincronizando carrito...'
+                      : mutations.createFromCart.isPending
+                        ? 'Creando cotizacion...'
+                        : 'Crear Cotizacion'
+                    }
                   </Button>
                 </div>
                 <p className="text-xs text-muted-foreground text-center mt-4">
