@@ -202,19 +202,39 @@ export const ProductForm: React.FC<ProductFormProps> = ({
 
   return (
     <form onSubmit={handleSubmit} className="needs-validation" noValidate>
+      {/* Nombre del producto - Full width */}
+      <div className="mb-4">
+        <Input
+          label="Nombre del producto"
+          type="text"
+          value={formData.name}
+          onChange={(e) => handleInputChange('name', e.target.value)}
+          onBlur={() => handleBlur('name')}
+          errorText={touched.name ? errors.name : ''}
+          required
+          placeholder="Ingrese el nombre del producto"
+          disabled={isFormLoading}
+        />
+      </div>
+
       <div className="row">
         <div className="col-md-8">
+          {/* Imagen del producto - First in left column, above SKU */}
           <div className="mb-3">
-            <Input
-              label="Nombre del producto"
-              type="text"
-              value={formData.name}
-              onChange={(e) => handleInputChange('name', e.target.value)}
-              onBlur={() => handleBlur('name')}
-              errorText={touched.name ? errors.name : ''}
-              required
-              placeholder="Ingrese el nombre del producto"
-              disabled={isFormLoading}
+            <FileUploader
+              label="Imagen del producto"
+              accept="image/jpeg,image/png,image/gif,image/webp"
+              maxSizeMB={10}
+              isImage={true}
+              onFileSelect={(file) => setImageFile(file)}
+              onClear={() => {
+                setImageFile(null)
+                handleInputChange('imgPath', '')
+              }}
+              previewUrl={product?.imgUrl || null}
+              isLoading={uploadingImage}
+              helpText="JPG, PNG, GIF o WebP. Máximo 10MB"
+              errorText={errors.imgPath}
             />
           </div>
 
@@ -240,7 +260,6 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               onChange={(e) => handleInputChange('description', e.target.value)}
               onBlur={() => handleBlur('description')}
               placeholder="Descripción breve del producto"
-              
               disabled={isFormLoading}
             />
           </div>
@@ -253,7 +272,6 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               onChange={(e) => handleInputChange('fullDescription', e.target.value)}
               onBlur={() => handleBlur('fullDescription')}
               placeholder="Descripción detallada del producto"
-              
               disabled={isFormLoading}
             />
           </div>
@@ -347,24 +365,6 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               required
               disabled={isFormLoading}
               options={brandOptions}
-            />
-          </div>
-
-          <div className="mb-3">
-            <FileUploader
-              label="Imagen del producto"
-              accept="image/jpeg,image/png,image/gif,image/webp"
-              maxSizeMB={10}
-              isImage={true}
-              onFileSelect={(file) => setImageFile(file)}
-              onClear={() => {
-                setImageFile(null)
-                handleInputChange('imgPath', '')
-              }}
-              previewUrl={product?.imgUrl || null}
-              isLoading={uploadingImage}
-              helpText="JPG, PNG, GIF o WebP. Máximo 10MB"
-              errorText={errors.imgPath}
             />
           </div>
 

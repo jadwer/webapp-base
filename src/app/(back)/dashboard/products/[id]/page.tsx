@@ -82,6 +82,22 @@ export default function ProductDetailPage() {
       <div className="row">
         {/* Main Information */}
         <div className="col-lg-8">
+          {/* Product Image - First in left column */}
+          {product.imgUrl && (
+            <Card className="mb-4">
+              <div className="card-body text-center py-4">
+                <Image
+                  src={product.imgUrl}
+                  alt={product.name}
+                  width={400}
+                  height={300}
+                  className="img-fluid rounded"
+                  style={{ maxHeight: 300, objectFit: 'contain' }}
+                />
+              </div>
+            </Card>
+          )}
+
           <Card className="mb-4">
             <div className="card-header">
               <h5 className="mb-0">
@@ -92,10 +108,6 @@ export default function ProductDetailPage() {
             <div className="card-body">
               <div className="row">
                 <div className="col-md-6">
-                  <div className="mb-3">
-                    <label className="form-label fw-bold">Nombre:</label>
-                    <div>{product.name}</div>
-                  </div>
                   <div className="mb-3">
                     <label className="form-label fw-bold">SKU:</label>
                     <div>
@@ -168,76 +180,46 @@ export default function ProductDetailPage() {
               </div>
             </div>
           </Card>
-
-          {/* Categories and Classifications */}
-          <Card>
-            <div className="card-header">
-              <h5 className="mb-0">
-                <i className="bi bi-tags me-2" />
-                Clasificación
-              </h5>
-            </div>
-            <div className="card-body">
-              <div className="row">
-                <div className="col-md-4">
-                  <div className="mb-3">
-                    <label className="form-label fw-bold">Categoría:</label>
-                    <div>
-                      <span className="badge bg-secondary fs-6">
-                        {product.category?.name || 'Sin categoría'}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-                <div className="col-md-4">
-                  <div className="mb-3">
-                    <label className="form-label fw-bold">Marca:</label>
-                    <div>
-                      <span className="badge bg-primary fs-6">
-                        {product.brand?.name || 'Sin marca'}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-                <div className="col-md-4">
-                  <div className="mb-3">
-                    <label className="form-label fw-bold">Unidad:</label>
-                    <div>
-                      <span className="badge bg-info text-dark fs-6">
-                        {product.unit?.name || 'Sin unidad'}
-                        {product.unit?.code && ` (${product.unit.code})`}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </Card>
         </div>
 
         {/* Sidebar */}
         <div className="col-lg-4">
-          {/* Image */}
-          {product.imgUrl && (
-            <Card className="mb-4">
-              <div className="card-header">
-                <h6 className="mb-0">
-                  <i className="bi bi-image me-2" />
-                  Imagen
-                </h6>
+          {/* Classification - Moved to sidebar */}
+          <Card className="mb-4">
+            <div className="card-header">
+              <h6 className="mb-0">
+                <i className="bi bi-tags me-2" />
+                Clasificación
+              </h6>
+            </div>
+            <div className="card-body">
+              <div className="mb-3">
+                <label className="form-label fw-bold small">Categoría:</label>
+                <div>
+                  <span className="badge bg-secondary">
+                    {product.category?.name || 'Sin categoría'}
+                  </span>
+                </div>
               </div>
-              <div className="card-body text-center">
-                <Image
-                  src={product.imgUrl}
-                  alt={product.name}
-                  width={400}
-                  height={300}
-                  className="img-fluid rounded"
-                  style={{ maxHeight: 300 }}
-                />
+              <div className="mb-3">
+                <label className="form-label fw-bold small">Marca:</label>
+                <div>
+                  <span className="badge bg-primary">
+                    {product.brand?.name || 'Sin marca'}
+                  </span>
+                </div>
               </div>
-            </Card>
-          )}
+              <div>
+                <label className="form-label fw-bold small">Unidad:</label>
+                <div>
+                  <span className="badge bg-info text-dark">
+                    {product.unit?.name || 'Sin unidad'}
+                    {product.unit?.code && ` (${product.unit.code})`}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </Card>
 
           {/* Files */}
           {product.datasheetUrl && (

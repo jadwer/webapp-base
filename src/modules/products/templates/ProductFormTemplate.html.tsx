@@ -99,9 +99,9 @@ export const ProductFormTemplate: React.FC<ProductFormTemplateProps> = ({
                 <small className="text-muted">SKU: {product.sku}</small>
               )}
             </div>
-            {product.imgPath && (
-              <Image 
-                src={product.imgPath} 
+            {product.imgUrl && (
+              <Image
+                src={product.imgUrl}
                 alt={product.name}
                 width={48}
                 height={48}
