@@ -3,6 +3,8 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react'
 import { Button, Input } from '@/ui/components/base'
 import { useUnits, useCategories, useBrands } from '../hooks'
+import { FileUploader } from './FileUploader'
+import { productService } from '../services/productService'
 import type { Product, CreateProductData, UpdateProductData } from '../types'
 
 interface ProductFormProps {
@@ -35,6 +37,12 @@ export const ProductForm: React.FC<ProductFormProps> = ({
 
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [touched, setTouched] = useState<Record<string, boolean>>({})
+
+  // File upload states
+  const [imageFile, setImageFile] = useState<File | null>(null)
+  const [datasheetFile, setDatasheetFile] = useState<File | null>(null)
+  const [uploadingImage, setUploadingImage] = useState(false)
+  const [uploadingDatasheet, setUploadingDatasheet] = useState(false)
 
   const { units, isLoading: unitsLoading } = useUnits()
   const { categories, isLoading: categoriesLoading } = useCategories()
@@ -133,11 +141,44 @@ export const ProductForm: React.FC<ProductFormProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     const allTouched = Object.keys(formData).reduce((acc, key) => ({ ...acc, [key]: true }), {})
     setTouched(allTouched)
 
     if (!validateForm()) return
+
+    let finalImgPath = formData.imgPath
+    let finalDatasheetPath = formData.datasheetPath
+
+    // Upload image if new file selected
+    if (imageFile) {
+      setUploadingImage(true)
+      try {
+        const result = await productService.uploadImage(imageFile)
+        finalImgPath = result.path
+      } catch (error) {
+        console.error('Error uploading image:', error)
+        setErrors(prev => ({ ...prev, imgPath: 'Error al subir la imagen' }))
+        setUploadingImage(false)
+        return
+      }
+      setUploadingImage(false)
+    }
+
+    // Upload datasheet if new file selected
+    if (datasheetFile) {
+      setUploadingDatasheet(true)
+      try {
+        const result = await productService.uploadDatasheet(datasheetFile)
+        finalDatasheetPath = result.path
+      } catch (error) {
+        console.error('Error uploading datasheet:', error)
+        setErrors(prev => ({ ...prev, datasheetPath: 'Error al subir la hoja de datos' }))
+        setUploadingDatasheet(false)
+        return
+      }
+      setUploadingDatasheet(false)
+    }
 
     const submitData = {
       name: formData.name,
@@ -147,8 +188,8 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       ...(formData.price && { price: Number(formData.price) }),
       ...(formData.cost && { cost: Number(formData.cost) }),
       iva: formData.iva,
-      ...(formData.imgPath && { imgPath: formData.imgPath }),
-      ...(formData.datasheetPath && { datasheetPath: formData.datasheetPath }),
+      ...(finalImgPath && { imgPath: finalImgPath }),
+      ...(finalDatasheetPath && { datasheetPath: finalDatasheetPath }),
       unitId: formData.unitId,
       categoryId: formData.categoryId,
       brandId: formData.brandId
@@ -157,7 +198,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     await onSubmit(submitData)
   }
 
-  const isFormLoading = isLoading || unitsLoading || categoriesLoading || brandsLoading
+  const isFormLoading = isLoading || unitsLoading || categoriesLoading || brandsLoading || uploadingImage || uploadingDatasheet
 
   return (
     <form onSubmit={handleSubmit} className="needs-validation" noValidate>
@@ -310,28 +351,38 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           </div>
 
           <div className="mb-3">
-            <Input
-              label="Imagen"
-              type="text"
-              value={formData.imgPath}
-              onChange={(e) => handleInputChange('imgPath', e.target.value)}
-              onBlur={() => handleBlur('imgPath')}
-              placeholder="URL de la imagen"
-              leftIcon="bi-image"
-              disabled={isFormLoading}
+            <FileUploader
+              label="Imagen del producto"
+              accept="image/jpeg,image/png,image/gif,image/webp"
+              maxSizeMB={10}
+              isImage={true}
+              onFileSelect={(file) => setImageFile(file)}
+              onClear={() => {
+                setImageFile(null)
+                handleInputChange('imgPath', '')
+              }}
+              previewUrl={product?.imgUrl || null}
+              isLoading={uploadingImage}
+              helpText="JPG, PNG, GIF o WebP. Máximo 10MB"
+              errorText={errors.imgPath}
             />
           </div>
 
           <div className="mb-3">
-            <Input
-              label="Hoja de datos"
-              type="text"
-              value={formData.datasheetPath}
-              onChange={(e) => handleInputChange('datasheetPath', e.target.value)}
-              onBlur={() => handleBlur('datasheetPath')}
-              placeholder="URL de la hoja de datos"
-              leftIcon="bi-file-earmark-pdf"
-              disabled={isFormLoading}
+            <FileUploader
+              label="Hoja de datos (PDF)"
+              accept="application/pdf"
+              maxSizeMB={10}
+              isImage={false}
+              onFileSelect={(file) => setDatasheetFile(file)}
+              onClear={() => {
+                setDatasheetFile(null)
+                handleInputChange('datasheetPath', '')
+              }}
+              currentFileName={product?.datasheetPath ? 'Archivo existente' : undefined}
+              isLoading={uploadingDatasheet}
+              helpText="Archivo PDF. Máximo 10MB"
+              errorText={errors.datasheetPath}
             />
           </div>
         </div>

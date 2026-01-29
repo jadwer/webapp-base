@@ -64,7 +64,7 @@ export const Header: React.FC = () => {
               </div>
 
               {/* Cart Icon */}
-              <Link href="/cart" className="btn btn-link position-relative mx-2" style={{ color: '#8AC905' }}>
+              <Link href="/cart" className="btn btn-link position-relative mx-2" style={{ color: '#0d6efd' }}>
                 <i className="bi bi-cart3" style={{ fontSize: '1.5rem' }}></i>
                 {cartItemCount > 0 && (
                   <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
@@ -74,9 +74,13 @@ export const Header: React.FC = () => {
               </Link>
 
               {/* Login Button */}
-              <Link href="/login" className="btn btn-outline-primary me-2">
+              <Link
+                href="/auth/login"
+                className="btn btn-outline-primary d-flex align-items-center me-2"
+                style={{ whiteSpace: 'nowrap' }}
+              >
                 <i className="bi bi-person me-1"></i>
-                Iniciar Sesion
+                Iniciar Sesión
               </Link>
 
               <button
@@ -111,12 +115,12 @@ export const Header: React.FC = () => {
             </div>
             <div className="col-4 d-flex justify-content-end align-items-center">
               {/* Login Icon Mobile */}
-              <Link href="/login" className="btn btn-link" style={{ color: '#8AC905' }}>
+              <Link href="/auth/login" className="btn btn-link" style={{ color: '#0d6efd' }}>
                 <i className="bi bi-person" style={{ fontSize: '1.3rem' }}></i>
               </Link>
 
               {/* Cart Icon Mobile */}
-              <Link href="/cart" className="btn btn-link position-relative" style={{ color: '#8AC905' }}>
+              <Link href="/cart" className="btn btn-link position-relative" style={{ color: '#0d6efd' }}>
                 <i className="bi bi-cart3" style={{ fontSize: '1.3rem' }}></i>
                 {cartItemCount > 0 && (
                   <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style={{ fontSize: '0.6rem' }}>

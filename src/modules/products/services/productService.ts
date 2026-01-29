@@ -183,7 +183,7 @@ export const productService = {
   async duplicateProduct(id: string): Promise<ProductResponse> {
     const originalProduct = await this.getProduct(id)
     const productData = originalProduct.data
-    
+
     const duplicateData: CreateProductRequest = {
       name: `${productData.name} (Copia)`,
       sku: undefined,
@@ -198,5 +198,49 @@ export const productService = {
     }
 
     return this.createProduct(duplicateData)
+  },
+
+  /**
+   * Upload product image
+   * Returns the path to use when creating/updating a product
+   */
+  async uploadImage(file: File): Promise<UploadResponse> {
+    const formData = new FormData()
+    formData.append('file', file)
+
+    const response = await axios.post('/api/v1/products/upload-image', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    })
+    return response.data
+  },
+
+  /**
+   * Upload product datasheet (PDF)
+   * Returns the path to use when creating/updating a product
+   */
+  async uploadDatasheet(file: File): Promise<UploadResponse> {
+    const formData = new FormData()
+    formData.append('file', file)
+
+    const response = await axios.post('/api/v1/products/upload-datasheet', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    })
+    return response.data
   }
+}
+
+/**
+ * Response from file upload endpoints
+ */
+export interface UploadResponse {
+  path: string
+  url: string
+  filename: string
+  originalName: string
+  mimeType: string
+  size: number
 }
