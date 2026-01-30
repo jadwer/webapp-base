@@ -231,11 +231,11 @@ export default function ProductDetailPage({
                 </div>
               )}
 
-              {/* Datasheet Download */}
+              {/* Datasheet Download - Uses tracked endpoint */}
               {product.attributes.datasheetUrl && (
                 <div className="mb-4">
                   <a
-                    href={product.attributes.datasheetUrl}
+                    href={`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/products/${product.id}/datasheet`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="btn btn-outline-info w-100"

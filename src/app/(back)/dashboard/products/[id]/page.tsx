@@ -232,7 +232,7 @@ export default function ProductDetailPage() {
               </div>
               <div className="card-body">
                 <a
-                  href={product.datasheetUrl}
+                  href={`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/products/${product.id}/datasheet`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="btn btn-outline-info w-100"
