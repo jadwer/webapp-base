@@ -221,6 +221,31 @@ export default function ProductDetailPage({
                 </div>
               )}
 
+              {/* Full Description / Technical Details */}
+              {product.attributes.fullDescription && (
+                <div className="mb-4">
+                  <h5>Detalles Técnicos</h5>
+                  <div className="text-muted" style={{ whiteSpace: 'pre-wrap' }}>
+                    {product.attributes.fullDescription}
+                  </div>
+                </div>
+              )}
+
+              {/* Datasheet Download */}
+              {product.attributes.datasheetUrl && (
+                <div className="mb-4">
+                  <a
+                    href={product.attributes.datasheetUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn btn-outline-info w-100"
+                  >
+                    <i className="bi bi-file-earmark-pdf me-2"></i>
+                    Descargar Ficha Técnica (PDF)
+                  </a>
+                </div>
+              )}
+
               {/* Cart Section */}
               <div className="border-top pt-4">
                 {inCart && (
