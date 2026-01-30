@@ -8,6 +8,7 @@ import {
   EVENT_COLORS,
   EVENT_ICONS,
   formatAuditableType,
+  getSubjectDisplayName,
 } from '../types'
 
 interface AuditTableProps {
@@ -72,57 +73,65 @@ export default function AuditTable({
             <th style={{ width: '180px' }}>Fecha</th>
             <th style={{ width: '130px' }}>Evento</th>
             <th>Usuario</th>
-            <th>Entidad</th>
-            <th style={{ width: '100px' }}>ID</th>
+            <th>Entidad Afectada</th>
             <th style={{ width: '80px' }}>Acciones</th>
           </tr>
         </thead>
         <tbody>
-          {audits.map((audit) => (
-            <tr
-              key={audit.id}
-              onClick={() => onRowClick?.(audit)}
-              style={{ cursor: onRowClick ? 'pointer' : 'default' }}
-            >
-              <td>
-                <small className="text-muted">
-                  <i className="bi bi-clock me-1" />
-                  {formatDate(audit.createdAt)}
-                </small>
-              </td>
-              <td>
-                <EventBadge event={audit.event} />
-              </td>
-              <td>
-                {audit.userId ? (
-                  <span className="text-muted">Usuario #{audit.userId}</span>
-                ) : (
-                  <span className="text-muted">Sistema</span>
-                )}
-              </td>
-              <td>
-                <span className="badge bg-light text-dark">
-                  {formatAuditableType(audit.auditableType)}
-                </span>
-              </td>
-              <td>
-                {audit.auditableId ? (
-                  <code className="small">#{audit.auditableId}</code>
-                ) : (
-                  <span className="text-muted">-</span>
-                )}
-              </td>
-              <td>
-                <Link
-                  href={`/dashboard/audit/${audit.id}`}
-                  className="btn btn-sm btn-outline-primary"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <i className="bi bi-eye" />
-                </Link>
-              </td>
-            </tr>
-          ))}
+          {audits.map((audit) => {
+            const subjectName = getSubjectDisplayName(audit.subject)
+
+            return (
+              <tr
+                key={audit.id}
+                onClick={() => onRowClick?.(audit)}
+                style={{ cursor: onRowClick ? 'pointer' : 'default' }}
+              >
+                <td>
+                  <small className="text-muted">
+                    <i className="bi bi-clock me-1" />
+                    {formatDate(audit.createdAt)}
+                  </small>
+                </td>
+                <td>
+                  <EventBadge event={audit.event} />
+                </td>
+                <td>
+                  {audit.causer ? (
+                    <div>
+                      <div className="fw-medium">{audit.causer.name}</div>
+                      <small className="text-muted">{audit.causer.email}</small>
+                    </div>
+                  ) : audit.userId ? (
+                    <span className="text-muted">Usuario #{audit.userId}</span>
+                  ) : (
+                    <span className="text-muted fst-italic">Sistema</span>
+                  )}
+                </td>
+                <td>
+                  <div>
+                    <span className="badge bg-light text-dark me-2">
+                      {formatAuditableType(audit.auditableType)}
+                    </span>
+                    {subjectName ? (
+                      <span className="text-dark fw-medium">{subjectName}</span>
+                    ) : (
+                      <code className="small text-muted">#{audit.auditableId}</code>
+                    )}
+                  </div>
+                </td>
+                <td>
+                  <Link
+                    href={`/dashboard/audit/${audit.id}`}
+                    className="btn btn-sm btn-outline-primary"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <i className="bi bi-eye" />
+                  </Link>
+                </td>
+              </tr>
+            )
+          })}
         </tbody>
       </table>
     </div>

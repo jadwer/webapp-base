@@ -12,10 +12,11 @@ import type {
 const BASE_URL = '/api/v1/audits'
 
 /**
- * Parse JSON string values from backend
+ * Parse JSON string values from backend (handles both string and object)
  */
-function parseJsonValue(value: string | null): Record<string, unknown> | null {
+function parseJsonValue(value: string | Record<string, unknown> | null): Record<string, unknown> | null {
   if (!value) return null
+  if (typeof value === 'object') return value
   try {
     return JSON.parse(value)
   } catch {
@@ -77,6 +78,9 @@ function transformAudit(resource: AuditJsonApiResource): Audit {
     userAgent: resource.attributes.userAgent,
     createdAt: resource.attributes.createdAt,
     updatedAt: resource.attributes.updatedAt,
+    // Related data from backend
+    causer: resource.attributes.causer || null,
+    subject: resource.attributes.subject || null,
     changes: calculateChanges(oldValues, newValues),
   }
 }

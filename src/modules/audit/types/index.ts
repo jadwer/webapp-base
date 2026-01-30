@@ -2,6 +2,24 @@
 
 export type AuditEvent = 'created' | 'updated' | 'deleted' | 'login' | 'logout' | 'login_failed'
 
+// User info from causer relationship
+export interface AuditCauser {
+  id: number
+  name: string
+  email: string
+}
+
+// Subject info (the entity that was affected)
+export interface AuditSubject {
+  id: number
+  name?: string
+  sku?: string
+  title?: string
+  code?: string
+  folio?: string
+  [key: string]: unknown
+}
+
 export interface Audit {
   id: string
   event: AuditEvent
@@ -14,6 +32,9 @@ export interface Audit {
   userAgent: string | null
   createdAt: string
   updatedAt: string
+  // Related data from backend
+  causer: AuditCauser | null
+  subject: AuditSubject | null
   // Computed field for display
   changes: FieldChange[]
 }
@@ -50,12 +71,15 @@ export interface AuditJsonApiResource {
     userId: number | null
     auditableType: string
     auditableId: number
-    oldValues: string | null  // JSON string from backend
-    newValues: string | null  // JSON string from backend
+    oldValues: string | Record<string, unknown> | null  // JSON string or object from backend
+    newValues: string | Record<string, unknown> | null  // JSON string or object from backend
     ipAddress: string | null
     userAgent: string | null
     createdAt: string
     updatedAt: string
+    // Related data (embedded by backend)
+    causer: AuditCauser | null
+    subject: AuditSubject | null
   }
 }
 
@@ -169,4 +193,18 @@ export const EVENT_ICONS: Record<AuditEvent, string> = {
  */
 export function formatAuditableType(type: string): string {
   return AUDITABLE_TYPE_LABELS[type] || type.split('\\').pop() || type
+}
+
+/**
+ * Get a human-readable name for the subject
+ */
+export function getSubjectDisplayName(subject: AuditSubject | null): string | null {
+  if (!subject) return null
+  // Try common name fields in order of preference
+  return subject.name
+    || subject.title
+    || subject.folio
+    || subject.sku
+    || subject.code
+    || null
 }
