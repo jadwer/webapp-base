@@ -41,7 +41,6 @@ export function useCheckoutSession(id?: string) {
 export function useCheckoutMutations() {
   const [isCreating, setIsCreating] = useState(false)
   const [isUpdating, setIsUpdating] = useState(false)
-  const [isProcessing] = useState(false)
 
   const createSession = useCallback(async (data: CreateCheckoutSessionRequest) => {
     setIsCreating(true)
@@ -68,7 +67,7 @@ export function useCheckoutMutations() {
     updateSession,
     isCreating,
     isUpdating,
-    isProcessing,
+    isProcessing: isCreating || isUpdating,
   }
 }
 

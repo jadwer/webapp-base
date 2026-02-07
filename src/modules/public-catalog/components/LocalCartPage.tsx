@@ -6,15 +6,17 @@
 
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@/ui/components/base'
 import { useLocalCart } from '../hooks/useLocalCart'
 import type { LocalCartItem } from '../hooks/useLocalCart'
 import { useAuth } from '@/modules/auth'
 import { toast } from '@/lib/toast'
+import quoteServiceModule from '@/modules/quotes/services/quoteService'
+import { shoppingCartService } from '@/modules/ecommerce/services'
 
 interface LocalCartPageProps {
   onCheckout?: () => void
@@ -28,8 +30,12 @@ export const LocalCartPage: React.FC<LocalCartPageProps> = ({
   continueShoppingUrl = '/productos'
 }) => {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { isAuthenticated, isLoading: authLoading } = useAuth()
   const [isRequestingQuote, setIsRequestingQuote] = useState(false)
+  const [isSyncingToCheckout, setIsSyncingToCheckout] = useState(false)
+  const hasProcessedPendingQuote = useRef(false)
+  const hasProcessedCheckout = useRef(false)
 
   const {
     items,
@@ -43,6 +49,37 @@ export const LocalCartPage: React.FC<LocalCartPageProps> = ({
     clearCart
   } = useLocalCart()
 
+  // Auto-process pending quote request after login
+  useEffect(() => {
+    const action = searchParams.get('action')
+
+    // Only process if:
+    // 1. User just returned with action=quote
+    // 2. User is authenticated
+    // 3. Cart is initialized
+    // 4. Haven't processed yet this session
+    // 5. Not currently requesting
+    if (
+      action === 'quote' &&
+      isAuthenticated &&
+      !authLoading &&
+      isInitialized &&
+      items.length > 0 &&
+      !hasProcessedPendingQuote.current &&
+      !isRequestingQuote
+    ) {
+      hasProcessedPendingQuote.current = true
+      // Small delay to ensure UI is ready
+      const timer = setTimeout(() => {
+        handleRequestQuote()
+        // Clean up URL params
+        router.replace('/cart')
+      }, 500)
+      return () => clearTimeout(timer)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams, isAuthenticated, authLoading, isInitialized, items.length, isRequestingQuote])
+
   // Handle quote request
   const handleRequestQuote = async () => {
     if (items.length === 0) {
@@ -53,25 +90,119 @@ export const LocalCartPage: React.FC<LocalCartPageProps> = ({
     setIsRequestingQuote(true)
 
     try {
-      // Save cart items to sessionStorage for quote creation
-      sessionStorage.setItem('pendingQuoteCart', JSON.stringify(items))
-
       if (!isAuthenticated) {
-        // Redirect to login with return URL
-        toast.info('Inicia sesion para solicitar una cotizacion')
-        router.push('/auth/login?redirect=/dashboard/quotes/create&action=quote')
+        // Save cart items to sessionStorage for after login
+        sessionStorage.setItem('pendingQuoteCart', JSON.stringify(items))
+        // Redirect to login with return URL to cart
+        toast.info('Inicia sesión para solicitar una cotización')
+        router.push('/auth/login?redirect=/cart&action=quote')
         return
       }
 
-      // User is authenticated, redirect to quote creation
-      router.push('/dashboard/quotes/create?source=public-cart')
+      // User is authenticated - use the direct quote request endpoint
+      const quoteItems = items
+        .filter(item => !isNaN(Number(item.productId)) && Number(item.productId) > 0)
+        .map(item => ({
+          product_id: Number(item.productId),
+          quantity: item.quantity
+        }))
+
+      if (quoteItems.length === 0) {
+        toast.error('No hay productos validos en el carrito')
+        setIsRequestingQuote(false)
+        return
+      }
+
+      const response = await quoteServiceModule.quotes.requestQuote({
+        items: quoteItems,
+        notes: undefined
+      })
+
+      if (response.success) {
+        // Clear the cart after successful quote request
+        clearCart()
+
+        // Show success message
+        toast.success(response.message)
+
+        // Optional: Show quote details in a more prominent way
+        toast.info(`Cotización #${response.data.quote_number} - Total: ${formatPrice(response.data.total_amount)}`)
+      } else {
+        toast.error('Error al solicitar la cotización')
+      }
     } catch (error) {
       console.error('Error requesting quote:', error)
-      toast.error('Error al procesar la solicitud')
+      toast.error('Error al procesar la solicitud de cotización')
     } finally {
       setIsRequestingQuote(false)
     }
   }
+
+  // Handle proceed to checkout - sync local cart to API first
+  const handleProceedToCheckout = async () => {
+    if (items.length === 0) {
+      toast.error('El carrito esta vacio')
+      return
+    }
+
+    setIsSyncingToCheckout(true)
+
+    try {
+      // Check if user is authenticated
+      if (!isAuthenticated) {
+        // Save intent to checkout after login
+        toast.info('Inicia sesion para proceder al pago')
+        router.push('/auth/login?redirect=/cart&action=checkout')
+        return
+      }
+
+      // Sync local cart to API
+      toast.info('Preparando tu carrito...')
+
+      const apiCart = await shoppingCartService.localSync.syncLocalCartToAPI(items)
+
+      // Save cart ID for checkout page
+      shoppingCartService.localSync.saveCartIdForCheckout(apiCart.id)
+
+      // Clear local cart since it's now in the API
+      clearCart()
+
+      toast.success('Carrito listo!')
+
+      // Navigate to checkout
+      if (onCheckout) {
+        onCheckout()
+      } else {
+        router.push(checkoutUrl)
+      }
+    } catch (error) {
+      console.error('Error syncing cart:', error)
+      toast.error('Error al preparar el carrito. Por favor intenta de nuevo.')
+    } finally {
+      setIsSyncingToCheckout(false)
+    }
+  }
+
+  // Auto-process checkout after login (when action=checkout)
+  useEffect(() => {
+    const action = searchParams.get('action')
+
+    if (
+      action === 'checkout' &&
+      isAuthenticated &&
+      !authLoading &&
+      isInitialized &&
+      items.length > 0 &&
+      !hasProcessedCheckout.current &&
+      !isSyncingToCheckout
+    ) {
+      hasProcessedCheckout.current = true
+      // Clean up URL and process checkout
+      router.replace('/cart')
+      handleProceedToCheckout()
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams, isAuthenticated, authLoading, isInitialized, items.length])
 
   // Format price
   const formatPrice = (price: number): string => {
@@ -321,24 +452,25 @@ export const LocalCartPage: React.FC<LocalCartPageProps> = ({
                 )}
               </Button>
 
-              {onCheckout ? (
-                <Button
-                  variant="primary"
-                  size="large"
-                  className="w-100"
-                  onClick={onCheckout}
-                >
-                  <i className="bi bi-lock me-2" />
-                  Proceder al Pago
-                </Button>
-              ) : (
-                <Link href={checkoutUrl} className="d-block">
-                  <Button variant="primary" size="large" className="w-100">
+              <Button
+                variant="primary"
+                size="large"
+                className="w-100"
+                onClick={handleProceedToCheckout}
+                disabled={isSyncingToCheckout || authLoading}
+              >
+                {isSyncingToCheckout ? (
+                  <>
+                    <span className="spinner-border spinner-border-sm me-2" />
+                    Preparando...
+                  </>
+                ) : (
+                  <>
                     <i className="bi bi-lock me-2" />
                     Proceder al Pago
-                  </Button>
-                </Link>
-              )}
+                  </>
+                )}
+              </Button>
 
               <div className="text-center mt-3">
                 <small className="text-muted">

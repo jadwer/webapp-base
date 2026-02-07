@@ -7,33 +7,61 @@
 
 'use client'
 
-import React, { useState, useCallback, useEffect } from 'react'
+import React, { useState, useCallback, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import { Button, Input } from '@/ui/components/base'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
 import { useToast } from '@/ui/hooks/useToast'
-import { useCart } from '../hooks'
+import { useShoppingCart, useShoppingCartItems, useShoppingCartMutations } from '../hooks'
 import { paymentService } from '../services/paymentService'
+import { shoppingCartService } from '../services'
 import { StripePaymentForm, StripePaymentFormSkeleton } from './StripePaymentForm'
 
 type CheckoutStep = 'info' | 'payment' | 'processing' | 'success'
 
 interface CheckoutPageProps {
-  sessionId: string
+  cartId: string
 }
 
-export const CheckoutPage = React.memo<CheckoutPageProps>(({ sessionId }) => {
+export const CheckoutPage = React.memo<CheckoutPageProps>(({ cartId }) => {
   const navigation = useNavigationProgress()
   const toast = useToast()
+  const redirectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  // Get cart data
-  const {
-    cart,
-    cartItems,
-    checkoutCart,
-    isLoading,
-    isCheckingOut,
-  } = useCart({ sessionId })
+  // Cleanup redirect timer on unmount
+  useEffect(() => {
+    return () => {
+      if (redirectTimerRef.current) {
+        clearTimeout(redirectTimerRef.current)
+      }
+    }
+  }, [])
+
+  const effectiveCartId = cartId || ''
+
+  // Get cart data by ID
+  const { cart, isLoading: isLoadingCart } = useShoppingCart(effectiveCartId)
+  const { cartItems, isLoading: isLoadingItems } = useShoppingCartItems(
+    cart?.id ? parseInt(cart.id) : undefined
+  )
+  const cartMutations = useShoppingCartMutations()
+
+  const isLoading = isLoadingCart || isLoadingItems
+  const isCheckingOut = cartMutations.isCheckingOut
+
+  // Checkout function
+  const checkoutCart = useCallback(
+    async (orderData: Record<string, unknown>) => {
+      if (cart) {
+        const result = await cartMutations.checkout(cart.id, orderData)
+        // Clear cart ID from localStorage after successful checkout
+        shoppingCartService.localSync.clearCartIdForCheckout()
+        return result
+      }
+      throw new Error('No cart available')
+    },
+    [cart, cartMutations]
+  )
 
   // Checkout step
   const [currentStep, setCurrentStep] = useState<CheckoutStep>('info')
@@ -107,8 +135,8 @@ export const CheckoutPage = React.memo<CheckoutPageProps>(({ sessionId }) => {
 
     setIsInitializingPayment(true)
     try {
-      // Create a checkout session ID (in real app, this would be from the backend)
-      const checkoutSessionId = parseInt(sessionId) || Date.now()
+      // Use cart ID for the checkout session
+      const checkoutSessionId = parseInt(effectiveCartId) || Date.now()
 
       const result = await paymentService.processor.initiatePayment(
         checkoutSessionId,
@@ -129,7 +157,7 @@ export const CheckoutPage = React.memo<CheckoutPageProps>(({ sessionId }) => {
     } finally {
       setIsInitializingPayment(false)
     }
-  }, [cart, sessionId, toast])
+  }, [cart, effectiveCartId, toast])
 
   // Handle continue to payment
   const handleContinueToPayment = useCallback(async () => {
@@ -180,7 +208,7 @@ export const CheckoutPage = React.memo<CheckoutPageProps>(({ sessionId }) => {
         toast.success('Pago completado exitosamente!')
 
         // Redirect to confirmation after short delay
-        setTimeout(() => {
+        redirectTimerRef.current = setTimeout(() => {
           const orderResponse = order.data as { id: string }
           navigation.push(`/order-confirmation/${orderResponse.id}`)
         }, 2000)

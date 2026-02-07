@@ -144,15 +144,15 @@ export function useReviewMutations() {
  * Comprehensive hook for product reviews
  */
 export function useProductReviewsWithSummary(productId?: number) {
-  const { reviews, isLoading: isLoadingReviews, mutate } = useProductReviews(productId)
-  const { summary, isLoading: isLoadingSummary } = useRatingSummary(productId)
+  const { reviews, isLoading: isLoadingReviews, mutate: mutateReviews } = useProductReviews(productId)
+  const { summary, isLoading: isLoadingSummary, mutate: mutateSummary } = useRatingSummary(productId)
   const mutations = useReviewMutations()
 
   const submitReview = useCallback(async (data: Omit<CreateReviewRequest, 'productId'>) => {
     if (!productId) throw new Error('Product ID required')
     await mutations.createReview({ ...data, productId })
-    await mutate()
-  }, [productId, mutations, mutate])
+    await Promise.all([mutateReviews(), mutateSummary()])
+  }, [productId, mutations, mutateReviews, mutateSummary])
 
   return {
     reviews,
@@ -160,6 +160,6 @@ export function useProductReviewsWithSummary(productId?: number) {
     isLoading: isLoadingReviews || isLoadingSummary,
     submitReview,
     mutations,
-    refresh: mutate,
+    refresh: mutateReviews,
   }
 }

@@ -67,7 +67,11 @@ export const CartPage = React.memo<CartPageProps>(({ sessionId, contactId }) => 
 
   // Handle remove item
   const handleRemoveItem = useCallback(async (itemId: string, productName: string) => {
-    if (!confirm(`¿Eliminar "${productName}" del carrito?`)) return
+    const confirmed = await confirmModalRef.current?.confirm(
+      `¿Eliminar "${productName}" del carrito?`,
+      { title: 'Eliminar producto', confirmText: 'Eliminar', cancelText: 'Cancelar' }
+    )
+    if (!confirmed) return
 
     try {
       await removeItem(itemId)
@@ -80,7 +84,11 @@ export const CartPage = React.memo<CartPageProps>(({ sessionId, contactId }) => 
 
   // Handle clear cart
   const handleClearCart = useCallback(async () => {
-    if (!confirm('¿Vaciar todo el carrito? Esta acción no se puede deshacer.')) return
+    const confirmed = await confirmModalRef.current?.confirm(
+      '¿Vaciar todo el carrito? Esta accion no se puede deshacer.',
+      { title: 'Vaciar carrito', confirmText: 'Vaciar', cancelText: 'Cancelar' }
+    )
+    if (!confirmed) return
 
     try {
       await clearAllItems()

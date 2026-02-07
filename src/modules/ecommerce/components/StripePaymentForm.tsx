@@ -82,7 +82,19 @@ function PaymentForm({
           onPaymentSuccess(paymentIntent.id)
         } else if (paymentIntent.status === 'requires_action') {
           // Handle 3D Secure or other actions
-          setErrorMessage('El pago requiere verificacion adicional')
+          const { error: actionError, paymentIntent: updatedIntent } =
+            await stripe.handleNextAction({ clientSecret: paymentIntent.client_secret! })
+
+          if (actionError) {
+            const msg = actionError.message || 'Error en la verificacion adicional'
+            setErrorMessage(msg)
+            onPaymentError(msg)
+          } else if (updatedIntent?.status === 'succeeded') {
+            onPaymentSuccess(updatedIntent.id)
+          } else {
+            setErrorMessage('La verificacion adicional no se completo')
+            onPaymentError('La verificacion adicional no se completo')
+          }
         } else {
           setErrorMessage(`Estado del pago: ${paymentIntent.status}`)
         }

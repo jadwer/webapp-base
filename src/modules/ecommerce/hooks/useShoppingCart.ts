@@ -82,15 +82,21 @@ export function useShoppingCartMutations() {
   const [isUpdating, setIsUpdating] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
 
   /**
    * Create a new shopping cart
    */
   const createCart = async (cart: Partial<ShoppingCart>): Promise<ShoppingCart> => {
     setIsCreating(true);
+    setError(null);
     try {
       const result = await shoppingCartService.cart.create(cart);
       return result;
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error('Failed to create cart');
+      setError(error);
+      throw error;
     } finally {
       setIsCreating(false);
     }
@@ -108,9 +114,14 @@ export function useShoppingCartMutations() {
     }
   ): Promise<ShoppingCart> => {
     setIsUpdating(true);
+    setError(null);
     try {
       const result = await shoppingCartService.cart.updateTotals(id, totals);
       return result;
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error('Failed to update cart');
+      setError(error);
+      throw error;
     } finally {
       setIsUpdating(false);
     }
@@ -121,8 +132,13 @@ export function useShoppingCartMutations() {
    */
   const clearCart = async (id: string): Promise<void> => {
     setIsDeleting(true);
+    setError(null);
     try {
       await shoppingCartService.cart.clear(id);
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error('Failed to clear cart');
+      setError(error);
+      throw error;
     } finally {
       setIsDeleting(false);
     }
@@ -133,8 +149,13 @@ export function useShoppingCartMutations() {
    */
   const deleteCart = async (id: string): Promise<void> => {
     setIsDeleting(true);
+    setError(null);
     try {
       await shoppingCartService.cart.delete(id);
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error('Failed to delete cart');
+      setError(error);
+      throw error;
     } finally {
       setIsDeleting(false);
     }
@@ -145,9 +166,14 @@ export function useShoppingCartMutations() {
    */
   const checkout = async (id: string, orderData: Record<string, unknown>): Promise<Record<string, unknown>> => {
     setIsCheckingOut(true);
+    setError(null);
     try {
       const result = await shoppingCartService.cart.checkout(id, orderData);
       return result;
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error('Failed to checkout');
+      setError(error);
+      throw error;
     } finally {
       setIsCheckingOut(false);
     }
@@ -163,6 +189,7 @@ export function useShoppingCartMutations() {
     isUpdating,
     isDeleting,
     isCheckingOut,
+    error,
   };
 }
 
@@ -173,6 +200,7 @@ export function useShoppingCartItemMutations() {
   const [isAdding, setIsAdding] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const [isRemoving, setIsRemoving] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
 
   /**
    * Add item to cart
@@ -183,6 +211,7 @@ export function useShoppingCartItemMutations() {
     quantity: number = 1
   ): Promise<ShoppingCartItem> => {
     setIsAdding(true);
+    setError(null);
     try {
       const result = await shoppingCartService.items.add(
         shoppingCartId,
@@ -190,6 +219,10 @@ export function useShoppingCartItemMutations() {
         quantity
       );
       return result;
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error('Failed to add item');
+      setError(error);
+      throw error;
     } finally {
       setIsAdding(false);
     }
@@ -203,9 +236,14 @@ export function useShoppingCartItemMutations() {
     quantity: number
   ): Promise<ShoppingCartItem> => {
     setIsUpdating(true);
+    setError(null);
     try {
       const result = await shoppingCartService.items.updateQuantity(id, quantity);
       return result;
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error('Failed to update quantity');
+      setError(error);
+      throw error;
     } finally {
       setIsUpdating(false);
     }
@@ -219,9 +257,14 @@ export function useShoppingCartItemMutations() {
     item: Partial<ShoppingCartItem>
   ): Promise<ShoppingCartItem> => {
     setIsUpdating(true);
+    setError(null);
     try {
       const result = await shoppingCartService.items.update(id, item);
       return result;
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error('Failed to update item');
+      setError(error);
+      throw error;
     } finally {
       setIsUpdating(false);
     }
@@ -232,8 +275,13 @@ export function useShoppingCartItemMutations() {
    */
   const removeFromCart = async (id: string): Promise<void> => {
     setIsRemoving(true);
+    setError(null);
     try {
       await shoppingCartService.items.remove(id);
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error('Failed to remove item');
+      setError(error);
+      throw error;
     } finally {
       setIsRemoving(false);
     }
@@ -247,6 +295,7 @@ export function useShoppingCartItemMutations() {
     isAdding,
     isUpdating,
     isRemoving,
+    error,
   };
 }
 
@@ -293,7 +342,6 @@ export function useCart(filters?: ShoppingCartFilters) {
           discountAmount: 0,
           shippingAmount: 0,
         });
-        await mutateCart();
       }
 
       // Add item to cart
@@ -302,7 +350,7 @@ export function useCart(filters?: ShoppingCartFilters) {
       // Refresh data
       await refresh();
     },
-    [cart, filters, cartMutations, itemMutations, mutateCart, refresh]
+    [cart, filters, cartMutations, itemMutations, refresh]
   );
 
   /**

@@ -53,11 +53,10 @@ const cartService = {
   async getCurrent(filters?: ShoppingCartFilters): Promise<ShoppingCart | null> {
     const params: Record<string, string | number> = {};
 
+    // Backend controller reads 'session_id' directly (not as JSON:API filter)
+    // customer_id is not needed: backend uses Auth::id() for authenticated users
     if (filters?.sessionId) {
-      params['filter[session_id]'] = filters.sessionId;
-    }
-    if (filters?.customerId) {
-      params['filter[customer_id]'] = filters.customerId;
+      params['session_id'] = filters.sessionId;
     }
 
     try {
@@ -143,9 +142,8 @@ const cartService = {
         type: 'shopping-carts',
         id,
         attributes: {
-          subtotal_amount: totals.subtotalAmount,
-          tax_amount: totals.taxAmount,
-          total_amount: totals.totalAmount,
+          taxAmount: totals.taxAmount,
+          totalAmount: totals.totalAmount,
         },
       },
     };
@@ -300,10 +298,97 @@ const cartItemsService = {
 };
 
 // ============================================
+// Local Cart Sync Service
+// ============================================
+
+interface LocalCartItem {
+  productId: string;
+  quantity: number;
+  price: number;
+  name: string;
+  sku?: string | null;
+  imageUrl?: string | null;
+  brandName?: string | null;
+  categoryName?: string | null;
+  unitName?: string | null;
+}
+
+const localCartSyncService = {
+  /**
+   * Sync local cart (localStorage) to API cart
+   * Creates a new cart in the API and adds all items from localStorage
+   * Returns the created cart ID for use in checkout
+   */
+  async syncLocalCartToAPI(localItems: LocalCartItem[]): Promise<ShoppingCart> {
+    // 1. Get or create cart in API
+    const cart = await cartService.getOrCreate();
+
+    // 2. Clear existing items (in case there are any)
+    try {
+      await cartService.clear(cart.id);
+    } catch {
+      // Cart might be empty, ignore error
+    }
+
+    // 3. Add all local items to the API cart
+    for (const item of localItems) {
+      await cartItemsService.add(
+        parseInt(cart.id),
+        parseInt(item.productId),
+        item.quantity
+      );
+    }
+
+    // 4. Get updated cart with items
+    const updatedCart = await cartService.getById(cart.id);
+
+    return updatedCart;
+  },
+
+  /**
+   * Clear local cart from localStorage
+   */
+  clearLocalCart(): void {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('laborwasser_cart');
+    }
+  },
+
+  /**
+   * Save cart ID to localStorage for checkout
+   */
+  saveCartIdForCheckout(cartId: string): void {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('ecommerce_session_id', cartId);
+    }
+  },
+
+  /**
+   * Get cart ID from localStorage
+   */
+  getCartIdForCheckout(): string | null {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('ecommerce_session_id');
+    }
+    return null;
+  },
+
+  /**
+   * Clear cart ID from localStorage
+   */
+  clearCartIdForCheckout(): void {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('ecommerce_session_id');
+    }
+  },
+};
+
+// ============================================
 // Export Combined Service
 // ============================================
 
 export const shoppingCartService = {
   cart: cartService,
   items: cartItemsService,
+  localSync: localCartSyncService,
 };

@@ -8,6 +8,7 @@
 
 import { useState, useEffect } from 'react'
 import { useWishlists, useWishlistMutations } from '../hooks/useWishlist'
+import { toast } from '@/lib/toast'
 
 interface WishlistButtonProps {
   productId: number
@@ -42,7 +43,7 @@ export function WishlistButton({
     e.stopPropagation()
 
     if (!isAuthenticated) {
-      alert('Inicia sesion para agregar a tu lista de deseos')
+      toast.info('Inicia sesion para agregar a tu lista de deseos')
       return
     }
 
