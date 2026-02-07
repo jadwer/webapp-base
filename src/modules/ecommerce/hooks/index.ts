@@ -68,3 +68,9 @@ export {
   useCheckoutMutations,
   useCheckoutFlow,
 } from './useCheckout';
+
+// Product view hooks
+export {
+  useRecentlyViewed,
+  useTrackProductView,
+} from './useProductViews';

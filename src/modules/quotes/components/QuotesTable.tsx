@@ -1,50 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow
-} from '@/components/ui/table'
-import { Button } from '@/components/ui/button'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu'
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle
-} from '@/components/ui/alert-dialog'
-import { Skeleton } from '@/components/ui/skeleton'
-import {
-  MoreHorizontal,
-  Eye,
-  Send,
-  Check,
-  X,
-  RefreshCw,
-  Copy,
-  Trash2,
-  FileText
-} from 'lucide-react'
 import { QuoteStatusBadge } from './QuoteStatusBadge'
 import type { Quote } from '../types'
 import { QUOTE_STATUS_CONFIG } from '../types'
 import { useQuoteMutations } from '../hooks'
 import { toast } from '@/lib/toast'
+import { ConfirmModal, ConfirmModalHandle } from '@/ui/components/base'
 
 interface QuotesTableProps {
   quotes: Quote[]
@@ -55,8 +18,8 @@ interface QuotesTableProps {
 export function QuotesTable({ quotes, isLoading, onQuoteUpdated }: QuotesTableProps) {
   const router = useRouter()
   const mutations = useQuoteMutations()
-  const [deleteQuoteId, setDeleteQuoteId] = useState<string | null>(null)
   const [actionLoading, setActionLoading] = useState<string | null>(null)
+  const confirmModalRef = useRef<ConfirmModalHandle>(null)
 
   const formatCurrency = (amount: number, currency: string = 'MXN') => {
     return new Intl.NumberFormat('es-MX', {
@@ -96,7 +59,7 @@ export function QuotesTable({ quotes, isLoading, onQuoteUpdated }: QuotesTablePr
           break
         case 'convert':
           const result = await mutations.convert.mutateAsync({ id: quote.id })
-          toast.success(`Orden de venta ${result.data.salesOrder.attributes.orderNumber} creada`)
+          toast.success(`Orden de venta ${result.data.salesOrder?.attributes?.orderNumber || ''} creada`)
           break
         case 'cancel':
           await mutations.cancel.mutateAsync(quote.id)
@@ -116,34 +79,42 @@ export function QuotesTable({ quotes, isLoading, onQuoteUpdated }: QuotesTablePr
     }
   }
 
-  const handleDelete = async () => {
-    if (!deleteQuoteId) return
+  const handleDelete = async (quoteId: string) => {
+    const confirmed = await confirmModalRef.current?.confirm(
+      'Esta accion no se puede deshacer. Se eliminara permanentemente esta cotizacion.',
+      {
+        title: 'Eliminar cotizacion',
+        confirmText: 'Eliminar',
+        cancelText: 'Cancelar',
+        confirmVariant: 'danger'
+      }
+    )
+
+    if (!confirmed) return
 
     try {
-      await mutations.delete.mutateAsync(deleteQuoteId)
+      await mutations.delete.mutateAsync(quoteId)
       toast.success('Cotizacion eliminada')
       onQuoteUpdated?.()
     } catch (error) {
       toast.error('Error al eliminar la cotizacion')
       console.error(error)
-    } finally {
-      setDeleteQuoteId(null)
     }
   }
 
   if (isLoading) {
     return (
-      <div className="space-y-3">
-        {[...Array(5)].map((_, i) => (
-          <Skeleton key={i} className="h-16 w-full" />
-        ))}
+      <div className="text-center py-5">
+        <div className="spinner-border text-primary" role="status">
+          <span className="visually-hidden">Cargando...</span>
+        </div>
       </div>
     )
   }
 
   if (quotes.length === 0) {
     return (
-      <div className="text-center py-12 text-muted-foreground">
+      <div className="text-center py-5 text-muted">
         No hay cotizaciones para mostrar
       </div>
     )
@@ -151,137 +122,164 @@ export function QuotesTable({ quotes, isLoading, onQuoteUpdated }: QuotesTablePr
 
   return (
     <>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>No. Cotizacion</TableHead>
-            <TableHead>Cliente</TableHead>
-            <TableHead>Fecha</TableHead>
-            <TableHead>Vigencia</TableHead>
-            <TableHead>Items</TableHead>
-            <TableHead className="text-right">Total</TableHead>
-            <TableHead>Estado</TableHead>
-            <TableHead className="text-right">Acciones</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {quotes.map((quote) => {
-            const statusConfig = QUOTE_STATUS_CONFIG[quote.status]
-            const isExpired = quote.validUntil && new Date(quote.validUntil) < new Date()
+      <div className="table-responsive">
+        <table className="table table-hover">
+          <thead className="table-light">
+            <tr>
+              <th>No. Cotizacion</th>
+              <th>Cliente</th>
+              <th>Fecha</th>
+              <th>Vigencia</th>
+              <th>Items</th>
+              <th className="text-end">Total</th>
+              <th>Estado</th>
+              <th className="text-end">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {quotes.map((quote) => {
+              const statusConfig = QUOTE_STATUS_CONFIG[quote.status]
+              const isExpired = quote.validUntil && new Date(quote.validUntil) < new Date()
 
-            return (
-              <TableRow key={quote.id}>
-                <TableCell className="font-medium">{quote.quoteNumber}</TableCell>
-                <TableCell>{quote.contact?.name || `Contact #${quote.contactId}`}</TableCell>
-                <TableCell>{formatDate(quote.quoteDate)}</TableCell>
-                <TableCell>
-                  <span className={isExpired && quote.status === 'sent' ? 'text-red-600' : ''}>
-                    {formatDate(quote.validUntil)}
-                  </span>
-                </TableCell>
-                <TableCell>{quote.itemsCount ?? 0}</TableCell>
-                <TableCell className="text-right font-medium">
-                  {formatCurrency(quote.totalAmount, quote.currency)}
-                </TableCell>
-                <TableCell>
-                  <QuoteStatusBadge status={quote.status} />
-                </TableCell>
-                <TableCell className="text-right">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="sm"
+              return (
+                <tr key={quote.id}>
+                  <td className="fw-medium">{quote.quoteNumber}</td>
+                  <td>{quote.contact?.name || `Contact #${quote.contactId}`}</td>
+                  <td>{formatDate(quote.quoteDate)}</td>
+                  <td>
+                    <span className={isExpired && quote.status === 'sent' ? 'text-danger' : ''}>
+                      {formatDate(quote.validUntil)}
+                    </span>
+                  </td>
+                  <td>{quote.itemsCount ?? 0}</td>
+                  <td className="text-end fw-medium">
+                    {formatCurrency(quote.totalAmount, quote.currency)}
+                  </td>
+                  <td>
+                    <QuoteStatusBadge status={quote.status} />
+                  </td>
+                  <td className="text-end">
+                    <div className="dropdown">
+                      <button
+                        className="btn btn-sm btn-outline-secondary dropdown-toggle"
+                        type="button"
+                        data-bs-toggle="dropdown"
                         disabled={actionLoading === quote.id}
                       >
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => router.push(`/dashboard/quotes/${quote.id}`)}>
-                        <Eye className="mr-2 h-4 w-4" />
-                        Ver detalle
-                      </DropdownMenuItem>
-
-                      {statusConfig.canSend && quote.itemsCount > 0 && (
-                        <DropdownMenuItem onClick={() => handleAction('send', quote)}>
-                          <Send className="mr-2 h-4 w-4" />
-                          Enviar al cliente
-                        </DropdownMenuItem>
-                      )}
-
-                      {statusConfig.canAccept && (
-                        <DropdownMenuItem onClick={() => handleAction('accept', quote)}>
-                          <Check className="mr-2 h-4 w-4" />
-                          Marcar aceptada
-                        </DropdownMenuItem>
-                      )}
-
-                      {statusConfig.canReject && (
-                        <DropdownMenuItem onClick={() => handleAction('reject', quote)}>
-                          <X className="mr-2 h-4 w-4" />
-                          Marcar rechazada
-                        </DropdownMenuItem>
-                      )}
-
-                      {statusConfig.canConvert && (
-                        <DropdownMenuItem onClick={() => handleAction('convert', quote)}>
-                          <FileText className="mr-2 h-4 w-4" />
-                          Convertir a orden
-                        </DropdownMenuItem>
-                      )}
-
-                      <DropdownMenuSeparator />
-
-                      <DropdownMenuItem onClick={() => handleAction('duplicate', quote)}>
-                        <Copy className="mr-2 h-4 w-4" />
-                        Duplicar
-                      </DropdownMenuItem>
-
-                      {statusConfig.canCancel && (
-                        <DropdownMenuItem onClick={() => handleAction('cancel', quote)}>
-                          <RefreshCw className="mr-2 h-4 w-4" />
-                          Cancelar
-                        </DropdownMenuItem>
-                      )}
-
-                      {quote.status === 'draft' && (
-                        <>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem
-                            onClick={() => setDeleteQuoteId(quote.id)}
-                            className="text-red-600"
+                        {actionLoading === quote.id ? (
+                          <span className="spinner-border spinner-border-sm" role="status"></span>
+                        ) : (
+                          <i className="bi bi-three-dots"></i>
+                        )}
+                      </button>
+                      <ul className="dropdown-menu dropdown-menu-end">
+                        <li>
+                          <button
+                            className="dropdown-item"
+                            onClick={() => router.push(`/dashboard/quotes/${quote.id}`)}
                           >
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            Eliminar
-                          </DropdownMenuItem>
-                        </>
-                      )}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TableCell>
-              </TableRow>
-            )
-          })}
-        </TableBody>
-      </Table>
+                            <i className="bi bi-eye me-2"></i>
+                            Ver detalle
+                          </button>
+                        </li>
 
-      <AlertDialog open={!!deleteQuoteId} onOpenChange={() => setDeleteQuoteId(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Eliminar cotizacion</AlertDialogTitle>
-            <AlertDialogDescription>
-              Esta accion no se puede deshacer. Se eliminara permanentemente esta cotizacion.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">
-              Eliminar
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+                        {statusConfig.canSend && (quote.itemsCount ?? 0) > 0 && (
+                          <li>
+                            <button
+                              className="dropdown-item"
+                              onClick={() => handleAction('send', quote)}
+                            >
+                              <i className="bi bi-send me-2"></i>
+                              Enviar al cliente
+                            </button>
+                          </li>
+                        )}
+
+                        {statusConfig.canAccept && (
+                          <li>
+                            <button
+                              className="dropdown-item"
+                              onClick={() => handleAction('accept', quote)}
+                            >
+                              <i className="bi bi-check-lg me-2"></i>
+                              Marcar aceptada
+                            </button>
+                          </li>
+                        )}
+
+                        {statusConfig.canReject && (
+                          <li>
+                            <button
+                              className="dropdown-item"
+                              onClick={() => handleAction('reject', quote)}
+                            >
+                              <i className="bi bi-x-lg me-2"></i>
+                              Marcar rechazada
+                            </button>
+                          </li>
+                        )}
+
+                        {statusConfig.canConvert && (
+                          <li>
+                            <button
+                              className="dropdown-item"
+                              onClick={() => handleAction('convert', quote)}
+                            >
+                              <i className="bi bi-file-earmark-text me-2"></i>
+                              Convertir a orden
+                            </button>
+                          </li>
+                        )}
+
+                        <li><hr className="dropdown-divider" /></li>
+
+                        <li>
+                          <button
+                            className="dropdown-item"
+                            onClick={() => handleAction('duplicate', quote)}
+                          >
+                            <i className="bi bi-copy me-2"></i>
+                            Duplicar
+                          </button>
+                        </li>
+
+                        {statusConfig.canCancel && (
+                          <li>
+                            <button
+                              className="dropdown-item"
+                              onClick={() => handleAction('cancel', quote)}
+                            >
+                              <i className="bi bi-x-circle me-2"></i>
+                              Cancelar
+                            </button>
+                          </li>
+                        )}
+
+                        {quote.status === 'draft' && (
+                          <>
+                            <li><hr className="dropdown-divider" /></li>
+                            <li>
+                              <button
+                                className="dropdown-item text-danger"
+                                onClick={() => handleDelete(quote.id)}
+                              >
+                                <i className="bi bi-trash me-2"></i>
+                                Eliminar
+                              </button>
+                            </li>
+                          </>
+                        )}
+                      </ul>
+                    </div>
+                  </td>
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
+      </div>
+
+      <ConfirmModal ref={confirmModalRef} />
     </>
   )
 }

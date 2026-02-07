@@ -76,6 +76,8 @@ export type {
 export { ecommerceService } from './services/ecommerceService';
 export { shoppingCartService } from './services/cartService';
 export { paymentService } from './services/paymentService';
+export { productViewService } from './services/productViewService';
+export type { RecentProduct } from './services/productViewService';
 
 // ============================================
 // Hooks
@@ -96,6 +98,10 @@ export {
   useShoppingCartMutations,
   useShoppingCartItemMutations,
   useCart, // Comprehensive cart hook
+
+  // Product view hooks
+  useRecentlyViewed,
+  useTrackProductView,
 } from './hooks';
 
 // ============================================
@@ -148,4 +154,7 @@ export {
   // Public components
   CartPage,
   CheckoutPage,
+  // Customer portal components
+  CustomerDashboard,
+  CustomerSidebar,
 } from './components';

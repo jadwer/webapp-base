@@ -214,6 +214,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           required
           placeholder="Ingrese el nombre del producto"
           disabled={isFormLoading}
+          autoFocus
         />
       </div>
 

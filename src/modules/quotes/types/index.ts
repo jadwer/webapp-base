@@ -194,6 +194,7 @@ export interface QuoteFilters {
   search?: string
   status?: QuoteStatus | QuoteStatus[]
   contactId?: number
+  contactEmail?: string  // For customer portal - filter by contact's email
   dateFrom?: string
   dateTo?: string
   expiringWithinDays?: number

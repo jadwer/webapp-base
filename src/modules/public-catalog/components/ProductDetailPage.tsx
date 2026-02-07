@@ -11,6 +11,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { usePublicProduct, useProductSuggestions } from '../hooks/usePublicProducts'
 import { useLocalCart } from '../hooks/useLocalCart'
+import { useTrackProductView } from '@/modules/ecommerce/hooks/useProductViews'
 import type { EnhancedPublicProduct } from '../types/publicProduct'
 
 interface ProductDetailPageProps {
@@ -29,6 +30,7 @@ export default function ProductDetailPage({
   const { product, isLoading, error } = usePublicProduct(productId)
   const { suggestions, isLoading: suggestionsLoading } = useProductSuggestions(productId, 4)
   const { addToCart, isInCart, getQuantity } = useLocalCart()
+  useTrackProductView(productId)
   const [quantity, setQuantity] = useState(1)
   const [imageError, setImageError] = useState(false)
 

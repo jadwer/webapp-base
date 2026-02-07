@@ -17,14 +17,39 @@ import type {
 } from '../types'
 
 // ===== TRANSFORM UTILITIES =====
+
+// JSON:API resource structure
+interface JsonApiResource {
+  type: string
+  id: string | number
+  attributes: Record<string, unknown>
+}
+
 const transformJsonApiResponse = (response: unknown): ContactsResponse => {
-  const res = response as { 
+  const res = response as {
     data?: unknown[]
     meta?: { [key: string]: unknown }
-    included?: unknown[] 
+    included?: unknown[]
   }
+
+  // Transform JSON:API resources to flat Contact objects
+  const transformedData = (res.data || []).map((item: unknown) => {
+    const resource = item as JsonApiResource
+
+    // If it has attributes, extract them (JSON:API format)
+    if (resource.attributes) {
+      return {
+        id: String(resource.id),
+        ...resource.attributes
+      }
+    }
+
+    // Already flat format, just return as-is
+    return item
+  })
+
   return {
-    data: (res.data || []) as ContactsResponse['data'],
+    data: transformedData as ContactsResponse['data'],
     meta: res.meta || {},
     included: (res.included || []) as ContactsResponse['included']
   }
@@ -32,8 +57,19 @@ const transformJsonApiResponse = (response: unknown): ContactsResponse => {
 
 const transformSingleJsonApiResponse = (response: unknown): ContactResponse => {
   const res = response as { data: unknown; included?: unknown[] }
+  const resource = res.data as JsonApiResource
+
+  // Transform JSON:API resource to flat Contact object
+  let transformedData = res.data
+  if (resource && resource.attributes) {
+    transformedData = {
+      id: String(resource.id),
+      ...resource.attributes
+    }
+  }
+
   return {
-    data: res.data as ContactResponse['data'],
+    data: transformedData as ContactResponse['data'],
     included: (res.included || []) as ContactResponse['included']
   }
 }

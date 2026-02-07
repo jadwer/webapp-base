@@ -1,41 +1,7 @@
 'use client'
 
-import { use, useState } from 'react'
+import { use, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Separator } from '@/components/ui/separator'
-import { Skeleton } from '@/components/ui/skeleton'
-import { Textarea } from '@/components/ui/textarea'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle
-} from '@/components/ui/alert-dialog'
-import {
-  ArrowLeft,
-  Send,
-  Check,
-  X,
-  FileText,
-  RefreshCw,
-  Copy,
-  Printer,
-  Mail,
-  Calendar,
-  User,
-  Clock,
-  DollarSign,
-  Package,
-  Edit
-} from 'lucide-react'
 import {
   useQuote,
   useQuoteItems,
@@ -46,6 +12,7 @@ import {
   canEditQuote
 } from '@/modules/quotes'
 import { toast } from '@/lib/toast'
+import { ConfirmModal, ConfirmModalHandle } from '@/ui/components/base'
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -55,12 +22,11 @@ export default function QuoteDetailPage({ params }: PageProps) {
   const { id } = use(params)
   const router = useRouter()
   const mutations = useQuoteMutations()
+  const confirmModalRef = useRef<ConfirmModalHandle>(null)
 
   const { data: quote, isLoading: quoteLoading, error: quoteError, mutate: refetch } = useQuote(id)
   const { data: items = [], mutate: refetchItems } = useQuoteItems(id)
 
-  const [showConvertDialog, setShowConvertDialog] = useState(false)
-  const [showRejectDialog, setShowRejectDialog] = useState(false)
   const [rejectReason, setRejectReason] = useState('')
   const [isEditing, setIsEditing] = useState(false)
   const [editingEta, setEditingEta] = useState('')
@@ -76,9 +42,9 @@ export default function QuoteDetailPage({ params }: PageProps) {
   const formatDate = (dateString: string | null | undefined) => {
     if (!dateString) return '-'
     return new Date(dateString).toLocaleDateString('es-MX', {
-      year: 'numeric',
+      day: '2-digit',
       month: 'long',
-      day: 'numeric'
+      year: 'numeric'
     })
   }
 
@@ -115,10 +81,21 @@ export default function QuoteDetailPage({ params }: PageProps) {
   const handleConvert = async () => {
     if (!quote) return
 
+    const confirmed = await confirmModalRef.current?.confirm(
+      'Esta accion creara una nueva orden de venta con los productos y precios de esta cotizacion. La cotizacion quedara marcada como "Convertida".',
+      {
+        title: 'Convertir a Orden de Venta',
+        confirmText: 'Convertir',
+        cancelText: 'Cancelar',
+        confirmVariant: 'primary'
+      }
+    )
+
+    if (!confirmed) return
+
     try {
       const result = await mutations.convert.mutateAsync({ id: quote.id })
-      toast.success(`Orden de venta ${result.data.salesOrder.attributes.orderNumber} creada`)
-      setShowConvertDialog(false)
+      toast.success(`Orden de venta ${result.data.salesOrder?.attributes?.orderNumber || ''} creada`)
       refetch()
     } catch (error) {
       toast.error('Error al convertir la cotizacion')
@@ -135,7 +112,6 @@ export default function QuoteDetailPage({ params }: PageProps) {
         data: rejectReason ? { reason: rejectReason } : undefined
       })
       toast.success('Cotizacion marcada como rechazada')
-      setShowRejectDialog(false)
       setRejectReason('')
       refetch()
     } catch (error) {
@@ -173,16 +149,11 @@ export default function QuoteDetailPage({ params }: PageProps) {
 
   if (quoteLoading) {
     return (
-      <div className="container-fluid py-6 space-y-6">
-        <div className="flex items-center gap-4">
-          <Skeleton className="h-10 w-10" />
-          <Skeleton className="h-8 w-48" />
-        </div>
-        <div className="grid gap-6 md:grid-cols-3">
-          <div className="md:col-span-2">
-            <Skeleton className="h-64 w-full" />
+      <div className="container-fluid py-4">
+        <div className="d-flex justify-content-center">
+          <div className="spinner-border text-primary" role="status">
+            <span className="visually-hidden">Cargando cotizacion...</span>
           </div>
-          <Skeleton className="h-64 w-full" />
         </div>
       </div>
     )
@@ -190,25 +161,21 @@ export default function QuoteDetailPage({ params }: PageProps) {
 
   if (quoteError || !quote) {
     return (
-      <div className="container-fluid py-6">
-        <Card>
-          <CardContent className="py-12">
-            <div className="text-center">
-              <FileText className="mx-auto h-12 w-12 text-muted-foreground" />
-              <h3 className="mt-4 text-lg font-semibold">Cotizacion no encontrada</h3>
-              <p className="text-muted-foreground">
-                La cotizacion que buscas no existe o fue eliminada.
-              </p>
-              <Button
-                className="mt-4"
-                onClick={() => router.push('/dashboard/quotes')}
-              >
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Volver a cotizaciones
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="container-fluid py-4">
+        <div className="card">
+          <div className="card-body text-center py-5">
+            <i className="bi bi-file-earmark-x display-4 text-muted mb-3 d-block"></i>
+            <h5>Cotizacion no encontrada</h5>
+            <p className="text-muted">La cotizacion que buscas no existe o fue eliminada.</p>
+            <button
+              className="btn btn-primary mt-3"
+              onClick={() => router.push('/dashboard/quotes')}
+            >
+              <i className="bi bi-arrow-left me-2"></i>
+              Volver a cotizaciones
+            </button>
+          </div>
+        </div>
       </div>
     )
   }
@@ -217,185 +184,182 @@ export default function QuoteDetailPage({ params }: PageProps) {
   const isExpired = quote.validUntil && new Date(quote.validUntil) < new Date()
 
   return (
-    <div className="container-fluid py-6 space-y-6">
+    <div className="container-fluid py-4">
       {/* Header */}
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div className="flex items-center gap-4">
-          <Button variant="outline" size="icon" onClick={() => router.push('/dashboard/quotes')}>
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
+      <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4">
+        <div className="d-flex align-items-center gap-3 mb-3 mb-md-0">
+          <button
+            className="btn btn-outline-secondary"
+            onClick={() => router.push('/dashboard/quotes')}
+          >
+            <i className="bi bi-arrow-left"></i>
+          </button>
           <div>
-            <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-bold tracking-tight">{quote.quoteNumber}</h1>
-              <QuoteStatusBadge status={quote.status} />
-            </div>
-            <p className="text-muted-foreground">
-              Creada el {formatDate(quote.createdAt)}
-            </p>
+            <h1 className="h3 mb-1">{quote.quoteNumber}</h1>
+            <QuoteStatusBadge status={quote.status} />
+            <small className="text-muted ms-2">Creada el {formatDate(quote.createdAt)}</small>
           </div>
         </div>
-        <div className="flex flex-wrap gap-2">
-          {statusConfig.canSend && quote.itemsCount > 0 && (
-            <Button onClick={() => handleAction('send')} disabled={mutations.send.isPending}>
-              <Send className="mr-2 h-4 w-4" />
-              Enviar al cliente
-            </Button>
-          )}
+        <div className="btn-group flex-wrap">
           {statusConfig.canAccept && (
-            <Button
-              variant="outline"
-              className="text-green-600 border-green-600"
+            <button
+              className="btn btn-outline-success"
               onClick={() => handleAction('accept')}
               disabled={mutations.accept.isPending}
             >
-              <Check className="mr-2 h-4 w-4" />
+              <i className="bi bi-check-lg me-1"></i>
               Aceptar
-            </Button>
+            </button>
           )}
           {statusConfig.canReject && (
-            <Button
-              variant="outline"
-              className="text-red-600 border-red-600"
-              onClick={() => setShowRejectDialog(true)}
+            <button
+              className="btn btn-outline-danger"
+              data-bs-toggle="modal"
+              data-bs-target="#rejectModal"
             >
-              <X className="mr-2 h-4 w-4" />
+              <i className="bi bi-x-lg me-1"></i>
               Rechazar
-            </Button>
+            </button>
           )}
-          {statusConfig.canConvert && (
-            <Button onClick={() => setShowConvertDialog(true)}>
-              <FileText className="mr-2 h-4 w-4" />
-              Convertir a Orden
-            </Button>
-          )}
-          <Button variant="outline" onClick={() => handleAction('duplicate')}>
-            <Copy className="mr-2 h-4 w-4" />
+          <button
+            className="btn btn-outline-secondary"
+            onClick={() => handleAction('duplicate')}
+          >
+            <i className="bi bi-copy me-1"></i>
             Duplicar
-          </Button>
+          </button>
           {statusConfig.canCancel && (
-            <Button
-              variant="outline"
-              className="text-orange-600 border-orange-600"
+            <button
+              className="btn btn-outline-warning"
               onClick={() => handleAction('cancel')}
               disabled={mutations.cancel.isPending}
             >
-              <RefreshCw className="mr-2 h-4 w-4" />
+              <i className="bi bi-x-circle me-1"></i>
               Cancelar
-            </Button>
+            </button>
           )}
         </div>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-3">
+      <div className="row">
         {/* Main Content */}
-        <div className="md:col-span-2 space-y-6">
-          {/* Quote Info */}
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="flex items-center gap-2">
-                <FileText className="h-5 w-5" />
+        <div className="col-lg-8">
+          {/* Quote Info Card */}
+          <div className="card mb-4">
+            <div className="card-header d-flex justify-content-between align-items-center">
+              <h5 className="card-title mb-0">
+                <i className="bi bi-file-earmark-text me-2"></i>
                 Informacion de la Cotizacion
-              </CardTitle>
+              </h5>
               {canEditQuote(quote) && !isEditing && (
-                <Button variant="outline" size="sm" onClick={handleStartEdit}>
-                  <Edit className="mr-2 h-4 w-4" />
+                <button className="btn btn-sm btn-outline-primary" onClick={handleStartEdit}>
+                  <i className="bi bi-pencil me-1"></i>
                   Editar
-                </Button>
+                </button>
               )}
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="flex items-start gap-3">
-                  <User className="h-5 w-5 text-muted-foreground mt-0.5" />
-                  <div>
-                    <p className="text-sm font-medium">Cliente</p>
-                    <p className="text-sm text-muted-foreground">
-                      {quote.contact?.name || `Contact #${quote.contactId}`}
-                    </p>
-                    {quote.contact?.email && (
-                      <p className="text-sm text-muted-foreground">{quote.contact.email}</p>
-                    )}
+            </div>
+            <div className="card-body">
+              <div className="row">
+                <div className="col-md-6 mb-3">
+                  <div className="d-flex align-items-start">
+                    <i className="bi bi-person text-muted me-3 fs-5"></i>
+                    <div>
+                      <small className="text-muted d-block">Cliente</small>
+                      <strong>{quote.contact?.name || `Contact #${quote.contactId}`}</strong>
+                      {quote.contact?.email && (
+                        <small className="text-muted d-block">{quote.contact.email}</small>
+                      )}
+                    </div>
                   </div>
                 </div>
-                <div className="flex items-start gap-3">
-                  <Calendar className="h-5 w-5 text-muted-foreground mt-0.5" />
-                  <div>
-                    <p className="text-sm font-medium">Fecha de Cotizacion</p>
-                    <p className="text-sm text-muted-foreground">{formatDate(quote.quoteDate)}</p>
+                <div className="col-md-6 mb-3">
+                  <div className="d-flex align-items-start">
+                    <i className="bi bi-calendar text-muted me-3 fs-5"></i>
+                    <div>
+                      <small className="text-muted d-block">Fecha de Cotizacion</small>
+                      <strong>{formatDate(quote.quoteDate)}</strong>
+                    </div>
                   </div>
                 </div>
-                <div className="flex items-start gap-3">
-                  <Clock className="h-5 w-5 text-muted-foreground mt-0.5" />
-                  <div>
-                    <p className="text-sm font-medium">Vigencia</p>
-                    <p className={`text-sm ${isExpired && quote.status === 'sent' ? 'text-red-600' : 'text-muted-foreground'}`}>
-                      {formatDate(quote.validUntil)}
-                      {isExpired && quote.status === 'sent' && ' (Vencida)'}
-                    </p>
+                <div className="col-md-6 mb-3">
+                  <div className="d-flex align-items-start">
+                    <i className="bi bi-clock text-muted me-3 fs-5"></i>
+                    <div>
+                      <small className="text-muted d-block">Vigencia</small>
+                      <strong className={isExpired && quote.status === 'sent' ? 'text-danger' : ''}>
+                        {formatDate(quote.validUntil)}
+                        {isExpired && quote.status === 'sent' && ' (Vencida)'}
+                      </strong>
+                    </div>
                   </div>
                 </div>
-                <div className="flex items-start gap-3">
-                  <Package className="h-5 w-5 text-muted-foreground mt-0.5" />
-                  <div>
-                    <p className="text-sm font-medium">Tiempo de Entrega (ETA)</p>
-                    {isEditing ? (
-                      <Input
-                        value={editingEta}
-                        onChange={(e) => setEditingEta(e.target.value)}
-                        placeholder="Ej: 2-3 semanas"
-                        className="mt-1"
-                      />
-                    ) : (
-                      <p className="text-sm text-muted-foreground">
-                        {quote.estimatedEta || 'No especificado'}
-                      </p>
-                    )}
+                <div className="col-md-6 mb-3">
+                  <div className="d-flex align-items-start">
+                    <i className="bi bi-truck text-muted me-3 fs-5"></i>
+                    <div>
+                      <small className="text-muted d-block">Tiempo de Entrega (ETA)</small>
+                      {isEditing ? (
+                        <input
+                          type="text"
+                          className="form-control form-control-sm"
+                          value={editingEta}
+                          onChange={(e) => setEditingEta(e.target.value)}
+                          placeholder="Ej: 2-3 semanas"
+                        />
+                      ) : (
+                        <strong>{quote.estimatedEta || 'No especificado'}</strong>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
 
               {(quote.notes || isEditing) && (
                 <>
-                  <Separator />
+                  <hr />
                   <div>
-                    <Label className="text-sm font-medium">Notas</Label>
+                    <label className="form-label small text-muted">Notas</label>
                     {isEditing ? (
-                      <Textarea
+                      <textarea
+                        className="form-control"
                         value={editingNotes}
                         onChange={(e) => setEditingNotes(e.target.value)}
                         placeholder="Notas para el cliente..."
-                        className="mt-2"
                         rows={3}
                       />
                     ) : (
-                      <p className="text-sm text-muted-foreground mt-1">{quote.notes}</p>
+                      <p className="mb-0">{quote.notes}</p>
                     )}
                   </div>
                 </>
               )}
 
               {isEditing && (
-                <div className="flex gap-2 justify-end">
-                  <Button variant="outline" onClick={() => setIsEditing(false)}>
+                <div className="d-flex gap-2 justify-content-end mt-3">
+                  <button className="btn btn-outline-secondary" onClick={() => setIsEditing(false)}>
                     Cancelar
-                  </Button>
-                  <Button onClick={handleSaveEdit} disabled={mutations.update.isPending}>
-                    Guardar cambios
-                  </Button>
+                  </button>
+                  <button
+                    className="btn btn-primary"
+                    onClick={handleSaveEdit}
+                    disabled={mutations.update.isPending}
+                  >
+                    {mutations.update.isPending ? 'Guardando...' : 'Guardar cambios'}
+                  </button>
                 </div>
               )}
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
           {/* Items Table */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Package className="h-5 w-5" />
+          <div className="card mb-4">
+            <div className="card-header">
+              <h5 className="card-title mb-0">
+                <i className="bi bi-box-seam me-2"></i>
                 Productos ({items.length})
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
+              </h5>
+            </div>
+            <div className="card-body p-0">
               <QuoteItemsTable
                 items={items}
                 quoteId={id}
@@ -406,184 +370,180 @@ export default function QuoteDetailPage({ params }: PageProps) {
                   refetch()
                 }}
               />
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
 
         {/* Sidebar */}
-        <div className="space-y-6">
+        <div className="col-lg-4">
           {/* Totals Card */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <DollarSign className="h-5 w-5" />
+          <div className="card mb-4">
+            <div className="card-header">
+              <h5 className="card-title mb-0">
+                <i className="bi bi-calculator me-2"></i>
                 Resumen
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex justify-between text-sm">
+              </h5>
+            </div>
+            <div className="card-body">
+              <div className="d-flex justify-content-between mb-2">
                 <span>Subtotal</span>
                 <span>{formatCurrency(quote.subtotalAmount, quote.currency)}</span>
               </div>
               {quote.discountAmount > 0 && (
-                <div className="flex justify-between text-sm text-green-600">
+                <div className="d-flex justify-content-between mb-2 text-success">
                   <span>Descuento</span>
                   <span>-{formatCurrency(quote.discountAmount, quote.currency)}</span>
                 </div>
               )}
-              <div className="flex justify-between text-sm">
+              <div className="d-flex justify-content-between mb-2">
                 <span>IVA</span>
                 <span>{formatCurrency(quote.taxAmount, quote.currency)}</span>
               </div>
-              <Separator />
-              <div className="flex justify-between font-bold text-lg">
+              <hr />
+              <div className="d-flex justify-content-between fw-bold fs-5">
                 <span>Total</span>
-                <span>{formatCurrency(quote.totalAmount, quote.currency)}</span>
+                <span className="text-primary">{formatCurrency(quote.totalAmount, quote.currency)}</span>
               </div>
-              <div className="text-xs text-muted-foreground text-right">
+              <small className="text-muted d-block text-end mt-2">
                 {quote.itemsCount} producto(s), {quote.totalQuantity} unidades
-              </div>
-            </CardContent>
-          </Card>
+              </small>
+            </div>
+          </div>
 
           {/* Timeline Card */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-sm font-medium">Historial</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Creada</span>
-                  <span>{formatDate(quote.createdAt)}</span>
-                </div>
-                {quote.sentAt && (
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Enviada</span>
-                    <span>{formatDate(quote.sentAt)}</span>
-                  </div>
-                )}
-                {quote.acceptedAt && (
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Aceptada</span>
-                    <span>{formatDate(quote.acceptedAt)}</span>
-                  </div>
-                )}
-                {quote.rejectedAt && (
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Rechazada</span>
-                    <span>{formatDate(quote.rejectedAt)}</span>
-                  </div>
-                )}
-                {quote.convertedAt && (
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Convertida</span>
-                    <span>{formatDate(quote.convertedAt)}</span>
-                  </div>
-                )}
+          <div className="card mb-4">
+            <div className="card-header">
+              <h6 className="card-title mb-0">Historial</h6>
+            </div>
+            <div className="card-body">
+              <div className="d-flex justify-content-between mb-2 small">
+                <span className="text-muted">Creada</span>
+                <span>{formatDate(quote.createdAt)}</span>
               </div>
-            </CardContent>
-          </Card>
+              {quote.sentAt && (
+                <div className="d-flex justify-content-between mb-2 small">
+                  <span className="text-muted">Enviada</span>
+                  <span>{formatDate(quote.sentAt)}</span>
+                </div>
+              )}
+              {quote.acceptedAt && (
+                <div className="d-flex justify-content-between mb-2 small">
+                  <span className="text-muted">Aceptada</span>
+                  <span>{formatDate(quote.acceptedAt)}</span>
+                </div>
+              )}
+              {quote.rejectedAt && (
+                <div className="d-flex justify-content-between mb-2 small">
+                  <span className="text-muted">Rechazada</span>
+                  <span>{formatDate(quote.rejectedAt)}</span>
+                </div>
+              )}
+              {quote.convertedAt && (
+                <div className="d-flex justify-content-between mb-2 small">
+                  <span className="text-muted">Convertida</span>
+                  <span>{formatDate(quote.convertedAt)}</span>
+                </div>
+              )}
+            </div>
+          </div>
 
           {/* Converted Order Reference */}
           {quote.salesOrderId && (
-            <Card className="bg-green-50 dark:bg-green-950 border-green-200">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-green-700 dark:text-green-400">
+            <div className="card mb-4 border-success">
+              <div className="card-header bg-success bg-opacity-10">
+                <h6 className="card-title mb-0 text-success">
+                  <i className="bi bi-check-circle me-2"></i>
                   Orden de Venta Generada
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Button
-                  variant="outline"
-                  className="w-full"
+                </h6>
+              </div>
+              <div className="card-body">
+                <button
+                  className="btn btn-outline-success w-100"
                   onClick={() => router.push(`/dashboard/sales/${quote.salesOrderId}`)}
                 >
-                  <FileText className="mr-2 h-4 w-4" />
+                  <i className="bi bi-receipt me-2"></i>
                   Ver Orden #{quote.salesOrder?.orderNumber || quote.salesOrderId}
-                </Button>
-              </CardContent>
-            </Card>
+                </button>
+              </div>
+            </div>
           )}
 
           {/* Actions Card */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-sm font-medium">Acciones</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <Button
-                variant="outline"
-                className="w-full justify-start"
+          <div className="card">
+            <div className="card-header">
+              <h6 className="card-title mb-0">Acciones</h6>
+            </div>
+            <div className="card-body d-grid gap-2">
+              <button
+                className="btn btn-outline-secondary"
                 onClick={() => window.print()}
               >
-                <Printer className="mr-2 h-4 w-4" />
+                <i className="bi bi-printer me-2"></i>
                 Imprimir
-              </Button>
-              <Button
-                variant="outline"
-                className="w-full justify-start"
+              </button>
+              <button
+                className="btn btn-outline-secondary"
                 onClick={() => handleAction('send')}
                 disabled={mutations.send.isPending || !['draft', 'sent'].includes(quote.status)}
               >
-                <Mail className="mr-2 h-4 w-4" />
+                <i className="bi bi-envelope me-2"></i>
                 {mutations.send.isPending ? 'Enviando...' : 'Enviar por correo'}
-              </Button>
-            </CardContent>
-          </Card>
+              </button>
+              {statusConfig.canConvert && (
+                <button
+                  className="btn btn-primary"
+                  onClick={handleConvert}
+                  disabled={mutations.convert.isPending}
+                >
+                  <i className="bi bi-arrow-right-circle me-2"></i>
+                  Convertir a Orden
+                </button>
+              )}
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Convert Dialog */}
-      <AlertDialog open={showConvertDialog} onOpenChange={setShowConvertDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Convertir a Orden de Venta</AlertDialogTitle>
-            <AlertDialogDescription>
-              Esta accion creara una nueva orden de venta con los productos y precios de esta cotizacion.
-              La cotizacion quedara marcada como &quot;Convertida&quot;.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={handleConvert} disabled={mutations.convert.isPending}>
-              Convertir
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      {/* Reject Dialog */}
-      <AlertDialog open={showRejectDialog} onOpenChange={setShowRejectDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Rechazar Cotizacion</AlertDialogTitle>
-            <AlertDialogDescription>
-              Marcar esta cotizacion como rechazada. Opcionalmente puedes agregar una razon.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <div className="py-4">
-            <Label htmlFor="reason">Razon del rechazo (opcional)</Label>
-            <Textarea
-              id="reason"
-              value={rejectReason}
-              onChange={(e) => setRejectReason(e.target.value)}
-              placeholder="Ej: Cliente encontro mejor precio..."
-              className="mt-2"
-            />
+      {/* Reject Modal */}
+      <div className="modal fade" id="rejectModal" tabIndex={-1}>
+        <div className="modal-dialog">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h5 className="modal-title">Rechazar Cotizacion</h5>
+              <button type="button" className="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div className="modal-body">
+              <p className="text-muted">
+                Marcar esta cotizacion como rechazada. Opcionalmente puedes agregar una razon.
+              </p>
+              <label className="form-label">Razon del rechazo (opcional)</label>
+              <textarea
+                className="form-control"
+                value={rejectReason}
+                onChange={(e) => setRejectReason(e.target.value)}
+                placeholder="Ej: Cliente encontro mejor precio..."
+                rows={3}
+              />
+            </div>
+            <div className="modal-footer">
+              <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">
+                Cancelar
+              </button>
+              <button
+                type="button"
+                className="btn btn-danger"
+                onClick={handleReject}
+                disabled={mutations.reject.isPending}
+                data-bs-dismiss="modal"
+              >
+                {mutations.reject.isPending ? 'Rechazando...' : 'Rechazar'}
+              </button>
+            </div>
           </div>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleReject}
-              disabled={mutations.reject.isPending}
-              className="bg-red-600 hover:bg-red-700"
-            >
-              Rechazar
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+        </div>
+      </div>
+
+      <ConfirmModal ref={confirmModalRef} />
     </div>
   )
 }

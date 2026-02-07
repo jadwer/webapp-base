@@ -33,3 +33,7 @@ export { CheckoutStepper } from './CheckoutStepper'
 
 // Payment components
 export { StripePaymentForm, StripePaymentFormSkeleton } from './StripePaymentForm'
+
+// Customer portal components
+export { default as CustomerDashboard } from './CustomerDashboard'
+export { default as CustomerSidebar } from './CustomerSidebar'

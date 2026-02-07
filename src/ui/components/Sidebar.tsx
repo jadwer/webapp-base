@@ -4,10 +4,16 @@ import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 import NavigationProgress from './NavigationProgress'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
+import { useAuth } from '@/modules/auth'
+import { isAdmin, hasAnyRole } from '@/lib/permissions'
 import styles from '@/ui/styles/modules/Sidebar.module.scss'
 
-// Enlaces simples (siempre visibles)
-const links = [
+// ============================================
+// Enlaces para ADMIN
+// ============================================
+
+// Enlaces simples para ADMIN (siempre visibles para admins)
+const adminBaseLinks = [
   { href: '/dashboard', label: 'Panel Principal', icon: 'bi-house' },
   { href: '/dashboard/profile', label: 'Mi perfil', icon: 'bi-person-circle' },
   { href: '/dashboard/users', label: 'Usuarios', icon: 'bi-people' }
@@ -60,7 +66,7 @@ const inventoryLinks = [
   { href: '/dashboard/inventory/product-batch', label: 'Lotes de Productos', icon: 'bi-calendar-check' }
 ]
 
-// Cotizaciones
+// Cotizaciones (Admin)
 const quotesLinks = [
   { href: '/dashboard/quotes', label: 'Lista Cotizaciones', icon: 'bi-list-ul' },
   { href: '/dashboard/quotes/create', label: 'Nueva Cotización', icon: 'bi-plus-circle' }
@@ -188,10 +194,38 @@ const disabledModules = [
   }
 ]
 
+// ============================================
+// Enlaces para CUSTOMER (Portal Cliente)
+// ============================================
+
+const customerBaseLinks = [
+  { href: '/dashboard', label: 'Mi Panel', icon: 'bi-house' },
+  { href: '/dashboard/profile', label: 'Mi Perfil', icon: 'bi-person-circle' }
+]
+
+// Mi Portal (solo para clientes)
+const myPortalLinks = [
+  { href: '/dashboard/my-quotes', label: 'Mis Cotizaciones', icon: 'bi-file-earmark-text' },
+  { href: '/dashboard/my-orders', label: 'Mis Pedidos', icon: 'bi-bag-check' },
+  { href: '/dashboard/my-cart', label: 'Mi Carrito', icon: 'bi-cart3' }
+]
+
+// ============================================
+// Componente Sidebar
+// ============================================
+
 export default function Sidebar() {
   const pathname = usePathname()
   const navigation = useNavigationProgress()
+  const { user, isLoading: authLoading } = useAuth()
   const [open, setOpen] = useState(false)
+
+  // Determinar si el usuario es admin
+  const userIsAdmin = isAdmin(user)
+  const userIsCustomer = hasAnyRole(user, ['customer', 'cliente'])
+
+  // Seleccionar enlaces base según rol
+  const baseLinks = userIsAdmin ? adminBaseLinks : customerBaseLinks
 
   // Estados de grupos desplegables
   const [rcrudOpen, setRcrudOpen] = useState(
@@ -222,6 +256,11 @@ export default function Sidebar() {
     pathname?.startsWith('/dashboard/system-health') ||
     pathname?.startsWith('/dashboard/diagnostic') ||
     pathname?.startsWith('/dashboard/design-system')
+  )
+  const [myPortalOpen, setMyPortalOpen] = useState(
+    pathname?.startsWith('/dashboard/my-quotes') ||
+    pathname?.startsWith('/dashboard/my-orders') ||
+    pathname?.startsWith('/dashboard/my-cart')
   )
 
   // Función helper para renderizar un grupo
@@ -308,6 +347,25 @@ export default function Sidebar() {
     </li>
   )
 
+  // Loading state
+  if (authLoading) {
+    return (
+      <>
+        <NavigationProgress />
+        <aside className={styles.sidebar}>
+          <div className={styles.header}>
+            <h6 className={styles.title}>Cargando...</h6>
+          </div>
+          <nav className={styles.navigation}>
+            <div className="text-center py-4">
+              <span className="spinner-border spinner-border-sm text-primary" role="status"></span>
+            </div>
+          </nav>
+        </aside>
+      </>
+    )
+  }
+
   return (
     <>
       <NavigationProgress />
@@ -323,13 +381,20 @@ export default function Sidebar() {
 
       <aside className={`${styles.sidebar} ${open ? styles.open : ''}`}>
         <div className={styles.header}>
-          <h6 className={styles.title}>Menú</h6>
+          <h6 className={styles.title}>
+            {userIsAdmin ? 'Menú Admin' : 'Mi Portal'}
+          </h6>
+          {user && (
+            <small className="text-muted d-block" style={{ fontSize: '11px', marginTop: '4px' }}>
+              {user.name || user.email}
+            </small>
+          )}
         </div>
 
         <nav className={styles.navigation}>
           <ul className={styles.navList}>
-            {/* Enlaces simples */}
-            {links.map(({ href, label, icon }) => (
+            {/* Enlaces base (según rol) */}
+            {baseLinks.map(({ href, label, icon }) => (
               <li className={styles.navItem} key={href}>
                 <button
                   onClick={() => navigation.push(href)}
@@ -343,44 +408,81 @@ export default function Sidebar() {
               </li>
             ))}
 
-            {/* Grupos principales (en orden de uso frecuente) */}
-            {renderGroup('Page Builder', 'bi-brush', pageBuilderOpen, setPageBuilderOpen, pageBuilderLinks)}
-            {renderGroup('Roles y Permisos', 'bi-shield-fill-check', rcrudOpen, setRcrudOpen, rcrudLinks)}
+            {/* ============================================ */}
+            {/* MENÚ PARA CLIENTES */}
+            {/* ============================================ */}
+            {userIsCustomer && !userIsAdmin && (
+              <>
+                {renderGroup('Mi Portal', 'bi-person-badge', myPortalOpen, setMyPortalOpen, myPortalLinks)}
 
-            {/* Módulos operativos */}
-            {renderGroup('Productos', 'bi-box-seam', productsOpen, setProductsOpen, productsLinks)}
-            {renderGroup('Inventario', 'bi-archive', inventoryOpen, setInventoryOpen, inventoryLinks)}
-            {renderGroup('Contactos', 'bi-person-rolodex', contactsOpen, setContactsOpen, contactsLinks)}
-            {renderGroup('Cotizaciones', 'bi-file-earmark-text', quotesOpen, setQuotesOpen, quotesLinks)}
-            {renderGroup('Ventas', 'bi-cart-check', salesOpen, setSalesOpen, salesLinks)}
-            {renderGroup('Compras', 'bi-cart-plus', purchaseOpen, setPurchaseOpen, purchaseLinks)}
+                {/* Link directo a catálogo */}
+                <li className={styles.navItem}>
+                  <button
+                    onClick={() => navigation.push('/productos')}
+                    className={styles.navLink}
+                  >
+                    <i className={`bi bi-grid-3x3-gap ${styles.navIcon}`} aria-hidden="true"></i>
+                    Ver Catálogo
+                  </button>
+                </li>
+              </>
+            )}
 
-            {/* Módulos financieros */}
-            {renderGroup('Finanzas', 'bi-cash-stack', financeOpen, setFinanceOpen, financeLinks)}
-            {renderGroup('Contabilidad', 'bi-calculator', accountingOpen, setAccountingOpen, accountingLinks)}
-            {renderGroup('Reportes', 'bi-file-earmark-bar-graph', reportsOpen, setReportsOpen, reportsLinks)}
-            {renderGroup('Facturación CFDI', 'bi-receipt-cutoff', billingOpen, setBillingOpen, billingLinks)}
+            {/* ============================================ */}
+            {/* MENÚ PARA ADMINS */}
+            {/* ============================================ */}
+            {userIsAdmin && (
+              <>
+                {/* Grupos principales (en orden de uso frecuente) */}
+                {renderGroup('Page Builder', 'bi-brush', pageBuilderOpen, setPageBuilderOpen, pageBuilderLinks)}
+                {renderGroup('Roles y Permisos', 'bi-shield-fill-check', rcrudOpen, setRcrudOpen, rcrudLinks)}
 
-            {/* Módulos de cliente */}
-            {renderGroup('CRM', 'bi-bar-chart-line', crmOpen, setCrmOpen, crmLinks)}
-            {renderGroup('Catálogo Público', 'bi-grid-3x3-gap', catalogOpen, setCatalogOpen, catalogLinks)}
-            {renderGroup('E-commerce', 'bi-shop', ecommerceOpen, setEcommerceOpen, ecommerceLinks)}
+                {/* Módulos operativos */}
+                {renderGroup('Productos', 'bi-box-seam', productsOpen, setProductsOpen, productsLinks)}
+                {renderGroup('Inventario', 'bi-archive', inventoryOpen, setInventoryOpen, inventoryLinks)}
+                {renderGroup('Contactos', 'bi-person-rolodex', contactsOpen, setContactsOpen, contactsLinks)}
+                {renderGroup('Cotizaciones', 'bi-file-earmark-text', quotesOpen, setQuotesOpen, quotesLinks)}
+                {renderGroup('Ventas', 'bi-cart-check', salesOpen, setSalesOpen, salesLinks)}
+                {renderGroup('Compras', 'bi-cart-plus', purchaseOpen, setPurchaseOpen, purchaseLinks)}
 
-            {/* Módulos de gestión */}
-            {renderGroup('Recursos Humanos', 'bi-people-fill', hrOpen, setHrOpen, hrLinks)}
+                {/* Módulos financieros */}
+                {renderGroup('Finanzas', 'bi-cash-stack', financeOpen, setFinanceOpen, financeLinks)}
+                {renderGroup('Contabilidad', 'bi-calculator', accountingOpen, setAccountingOpen, accountingLinks)}
+                {renderGroup('Reportes', 'bi-file-earmark-bar-graph', reportsOpen, setReportsOpen, reportsLinks)}
+                {renderGroup('Facturación CFDI', 'bi-receipt-cutoff', billingOpen, setBillingOpen, billingLinks)}
 
-            {/* Sistema y administración */}
-            {renderGroup('Sistema', 'bi-gear-wide-connected', systemOpen, setSystemOpen, systemLinks)}
+                {/* Módulos de cliente */}
+                {renderGroup('CRM', 'bi-bar-chart-line', crmOpen, setCrmOpen, crmLinks)}
+                {renderGroup('Catálogo Público', 'bi-grid-3x3-gap', catalogOpen, setCatalogOpen, catalogLinks)}
+                {renderGroup('E-commerce', 'bi-shop', ecommerceOpen, setEcommerceOpen, ecommerceLinks)}
 
-            {/* Separador */}
-            <li className={styles.navItem} style={{ margin: '16px 0', borderTop: '1px solid rgba(0,0,0,0.1)', paddingTop: '16px' }}>
-              <div style={{ padding: '0 16px', color: '#6c757d', fontSize: '12px', fontWeight: 'bold', textTransform: 'uppercase' }}>
-                Próximamente
-              </div>
-            </li>
+                {/* Módulos de gestión */}
+                {renderGroup('Recursos Humanos', 'bi-people-fill', hrOpen, setHrOpen, hrLinks)}
 
-            {/* Módulos deshabilitados */}
-            {disabledModules.map(renderDisabledModule)}
+                {/* Sistema y administración */}
+                {renderGroup('Sistema', 'bi-gear-wide-connected', systemOpen, setSystemOpen, systemLinks)}
+
+                {/* Separador */}
+                <li className={styles.navItem} style={{ margin: '16px 0', borderTop: '1px solid rgba(0,0,0,0.1)', paddingTop: '16px' }}>
+                  <div style={{ padding: '0 16px', color: '#6c757d', fontSize: '12px', fontWeight: 'bold', textTransform: 'uppercase' }}>
+                    Próximamente
+                  </div>
+                </li>
+
+                {/* Módulos deshabilitados */}
+                {disabledModules.map(renderDisabledModule)}
+              </>
+            )}
+
+            {/* Usuario sin rol definido (fallback) */}
+            {!userIsAdmin && !userIsCustomer && user && (
+              <li className={styles.navItem}>
+                <div style={{ padding: '16px', color: '#6c757d', fontSize: '13px' }}>
+                  <i className="bi bi-info-circle me-2"></i>
+                  Contacta al administrador para obtener acceso a más funciones.
+                </div>
+              </li>
+            )}
           </ul>
         </nav>
       </aside>

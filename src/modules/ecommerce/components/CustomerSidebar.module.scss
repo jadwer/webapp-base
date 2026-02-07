@@ -1,0 +1,221 @@
+// CustomerSidebar - Sidebar colapsable para clientes en paginas publicas
+// Reutiliza tokens del design system
+@use '../../../ui/styles/tokens/_colors.scss' as *;
+@use '../../../ui/styles/tokens/_spacing.scss' as *;
+@use '../../../ui/styles/tokens/_typography.scss' as *;
+
+$transition-fast: 150ms ease-in-out;
+$transition-normal: 250ms ease-in-out;
+$sidebar-width: 260px;
+
+// Boton toggle flotante
+.toggleButton {
+  position: fixed;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  z-index: 1040;
+  background: $color-primary;
+  color: white;
+  border: none;
+  border-radius: 0 8px 8px 0;
+  padding: $spacing-3 $spacing-2;
+  box-shadow: 2px 2px 12px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  transition: all $transition-fast;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  gap: $spacing-2;
+  line-height: 1;
+
+  i {
+    font-size: $font-size-base;
+    writing-mode: horizontal-tb;
+  }
+
+  &:hover {
+    padding-right: $spacing-3;
+    box-shadow: 4px 2px 16px rgba(0, 0, 0, 0.2);
+  }
+
+  &.open {
+    left: $sidebar-width;
+  }
+}
+
+// Panel lateral
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: $sidebar-width;
+  height: 100vh;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-right: 1px solid rgba(226, 232, 240, 0.6);
+  z-index: 1039;
+  transform: translateX(-100%);
+  transition: transform $transition-normal;
+  overflow-y: auto;
+  padding: $spacing-6 0;
+  box-shadow: none;
+
+  &.open {
+    transform: translateX(0);
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.1);
+  }
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: $neutral-300;
+    border-radius: 2px;
+
+    &:hover {
+      background: $neutral-400;
+    }
+  }
+}
+
+// Overlay
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 1038;
+  backdrop-filter: blur(2px);
+}
+
+// Header del sidebar
+.header {
+  padding: 0 $spacing-5 $spacing-4;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.6);
+  margin-bottom: $spacing-4;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.title {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  color: $color-text-secondary;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  color: $color-text-secondary;
+  cursor: pointer;
+  padding: $spacing-1;
+  border-radius: 4px;
+  transition: all $transition-fast;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.05);
+    color: $color-text-primary;
+  }
+}
+
+// Navegacion
+.navigation {
+  padding: 0 $spacing-3;
+}
+
+.navList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-1;
+}
+
+.navItem {
+  margin: 0;
+}
+
+.navLink {
+  display: flex;
+  align-items: center;
+  gap: $spacing-3;
+  padding: $spacing-3 $spacing-4;
+  color: $color-text-secondary;
+  text-decoration: none;
+  border-radius: 8px;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-normal;
+  transition: all $transition-fast;
+  width: 100%;
+  border: none;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+
+  &:hover {
+    background: rgba($color-primary, 0.06);
+    color: $color-primary;
+    text-decoration: none;
+    transform: translateX(2px);
+  }
+
+  &.active {
+    background: linear-gradient(135deg, rgba($color-primary, 0.1), rgba($color-primary, 0.05));
+    color: $color-primary;
+    font-weight: $font-weight-medium;
+    border-left: 3px solid $color-primary;
+    padding-left: calc(#{$spacing-4} - 3px);
+  }
+}
+
+.navIcon {
+  font-size: $font-size-base;
+  width: 20px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+// Separador
+.separator {
+  margin: $spacing-3 $spacing-4;
+  border-top: 1px solid rgba(226, 232, 240, 0.6);
+}
+
+// Seccion de usuario
+.userInfo {
+  padding: $spacing-3 $spacing-5;
+  margin-bottom: $spacing-2;
+
+  .userName {
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+    color: $color-text-primary;
+    margin: 0;
+  }
+
+  .userEmail {
+    font-size: $font-size-xs;
+    color: $color-text-secondary;
+    margin: 0;
+  }
+}

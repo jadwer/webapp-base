@@ -8,13 +8,30 @@
 
 'use client'
 
+import { Suspense } from 'react'
 import { LocalCartPage } from '@/modules/public-catalog/components/LocalCartPage'
 
-export default function ShoppingCartRoute() {
+function CartPageContent() {
   return (
     <LocalCartPage
       checkoutUrl="/checkout"
       continueShoppingUrl="/productos"
     />
+  )
+}
+
+export default function ShoppingCartRoute() {
+  return (
+    <Suspense fallback={
+      <div className="container py-5">
+        <div className="text-center">
+          <div className="spinner-border text-primary" role="status">
+            <span className="visually-hidden">Cargando carrito...</span>
+          </div>
+        </div>
+      </div>
+    }>
+      <CartPageContent />
+    </Suspense>
   )
 }

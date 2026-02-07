@@ -140,6 +140,11 @@ function buildQueryParams(
       params['filter[contact]'] = filters.contactId.toString()
     }
 
+    // Customer portal filter - filter by contact email
+    if (filters.contactEmail) {
+      params['filter[contact_email]'] = filters.contactEmail
+    }
+
     if (filters.dateFrom) {
       params['filter[quote_date][gte]'] = filters.dateFrom
     }
@@ -213,6 +218,28 @@ export const quoteService = {
     const response = await axios.post<JsonApiResponse<JsonApiResource>>(QUOTES_BASE_URL, requestData)
 
     return parseQuote(response.data.data)
+  },
+
+  /**
+   * Request a quote as a customer (simplified flow)
+   * This endpoint doesn't require contact selection - uses authenticated user's contact
+   */
+  async requestQuote(data: {
+    items: Array<{ product_id: number; quantity: number }>
+    notes?: string
+    shipping_address?: Record<string, string>
+  }): Promise<{
+    success: boolean
+    message: string
+    data: {
+      quote_number: string
+      total_amount: number
+      items_count: number
+      valid_until: string
+    }
+  }> {
+    const response = await axios.post(`${QUOTES_BASE_URL}/request`, data)
+    return response.data
   },
 
   /**

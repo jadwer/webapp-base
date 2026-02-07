@@ -1,15 +1,5 @@
 'use client'
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Skeleton } from '@/components/ui/skeleton'
-import {
-  FileText,
-  CheckCircle,
-  Clock,
-  TrendingUp,
-  DollarSign,
-  Percent
-} from 'lucide-react'
 import type { QuoteSummary } from '../types'
 
 interface QuoteSummaryCardsProps {
@@ -29,18 +19,28 @@ export function QuoteSummaryCards({ summary, isLoading }: QuoteSummaryCardsProps
 
   if (isLoading) {
     return (
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="row g-3">
         {[...Array(4)].map((_, i) => (
-          <Card key={i}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <Skeleton className="h-4 w-24" />
-              <Skeleton className="h-4 w-4" />
-            </CardHeader>
-            <CardContent>
-              <Skeleton className="h-8 w-16" />
-              <Skeleton className="h-3 w-32 mt-2" />
-            </CardContent>
-          </Card>
+          <div key={i} className="col-md-6 col-lg-3">
+            <div className="card h-100">
+              <div className="card-body">
+                <div className="d-flex justify-content-between align-items-center mb-2">
+                  <div className="placeholder-glow" style={{ width: '100px' }}>
+                    <span className="placeholder col-12"></span>
+                  </div>
+                  <div className="placeholder-glow" style={{ width: '20px' }}>
+                    <span className="placeholder col-12"></span>
+                  </div>
+                </div>
+                <div className="placeholder-glow">
+                  <span className="placeholder col-4 placeholder-lg"></span>
+                </div>
+                <div className="placeholder-glow mt-2">
+                  <span className="placeholder col-8"></span>
+                </div>
+              </div>
+            </div>
+          </div>
         ))}
       </div>
     )
@@ -53,73 +53,79 @@ export function QuoteSummaryCards({ summary, isLoading }: QuoteSummaryCardsProps
       title: 'Total Cotizaciones',
       value: summary.total,
       subtitle: `${summary.draft} borradores, ${summary.sent} enviadas`,
-      icon: FileText,
-      color: 'text-blue-600'
+      icon: 'bi-file-text',
+      iconColor: 'text-primary'
     },
     {
       title: 'Pendientes',
       value: summary.draft + summary.sent,
       subtitle: `${summary.sent} esperando respuesta`,
-      icon: Clock,
-      color: 'text-yellow-600'
+      icon: 'bi-clock',
+      iconColor: 'text-warning'
     },
     {
       title: 'Aceptadas',
       value: summary.accepted + summary.converted,
       subtitle: `${summary.converted} convertidas a orden`,
-      icon: CheckCircle,
-      color: 'text-green-600'
+      icon: 'bi-check-circle',
+      iconColor: 'text-success'
     },
     {
-      title: 'Tasa de Conversion',
+      title: 'Tasa de Conversión',
       value: `${summary.conversionRate}%`,
       subtitle: `${summary.rejected} rechazadas`,
-      icon: Percent,
-      color: 'text-purple-600'
+      icon: 'bi-percent',
+      iconColor: 'text-info'
     }
   ]
 
   return (
     <>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="row g-3">
         {cards.map((card, index) => (
-          <Card key={index}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">{card.title}</CardTitle>
-              <card.icon className={`h-4 w-4 ${card.color}`} />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{card.value}</div>
-              <p className="text-xs text-muted-foreground">{card.subtitle}</p>
-            </CardContent>
-          </Card>
+          <div key={index} className="col-md-6 col-lg-3">
+            <div className="card h-100">
+              <div className="card-body">
+                <div className="d-flex justify-content-between align-items-center mb-2">
+                  <h6 className="card-subtitle text-muted mb-0">{card.title}</h6>
+                  <i className={`bi ${card.icon} ${card.iconColor}`}></i>
+                </div>
+                <h3 className="card-title mb-1">{card.value}</h3>
+                <small className="text-muted">{card.subtitle}</small>
+              </div>
+            </div>
+          </div>
         ))}
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 mt-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Valor Total Activo</CardTitle>
-            <DollarSign className="h-4 w-4 text-green-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(summary.totalValue)}</div>
-            <p className="text-xs text-muted-foreground">
-              Cotizaciones activas (borrador, enviadas, aceptadas)
-            </p>
-          </CardContent>
-        </Card>
+      <div className="row g-3 mt-1">
+        <div className="col-md-6">
+          <div className="card h-100">
+            <div className="card-body">
+              <div className="d-flex justify-content-between align-items-center mb-2">
+                <h6 className="card-subtitle text-muted mb-0">Valor Total Activo</h6>
+                <i className="bi bi-currency-dollar text-success"></i>
+              </div>
+              <h3 className="card-title mb-1">{formatCurrency(summary.totalValue)}</h3>
+              <small className="text-muted">
+                Cotizaciones activas (borrador, enviadas, aceptadas)
+              </small>
+            </div>
+          </div>
+        </div>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Valor Promedio</CardTitle>
-            <TrendingUp className="h-4 w-4 text-blue-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(summary.averageValue || 0)}</div>
-            <p className="text-xs text-muted-foreground">Por cotizacion activa</p>
-          </CardContent>
-        </Card>
+        <div className="col-md-6">
+          <div className="card h-100">
+            <div className="card-body">
+              <div className="d-flex justify-content-between align-items-center mb-2">
+                <h6 className="card-subtitle text-muted mb-0">Valor Promedio</h6>
+                <i className="bi bi-graph-up text-primary"></i>
+              </div>
+              <h3 className="card-title mb-1">{formatCurrency(summary.averageValue || 0)}</h3>
+              <small className="text-muted">Por cotización activa</small>
+            </div>
+          </div>
+        </div>
       </div>
     </>
   )

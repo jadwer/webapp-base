@@ -2,24 +2,11 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select'
-import { Skeleton } from '@/components/ui/skeleton'
-import { ArrowLeft, FileText, ShoppingCart as ShoppingCartIcon, User, Calendar, AlertCircle, RefreshCw, Package } from 'lucide-react'
 import { useQuoteMutations } from '@/modules/quotes'
 import { contactsService } from '@/modules/contacts/services'
 import { shoppingCartService } from '@/modules/ecommerce'
 import type { ShoppingCart } from '@/modules/ecommerce'
+import { stockService } from '@/modules/inventory'
 import { toast } from '@/lib/toast'
 import type { LocalCartItem } from '@/modules/public-catalog'
 
@@ -72,6 +59,9 @@ export default function CreateQuotePage() {
   // Public cart from localStorage
   const [publicCartPreview, setPublicCartPreview] = useState<PublicCartPreview | null>(null)
   const [isCreatingBackendCart, setIsCreatingBackendCart] = useState(false)
+
+  // Stock data for products
+  const [stockMap, setStockMap] = useState<Record<string, number>>({})
 
   // Set default validity date (30 days from now)
   useEffect(() => {
@@ -191,13 +181,31 @@ export default function CreateQuotePage() {
         fetchAllCarts()
       ])
 
-      // Transform contacts to simple format
-      const transformedContacts: Contact[] = (contactsResponse.data || []).map((c: { id: string | number; attributes?: { name?: string; email?: string }; name?: string; email?: string }) => {
-        const attrs = c.attributes || c
+      // Transform contacts - handle JSON:API response structure
+      // The response.data contains objects with { type, id, attributes } structure
+      const transformedContacts: Contact[] = (contactsResponse.data || []).map((c: unknown) => {
+        const contact = c as {
+          id: string | number
+          type?: string
+          attributes?: { name?: string; email?: string }
+          name?: string
+          email?: string
+        }
+
+        // Check if it's JSON:API format (has attributes) or already transformed
+        if (contact.attributes) {
+          return {
+            id: String(contact.id),
+            name: contact.attributes.name || 'Sin nombre',
+            email: contact.attributes.email || undefined
+          }
+        }
+
+        // Already transformed or flat format
         return {
-          id: String(c.id),
-          name: attrs.name || 'Sin nombre',
-          email: attrs.email || undefined
+          id: String(contact.id),
+          name: contact.name || 'Sin nombre',
+          email: contact.email || undefined
         }
       })
 
@@ -255,10 +263,10 @@ export default function CreateQuotePage() {
         terms_and_conditions: termsAndConditions || undefined
       })
 
-      toast.success('Cotizacion creada exitosamente')
+      toast.success('Cotización creada exitosamente')
       router.push(`/dashboard/quotes/${result.data.id}`)
     } catch (error) {
-      toast.error('Error al crear la cotizacion')
+      toast.error('Error al crear la cotización')
       console.error(error)
     }
   }
@@ -270,153 +278,268 @@ export default function CreateQuotePage() {
     }).format(amount)
   }
 
+  // Fetch stock data for a list of product IDs
+  const fetchStockForProducts = useCallback(async (productIds: string[]) => {
+    const uniqueIds = [...new Set(productIds)]
+    const newStockMap: Record<string, number> = {}
+
+    await Promise.all(
+      uniqueIds.map(async (productId) => {
+        try {
+          const response = await stockService.getByProduct(productId)
+          const stockItems = response.data as unknown as Array<{
+            type: string
+            id: string
+            attributes: { availableQuantity?: number }
+          }>
+          const total = Array.isArray(stockItems)
+            ? stockItems.reduce((sum, s) => sum + (s.attributes?.availableQuantity || 0), 0)
+            : 0
+          newStockMap[productId] = total
+        } catch {
+          newStockMap[productId] = 0
+        }
+      })
+    )
+
+    setStockMap(prev => ({ ...prev, ...newStockMap }))
+  }, [])
+
+  // Fetch stock when carts or publicCartPreview change
+  useEffect(() => {
+    const productIds: string[] = []
+
+    if (publicCartPreview) {
+      publicCartPreview.items.forEach(item => productIds.push(item.productId))
+    }
+
+    carts.forEach(cart => {
+      cart.items.forEach(item => productIds.push(item.productId))
+    })
+
+    if (productIds.length > 0) {
+      fetchStockForProducts(productIds)
+    }
+  }, [carts, publicCartPreview, fetchStockForProducts])
+
+  // Stock indicator component
+  const StockIndicator = ({ productId, quantity }: { productId: string; quantity: number }) => {
+    const available = stockMap[productId]
+    if (available === undefined) return null
+
+    if (available === 0) {
+      return (
+        <span className="text-danger ms-2" title="Sin stock disponible">
+          <i className="bi bi-exclamation-triangle"></i>
+        </span>
+      )
+    }
+    if (available < quantity) {
+      return (
+        <span className="text-warning ms-2" title={`Stock insuficiente: ${available} disponibles, se requieren ${quantity}`}>
+          <i className="bi bi-exclamation-circle"></i>
+        </span>
+      )
+    }
+    return (
+      <span className="text-success ms-2" title={`${available} disponibles`}>
+        <i className="bi bi-check-circle"></i>
+      </span>
+    )
+  }
+
+  // Loading state
   if (isLoadingData) {
     return (
-      <div className="container-fluid py-6 space-y-6">
-        <Skeleton className="h-10 w-64" />
-        <div className="grid gap-6 md:grid-cols-2">
-          <Skeleton className="h-96" />
-          <Skeleton className="h-96" />
+      <div className="container-fluid py-4">
+        <div className="row mb-4">
+          <div className="col-12">
+            <div className="d-flex align-items-center">
+              <button
+                className="btn btn-outline-secondary me-3"
+                onClick={() => router.push('/dashboard/quotes')}
+              >
+                <i className="bi bi-arrow-left"></i>
+              </button>
+              <h1 className="h3 mb-0">Nueva Cotización</h1>
+            </div>
+          </div>
+        </div>
+        <div className="row">
+          <div className="col-12">
+            <div className="d-flex justify-content-center p-5">
+              <div className="spinner-border text-primary" role="status">
+                <span className="visually-hidden">Cargando...</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     )
   }
 
+  // Error state
   if (loadError) {
     return (
-      <div className="container-fluid py-6">
-        <div className="flex items-center gap-4 mb-6">
-          <Button variant="outline" size="icon" onClick={() => router.push('/dashboard/quotes')}>
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <h1 className="text-2xl font-bold">Nueva Cotizacion</h1>
-        </div>
-        <Card>
-          <CardContent className="py-12">
-            <div className="text-center space-y-4">
-              <AlertCircle className="mx-auto h-12 w-12 text-destructive" />
-              <p className="text-lg font-medium">{loadError}</p>
-              <Button onClick={loadData} variant="outline">
-                <RefreshCw className="h-4 w-4 mr-2" />
-                Reintentar
-              </Button>
+      <div className="container-fluid py-4">
+        <div className="row mb-4">
+          <div className="col-12">
+            <div className="d-flex align-items-center">
+              <button
+                className="btn btn-outline-secondary me-3"
+                onClick={() => router.push('/dashboard/quotes')}
+              >
+                <i className="bi bi-arrow-left"></i>
+              </button>
+              <h1 className="h3 mb-0">Nueva Cotización</h1>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
+        <div className="row">
+          <div className="col-12">
+            <div className="card">
+              <div className="card-body text-center py-5">
+                <i className="bi bi-exclamation-triangle display-4 text-danger mb-3 d-block"></i>
+                <p className="h5 mb-3">{loadError}</p>
+                <button className="btn btn-primary" onClick={loadData}>
+                  <i className="bi bi-arrow-clockwise me-2"></i>
+                  Reintentar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     )
   }
 
   return (
-    <div className="container-fluid py-6 space-y-6">
+    <div className="container-fluid py-4">
       {/* Header */}
-      <div className="flex items-center gap-4">
-        <Button variant="outline" size="icon" onClick={() => router.push('/dashboard/quotes')}>
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
-            <FileText className="h-6 w-6" />
-            Nueva Cotizacion
-          </h1>
-          <p className="text-muted-foreground">
-            Crea una cotizacion a partir de un carrito de compras
-          </p>
+      <div className="row mb-4">
+        <div className="col-12">
+          <div className="d-flex align-items-center">
+            <button
+              className="btn btn-outline-secondary me-3"
+              onClick={() => router.push('/dashboard/quotes')}
+            >
+              <i className="bi bi-arrow-left"></i>
+            </button>
+            <div>
+              <h1 className="h3 mb-1">
+                <i className="bi bi-file-text me-2"></i>
+                Nueva Cotización
+              </h1>
+              <p className="text-muted mb-0">
+                Crea una cotización a partir de un carrito de compras
+              </p>
+            </div>
+          </div>
         </div>
       </div>
 
       <form onSubmit={handleSubmit}>
-        <div className="grid gap-6 md:grid-cols-2">
+        <div className="row">
           {/* Left Column - Selection */}
-          <div className="space-y-6">
+          <div className="col-lg-6">
             {/* Cart Selection */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <ShoppingCartIcon className="h-5 w-5" />
+            <div className="card mb-4">
+              <div className="card-header">
+                <h5 className="card-title mb-0">
+                  <i className="bi bi-cart me-2"></i>
                   Carrito de Compras
-                </CardTitle>
-                <CardDescription>
+                </h5>
+                <small className="text-muted">
                   {publicCartPreview
                     ? 'Productos seleccionados desde la tienda'
                     : 'Selecciona el carrito con los productos a cotizar'
                   }
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
+                </small>
+              </div>
+              <div className="card-body">
                 {/* Show public cart preview if coming from public cart */}
                 {publicCartPreview && publicCartPreview.items.length > 0 ? (
-                  <div className="space-y-4">
-                    <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                      <div className="flex items-center gap-2 text-green-700 mb-2">
-                        <Package className="h-5 w-5" />
-                        <span className="font-medium">Productos desde la tienda</span>
+                  <div>
+                    <div className="alert alert-success">
+                      <div className="d-flex align-items-center">
+                        <i className="bi bi-box-seam me-2"></i>
+                        <div>
+                          <strong>Productos desde la tienda</strong>
+                          <br />
+                          <small>Se creará un carrito automáticamente con estos productos</small>
+                        </div>
                       </div>
-                      <p className="text-sm text-green-600">
-                        Se creara un carrito automaticamente con estos productos
-                      </p>
                     </div>
 
-                    <div className="border rounded-lg p-4 space-y-2">
-                      <p className="text-sm font-medium">Productos a cotizar:</p>
-                      <ul className="text-sm space-y-1">
+                    <div className="border rounded p-3">
+                      <p className="fw-bold mb-2">Productos a cotizar:</p>
+                      <ul className="list-unstyled mb-2">
                         {publicCartPreview.items.map((item) => (
-                          <li key={item.productId} className="flex justify-between text-muted-foreground">
-                            <span>{item.name} x {item.quantity}</span>
+                          <li key={item.productId} className="d-flex justify-content-between text-muted small mb-1">
+                            <span>
+                              {item.name} x {item.quantity}
+                              <StockIndicator productId={item.productId} quantity={item.quantity} />
+                            </span>
                             <span>{formatCurrency(item.price * item.quantity)}</span>
                           </li>
                         ))}
                       </ul>
-                      <div className="border-t pt-2 flex justify-between font-medium">
+                      <hr />
+                      <div className="d-flex justify-content-between fw-bold">
                         <span>Total</span>
                         <span>{formatCurrency(publicCartPreview.totalAmount)}</span>
                       </div>
                     </div>
                   </div>
                 ) : carts.length === 0 ? (
-                  <div className="text-center py-8 text-muted-foreground">
-                    <AlertCircle className="mx-auto h-12 w-12 mb-4" />
-                    <p>No hay carritos disponibles</p>
-                    <p className="text-sm">Crea un carrito con productos primero</p>
-                    <Button
+                  <div className="text-center py-4 text-muted">
+                    <i className="bi bi-cart-x display-4 mb-3 d-block"></i>
+                    <p className="mb-1">No hay carritos disponibles</p>
+                    <p className="small mb-3">Crea un carrito con productos primero</p>
+                    <button
                       type="button"
-                      variant="link"
-                      className="mt-2"
+                      className="btn btn-outline-primary btn-sm"
                       onClick={() => router.push('/tienda')}
                     >
+                      <i className="bi bi-shop me-1"></i>
                       Ir a la Tienda
-                    </Button>
+                    </button>
                   </div>
                 ) : (
                   <>
-                    <div className="space-y-2">
-                      <Label htmlFor="cart">Carrito *</Label>
-                      <Select value={selectedCartId} onValueChange={setSelectedCartId}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecciona un carrito" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {carts.map((cart) => (
-                            <SelectItem key={cart.id} value={cart.id}>
-                              Carrito #{cart.id} - {cart.items.length} productos - {formatCurrency(cart.totalAmount)}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                    <div className="mb-3">
+                      <label htmlFor="cart" className="form-label">Carrito *</label>
+                      <select
+                        id="cart"
+                        className="form-select"
+                        value={selectedCartId}
+                        onChange={(e) => setSelectedCartId(e.target.value)}
+                      >
+                        <option value="">Selecciona un carrito</option>
+                        {carts.map((cart) => (
+                          <option key={cart.id} value={cart.id}>
+                            Carrito #{cart.id} - {cart.items.length} productos - {formatCurrency(cart.totalAmount)}
+                          </option>
+                        ))}
+                      </select>
                     </div>
 
                     {selectedCart && (
-                      <div className="border rounded-lg p-4 space-y-2">
-                        <p className="text-sm font-medium">Productos en el carrito:</p>
-                        <ul className="text-sm space-y-1">
+                      <div className="border rounded p-3">
+                        <p className="fw-bold mb-2">Productos en el carrito:</p>
+                        <ul className="list-unstyled mb-2">
                           {selectedCart.items.map((item) => (
-                            <li key={item.id} className="flex justify-between text-muted-foreground">
-                              <span>{item.productName} x {item.quantity}</span>
+                            <li key={item.id} className="d-flex justify-content-between text-muted small mb-1">
+                              <span>
+                                {item.productName} x {item.quantity}
+                                <StockIndicator productId={item.productId} quantity={item.quantity} />
+                              </span>
                               <span>{formatCurrency(item.unitPrice * item.quantity)}</span>
                             </li>
                           ))}
                         </ul>
-                        <div className="border-t pt-2 flex justify-between font-medium">
+                        <hr />
+                        <div className="d-flex justify-content-between fw-bold">
                           <span>Total</span>
                           <span>{formatCurrency(selectedCart.totalAmount)}</span>
                         </div>
@@ -424,96 +547,97 @@ export default function CreateQuotePage() {
                     )}
                   </>
                 )}
-              </CardContent>
-            </Card>
+              </div>
+            </div>
 
             {/* Contact Selection */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <User className="h-5 w-5" />
+            <div className="card mb-4">
+              <div className="card-header">
+                <h5 className="card-title mb-0">
+                  <i className="bi bi-person me-2"></i>
                   Cliente
-                </CardTitle>
-                <CardDescription>
-                  Selecciona el cliente para esta cotizacion
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
+                </h5>
+                <small className="text-muted">Selecciona el cliente para esta cotización</small>
+              </div>
+              <div className="card-body">
                 {contacts.length === 0 ? (
-                  <div className="text-center py-8 text-muted-foreground">
-                    <AlertCircle className="mx-auto h-12 w-12 mb-4" />
-                    <p>No hay clientes registrados</p>
-                    <p className="text-sm">Crea un contacto de tipo cliente primero</p>
-                    <Button
+                  <div className="text-center py-4 text-muted">
+                    <i className="bi bi-person-x display-4 mb-3 d-block"></i>
+                    <p className="mb-1">No hay clientes registrados</p>
+                    <p className="small mb-3">Crea un contacto de tipo cliente primero</p>
+                    <button
                       type="button"
-                      variant="link"
-                      className="mt-2"
+                      className="btn btn-outline-primary btn-sm"
                       onClick={() => router.push('/dashboard/contacts/create')}
                     >
+                      <i className="bi bi-person-plus me-1"></i>
                       Crear Cliente
-                    </Button>
+                    </button>
                   </div>
                 ) : (
                   <>
-                    <div className="space-y-2">
-                      <Label htmlFor="contact">Cliente *</Label>
-                      <Select value={selectedContactId} onValueChange={setSelectedContactId}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecciona un cliente" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {contacts.map((contact) => (
-                            <SelectItem key={contact.id} value={contact.id}>
-                              {contact.name} {contact.email && `(${contact.email})`}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                    <div className="mb-3">
+                      <label htmlFor="contact" className="form-label">Cliente *</label>
+                      <select
+                        id="contact"
+                        className="form-select"
+                        value={selectedContactId}
+                        onChange={(e) => setSelectedContactId(e.target.value)}
+                      >
+                        <option value="">Selecciona un cliente</option>
+                        {contacts.map((contact) => (
+                          <option key={contact.id} value={contact.id}>
+                            {contact.name} {contact.email && `(${contact.email})`}
+                          </option>
+                        ))}
+                      </select>
                     </div>
 
                     {selectedContact && (
-                      <div className="border rounded-lg p-4">
-                        <p className="font-medium">{selectedContact.name}</p>
+                      <div className="border rounded p-3">
+                        <p className="fw-bold mb-1">{selectedContact.name}</p>
                         {selectedContact.email && (
-                          <p className="text-sm text-muted-foreground">{selectedContact.email}</p>
+                          <p className="text-muted small mb-0">{selectedContact.email}</p>
                         )}
                       </div>
                     )}
                   </>
                 )}
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </div>
 
           {/* Right Column - Details */}
-          <div className="space-y-6">
+          <div className="col-lg-6">
             {/* Quote Details */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Calendar className="h-5 w-5" />
-                  Detalles de la Cotizacion
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="validUntil">Vigencia hasta</Label>
-                  <Input
-                    id="validUntil"
+            <div className="card mb-4">
+              <div className="card-header">
+                <h5 className="card-title mb-0">
+                  <i className="bi bi-calendar me-2"></i>
+                  Detalles de la Cotización
+                </h5>
+              </div>
+              <div className="card-body">
+                <div className="mb-3">
+                  <label htmlFor="validUntil" className="form-label">Vigencia hasta</label>
+                  <input
                     type="date"
+                    id="validUntil"
+                    className="form-control"
                     value={validUntil}
                     onChange={(e) => setValidUntil(e.target.value)}
                     min={new Date().toISOString().split('T')[0]}
                   />
-                  <p className="text-xs text-muted-foreground">
-                    La cotizacion expira automaticamente despues de esta fecha
-                  </p>
+                  <div className="form-text">
+                    La cotización expira automáticamente después de esta fecha
+                  </div>
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="notes">Notas para el cliente</Label>
-                  <Textarea
+                <div className="mb-3">
+                  <label htmlFor="notes" className="form-label">Notas para el cliente</label>
+                  <textarea
                     id="notes"
+                    className="form-control"
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
                     placeholder="Notas visibles para el cliente..."
@@ -521,34 +645,27 @@ export default function CreateQuotePage() {
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="terms">Terminos y Condiciones</Label>
-                  <Textarea
+                <div className="mb-3">
+                  <label htmlFor="terms" className="form-label">Términos y Condiciones</label>
+                  <textarea
                     id="terms"
+                    className="form-control"
                     value={termsAndConditions}
                     onChange={(e) => setTermsAndConditions(e.target.value)}
-                    placeholder="Terminos y condiciones de la cotizacion..."
+                    placeholder="Términos y condiciones de la cotización..."
                     rows={4}
                   />
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
 
             {/* Actions */}
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex gap-4">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="flex-1"
-                    onClick={() => router.push('/dashboard/quotes')}
-                  >
-                    Cancelar
-                  </Button>
-                  <Button
+            <div className="card">
+              <div className="card-body">
+                <div className="d-grid gap-2">
+                  <button
                     type="submit"
-                    className="flex-1"
+                    className="btn btn-primary btn-lg"
                     disabled={
                       (!selectedCartId && !publicCartPreview) ||
                       !selectedContactId ||
@@ -556,19 +673,36 @@ export default function CreateQuotePage() {
                       isCreatingBackendCart
                     }
                   >
-                    {isCreatingBackendCart
-                      ? 'Sincronizando carrito...'
-                      : mutations.createFromCart.isPending
-                        ? 'Creando cotizacion...'
-                        : 'Crear Cotizacion'
-                    }
-                  </Button>
+                    {isCreatingBackendCart ? (
+                      <>
+                        <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                        Sincronizando carrito...
+                      </>
+                    ) : mutations.createFromCart.isPending ? (
+                      <>
+                        <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                        Creando cotización...
+                      </>
+                    ) : (
+                      <>
+                        <i className="bi bi-file-text me-2"></i>
+                        Crear Cotización
+                      </>
+                    )}
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-outline-secondary"
+                    onClick={() => router.push('/dashboard/quotes')}
+                  >
+                    Cancelar
+                  </button>
                 </div>
-                <p className="text-xs text-muted-foreground text-center mt-4">
-                  La cotizacion se creara como borrador. Podras editar los precios antes de enviarla al cliente.
+                <p className="text-muted text-center small mt-3 mb-0">
+                  La cotización se creará como borrador. Podrás editar los precios antes de enviarla al cliente.
                 </p>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </div>
         </div>
       </form>

@@ -11,3 +11,5 @@ export { checkoutSessionsService } from './checkoutSessionsService';
 export { wishlistService } from './wishlistService';
 export { productReviewsService } from './productReviewsService';
 export { couponsService } from './couponsService';
+export { productViewService } from './productViewService';
+export type { RecentProduct } from './productViewService';

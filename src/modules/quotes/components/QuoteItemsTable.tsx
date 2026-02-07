@@ -1,18 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-  TableFooter
-} from '@/components/ui/table'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Trash2, Pencil, Check, X, Package, AlertTriangle, CheckCircle2 } from 'lucide-react'
 import type { QuoteItem } from '../types'
 import { useQuoteItemMutations } from '../hooks'
 import { toast } from '@/lib/toast'
@@ -122,211 +110,210 @@ export function QuoteItemsTable({
 
   if (items.length === 0) {
     return (
-      <div className="text-center py-8 text-muted-foreground">
+      <div className="text-center py-5 text-muted">
         No hay items en esta cotizacion
       </div>
     )
   }
 
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Producto</TableHead>
-          <TableHead>SKU</TableHead>
-          <TableHead className="text-center">Stock</TableHead>
-          <TableHead className="text-right">Cantidad</TableHead>
-          <TableHead className="text-right">Precio Orig.</TableHead>
-          <TableHead className="text-right">Precio Cotiz.</TableHead>
-          <TableHead className="text-right">Descuento</TableHead>
-          <TableHead className="text-right">IVA</TableHead>
-          <TableHead className="text-right">Total</TableHead>
-          {editable && <TableHead className="text-right">Acciones</TableHead>}
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {items.map((item) => {
-          const isEditing = editingId === item.id
+    <div className="table-responsive">
+      <table className="table table-hover mb-0">
+        <thead className="table-light">
+          <tr>
+            <th>Producto</th>
+            <th>SKU</th>
+            <th className="text-center">Stock</th>
+            <th className="text-end">Cantidad</th>
+            <th className="text-end">Precio Orig.</th>
+            <th className="text-end">Precio Cotiz.</th>
+            <th className="text-end">Descuento</th>
+            <th className="text-end">IVA</th>
+            <th className="text-end">Total</th>
+            {editable && <th className="text-end">Acciones</th>}
+          </tr>
+        </thead>
+        <tbody>
+          {items.map((item) => {
+            const isEditing = editingId === item.id
+            const stockStatus = getStockStatus(item)
 
-          return (
-            <TableRow key={item.id}>
-              <TableCell className="font-medium">
-                {item.productName || `Producto #${item.productId}`}
-              </TableCell>
-              <TableCell className="text-muted-foreground">{item.productSku || '-'}</TableCell>
-              <TableCell className="text-center">
-                {(() => {
-                  const stockStatus = getStockStatus(item)
-                  if (stockStatus.available === 0) {
-                    return (
-                      <span className="inline-flex items-center gap-1 text-red-600" title="Sin stock disponible">
-                        <AlertTriangle className="h-4 w-4" />
-                        <span className="text-xs">0</span>
-                      </span>
-                    )
-                  }
-                  if (stockStatus.lowStock) {
-                    return (
-                      <span className="inline-flex items-center gap-1 text-amber-600" title={`Stock insuficiente: ${stockStatus.available} disponibles, se requieren ${item.quantity}`}>
-                        <Package className="h-4 w-4" />
-                        <span className="text-xs">{stockStatus.available}</span>
-                      </span>
-                    )
-                  }
-                  return (
-                    <span className="inline-flex items-center gap-1 text-green-600" title={`Stock suficiente: ${stockStatus.available} disponibles`}>
-                      <CheckCircle2 className="h-4 w-4" />
-                      <span className="text-xs">{stockStatus.available}</span>
+            return (
+              <tr key={item.id}>
+                <td className="fw-medium">
+                  {item.productName || `Producto #${item.productId}`}
+                </td>
+                <td className="text-muted">{item.productSku || '-'}</td>
+                <td className="text-center">
+                  {stockStatus.available === 0 ? (
+                    <span className="text-danger" title="Sin stock disponible">
+                      <i className="bi bi-exclamation-triangle me-1"></i>
+                      <small>0</small>
                     </span>
-                  )
-                })()}
-              </TableCell>
-              <TableCell className="text-right">
-                {isEditing ? (
-                  <Input
-                    type="number"
-                    value={editValues?.quantity ?? item.quantity}
-                    onChange={(e) =>
-                      setEditValues((prev) => ({
-                        ...prev!,
-                        quantity: parseFloat(e.target.value) || 0
-                      }))
-                    }
-                    className="w-20 text-right"
-                    min={0.01}
-                    step={0.01}
-                  />
-                ) : (
-                  item.quantity
-                )}
-              </TableCell>
-              <TableCell className="text-right text-muted-foreground">
-                {formatCurrency(item.unitPrice)}
-              </TableCell>
-              <TableCell className="text-right">
-                {isEditing ? (
-                  <Input
-                    type="number"
-                    value={editValues?.quotedPrice ?? item.quotedPrice}
-                    onChange={(e) =>
-                      setEditValues((prev) => ({
-                        ...prev!,
-                        quotedPrice: parseFloat(e.target.value) || 0
-                      }))
-                    }
-                    className="w-24 text-right"
-                    min={0}
-                    step={0.01}
-                  />
-                ) : (
-                  <span
-                    className={
-                      item.quotedPrice < item.unitPrice
-                        ? 'text-green-600'
-                        : item.quotedPrice > item.unitPrice
-                          ? 'text-red-600'
-                          : ''
-                    }
-                  >
-                    {formatCurrency(item.quotedPrice)}
-                  </span>
-                )}
-              </TableCell>
-              <TableCell className="text-right">
-                {isEditing ? (
-                  <Input
-                    type="number"
-                    value={editValues?.discountPercentage ?? item.discountPercentage}
-                    onChange={(e) =>
-                      setEditValues((prev) => ({
-                        ...prev!,
-                        discountPercentage: parseFloat(e.target.value) || 0
-                      }))
-                    }
-                    className="w-20 text-right"
-                    min={0}
-                    max={100}
-                    step={0.01}
-                  />
-                ) : (
-                  <span className={item.discountPercentage > 0 ? 'text-green-600' : ''}>
-                    {formatPercentage(item.discountPercentage)}
-                  </span>
-                )}
-              </TableCell>
-              <TableCell className="text-right">{formatPercentage(item.taxRate)}</TableCell>
-              <TableCell className="text-right font-medium">{formatCurrency(item.total)}</TableCell>
-              {editable && (
-                <TableCell className="text-right">
-                  {isEditing ? (
-                    <div className="flex justify-end gap-1">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleSaveEdit(item.id)}
-                        disabled={mutations.update.isPending}
-                      >
-                        <Check className="h-4 w-4 text-green-600" />
-                      </Button>
-                      <Button variant="ghost" size="icon" onClick={handleCancelEdit}>
-                        <X className="h-4 w-4 text-red-600" />
-                      </Button>
-                    </div>
+                  ) : stockStatus.lowStock ? (
+                    <span className="text-warning" title={`Stock insuficiente: ${stockStatus.available} disponibles, se requieren ${item.quantity}`}>
+                      <i className="bi bi-box me-1"></i>
+                      <small>{stockStatus.available}</small>
+                    </span>
                   ) : (
-                    <div className="flex justify-end gap-1">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleStartEdit(item)}
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleDelete(item.id)}
-                        disabled={mutations.delete.isPending}
-                      >
-                        <Trash2 className="h-4 w-4 text-red-600" />
-                      </Button>
-                    </div>
+                    <span className="text-success" title={`Stock suficiente: ${stockStatus.available} disponibles`}>
+                      <i className="bi bi-check-circle me-1"></i>
+                      <small>{stockStatus.available}</small>
+                    </span>
                   )}
-                </TableCell>
-              )}
-            </TableRow>
-          )
-        })}
-      </TableBody>
-      <TableFooter>
-        <TableRow>
-          <TableCell colSpan={editable ? 7 : 6} />
-          <TableCell className="text-right font-medium">Subtotal:</TableCell>
-          <TableCell className="text-right">{formatCurrency(subtotal)}</TableCell>
-          {editable && <TableCell />}
-        </TableRow>
-        {totalDiscount > 0 && (
-          <TableRow>
-            <TableCell colSpan={editable ? 7 : 6} />
-            <TableCell className="text-right font-medium text-green-600">Descuento:</TableCell>
-            <TableCell className="text-right text-green-600">
-              -{formatCurrency(totalDiscount)}
-            </TableCell>
-            {editable && <TableCell />}
-          </TableRow>
-        )}
-        <TableRow>
-          <TableCell colSpan={editable ? 7 : 6} />
-          <TableCell className="text-right font-medium">IVA:</TableCell>
-          <TableCell className="text-right">{formatCurrency(totalTax)}</TableCell>
-          {editable && <TableCell />}
-        </TableRow>
-        <TableRow>
-          <TableCell colSpan={editable ? 7 : 6} />
-          <TableCell className="text-right font-bold">Total:</TableCell>
-          <TableCell className="text-right font-bold">{formatCurrency(grandTotal)}</TableCell>
-          {editable && <TableCell />}
-        </TableRow>
-      </TableFooter>
-    </Table>
+                </td>
+                <td className="text-end">
+                  {isEditing ? (
+                    <input
+                      type="number"
+                      className="form-control form-control-sm text-end"
+                      style={{ width: '80px' }}
+                      value={editValues?.quantity ?? item.quantity}
+                      onChange={(e) =>
+                        setEditValues((prev) => ({
+                          ...prev!,
+                          quantity: parseFloat(e.target.value) || 0
+                        }))
+                      }
+                      min={0.01}
+                      step={0.01}
+                    />
+                  ) : (
+                    item.quantity
+                  )}
+                </td>
+                <td className="text-end text-muted">
+                  {formatCurrency(item.unitPrice)}
+                </td>
+                <td className="text-end">
+                  {isEditing ? (
+                    <input
+                      type="number"
+                      className="form-control form-control-sm text-end"
+                      style={{ width: '100px' }}
+                      value={editValues?.quotedPrice ?? item.quotedPrice}
+                      onChange={(e) =>
+                        setEditValues((prev) => ({
+                          ...prev!,
+                          quotedPrice: parseFloat(e.target.value) || 0
+                        }))
+                      }
+                      min={0}
+                      step={0.01}
+                    />
+                  ) : (
+                    <span
+                      className={
+                        item.quotedPrice < item.unitPrice
+                          ? 'text-success'
+                          : item.quotedPrice > item.unitPrice
+                            ? 'text-danger'
+                            : ''
+                      }
+                    >
+                      {formatCurrency(item.quotedPrice)}
+                    </span>
+                  )}
+                </td>
+                <td className="text-end">
+                  {isEditing ? (
+                    <input
+                      type="number"
+                      className="form-control form-control-sm text-end"
+                      style={{ width: '80px' }}
+                      value={editValues?.discountPercentage ?? item.discountPercentage}
+                      onChange={(e) =>
+                        setEditValues((prev) => ({
+                          ...prev!,
+                          discountPercentage: parseFloat(e.target.value) || 0
+                        }))
+                      }
+                      min={0}
+                      max={100}
+                      step={0.01}
+                    />
+                  ) : (
+                    <span className={item.discountPercentage > 0 ? 'text-success' : ''}>
+                      {formatPercentage(item.discountPercentage)}
+                    </span>
+                  )}
+                </td>
+                <td className="text-end">{formatPercentage(item.taxRate)}</td>
+                <td className="text-end fw-medium">{formatCurrency(item.total)}</td>
+                {editable && (
+                  <td className="text-end">
+                    {isEditing ? (
+                      <div className="btn-group btn-group-sm">
+                        <button
+                          className="btn btn-outline-success"
+                          onClick={() => handleSaveEdit(item.id)}
+                          disabled={mutations.update.isPending}
+                          title="Guardar"
+                        >
+                          <i className="bi bi-check"></i>
+                        </button>
+                        <button
+                          className="btn btn-outline-secondary"
+                          onClick={handleCancelEdit}
+                          title="Cancelar"
+                        >
+                          <i className="bi bi-x"></i>
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="btn-group btn-group-sm">
+                        <button
+                          className="btn btn-outline-primary"
+                          onClick={() => handleStartEdit(item)}
+                          title="Editar"
+                        >
+                          <i className="bi bi-pencil"></i>
+                        </button>
+                        <button
+                          className="btn btn-outline-danger"
+                          onClick={() => handleDelete(item.id)}
+                          disabled={mutations.delete.isPending}
+                          title="Eliminar"
+                        >
+                          <i className="bi bi-trash"></i>
+                        </button>
+                      </div>
+                    )}
+                  </td>
+                )}
+              </tr>
+            )
+          })}
+        </tbody>
+        <tfoot className="table-light">
+          <tr>
+            <td colSpan={editable ? 7 : 6}></td>
+            <td className="text-end fw-medium">Subtotal:</td>
+            <td className="text-end">{formatCurrency(subtotal)}</td>
+            {editable && <td></td>}
+          </tr>
+          {totalDiscount > 0 && (
+            <tr>
+              <td colSpan={editable ? 7 : 6}></td>
+              <td className="text-end fw-medium text-success">Descuento:</td>
+              <td className="text-end text-success">-{formatCurrency(totalDiscount)}</td>
+              {editable && <td></td>}
+            </tr>
+          )}
+          <tr>
+            <td colSpan={editable ? 7 : 6}></td>
+            <td className="text-end fw-medium">IVA:</td>
+            <td className="text-end">{formatCurrency(totalTax)}</td>
+            {editable && <td></td>}
+          </tr>
+          <tr>
+            <td colSpan={editable ? 7 : 6}></td>
+            <td className="text-end fw-bold">Total:</td>
+            <td className="text-end fw-bold text-primary">{formatCurrency(grandTotal)}</td>
+            {editable && <td></td>}
+          </tr>
+        </tfoot>
+      </table>
+    </div>
   )
 }

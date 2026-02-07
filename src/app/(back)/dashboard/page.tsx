@@ -2,6 +2,9 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { useAuth } from '@/modules/auth'
+import { isAdmin } from '@/lib/permissions'
+import CustomerDashboard from '@/modules/ecommerce/components/CustomerDashboard'
 import {
   useBalanceGeneral,
   useEstadoResultados,
@@ -15,6 +18,28 @@ import { useEmployees } from '@/modules/hr/hooks'
 import { useSystemHealth } from '@/modules/system-health'
 
 export default function DashboardPage() {
+  const { user, isLoading: authLoading } = useAuth()
+
+  if (authLoading) {
+    return (
+      <div className="container-fluid py-5">
+        <div className="text-center">
+          <div className="spinner-border text-primary" role="status">
+            <span className="visually-hidden">Cargando...</span>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (!isAdmin(user)) {
+    return <CustomerDashboard />
+  }
+
+  return <AdminDashboard />
+}
+
+function AdminDashboard() {
   const [selectedPeriod, setSelectedPeriod] = useState<number>(30)
 
   // Accounting data
