@@ -28,12 +28,12 @@ export default function sliderEditorPlugin(editor: Editor) {
         // Cambiar a modo producción
         editorSection.style.display = 'none'
         productionSection.style.display = 'block'
-        console.log('🎬 Slider cambiado a modo producción')
+        // Slider changed to production mode
       } else {
         // Cambiar a modo edición
         editorSection.style.display = 'block'
         productionSection.style.display = 'none'
-        console.log('✏️ Slider cambiado a modo edición')
+        // Slider changed to edit mode
       }
 
       // Refrescar el editor
@@ -64,7 +64,7 @@ export default function sliderEditorPlugin(editor: Editor) {
           // Activar modo edición automáticamente
           editorSection.style.display = 'block'
           productionSection.style.display = 'none'
-          console.log('🎨 Auto-activando modo edición para slider')
+          // Auto-activating edit mode for slider
         }
       }, 100)
     }
@@ -82,11 +82,10 @@ export default function sliderEditorPlugin(editor: Editor) {
           // Volver a modo producción
           editorSection.style.display = 'none'
           productionSection.style.display = 'block'
-          console.log('🎬 Auto-activando modo producción para slider')
+          // Auto-activating production mode for slider
         }
       }, 100)
     }
   })
 
-  console.log('🎮 Slider Editor Plugin registrado exitosamente')
 }

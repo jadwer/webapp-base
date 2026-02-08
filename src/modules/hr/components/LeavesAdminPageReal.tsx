@@ -55,8 +55,8 @@ export const LeavesAdminPageReal: React.FC = () => {
       toast.textContent = 'Solicitud de permiso creada exitosamente'
       document.body.appendChild(toast)
       setTimeout(() => toast.remove(), 4000)
-    } catch (error) {
-      console.error('Error:', error)
+    } catch {
+      // Error handled silently
     }
   }, [formData, createLeave, mutate])
 
@@ -64,8 +64,8 @@ export const LeavesAdminPageReal: React.FC = () => {
     try {
       await updateLeave(leave.id, { ...leave, status: 'approved' })
       mutate()
-    } catch (error) {
-      console.error('Error:', error)
+    } catch {
+      // Error handled silently
     }
   }, [updateLeave, mutate])
 
@@ -73,8 +73,8 @@ export const LeavesAdminPageReal: React.FC = () => {
     try {
       await updateLeave(leave.id, { ...leave, status: 'rejected' })
       mutate()
-    } catch (error) {
-      console.error('Error:', error)
+    } catch {
+      // Error handled silently
     }
   }, [updateLeave, mutate])
 
@@ -94,8 +94,8 @@ export const LeavesAdminPageReal: React.FC = () => {
     try {
       await deleteLeave(leave.id)
       mutate()
-    } catch (error) {
-      console.error('Error:', error)
+    } catch {
+      // Error handled silently
     }
   }, [deleteLeave, mutate])
 

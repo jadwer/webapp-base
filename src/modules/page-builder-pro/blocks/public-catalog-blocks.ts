@@ -719,7 +719,6 @@ export function registerPublicCatalogBlocks(editor: Editor) {
     }
   })
 
-  console.log('✅ Public Catalog blocks registrados exitosamente')
 }
 
 export default registerPublicCatalogBlocks

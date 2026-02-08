@@ -59,8 +59,8 @@ export default async function initPageBuilder(
   // Ensure global dependencies are loaded first
   try {
     await ensureGrapeJSGlobalInit()
-  } catch (error) {
-    console.warn('Global init failed, proceeding anyway:', error)
+  } catch {
+    // Global init failed, proceeding anyway
   }
   
   const notify = (msg: string, type: ToastType = "success") => {
@@ -122,45 +122,41 @@ export default async function initPageBuilder(
       // Register LaborWasser blocks
       try {
         registerLaborWasserBlocks(editor);
-        console.log('✅ LaborWasser blocks registered successfully');
-      } catch (error) {
-        console.warn('Error registering LaborWasser blocks:', error);
+      } catch {
+        // Error registering LaborWasser blocks
       }
 
       // Register Hero Revolution blocks
       try {
         registerHeroRevolutionBlocks(editor);
-        console.log('✅ Hero Revolution blocks registered successfully');
-      } catch (error) {
-        console.warn('Error registering Hero Revolution blocks:', error);
+      } catch {
+        // Error registering Hero Revolution blocks
       }
 
       // Register Public Catalog blocks
       try {
         registerPublicCatalogBlocks(editor);
-        console.log('✅ Public Catalog blocks registered successfully');
-      } catch (error) {
-        console.warn('Error registering Public Catalog blocks:', error);
+      } catch {
+        // Error registering Public Catalog blocks
       }
 
       // Register Slider Editor Component
       try {
         registerSliderEditorComponent(editor);
-        console.log('✅ Slider Editor Component registered successfully');
-      } catch (error) {
-        console.warn('Error registering Slider Editor Component:', error);
+      } catch {
+        // Error registering Slider Editor Component
       }
 
       // Organize blocks after everything is loaded
       setTimeout(() => {
         try {
           organizeDefaultBlocks(editor);
-        } catch (error) {
-          console.warn('Error organizing blocks:', error);
+        } catch {
+          // Error organizing blocks
         }
       }, 100);
-    } catch (error) {
-      console.warn('Error during editor initialization:', error);
+    } catch {
+      // Error during editor initialization
     }
   });
 

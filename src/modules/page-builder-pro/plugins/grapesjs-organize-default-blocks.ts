@@ -18,13 +18,11 @@ export default function organizeDefaultBlocks(editor: Editor) {
 
     const blockManager = editor.BlockManager;
     if (!blockManager) {
-      console.warn('BlockManager not available');
       return;
     }
 
     const allBlocks = blockManager.getAll();
     if (!allBlocks || !allBlocks.forEach) {
-      console.warn('No blocks available');
       return;
     }
 
@@ -41,11 +39,11 @@ export default function organizeDefaultBlocks(editor: Editor) {
             break;
           }
         }
-      } catch (blockError) {
-        console.warn('Error organizing block:', block?.id, blockError);
+      } catch {
+        // Error organizing block
       }
     });
-  } catch (error) {
-    console.warn('Error organizing default blocks:', error);
+  } catch {
+    // Error organizing default blocks
   }
 }

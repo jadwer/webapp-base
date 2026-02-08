@@ -101,8 +101,8 @@ export const EmployeeForm: React.FC<EmployeeFormProps> = ({
     setIsSubmitting(true)
     try {
       await onSubmit(formData)
-    } catch (error) {
-      console.error('Error submitting form:', error)
+    } catch {
+      // Error handled by caller
     } finally {
       setIsSubmitting(false)
     }

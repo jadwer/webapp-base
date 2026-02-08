@@ -109,10 +109,10 @@ function convertJsonApiToPage(item: JsonApiPageResource, included?: JsonApiUserR
           parsedJson = JSON.parse(item.attributes.json)
         } else {
           // If it's a string but not JSON format, keep it undefined for now
-          console.warn('JSON field contains non-JSON string:', item.attributes.json.substring(0, 100))
+          // JSON field contains non-JSON string, skipping
         }
-      } catch (error) {
-        console.warn('Failed to parse JSON field for page', item.id, ':', error)
+      } catch {
+        // Failed to parse JSON field
       }
     } else if (typeof item.attributes.json === 'object') {
       parsedJson = item.attributes.json
@@ -235,8 +235,7 @@ export class PagesService {
       const response = await axios.get<JsonApiResponse>(`${API_BASE}?filter[slug]=${slug}&include=user`)
       const pages = response.data.data
       return pages.length > 0 ? convertJsonApiToPage(pages[0], response.data.included) : null
-    } catch (error) {
-      console.error('Error fetching page by slug:', error)
+    } catch {
       return null
     }
   }
@@ -255,8 +254,7 @@ export class PagesService {
       
       // For new pages, any existing page with this slug means it exists
       return pages.length > 0
-    } catch (error) {
-      console.error('Error checking slug existence:', error)
+    } catch {
       return false
     }
   }
@@ -306,8 +304,7 @@ export class PagesService {
         if (!currentPage.publishedAt) {
           finalAttributes.publishedAt = new Date().toISOString()
         }
-      } catch (error) {
-        console.error('Error checking current page for publishedAt logic:', error)
+      } catch {
         // If we can't get the current page, set publishedAt anyway for safety
         finalAttributes.publishedAt = new Date().toISOString()
       }
@@ -333,12 +330,6 @@ export class PagesService {
       const response = await axios.patch<JsonApiSingleResponse>(`${API_BASE}/${id}`, payload)
       return convertJsonApiToPage(response.data.data, response.data.included)
     } catch (error) {
-      console.error('PATCH request failed:', error)
-      if (error && typeof error === 'object' && 'response' in error) {
-        const axiosError = error as { response: { status: number; data: unknown } }
-        console.error('Response status:', axiosError.response.status)
-        console.error('Response data:', axiosError.response.data)
-      }
       throw error
     }
   }
@@ -421,8 +412,7 @@ export class PagesService {
     try {
       const allPages = await this.getPages({ status: 'deleted' }, 1, 1000)
       return allPages.data.filter(page => page.status === 'deleted')
-    } catch (error) {
-      console.error('Error in getDeletedPages:', error)
+    } catch {
       // Return empty array instead of throwing to prevent UI errors
       return []
     }
@@ -463,8 +453,7 @@ export class PagesService {
       })
       
       return filteredPages.length > 0
-    } catch (error) {
-      console.error('Error checking if slug is taken:', error)
+    } catch {
       return false
     }
   }
@@ -529,8 +518,7 @@ export class PagesService {
           slug: page.attributes.slug
         }))
         .sort((a, b) => a.title.localeCompare(b.title)) // Sort alphabetically by title
-    } catch (error) {
-      console.error('Error fetching published pages for navigation:', error)
+    } catch {
       return []
     }
   }
@@ -550,7 +538,6 @@ export class PagesService {
           return null
         }
       }
-      console.error('Error fetching public page by slug:', error)
       return null
     }
   }

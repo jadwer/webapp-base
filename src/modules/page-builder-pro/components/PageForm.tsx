@@ -76,8 +76,8 @@ export const PageForm: React.FC<PageFormProps> = ({
         if (uniqueSlug !== currentSlug) {
           setValue('slug', uniqueSlug)
         }
-      } catch (error) {
-        console.error('Error generating unique slug:', error)
+      } catch {
+        // Error handled silently
       } finally {
         setIsGeneratingSlug(false)
       }
@@ -121,8 +121,8 @@ export const PageForm: React.FC<PageFormProps> = ({
       }
 
       await onSubmit(submitData)
-    } catch (error) {
-      console.error('Error submitting form:', error)
+    } catch {
+      // Error handled silently
     }
   }
 

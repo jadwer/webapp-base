@@ -54,8 +54,8 @@ export const PayrollPeriodsAdminPageReal: React.FC = () => {
       toast.textContent = 'Período de nómina creado exitosamente'
       document.body.appendChild(toast)
       setTimeout(() => toast.remove(), 4000)
-    } catch (error) {
-      console.error('Error:', error)
+    } catch {
+      // Error handled silently
     }
   }, [formData, createPayrollPeriod, mutate])
 
@@ -63,8 +63,8 @@ export const PayrollPeriodsAdminPageReal: React.FC = () => {
     try {
       await updatePayrollPeriod(period.id, { ...period, status: newStatus })
       mutate()
-    } catch (error) {
-      console.error('Error:', error)
+    } catch {
+      // Error handled silently
     }
   }, [updatePayrollPeriod, mutate])
 
@@ -84,8 +84,8 @@ export const PayrollPeriodsAdminPageReal: React.FC = () => {
     try {
       await deletePayrollPeriod(period.id)
       mutate()
-    } catch (error) {
-      console.error('Error:', error)
+    } catch {
+      // Error handled silently
     }
   }, [deletePayrollPeriod, mutate])
 

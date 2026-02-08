@@ -274,7 +274,7 @@ export function registerSliderEditorComponent(editor: Editor) {
         dotsContainer.components(newDot)
       }
 
-      console.log(`✅ Slide ${newSlideNumber} agregado exitosamente`)
+      // Slide added successfully
     }
   })
 
@@ -304,9 +304,8 @@ export function registerSliderEditorComponent(editor: Editor) {
         }
       }
 
-      console.log('✅ Slide eliminado exitosamente')
+      // Slide removed successfully
     }
   })
 
-  console.log('🎨 Slider Editor Component registrado exitosamente')
 }

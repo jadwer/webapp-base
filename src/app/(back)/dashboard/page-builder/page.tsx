@@ -18,9 +18,9 @@ export default function PageBuilderEditor() {
         editor = await initPageBuilder(editorRef.current!, (msg: string, type?: ToastType) => {
           toastRef.current?.show(msg, type);
         })
-        console.log('Main page builder initialized successfully:', editor)
-      } catch (error) {
-        console.error('Error initializing page builder:', error)
+        // Editor initialized successfully
+      } catch {
+        // Error handled silently
       }
     }
 
@@ -31,8 +31,8 @@ export default function PageBuilderEditor() {
         if (editor && typeof editor.destroy === 'function') {
           editor.destroy()
         }
-      } catch (error) {
-        console.warn('Error destroying main page builder:', error)
+      } catch {
+        // Error handled silently
       }
     }
   }, [])

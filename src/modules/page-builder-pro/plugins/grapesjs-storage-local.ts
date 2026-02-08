@@ -20,9 +20,8 @@ export default function pluginStorageLocal(
           editor.setComponents(data.html || '');
           editor.setStyle(data.css || '');
           notify('📦 Contenido cargado desde localStorage', 'info');
-        } catch (e) {
-          console.warn(e);
-          notify('⚠️ Error al cargar contenido local', 'error');
+        } catch {
+          notify('Error al cargar contenido local', 'error');
         }
       }
     }

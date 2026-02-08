@@ -52,36 +52,29 @@ export const PageEditorTemplate: React.FC<PageEditorTemplateProps> = ({
 
   // Initialize GrapeJS editor - single effect
   useEffect(() => {
-    console.log('useEffect triggered - editorRef:', !!editorRef.current, 'pageId:', pageId, 'initializing:', initializingRef.current)
-    
     // Prevent double initialization (React StrictMode protection)
     if (initializingRef.current) {
-      console.log('Already initializing, skipping...')
       return
     }
-    
+
     // Cleanup any existing editor first
     if (cleanupRef.current) {
-      console.log('Cleaning up previous editor...')
       cleanupRef.current()
       cleanupRef.current = null
     }
-    
+
     // Wait for the DOM element to be available
     const initWhenReady = () => {
       if (!editorRef.current) {
-        console.log('Editor ref not ready, waiting...')
         setTimeout(initWhenReady, 100)
         return
       }
-      
+
       if (initializingRef.current) {
-        console.log('Already initializing in another call, aborting...')
         return
       }
-      
+
       initializingRef.current = true
-      console.log('Editor ref is ready, proceeding with initialization')
 
       const notify = (msg: string, type: 'success' | 'error' | 'info' = 'success') => {
         toastRef.current?.show(msg, type)
@@ -91,17 +84,11 @@ export const PageEditorTemplate: React.FC<PageEditorTemplateProps> = ({
 
       const initAsync = async () => {
         try {
-          console.log('Starting editor initialization...')
-          console.log('PageID:', pageId)
-          console.log('Page data available:', !!page)
-          console.log('Page HTML available:', !!(page && page.html))
-          
           // Initialize new editor
           // Disable autoLoad from localStorage when editing an existing page
-          editor = await initPageBuilder(editorRef.current!, notify, { 
-            disableAutoLoad: Boolean(pageId) 
+          editor = await initPageBuilder(editorRef.current!, notify, {
+            disableAutoLoad: Boolean(pageId)
           })
-          console.log('Editor created successfully')
           
           // Set default loading content immediately
           editor.setComponents(`
@@ -143,20 +130,17 @@ export const PageEditorTemplate: React.FC<PageEditorTemplateProps> = ({
           cleanupRef.current = () => {
             if (editor && typeof editor.destroy === 'function') {
               try {
-                console.log('Destroying editor...')
                 editor.destroy()
-              } catch (error) {
-                console.warn('Error destroying editor:', error)
+              } catch {
+                // Error handled silently
               }
             }
             initializingRef.current = false
           }
-          
-          setGrapesjsEditor(editor)
-          console.log('Editor initialization complete with loading content, real content loading will be handled separately')
 
-        } catch (error) {
-          console.error('Error initializing page builder:', error)
+          setGrapesjsEditor(editor)
+
+        } catch {
           notify('Error al inicializar el editor', 'error')
           initializingRef.current = false
         }
@@ -176,13 +160,11 @@ export const PageEditorTemplate: React.FC<PageEditorTemplateProps> = ({
       }
       setGrapesjsEditor(null)
     }
-  }, [pageId]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [pageId])
 
-  // 🔧 Sanitization function for HTML content
+  // Sanitization function for HTML content
   const sanitizeHtmlForGrapeJS = (html: string): string => {
     try {
-      console.log('🧹 Sanitizing HTML for GrapeJS...')
-      
       // Replace problematic SVG data URLs with simpler alternatives
       const cleanHtml = html
         // Replace complex SVG data URLs with simple gradients
@@ -206,80 +188,47 @@ export const PageEditorTemplate: React.FC<PageEditorTemplateProps> = ({
           }
           return match
         })
-      
-      console.log('✅ HTML sanitized successfully')
+
       return cleanHtml
-    } catch (error) {
-      console.error('❌ Error sanitizing HTML:', error)
+    } catch {
       return html // Return original if sanitization fails
     }
   }
 
   // Separate effect for loading content when page data becomes available
   useEffect(() => {
-    console.log('Content loading effect - grapesjsEditor:', !!grapesjsEditor, 'pageContent:', !!pageContent, 'pageContent.html:', !!(pageContent && pageContent.html))
-    
     if (!grapesjsEditor || !pageContent || !pageContent.html) {
-      console.log('Not ready to load content yet')
       return
     }
-    
-    console.log('Setting up content loading for editor...')
-    
+
     const loadContent = () => {
-      console.log('🔄 Starting content load process...')
-      console.log('Page data:', { 
-        hasHtml: !!pageContent.html, 
-        hasCSS: !!pageContent.css, 
-        hasJSON: !!(pageContent.json && typeof pageContent.json === 'object' && Object.keys(pageContent.json).length > 0),
-        htmlLength: pageContent.html?.length,
-        cssLength: pageContent.css?.length 
-      })
-      
       // Listen for when canvas is ready to receive content
       const handleCanvasFrameLoad = () => {
-        console.log('🎯 Canvas frame loaded, checking current state...')
-        
         // First, let's see what's currently in the editor (with safety check)
-        let currentBefore = ''
         try {
           if (grapesjsEditor) {
-            currentBefore = grapesjsEditor.getHtml()
-            console.log('📄 Current content BEFORE loading:', {
-              hasContent: currentBefore.length > 0,
-              preview: currentBefore.substring(0, 200) + '...'
-            })
+            grapesjsEditor.getHtml()
           }
-        } catch (beforeError) {
-          console.log('⚠️ Could not get current content (editor may be destroyed):', beforeError instanceof Error ? beforeError.message : beforeError)
+        } catch {
+          // Could not get current content (editor may be destroyed)
         }
-        
+
         try {
-          // Let's try a step-by-step approach to see where it fails
-          console.log('Loading page content...')
-          
           // Check if editor is still valid before proceeding
           if (!grapesjsEditor) {
-            console.log('🛑 Editor is destroyed, aborting content loading')
             return
           }
 
           // Load the actual page content directly with sanitization
           try {
-            console.log('Setting page content:', pageContent.html.substring(0, 100) + '...')
-            
-            // 🔧 FIX: Sanitize HTML before passing to GrapeJS to avoid attribute errors
+            // Sanitize HTML before passing to GrapeJS to avoid attribute errors
             const sanitizedHtml = sanitizeHtmlForGrapeJS(pageContent.html)
-            console.log('HTML sanitized, setting components...')
-            
+
             // Wrap setComponents in additional error handling
             try {
               grapesjsEditor.setComponents(sanitizedHtml)
-              console.log('✅ Components set successfully')
-            } catch (componentsError) {
-              console.error('❌ Error setting components:', componentsError)
+            } catch {
               // Fallback: Try with a basic container
-              console.log('🔄 Trying fallback content...')
               grapesjsEditor.setComponents(`
                 <div class="container py-5">
                   <div class="alert alert-info text-center">
@@ -290,48 +239,42 @@ export const PageEditorTemplate: React.FC<PageEditorTemplateProps> = ({
                 </div>
               `)
             }
-            
+
             // Set CSS if available
             if (pageContent.css) {
               try {
                 grapesjsEditor.setStyle(pageContent.css)
-                console.log('✅ CSS applied successfully')
-              } catch (cssError) {
-                console.warn('⚠️ Error applying CSS:', cssError)
+              } catch {
+                // Error applying CSS handled silently
               }
             }
-            
-            console.log('✅ Page content loading process completed')
-            
+
             // Final refresh
             try {
               if (grapesjsEditor) {
                 grapesjsEditor.refresh()
               }
-            } catch (refreshError) {
-              console.warn('⚠️ Error refreshing editor:', refreshError)
+            } catch {
+              // Error refreshing editor handled silently
             }
-          } catch (error) {
-            console.error('❌ Error loading page content:', error)
+          } catch {
+            // Error loading page content handled silently
           }
-          
-        } catch (error) {
-          console.error('❌ Error loading content:', error)
+
+        } catch {
+          // Error loading content handled silently
         }
       }
-      
+
       // Listen for canvas frame load event
       grapesjsEditor.on('canvas:frame:load', handleCanvasFrameLoad)
-      
+
       // Also try immediately in case canvas is already loaded
       const canvas = grapesjsEditor.Canvas
       if (canvas && canvas.getFrameEl && canvas.getFrameEl()) {
-        console.log('🎯 Canvas already available, loading content immediately...')
         setTimeout(handleCanvasFrameLoad, 100)
-      } else {
-        console.log('⏳ Waiting for canvas frame to load...')
       }
-      
+
       // Cleanup listener
       return () => {
         grapesjsEditor.off('canvas:frame:load', handleCanvasFrameLoad)
@@ -341,22 +284,20 @@ export const PageEditorTemplate: React.FC<PageEditorTemplateProps> = ({
     // Wait for the editor to be fully ready with proper LayerManager initialization
     const waitForEditorReady = () => {
       // Enhanced check for all necessary components
-      if (!grapesjsEditor.getContainer || 
+      if (!grapesjsEditor.getContainer ||
           !grapesjsEditor.getContainer() ||
           !grapesjsEditor.DomComponents ||
           !grapesjsEditor.LayerManager ||
           !grapesjsEditor.Canvas ||
           typeof grapesjsEditor.DomComponents.addComponent !== 'function') {
-        console.log('⏳ Editor not fully ready, waiting 500ms...')
         setTimeout(waitForEditorReady, 500)
         return
       }
-      
-      console.log('✅ Editor is fully ready with all components, starting content loading...')
+
       // Add a small delay to ensure LayerManager is fully initialized
       setTimeout(() => {
         const cleanup = loadContent()
-        
+
         // Store cleanup function for this effect
         return cleanup
       }, 200)
@@ -364,10 +305,10 @@ export const PageEditorTemplate: React.FC<PageEditorTemplateProps> = ({
 
     // Start checking for editor readiness
     const cleanup = waitForEditorReady()
-    
+
     // Return cleanup function for this effect
     return cleanup
-    
+
   }, [grapesjsEditor, pageContent])
 
   const handleFormSubmit = async (formData: CreatePageData | UpdatePageData) => {

@@ -47,7 +47,6 @@ export function usePage(id: string | null | undefined) {
         // Intentar obtener desde API primero
         return await PagesService.getPage(id)
       } catch (apiError) {
-        console.warn('API fetch failed, trying localStorage fallback:', apiError)
         
         // 🔧 FALLBACK: Buscar en localStorage si API falla (útil para páginas recién creadas)
         const tempPageKey = `temp-page-${id}`
@@ -62,22 +61,17 @@ export function usePage(id: string | null | undefined) {
             const isRecent = now - pageData.timestamp < 10 * 60 * 1000
             
             if (isRecent) {
-              console.log('✅ Using temporary page data from localStorage')
-              
               // Cleanup del localStorage después de usar
               setTimeout(() => {
                 localStorage.removeItem(tempPageKey)
-                console.log('🧹 Cleaned up temporary page data')
               }, 2000)
               
               return pageData
             } else {
               // Cleanup de datos antiguos
               localStorage.removeItem(tempPageKey)
-              console.log('🧹 Removed expired temporary page data')
             }
-          } catch (parseError) {
-            console.error('Error parsing temporary page data:', parseError)
+          } catch {
             localStorage.removeItem(tempPageKey)
           }
         }
@@ -117,7 +111,6 @@ export function usePageActions() {
       
       return page
     } catch (err) {
-      console.error('Error creating page:', err)
       const errorMessage = err instanceof Error ? err.message : 'Error al crear la página'
       setError(errorMessage)
       return null
@@ -139,7 +132,6 @@ export function usePageActions() {
       
       return page
     } catch (err) {
-      console.error('Error updating page:', err)
       const errorMessage = err instanceof Error ? err.message : 'Error al actualizar la página'
       setError(errorMessage)
       return null
@@ -177,7 +169,6 @@ export function usePageActions() {
       
       return page
     } catch (err) {
-      console.error('Error duplicating page:', err)
       setError(err instanceof Error ? err.message : 'Error al duplicar la página')
       return null
     } finally {
@@ -215,7 +206,6 @@ export function useSoftDeleteActions() {
       
       return result
     } catch (err) {
-      console.error('Error soft deleting page:', err)
       const errorMessage = err instanceof Error ? err.message : 'Error al eliminar la página'
       setError(errorMessage)
       return null
@@ -236,7 +226,6 @@ export function useSoftDeleteActions() {
       
       return page
     } catch (err) {
-      console.error('Error restoring page:', err)
       const errorMessage = err instanceof Error ? err.message : 'Error al restaurar la página'
       setError(errorMessage)
       return null
@@ -256,7 +245,6 @@ export function useSoftDeleteActions() {
       
       return true
     } catch (err) {
-      console.error('Error permanently deleting page:', err)
       setError(err instanceof Error ? err.message : 'Error al eliminar permanentemente la página')
       return false
     } finally {
@@ -277,19 +265,11 @@ export function useDeletedPages() {
   const { data, error, isLoading } = useSWR(
     'deleted-pages',
     async () => {
-      try {
-        return await PagesService.getDeletedPages()
-      } catch (err) {
-        console.error('Error fetching deleted pages:', err)
-        throw err
-      }
+      return await PagesService.getDeletedPages()
     },
     {
       revalidateOnFocus: false,
       dedupingInterval: 30000,
-      onError: (error) => {
-        console.error('SWR error in useDeletedPages:', error)
-      }
     }
   )
 
@@ -323,8 +303,7 @@ export function useSlugValidation(initialSlug = '', excludeId?: string) {
     try {
       const result = await PagesService.checkSlugAvailability(slugToCheck, excludeId)
       setSlugResult(result)
-    } catch (error) {
-      console.error('Error checking slug availability:', error)
+    } catch {
       setSlugResult({ exists: false })
     } finally {
       setIsChecking(false)
@@ -359,8 +338,7 @@ export function useSlugValidation(initialSlug = '', excludeId?: string) {
         excludeId,
         includeDeleted: false 
       })
-    } catch (error) {
-      console.error('Error generating unique slug:', error)
+    } catch {
       return baseSlug
     }
   }

@@ -49,8 +49,7 @@ export async function fetchPageBySlug(slug: string) {
       status: data.attributes.status,
       publishedAt: data.attributes.publishedAt || data.attributes.published_at,
     };
-  } catch (err) {
-    console.error("Error fetching page:", err);
+  } catch {
     return null;
   }
 }

@@ -31,14 +31,12 @@ export function ensureGrapeJSGlobalInit(): Promise<void> {
         }
         
         link.onerror = () => {
-          console.error('Failed to load GrapeJS CSS')
           reject(new Error('Failed to load GrapeJS CSS'))
         }
         
         // Fallback timeout
         setTimeout(() => {
           if (!isGloballyInitialized) {
-            console.warn('GrapeJS CSS load timeout, proceeding anyway')
             isGloballyInitialized = true
             resolve()
           }
@@ -49,7 +47,6 @@ export function ensureGrapeJSGlobalInit(): Promise<void> {
         resolve()
       }
     } catch (error) {
-      console.warn('Error in global GrapeJS init:', error)
       reject(error)
     }
   })

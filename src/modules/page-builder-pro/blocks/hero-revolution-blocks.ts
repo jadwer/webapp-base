@@ -456,7 +456,6 @@ export const heroSliderBlock: HeroRevolutionBlock = {
             
             // 📝 EN MODO EDICIÓN: Hacer todos los slides visibles
             if (isEditingMode()) {
-              console.log('🎨 Slider en modo edición - todos los slides visibles');
               container.setAttribute('data-editing', 'true');
               
               // Agregar indicadores visuales de edición
