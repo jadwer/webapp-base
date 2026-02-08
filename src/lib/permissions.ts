@@ -213,19 +213,19 @@ export const PAGE_PERMISSIONS: Record<string, { roles: readonly string[]; permis
   // Gestion de usuarios y permisos
   '/dashboard/users': {
     roles: ['god', 'admin', 'administrator'],
-    permissions: ['users.view']
+    permissions: ['users.show']
   },
   '/dashboard/permissions': {
     roles: ['god', 'admin', 'administrator'],
-    permissions: ['permissions.view']
+    permissions: ['permissions.show']
   },
   '/dashboard/roles': {
     roles: ['god', 'admin', 'administrator'],
-    permissions: ['roles.view']
+    permissions: ['roles.show']
   },
   '/dashboard/permission-manager': {
     roles: ['god', 'admin', 'administrator'],
-    permissions: ['permissions.view']
+    permissions: ['permissions.show']
   },
 
   // Page Builder

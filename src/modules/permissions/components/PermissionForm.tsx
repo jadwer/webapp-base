@@ -87,7 +87,7 @@ export default function PermissionForm({
           className={`form-control ${errors.name ? 'is-invalid' : ''}`}
           value={formData.name}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange('name', e.target.value)}
-          placeholder="Ej: users.view, posts.create, etc."
+          placeholder="Ej: users.show, products.store, etc."
           required
           disabled={isSubmitting}
         />
