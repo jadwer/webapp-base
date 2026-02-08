@@ -36,14 +36,12 @@ export function useDiscountRuleMutations(): UseDiscountRuleMutationsResult {
     async (data: CreateDiscountRuleRequest) => {
       setIsLoading(true)
       try {
-        console.log('Creating DiscountRule:', data.name)
 
         const result = await discountRulesService.create(data)
 
         // Invalidate caches to refresh lists
         invalidateDiscountRuleCaches()
 
-        console.log('DiscountRule created:', result.code)
         return result
       } catch (error) {
         console.error('DiscountRule creation failed:', error)
@@ -59,7 +57,6 @@ export function useDiscountRuleMutations(): UseDiscountRuleMutationsResult {
     async (id: string, data: UpdateDiscountRuleRequest) => {
       setIsLoading(true)
       try {
-        console.log('Updating DiscountRule:', id, data)
 
         const result = await discountRulesService.update(id, data)
 
@@ -69,7 +66,6 @@ export function useDiscountRuleMutations(): UseDiscountRuleMutationsResult {
         // Invalidate all discount rule lists
         invalidateDiscountRuleCaches()
 
-        console.log('DiscountRule updated:', result.code)
         return result
       } catch (error) {
         console.error('DiscountRule update failed:', error)
@@ -85,7 +81,6 @@ export function useDiscountRuleMutations(): UseDiscountRuleMutationsResult {
     async (id: string) => {
       setIsLoading(true)
       try {
-        console.log('Deleting DiscountRule:', id)
 
         await discountRulesService.delete(id)
 
@@ -95,7 +90,6 @@ export function useDiscountRuleMutations(): UseDiscountRuleMutationsResult {
         // Invalidate all discount rule lists
         invalidateDiscountRuleCaches()
 
-        console.log('DiscountRule deleted:', id)
       } catch (error) {
         console.error('DiscountRule deletion failed:', error)
         throw error
@@ -110,7 +104,6 @@ export function useDiscountRuleMutations(): UseDiscountRuleMutationsResult {
     async (id: string, isActive: boolean) => {
       setIsLoading(true)
       try {
-        console.log('Toggling DiscountRule active status:', id, isActive)
 
         const result = await discountRulesService.toggleActive(id, isActive)
 
@@ -120,7 +113,6 @@ export function useDiscountRuleMutations(): UseDiscountRuleMutationsResult {
         // Invalidate all discount rule lists
         invalidateDiscountRuleCaches()
 
-        console.log('DiscountRule toggled:', result.code, 'isActive:', result.isActive)
         return result
       } catch (error) {
         console.error('DiscountRule toggle failed:', error)
@@ -135,9 +127,7 @@ export function useDiscountRuleMutations(): UseDiscountRuleMutationsResult {
   const validateCode = useCallback(
     async (code: string) => {
       try {
-        console.log('Validating discount code:', code)
         const result = await discountRulesService.validateCode(code)
-        console.log('Validation result:', result.valid ? 'Valid' : result.error)
         return result
       } catch (error) {
         console.error('Code validation failed:', error)

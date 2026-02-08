@@ -328,7 +328,6 @@ export const discountRulesService = {
       params
     })
 
-    console.log('DiscountRules API Response:', response.data)
 
     const discountRules = response.data.data.map(item =>
       parseDiscountRule(
@@ -348,7 +347,6 @@ export const discountRulesService = {
   async getById(id: string) {
     const response = await axios.get<JsonApiResponse<DiscountRule>>(`${BASE_URL}/${id}`)
 
-    console.log('DiscountRule Single API Response:', response.data)
 
     return parseDiscountRule(
       response.data.data as unknown as {
@@ -369,7 +367,6 @@ export const discountRulesService = {
       }
     })
 
-    console.log('DiscountRule by Code API Response:', response.data)
 
     const rules = response.data.data
     if (rules.length === 0) {
@@ -394,11 +391,9 @@ export const discountRulesService = {
       }
     }
 
-    console.log('DiscountRule Create Request:', requestData)
 
     const response = await axios.post<JsonApiResponse<DiscountRule>>(BASE_URL, requestData)
 
-    console.log('DiscountRule Create Response:', response.data)
 
     return parseDiscountRule(
       response.data.data as unknown as {
@@ -422,11 +417,9 @@ export const discountRulesService = {
       }
     }
 
-    console.log('DiscountRule Update Request:', requestData)
 
     const response = await axios.patch<JsonApiResponse<DiscountRule>>(`${BASE_URL}/${id}`, requestData)
 
-    console.log('DiscountRule Update Response:', response.data)
 
     return parseDiscountRule(
       response.data.data as unknown as {
@@ -440,11 +433,9 @@ export const discountRulesService = {
    * Delete discount rule
    */
   async delete(id: string): Promise<void> {
-    console.log('DiscountRule Delete Request:', id)
 
     await axios.delete(`${BASE_URL}/${id}`)
 
-    console.log('DiscountRule Deleted:', id)
   },
 
   /**

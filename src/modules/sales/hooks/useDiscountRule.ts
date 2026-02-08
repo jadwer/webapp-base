@@ -30,10 +30,7 @@ export function useDiscountRule(params: UseDiscountRuleParams): UseDiscountRuleR
       dedupingInterval: 30000, // 30 seconds deduping for single items
       errorRetryCount: 3,
       errorRetryInterval: 1000,
-      onSuccess: data => {
-        console.log('DiscountRule loaded:', data?.code)
-      },
-      onError: error => {
+      onError: (error: Error) => {
         console.error('DiscountRule error:', error)
       }
     }

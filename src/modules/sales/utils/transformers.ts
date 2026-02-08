@@ -73,10 +73,8 @@ export function transformJsonApiSalesOrderItem(resource: JsonApiResource): Sales
 }
 
 export function transformSalesOrdersResponse(response: Record<string, unknown>) {
-  console.log('🔄 [Transformer] Raw sales orders response:', response)
 
   if (!response?.data) {
-    console.log('⚠️ [Transformer] No data in response, returning empty array')
     return { data: [], meta: {} }
   }
 
@@ -121,15 +119,12 @@ export function transformSalesOrdersResponse(response: Record<string, unknown>) 
         return [transformed]
       })()
 
-  console.log('✅ [Transformer] Transformed sales orders with contacts:', data)
   return { data, meta: (response.meta as Record<string, unknown>) || {} }
 }
 
 export function transformSalesOrderItemsResponse(response: Record<string, unknown>) {
-  console.log('🔄 [Transformer] Raw sales order items response:', response)
 
   if (!response?.data) {
-    console.log('⚠️ [Transformer] No data in response, returning empty array')
     return { data: [], meta: {} }
   }
 
@@ -202,7 +197,6 @@ export function transformSalesOrderItemsResponse(response: Record<string, unknow
         return [transformed]
       })()
 
-  console.log('✅ [Transformer] Transformed sales order items with relationships:', data)
   return { data, meta: (response.meta as Record<string, unknown>) || {} }
 }
 

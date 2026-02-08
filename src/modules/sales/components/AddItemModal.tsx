@@ -70,7 +70,6 @@ export default function AddItemModal({ salesOrderId, isOpen, onClose, onSuccess 
         discount: formData.discount
       }
 
-      console.log('🚀 Creating sales order item:', itemData)
       await createSalesOrderItem(itemData)
 
       onSuccess()

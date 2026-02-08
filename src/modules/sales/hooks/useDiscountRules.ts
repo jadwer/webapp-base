@@ -33,10 +33,7 @@ export function useDiscountRules(params: UseDiscountRulesParams = {}): UseDiscou
       dedupingInterval: 10000, // 10 seconds deduping
       errorRetryCount: 3,
       errorRetryInterval: 1000,
-      onSuccess: data => {
-        console.log('DiscountRules loaded:', data?.data?.length || 0, 'items')
-      },
-      onError: error => {
+      onError: (error: Error) => {
         console.error('DiscountRules error:', error)
       }
     }
