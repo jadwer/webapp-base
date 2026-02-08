@@ -22,14 +22,6 @@ export const APInvoicesTableSimple = ({
   onView,
   onEdit
 }: APInvoicesTableSimpleProps) => {
-  // Debug logs
-  console.log('📊 [APInvoicesTableSimple] Debug info:', {
-    apInvoicesReceived: apInvoices,
-    apInvoicesLength: apInvoices?.length,
-    firstInvoice: apInvoices?.[0],
-    isLoading
-  })
-
   const formatDate = (dateString?: string) => {
     if (!dateString) return '-'
     try {

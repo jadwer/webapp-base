@@ -61,17 +61,6 @@ export const APInvoicesAdminPageReal = () => {
     navigation.push(`/dashboard/finance/ap-invoices/${id}/edit`)
   }
 
-  // Debug logs for development
-  console.log('💰 [APInvoicesAdminPageReal] Debug info:', {
-    apInvoices,
-    apInvoicesLength: apInvoices?.length,
-    isLoading,
-    error,
-    searchTerm,
-    statusFilter,
-    currentPage
-  })
-
   if (error) {
     return (
       <Alert variant="danger" className="m-4">

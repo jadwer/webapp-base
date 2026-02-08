@@ -61,17 +61,6 @@ export const ARInvoicesAdminPageReal = () => {
     navigation.push(`/dashboard/finance/ar-invoices/${id}/edit`)
   }
 
-  // Debug logs for development
-  console.log('💰 [ARInvoicesAdminPageReal] Debug info:', {
-    arInvoices,
-    arInvoicesLength: arInvoices?.length,
-    isLoading,
-    error,
-    searchTerm,
-    statusFilter,
-    currentPage
-  })
-
   if (error) {
     return (
       <Alert variant="danger" className="m-4">

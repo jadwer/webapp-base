@@ -22,14 +22,6 @@ export const ARInvoicesTableSimple = ({
   onView,
   onEdit
 }: ARInvoicesTableSimpleProps) => {
-  // Debug logs
-  console.log('📊 [ARInvoicesTableSimple] Debug info:', {
-    arInvoicesReceived: arInvoices,
-    arInvoicesLength: arInvoices?.length,
-    firstInvoice: arInvoices?.[0],
-    isLoading
-  })
-
   const formatDate = (dateString?: string) => {
     if (!dateString) return '-'
     try {

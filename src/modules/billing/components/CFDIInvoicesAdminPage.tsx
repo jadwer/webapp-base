@@ -23,8 +23,7 @@ export function CFDIInvoicesAdminPage() {
       await generateXML(id)
       mutate()
       alert('XML generado correctamente')
-    } catch (error) {
-      console.error('Error:', error)
+    } catch {
       alert('Error al generar XML')
     }
   }
@@ -34,8 +33,7 @@ export function CFDIInvoicesAdminPage() {
       await generatePDF(id)
       mutate()
       alert('PDF generado correctamente')
-    } catch (error) {
-      console.error('Error:', error)
+    } catch {
       alert('Error al generar PDF')
     }
   }
@@ -45,8 +43,7 @@ export function CFDIInvoicesAdminPage() {
       await stampInvoice(id)
       mutate()
       alert('Factura timbrada correctamente')
-    } catch (error) {
-      console.error('Error:', error)
+    } catch {
       alert('Error al timbrar factura')
     }
   }
@@ -59,8 +56,7 @@ export function CFDIInvoicesAdminPage() {
       await cancelInvoice(id, { motivo })
       mutate()
       alert('Factura cancelada correctamente')
-    } catch (error) {
-      console.error('Error:', error)
+    } catch {
       alert('Error al cancelar factura')
     }
   }
@@ -76,8 +72,7 @@ export function CFDIInvoicesAdminPage() {
       a.click()
       window.URL.revokeObjectURL(url)
       document.body.removeChild(a)
-    } catch (error) {
-      console.error('Error:', error)
+    } catch {
       alert('Error al descargar XML')
     }
   }
@@ -93,8 +88,7 @@ export function CFDIInvoicesAdminPage() {
       a.click()
       window.URL.revokeObjectURL(url)
       document.body.removeChild(a)
-    } catch (error) {
-      console.error('Error:', error)
+    } catch {
       alert('Error al descargar PDF')
     }
   }
@@ -106,8 +100,7 @@ export function CFDIInvoicesAdminPage() {
       await deleteInvoice(id)
       mutate()
       alert('Factura eliminada')
-    } catch (error) {
-      console.error('Error:', error)
+    } catch {
       alert('Error al eliminar factura')
     }
   }

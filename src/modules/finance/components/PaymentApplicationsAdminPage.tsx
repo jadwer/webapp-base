@@ -56,7 +56,6 @@ export const PaymentApplicationsAdminPage: React.FC<PaymentApplicationsAdminPage
         await deleteApplication(application.id)
         showToast('Aplicación de pago eliminada correctamente', 'success')
       } catch (error: unknown) {
-        console.error('Error deleting payment application:', error)
         const axiosError = error as Record<string, unknown>
         const response = axiosError.response as Record<string, unknown> | undefined
         const data = response?.data as Record<string, unknown> | undefined

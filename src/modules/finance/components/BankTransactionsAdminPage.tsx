@@ -116,8 +116,8 @@ export const BankTransactionsAdminPage = () => {
       try {
         await deleteBankTransaction(transactionId)
         mutate()
-      } catch (error) {
-        console.error('Error deleting bank transaction:', error)
+      } catch {
+        // deletion failed silently
       }
     },
     [deleteBankTransaction, mutate]
@@ -128,8 +128,8 @@ export const BankTransactionsAdminPage = () => {
       try {
         await reconcile(transactionId, notes)
         mutate()
-      } catch (error) {
-        console.error('Error reconciling transaction:', error)
+      } catch {
+        // reconciliation failed silently
       }
     },
     [reconcile, mutate]
@@ -140,8 +140,8 @@ export const BankTransactionsAdminPage = () => {
       try {
         await unreconcile(transactionId)
         mutate()
-      } catch (error) {
-        console.error('Error unreconciling transaction:', error)
+      } catch {
+        // unreconciliation failed silently
       }
     },
     [unreconcile, mutate]

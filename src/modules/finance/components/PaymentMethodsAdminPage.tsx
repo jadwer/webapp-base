@@ -52,7 +52,6 @@ export const PaymentMethodsAdminPage: React.FC<PaymentMethodsAdminPageProps> = (
         await deletePaymentMethod(method.id)
         showToast('Método de pago eliminado correctamente', 'success')
       } catch (error: unknown) {
-        console.error('Error deleting payment method:', error)
         const axiosError = error as Record<string, unknown>
         const response = axiosError.response as Record<string, unknown> | undefined
         const data = response?.data as Record<string, unknown> | undefined

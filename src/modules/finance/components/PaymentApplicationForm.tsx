@@ -118,7 +118,6 @@ export const PaymentApplicationForm: React.FC<PaymentApplicationFormProps> = ({
         onSuccess()
       }
     } catch (error: unknown) {
-      console.error('Error submitting payment application:', error)
       const axiosError = error as Record<string, unknown>
       const response = axiosError.response as Record<string, unknown> | undefined
       const data = response?.data as Record<string, unknown> | undefined

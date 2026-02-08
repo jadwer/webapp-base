@@ -95,8 +95,6 @@ export const PaymentMethodForm: React.FC<PaymentMethodFormProps> = ({
         onSuccess()
       }
     } catch (error: unknown) {
-      console.error('Error submitting payment method:', error)
-
       const axiosError = error as Record<string, unknown>
       const response = axiosError.response as Record<string, unknown> | undefined
       const data = response?.data as Record<string, unknown> | undefined
