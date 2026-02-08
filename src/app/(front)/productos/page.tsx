@@ -53,7 +53,7 @@ export default function ProductosPage() {
   const [wishlistIds, setWishlistIds] = useState<number[]>([])
 
   // Use localStorage cart (no backend required)
-  const { addToCart, totals } = useLocalCart()
+  const { addToCart } = useLocalCart()
 
   // Load wishlist from localStorage on mount
   useEffect(() => {
@@ -76,8 +76,7 @@ export default function ProductosPage() {
   const handleAddToCart = useCallback((product: EnhancedPublicProduct) => {
     addToCart(product, 1)
     toast.success(`${product.displayName} agregado al carrito`)
-    console.log('Cart items:', totals.itemCount + 1)
-  }, [addToCart, toast, totals.itemCount])
+  }, [addToCart, toast])
 
   const handleAddToWishlist = useCallback((product: EnhancedPublicProduct) => {
     const productId = parseInt(product.id)

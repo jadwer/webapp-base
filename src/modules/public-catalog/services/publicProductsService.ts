@@ -224,35 +224,21 @@ class PublicProductsService {
     meta: PublicProductsResponse['meta']
     links: PublicProductsResponse['links']
   }> {
-    try {
-      console.log('🔍 Fetching public products with params:', { filters, sort, pagination, include })
-      
-      const queryParams = this.buildQueryParams(filters, sort, pagination, include)
-      
-      const response = await axiosClient.get<PublicProductsResponse>(this.baseUrl, {
-        params: queryParams
-      })
+    const queryParams = this.buildQueryParams(filters, sort, pagination, include)
 
-      console.log('✅ Public products fetched successfully:', {
-        totalProducts: response.data.data.length,
-        totalCount: response.data.meta.total,
-        currentPage: response.data.meta.currentPage,
-        hasIncluded: !!response.data.included
-      })
+    const response = await axiosClient.get<PublicProductsResponse>(this.baseUrl, {
+      params: queryParams
+    })
 
-      // Enhance products with resolved relationships
-      const enhancedProducts = response.data.data.map(product =>
-        this.resolveRelationships(product, response.data.included)
-      )
+    // Enhance products with resolved relationships
+    const enhancedProducts = response.data.data.map(product =>
+      this.resolveRelationships(product, response.data.included)
+    )
 
-      return {
-        products: enhancedProducts,
-        meta: response.data.meta,
-        links: response.data.links
-      }
-    } catch (error) {
-      console.error('❌ Error fetching public products:', error)
-      throw error
+    return {
+      products: enhancedProducts,
+      meta: response.data.meta,
+      links: response.data.links
     }
   }
 
@@ -263,29 +249,18 @@ class PublicProductsService {
     id: string,
     include: PublicProductInclude = 'unit,category,brand'
   ): Promise<EnhancedPublicProduct> {
-    try {
-      console.log('🔍 Fetching public product:', { id, include })
-      
-      const response = await axiosClient.get<SinglePublicProductResponse>(
-        `${this.baseUrl}/${id}`,
-        {
-          params: { include }
-        }
-      )
+    const response = await axiosClient.get<SinglePublicProductResponse>(
+      `${this.baseUrl}/${id}`,
+      {
+        params: { include }
+      }
+    )
 
-      console.log('✅ Public product fetched successfully:', response.data.data.id)
-
-      // Enhance product with resolved relationships
-      const enhancedProduct = this.resolveRelationships(
-        response.data.data,
-        response.data.included
-      )
-
-      return enhancedProduct
-    } catch (error) {
-      console.error('❌ Error fetching public product:', error)
-      throw error
-    }
+    // Enhance product with resolved relationships
+    return this.resolveRelationships(
+      response.data.data,
+      response.data.included
+    )
   }
 
   /**
@@ -440,8 +415,8 @@ class PublicProductsService {
       
       // Filter out the current product
       return result.products.filter(p => p.id !== productId).slice(0, limit)
-    } catch (error) {
-      console.warn('⚠️ Error getting product suggestions, returning empty array:', error)
+    } catch {
+      // Return empty array on error - product suggestions are non-critical
       return []
     }
   }
