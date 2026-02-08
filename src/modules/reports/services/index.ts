@@ -30,7 +30,7 @@ export const balanceSheetService = {
       const queryParams = new URLSearchParams()
 
       if (filters?.asOfDate) {
-        queryParams.append('filter[asOfDate]', filters.asOfDate)
+        queryParams.append('filter[as_of_date]', filters.asOfDate)
       }
       if (filters?.currency) {
         queryParams.append('filter[currency]', filters.currency)
@@ -54,8 +54,8 @@ export const incomeStatementService = {
   get: async (filters: PeriodReportFilters) => {
     try {
       const queryParams = new URLSearchParams()
-      queryParams.append('filter[startDate]', filters.startDate)
-      queryParams.append('filter[endDate]', filters.endDate)
+      queryParams.append('filter[start_date]', filters.startDate)
+      queryParams.append('filter[end_date]', filters.endDate)
 
       if (filters.currency) {
         queryParams.append('filter[currency]', filters.currency)
@@ -76,8 +76,8 @@ export const cashFlowService = {
   get: async (filters: PeriodReportFilters) => {
     try {
       const queryParams = new URLSearchParams()
-      queryParams.append('filter[startDate]', filters.startDate)
-      queryParams.append('filter[endDate]', filters.endDate)
+      queryParams.append('filter[start_date]', filters.startDate)
+      queryParams.append('filter[end_date]', filters.endDate)
 
       if (filters.currency) {
         queryParams.append('filter[currency]', filters.currency)
@@ -100,7 +100,7 @@ export const trialBalanceService = {
       const queryParams = new URLSearchParams()
 
       if (filters?.asOfDate) {
-        queryParams.append('filter[asOfDate]', filters.asOfDate)
+        queryParams.append('filter[as_of_date]', filters.asOfDate)
       }
       if (filters?.currency) {
         queryParams.append('filter[currency]', filters.currency)
@@ -130,7 +130,7 @@ export const arAgingReportService = {
       const queryParams = new URLSearchParams()
 
       if (filters?.asOfDate) {
-        queryParams.append('filter[asOfDate]', filters.asOfDate)
+        queryParams.append('filter[as_of_date]', filters.asOfDate)
       }
       if (filters?.currency) {
         queryParams.append('filter[currency]', filters.currency)
@@ -156,7 +156,7 @@ export const apAgingReportService = {
       const queryParams = new URLSearchParams()
 
       if (filters?.asOfDate) {
-        queryParams.append('filter[asOfDate]', filters.asOfDate)
+        queryParams.append('filter[as_of_date]', filters.asOfDate)
       }
       if (filters?.currency) {
         queryParams.append('filter[currency]', filters.currency)
@@ -184,8 +184,8 @@ export const salesByCustomerService = {
   get: async (filters: PeriodReportFilters) => {
     try {
       const queryParams = new URLSearchParams()
-      queryParams.append('filter[startDate]', filters.startDate)
-      queryParams.append('filter[endDate]', filters.endDate)
+      queryParams.append('filter[start_date]', filters.startDate)
+      queryParams.append('filter[end_date]', filters.endDate)
 
       if (filters.currency) {
         queryParams.append('filter[currency]', filters.currency)
@@ -206,8 +206,8 @@ export const salesByProductService = {
   get: async (filters: PeriodReportFilters) => {
     try {
       const queryParams = new URLSearchParams()
-      queryParams.append('filter[startDate]', filters.startDate)
-      queryParams.append('filter[endDate]', filters.endDate)
+      queryParams.append('filter[start_date]', filters.startDate)
+      queryParams.append('filter[end_date]', filters.endDate)
 
       if (filters.currency) {
         queryParams.append('filter[currency]', filters.currency)
@@ -228,8 +228,8 @@ export const purchaseBySupplierService = {
   get: async (filters: PeriodReportFilters) => {
     try {
       const queryParams = new URLSearchParams()
-      queryParams.append('filter[startDate]', filters.startDate)
-      queryParams.append('filter[endDate]', filters.endDate)
+      queryParams.append('filter[start_date]', filters.startDate)
+      queryParams.append('filter[end_date]', filters.endDate)
 
       if (filters.currency) {
         queryParams.append('filter[currency]', filters.currency)
@@ -250,8 +250,8 @@ export const purchaseByProductService = {
   get: async (filters: PeriodReportFilters) => {
     try {
       const queryParams = new URLSearchParams()
-      queryParams.append('filter[startDate]', filters.startDate)
-      queryParams.append('filter[endDate]', filters.endDate)
+      queryParams.append('filter[start_date]', filters.startDate)
+      queryParams.append('filter[end_date]', filters.endDate)
 
       if (filters.currency) {
         queryParams.append('filter[currency]', filters.currency)

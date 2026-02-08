@@ -39,8 +39,7 @@ export const AccountFormWrapper: React.FC<AccountFormWrapperProps> = ({
       } else {
         router.push('/dashboard/accounting/accounts')
       }
-    } catch (error) {
-      console.error('Error en AccountForm:', error)
+    } catch {
       toast.error(accountId ? 'Error al actualizar la cuenta' : 'Error al crear la cuenta')
     }
   }

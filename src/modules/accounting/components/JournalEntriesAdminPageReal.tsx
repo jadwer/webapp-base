@@ -61,17 +61,6 @@ export const JournalEntriesAdminPageReal = () => {
     navigation.push(`/dashboard/accounting/journal-entries/${id}/edit`)
   }
 
-  // Debug logs for development
-  console.log('📖 [JournalEntriesAdminPageReal] Debug info:', {
-    journalEntries,
-    journalEntriesLength: journalEntries?.length,
-    isLoading,
-    error,
-    searchTerm,
-    statusFilter,
-    currentPage
-  })
-
   if (error) {
     return (
       <Alert variant="danger" className="m-4">

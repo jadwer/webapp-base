@@ -113,8 +113,8 @@ export const AccountForm: React.FC<AccountFormProps> = ({
 
     try {
       await onSubmit(submitData)
-    } catch (error) {
-      console.error('Form submission failed:', error)
+    } catch {
+      // submission error handled by caller
     }
   }
 

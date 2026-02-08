@@ -22,14 +22,6 @@ export const AccountsTableSimple = ({
   onView,
   onEdit
 }: AccountsTableSimpleProps) => {
-  // Debug logs
-  console.log('📊 [AccountsTableSimple] Debug info:', {
-    accountsReceived: accounts,
-    accountsLength: accounts?.length,
-    firstAccount: accounts?.[0],
-    isLoading
-  })
-
   const getAccountTypeBadge = (accountType: string) => {
     const typeConfig = {
       asset: { class: 'badge bg-success', text: 'Activo', icon: 'bi-building' },

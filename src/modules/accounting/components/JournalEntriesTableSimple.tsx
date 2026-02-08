@@ -22,14 +22,6 @@ export const JournalEntriesTableSimple = ({
   onView,
   onEdit
 }: JournalEntriesTableSimpleProps) => {
-  // Debug logs
-  console.log('📊 [JournalEntriesTableSimple] Debug info:', {
-    journalEntriesReceived: journalEntries,
-    journalEntriesLength: journalEntries?.length,
-    firstEntry: journalEntries?.[0],
-    isLoading
-  })
-
   const formatDate = (dateString?: string) => {
     if (!dateString) return '-'
     try {

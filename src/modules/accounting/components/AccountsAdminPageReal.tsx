@@ -66,18 +66,6 @@ export const AccountsAdminPageReal = () => {
     navigation.push(`/dashboard/accounting/accounts/${id}/edit`)
   }
 
-  // Debug logs for development
-  console.log('📊 [AccountsAdminPageReal] Debug info:', {
-    accounts,
-    accountsLength: accounts?.length,
-    isLoading,
-    error,
-    searchTerm,
-    typeFilter,
-    postableFilter,
-    currentPage
-  })
-
   if (error) {
     return (
       <Alert variant="danger" className="m-4">

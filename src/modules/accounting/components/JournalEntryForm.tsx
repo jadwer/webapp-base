@@ -148,8 +148,8 @@ export const JournalEntryForm: React.FC<JournalEntryFormProps> = ({
 
     try {
       await onSubmit(submitData)
-    } catch (error) {
-      console.error('Form submission failed:', error)
+    } catch {
+      // submission error handled by caller
     }
   }
 

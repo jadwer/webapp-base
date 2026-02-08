@@ -34,8 +34,7 @@ export const JournalEntryFormWrapper: React.FC<JournalEntryFormWrapperProps> = (
       } else {
         router.push('/dashboard/accounting/journal-entries')
       }
-    } catch (error) {
-      console.error('Error en JournalEntryForm:', error)
+    } catch {
       toast.error('Error al crear la póliza')
     }
   }
