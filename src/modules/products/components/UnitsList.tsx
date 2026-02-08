@@ -19,8 +19,6 @@ export const UnitsList = React.memo<UnitsListProps>(({
   onView,
   onDelete
 }) => {
-  // console.log('🔄 UnitsList render', { unitCount: units.length })
-
   if (isLoading) {
     return (
       <div style={{ height: '600px', overflowY: 'auto' }}>

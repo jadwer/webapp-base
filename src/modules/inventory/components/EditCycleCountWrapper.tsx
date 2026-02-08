@@ -40,7 +40,6 @@ export const EditCycleCountWrapper: React.FC<EditCycleCountWrapperProps> = ({ id
       })
       navigation.push(`/dashboard/inventory/cycle-counts/${id}`)
     } catch (err) {
-      console.error('Error updating cycle count:', err)
       setError(err instanceof Error ? err.message : 'Error al actualizar el conteo ciclico')
     }
   }

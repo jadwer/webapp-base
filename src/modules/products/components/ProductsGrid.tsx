@@ -125,8 +125,6 @@ export const ProductsGrid = React.memo<ProductsGridProps>(({
   onDelete,
   onView
 }) => {
-  // console.log('🔄 ProductsGrid render:', products.length, 'products')
-
   const parentRef = React.useRef<HTMLDivElement>(null)
 
   // Calculate items per row based on container width

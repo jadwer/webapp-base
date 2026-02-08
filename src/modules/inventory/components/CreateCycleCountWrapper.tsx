@@ -34,7 +34,6 @@ export const CreateCycleCountWrapper: React.FC = () => {
       })
       navigation.push('/dashboard/inventory/cycle-counts')
     } catch (err) {
-      console.error('Error creating cycle count:', err)
       setError(err instanceof Error ? err.message : 'Error al crear el conteo ciclico')
     }
   }

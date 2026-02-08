@@ -40,18 +40,13 @@ export const categoryService = {
     }
 
     const response = await axios.get(CATEGORIES_ENDPOINT, { params: queryParams })
-    // console.log('🔍 Categories API Request URL:', response.config?.url)
-    // console.log('🔍 Categories API Response:', response.data)
-    // console.log('🔍 Categories Raw Data:', JSON.stringify(response.data, null, 2))
-    
+
     const jsonApiResponse = response.data as JsonApiResponse<JsonApiResource[]>
     
     // Transform the response
     const transformedData = Array.isArray(jsonApiResponse.data) 
       ? jsonApiResponse.data.map(resource => transformJsonApiCategory(resource))
       : []
-    
-    // console.log('🔄 Transformed Categories:', transformedData)
     
     return {
       data: transformedData,
@@ -62,14 +57,11 @@ export const categoryService = {
 
   async getCategory(id: string): Promise<CategoryResponse> {
     const response = await axios.get(`${CATEGORIES_ENDPOINT}/${id}`)
-    // console.log('🔍 Single Category API Response:', response.data)
-    
+
     const jsonApiResponse = response.data as JsonApiResponse<JsonApiResource>
     
     // Transform the single resource response
     const transformedCategory = transformJsonApiCategory(jsonApiResponse.data)
-    
-    // console.log('🔄 Transformed Category:', transformedCategory)
     
     return {
       data: transformedCategory,
@@ -95,8 +87,6 @@ export const categoryService = {
   },
 
   async updateCategory(id: string, data: UpdateCategoryRequest): Promise<CategoryResponse> {
-    // console.log('🔄 updateCategory called', { id, data })
-    
     const attributes: Record<string, string | boolean | number> = {}
 
     if (data.name !== undefined) attributes.name = data.name
@@ -111,17 +101,8 @@ export const categoryService = {
       }
     }
 
-    // console.log('📤 Sending PATCH request to:', `${CATEGORIES_ENDPOINT}/${id}`)
-    // console.log('📦 Payload:', JSON.stringify(payload, null, 2))
-
-    try {
-      const response = await axios.patch(`${CATEGORIES_ENDPOINT}/${id}`, payload)
-      // console.log('✅ Update successful:', response.data)
-      return response.data
-    } catch (error) {
-      console.error('❌ Update failed:', error)
-      throw error
-    }
+    const response = await axios.patch(`${CATEGORIES_ENDPOINT}/${id}`, payload)
+    return response.data
   },
 
   async deleteCategory(id: string): Promise<void> {

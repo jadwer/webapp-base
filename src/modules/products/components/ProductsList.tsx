@@ -123,8 +123,6 @@ export const ProductsList = React.memo<ProductsListProps>(({
   onDelete,
   onView
 }) => {
-  // console.log('🔄 ProductsList render:', products.length, 'products')
-
   const parentRef = React.useRef<HTMLDivElement>(null)
 
   const virtualizer = useVirtualizer({

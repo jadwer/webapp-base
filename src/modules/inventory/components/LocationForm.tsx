@@ -168,8 +168,6 @@ export const LocationForm = memo<LocationFormProps>(({
       }, 2000)
       
     } catch (error: unknown) {
-      console.error('Error submitting location:', error)
-      
       // Show error message
       const message = (error as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Error saving location'
       const toastElement = document.createElement('div')

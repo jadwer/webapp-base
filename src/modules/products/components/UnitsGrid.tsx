@@ -19,8 +19,6 @@ export const UnitsGrid = React.memo<UnitsGridProps>(({
   onView,
   onDelete
 }) => {
-  // console.log('🔄 UnitsGrid render', { unitCount: units.length })
-
   if (isLoading) {
     return (
       <div className="row g-3">

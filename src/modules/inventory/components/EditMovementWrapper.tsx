@@ -48,7 +48,6 @@ export const EditMovementWrapper = ({ movementId }: EditMovementWrapperProps) =>
       }, 2000)
       
     } catch (error) {
-      console.error('Error updating movement:', error)
       throw error // Let form handle the error display
     }
   }

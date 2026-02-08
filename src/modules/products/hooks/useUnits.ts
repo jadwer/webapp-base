@@ -18,10 +18,7 @@ export function useUnits(params?: UseUnitsParams) {
     () => unitService.getUnits(params),
     {
       keepPreviousData: true,
-      revalidateOnFocus: false,
-      onError: (error) => {
-        console.error('Error loading units:', error)
-      }
+      revalidateOnFocus: false
     }
   )
 

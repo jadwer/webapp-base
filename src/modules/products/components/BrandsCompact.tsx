@@ -13,8 +13,6 @@ interface BrandsCompactProps {
 }
 
 export const BrandsCompact = React.memo<BrandsCompactProps>(({ brands, isLoading = false, onEdit, onView, onDelete }) => {
-  // console.log('🔄 BrandsCompact render', { brandCount: brands.length })
-
   if (isLoading) {
     return (
       <div className="card shadow-sm">

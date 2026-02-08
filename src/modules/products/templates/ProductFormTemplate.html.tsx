@@ -50,8 +50,8 @@ export const ProductFormTemplate: React.FC<ProductFormTemplateProps> = ({
       } else {
         navigation.push('/dashboard/products')
       }
-    } catch (error) {
-      console.error('Error saving product:', error)
+    } catch {
+      // Error handled by service layer
     } finally {
       setIsSubmitting(false)
     }

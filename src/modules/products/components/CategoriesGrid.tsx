@@ -19,8 +19,6 @@ export const CategoriesGrid = React.memo<CategoriesGridProps>(({
   onView,
   onDelete
 }) => {
-  // console.log('🔄 CategoriesGrid render', { categoryCount: categories.length })
-
   if (isLoading) {
     return (
       <div className="row g-3">

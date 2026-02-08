@@ -95,7 +95,7 @@ export const useLocationsMutations = () => {
       
       return result
     } catch (error) {
-      console.error('Error creating location:', error)
+
       throw error
     }
   }, [mutate])
@@ -110,7 +110,7 @@ export const useLocationsMutations = () => {
       
       return result
     } catch (error) {
-      console.error('Error updating location:', error)
+
       throw error
     }
   }, [mutate])
@@ -124,7 +124,7 @@ export const useLocationsMutations = () => {
       mutate(key => Array.isArray(key) && key[0] === 'warehouse-locations')
       
     } catch (error) {
-      console.error('Error deleting location:', error)
+
       throw error
     }
   }, [mutate])

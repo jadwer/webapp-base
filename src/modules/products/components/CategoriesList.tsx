@@ -13,8 +13,6 @@ interface CategoriesListProps {
 }
 
 export const CategoriesList = React.memo<CategoriesListProps>(({ categories, isLoading = false, onEdit, onView, onDelete }) => {
-  // console.log('🔄 CategoriesList render', { categoryCount: categories.length })
-
   if (isLoading) {
     return (
       <div style={{ height: '600px', overflowY: 'auto' }}>

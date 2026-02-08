@@ -18,8 +18,6 @@ export const UnitFormWrapper: React.FC<UnitFormWrapperProps> = ({
   onSuccess,
   onCancel
 }) => {
-  // console.log('🔄 UnitFormWrapper render', { unitId })
-  
   const router = useRouter()
   const toast = useToast()
   const { unit, isLoading: unitLoading, error: unitError } = useUnit(unitId)
@@ -28,11 +26,9 @@ export const UnitFormWrapper: React.FC<UnitFormWrapperProps> = ({
   const handleSubmit = async (formData: CreateUnitData | UpdateUnitData) => {
     try {
       if (unitId && unit) {
-        // console.log('📝 Updating unit:', unitId, formData)
         await updateUnit(unitId, formData as UpdateUnitData)
         toast.success('Unidad actualizada exitosamente')
       } else {
-        // console.log('🆕 Creating unit:', formData)
         await createUnit(formData as CreateUnitData)
         toast.success('Unidad creada exitosamente')
       }
@@ -42,8 +38,7 @@ export const UnitFormWrapper: React.FC<UnitFormWrapperProps> = ({
       } else {
         router.push('/dashboard/products/units')
       }
-    } catch (error) {
-      console.error('❌ Error en UnitForm:', error)
+    } catch {
       toast.error(unitId ? 'Error al actualizar la unidad' : 'Error al crear la unidad')
     }
   }

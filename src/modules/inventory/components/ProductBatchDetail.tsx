@@ -126,8 +126,6 @@ export const ProductBatchDetail = ({ productBatchId }: ProductBatchDetailProps) 
       }, 2000)
       
     } catch (error: unknown) {
-      console.error('Error deleting product batch:', error)
-      
       // Show error toast
       const message = (error as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Error al eliminar el lote'
       const toastElement = document.createElement('div')

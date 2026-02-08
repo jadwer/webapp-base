@@ -103,7 +103,7 @@ export const useInventoryMovementsMutations = () => {
       
       return result
     } catch (error) {
-      console.error('Error creating inventory movement:', error)
+
       throw error
     }
   }, [mutate])
@@ -118,7 +118,7 @@ export const useInventoryMovementsMutations = () => {
       
       return result
     } catch (error) {
-      console.error('Error updating inventory movement:', error)
+
       throw error
     }
   }, [mutate])
@@ -132,7 +132,7 @@ export const useInventoryMovementsMutations = () => {
       mutate(key => Array.isArray(key) && key[0] === 'inventory-movements')
       
     } catch (error) {
-      console.error('Error deleting inventory movement:', error)
+
       throw error
     }
   }, [mutate])

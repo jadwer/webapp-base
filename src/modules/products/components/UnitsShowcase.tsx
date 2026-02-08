@@ -19,8 +19,6 @@ export const UnitsShowcase = React.memo<UnitsShowcaseProps>(({
   onView,
   onDelete
 }) => {
-  // console.log('🔄 UnitsShowcase render', { unitCount: units.length })
-
   if (isLoading) {
     return (
       <div className="row g-4">

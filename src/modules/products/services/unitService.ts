@@ -41,18 +41,13 @@ export const unitService = {
     }
 
     const response = await axios.get(UNITS_ENDPOINT, { params: queryParams })
-    // console.log('🔍 Units API Request URL:', response.config?.url)
-    // console.log('🔍 Units API Response:', response.data)
-    // console.log('🔍 Units Raw Data:', JSON.stringify(response.data, null, 2))
-    
+
     const jsonApiResponse = response.data as JsonApiResponse<JsonApiResource[]>
     
     // Transform the response
     const transformedData = Array.isArray(jsonApiResponse.data) 
       ? jsonApiResponse.data.map(resource => transformJsonApiUnit(resource))
       : []
-    
-    // console.log('🔄 Transformed Units:', transformedData)
     
     return {
       data: transformedData,
@@ -63,14 +58,11 @@ export const unitService = {
 
   async getUnit(id: string): Promise<UnitResponse> {
     const response = await axios.get(`${UNITS_ENDPOINT}/${id}`)
-    // console.log('🔍 Single Unit API Response:', response.data)
-    
+
     const jsonApiResponse = response.data as JsonApiResponse<JsonApiResource>
     
     // Transform the single resource response
     const transformedUnit = transformJsonApiUnit(jsonApiResponse.data)
-    
-    // console.log('🔄 Transformed Unit:', transformedUnit)
     
     return {
       data: transformedUnit,

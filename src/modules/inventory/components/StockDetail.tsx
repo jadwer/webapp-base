@@ -75,8 +75,6 @@ export const StockDetail = ({ stockId }: StockDetailProps) => {
       }, 2000)
       
     } catch (error: unknown) {
-      console.error('Error deleting stock:', error)
-      
       // Show error toast
       const message = (error as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Error al eliminar el registro de stock'
       const toastElement = document.createElement('div')

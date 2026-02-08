@@ -22,8 +22,6 @@ const useDebounce = (value: string, delay: number) => {
 }
 
 export const UnitsFiltersSimple = React.memo(() => {
-  // console.log('🔄 UnitsFiltersSimple render') // Should be minimal
-
   const { filters, setFilters, clearFilters } = useUnitsUIStore()
   
   // Local state para search input (preserva el foco)
@@ -34,7 +32,6 @@ export const UnitsFiltersSimple = React.memo(() => {
 
   // Actualizar filtros cuando cambia el debounced search
   useEffect(() => {
-    // console.log('🔍 Updating search filter:', debouncedSearch)
     setFilters({
       search: debouncedSearch || undefined
     })

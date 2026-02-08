@@ -187,8 +187,6 @@ export const StockForm = memo<StockFormProps>(({
       }, 2000)
       
     } catch (error: unknown) {
-      console.error('Error submitting stock:', error)
-      
       // Show error message
       const message = (error as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Error saving stock'
       const toastElement = document.createElement('div')

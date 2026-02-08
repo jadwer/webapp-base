@@ -25,20 +25,14 @@ export function useProductsStable(params?: UseProductsStableParams) {
       setIsLoading(true)
       setError(null)
       
-      // console.log('🔍 Fetching products with params:', requestParams) // Debug log
-      
       const response = await productService.getProducts(requestParams)
       
       // Only update if this request wasn't aborted
       if (!abortController.signal.aborted) {
-        // console.log('📊 Products fetched:', response.data?.length || 0) // Debug log
-        // console.log('📦 Full response:', response) // Debug full response
         setData(response)
-        // console.log('✅ Data set in state') // Confirm state update
       }
     } catch (err) {
       if (!abortController.signal.aborted) {
-        console.error('❌ Error fetching products:', err) // Debug log
         setError(err as Error)
       }
     } finally {
@@ -57,16 +51,10 @@ export function useProductsStable(params?: UseProductsStableParams) {
       include: params?.include?.sort() || []
     })
     
-    // console.log('🔄 Effect triggered, current params:', paramsString)
-    // console.log('🔄 Previous params:', previousParamsRef.current)
-    
     // Only fetch if params actually changed OR it's the initial load
     if (paramsString === previousParamsRef.current && previousParamsRef.current !== '') {
-      // console.log('⏭️ Skipping fetch - params unchanged')
       return
     }
-    
-    // console.log('🚀 Fetching products...', params)
     
     // DON'T cancel previous request - let it complete
     // This prevents the double-execution problem
@@ -86,8 +74,6 @@ export function useProductsStable(params?: UseProductsStableParams) {
   }, [fetchProducts, params]) // Simplified dependencies
   
   const refresh = useCallback(() => {
-    // console.log('🔄 Manual refresh triggered') // Debug log
-    
     // Cancel current request
     if (currentRequestRef.current) {
       currentRequestRef.current.abort()

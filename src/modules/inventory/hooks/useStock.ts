@@ -98,7 +98,7 @@ export const useStockMutations = () => {
       
       return result
     } catch (error) {
-      console.error('Error creating stock:', error)
+
       throw error
     }
   }, [mutate])
@@ -113,7 +113,7 @@ export const useStockMutations = () => {
       
       return result
     } catch (error) {
-      console.error('Error updating stock:', error)
+
       throw error
     }
   }, [mutate])
@@ -127,7 +127,7 @@ export const useStockMutations = () => {
       mutate(key => Array.isArray(key) && key[0] === 'stocks')
       
     } catch (error) {
-      console.error('Error deleting stock:', error)
+
       throw error
     }
   }, [mutate])

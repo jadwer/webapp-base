@@ -51,8 +51,6 @@ export const CreateProductBatchWrapper = () => {
       }, 2000)
       
     } catch (error: unknown) {
-      console.error('Error creating product batch:', error)
-      
       // Show error toast
       const errorMessage = error instanceof Error ? error.message : 'Error al crear el lote'
       const toastElement = document.createElement('div')

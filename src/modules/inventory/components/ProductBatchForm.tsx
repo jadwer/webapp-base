@@ -196,8 +196,8 @@ export const ProductBatchForm = memo<ProductBatchFormProps>(({
       }
 
       await onSubmit(submitData)
-    } catch (error) {
-      console.error('❌ [ProductBatchForm] Submit error:', error)
+    } catch {
+      // Error handled by parent component
     }
   }, [formData, validateForm, onSubmit])
 

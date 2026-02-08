@@ -156,8 +156,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       try {
         const result = await productService.uploadImage(imageFile)
         finalImgPath = result.path
-      } catch (error) {
-        console.error('Error uploading image:', error)
+      } catch {
         setErrors(prev => ({ ...prev, imgPath: 'Error al subir la imagen' }))
         setUploadingImage(false)
         return
@@ -171,8 +170,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       try {
         const result = await productService.uploadDatasheet(datasheetFile)
         finalDatasheetPath = result.path
-      } catch (error) {
-        console.error('Error uploading datasheet:', error)
+      } catch {
         setErrors(prev => ({ ...prev, datasheetPath: 'Error al subir la hoja de datos' }))
         setUploadingDatasheet(false)
         return

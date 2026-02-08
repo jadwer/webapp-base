@@ -19,8 +19,6 @@ const useDebouncedFilter = (callback: (value: string) => void, delay: number = 3
 }
 
 export const CategoriesFiltersSimple = React.memo(() => {
-  // console.log('🔄 CategoriesFiltersSimple render')
-  
   // UI state from Zustand (no re-renders)
   const { filters, setFilters, clearFilters } = useCategoriesUIStore()
   const [localSearch, setLocalSearch] = React.useState(filters.search || '')
@@ -36,7 +34,6 @@ export const CategoriesFiltersSimple = React.memo(() => {
   // Debounced search handler
   const debouncedSearch = useDebouncedFilter(
     useCallback((searchValue: string) => {
-      // console.log('🔍 Applying debounced category search:', searchValue)
       setFilters({
         search: searchValue || undefined
       })
@@ -46,13 +43,11 @@ export const CategoriesFiltersSimple = React.memo(() => {
   
   // Handlers
   const handleSearchChange = useCallback((value: string) => {
-    // console.log('⌨️ Category search input change:', value)
     setLocalSearch(value)
     debouncedSearch(value)
   }, [debouncedSearch])
   
   const handleClearFilters = useCallback(() => {
-    // console.log('🧹 Clearing category filters')
     setLocalSearch('')
     clearFilters()
     

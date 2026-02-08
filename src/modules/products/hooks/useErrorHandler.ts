@@ -60,9 +60,8 @@ const showToast = (message: string, type: 'success' | 'error' = 'error') => {
 }
 
 export const useErrorHandler = () => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleError = (error: unknown, context?: string) => {
-    console.error('❌ Error handled:', error, { context })
-
     if (isForeignKeyConstraintError(error)) {
       showToast(getForeignKeyConstraintMessage(error), 'error')
       return

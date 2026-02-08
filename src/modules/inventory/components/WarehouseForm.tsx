@@ -153,8 +153,6 @@ export const WarehouseForm = memo<WarehouseFormProps>(({
       }, 2000)
       
     } catch (error: unknown) {
-      console.error('Error submitting warehouse:', error)
-      
       // Handle error with proper typing
       const errorResult = handleComponentError(error)
       const toastElement = document.createElement('div')

@@ -13,8 +13,6 @@ interface BrandsListProps {
 }
 
 export const BrandsList = React.memo<BrandsListProps>(({ brands, isLoading = false, onEdit, onView, onDelete }) => {
-  // console.log('🔄 BrandsList render', { brandCount: brands.length })
-
   if (isLoading) {
     return (
       <div style={{ height: '600px', overflowY: 'auto' }}>

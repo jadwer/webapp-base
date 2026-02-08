@@ -20,8 +20,6 @@ export const BrandsTableVirtualized = React.memo<BrandsTableVirtualizedProps>(({
   onView,
   onDelete
 }) => {
-  // console.log('🔄 BrandsTableVirtualized render', { brandCount: brands.length })
-  
   const parentRef = React.useRef<HTMLDivElement>(null)
   
   const virtualizer = useVirtualizer({

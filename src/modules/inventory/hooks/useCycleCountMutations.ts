@@ -38,7 +38,6 @@ export function useCycleCountMutations(): UseCycleCountMutationsResult {
 
         return result
       } catch (error) {
-        console.error('CycleCount creation failed:', error)
         throw error
       } finally {
         setIsLoading(false)
@@ -61,7 +60,6 @@ export function useCycleCountMutations(): UseCycleCountMutationsResult {
 
         return result
       } catch (error) {
-        console.error('CycleCount update failed:', error)
         throw error
       } finally {
         setIsLoading(false)
@@ -82,7 +80,6 @@ export function useCycleCountMutations(): UseCycleCountMutationsResult {
         // Invalidate all cycle count lists
         invalidateCycleCountCaches()
       } catch (error) {
-        console.error('CycleCount deletion failed:', error)
         throw error
       } finally {
         setIsLoading(false)
@@ -105,7 +102,6 @@ export function useCycleCountMutations(): UseCycleCountMutationsResult {
 
         return result
       } catch (error) {
-        console.error('CycleCount start failed:', error)
         throw error
       } finally {
         setIsLoading(false)
@@ -128,7 +124,6 @@ export function useCycleCountMutations(): UseCycleCountMutationsResult {
 
         return result
       } catch (error) {
-        console.error('CycleCount record failed:', error)
         throw error
       } finally {
         setIsLoading(false)
@@ -151,7 +146,6 @@ export function useCycleCountMutations(): UseCycleCountMutationsResult {
 
         return result
       } catch (error) {
-        console.error('CycleCount cancellation failed:', error)
         throw error
       } finally {
         setIsLoading(false)

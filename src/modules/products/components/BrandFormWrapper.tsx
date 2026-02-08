@@ -18,8 +18,6 @@ export const BrandFormWrapper: React.FC<BrandFormWrapperProps> = ({
   onSuccess,
   onCancel
 }) => {
-  // console.log('🔄 BrandFormWrapper render', { brandId })
-  
   const router = useRouter()
   const toast = useToast()
   const { brand, isLoading: brandLoading, error: brandError } = useBrand(brandId)
@@ -28,11 +26,9 @@ export const BrandFormWrapper: React.FC<BrandFormWrapperProps> = ({
   const handleSubmit = async (formData: CreateBrandData | UpdateBrandData) => {
     try {
       if (brandId && brand) {
-        // console.log('📝 Updating brand:', brandId, formData)
         await updateBrand(brandId, formData as UpdateBrandData)
         toast.success('Marca actualizada exitosamente')
       } else {
-        // console.log('🆕 Creating brand:', formData)
         await createBrand(formData as CreateBrandData)
         toast.success('Marca creada exitosamente')
       }
@@ -42,8 +38,7 @@ export const BrandFormWrapper: React.FC<BrandFormWrapperProps> = ({
       } else {
         router.push('/dashboard/products/brands')
       }
-    } catch (error) {
-      console.error('❌ Error en BrandForm:', error)
+    } catch {
       toast.error(brandId ? 'Error al actualizar la marca' : 'Error al crear la marca')
     }
   }

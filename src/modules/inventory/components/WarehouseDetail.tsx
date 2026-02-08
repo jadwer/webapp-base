@@ -52,8 +52,6 @@ export const WarehouseDetail = ({ warehouseId }: WarehouseDetailProps) => {
       }, 2000)
       
     } catch (error: unknown) {
-      console.error('Error deleting warehouse:', error)
-      
       // Show error toast
       const message = (error as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Error al eliminar el almacén'
       const toastElement = document.createElement('div')

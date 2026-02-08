@@ -229,8 +229,8 @@ export const InventoryMovementForm = memo<InventoryMovementFormProps>(({
       }
       
       await onSubmit(submitData)
-    } catch (error) {
-      console.error('Form submission error:', error)
+    } catch {
+      // Error handled by parent component
     }
   }, [formData, onSubmit, validateForm])
   

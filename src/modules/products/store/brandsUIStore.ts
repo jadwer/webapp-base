@@ -33,27 +33,22 @@ export const useBrandsUIStore = create<BrandsUIState>((set) => ({
   viewMode: 'table',
   
   setFilters: (filters) => {
-    // console.log('🔍 Zustand: Setting brand filters (NO RERENDER)', filters)
     set(() => ({ filters, currentPage: 1 }))
   },
-  
+
   setSort: (sort) => {
-    // console.log('📊 Zustand: Setting brand sort (NO RERENDER)', sort)
     set(() => ({ sort, currentPage: 1 }))
   },
-  
+
   setPage: (currentPage) => {
-    // console.log('📄 Zustand: Setting brand page (NO RERENDER)', currentPage)
     set({ currentPage })
   },
-  
+
   setViewMode: (viewMode) => {
-    // console.log('👁️ Zustand: Setting brand view mode', viewMode)
     set({ viewMode })
   },
-  
+
   clearFilters: () => {
-    // console.log('🧹 Zustand: Clearing brand filters (NO RERENDER)')
     set({ filters: {}, currentPage: 1 })
   }
 }))

@@ -19,8 +19,6 @@ export const UnitsCompact = React.memo<UnitsCompactProps>(({
   onView,
   onDelete
 }) => {
-  // console.log('🔄 UnitsCompact render', { unitCount: units.length })
-
   if (isLoading) {
     return (
       <div className="card shadow-sm">

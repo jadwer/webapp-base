@@ -45,7 +45,6 @@ export const CreateMovementWrapper = () => {
       }, 2000)
       
     } catch (error) {
-      console.error('Error creating movement:', error)
       throw error // Let form handle the error display
     }
   }

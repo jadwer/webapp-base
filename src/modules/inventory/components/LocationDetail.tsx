@@ -52,8 +52,6 @@ export const LocationDetail = ({ locationId }: LocationDetailProps) => {
       }, 2000)
       
     } catch (error: unknown) {
-      console.error('Error deleting location:', error)
-      
       // Show error toast
       const message = getErrorMessage(error)
       const toastElement = document.createElement('div')

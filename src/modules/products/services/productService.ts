@@ -56,14 +56,8 @@ export const productService = {
       queryParams.include = params.include.join(',')
     }
 
-    // console.log('📡 Products API Request URL:', PRODUCTS_ENDPOINT)
-    // console.log('📡 Products API Query Params:', JSON.stringify(queryParams, null, 2))
-    
     const response = await axios.get(PRODUCTS_ENDPOINT, { params: queryParams })
-    
-    // console.log('📡 Products API Full URL:', response.config?.url)
-    // console.log('📡 Products API Response Data Count:', Array.isArray(response.data?.data) ? response.data.data.length : 'No data')
-    
+
     const jsonApiResponse = response.data as JsonApiResponse<JsonApiResource[]>
     
     // Transform the response

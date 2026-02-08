@@ -109,8 +109,6 @@ export const ProductsCompact = React.memo<ProductsCompactProps>(({
   onDelete,
   onView
 }) => {
-  // console.log('🔄 ProductsCompact render:', products.length, 'products')
-
   const parentRef = React.useRef<HTMLDivElement>(null)
 
   const virtualizer = useVirtualizer({

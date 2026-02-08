@@ -19,8 +19,6 @@ const useDebouncedFilter = (callback: (value: string) => void, delay: number = 3
 }
 
 export const BrandsFiltersSimple = React.memo(() => {
-  // console.log('🔄 BrandsFiltersSimple render')
-  
   const { filters, setFilters, clearFilters } = useBrandsUIStore()
   const [localSearch, setLocalSearch] = React.useState(filters.search || '')
   
@@ -32,20 +30,17 @@ export const BrandsFiltersSimple = React.memo(() => {
   
   const debouncedSearch = useDebouncedFilter(
     useCallback((searchValue: string) => {
-      // console.log('🔍 Applying debounced brand search:', searchValue)
       setFilters({ search: searchValue || undefined })
     }, [setFilters]),
     300
   )
   
   const handleSearchChange = useCallback((value: string) => {
-    // console.log('⌨️ Brand search input change:', value)
     setLocalSearch(value)
     debouncedSearch(value)
   }, [debouncedSearch])
   
   const handleClearFilters = useCallback(() => {
-    // console.log('🧹 Clearing brand filters')
     setLocalSearch('')
     clearFilters()
     

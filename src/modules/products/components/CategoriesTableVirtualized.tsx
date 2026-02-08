@@ -20,8 +20,6 @@ export const CategoriesTableVirtualized = React.memo<CategoriesTableVirtualizedP
   onView,
   onDelete
 }) => {
-  // console.log('🔄 CategoriesTableVirtualized render', { categoryCount: categories.length })
-  
   const parentRef = React.useRef<HTMLDivElement>(null)
   
   const virtualizer = useVirtualizer({

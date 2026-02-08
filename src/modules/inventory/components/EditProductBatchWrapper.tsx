@@ -54,8 +54,6 @@ export const EditProductBatchWrapper = ({ productBatchId }: EditProductBatchWrap
       }, 2000)
       
     } catch (error: unknown) {
-      console.error('Error updating product batch:', error)
-      
       // Show error toast
       const errorMessage = error instanceof Error ? error.message : 'Error al actualizar el lote'
       const toastElement = document.createElement('div')

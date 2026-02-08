@@ -95,8 +95,6 @@ export const MovementDetail = ({ movementId }: MovementDetailProps) => {
       }, 2000)
       
     } catch (error: unknown) {
-      console.error('Error deleting movement:', error)
-      
       // Show error toast
       const message = (error as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Error al eliminar el movimiento'
       const toastElement = document.createElement('div')

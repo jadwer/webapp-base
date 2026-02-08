@@ -74,7 +74,6 @@ export const WarehousesAdminPage = () => {
       setIsCreateModalOpen(false)
       mutate() // Refresh data
     } catch (error) {
-      console.error('Error creating warehouse:', error)
       throw error
     }
   }
@@ -87,7 +86,6 @@ export const WarehousesAdminPage = () => {
       setEditingWarehouse(null)
       mutate() // Refresh data
     } catch (error) {
-      console.error('Error updating warehouse:', error)
       throw error
     }
   }
@@ -100,7 +98,6 @@ export const WarehousesAdminPage = () => {
       setDeletingWarehouse(null)
       mutate() // Refresh data
     } catch (error) {
-      console.error('Error deleting warehouse:', error)
       throw error
     }
   }

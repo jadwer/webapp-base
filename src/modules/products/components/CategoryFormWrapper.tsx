@@ -19,8 +19,6 @@ export const CategoryFormWrapper: React.FC<CategoryFormWrapperProps> = ({
   onSuccess,
   onCancel
 }) => {
-  // console.log('🔄 CategoryFormWrapper render', { categoryId })
-  
   const router = useRouter()
   const toast = useToast()
   const { category, isLoading: categoryLoading, error: categoryError } = useCategory(categoryId)
@@ -29,11 +27,9 @@ export const CategoryFormWrapper: React.FC<CategoryFormWrapperProps> = ({
   const handleSubmit = async (formData: CreateCategoryData | UpdateCategoryData) => {
     try {
       if (categoryId && category) {
-        // console.log('📝 Updating category:', categoryId, formData)
         await updateCategory(categoryId, formData as UpdateCategoryData)
         toast.success('Categoría actualizada exitosamente')
       } else {
-        // console.log('🆕 Creating category:', formData)
         await createCategory(formData as CreateCategoryData)
         toast.success('Categoría creada exitosamente')
       }
@@ -43,8 +39,7 @@ export const CategoryFormWrapper: React.FC<CategoryFormWrapperProps> = ({
       } else {
         router.push('/dashboard/products/categories')
       }
-    } catch (error) {
-      console.error('❌ Error en CategoryForm:', error)
+    } catch {
       toast.error(categoryId ? 'Error al actualizar la categoría' : 'Error al crear la categoría')
     }
   }

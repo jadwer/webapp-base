@@ -13,8 +13,6 @@ interface BrandsGridProps {
 }
 
 export const BrandsGrid = React.memo<BrandsGridProps>(({ brands, isLoading = false, onEdit, onView, onDelete }) => {
-  // console.log('🔄 BrandsGrid render', { brandCount: brands.length })
-
   if (isLoading) {
     return (
       <div className="row g-3">

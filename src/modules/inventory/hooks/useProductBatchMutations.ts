@@ -48,7 +48,7 @@ export function useProductBatchMutations(): UseProductBatchMutationsResult {
 
       return result
     } catch (error) {
-      console.error('ProductBatch creation failed:', error)
+
       throw error
     } finally {
       setIsLoading(false)
@@ -68,7 +68,7 @@ export function useProductBatchMutations(): UseProductBatchMutationsResult {
 
       return result
     } catch (error) {
-      console.error('ProductBatch update failed:', error)
+
       throw error
     } finally {
       setIsLoading(false)
@@ -86,7 +86,7 @@ export function useProductBatchMutations(): UseProductBatchMutationsResult {
       // Invalidate all product batch lists
       invalidateProductBatchCaches()
     } catch (error) {
-      console.error('ProductBatch deletion failed:', error)
+
       throw error
     } finally {
       setIsLoading(false)

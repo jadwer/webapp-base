@@ -135,8 +135,6 @@ export const WarehouseFormModal = ({
       await onSubmit(formData)
       onClose()
     } catch (error: unknown) {
-      console.error('Form submission error:', error)
-      
       // Handle validation errors from server
       if (error && typeof error === 'object' && 'response' in error) {
         const axiosError = error as { response?: { status?: number; data?: { errors?: Array<{ field?: string; message?: string }> } } }

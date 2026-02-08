@@ -96,7 +96,7 @@ export const useWarehousesMutations = () => {
       
       return result
     } catch (error) {
-      console.error('Error creating warehouse:', error)
+
       throw error
     } finally {
       setIsLoading(false)
@@ -114,7 +114,7 @@ export const useWarehousesMutations = () => {
       
       return result
     } catch (error) {
-      console.error('Error updating warehouse:', error)
+
       throw error
     } finally {
       setIsLoading(false)
@@ -131,7 +131,7 @@ export const useWarehousesMutations = () => {
       mutate(key => Array.isArray(key) && key[0] === 'warehouses')
       
     } catch (error) {
-      console.error('Error deleting warehouse:', error)
+
       throw error
     } finally {
       setIsLoading(false)

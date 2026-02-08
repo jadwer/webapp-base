@@ -43,8 +43,8 @@ export const ViewCycleCountWrapper: React.FC<ViewCycleCountWrapperProps> = ({ id
     if (confirmed) {
       try {
         await startCount(id)
-      } catch (error) {
-        console.error('Error starting count:', error)
+      } catch {
+        // Error handled by mutation hook
       }
     }
   }
@@ -66,8 +66,8 @@ export const ViewCycleCountWrapper: React.FC<ViewCycleCountWrapperProps> = ({ id
     if (confirmed) {
       try {
         await cancelCount(id, 'Cancelado por el usuario')
-      } catch (error) {
-        console.error('Error cancelling count:', error)
+      } catch {
+        // Error handled by mutation hook
       }
     }
   }

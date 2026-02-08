@@ -16,8 +16,6 @@ export const CategoryView: React.FC<CategoryViewProps> = ({
   onEdit,
   onBack
 }) => {
-  // console.log('🔄 CategoryView render', { categoryId })
-  
   const { category, error, isLoading } = useCategory(categoryId)
 
   if (isLoading) {
