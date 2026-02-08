@@ -10,6 +10,7 @@ import { ContactFormTabs } from '@/modules/contacts/components/ContactFormTabs'
 import { useContact, useContactMutations } from '@/modules/contacts'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
 import { Alert } from '@/ui/components/base/Alert'
+import { toast } from '@/lib/toast'
 import type { ContactFormData } from '@/modules/contacts/types'
 
 interface EditContactPageProps {
@@ -35,7 +36,7 @@ export default function EditContactPage({ params }: EditContactPageProps) {
       navigation.push(`/dashboard/contacts/${contact.id}`)
       
     } catch {
-      alert('Error al actualizar el contacto. Por favor intenta de nuevo.')
+      toast.error('Error al actualizar el contacto. Por favor intenta de nuevo.')
     } finally {
       setIsLoading(false)
     }

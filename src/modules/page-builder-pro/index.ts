@@ -15,6 +15,7 @@ import { registerSliderEditorComponent } from "./components/SliderEditorComponen
 import sliderEditorPlugin from "./plugins/slider-editor-plugin";
 
 import type { ToastType } from "./types/ToastType";
+import { toast } from '@/lib/toast';
 
 // Export types and services
 export type { 
@@ -67,7 +68,7 @@ export default async function initPageBuilder(
     if (onNotify) {
       onNotify(msg, type);
     } else {
-      alert(msg);
+      toast.error(msg);
     }
   };
 

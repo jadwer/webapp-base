@@ -12,6 +12,7 @@ import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
 import { useSearchParams } from 'next/navigation'
 import type { ContactFormData } from '@/modules/contacts/types'
 import { parseContact } from '@/modules/contacts/hooks'
+import { toast } from '@/lib/toast'
 
 export default function CreateContactPage() {
   const navigation = useNavigationProgress()
@@ -44,7 +45,7 @@ export default function CreateContactPage() {
       return parseContact(result.data)
       
     } catch {
-      alert('Error al crear el contacto. Por favor intenta de nuevo.')
+      toast.error('Error al crear el contacto. Por favor intenta de nuevo.')
     } finally {
       setIsLoading(false)
     }

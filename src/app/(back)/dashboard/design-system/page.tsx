@@ -5,6 +5,7 @@ import { Button } from '@/ui/components/base/Button'
 import { Card, CardHeader, CardContent, CardFooter } from '@/ui/components/base/Card'
 import { ToggleSwitch } from '@/ui/components/base/ToggleSwitch'
 import { Input, Textarea, Checkbox, Radio } from '@/ui/components/base'
+import { toast } from '@/lib/toast'
 
 export default function DesignSystemPage() {
   const [loading, setLoading] = useState(false)
@@ -810,7 +811,7 @@ export default function DesignSystemPage() {
                 <Card 
                   variant="elevated" 
                   interactive
-                  onCardClick={() => alert('¡Card clickeado!')}
+                  onCardClick={() => toast.info('Card clickeado')}
                 >
                   <CardHeader>
                     <h5 className="mb-1">Card Interactivo</h5>

@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useRef, useCallback, useEffect } from 'react'
+import { toast } from '@/lib/toast'
 
 interface FileUploaderProps {
   accept: string
@@ -46,7 +47,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
   const handleFileSelect = useCallback((file: File) => {
     // Validate size
     if (file.size > maxSizeMB * 1024 * 1024) {
-      alert(`El archivo excede el tamaño máximo de ${maxSizeMB}MB`)
+      toast.warning(`El archivo excede el tamano maximo de ${maxSizeMB}MB`)
       return
     }
 

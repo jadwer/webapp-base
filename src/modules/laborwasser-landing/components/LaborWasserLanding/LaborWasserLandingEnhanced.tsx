@@ -20,7 +20,7 @@ import {
 } from '../'
 import { PublicCatalogTemplate, useSaleProducts, useLocalCart } from '@/modules/public-catalog'
 import type { EnhancedPublicProduct } from '@/modules/public-catalog'
-import { useToast } from '@/ui/hooks/useToast'
+import { toast } from '@/lib/toast'
 import styles from './LaborWasserLanding.module.scss'
 
 export interface LaborWasserLandingEnhancedProps {
@@ -63,7 +63,6 @@ export const LaborWasserLandingEnhanced: React.FC<LaborWasserLandingEnhancedProp
   // Hooks for sale products and cart
   const { products: saleProducts, isLoading: saleLoading } = useSaleProducts(6)
   const { addToCart } = useLocalCart()
-  const toast = useToast()
 
   // Helper to format prices
   const formatPrice = (price: number): string => {
@@ -106,11 +105,11 @@ export const LaborWasserLandingEnhanced: React.FC<LaborWasserLandingEnhancedProp
   }
 
   const handleAddToCart = (product: EnhancedPublicProduct) => {
-    alert(`${product.displayName} agregado al carrito`)
+    toast.success(`${product.displayName} agregado al carrito`)
   }
 
   const handleAddToWishlist = (product: EnhancedPublicProduct) => {
-    alert(`${product.displayName} agregado a favoritos`)
+    toast.success(`${product.displayName} agregado a favoritos`)
   }
 
   return (

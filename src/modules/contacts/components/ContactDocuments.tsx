@@ -8,6 +8,7 @@
 
 import React, { useState, useRef } from 'react'
 import { Button } from '@/ui/components/base/Button'
+import { toast } from '@/lib/toast'
 import type { ContactDocument } from '../types'
 
 interface ContactDocumentsProps {
@@ -94,7 +95,7 @@ export const ContactDocuments: React.FC<ContactDocumentsProps> = ({
     e.preventDefault()
     
     if (!uploadData.file) {
-      alert('Por favor selecciona un archivo')
+      toast.warning('Por favor selecciona un archivo')
       return
     }
 
@@ -112,7 +113,7 @@ export const ContactDocuments: React.FC<ContactDocumentsProps> = ({
         fileInputRef.current.value = ''
       }
     } catch {
-      alert('Error al subir el documento. Inténtalo de nuevo.')
+      toast.error('Error al subir el documento. Inténtalo de nuevo.')
     }
   }
 

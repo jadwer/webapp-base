@@ -4,6 +4,7 @@
  */
 
 import type { Editor } from 'grapesjs'
+import { toast } from '@/lib/toast'
 
 export function registerSliderEditorComponent(editor: Editor) {
   const domComponents = editor.DomComponents
@@ -288,7 +289,7 @@ export function registerSliderEditorComponent(editor: Editor) {
 
       const slides = slidesContainer.components()
       if (slides.length <= 1) {
-        alert('No puedes eliminar el último slide')
+        toast.warning('No puedes eliminar el ultimo slide')
         return
       }
 

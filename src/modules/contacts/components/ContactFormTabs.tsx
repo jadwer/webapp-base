@@ -15,6 +15,7 @@ import { Input } from '@/ui/components/base/Input'
 import { useContactAddresses, useContactDocuments, useContactPeople } from '../hooks'
 import { contactAddressesService, contactPeopleService, contactDocumentsService } from '../services'
 import { useAuth } from '@/modules/auth'
+import { toast } from '@/lib/toast'
 import type { 
   ContactFormData, 
   ContactParsed, 
@@ -191,7 +192,7 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
 
   const handleFinalSubmit = () => {
     if (!formData.name.trim()) {
-      alert('Por favor completa los datos básicos del contacto primero')
+      toast.warning('Por favor completa los datos básicos del contacto primero')
       setActiveTab('basic')
       return
     }
@@ -285,7 +286,7 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
               const errorMessage = typeof error === 'object' && error !== null && 'response' in error
                 ? String((error as Record<string, unknown>).response)
                 : error instanceof Error ? error.message : String(error)
-              alert(`Error subiendo ${document.originalFilename}: ${errorMessage}`)
+              toast.error(`Error subiendo ${document.originalFilename}: ${errorMessage}`)
             }
           }
         }
@@ -330,7 +331,7 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
       try {
         await contactAddressesService.update(id, updatedAddress)
       } catch {
-        alert('Error al actualizar la direccion')
+        toast.error('Error al actualizar la direccion')
       }
     }
   }
@@ -344,7 +345,7 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
       try {
         await contactAddressesService.delete(id)
       } catch {
-        alert('Error al eliminar la direccion')
+        toast.error('Error al eliminar la direccion')
       }
     }
   }
@@ -374,7 +375,7 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
     const document = documents.find(doc => doc.id === id)
     if (document) {
       // Aquí iría la lógica real de descarga
-      alert(`Descargando: ${document.originalFilename}`)
+      toast.info(`Descargando: ${document.originalFilename}`)
     }
   }
 
@@ -387,7 +388,7 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
       try {
         await contactDocumentsService.delete(id)
       } catch {
-        alert('Error al eliminar el documento')
+        toast.error('Error al eliminar el documento')
       }
     }
   }
@@ -405,7 +406,7 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
       try {
         await contactDocumentsService.verify(id)
       } catch {
-        alert('Error al verificar el documento')
+        toast.error('Error al verificar el documento')
       }
     }
   }
@@ -433,7 +434,7 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
       try {
         await contactPeopleService.update(id, updatedPerson)
       } catch {
-        alert('Error al actualizar la persona')
+        toast.error('Error al actualizar la persona')
       }
     }
   }
@@ -447,7 +448,7 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
       try {
         await contactPeopleService.delete(id)
       } catch {
-        alert('Error al eliminar la persona')
+        toast.error('Error al eliminar la persona')
       }
     }
   }

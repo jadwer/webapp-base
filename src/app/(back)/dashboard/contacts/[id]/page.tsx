@@ -10,6 +10,7 @@ import { useContact, useContactMutations } from '@/modules/contacts'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
 import { ContactViewTabs } from '@/modules/contacts/components/ContactViewTabs'
 import { Alert } from '@/ui/components/base/Alert'
+import { toast } from '@/lib/toast'
 
 interface ContactDetailPageProps {
   params: Promise<{ id: string }>
@@ -84,9 +85,9 @@ export default function ContactDetailPage({ params }: ContactDetailPageProps) {
 
       // Show user-friendly error message
       if (axiosError?.response?.status === 409 || axiosError?.response?.status === 400) {
-        alert('No se puede eliminar el contacto porque tiene elementos relacionados. Por favor contacta al administrador.')
+        toast.error('No se puede eliminar el contacto porque tiene elementos relacionados. Por favor contacta al administrador.')
       } else {
-        alert(`Error al eliminar el contacto: ${axiosError?.response?.data?.message || errorMessage}`)
+        toast.error(`Error al eliminar el contacto: ${axiosError?.response?.data?.message || errorMessage}`)
       }
     }
   }

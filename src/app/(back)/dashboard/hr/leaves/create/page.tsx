@@ -4,6 +4,7 @@ import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button, Input } from '@/ui/components/base'
 import { useEmployees, useLeaveTypes, leavesService, type LeaveType, type Employee } from '@/modules/hr'
+import { toast } from '@/lib/toast'
 
 export default function CreateLeavePage() {
   const router = useRouter()
@@ -60,7 +61,7 @@ export default function CreateLeavePage() {
       handleSuccess()
     } catch (error) {
       console.error('Error creating leave:', error)
-      alert('Error al crear la solicitud de licencia')
+      toast.error('Error al crear la solicitud de licencia')
     } finally {
       setIsSubmitting(false)
     }

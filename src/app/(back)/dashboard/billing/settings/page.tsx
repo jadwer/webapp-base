@@ -8,6 +8,7 @@ import {
   useCompanySettingsMutations,
 } from '@/modules/billing/hooks'
 import type { CompanySetting, CompanySettingFormData } from '@/modules/billing/types'
+import { toast } from '@/lib/toast'
 
 // =============================================================================
 // COMPANY SETTING FORM COMPONENT
@@ -558,7 +559,7 @@ export default function BillingSettingsPage() {
       setEditingSetting(null)
     } catch (error) {
       console.error('Error saving setting:', error)
-      alert('Error al guardar: ' + (error as Error).message)
+      toast.error('Error al guardar: ' + (error as Error).message)
     } finally {
       setIsSubmitting(false)
     }
@@ -573,7 +574,7 @@ export default function BillingSettingsPage() {
       mutateActive()
     } catch (error) {
       console.error('Error deleting setting:', error)
-      alert('Error al eliminar: ' + (error as Error).message)
+      toast.error('Error al eliminar: ' + (error as Error).message)
     }
   }
 

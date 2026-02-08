@@ -14,6 +14,7 @@ import { PaginationSimple } from './PaginationSimple'
 import { Button } from '@/ui/components/base/Button'
 import { Alert } from '@/ui/components/base/Alert'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
+import { toast } from '@/lib/toast'
 
 interface ContactsAdminPageRealProps {
   defaultFilters?: {
@@ -103,9 +104,9 @@ export const ContactsAdminPageReal = ({ defaultFilters = {} }: ContactsAdminPage
 
       // Show user-friendly error message
       if (axiosError?.response?.status === 409 || axiosError?.response?.status === 400) {
-        alert('No se puede eliminar el contacto porque tiene elementos relacionados. Contacta al administrador para eliminar primero las relaciones.')
+        toast.error('No se puede eliminar el contacto porque tiene elementos relacionados. Contacta al administrador para eliminar primero las relaciones.')
       } else {
-        alert(`Error al eliminar el contacto: ${axiosError?.response?.data?.message || errorMessage}`)
+        toast.error(`Error al eliminar el contacto: ${axiosError?.response?.data?.message || errorMessage}`)
       }
     }
   }

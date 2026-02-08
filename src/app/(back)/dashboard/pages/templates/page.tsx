@@ -6,6 +6,7 @@ import { TemplateGallery } from '@/modules/page-builder-pro/components/TemplateG
 import { usePageActions } from '@/modules/page-builder-pro'
 import { Button } from '@/ui/components/base'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
+import { toast } from '@/lib/toast'
 
 export default function TemplatesPage() {
   // const router = useRouter() // Removed unused variable
@@ -48,7 +49,7 @@ export default function TemplatesPage() {
       }
     } catch (error) {
       console.error('Error creating page from template:', error)
-      alert('Error al crear la página desde el template')
+      toast.error('Error al crear la pagina desde el template')
     } finally {
       setIsCreating(false)
     }

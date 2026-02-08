@@ -7,6 +7,7 @@ import { useRoleActions } from '../hooks/useRoles'
 import StatusMessage from '@/ui/StatusMessage'
 import { Skeleton } from '@/ui/Skeleton'
 import { RoleForm } from './RoleForm'
+import { toast } from '@/lib/toast'
 
 interface RolesTableProps {
   onRoleSelect?: (role: Role) => void
@@ -28,7 +29,7 @@ export function RolesTable({ onRoleSelect, selectedRole }: RolesTableProps) {
         await deleteRole(id)
         // Ya no necesitamos mutate manual, useRoleActions lo hace automáticamente
       } catch {
-        alert('Error al eliminar el rol')
+        toast.error('Error al eliminar el rol')
       }
     }
   }
