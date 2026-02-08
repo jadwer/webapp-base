@@ -33,8 +33,7 @@ export const AttendancesAdminPageReal: React.FC = () => {
       setShowCreateModal(false)
       mutate()
       showToast('Registro de asistencia creado exitosamente', 'success')
-    } catch (error) {
-      console.error('Error creating attendance:', error)
+    } catch {
       showToast('Error al crear registro de asistencia', 'error')
     }
   }, [createAttendance, mutate])
@@ -48,8 +47,7 @@ export const AttendancesAdminPageReal: React.FC = () => {
       setEditingAttendance(null)
       mutate()
       showToast('Registro de asistencia actualizado exitosamente', 'success')
-    } catch (error) {
-      console.error('Error updating attendance:', error)
+    } catch {
       showToast('Error al actualizar registro de asistencia', 'error')
     }
   }, [editingAttendance, updateAttendance, mutate])
@@ -72,8 +70,7 @@ export const AttendancesAdminPageReal: React.FC = () => {
       await deleteAttendance(attendance.id)
       mutate()
       showToast('Registro de asistencia eliminado exitosamente', 'success')
-    } catch (error) {
-      console.error('Error deleting attendance:', error)
+    } catch {
       showToast('Error al eliminar registro de asistencia', 'error')
     }
   }, [deleteAttendance, mutate])

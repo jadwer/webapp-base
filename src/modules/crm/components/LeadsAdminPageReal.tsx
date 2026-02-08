@@ -75,8 +75,6 @@ export const LeadsAdminPageReal = () => {
       await mutate()
       alert('Lead eliminado exitosamente')
     } catch (error: unknown) {
-      console.error('Error deleting lead:', error)
-
       // Check for foreign key constraint error
       if (typeof error === 'object' && error !== null && 'response' in error) {
         const errorWithResponse = error as { response?: { status: number } }

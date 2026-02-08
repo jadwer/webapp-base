@@ -27,8 +27,6 @@ const REPORTS_BASE = '/api/v1/reports'
 export const balanceSheetService = {
   get: async (filters?: BalanceSheetFilters) => {
     try {
-      console.log('🚀 [Service] Fetching balance sheet with filters:', filters)
-
       const queryParams = new URLSearchParams()
 
       if (filters?.asOfDate) {
@@ -43,13 +41,10 @@ export const balanceSheetService = {
         ? `${REPORTS_BASE}/balance-sheets?${queryString}`
         : `${REPORTS_BASE}/balance-sheets`
 
-      console.log('📡 [Service] Making request to:', url)
       const response = await axiosClient.get(url)
-      console.log('✅ [Service] Balance sheet response:', response.data)
 
       return response.data
     } catch (error) {
-      console.error('❌ [Service] Error fetching balance sheet:', error)
       throw error
     }
   },
@@ -58,8 +53,6 @@ export const balanceSheetService = {
 export const incomeStatementService = {
   get: async (filters: PeriodReportFilters) => {
     try {
-      console.log('🚀 [Service] Fetching income statement with filters:', filters)
-
       const queryParams = new URLSearchParams()
       queryParams.append('filter[startDate]', filters.startDate)
       queryParams.append('filter[endDate]', filters.endDate)
@@ -70,13 +63,10 @@ export const incomeStatementService = {
 
       const url = `${REPORTS_BASE}/income-statements?${queryParams.toString()}`
 
-      console.log('📡 [Service] Making request to:', url)
       const response = await axiosClient.get(url)
-      console.log('✅ [Service] Income statement response:', response.data)
 
       return response.data
     } catch (error) {
-      console.error('❌ [Service] Error fetching income statement:', error)
       throw error
     }
   },
@@ -85,8 +75,6 @@ export const incomeStatementService = {
 export const cashFlowService = {
   get: async (filters: PeriodReportFilters) => {
     try {
-      console.log('🚀 [Service] Fetching cash flow with filters:', filters)
-
       const queryParams = new URLSearchParams()
       queryParams.append('filter[startDate]', filters.startDate)
       queryParams.append('filter[endDate]', filters.endDate)
@@ -97,13 +85,10 @@ export const cashFlowService = {
 
       const url = `${REPORTS_BASE}/cash-flows?${queryParams.toString()}`
 
-      console.log('📡 [Service] Making request to:', url)
       const response = await axiosClient.get(url)
-      console.log('✅ [Service] Cash flow response:', response.data)
 
       return response.data
     } catch (error) {
-      console.error('❌ [Service] Error fetching cash flow:', error)
       throw error
     }
   },
@@ -112,8 +97,6 @@ export const cashFlowService = {
 export const trialBalanceService = {
   get: async (filters?: BalanceSheetFilters) => {
     try {
-      console.log('🚀 [Service] Fetching trial balance with filters:', filters)
-
       const queryParams = new URLSearchParams()
 
       if (filters?.asOfDate) {
@@ -128,13 +111,10 @@ export const trialBalanceService = {
         ? `${REPORTS_BASE}/trial-balances?${queryString}`
         : `${REPORTS_BASE}/trial-balances`
 
-      console.log('📡 [Service] Making request to:', url)
       const response = await axiosClient.get(url)
-      console.log('✅ [Service] Trial balance response:', response.data)
 
       return response.data
     } catch (error) {
-      console.error('❌ [Service] Error fetching trial balance:', error)
       throw error
     }
   },
@@ -147,8 +127,6 @@ export const trialBalanceService = {
 export const arAgingReportService = {
   get: async (filters?: AgingReportFilters) => {
     try {
-      console.log('🚀 [Service] Fetching AR aging report with filters:', filters)
-
       const queryParams = new URLSearchParams()
 
       if (filters?.asOfDate) {
@@ -163,13 +141,10 @@ export const arAgingReportService = {
         ? `${REPORTS_BASE}/ar-aging-reports?${queryString}`
         : `${REPORTS_BASE}/ar-aging-reports`
 
-      console.log('📡 [Service] Making request to:', url)
       const response = await axiosClient.get(url)
-      console.log('✅ [Service] AR aging report response:', response.data)
 
       return response.data
     } catch (error) {
-      console.error('❌ [Service] Error fetching AR aging report:', error)
       throw error
     }
   },
@@ -178,8 +153,6 @@ export const arAgingReportService = {
 export const apAgingReportService = {
   get: async (filters?: AgingReportFilters) => {
     try {
-      console.log('🚀 [Service] Fetching AP aging report with filters:', filters)
-
       const queryParams = new URLSearchParams()
 
       if (filters?.asOfDate) {
@@ -194,13 +167,10 @@ export const apAgingReportService = {
         ? `${REPORTS_BASE}/ap-aging-reports?${queryString}`
         : `${REPORTS_BASE}/ap-aging-reports`
 
-      console.log('📡 [Service] Making request to:', url)
       const response = await axiosClient.get(url)
-      console.log('✅ [Service] AP aging report response:', response.data)
 
       return response.data
     } catch (error) {
-      console.error('❌ [Service] Error fetching AP aging report:', error)
       throw error
     }
   },
@@ -213,8 +183,6 @@ export const apAgingReportService = {
 export const salesByCustomerService = {
   get: async (filters: PeriodReportFilters) => {
     try {
-      console.log('🚀 [Service] Fetching sales by customer with filters:', filters)
-
       const queryParams = new URLSearchParams()
       queryParams.append('filter[startDate]', filters.startDate)
       queryParams.append('filter[endDate]', filters.endDate)
@@ -225,13 +193,10 @@ export const salesByCustomerService = {
 
       const url = `${REPORTS_BASE}/sales-by-customer-reports?${queryParams.toString()}`
 
-      console.log('📡 [Service] Making request to:', url)
       const response = await axiosClient.get(url)
-      console.log('✅ [Service] Sales by customer response:', response.data)
 
       return response.data
     } catch (error) {
-      console.error('❌ [Service] Error fetching sales by customer:', error)
       throw error
     }
   },
@@ -240,8 +205,6 @@ export const salesByCustomerService = {
 export const salesByProductService = {
   get: async (filters: PeriodReportFilters) => {
     try {
-      console.log('🚀 [Service] Fetching sales by product with filters:', filters)
-
       const queryParams = new URLSearchParams()
       queryParams.append('filter[startDate]', filters.startDate)
       queryParams.append('filter[endDate]', filters.endDate)
@@ -252,13 +215,10 @@ export const salesByProductService = {
 
       const url = `${REPORTS_BASE}/sales-by-product-reports?${queryParams.toString()}`
 
-      console.log('📡 [Service] Making request to:', url)
       const response = await axiosClient.get(url)
-      console.log('✅ [Service] Sales by product response:', response.data)
 
       return response.data
     } catch (error) {
-      console.error('❌ [Service] Error fetching sales by product:', error)
       throw error
     }
   },
@@ -267,8 +227,6 @@ export const salesByProductService = {
 export const purchaseBySupplierService = {
   get: async (filters: PeriodReportFilters) => {
     try {
-      console.log('🚀 [Service] Fetching purchase by supplier with filters:', filters)
-
       const queryParams = new URLSearchParams()
       queryParams.append('filter[startDate]', filters.startDate)
       queryParams.append('filter[endDate]', filters.endDate)
@@ -279,13 +237,10 @@ export const purchaseBySupplierService = {
 
       const url = `${REPORTS_BASE}/purchase-by-supplier-reports?${queryParams.toString()}`
 
-      console.log('📡 [Service] Making request to:', url)
       const response = await axiosClient.get(url)
-      console.log('✅ [Service] Purchase by supplier response:', response.data)
 
       return response.data
     } catch (error) {
-      console.error('❌ [Service] Error fetching purchase by supplier:', error)
       throw error
     }
   },
@@ -294,8 +249,6 @@ export const purchaseBySupplierService = {
 export const purchaseByProductService = {
   get: async (filters: PeriodReportFilters) => {
     try {
-      console.log('🚀 [Service] Fetching purchase by product with filters:', filters)
-
       const queryParams = new URLSearchParams()
       queryParams.append('filter[startDate]', filters.startDate)
       queryParams.append('filter[endDate]', filters.endDate)
@@ -306,13 +259,10 @@ export const purchaseByProductService = {
 
       const url = `${REPORTS_BASE}/purchase-by-product-reports?${queryParams.toString()}`
 
-      console.log('📡 [Service] Making request to:', url)
       const response = await axiosClient.get(url)
-      console.log('✅ [Service] Purchase by product response:', response.data)
 
       return response.data
     } catch (error) {
-      console.error('❌ [Service] Error fetching purchase by product:', error)
       throw error
     }
   },

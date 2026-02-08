@@ -22,8 +22,6 @@ export const useUserForm = ({ onSuccess, onError }: UseUserFormOptions = {}) => 
       }
       onSuccess?.()
     } catch (err: unknown) {
-      console.error('Error completo:', err)
-      
       // Extraer mensaje de error más específico
       let errorMessage = 'Error al guardar el usuario'
       

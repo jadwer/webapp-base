@@ -44,26 +44,11 @@ export function DynamicRoleGuard({
     return <>{fallback}</>
   }
 
-  console.log('🔍 RoleGuard - Verificando acceso:', {
-    user: {
-      id: user.id,
-      email: user.email,
-      role: user.role,
-      roles: user.roles?.map((r: { name: string }) => r.name) || [],
-      permissions: user.permissions?.map((p: { name: string }) => p.name) || []
-    },
-    allowedRoles,
-    requiredPermissions,
-    path,
-    requireAll
-  })
-
   let hasAccess = false
 
   // Si se especifica una ruta, usar verificación automática
   if (path) {
     hasAccess = canAccessPage(user, path)
-    console.log(`🔍 RoleGuard - Acceso por ruta "${path}":`, hasAccess)
   } else {
     // Verificación manual por roles y permisos
     let roleCheck = true
@@ -77,12 +62,6 @@ export function DynamicRoleGuard({
         // Requiere AL MENOS UNO de los roles
         roleCheck = hasAnyRole(user, allowedRoles)
       }
-      console.log('🔍 RoleGuard - Verificación de roles:', {
-        allowedRoles,
-        userRoles: user.roles?.map((r: { name: string }) => r.name) || [user.role],
-        requireAll,
-        result: roleCheck
-      })
     }
 
     if (requiredPermissions.length > 0) {
@@ -93,18 +72,10 @@ export function DynamicRoleGuard({
         // Requiere AL MENOS UNO de los permisos
         permissionCheck = hasAnyPermission(user, requiredPermissions)
       }
-      console.log('🔍 RoleGuard - Verificación de permisos:', {
-        requiredPermissions,
-        userPermissions: user.permissions?.map((p: { name: string }) => p.name) || [],
-        requireAll,
-        result: permissionCheck
-      })
     }
 
     hasAccess = roleCheck && permissionCheck
   }
-
-  console.log('🔍 RoleGuard - Resultado final:', hasAccess)
 
   if (!hasAccess) {
     return <>{fallback}</>

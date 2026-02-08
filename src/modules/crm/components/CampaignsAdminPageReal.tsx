@@ -85,8 +85,6 @@ export const CampaignsAdminPageReal = () => {
       await mutate()
       alert('Campaña eliminada exitosamente')
     } catch (error: unknown) {
-      console.error('Error deleting campaign:', error)
-
       // Check for foreign key constraint error
       if (typeof error === 'object' && error !== null && 'response' in error) {
         const errorWithResponse = error as { response?: { status: number } }

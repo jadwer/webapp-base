@@ -64,9 +64,7 @@ export const usePipelineStages = (params?: PipelineStagesFilters) => {
     key,
     async () => {
       const response = await pipelineStagesService.getAll(queryParams)
-      console.log('🔄 [Hook] Raw pipeline stages response:', response)
       const transformed = transformPipelineStagesResponse(response)
-      console.log('✅ [Hook] Transformed pipeline stages:', transformed)
       return transformed
     }
   )
@@ -85,9 +83,7 @@ export const usePipelineStage = (id: string) => {
     id ? `/api/v1/pipeline-stages/${id}` : null,
     async () => {
       const response = await pipelineStagesService.getById(id)
-      console.log('🔄 [Hook] Raw pipeline stage response:', response)
       const transformed = transformPipelineStagesResponse(response)
-      console.log('✅ [Hook] Transformed pipeline stage:', transformed.data)
       return Array.isArray(transformed.data) ? transformed.data[0] : transformed.data
     }
   )
@@ -164,9 +160,7 @@ export const useLeads = (params?: LeadsFilters) => {
     key,
     async () => {
       const response = await leadsService.getAll(queryParams)
-      console.log('🔄 [Hook] Raw leads response:', response)
       const transformed = transformLeadsResponse(response)
-      console.log('✅ [Hook] Transformed leads:', transformed)
       return transformed
     }
   )
@@ -185,9 +179,7 @@ export const useLead = (id: string) => {
     id ? `/api/v1/leads/${id}` : null,
     async () => {
       const response = await leadsService.getById(id)
-      console.log('🔄 [Hook] Raw lead response:', response)
       const transformed = transformLeadsResponse(response)
-      console.log('✅ [Hook] Transformed lead:', transformed.data)
       return Array.isArray(transformed.data) ? transformed.data[0] : transformed.data
     }
   )
@@ -260,9 +252,7 @@ export const useCampaigns = (params?: CampaignsFilters) => {
     key,
     async () => {
       const response = await campaignsService.getAll(queryParams)
-      console.log('🔄 [Hook] Raw campaigns response:', response)
       const transformed = transformCampaignsResponse(response)
-      console.log('✅ [Hook] Transformed campaigns:', transformed)
       return transformed
     }
   )
@@ -281,9 +271,7 @@ export const useCampaign = (id: string) => {
     id ? `/api/v1/campaigns/${id}` : null,
     async () => {
       const response = await campaignsService.getById(id)
-      console.log('🔄 [Hook] Raw campaign response:', response)
       const transformed = transformCampaignsResponse(response)
-      console.log('✅ [Hook] Transformed campaign:', transformed.data)
       return Array.isArray(transformed.data) ? transformed.data[0] : transformed.data
     }
   )
@@ -402,9 +390,7 @@ export const useActivities = (params?: ActivitiesFilters) => {
     key,
     async () => {
       const response = await activitiesService.getAll(queryParams)
-      console.log('🔄 [Hook] Raw activities response:', response)
       const transformed = transformActivitiesResponse(response)
-      console.log('✅ [Hook] Transformed activities:', transformed)
       return transformed
     }
   )
@@ -423,9 +409,7 @@ export const useActivity = (id: string) => {
     id ? `/api/v1/activities/${id}` : null,
     async () => {
       const response = await activitiesService.getById(id)
-      console.log('🔄 [Hook] Raw activity response:', response)
       const transformed = transformActivitiesResponse(response)
-      console.log('✅ [Hook] Transformed activity:', transformed.data)
       return Array.isArray(transformed.data) ? transformed.data[0] : transformed.data
     }
   )
@@ -506,9 +490,7 @@ export const useOpportunities = (params?: OpportunitiesFilters) => {
     key,
     async () => {
       const response = await opportunitiesService.getAll(queryParams)
-      console.log('🔄 [Hook] Raw opportunities response:', response)
       const transformed = transformOpportunitiesResponse(response)
-      console.log('✅ [Hook] Transformed opportunities:', transformed)
       return transformed
     }
   )
@@ -527,9 +509,7 @@ export const useOpportunity = (id: string) => {
     id ? `/api/v1/opportunities/${id}` : null,
     async () => {
       const response = await opportunitiesService.getById(id)
-      console.log('🔄 [Hook] Raw opportunity response:', response)
       const transformed = transformOpportunitiesResponse(response)
-      console.log('✅ [Hook] Transformed opportunity:', transformed.data)
       return Array.isArray(transformed.data) ? transformed.data[0] : transformed.data
     }
   )

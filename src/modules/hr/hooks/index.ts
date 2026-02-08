@@ -65,7 +65,6 @@ export const useEmployees = (params?: EmployeesFilters) => {
     async () => {
       const response = await employeesService.getAll(queryParams)
       const transformed = transformEmployeesResponse(response)
-      console.log('✅ [Hook] Transformed employees:', transformed)
       return transformed
     }
   )
@@ -85,7 +84,6 @@ export const useEmployee = (id: string) => {
     async () => {
       const response = await employeesService.getById(id)
       const transformed = transformEmployeesResponse(response)
-      console.log('✅ [Hook] Transformed employee:', transformed.data)
       return Array.isArray(transformed.data) ? transformed.data[0] : transformed.data
     }
   )
@@ -144,7 +142,6 @@ export const useAttendances = (params?: AttendancesFilters) => {
     async () => {
       const response = await attendancesService.getAll(queryParams)
       const transformed = transformAttendancesResponse(response)
-      console.log('✅ [Hook] Transformed attendances:', transformed)
       return transformed
     }
   )
@@ -207,7 +204,6 @@ export const useLeaves = (params?: LeavesFilters) => {
     async () => {
       const response = await leavesService.getAll(queryParams)
       const transformed = transformLeavesResponse(response)
-      console.log('✅ [Hook] Transformed leaves:', transformed)
       return transformed
     }
   )
@@ -267,7 +263,6 @@ export const usePayrollPeriods = (params?: PayrollPeriodsFilters) => {
     async () => {
       const response = await payrollPeriodsService.getAll(queryParams)
       const transformed = transformPayrollPeriodsResponse(response)
-      console.log('✅ [Hook] Transformed payroll periods:', transformed)
       return transformed
     }
   )

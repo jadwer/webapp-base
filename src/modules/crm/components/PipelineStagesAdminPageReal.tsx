@@ -33,11 +33,7 @@ export const PipelineStagesAdminPageReal = () => {
     }
 
     try {
-      console.log('🗑️ [PipelineStagesAdminPageReal] Deleting stage:', stage.id)
-
       await deletePipelineStage(stage.id)
-
-      console.log('✅ [PipelineStagesAdminPageReal] Stage deleted successfully')
 
       // Refetch data
       mutate()
@@ -46,12 +42,6 @@ export const PipelineStagesAdminPageReal = () => {
       const axiosError = error && typeof error === 'object' && 'response' in error
         ? error as { response?: { status?: number; data?: { message?: string } } }
         : null
-
-      console.error('❌ [PipelineStagesAdminPageReal] Error deleting stage:', {
-        error: errorMessage,
-        response: axiosError?.response?.data,
-        status: axiosError?.response?.status
-      })
 
       // Show user-friendly error message
       if (axiosError?.response?.status === 409 || axiosError?.response?.status === 400) {

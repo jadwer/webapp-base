@@ -30,9 +30,7 @@ const prepareRoleRelationship = (roleId: string | undefined) => {
 
 export const getAllUsers = async (): Promise<User[]> => {
   try {
-    console.log('📡 Haciendo petición a:', `${RESOURCE}?include=roles`)
     const response = await axiosClient.get(`${RESOURCE}?include=roles`)
-    console.log('📦 Respuesta recibida:', response.data)
     
     // Crear un mapa de roles incluidos para búsqueda rápida
     const rolesMap = new Map()
@@ -69,7 +67,6 @@ export const getAllUsers = async (): Promise<User[]> => {
       }
     })
   } catch (error) {
-    console.error('❌ Error en getAllUsers:', error)
     throw error
   }
 }

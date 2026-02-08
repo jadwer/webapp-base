@@ -183,37 +183,159 @@ export function getDefaultRoute(user: User | null): string {
 /**
  * Configuración de permisos por página/sección
  */
-export const PAGE_PERMISSIONS = {
-  // Dashboard principal
+export const PAGE_PERMISSIONS: Record<string, { roles: readonly string[]; permissions: readonly string[] }> = {
+  // Dashboard principal - admin ve dashboard admin, customer ve dashboard cliente
   '/dashboard': {
-    roles: ['god', 'admin', 'administrator'],
-    permissions: ['dashboard.view']
+    roles: ['god', 'admin', 'administrator', 'customer', 'cliente'],
+    permissions: []
   },
-  
-  // Gestión de usuarios
+
+  // Perfil (todos pueden acceder)
+  '/dashboard/profile': {
+    roles: ['god', 'admin', 'administrator', 'customer', 'cliente', 'tech', 'user'],
+    permissions: []
+  },
+
+  // Customer Portal pages
+  '/dashboard/my-quotes': {
+    roles: ['god', 'admin', 'administrator', 'customer', 'cliente'],
+    permissions: []
+  },
+  '/dashboard/my-orders': {
+    roles: ['god', 'admin', 'administrator', 'customer', 'cliente'],
+    permissions: []
+  },
+  '/dashboard/my-cart': {
+    roles: ['god', 'admin', 'administrator', 'customer', 'cliente'],
+    permissions: []
+  },
+
+  // Gestion de usuarios y permisos
   '/dashboard/users': {
     roles: ['god', 'admin', 'administrator'],
     permissions: ['users.view']
   },
-  
-  // Gestión de permisos
   '/dashboard/permissions': {
     roles: ['god', 'admin', 'administrator'],
     permissions: ['permissions.view']
   },
-  
-  // Page Builder
-  '/dashboard/page-builder': {
+  '/dashboard/roles': {
     roles: ['god', 'admin', 'administrator'],
-    permissions: ['page-builder.view']
+    permissions: ['roles.view']
   },
-  
-  // Perfil (todos pueden acceder)
-  '/dashboard/profile': {
-    roles: ['god', 'admin', 'administrator', 'customer', 'user'],
+  '/dashboard/permission-manager': {
+    roles: ['god', 'admin', 'administrator'],
+    permissions: ['permissions.view']
+  },
+
+  // Page Builder
+  '/dashboard/pages': {
+    roles: ['god', 'admin', 'administrator'],
+    permissions: ['page.index']
+  },
+
+  // System
+  '/dashboard/audit': {
+    roles: ['god', 'admin', 'administrator'],
+    permissions: ['audits.index']
+  },
+  '/dashboard/system-health': {
+    roles: ['god', 'admin', 'administrator'],
+    permissions: ['system-health.index']
+  },
+  '/dashboard/diagnostic': {
+    roles: ['god', 'admin', 'administrator'],
     permissions: []
-  }
-} as const
+  },
+  '/dashboard/design-system': {
+    roles: ['god', 'admin', 'administrator'],
+    permissions: []
+  },
+
+  // Products
+  '/dashboard/products': {
+    roles: ['god', 'admin', 'administrator'],
+    permissions: ['products.index']
+  },
+
+  // Contacts
+  '/dashboard/contacts': {
+    roles: ['god', 'admin', 'administrator'],
+    permissions: ['contacts.index']
+  },
+
+  // Inventory
+  '/dashboard/inventory': {
+    roles: ['god', 'admin', 'administrator'],
+    permissions: ['stocks.index']
+  },
+
+  // Quotes
+  '/dashboard/quotes': {
+    roles: ['god', 'admin', 'administrator'],
+    permissions: ['quotes.index']
+  },
+
+  // Sales
+  '/dashboard/sales': {
+    roles: ['god', 'admin', 'administrator'],
+    permissions: ['sales-orders.index']
+  },
+
+  // Purchase
+  '/dashboard/purchase': {
+    roles: ['god', 'admin', 'administrator'],
+    permissions: ['purchase-orders.index']
+  },
+
+  // Finance
+  '/dashboard/finance': {
+    roles: ['god', 'admin', 'administrator'],
+    permissions: ['ar-invoices.index']
+  },
+
+  // Accounting
+  '/dashboard/accounting': {
+    roles: ['god', 'admin', 'administrator'],
+    permissions: ['accounts.index']
+  },
+
+  // Reports
+  '/dashboard/reports': {
+    roles: ['god', 'admin', 'administrator'],
+    permissions: ['reports.balance-sheets.index']
+  },
+
+  // CRM
+  '/dashboard/crm': {
+    roles: ['god', 'admin', 'administrator'],
+    permissions: ['crm.leads.index']
+  },
+
+  // HR
+  '/dashboard/hr': {
+    roles: ['god', 'admin', 'administrator'],
+    permissions: ['employees.index']
+  },
+
+  // Billing
+  '/dashboard/billing': {
+    roles: ['god', 'admin', 'administrator'],
+    permissions: ['cfdi-invoices.index']
+  },
+
+  // Catalog management
+  '/dashboard/catalog': {
+    roles: ['god', 'admin', 'administrator'],
+    permissions: ['products.index']
+  },
+
+  // E-commerce admin
+  '/dashboard/ecommerce': {
+    roles: ['god', 'admin', 'administrator'],
+    permissions: ['sales-orders.index']
+  },
+}
 
 /**
  * Verifica si un usuario puede acceder a una página específica
@@ -221,11 +343,26 @@ export const PAGE_PERMISSIONS = {
 export function canAccessPage(user: User | null, path: string): boolean {
   if (!user) return false
 
-  const pageConfig = PAGE_PERMISSIONS[path as keyof typeof PAGE_PERMISSIONS]
-  
+  // God/admin always has access to everything
+  if (isAdmin(user)) return true
+
+  // Try exact match first, then prefix match for sub-routes
+  let pageConfig = PAGE_PERMISSIONS[path]
+
   if (!pageConfig) {
-    // Si no hay configuración específica, solo usuarios autenticados pueden acceder
-    return true
+    // Find the longest matching prefix (e.g., /dashboard/products matches /dashboard/products/categories)
+    const matchingPaths = Object.keys(PAGE_PERMISSIONS)
+      .filter(key => path.startsWith(key + '/') || path === key)
+      .sort((a, b) => b.length - a.length)
+
+    if (matchingPaths.length > 0) {
+      pageConfig = PAGE_PERMISSIONS[matchingPaths[0]]
+    }
+  }
+
+  if (!pageConfig) {
+    // No configuration found - deny by default for security
+    return false
   }
 
   // Verificar roles

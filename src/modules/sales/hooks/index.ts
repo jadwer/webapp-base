@@ -35,9 +35,7 @@ export const useSalesOrders = (params?: SalesOrderFilters) => {
     key,
     async () => {
       const response = await salesService.orders.getAll(queryParams)
-      console.log('🔄 [Hook] Raw sales orders response:', response)
       const transformed = transformSalesOrdersResponse(response)
-      console.log('✅ [Hook] Transformed sales orders:', transformed)
       return transformed
     }
   )
@@ -56,9 +54,7 @@ export const useSalesOrder = (id: string) => {
     id ? `/api/v1/sales-orders/${id}` : null,
     async () => {
       const response = await salesService.orders.getById(id)
-      console.log('🔄 [Hook] Raw sales order response:', response)
       const transformed = transformSalesOrdersResponse(response)
-      console.log('✅ [Hook] Transformed sales order:', transformed.data[0])
       return transformed.data[0]
     }
   )
@@ -80,9 +76,7 @@ export const useSalesOrderItems = (salesOrderId?: string) => {
     async () => {
       if (!params) return { data: [], meta: {} }
       const response = await salesService.items.getAll(params)
-      console.log('🔄 [Hook] Raw sales order items:', response)
       const transformed = transformSalesOrderItemsResponse(response)
-      console.log('✅ [Hook] Transformed items:', transformed)
       return transformed
     }
   )
@@ -155,7 +149,6 @@ export const useSalesContacts = (params?: Record<string, string>) => {
     key,
     async () => {
       const response = await salesContactsService.getAll(queryParams)
-      console.log('🔄 [Hook] Raw contacts response:', response)
       return response
     }
   )
@@ -180,7 +173,6 @@ export const useSalesProducts = (params?: Record<string, string>) => {
     key,
     async () => {
       const response = await salesProductsService.getAll(queryParams)
-      console.log('🔄 [Hook] Raw products response:', response)
       return response
     }
   )
@@ -195,50 +187,22 @@ export const useSalesProducts = (params?: Record<string, string>) => {
 // Sales Order Mutations Hook
 export const useSalesOrderMutations = () => {
   const createSalesOrder = useCallback(async (data: SalesOrderFormData) => {
-    console.log('🚀 [Mutation] Creating sales order:', data.orderNumber)
-    try {
-      const response = await salesService.orders.create(data)
-      console.log('✅ [Mutation] Sales order created successfully:', response)
-      return response
-    } catch (error) {
-      console.error('❌ [Mutation] Error creating sales order:', error)
-      throw error
-    }
+    const response = await salesService.orders.create(data)
+    return response
   }, [])
 
   const updateSalesOrder = useCallback(async (id: string, data: SalesOrderFormData) => {
-    console.log('📝 [Mutation] Updating sales order:', id)
-    try {
-      const response = await salesService.orders.update(id, data)
-      console.log('✅ [Mutation] Sales order updated successfully:', response)
-      return response
-    } catch (error) {
-      console.error('❌ [Mutation] Error updating sales order:', error)
-      throw error
-    }
+    const response = await salesService.orders.update(id, data)
+    return response
   }, [])
 
   const deleteSalesOrder = useCallback(async (id: string) => {
-    console.log('🗑️ [Mutation] Deleting sales order:', id)
-    try {
-      await salesService.orders.delete(id)
-      console.log('✅ [Mutation] Sales order deleted successfully')
-    } catch (error) {
-      console.error('❌ [Mutation] Error deleting sales order:', error)
-      throw error
-    }
+    await salesService.orders.delete(id)
   }, [])
 
   const updateSalesOrderTotals = useCallback(async (id: string, totals: { totalAmount: number, subtotalAmount?: number, taxAmount?: number }) => {
-    console.log('💰 [Mutation] Updating sales order totals:', id, totals)
-    try {
-      const response = await salesService.orders.updateTotals(id, totals)
-      console.log('✅ [Mutation] Sales order totals updated successfully:', response)
-      return response
-    } catch (error) {
-      console.error('❌ [Mutation] Error updating sales order totals:', error)
-      throw error
-    }
+    const response = await salesService.orders.updateTotals(id, totals)
+    return response
   }, [])
 
   return {
@@ -252,38 +216,17 @@ export const useSalesOrderMutations = () => {
 // Sales Order Items Mutations Hook
 export const useSalesOrderItemMutations = () => {
   const createSalesOrderItem = useCallback(async (data: Record<string, unknown>) => {
-    console.log('🚀 [Mutation] Creating sales order item:', data)
-    try {
-      const response = await salesService.items.create(data)
-      console.log('✅ [Mutation] Sales order item created successfully:', response)
-      return response
-    } catch (error) {
-      console.error('❌ [Mutation] Error creating sales order item:', error)
-      throw error
-    }
+    const response = await salesService.items.create(data)
+    return response
   }, [])
 
   const updateSalesOrderItem = useCallback(async (id: string, data: Record<string, unknown>) => {
-    console.log('📝 [Mutation] Updating sales order item:', id)
-    try {
-      const response = await salesService.items.update(id, data)
-      console.log('✅ [Mutation] Sales order item updated successfully:', response)
-      return response
-    } catch (error) {
-      console.error('❌ [Mutation] Error updating sales order item:', error)
-      throw error
-    }
+    const response = await salesService.items.update(id, data)
+    return response
   }, [])
 
   const deleteSalesOrderItem = useCallback(async (id: string) => {
-    console.log('🗑️ [Mutation] Deleting sales order item:', id)
-    try {
-      await salesService.items.delete(id)
-      console.log('✅ [Mutation] Sales order item deleted successfully')
-    } catch (error) {
-      console.error('❌ [Mutation] Error deleting sales order item:', error)
-      throw error
-    }
+    await salesService.items.delete(id)
   }, [])
 
   return {

@@ -33,8 +33,7 @@ export const EmployeesAdminPageReal: React.FC = () => {
       setShowCreateModal(false)
       mutate()
       showToast('Empleado creado exitosamente', 'success')
-    } catch (error) {
-      console.error('Error creating employee:', error)
+    } catch {
       showToast('Error al crear empleado', 'error')
     }
   }, [createEmployee, mutate])
@@ -48,8 +47,7 @@ export const EmployeesAdminPageReal: React.FC = () => {
       setEditingEmployee(null)
       mutate()
       showToast('Empleado actualizado exitosamente', 'success')
-    } catch (error) {
-      console.error('Error updating employee:', error)
+    } catch {
       showToast('Error al actualizar empleado', 'error')
     }
   }, [editingEmployee, updateEmployee, mutate])
@@ -72,8 +70,7 @@ export const EmployeesAdminPageReal: React.FC = () => {
       await deleteEmployee(employee.id)
       mutate()
       showToast('Empleado eliminado exitosamente', 'success')
-    } catch (error) {
-      console.error('Error deleting employee:', error)
+    } catch {
       showToast('Error al eliminar empleado', 'error')
     }
   }, [deleteEmployee, mutate])
