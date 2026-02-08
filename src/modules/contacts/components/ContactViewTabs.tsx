@@ -389,10 +389,9 @@ export const ContactViewTabs: React.FC<ContactViewTabsProps> = ({
                               let errorMessage = `HTTP ${response.status}: ${response.statusText}`
                               try {
                                 const errorData = await response.text()
-                                console.error('❌ [ContactViewTabs] Backend view error details:', errorData.substring(0, 500))
                                 errorMessage += ` - ${errorData.substring(0, 200)}`
                               } catch {
-                                console.error('❌ [ContactViewTabs] Could not read view error response')
+                                // error reading response body
                               }
                               throw new Error(errorMessage)
                             }
@@ -402,8 +401,6 @@ export const ContactViewTabs: React.FC<ContactViewTabsProps> = ({
                             
                             if (contentType.includes('text/html')) {
                               // Si recibimos HTML, es probablemente una página de error
-                              const htmlContent = await response.text()
-                              console.error('❌ [ContactViewTabs] Received HTML instead of document:', htmlContent.substring(0, 500))
                               throw new Error('El servidor devolvió una página web en lugar del documento')
                             }
                             
@@ -435,12 +432,7 @@ export const ContactViewTabs: React.FC<ContactViewTabsProps> = ({
 
                           } catch (error: unknown) {
                             const errorMessage = error instanceof Error ? error.message : 'Error desconocido'
-                            console.error('❌ [ContactViewTabs] Error opening document:', {
-                              documentId: document.id,
-                              error: errorMessage,
-                              status: error && typeof error === 'object' && 'status' in error ? error.status : undefined
-                            })
-                            
+
                             // Use professional modal for errors
                             await confirmModalRef.current?.confirm(
                               `No se pudo abrir el documento "${document.originalFilename}". ${errorMessage}`,
@@ -484,10 +476,9 @@ export const ContactViewTabs: React.FC<ContactViewTabsProps> = ({
                               let errorMessage = `HTTP ${response.status}: ${response.statusText}`
                               try {
                                 const errorData = await response.text()
-                                console.error('❌ [ContactViewTabs] Backend download error details:', errorData.substring(0, 500))
                                 errorMessage += ` - ${errorData.substring(0, 200)}`
                               } catch {
-                                console.error('❌ [ContactViewTabs] Could not read download error response')
+                                // error reading response body
                               }
                               throw new Error(errorMessage)
                             }
@@ -508,12 +499,7 @@ export const ContactViewTabs: React.FC<ContactViewTabsProps> = ({
 
                           } catch (error: unknown) {
                             const errorMessage = error instanceof Error ? error.message : 'Error desconocido'
-                            console.error('❌ [ContactViewTabs] Error downloading document:', {
-                              documentId: document.id,
-                              error: errorMessage,
-                              status: error && typeof error === 'object' && 'status' in error ? error.status : undefined
-                            })
-                            
+
                             // Use professional modal for download errors
                             await confirmModalRef.current?.confirm(
                               `No se pudo descargar el documento "${document.originalFilename}". ${errorMessage}`,
@@ -576,12 +562,7 @@ export const ContactViewTabs: React.FC<ContactViewTabsProps> = ({
                               
                             } catch (error: unknown) {
                               const errorMessage = getErrorMessage(error)
-                              console.error('❌ [ContactViewTabs] Error verifying document:', {
-                                documentId: document.id,
-                                error: errorMessage,
-                                fullError: error
-                              })
-                              
+
                               // Show user-friendly error message
                               await confirmModalRef.current?.confirm(
                                 `Error al verificar documento: ${errorMessage}`,
@@ -644,12 +625,7 @@ export const ContactViewTabs: React.FC<ContactViewTabsProps> = ({
                               
                             } catch (error: unknown) {
                               const errorMessage = getErrorMessage(error)
-                              console.error('❌ [ContactViewTabs] Error removing verification:', {
-                                documentId: document.id,
-                                error: errorMessage,
-                                fullError: error
-                              })
-                              
+
                               // Show user-friendly error message
                               await confirmModalRef.current?.confirm(
                                 `Error al quitar verificación: ${errorMessage}`,

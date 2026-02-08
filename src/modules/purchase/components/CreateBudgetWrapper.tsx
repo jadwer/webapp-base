@@ -25,7 +25,6 @@ export const CreateBudgetWrapper = () => {
       await createBudget(data)
       navigation.push('/dashboard/purchase/budgets')
     } catch (err) {
-      console.error('Error creating budget:', err)
       setError(err instanceof Error ? err.message : 'Error al crear el presupuesto')
     }
   }

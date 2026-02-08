@@ -25,22 +25,6 @@ export default function ContactDetailPage({ params }: ContactDetailPageProps) {
     ['contactAddresses', 'contactDocuments', 'contactPeople']
   )
 
-  // Debug: log contact data and includes
-  React.useEffect(() => {
-    if (contact) {
-      console.log('🔍 [ContactDetailPage] Contact data:', contact)
-      console.log('🔍 [ContactDetailPage] Related data counts:', {
-        addresses: addresses.length,
-        documents: documents.length,
-        people: people.length
-      })
-      console.log('🔍 [ContactDetailPage] Documents details:', documents)
-      if (documents.length > 0) {
-        console.log('📎 [ContactDetailPage] First document:', documents[0])
-      }
-    }
-  }, [contact, addresses, documents, people])
-
   if (isLoading) {
     return (
       <div className="container-fluid py-4">
@@ -86,33 +70,18 @@ export default function ContactDetailPage({ params }: ContactDetailPageProps) {
     }
     
     try {
-      console.log('🗑️ [ContactDetailPage] Starting contact deletion with cascade...', {
-        contactId: contact.id,
-        addresses: addresses.length,
-        documents: documents.length,
-        people: people.length
-      })
-      
       // Note: The backend should handle cascade deletion automatically
       // If not, we would need to delete related entities first
       await deleteContact(contact.id)
-      
-      console.log('✅ [ContactDetailPage] Contact deleted successfully')
-      
+
       // Navigate back to contacts list
       navigation.push('/dashboard/contacts')
       
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'Error desconocido'
-      const axiosError = error && typeof error === 'object' && 'response' in error ? 
+      const axiosError = error && typeof error === 'object' && 'response' in error ?
         error as { response?: { status?: number; data?: { message?: string } } } : null
-      
-      console.error('❌ [ContactDetailPage] Error deleting contact:', {
-        error: errorMessage,
-        response: axiosError?.response?.data,
-        status: axiosError?.response?.status
-      })
-      
+
       // Show user-friendly error message
       if (axiosError?.response?.status === 409 || axiosError?.response?.status === 400) {
         alert('No se puede eliminar el contacto porque tiene elementos relacionados. Por favor contacta al administrador.')

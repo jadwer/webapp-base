@@ -35,21 +35,15 @@ export default function CreateContactPage() {
         finalData.isSupplier = true
       }
       
-      console.log('🚀 [CreateContactPage] Creating contact:', finalData)
-      
       const result = await createContact(finalData)
-      
-      console.log('✅ [CreateContactPage] Contact created:', result.data.id)
-      
+
       // Navigate to the new contact's detail page
       navigation.push(`/dashboard/contacts/${result.data.id}`)
       
       // Return the parsed contact data for ContactFormTabs to use
       return parseContact(result.data)
       
-    } catch (error) {
-      console.error('❌ [CreateContactPage] Error creating contact:', error)
-      // TODO: Show error toast in Phase 4
+    } catch {
       alert('Error al crear el contacto. Por favor intenta de nuevo.')
     } finally {
       setIsLoading(false)

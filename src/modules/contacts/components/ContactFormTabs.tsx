@@ -241,8 +241,8 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
                 isDefault: address.isDefault
               }
               await contactAddressesService.create(addressData)
-            } catch (error) {
-              console.error('Error creating address:', error)
+            } catch {
+              // error handled silently
             }
           }
         }
@@ -262,8 +262,8 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
                 isPrimary: person.isPrimary
               }
               await contactPeopleService.create(personData)
-            } catch (error) {
-              console.error('Error creating person:', error)
+            } catch {
+              // error handled silently
             }
           }
         }
@@ -281,8 +281,6 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
                 )
               }
             } catch (error: unknown) {
-              console.error('Error uploading document:', error)
-
               // Continue with other documents even if one fails
               const errorMessage = typeof error === 'object' && error !== null && 'response' in error
                 ? String((error as Record<string, unknown>).response)
@@ -303,7 +301,6 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
       }
 
     } catch (error) {
-      console.error('Error in complete contact creation:', error)
       throw error
     } finally {
       setIsSubmitting(false)
@@ -332,8 +329,7 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
       // Call API to update existing address
       try {
         await contactAddressesService.update(id, updatedAddress)
-      } catch (error) {
-        console.error('Error updating address:', error)
+      } catch {
         alert('Error al actualizar la direccion')
       }
     }
@@ -347,8 +343,7 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
       // Call API to delete existing address
       try {
         await contactAddressesService.delete(id)
-      } catch (error) {
-        console.error('Error deleting address:', error)
+      } catch {
         alert('Error al eliminar la direccion')
       }
     }
@@ -391,8 +386,7 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
       // Call API to delete existing document
       try {
         await contactDocumentsService.delete(id)
-      } catch (error) {
-        console.error('Error deleting document:', error)
+      } catch {
         alert('Error al eliminar el documento')
       }
     }
@@ -410,8 +404,7 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
       // Call API to verify existing document
       try {
         await contactDocumentsService.verify(id)
-      } catch (error) {
-        console.error('Error verifying document:', error)
+      } catch {
         alert('Error al verificar el documento')
       }
     }
@@ -439,8 +432,7 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
       // Call API to update existing person
       try {
         await contactPeopleService.update(id, updatedPerson)
-      } catch (error) {
-        console.error('Error updating person:', error)
+      } catch {
         alert('Error al actualizar la persona')
       }
     }
@@ -454,8 +446,7 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
       // Call API to delete existing person
       try {
         await contactPeopleService.delete(id)
-      } catch (error) {
-        console.error('Error deleting person:', error)
+      } catch {
         alert('Error al eliminar la persona')
       }
     }

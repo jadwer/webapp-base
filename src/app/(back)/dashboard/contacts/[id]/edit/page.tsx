@@ -29,18 +29,12 @@ export default function EditContactPage({ params }: EditContactPageProps) {
     setIsLoading(true)
     
     try {
-      console.log('🚀 [EditContactPage] Updating contact:', { id: contact.id, data })
-      
-      const result = await updateContact(contact.id, data)
-      
-      console.log('✅ [EditContactPage] Contact updated:', result.data.id)
-      
+      await updateContact(contact.id, data)
+
       // Navigate back to the contact's detail page
       navigation.push(`/dashboard/contacts/${contact.id}`)
       
-    } catch (error) {
-      console.error('❌ [EditContactPage] Error updating contact:', error)
-      // TODO: Show error toast in Phase 4
+    } catch {
       alert('Error al actualizar el contacto. Por favor intenta de nuevo.')
     } finally {
       setIsLoading(false)

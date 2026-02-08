@@ -33,9 +33,7 @@ export const usePurchaseOrders = (params?: PurchaseOrderFilters) => {
     key,
     async () => {
       const response = await purchaseService.orders.getAll(queryParams)
-      console.log('🔄 [Hook] Raw purchase orders response:', response)
       const transformed = transformPurchaseOrdersResponse(response)
-      console.log('✅ [Hook] Transformed purchase orders:', transformed)
       return transformed
     }
   )
@@ -54,9 +52,7 @@ export const usePurchaseOrder = (id: string) => {
     id ? `/api/v1/purchase-orders/${id}` : null,
     async () => {
       const response = await purchaseService.orders.getById(id)
-      console.log('🔄 [Hook] Raw purchase order response:', response)
       const transformed = transformPurchaseOrdersResponse(response)
-      console.log('✅ [Hook] Transformed purchase order:', transformed.data[0])
       return transformed.data[0]
     }
   )
@@ -77,9 +73,7 @@ export const usePurchaseOrderItems = (purchaseOrderId?: string) => {
     key,
     async () => {
       const response = await purchaseService.items.getAll(params)
-      console.log('🔄 [Hook] Raw purchase order items:', response)
       const transformed = transformPurchaseOrderItemsResponse(response)
-      console.log('✅ [Hook] Transformed items:', transformed)
       return transformed
     }
   )
@@ -134,9 +128,6 @@ export const usePurchaseContacts = (params?: Record<string, string>) => {
     key,
     async () => {
       const response = await purchaseContactsService.getAll(queryParams)
-      console.log('🔄 [Hook] Raw contacts response:', response)
-      console.log('🏭 [Hook] Suppliers loaded:', response?.data?.length || 0)
-      console.log('📡 [Hook] Request URL: /api/v1/contacts?filter[isSupplier]=1')
       return response
     }
   )
@@ -161,7 +152,6 @@ export const usePurchaseProducts = (params?: Record<string, string>) => {
     key,
     async () => {
       const response = await purchaseProductsService.getAll(queryParams)
-      console.log('🔄 [Hook] Raw products response:', response)
       return response
     }
   )
@@ -176,50 +166,22 @@ export const usePurchaseProducts = (params?: Record<string, string>) => {
 // Purchase Order Mutations Hook
 export const usePurchaseOrderMutations = () => {
   const createPurchaseOrder = useCallback(async (data: PurchaseOrderFormData) => {
-    console.log('🚀 [Mutation] Creating purchase order:', data.orderNumber)
-    try {
-      const response = await purchaseService.orders.create(data)
-      console.log('✅ [Mutation] Purchase order created successfully:', response)
-      return response
-    } catch (error) {
-      console.error('❌ [Mutation] Error creating purchase order:', error)
-      throw error
-    }
+    const response = await purchaseService.orders.create(data)
+    return response
   }, [])
 
   const updatePurchaseOrder = useCallback(async (id: string, data: PurchaseOrderFormData) => {
-    console.log('📝 [Mutation] Updating purchase order:', id)
-    try {
-      const response = await purchaseService.orders.update(id, data)
-      console.log('✅ [Mutation] Purchase order updated successfully:', response)
-      return response
-    } catch (error) {
-      console.error('❌ [Mutation] Error updating purchase order:', error)
-      throw error
-    }
+    const response = await purchaseService.orders.update(id, data)
+    return response
   }, [])
 
   const deletePurchaseOrder = useCallback(async (id: string) => {
-    console.log('🗑️ [Mutation] Deleting purchase order:', id)
-    try {
-      await purchaseService.orders.delete(id)
-      console.log('✅ [Mutation] Purchase order deleted successfully')
-    } catch (error) {
-      console.error('❌ [Mutation] Error deleting purchase order:', error)
-      throw error
-    }
+    await purchaseService.orders.delete(id)
   }, [])
 
   const updatePurchaseOrderTotals = useCallback(async (id: string, totals: { totalAmount: number }) => {
-    console.log('💰 [Mutation] Updating purchase order totals:', id, totals)
-    try {
-      const response = await purchaseService.orders.updateTotals(id, totals)
-      console.log('✅ [Mutation] Purchase order totals updated successfully:', response)
-      return response
-    } catch (error) {
-      console.error('❌ [Mutation] Error updating purchase order totals:', error)
-      throw error
-    }
+    const response = await purchaseService.orders.updateTotals(id, totals)
+    return response
   }, [])
 
   return {
@@ -233,38 +195,17 @@ export const usePurchaseOrderMutations = () => {
 // Purchase Order Items Mutations Hook
 export const usePurchaseOrderItemMutations = () => {
   const createPurchaseOrderItem = useCallback(async (data: Record<string, unknown>) => {
-    console.log('🚀 [Mutation] Creating purchase order item:', data)
-    try {
-      const response = await purchaseService.items.create(data)
-      console.log('✅ [Mutation] Purchase order item created successfully:', response)
-      return response
-    } catch (error) {
-      console.error('❌ [Mutation] Error creating purchase order item:', error)
-      throw error
-    }
+    const response = await purchaseService.items.create(data)
+    return response
   }, [])
 
   const updatePurchaseOrderItem = useCallback(async (id: string, data: Record<string, unknown>) => {
-    console.log('📝 [Mutation] Updating purchase order item:', id)
-    try {
-      const response = await purchaseService.items.update(id, data)
-      console.log('✅ [Mutation] Purchase order item updated successfully:', response)
-      return response
-    } catch (error) {
-      console.error('❌ [Mutation] Error updating purchase order item:', error)
-      throw error
-    }
+    const response = await purchaseService.items.update(id, data)
+    return response
   }, [])
 
   const deletePurchaseOrderItem = useCallback(async (id: string) => {
-    console.log('🗑️ [Mutation] Deleting purchase order item:', id)
-    try {
-      await purchaseService.items.delete(id)
-      console.log('✅ [Mutation] Purchase order item deleted successfully')
-    } catch (error) {
-      console.error('❌ [Mutation] Error deleting purchase order item:', error)
-      throw error
-    }
+    await purchaseService.items.delete(id)
   }, [])
 
   return {

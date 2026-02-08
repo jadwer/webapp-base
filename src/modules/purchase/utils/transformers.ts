@@ -77,10 +77,7 @@ export function transformJsonApiPurchaseOrderItem(resource: JsonApiResource): Pu
 }
 
 export function transformPurchaseOrdersResponse(response: Record<string, unknown>) {
-  console.log('🔄 [Transformer] Raw purchase orders response:', response)
-
   if (!response?.data) {
-    console.log('⚠️ [Transformer] No data in response, returning empty array')
     return { data: [], meta: {} }
   }
 
@@ -124,15 +121,11 @@ export function transformPurchaseOrdersResponse(response: Record<string, unknown
         return [transformed]
       })()
 
-  console.log('✅ [Transformer] Transformed purchase orders with contacts:', data)
   return { data, meta: response.meta || {} }
 }
 
 export function transformPurchaseOrderItemsResponse(response: Record<string, unknown>) {
-  console.log('🔄 [Transformer] Raw purchase order items response:', response)
-
   if (!response?.data) {
-    console.log('⚠️ [Transformer] No data in response, returning empty array')
     return { data: [], meta: {} }
   }
 
@@ -204,7 +197,6 @@ export function transformPurchaseOrderItemsResponse(response: Record<string, unk
         return [transformed]
       })()
 
-  console.log('✅ [Transformer] Transformed purchase order items with relationships:', data)
   return { data, meta: response.meta || {} }
 }
 
@@ -236,7 +228,6 @@ export function transformPurchaseOrderFormToJsonApi(data: PurchaseOrderFormData,
     (payload.data as Record<string, unknown>).id = id
   }
 
-  console.log('📦 [Transformer] Purchase Order payload:', JSON.stringify(payload, null, 2))
   return payload
 }
 
@@ -262,7 +253,6 @@ export function transformPurchaseOrderItemFormToJsonApi(data: Record<string, unk
     (payload.data as Record<string, unknown>).id = id
   }
   
-  console.log('📦 [Transformer] Purchase Order Item payload:', JSON.stringify(payload, null, 2))
   return payload
 }
 

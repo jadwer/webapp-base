@@ -15,14 +15,12 @@ export const purchaseService = {
   orders: {
     getAll: async (params?: Record<string, string>) => {
       try {
-        console.log('🚀 [Service] Fetching purchase orders with params:', params)
-        
         // Build query string for filtering and includes
         const queryParams = new URLSearchParams()
-        
+
         // Add includes for relationships - include contact (supplier) for purchase orders
         queryParams.append('include', 'contact')
-        
+
         // Add filters if provided
         if (params) {
           Object.keys(params).forEach(key => {
@@ -31,66 +29,49 @@ export const purchaseService = {
             }
           })
         }
-        
+
         const queryString = queryParams.toString()
         const url = queryString ? `/api/v1/purchase-orders?${queryString}` : '/api/v1/purchase-orders?include=contact'
-        
-        console.log('📡 [Service] Making request to:', url)
+
         const response = await axiosClient.get(url)
-        console.log('✅ [Service] Purchase orders response:', response.data)
-        
+
         return response.data
       } catch (error) {
-        console.error('❌ [Service] Error fetching purchase orders:', error)
         throw error
       }
     },
     
     getById: async (id: string) => {
       try {
-        console.log('🚀 [Service] Fetching purchase order by ID:', id)
         const response = await axiosClient.get(`/api/v1/purchase-orders/${id}?include=contact,purchaseOrderItems`)
-        console.log('✅ [Service] Purchase order response:', response.data)
         return response.data
       } catch (error) {
-        console.error('❌ [Service] Error fetching purchase order:', error)
         throw error
       }
     },
     
     create: async (data: PurchaseOrderFormData) => {
       try {
-        console.log('🚀 [Service] Creating purchase order:', data)
         const payload = transformPurchaseOrderFormToJsonApi(data)
-        console.log('📦 [Service] JSON:API payload:', payload)
-        
         const response = await axiosClient.post('/api/v1/purchase-orders', payload)
-        console.log('✅ [Service] Created purchase order:', response.data)
         return response.data
       } catch (error) {
-        console.error('❌ [Service] Error creating purchase order:', error)
         throw error
       }
     },
     
     update: async (id: string, data: PurchaseOrderFormData) => {
       try {
-        console.log('🚀 [Service] Updating purchase order:', id, data)
         const payload = transformPurchaseOrderFormToJsonApi(data, 'purchase-orders', id)
-        console.log('📦 [Service] JSON:API payload:', payload)
-        
         const response = await axiosClient.patch(`/api/v1/purchase-orders/${id}`, payload)
-        console.log('✅ [Service] Updated purchase order:', response.data)
         return response.data
       } catch (error) {
-        console.error('❌ [Service] Error updating purchase order:', error)
         throw error
       }
     },
 
     updateTotals: async (id: string, totals: { totalAmount: number }) => {
       try {
-        console.log('🚀 [Service] Updating purchase order totals:', id, totals)
         const payload = {
           data: {
             type: 'purchase-orders',
@@ -100,24 +81,17 @@ export const purchaseService = {
             }
           }
         }
-        console.log('📦 [Service] Totals update payload:', payload)
-        
         const response = await axiosClient.patch(`/api/v1/purchase-orders/${id}`, payload)
-        console.log('✅ [Service] Updated purchase order totals:', response.data)
         return response.data
       } catch (error) {
-        console.error('❌ [Service] Error updating purchase order totals:', error)
         throw error
       }
     },
     
     delete: async (id: string) => {
       try {
-        console.log('🚀 [Service] Deleting purchase order:', id)
         await axiosClient.delete(`/api/v1/purchase-orders/${id}`)
-        console.log('✅ [Service] Deleted purchase order:', id)
       } catch (error) {
-        console.error('❌ [Service] Error deleting purchase order:', error)
         throw error
       }
     },
@@ -246,13 +220,11 @@ export const purchaseService = {
   items: {
     getAll: async (params?: Record<string, string> | null) => {
       try {
-        console.log('🚀 [Service] Fetching purchase order items with params:', params)
-        
         const queryParams = new URLSearchParams()
-        
+
         // Add includes for relationships - API doesn't support nested includes
         queryParams.append('include', 'product,purchaseOrder')
-        
+
         // Add filters if provided
         if (params) {
           Object.keys(params).forEach(key => {
@@ -261,17 +233,14 @@ export const purchaseService = {
             }
           })
         }
-        
+
         const queryString = queryParams.toString()
         const url = queryString ? `/api/v1/purchase-order-items?${queryString}` : '/api/v1/purchase-order-items?include=product,purchaseOrder'
-        
-        console.log('📡 [Service] Making request to:', url)
+
         const response = await axiosClient.get(url)
-        console.log('✅ [Service] Purchase order items response:', response.data)
-        
+
         return response.data
       } catch (error) {
-        console.error('❌ [Service] Error fetching purchase order items:', error)
         throw error
       }
     },
@@ -279,15 +248,10 @@ export const purchaseService = {
 
     create: async (data: Record<string, unknown>) => {
       try {
-        console.log('🚀 [Service] Creating purchase order item:', data)
         const payload = transformPurchaseOrderItemFormToJsonApi(data)
-        console.log('📦 [Service] JSON:API payload:', payload)
-        
         const response = await axiosClient.post('/api/v1/purchase-order-items', payload)
-        console.log('✅ [Service] Created purchase order item:', response.data)
         return response.data
       } catch (error) {
-        console.error('❌ [Service] Error creating purchase order item:', error)
         throw error
       }
     },
@@ -295,26 +259,18 @@ export const purchaseService = {
 
     update: async (id: string, data: Record<string, unknown>) => {
       try {
-        console.log('🚀 [Service] Updating purchase order item:', id, data)
         const payload = transformPurchaseOrderItemFormToJsonApi(data, 'purchase-order-items', id)
-        console.log('📦 [Service] JSON:API payload:', payload)
-        
         const response = await axiosClient.patch(`/api/v1/purchase-order-items/${id}`, payload)
-        console.log('✅ [Service] Updated purchase order item:', response.data)
         return response.data
       } catch (error) {
-        console.error('❌ [Service] Error updating purchase order item:', error)
         throw error
       }
     },
     
     delete: async (id: string) => {
       try {
-        console.log('🚀 [Service] Deleting purchase order item:', id)
         await axiosClient.delete(`/api/v1/purchase-order-items/${id}`)
-        console.log('✅ [Service] Deleted purchase order item:', id)
       } catch (error) {
-        console.error('❌ [Service] Error deleting purchase order item:', error)
         throw error
       }
     }
@@ -351,7 +307,6 @@ export const purchaseReportsService = {
       
       return response.data
     } catch (error) {
-      console.error('❌ [Service] Error fetching purchase reports:', error)
       throw error
     }
   },
@@ -390,7 +345,6 @@ export const purchaseReportsService = {
         }
       }
     } catch (error) {
-      console.error('❌ [Service] Error fetching supplier analytics:', error)
       throw error
     }
   }
@@ -400,10 +354,8 @@ export const purchaseReportsService = {
 export const purchaseContactsService = {
   getAll: async (params?: Record<string, string>) => {
     try {
-      console.log('🚀 [Service] Fetching suppliers for purchases:', params)
-      
       const queryParams = new URLSearchParams()
-      
+
       if (params) {
         Object.keys(params).forEach(key => {
           if (params[key] !== undefined && params[key] !== null && params[key] !== '') {
@@ -411,15 +363,12 @@ export const purchaseContactsService = {
           }
         })
       }
-      
+
       const url = queryParams.toString() ? `/api/v1/contacts?${queryParams.toString()}` : '/api/v1/contacts'
-      
-      console.log('📡 [Service] Making request to:', url)
+
       const response = await axiosClient.get(url)
-      console.log('✅ [Service] Suppliers response:', response.data)
       return response.data
     } catch (error) {
-      console.error('❌ [Service] Error fetching suppliers:', error)
       throw error
     }
   }
@@ -429,8 +378,6 @@ export const purchaseContactsService = {
 export const purchaseProductsService = {
   getAll: async (params?: Record<string, string>) => {
     try {
-      console.log('🚀 [Service] Fetching products for purchases:', params)
-
       const queryParams = new URLSearchParams()
       queryParams.append('include', 'unit,category,brand')
 
@@ -446,10 +393,8 @@ export const purchaseProductsService = {
       const url = `/api/v1/products?${queryString}`
 
       const response = await axiosClient.get(url)
-      console.log('✅ [Service] Products response:', response.data)
       return response.data
     } catch (error) {
-      console.error('❌ [Service] Error fetching products:', error)
       throw error
     }
   }

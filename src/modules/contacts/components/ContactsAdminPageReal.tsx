@@ -98,15 +98,9 @@ export const ContactsAdminPageReal = ({ defaultFilters = {} }: ContactsAdminPage
 
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'Error desconocido'
-      const axiosError = error && typeof error === 'object' && 'response' in error ? 
+      const axiosError = error && typeof error === 'object' && 'response' in error ?
         error as { response?: { status?: number; data?: { message?: string } } } : null
-      
-      console.error('❌ [ContactsAdminPageReal] Error deleting contact:', {
-        error: errorMessage,
-        response: axiosError?.response?.data,
-        status: axiosError?.response?.status
-      })
-      
+
       // Show user-friendly error message
       if (axiosError?.response?.status === 409 || axiosError?.response?.status === 400) {
         alert('No se puede eliminar el contacto porque tiene elementos relacionados. Contacta al administrador para eliminar primero las relaciones.')

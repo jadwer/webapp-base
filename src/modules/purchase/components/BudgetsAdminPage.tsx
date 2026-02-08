@@ -104,8 +104,8 @@ export const BudgetsAdminPage = () => {
       try {
         await deleteBudget(budgetId)
         mutate()
-      } catch (error) {
-        console.error('Error deleting budget:', error)
+      } catch {
+        // error handled silently
       }
     },
     [deleteBudget, mutate]

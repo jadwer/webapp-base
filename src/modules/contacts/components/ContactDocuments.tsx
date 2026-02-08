@@ -111,8 +111,7 @@ export const ContactDocuments: React.FC<ContactDocumentsProps> = ({
       if (fileInputRef.current) {
         fileInputRef.current.value = ''
       }
-    } catch (error) {
-      console.error('Error uploading document:', error)
+    } catch {
       alert('Error al subir el documento. Inténtalo de nuevo.')
     }
   }

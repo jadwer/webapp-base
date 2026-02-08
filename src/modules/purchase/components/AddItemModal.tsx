@@ -79,13 +79,11 @@ export default function AddItemModal({ purchaseOrderId, isOpen, onClose, onSucce
         discount: formData.discount
       }
 
-      console.log('🚀 Creating purchase order item:', itemData)
       await createPurchaseOrderItem(itemData)
 
       onSuccess()
       onClose()
     } catch (err) {
-      console.error('❌ Error creating item:', err)
       const error = err as { response?: { data?: { message?: string } }; message?: string }
       setError(error.response?.data?.message || error.message || 'Error al agregar el item')
     } finally {

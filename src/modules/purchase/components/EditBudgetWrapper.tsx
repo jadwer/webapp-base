@@ -30,7 +30,6 @@ export const EditBudgetWrapper: React.FC<EditBudgetWrapperProps> = ({ budgetId }
       await updateBudget(budgetId, data)
       navigation.push('/dashboard/purchase/budgets')
     } catch (err) {
-      console.error('Error updating budget:', err)
       setError(err instanceof Error ? err.message : 'Error al actualizar el presupuesto')
     }
   }
