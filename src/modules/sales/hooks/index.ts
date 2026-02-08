@@ -171,7 +171,7 @@ export const useSalesContacts = (params?: Record<string, string>) => {
 export const useSalesProducts = (params?: Record<string, string>) => {
   // Filter active products by default unless explicitly overridden
   const queryParams = {
-    'filter[status]': 'active',
+    'filter[is_active]': '1',
     ...params
   }
   const key = ['/api/v1/products', queryParams]
