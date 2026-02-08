@@ -4,6 +4,7 @@ import { Editor } from 'grapesjs';
 import initPageBuilder from '@/modules/page-builder-pro';
 import ToastNotifier, { ToastNotifierHandle} from '@/modules/page-builder-pro/components/ToastNotifier';
 import { ToastType } from '@/modules/page-builder-pro/types/ToastType';
+import { DynamicRoleGuard } from '@/ui/components/DynamicRoleGuard';
 export default function PageBuilderEditor() {
   const editorRef = useRef<HTMLDivElement>(null);
   const toastRef = useRef<ToastNotifierHandle>(null);
@@ -38,10 +39,12 @@ export default function PageBuilderEditor() {
   }, [])
 
   return (
-    <div className="p-4">
-      <h1 className="text-xl fw-bold mb-4">Editor Visual Pro</h1>
-      <div ref={editorRef} id="gjs" style={{ height: '100vh', border: '1px solid #ddd' }} />
-      <ToastNotifier ref={toastRef} />
-    </div>
+    <DynamicRoleGuard path="/dashboard/page-builder">
+      <div className="p-4">
+        <h1 className="text-xl fw-bold mb-4">Editor Visual Pro</h1>
+        <div ref={editorRef} id="gjs" style={{ height: '100vh', border: '1px solid #ddd' }} />
+        <ToastNotifier ref={toastRef} />
+      </div>
+    </DynamicRoleGuard>
   );
 }

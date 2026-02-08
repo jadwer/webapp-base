@@ -24,7 +24,6 @@ export const CreateDiscountRuleWrapper: React.FC = () => {
       await createDiscountRule(data)
       navigation.push('/dashboard/sales/discount-rules')
     } catch (err) {
-      console.error('Error creating discount rule:', err)
       setError(err instanceof Error ? err.message : 'Error al crear la regla de descuento')
     }
   }

@@ -30,8 +30,8 @@ export function useDiscountRule(params: UseDiscountRuleParams): UseDiscountRuleR
       dedupingInterval: 30000, // 30 seconds deduping for single items
       errorRetryCount: 3,
       errorRetryInterval: 1000,
-      onError: (error: Error) => {
-        console.error('DiscountRule error:', error)
+      onError: () => {
+        // Errors are returned via the error property
       }
     }
   )

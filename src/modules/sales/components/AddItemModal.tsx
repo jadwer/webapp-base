@@ -75,7 +75,6 @@ export default function AddItemModal({ salesOrderId, isOpen, onClose, onSuccess 
       onSuccess()
       onClose()
     } catch (err) {
-      console.error('❌ Error creating item:', err)
       const error = err as { response?: { data?: { message?: string } }; message?: string }
       setError(error.response?.data?.message || error.message || 'Error al agregar el item')
     } finally {

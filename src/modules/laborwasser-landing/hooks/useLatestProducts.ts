@@ -21,7 +21,7 @@ export function useLatestProducts(options: LatestProductsOptions = {}) {
     isLoading,
     error,
     mutate
-  } = useFeaturedProducts(limit, 'unit,category,brand')
+  } = useFeaturedProducts(limit)
 
   // Transform to legacy format for compatibility
   const transformedProducts = products.map((product: EnhancedPublicProduct) => ({
@@ -77,7 +77,7 @@ export function useLatestProducts(options: LatestProductsOptions = {}) {
 export function useLatestProductsEnhanced(options: LatestProductsOptions = {}) {
   const { limit = 6 } = options
 
-  const result = useFeaturedProducts(limit, 'unit,category,brand')
+  const result = useFeaturedProducts(limit)
 
   return {
     ...result,

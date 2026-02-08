@@ -4,8 +4,6 @@
  * Filter component for employees with search and dropdowns
  */
 
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-// @ts-nocheck
 'use client'
 
 import React, { useState, useEffect, useCallback } from 'react'
@@ -125,7 +123,7 @@ export const EmployeesFilters: React.FC<EmployeesFiltersProps> = ({
               disabled={loadingDepartments}
             >
               <option value="">Todos los departamentos</option>
-              {departments.map((dept) => (
+              {departments.map((dept: { id: string; name: string; description: string }) => (
                 <option key={dept.id} value={dept.id}>
                   {dept.name}
                 </option>
@@ -142,7 +140,7 @@ export const EmployeesFilters: React.FC<EmployeesFiltersProps> = ({
               disabled={loadingPositions}
             >
               <option value="">Todos los puestos</option>
-              {positions.map((pos) => (
+              {positions.map((pos: { id: string; title: string; description: string }) => (
                 <option key={pos.id} value={pos.id}>
                   {pos.title}
                 </option>

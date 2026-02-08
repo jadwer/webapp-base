@@ -140,6 +140,17 @@ export const attendancesService = {
     }
   },
 
+  getById: async (id: string) => {
+    try {
+      const response = await axiosClient.get(
+        `/api/v1/attendances/${id}?include=employee`
+      )
+      return response.data
+    } catch (error) {
+      throw error
+    }
+  },
+
   create: async (data: AttendanceFormData) => {
     try {
       const payload = transformAttendanceFormToJsonApi(data)
@@ -193,6 +204,17 @@ export const leavesService = {
       const url = `/api/v1/leaves?${queryParams.toString()}`
       const response = await axiosClient.get(url)
 
+      return response.data
+    } catch (error) {
+      throw error
+    }
+  },
+
+  getById: async (id: string) => {
+    try {
+      const response = await axiosClient.get(
+        `/api/v1/leaves/${id}?include=employee,leaveType,approver`
+      )
       return response.data
     } catch (error) {
       throw error
@@ -267,6 +289,17 @@ export const payrollPeriodsService = {
 
       const response = await axiosClient.get(url)
 
+      return response.data
+    } catch (error) {
+      throw error
+    }
+  },
+
+  getById: async (id: string) => {
+    try {
+      const response = await axiosClient.get(
+        `/api/v1/payroll-periods/${id}?include=payrollItems`
+      )
       return response.data
     } catch (error) {
       throw error

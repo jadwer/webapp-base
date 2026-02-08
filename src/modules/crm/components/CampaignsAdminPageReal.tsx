@@ -4,14 +4,16 @@
 
 'use client'
 
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { useCampaigns, useCampaignsMutations } from '../hooks'
 import { CampaignsTableSimple } from './CampaignsTableSimple'
+import ConfirmModal, { type ConfirmModalHandle } from '@/ui/components/base/ConfirmModal'
 import type { Campaign } from '../types'
 
 export const CampaignsAdminPageReal = () => {
   const router = useRouter()
+  const confirmModalRef = useRef<ConfirmModalHandle>(null)
 
   // Filter state
   const [searchTerm, setSearchTerm] = useState('')
@@ -76,25 +78,43 @@ export const CampaignsAdminPageReal = () => {
   }
 
   const handleDelete = async (campaign: Campaign) => {
-    if (!window.confirm(`¿Está seguro de eliminar la campaña "${campaign.name}"?`)) {
-      return
-    }
+    if (!confirmModalRef.current) return
+
+    const confirmed = await confirmModalRef.current.confirm(
+      `¿Esta seguro de eliminar la campana "${campaign.name}"? Esta accion no se puede deshacer.`,
+      {
+        title: 'Eliminar Campana',
+        confirmText: 'Eliminar',
+        cancelText: 'Cancelar',
+        confirmVariant: 'danger',
+      }
+    )
+
+    if (!confirmed) return
 
     try {
       await deleteCampaign(campaign.id)
       await mutate()
-      alert('Campaña eliminada exitosamente')
     } catch (error: unknown) {
       // Check for foreign key constraint error
       if (typeof error === 'object' && error !== null && 'response' in error) {
         const errorWithResponse = error as { response?: { status: number } }
         if (errorWithResponse.response?.status === 409) {
-          alert('No se puede eliminar la campaña porque tiene leads asociados')
+          await confirmModalRef.current.confirm(
+            'No se puede eliminar la campana porque tiene leads asociados.',
+            { title: 'Error', confirmText: 'Entendido', confirmVariant: 'primary' }
+          )
         } else {
-          alert('Error al eliminar la campaña. Por favor intente nuevamente.')
+          await confirmModalRef.current.confirm(
+            'Error al eliminar la campana. Por favor intente nuevamente.',
+            { title: 'Error', confirmText: 'Entendido', confirmVariant: 'primary' }
+          )
         }
       } else {
-        alert('Error al eliminar la campaña. Por favor intente nuevamente.')
+        await confirmModalRef.current.confirm(
+          'Error al eliminar la campana. Por favor intente nuevamente.',
+          { title: 'Error', confirmText: 'Entendido', confirmVariant: 'primary' }
+        )
       }
     }
   }
@@ -386,6 +406,8 @@ export const CampaignsAdminPageReal = () => {
           onDelete={handleDelete}
         />
       )}
+
+      <ConfirmModal ref={confirmModalRef} />
     </div>
   )
 }

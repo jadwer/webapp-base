@@ -42,8 +42,7 @@ export default function MyQuoteDetailPage({ params }: MyQuoteDetailPageProps) {
         // Fetch items
         const itemsData = await quoteItemService.getByQuoteId(id)
         setItems(itemsData)
-      } catch (err) {
-        console.error('Error fetching quote:', err)
+      } catch {
         setError('Error al cargar la cotizacion')
       } finally {
         setIsLoading(false)
@@ -63,8 +62,7 @@ export default function MyQuoteDetailPage({ params }: MyQuoteDetailPageProps) {
       // Refresh quote data
       const updatedQuote = await quoteService.getById(id)
       setQuote(updatedQuote)
-    } catch (err) {
-      console.error('Error accepting quote:', err)
+    } catch {
       toast.error('Error al aceptar la cotizacion')
     } finally {
       setIsAccepting(false)
@@ -76,11 +74,10 @@ export default function MyQuoteDetailPage({ params }: MyQuoteDetailPageProps) {
 
     try {
       // Open PDF download in new tab
-      const baseUrl = process.env.NEXT_PUBLIC_API_URL || ''
+      const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL || ''
       window.open(`${baseUrl}/api/v1/quotes/${quote.id}/pdf/download`, '_blank')
       toast.success('Descargando PDF...')
-    } catch (err) {
-      console.error('Error downloading PDF:', err)
+    } catch {
       toast.error('Error al descargar el PDF')
     }
   }

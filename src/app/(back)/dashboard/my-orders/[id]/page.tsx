@@ -106,8 +106,7 @@ export default function MyOrderDetailPage({ params }: MyOrderDetailPageProps) {
             total: item.attributes.total as number
           }))
         })
-      } catch (err) {
-        console.error('Error fetching order:', err)
+      } catch {
         setError('Error al cargar el pedido')
       } finally {
         setIsLoading(false)

@@ -25,16 +25,10 @@ export function ApiTestComponent() {
     // Hacer una prueba de conexión
     const testApiConnection = async () => {
       try {
-        console.log('Testing API connection to:', axios.defaults.baseURL)
-        console.log('Auth token:', token ? 'Present' : 'Missing')
-        
         const response = await axios.get('/api/v1/roles?include=permissions')
-        console.log('API Response:', response.data)
         setDebugData(response.data)
         setTestResult(`✅ Conexión exitosa - ${response.data?.data?.length || 0} roles encontrados`)
       } catch (error: unknown) {
-        console.error('API Error:', error)
-        
         if (error && typeof error === 'object' && 'response' in error) {
           const axiosError = error as { response?: { status?: number; data?: { message?: string } }; message?: string }
           const status = axiosError.response?.status

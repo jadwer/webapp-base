@@ -4,8 +4,6 @@
  * Full-featured admin page for attendance management with CRUD operations
  */
 
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-// @ts-nocheck
 'use client'
 
 import React, { useState, useCallback, useRef } from 'react'

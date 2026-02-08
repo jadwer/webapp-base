@@ -233,6 +233,10 @@ export const PAGE_PERMISSIONS: Record<string, { roles: readonly string[]; permis
     roles: ['god', 'admin', 'administrator'],
     permissions: ['page.index']
   },
+  '/dashboard/page-builder': {
+    roles: ['god', 'admin', 'administrator'],
+    permissions: ['page.index']
+  },
 
   // System
   '/dashboard/audit': {

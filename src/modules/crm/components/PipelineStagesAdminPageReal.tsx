@@ -6,16 +6,18 @@
 
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import { usePipelineStages, usePipelineStagesMutations } from '../hooks'
 import { PipelineStagesTableSimple } from './PipelineStagesTableSimple'
 import { Button } from '@/ui/components/base/Button'
+import ConfirmModal, { type ConfirmModalHandle } from '@/ui/components/base/ConfirmModal'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
 import type { PipelineStage } from '../types'
 
 export const PipelineStagesAdminPageReal = () => {
   const [searchTerm, setSearchTerm] = useState('')
   const [isActiveFilter, setIsActiveFilter] = useState<boolean | undefined>(undefined)
+  const confirmModalRef = useRef<ConfirmModalHandle>(null)
   const navigation = useNavigationProgress()
   const { deletePipelineStage } = usePipelineStagesMutations()
 
@@ -26,11 +28,19 @@ export const PipelineStagesAdminPageReal = () => {
   })
 
   const handleDelete = async (stage: PipelineStage) => {
-    const confirmMessage = `¿Estás seguro de que quieres eliminar la etapa "${stage.name}"?\n\nEsta acción no se puede deshacer.`
+    if (!confirmModalRef.current) return
 
-    if (!confirm(confirmMessage)) {
-      return
-    }
+    const confirmed = await confirmModalRef.current.confirm(
+      `¿Estas seguro de que quieres eliminar la etapa "${stage.name}"? Esta accion no se puede deshacer.`,
+      {
+        title: 'Eliminar Etapa',
+        confirmText: 'Eliminar',
+        cancelText: 'Cancelar',
+        confirmVariant: 'danger',
+      }
+    )
+
+    if (!confirmed) return
 
     try {
       await deletePipelineStage(stage.id)
@@ -45,9 +55,15 @@ export const PipelineStagesAdminPageReal = () => {
 
       // Show user-friendly error message
       if (axiosError?.response?.status === 409 || axiosError?.response?.status === 400) {
-        alert('No se puede eliminar la etapa porque tiene leads asociados. Contacta al administrador para reasignar los leads primero.')
+        await confirmModalRef.current.confirm(
+          'No se puede eliminar la etapa porque tiene leads asociados. Contacta al administrador para reasignar los leads primero.',
+          { title: 'Error', confirmText: 'Entendido', confirmVariant: 'primary' }
+        )
       } else {
-        alert(`Error al eliminar la etapa: ${axiosError?.response?.data?.message || errorMessage}`)
+        await confirmModalRef.current.confirm(
+          `Error al eliminar la etapa: ${axiosError?.response?.data?.message || errorMessage}`,
+          { title: 'Error', confirmText: 'Entendido', confirmVariant: 'primary' }
+        )
       }
     }
   }
@@ -227,6 +243,8 @@ export const PipelineStagesAdminPageReal = () => {
           onDelete={handleDelete}
         />
       )}
+
+      <ConfirmModal ref={confirmModalRef} />
     </div>
   )
 }

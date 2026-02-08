@@ -4,8 +4,6 @@
  * Full-featured admin page for leave/vacation management with approval workflow
  */
 
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-// @ts-nocheck
 'use client'
 
 import React, { useState, useCallback, useRef } from 'react'
@@ -62,7 +60,17 @@ export const LeavesAdminPageReal: React.FC = () => {
 
   const handleApprove = useCallback(async (leave: Leave) => {
     try {
-      await updateLeave(leave.id, { ...leave, status: 'approved' })
+      const leaveData: LeaveFormData = {
+        startDate: leave.startDate,
+        endDate: leave.endDate,
+        status: 'approved',
+        reason: leave.reason,
+        notes: leave.notes,
+        employeeId: leave.employeeId,
+        leaveTypeId: leave.leaveTypeId,
+        approverId: leave.approverId,
+      }
+      await updateLeave(leave.id, leaveData)
       mutate()
     } catch {
       // Error handled silently
@@ -71,7 +79,17 @@ export const LeavesAdminPageReal: React.FC = () => {
 
   const handleReject = useCallback(async (leave: Leave) => {
     try {
-      await updateLeave(leave.id, { ...leave, status: 'rejected' })
+      const leaveData: LeaveFormData = {
+        startDate: leave.startDate,
+        endDate: leave.endDate,
+        status: 'rejected',
+        reason: leave.reason,
+        notes: leave.notes,
+        employeeId: leave.employeeId,
+        leaveTypeId: leave.leaveTypeId,
+        approverId: leave.approverId,
+      }
+      await updateLeave(leave.id, leaveData)
       mutate()
     } catch {
       // Error handled silently
@@ -236,7 +254,7 @@ export const LeavesAdminPageReal: React.FC = () => {
                   <label className="form-label">Tipo de Permiso *</label>
                   <select className="form-select" value={formData.leaveTypeId} onChange={(e) => setFormData({...formData, leaveTypeId: parseInt(e.target.value)})}>
                     <option value={0}>Seleccionar...</option>
-                    {leaveTypes.map(lt => (
+                    {leaveTypes.map((lt: { id: string; name: string; defaultDays: number }) => (
                       <option key={lt.id} value={lt.id}>{lt.name} ({lt.defaultDays} días)</option>
                     ))}
                   </select>

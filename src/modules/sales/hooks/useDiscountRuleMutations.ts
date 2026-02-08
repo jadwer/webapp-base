@@ -44,7 +44,6 @@ export function useDiscountRuleMutations(): UseDiscountRuleMutationsResult {
 
         return result
       } catch (error) {
-        console.error('DiscountRule creation failed:', error)
         throw error
       } finally {
         setIsLoading(false)
@@ -68,7 +67,6 @@ export function useDiscountRuleMutations(): UseDiscountRuleMutationsResult {
 
         return result
       } catch (error) {
-        console.error('DiscountRule update failed:', error)
         throw error
       } finally {
         setIsLoading(false)
@@ -91,7 +89,6 @@ export function useDiscountRuleMutations(): UseDiscountRuleMutationsResult {
         invalidateDiscountRuleCaches()
 
       } catch (error) {
-        console.error('DiscountRule deletion failed:', error)
         throw error
       } finally {
         setIsLoading(false)
@@ -115,7 +112,6 @@ export function useDiscountRuleMutations(): UseDiscountRuleMutationsResult {
 
         return result
       } catch (error) {
-        console.error('DiscountRule toggle failed:', error)
         throw error
       } finally {
         setIsLoading(false)
@@ -130,7 +126,6 @@ export function useDiscountRuleMutations(): UseDiscountRuleMutationsResult {
         const result = await discountRulesService.validateCode(code)
         return result
       } catch (error) {
-        console.error('Code validation failed:', error)
         throw error
       }
     },

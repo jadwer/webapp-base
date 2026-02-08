@@ -85,9 +85,8 @@ export function QuoteItemsTable({
       setEditingId(null)
       setEditValues(null)
       onItemsChanged?.()
-    } catch (error) {
+    } catch {
       toast.error('Error al actualizar el item')
-      console.error(error)
     }
   }
 
@@ -96,9 +95,8 @@ export function QuoteItemsTable({
       await mutations.delete.mutateAsync(itemId)
       toast.success('Item eliminado')
       onItemsChanged?.()
-    } catch (error) {
+    } catch {
       toast.error('Error al eliminar el item')
-      console.error(error)
     }
   }
 

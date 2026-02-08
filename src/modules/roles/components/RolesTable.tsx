@@ -27,8 +27,7 @@ export function RolesTable({ onRoleSelect, selectedRole }: RolesTableProps) {
       try {
         await deleteRole(id)
         // Ya no necesitamos mutate manual, useRoleActions lo hace automáticamente
-      } catch (error) {
-        console.error('Error eliminando rol:', error)
+      } catch {
         alert('Error al eliminar el rol')
       }
     }

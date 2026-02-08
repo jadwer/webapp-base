@@ -4,8 +4,6 @@
  * Displays departments and positions for organizational structure reference
  */
 
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-// @ts-nocheck
 'use client'
 
 import React from 'react'
@@ -105,7 +103,7 @@ export const OrganizationAdminPageReal: React.FC = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {departments.map((dept) => (
+                      {departments.map((dept: { id: string; name: string; description: string }) => (
                         <tr key={dept.id}>
                           <td>
                             <strong>{dept.name}</strong>
@@ -155,7 +153,7 @@ export const OrganizationAdminPageReal: React.FC = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {positions.map((pos) => (
+                      {positions.map((pos: { id: string; title: string; description: string }) => (
                         <tr key={pos.id}>
                           <td>
                             <strong>{pos.title}</strong>

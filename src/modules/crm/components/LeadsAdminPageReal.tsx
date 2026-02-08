@@ -4,14 +4,16 @@
 
 'use client'
 
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { useLeads, useLeadsMutations } from '../hooks'
 import { LeadsTableSimple } from './LeadsTableSimple'
+import ConfirmModal, { type ConfirmModalHandle } from '@/ui/components/base/ConfirmModal'
 import type { Lead } from '../types'
 
 export const LeadsAdminPageReal = () => {
   const router = useRouter()
+  const confirmModalRef = useRef<ConfirmModalHandle>(null)
 
   // Filter state
   const [searchTerm, setSearchTerm] = useState('')
@@ -66,25 +68,43 @@ export const LeadsAdminPageReal = () => {
   }
 
   const handleDelete = async (lead: Lead) => {
-    if (!window.confirm(`¿Está seguro de eliminar el lead "${lead.title}"?`)) {
-      return
-    }
+    if (!confirmModalRef.current) return
+
+    const confirmed = await confirmModalRef.current.confirm(
+      `¿Esta seguro de eliminar el lead "${lead.title}"? Esta accion no se puede deshacer.`,
+      {
+        title: 'Eliminar Lead',
+        confirmText: 'Eliminar',
+        cancelText: 'Cancelar',
+        confirmVariant: 'danger',
+      }
+    )
+
+    if (!confirmed) return
 
     try {
       await deleteLead(lead.id)
       await mutate()
-      alert('Lead eliminado exitosamente')
     } catch (error: unknown) {
       // Check for foreign key constraint error
       if (typeof error === 'object' && error !== null && 'response' in error) {
         const errorWithResponse = error as { response?: { status: number } }
         if (errorWithResponse.response?.status === 409) {
-          alert('No se puede eliminar el lead porque tiene relaciones asociadas (campañas, actividades, etc.)')
+          await confirmModalRef.current.confirm(
+            'No se puede eliminar el lead porque tiene relaciones asociadas (campanas, actividades, etc.)',
+            { title: 'Error', confirmText: 'Entendido', confirmVariant: 'primary' }
+          )
         } else {
-          alert('Error al eliminar el lead. Por favor intente nuevamente.')
+          await confirmModalRef.current.confirm(
+            'Error al eliminar el lead. Por favor intente nuevamente.',
+            { title: 'Error', confirmText: 'Entendido', confirmVariant: 'primary' }
+          )
         }
       } else {
-        alert('Error al eliminar el lead. Por favor intente nuevamente.')
+        await confirmModalRef.current.confirm(
+          'Error al eliminar el lead. Por favor intente nuevamente.',
+          { title: 'Error', confirmText: 'Entendido', confirmVariant: 'primary' }
+        )
       }
     }
   }
@@ -339,6 +359,8 @@ export const LeadsAdminPageReal = () => {
           onDelete={handleDelete}
         />
       )}
+
+      <ConfirmModal ref={confirmModalRef} />
     </div>
   )
 }

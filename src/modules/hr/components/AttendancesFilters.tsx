@@ -4,8 +4,6 @@
  * Filter component for attendance records by employee and date
  */
 
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-// @ts-nocheck
 'use client'
 
 import React, { useCallback } from 'react'

@@ -72,9 +72,8 @@ export default function QuoteDetailPage({ params }: PageProps) {
           return
       }
       refetch()
-    } catch (error) {
+    } catch {
       toast.error('Error al ejecutar la accion')
-      console.error(error)
     }
   }
 
@@ -97,9 +96,8 @@ export default function QuoteDetailPage({ params }: PageProps) {
       const result = await mutations.convert.mutateAsync({ id: quote.id })
       toast.success(`Orden de venta ${result.data.salesOrder?.attributes?.orderNumber || ''} creada`)
       refetch()
-    } catch (error) {
+    } catch {
       toast.error('Error al convertir la cotizacion')
-      console.error(error)
     }
   }
 
@@ -114,9 +112,8 @@ export default function QuoteDetailPage({ params }: PageProps) {
       toast.success('Cotizacion marcada como rechazada')
       setRejectReason('')
       refetch()
-    } catch (error) {
+    } catch {
       toast.error('Error al rechazar la cotizacion')
-      console.error(error)
     }
   }
 
@@ -141,9 +138,8 @@ export default function QuoteDetailPage({ params }: PageProps) {
       toast.success('Cotizacion actualizada')
       setIsEditing(false)
       refetch()
-    } catch (error) {
+    } catch {
       toast.error('Error al actualizar la cotizacion')
-      console.error(error)
     }
   }
 

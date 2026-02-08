@@ -115,8 +115,8 @@ export const DiscountRulesAdminPage = () => {
       try {
         await deleteDiscountRule(ruleId)
         mutate()
-      } catch (error) {
-        console.error('Error deleting discount rule:', error)
+      } catch {
+        // Error handled by caller
       }
     },
     [deleteDiscountRule, mutate]
@@ -127,8 +127,8 @@ export const DiscountRulesAdminPage = () => {
       try {
         await toggleActive(ruleId, isActive)
         mutate()
-      } catch (error) {
-        console.error('Error toggling discount rule:', error)
+      } catch {
+        // Error handled by caller
       }
     },
     [toggleActive, mutate]

@@ -4,8 +4,6 @@
  * Full-featured admin page for payroll period management
  */
 
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-// @ts-nocheck
 'use client'
 
 import React, { useState, useCallback, useRef } from 'react'
@@ -61,7 +59,16 @@ export const PayrollPeriodsAdminPageReal: React.FC = () => {
 
   const handleStatusChange = useCallback(async (period: PayrollPeriod, newStatus: PayrollStatus) => {
     try {
-      await updatePayrollPeriod(period.id, { ...period, status: newStatus })
+      const periodData: PayrollPeriodFormData = {
+        name: period.name,
+        periodType: period.periodType,
+        startDate: period.startDate,
+        endDate: period.endDate,
+        paymentDate: period.paymentDate,
+        status: newStatus,
+        notes: period.notes,
+      }
+      await updatePayrollPeriod(period.id, periodData)
       mutate()
     } catch {
       // Error handled silently
@@ -186,7 +193,7 @@ export const PayrollPeriodsAdminPageReal: React.FC = () => {
                       <td>
                         <div className="d-flex justify-content-end gap-2">
                           {period.status === 'draft' && (
-                            <Button size="small" variant="info" buttonStyle="outline" onClick={() => handleStatusChange(period, 'processing')} title="Procesar">
+                            <Button size="small" variant="primary" buttonStyle="outline" onClick={() => handleStatusChange(period, 'processing')} title="Procesar">
                               <i className="bi bi-play-fill" />
                             </Button>
                           )}

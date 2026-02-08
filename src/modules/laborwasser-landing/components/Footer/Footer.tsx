@@ -138,7 +138,7 @@ export const Footer: React.FC = () => {
             </Link>
             &nbsp;|&nbsp;
             Designed and developed by{' '}
-            <a href="http://atomosoluciones.com" target="_blank" rel="noopener noreferrer">
+            <a href="https://atomosoluciones.com" target="_blank" rel="noopener noreferrer">
               AtomoSoluciones.com
             </a>
           </p>

@@ -2,7 +2,12 @@
 
 import React from 'react'
 import { AuditAdminPage } from '@/modules/audit'
+import { DynamicRoleGuard } from '@/ui/components/DynamicRoleGuard'
 
 export default function AuditPage() {
-  return <AuditAdminPage />
+  return (
+    <DynamicRoleGuard path="/dashboard/audit">
+      <AuditAdminPage />
+    </DynamicRoleGuard>
+  )
 }

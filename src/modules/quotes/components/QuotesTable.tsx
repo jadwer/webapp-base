@@ -71,9 +71,8 @@ export function QuotesTable({ quotes, isLoading, onQuoteUpdated }: QuotesTablePr
           break
       }
       onQuoteUpdated?.()
-    } catch (error) {
+    } catch {
       toast.error('Error al ejecutar la accion')
-      console.error(error)
     } finally {
       setActionLoading(null)
     }
@@ -96,9 +95,8 @@ export function QuotesTable({ quotes, isLoading, onQuoteUpdated }: QuotesTablePr
       await mutations.delete.mutateAsync(quoteId)
       toast.success('Cotizacion eliminada')
       onQuoteUpdated?.()
-    } catch (error) {
+    } catch {
       toast.error('Error al eliminar la cotizacion')
-      console.error(error)
     }
   }
 

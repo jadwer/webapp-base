@@ -40,12 +40,11 @@ export const UltimosProductosEnhanced: React.FC<UltimosProductosEnhancedProps> =
 }) => {
   const [viewMode, setViewMode] = useState<ProductViewMode>('grid')
   const [selectedProduct, setSelectedProduct] = useState<EnhancedPublicProduct | null>(null)
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [wishlistIds, setWishlistIds] = useState<number[]>([])
+  const [, setWishlistIds] = useState<number[]>([])
   const toast = useToast()
 
   // Use the enhanced public catalog hook
-  const { products, isLoading, error, mutate } = useFeaturedProducts(limit, 'unit,category,brand')
+  const { products, isLoading, error, mutate } = useFeaturedProducts(limit)
 
   // Use localStorage cart
   const { addToCart } = useLocalCart()

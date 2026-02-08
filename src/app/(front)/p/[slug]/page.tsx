@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 import { notFound } from "next/navigation";
 import { fetchPageBySlug } from "@/modules/page-builder-pro/services/fetchPage";
 import { injectPageBuilderCSS } from "@/modules/page-builder-pro/styles/injectCss";
+import SafeHtmlRenderer from "@/modules/page-builder-pro/components/SafeHtmlRenderer";
 
 type PageProps = {
   params: Promise<{
@@ -20,10 +21,7 @@ export default async function Page({ params }: PageProps) {
 
   return (
     <main className="pb-10">
-      <div
-        className="page-builder-output"
-        dangerouslySetInnerHTML={{ __html: html }}
-      />
+      <SafeHtmlRenderer html={html} className="page-builder-output" />
     </main>
   );
 }

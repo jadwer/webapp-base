@@ -4,8 +4,6 @@
  * Form for creating and editing employees with complete validation
  */
 
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-// @ts-nocheck
 'use client'
 
 import React, { useState } from 'react'
@@ -52,7 +50,7 @@ export const EmployeeForm: React.FC<EmployeeFormProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
 
-  const handleChange = (field: keyof EmployeeFormData, value: string | number) => {
+  const handleChange = (field: keyof EmployeeFormData, value: string | number | undefined) => {
     setFormData(prev => ({ ...prev, [field]: value }))
     if (errors[field]) {
       setErrors(prev => {
@@ -223,7 +221,7 @@ export const EmployeeForm: React.FC<EmployeeFormProps> = ({
             disabled={loadingDepartments}
           >
             <option value="">Seleccionar departamento...</option>
-            {departments.map((dept) => (
+            {departments.map((dept: { id: string; name: string; description: string }) => (
               <option key={dept.id} value={dept.id}>
                 {dept.name}
               </option>
@@ -241,7 +239,7 @@ export const EmployeeForm: React.FC<EmployeeFormProps> = ({
             disabled={loadingPositions}
           >
             <option value="">Seleccionar puesto...</option>
-            {positions.map((pos) => (
+            {positions.map((pos: { id: string; title: string; description: string }) => (
               <option key={pos.id} value={pos.id}>
                 {pos.title}
               </option>

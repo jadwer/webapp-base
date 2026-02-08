@@ -30,7 +30,6 @@ export const EditDiscountRuleWrapper: React.FC<EditDiscountRuleWrapperProps> = (
       await updateDiscountRule(ruleId, data)
       navigation.push('/dashboard/sales/discount-rules')
     } catch (err) {
-      console.error('Error updating discount rule:', err)
       setError(err instanceof Error ? err.message : 'Error al actualizar la regla de descuento')
     }
   }
