@@ -5,7 +5,7 @@
  * Note: SWR data fetching hooks are tested through service tests.
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import {
   useCouponMutations,
@@ -42,6 +42,13 @@ const mockService = couponsService as {
 describe('useCoupons Hooks', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    // Flush pending timers to prevent "window is not defined" after teardown
+    vi.runAllTimers();
+    vi.useRealTimers();
   });
 
   // ============================================

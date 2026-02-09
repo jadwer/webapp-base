@@ -101,7 +101,7 @@ describe('CFDI Invoices Services', () => {
 
       // Assert
       expect(axiosClient.get).toHaveBeenCalledWith(
-        '/cfdi-invoices/1?include=companySetting,contact,items'
+        '/api/v1/cfdi-invoices/1?include=companySetting,contact,items'
       );
       expect(result).toEqual(mockInvoice);
     });
@@ -141,7 +141,7 @@ describe('CFDI Invoices Services', () => {
 
       // Assert
       expect(axiosClient.post).toHaveBeenCalledWith(
-        '/cfdi-invoices',
+        '/api/v1/cfdi-invoices',
         expect.objectContaining({
           data: expect.objectContaining({
             type: 'cfdi_invoices',
@@ -201,7 +201,7 @@ describe('CFDI Invoices Services', () => {
 
       // Assert
       expect(axiosClient.post).toHaveBeenCalledWith(
-        '/cfdi-invoices',
+        '/api/v1/cfdi-invoices',
         expect.objectContaining({
           data: expect.objectContaining({
             type: 'cfdi_invoices',
@@ -249,7 +249,7 @@ describe('CFDI Invoices Services', () => {
 
       // Assert
       expect(axiosClient.patch).toHaveBeenCalledWith(
-        '/cfdi-invoices/1',
+        '/api/v1/cfdi-invoices/1',
         expect.any(Object)
       );
       expect(result).toEqual(mockInvoice);
@@ -265,7 +265,7 @@ describe('CFDI Invoices Services', () => {
       await cfdiInvoicesService.delete('1');
 
       // Assert
-      expect(axiosClient.delete).toHaveBeenCalledWith('/cfdi-invoices/1');
+      expect(axiosClient.delete).toHaveBeenCalledWith('/api/v1/cfdi-invoices/1');
     });
   });
 
@@ -292,7 +292,7 @@ describe('CFDI Invoices Services', () => {
       const result = await cfdiInvoicesService.generateXML('1');
 
       // Assert
-      expect(axiosClient.post).toHaveBeenCalledWith('/cfdi-invoices/1/generate-xml');
+      expect(axiosClient.post).toHaveBeenCalledWith('/api/v1/cfdi-invoices/1/generate-xml');
       expect(result).toEqual({
         cfdiId: '1',
         xmlPath: '/storage/cfdi/A-001.xml',
@@ -320,7 +320,7 @@ describe('CFDI Invoices Services', () => {
       const result = await cfdiInvoicesService.generatePDF('1');
 
       // Assert
-      expect(axiosClient.post).toHaveBeenCalledWith('/cfdi-invoices/1/generate-pdf');
+      expect(axiosClient.post).toHaveBeenCalledWith('/api/v1/cfdi-invoices/1/generate-pdf');
       expect(result).toEqual({
         cfdiId: '1',
         pdfPath: '/storage/cfdi/A-001.pdf',
@@ -350,7 +350,7 @@ describe('CFDI Invoices Services', () => {
       const result = await cfdiInvoicesService.stamp('1');
 
       // Assert
-      expect(axiosClient.post).toHaveBeenCalledWith('/cfdi-invoices/1/stamp');
+      expect(axiosClient.post).toHaveBeenCalledWith('/api/v1/cfdi-invoices/1/stamp');
       expect(result).toEqual(mockResponse);
     });
   });
@@ -381,7 +381,7 @@ describe('CFDI Invoices Services', () => {
 
       // Assert
       expect(axiosClient.post).toHaveBeenCalledWith(
-        '/cfdi-invoices/1/cancel',
+        '/api/v1/cfdi-invoices/1/cancel',
         expect.objectContaining({
           motivo: '01',
           uuid_reemplazo: null,
@@ -406,7 +406,7 @@ describe('CFDI Invoices Services', () => {
 
       // Assert
       expect(axiosClient.get).toHaveBeenCalledWith(
-        '/cfdi-invoices/1/download-xml',
+        '/api/v1/cfdi-invoices/1/download-xml',
         expect.objectContaining({
           responseType: 'blob',
         })
@@ -426,7 +426,7 @@ describe('CFDI Invoices Services', () => {
 
       // Assert
       expect(axiosClient.get).toHaveBeenCalledWith(
-        '/cfdi-invoices/1/download-pdf',
+        '/api/v1/cfdi-invoices/1/download-pdf',
         expect.objectContaining({
           responseType: 'blob',
         })
@@ -436,20 +436,11 @@ describe('CFDI Invoices Services', () => {
   });
 
   describe('sendEmail', () => {
-    it('should send CFDI by email', async () => {
-      // Arrange
-      vi.mocked(axiosClient.post).mockResolvedValue({ data: null });
-
-      // Act
-      await cfdiInvoicesService.sendEmail('1', 'test@example.com');
-
-      // Assert
-      expect(axiosClient.post).toHaveBeenCalledWith(
-        '/cfdi-invoices/1/send-email',
-        expect.objectContaining({
-          email: 'test@example.com',
-        })
-      );
+    it('should throw error because endpoint is not implemented', async () => {
+      // Act & Assert
+      await expect(
+        cfdiInvoicesService.sendEmail('1', 'test@example.com')
+      ).rejects.toThrow('El envio de correo electronico no esta disponible');
     });
   });
 

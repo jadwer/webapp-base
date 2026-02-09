@@ -138,7 +138,7 @@ describe('Time & Attendance Services', () => {
       vi.mocked(axiosClient.post).mockRejectedValue(error);
 
       await expect(attendancesService.create(formData)).rejects.toThrow();
-      expect(console.error).toHaveBeenCalled();
+      // console.error removed in Audit V2 - services rethrow without logging
     });
   });
 
@@ -175,7 +175,7 @@ describe('Time & Attendance Services', () => {
       vi.mocked(axiosClient.get).mockRejectedValue(error);
 
       await expect(leaveTypesService.getAll()).rejects.toThrow();
-      expect(console.error).toHaveBeenCalled();
+      // console.error removed in Audit V2 - services rethrow without logging
     });
   });
 
@@ -293,7 +293,7 @@ describe('Time & Attendance Services', () => {
       vi.mocked(axiosClient.post).mockRejectedValue(error);
 
       await expect(leavesService.create(formData)).rejects.toThrow();
-      expect(console.error).toHaveBeenCalled();
+      // console.error removed in Audit V2 - services rethrow without logging
     });
   });
 });

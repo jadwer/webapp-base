@@ -48,30 +48,28 @@ describe('shoppingCartService', () => {
       // Assert
       expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/shopping-carts/current', {
         params: {
-          'filter[session_id]': 'sess_123456789',
+          'session_id': 'sess_123456789',
         },
       });
       expect(result).not.toBeNull();
       expect(result?.sessionId).toBe('sess_123456789');
     });
 
-    it('should fetch current shopping cart by customer ID', async () => {
+    it('should fetch current shopping cart for authenticated user (no customerId param)', async () => {
       // Arrange
       const mockCart = createMockShoppingCart();
       mockAxios.get.mockResolvedValue({
         data: createMockShoppingCartAPIResponse(mockCart),
       });
 
-      // Act
+      // Act - backend uses Auth::id() for authenticated users, no customerId sent
       const result = await shoppingCartService.cart.getCurrent({
         customerId: 1,
       });
 
-      // Assert
+      // Assert - customerId is NOT sent as param; backend resolves it from auth
       expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/shopping-carts/current', {
-        params: {
-          'filter[customer_id]': 1,
-        },
+        params: {},
       });
       expect(result).not.toBeNull();
     });
@@ -177,9 +175,8 @@ describe('shoppingCartService', () => {
             type: 'shopping-carts',
             id: '1',
             attributes: {
-              subtotal_amount: 1500.00,
-              tax_amount: 240.00,
-              total_amount: 1740.00,
+              taxAmount: 240.00,
+              totalAmount: 1740.00,
             },
           },
         })
@@ -256,7 +253,7 @@ describe('shoppingCartService', () => {
       const result = await shoppingCartService.items.getAll(1);
 
       // Assert
-      expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/shopping-cart-items', {
+      expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/cart-items', {
         params: {
           'filter[shopping_cart_id]': 1,
         },
@@ -277,7 +274,7 @@ describe('shoppingCartService', () => {
       const result = await shoppingCartService.items.getById('1');
 
       // Assert
-      expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/shopping-cart-items/1', {
+      expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/cart-items/1', {
         params: {
           include: 'product',
         },
@@ -299,10 +296,10 @@ describe('shoppingCartService', () => {
 
       // Assert
       expect(mockAxios.post).toHaveBeenCalledWith(
-        '/api/v1/shopping-cart-items',
+        '/api/v1/cart-items',
         expect.objectContaining({
           data: {
-            type: 'shopping-cart-items',
+            type: 'cart-items',
             attributes: {
               shopping_cart_id: 1,
               product_id: 1,
@@ -326,10 +323,10 @@ describe('shoppingCartService', () => {
 
       // Assert
       expect(mockAxios.post).toHaveBeenCalledWith(
-        '/api/v1/shopping-cart-items',
+        '/api/v1/cart-items',
         expect.objectContaining({
           data: {
-            type: 'shopping-cart-items',
+            type: 'cart-items',
             attributes: {
               shopping_cart_id: 1,
               product_id: 1,
@@ -355,10 +352,10 @@ describe('shoppingCartService', () => {
 
       // Assert
       expect(mockAxios.patch).toHaveBeenCalledWith(
-        '/api/v1/shopping-cart-items/1',
+        '/api/v1/cart-items/1',
         expect.objectContaining({
           data: {
-            type: 'shopping-cart-items',
+            type: 'cart-items',
             id: '1',
             attributes: {
               quantity: 3,
@@ -395,7 +392,7 @@ describe('shoppingCartService', () => {
       await shoppingCartService.items.remove('1');
 
       // Assert
-      expect(mockAxios.delete).toHaveBeenCalledWith('/api/v1/shopping-cart-items/1');
+      expect(mockAxios.delete).toHaveBeenCalledWith('/api/v1/cart-items/1');
     });
   });
 });

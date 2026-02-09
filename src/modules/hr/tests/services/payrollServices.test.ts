@@ -152,7 +152,7 @@ describe('HR Payroll Services', () => {
 
       // Act & Assert
       await expect(payrollPeriodsService.getAll()).rejects.toThrow();
-      expect(console.error).toHaveBeenCalled();
+      // console.error removed in Audit V2 - services rethrow without logging
     });
   });
 });

@@ -49,7 +49,7 @@ describe('CFDI Items Services', () => {
       const result = await cfdiItemsService.getAll();
 
       // Assert
-      expect(axiosClient.get).toHaveBeenCalledWith('/cfdi-items');
+      expect(axiosClient.get).toHaveBeenCalledWith('/api/v1/cfdi-items');
       expect(result).toEqual(mockResponse);
     });
 
@@ -84,7 +84,7 @@ describe('CFDI Items Services', () => {
       const result = await cfdiItemsService.getById('1');
 
       // Assert
-      expect(axiosClient.get).toHaveBeenCalledWith('/cfdi-items/1');
+      expect(axiosClient.get).toHaveBeenCalledWith('/api/v1/cfdi-items/1');
       expect(result).toEqual(mockItem);
     });
   });
@@ -113,7 +113,7 @@ describe('CFDI Items Services', () => {
 
       // Assert
       expect(axiosClient.post).toHaveBeenCalledWith(
-        '/cfdi-items',
+        '/api/v1/cfdi-items',
         expect.objectContaining({
           data: expect.objectContaining({
             type: 'cfdi_items',
@@ -148,7 +148,7 @@ describe('CFDI Items Services', () => {
 
       // Assert
       expect(axiosClient.patch).toHaveBeenCalledWith(
-        '/cfdi-items/1',
+        '/api/v1/cfdi-items/1',
         expect.any(Object)
       );
       expect(result).toEqual(mockItem);
@@ -164,7 +164,7 @@ describe('CFDI Items Services', () => {
       await cfdiItemsService.delete('1');
 
       // Assert
-      expect(axiosClient.delete).toHaveBeenCalledWith('/cfdi-items/1');
+      expect(axiosClient.delete).toHaveBeenCalledWith('/api/v1/cfdi-items/1');
     });
   });
 

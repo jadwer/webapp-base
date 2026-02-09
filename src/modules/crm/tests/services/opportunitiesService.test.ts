@@ -93,7 +93,7 @@ describe('opportunitiesService', () => {
 
       // Act & Assert
       await expect(opportunitiesService.getAll()).rejects.toThrow();
-      expect(console.error).toHaveBeenCalled();
+      // console.error removed in Audit V2 - services rethrow without logging
     });
   });
 
@@ -130,7 +130,7 @@ describe('opportunitiesService', () => {
 
       // Act & Assert
       await expect(opportunitiesService.getById('999')).rejects.toThrow();
-      expect(console.error).toHaveBeenCalled();
+      // console.error removed in Audit V2 - services rethrow without logging
     });
   });
 
@@ -203,7 +203,7 @@ describe('opportunitiesService', () => {
 
       // Act & Assert
       await expect(opportunitiesService.create(formData)).rejects.toThrow();
-      expect(console.error).toHaveBeenCalled();
+      // console.error removed in Audit V2 - services rethrow without logging
     });
   });
 
@@ -272,7 +272,7 @@ describe('opportunitiesService', () => {
 
       // Act & Assert
       await expect(opportunitiesService.update('999', formData)).rejects.toThrow();
-      expect(console.error).toHaveBeenCalled();
+      // console.error removed in Audit V2 - services rethrow without logging
     });
 
     it('should update opportunity status to won', async () => {
@@ -379,7 +379,7 @@ describe('opportunitiesService', () => {
 
       // Act & Assert
       await expect(opportunitiesService.delete('999')).rejects.toThrow();
-      expect(console.error).toHaveBeenCalled();
+      // console.error removed in Audit V2 - services rethrow without logging
     });
   });
 

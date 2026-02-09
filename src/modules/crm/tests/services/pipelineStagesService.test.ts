@@ -51,7 +51,7 @@ describe('pipelineStagesService', () => {
 
       // Assert
       expect(axiosClient.get).toHaveBeenCalledWith(
-        '/api/v1/pipeline-stages?sort=order'
+        '/api/v1/pipeline-stages'
       );
       expect(result).toEqual(mockResponse);
     });
@@ -92,7 +92,7 @@ describe('pipelineStagesService', () => {
 
       // Act & Assert
       await expect(pipelineStagesService.getAll()).rejects.toThrow();
-      expect(console.error).toHaveBeenCalled();
+      // console.error removed in Audit V2 - services rethrow without logging
     });
   });
 
@@ -125,7 +125,7 @@ describe('pipelineStagesService', () => {
 
       // Act & Assert
       await expect(pipelineStagesService.getById('999')).rejects.toThrow();
-      expect(console.error).toHaveBeenCalled();
+      // console.error removed in Audit V2 - services rethrow without logging
     });
   });
 
@@ -189,7 +189,7 @@ describe('pipelineStagesService', () => {
 
       // Act & Assert
       await expect(pipelineStagesService.create(formData)).rejects.toThrow();
-      expect(console.error).toHaveBeenCalled();
+      // console.error removed in Audit V2 - services rethrow without logging
     });
   });
 
@@ -250,7 +250,7 @@ describe('pipelineStagesService', () => {
       await expect(
         pipelineStagesService.update('999', formData)
       ).rejects.toThrow();
-      expect(console.error).toHaveBeenCalled();
+      // console.error removed in Audit V2 - services rethrow without logging
     });
   });
 
@@ -276,7 +276,7 @@ describe('pipelineStagesService', () => {
 
       // Act & Assert
       await expect(pipelineStagesService.delete('999')).rejects.toThrow();
-      expect(console.error).toHaveBeenCalled();
+      // console.error removed in Audit V2 - services rethrow without logging
     });
   });
 });

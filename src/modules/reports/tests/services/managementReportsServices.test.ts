@@ -47,7 +47,7 @@ describe('Management Reports Services', () => {
         expect.stringContaining('/api/v1/reports/sales-by-customer-reports')
       );
       expect(axiosClient.get).toHaveBeenCalledWith(
-        expect.stringContaining('filter%5BstartDate%5D=2025-01-01')
+        expect.stringContaining('filter%5Bstart_date%5D=2025-01-01')
       );
       expect(result).toEqual(mockResponse);
     });
@@ -84,7 +84,7 @@ describe('Management Reports Services', () => {
           endDate: '2025-12-31',
         })
       ).rejects.toThrow();
-      expect(console.error).toHaveBeenCalled();
+      // console.error removed in audit - services rethrow without logging
     });
   });
 
@@ -120,7 +120,7 @@ describe('Management Reports Services', () => {
           endDate: '2025-12-31',
         })
       ).rejects.toThrow();
-      expect(console.error).toHaveBeenCalled();
+      // console.error removed in audit - services rethrow without logging
     });
   });
 
@@ -156,7 +156,7 @@ describe('Management Reports Services', () => {
           endDate: '2025-12-31',
         })
       ).rejects.toThrow();
-      expect(console.error).toHaveBeenCalled();
+      // console.error removed in audit - services rethrow without logging
     });
   });
 
@@ -192,7 +192,7 @@ describe('Management Reports Services', () => {
           endDate: '2025-12-31',
         })
       ).rejects.toThrow();
-      expect(console.error).toHaveBeenCalled();
+      // console.error removed in audit - services rethrow without logging
     });
   });
 });

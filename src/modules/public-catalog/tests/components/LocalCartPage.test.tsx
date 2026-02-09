@@ -4,12 +4,13 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import type { LocalCartItem } from '../../hooks/useLocalCart'
 
 // Define mocks before vi.mock calls (hoisting issue)
 const mockPush = vi.fn()
+const mockReplace = vi.fn()
 const mockIsAuthenticated = vi.fn()
 const mockUseLocalCart = vi.fn()
 
@@ -26,9 +27,10 @@ vi.mock('@/lib/toast', () => ({
 vi.mock('next/navigation', () => ({
   useRouter: () => ({
     push: mockPush,
-    replace: vi.fn(),
+    replace: mockReplace,
     back: vi.fn(),
   }),
+  useSearchParams: () => new URLSearchParams(),
 }))
 
 // Mock next/image
@@ -59,14 +61,44 @@ vi.mock('../../hooks/useLocalCart', () => ({
   useLocalCart: () => mockUseLocalCart(),
 }))
 
+// Mock quote service
+vi.mock('@/modules/quotes/services/quoteService', () => ({
+  default: {
+    quotes: {
+      requestQuote: vi.fn(),
+    },
+  },
+}))
+
+// Mock shopping cart service
+vi.mock('@/modules/ecommerce/services', () => ({
+  shoppingCartService: {
+    localSync: {
+      syncLocalCartToAPI: vi.fn(),
+      saveCartIdForCheckout: vi.fn(),
+    },
+  },
+}))
+
 // Import after mocks
 import { LocalCartPage } from '../../components/LocalCartPage'
 import { toast } from '@/lib/toast'
+import quoteServiceModule from '@/modules/quotes/services/quoteService'
+import { shoppingCartService } from '@/modules/ecommerce/services'
 
 const mockToast = toast as {
   success: ReturnType<typeof vi.fn>
   error: ReturnType<typeof vi.fn>
   info: ReturnType<typeof vi.fn>
+}
+
+const mockQuoteService = quoteServiceModule.quotes as {
+  requestQuote: ReturnType<typeof vi.fn>
+}
+
+const mockCartSync = shoppingCartService.localSync as {
+  syncLocalCartToAPI: ReturnType<typeof vi.fn>
+  saveCartIdForCheckout: ReturnType<typeof vi.fn>
 }
 
 // Create mock cart items
@@ -87,6 +119,26 @@ function createMockCartItem(overrides: Partial<LocalCartItem> = {}): LocalCartIt
   }
 }
 
+// Helper: standard mock return for cart with items
+function mockCartWithItems(items: LocalCartItem[], totals?: { itemCount: number; subtotal: number; uniqueItems: number }) {
+  const defaultTotals = {
+    itemCount: items.reduce((sum, i) => sum + i.quantity, 0),
+    subtotal: items.reduce((sum, i) => sum + i.price * i.quantity, 0),
+    uniqueItems: items.length,
+  }
+  return {
+    items,
+    totals: totals || defaultTotals,
+    isInitialized: true,
+    isEmpty: false,
+    removeFromCart: vi.fn(),
+    updateQuantity: vi.fn(),
+    incrementQuantity: vi.fn(),
+    decrementQuantity: vi.fn(),
+    clearCart: vi.fn(),
+  }
+}
+
 describe('LocalCartPage', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -100,7 +152,6 @@ describe('LocalCartPage', () => {
 
   describe('Loading State', () => {
     it('should show loading spinner when cart is not initialized', () => {
-      // Arrange
       mockUseLocalCart.mockReturnValue({
         items: [],
         totals: { itemCount: 0, subtotal: 0, uniqueItems: 0 },
@@ -113,10 +164,8 @@ describe('LocalCartPage', () => {
         clearCart: vi.fn(),
       })
 
-      // Act
       render(<LocalCartPage />)
 
-      // Assert
       expect(screen.getByRole('status')).toBeInTheDocument()
       expect(screen.getByText('Cargando carrito...')).toBeInTheDocument()
     })
@@ -124,7 +173,6 @@ describe('LocalCartPage', () => {
 
   describe('Empty Cart State', () => {
     it('should show empty cart message when no items', () => {
-      // Arrange
       mockUseLocalCart.mockReturnValue({
         items: [],
         totals: { itemCount: 0, subtotal: 0, uniqueItems: 0 },
@@ -137,16 +185,13 @@ describe('LocalCartPage', () => {
         clearCart: vi.fn(),
       })
 
-      // Act
       render(<LocalCartPage />)
 
-      // Assert
       expect(screen.getByText('Tu carrito esta vacio')).toBeInTheDocument()
       expect(screen.getByText('Ver Productos')).toBeInTheDocument()
     })
 
     it('should link to products page when empty', () => {
-      // Arrange
       mockUseLocalCart.mockReturnValue({
         items: [],
         totals: { itemCount: 0, subtotal: 0, uniqueItems: 0 },
@@ -159,16 +204,13 @@ describe('LocalCartPage', () => {
         clearCart: vi.fn(),
       })
 
-      // Act
       render(<LocalCartPage />)
 
-      // Assert
       const link = screen.getByRole('link', { name: /ver productos/i })
       expect(link).toHaveAttribute('href', '/productos')
     })
 
     it('should use custom continueShoppingUrl when provided', () => {
-      // Arrange
       mockUseLocalCart.mockReturnValue({
         items: [],
         totals: { itemCount: 0, subtotal: 0, uniqueItems: 0 },
@@ -181,10 +223,8 @@ describe('LocalCartPage', () => {
         clearCart: vi.fn(),
       })
 
-      // Act
       render(<LocalCartPage continueShoppingUrl="/catalog" />)
 
-      // Assert
       const link = screen.getByRole('link', { name: /ver productos/i })
       expect(link).toHaveAttribute('href', '/catalog')
     })
@@ -192,119 +232,53 @@ describe('LocalCartPage', () => {
 
   describe('Cart with Items', () => {
     it('should display cart items', () => {
-      // Arrange
       const items = [
         createMockCartItem({ productId: '1', name: 'Product A', price: 100, quantity: 2 }),
         createMockCartItem({ productId: '2', name: 'Product B', price: 200, quantity: 1 }),
       ]
-      mockUseLocalCart.mockReturnValue({
-        items,
-        totals: { itemCount: 3, subtotal: 400, uniqueItems: 2 },
-        isInitialized: true,
-        isEmpty: false,
-        removeFromCart: vi.fn(),
-        updateQuantity: vi.fn(),
-        incrementQuantity: vi.fn(),
-        decrementQuantity: vi.fn(),
-        clearCart: vi.fn(),
-      })
+      mockUseLocalCart.mockReturnValue(mockCartWithItems(items, { itemCount: 3, subtotal: 400, uniqueItems: 2 }))
 
-      // Act
       render(<LocalCartPage />)
 
-      // Assert
       expect(screen.getByText('Product A')).toBeInTheDocument()
       expect(screen.getByText('Product B')).toBeInTheDocument()
       expect(screen.getByText('3 productos')).toBeInTheDocument()
     })
 
     it('should show item count badge', () => {
-      // Arrange
       const items = [createMockCartItem({ quantity: 5 })]
-      mockUseLocalCart.mockReturnValue({
-        items,
-        totals: { itemCount: 5, subtotal: 500, uniqueItems: 1 },
-        isInitialized: true,
-        isEmpty: false,
-        removeFromCart: vi.fn(),
-        updateQuantity: vi.fn(),
-        incrementQuantity: vi.fn(),
-        decrementQuantity: vi.fn(),
-        clearCart: vi.fn(),
-      })
+      mockUseLocalCart.mockReturnValue(mockCartWithItems(items, { itemCount: 5, subtotal: 500, uniqueItems: 1 }))
 
-      // Act
       render(<LocalCartPage />)
 
-      // Assert
       expect(screen.getByText('5 productos')).toBeInTheDocument()
     })
 
     it('should show singular "producto" for 1 item', () => {
-      // Arrange
       const items = [createMockCartItem({ quantity: 1 })]
-      mockUseLocalCart.mockReturnValue({
-        items,
-        totals: { itemCount: 1, subtotal: 100, uniqueItems: 1 },
-        isInitialized: true,
-        isEmpty: false,
-        removeFromCart: vi.fn(),
-        updateQuantity: vi.fn(),
-        incrementQuantity: vi.fn(),
-        decrementQuantity: vi.fn(),
-        clearCart: vi.fn(),
-      })
+      mockUseLocalCart.mockReturnValue(mockCartWithItems(items, { itemCount: 1, subtotal: 100, uniqueItems: 1 }))
 
-      // Act
       render(<LocalCartPage />)
 
-      // Assert
       expect(screen.getByText('1 producto')).toBeInTheDocument()
     })
 
     it('should display SKU and brand for items', () => {
-      // Arrange
       const items = [createMockCartItem({ sku: 'TEST-SKU', brandName: 'Test Brand' })]
-      mockUseLocalCart.mockReturnValue({
-        items,
-        totals: { itemCount: 2, subtotal: 200, uniqueItems: 1 },
-        isInitialized: true,
-        isEmpty: false,
-        removeFromCart: vi.fn(),
-        updateQuantity: vi.fn(),
-        incrementQuantity: vi.fn(),
-        decrementQuantity: vi.fn(),
-        clearCart: vi.fn(),
-      })
+      mockUseLocalCart.mockReturnValue(mockCartWithItems(items, { itemCount: 2, subtotal: 200, uniqueItems: 1 }))
 
-      // Act
       render(<LocalCartPage />)
 
-      // Assert
       expect(screen.getByText('SKU: TEST-SKU')).toBeInTheDocument()
       expect(screen.getByText('Test Brand')).toBeInTheDocument()
     })
 
     it('should format prices correctly in MXN', () => {
-      // Arrange
       const items = [createMockCartItem({ price: 1234.56, quantity: 1 })]
-      mockUseLocalCart.mockReturnValue({
-        items,
-        totals: { itemCount: 1, subtotal: 1234.56, uniqueItems: 1 },
-        isInitialized: true,
-        isEmpty: false,
-        removeFromCart: vi.fn(),
-        updateQuantity: vi.fn(),
-        incrementQuantity: vi.fn(),
-        decrementQuantity: vi.fn(),
-        clearCart: vi.fn(),
-      })
+      mockUseLocalCart.mockReturnValue(mockCartWithItems(items, { itemCount: 1, subtotal: 1234.56, uniqueItems: 1 }))
 
-      // Act
       render(<LocalCartPage />)
 
-      // Assert
-      // Should display MXN formatted price (appears multiple times: unit price, line total, subtotal, total)
       const priceElements = screen.getAllByText('$1,234.56')
       expect(priceElements.length).toBeGreaterThan(0)
     })
@@ -312,24 +286,15 @@ describe('LocalCartPage', () => {
 
   describe('Quantity Controls', () => {
     it('should call incrementQuantity when + button is clicked', async () => {
-      // Arrange
       const mockIncrementQuantity = vi.fn()
       const items = [createMockCartItem({ productId: '1', quantity: 2 })]
       mockUseLocalCart.mockReturnValue({
-        items,
-        totals: { itemCount: 2, subtotal: 200, uniqueItems: 1 },
-        isInitialized: true,
-        isEmpty: false,
-        removeFromCart: vi.fn(),
-        updateQuantity: vi.fn(),
+        ...mockCartWithItems(items),
         incrementQuantity: mockIncrementQuantity,
-        decrementQuantity: vi.fn(),
-        clearCart: vi.fn(),
       })
 
       const user = userEvent.setup()
 
-      // Act
       render(<LocalCartPage />)
       const incrementButton = screen.getAllByRole('button').find(
         btn => btn.querySelector('.bi-plus')
@@ -338,29 +303,19 @@ describe('LocalCartPage', () => {
         await user.click(incrementButton)
       }
 
-      // Assert
       expect(mockIncrementQuantity).toHaveBeenCalledWith('1')
     })
 
     it('should call decrementQuantity when - button is clicked', async () => {
-      // Arrange
       const mockDecrementQuantity = vi.fn()
       const items = [createMockCartItem({ productId: '1', quantity: 2 })]
       mockUseLocalCart.mockReturnValue({
-        items,
-        totals: { itemCount: 2, subtotal: 200, uniqueItems: 1 },
-        isInitialized: true,
-        isEmpty: false,
-        removeFromCart: vi.fn(),
-        updateQuantity: vi.fn(),
-        incrementQuantity: vi.fn(),
+        ...mockCartWithItems(items),
         decrementQuantity: mockDecrementQuantity,
-        clearCart: vi.fn(),
       })
 
       const user = userEvent.setup()
 
-      // Act
       render(<LocalCartPage />)
       const decrementButton = screen.getAllByRole('button').find(
         btn => btn.querySelector('.bi-dash')
@@ -369,147 +324,86 @@ describe('LocalCartPage', () => {
         await user.click(decrementButton)
       }
 
-      // Assert
       expect(mockDecrementQuantity).toHaveBeenCalledWith('1')
     })
 
     it('should disable decrement button when quantity is 1', () => {
-      // Arrange
       const items = [createMockCartItem({ productId: '1', quantity: 1 })]
-      mockUseLocalCart.mockReturnValue({
-        items,
-        totals: { itemCount: 1, subtotal: 100, uniqueItems: 1 },
-        isInitialized: true,
-        isEmpty: false,
-        removeFromCart: vi.fn(),
-        updateQuantity: vi.fn(),
-        incrementQuantity: vi.fn(),
-        decrementQuantity: vi.fn(),
-        clearCart: vi.fn(),
-      })
+      mockUseLocalCart.mockReturnValue(mockCartWithItems(items))
 
-      // Act
       render(<LocalCartPage />)
       const decrementButton = screen.getAllByRole('button').find(
         btn => btn.querySelector('.bi-dash')
       )
 
-      // Assert
       expect(decrementButton).toBeDisabled()
     })
   })
 
   describe('Remove Item', () => {
     it('should call removeFromCart when trash button is clicked', async () => {
-      // Arrange
       const mockRemoveFromCart = vi.fn()
       const items = [createMockCartItem({ productId: '1' })]
       mockUseLocalCart.mockReturnValue({
-        items,
-        totals: { itemCount: 2, subtotal: 200, uniqueItems: 1 },
-        isInitialized: true,
-        isEmpty: false,
+        ...mockCartWithItems(items),
         removeFromCart: mockRemoveFromCart,
-        updateQuantity: vi.fn(),
-        incrementQuantity: vi.fn(),
-        decrementQuantity: vi.fn(),
-        clearCart: vi.fn(),
       })
 
       const user = userEvent.setup()
 
-      // Act
       render(<LocalCartPage />)
       const removeButton = screen.getByTitle('Eliminar producto')
       await user.click(removeButton)
 
-      // Assert
       expect(mockRemoveFromCart).toHaveBeenCalledWith('1')
     })
   })
 
   describe('Clear Cart', () => {
     it('should call clearCart when clear button is clicked', async () => {
-      // Arrange
       const mockClearCart = vi.fn()
       const items = [createMockCartItem()]
       mockUseLocalCart.mockReturnValue({
-        items,
-        totals: { itemCount: 2, subtotal: 200, uniqueItems: 1 },
-        isInitialized: true,
-        isEmpty: false,
-        removeFromCart: vi.fn(),
-        updateQuantity: vi.fn(),
-        incrementQuantity: vi.fn(),
-        decrementQuantity: vi.fn(),
+        ...mockCartWithItems(items),
         clearCart: mockClearCart,
       })
 
       const user = userEvent.setup()
 
-      // Act
       render(<LocalCartPage />)
       const clearButton = screen.getByText('Vaciar Carrito')
       await user.click(clearButton)
 
-      // Assert
       expect(mockClearCart).toHaveBeenCalled()
     })
   })
 
   describe('Request Quote - Not Authenticated', () => {
     it('should redirect to login when requesting quote without auth', async () => {
-      // Arrange
       mockIsAuthenticated.mockReturnValue(false)
       const items = [createMockCartItem()]
-      mockUseLocalCart.mockReturnValue({
-        items,
-        totals: { itemCount: 2, subtotal: 200, uniqueItems: 1 },
-        isInitialized: true,
-        isEmpty: false,
-        removeFromCart: vi.fn(),
-        updateQuantity: vi.fn(),
-        incrementQuantity: vi.fn(),
-        decrementQuantity: vi.fn(),
-        clearCart: vi.fn(),
-      })
+      mockUseLocalCart.mockReturnValue(mockCartWithItems(items))
 
       const user = userEvent.setup()
 
-      // Act
       render(<LocalCartPage />)
       const quoteButton = screen.getByText('Solicitar Cotizacion')
       await user.click(quoteButton)
 
-      // Assert
-      expect(mockPush).toHaveBeenCalledWith('/auth/login?redirect=/dashboard/quotes/create&action=quote')
-      expect(mockToast.info).toHaveBeenCalledWith('Inicia sesion para solicitar una cotizacion')
+      expect(mockPush).toHaveBeenCalledWith('/auth/login?redirect=/cart&action=quote')
     })
 
     it('should save cart to sessionStorage when redirecting to login', async () => {
-      // Arrange
       mockIsAuthenticated.mockReturnValue(false)
       const items = [createMockCartItem({ productId: '1', name: 'Test', price: 100, quantity: 2 })]
-      mockUseLocalCart.mockReturnValue({
-        items,
-        totals: { itemCount: 2, subtotal: 200, uniqueItems: 1 },
-        isInitialized: true,
-        isEmpty: false,
-        removeFromCart: vi.fn(),
-        updateQuantity: vi.fn(),
-        incrementQuantity: vi.fn(),
-        decrementQuantity: vi.fn(),
-        clearCart: vi.fn(),
-      })
+      mockUseLocalCart.mockReturnValue(mockCartWithItems(items))
 
       const user = userEvent.setup()
 
-      // Act
       render(<LocalCartPage />)
       const quoteButton = screen.getByText('Solicitar Cotizacion')
       await user.click(quoteButton)
 
-      // Assert
       const savedCart = sessionStorage.getItem('pendingQuoteCart')
       expect(savedCart).not.toBeNull()
       const parsedCart = JSON.parse(savedCart!)
@@ -519,67 +413,54 @@ describe('LocalCartPage', () => {
   })
 
   describe('Request Quote - Authenticated', () => {
-    it('should redirect to quote creation when authenticated', async () => {
-      // Arrange
+    it('should call requestQuote API when authenticated', async () => {
       mockIsAuthenticated.mockReturnValue(true)
-      const items = [createMockCartItem()]
-      mockUseLocalCart.mockReturnValue({
-        items,
-        totals: { itemCount: 2, subtotal: 200, uniqueItems: 1 },
-        isInitialized: true,
-        isEmpty: false,
-        removeFromCart: vi.fn(),
-        updateQuantity: vi.fn(),
-        incrementQuantity: vi.fn(),
-        decrementQuantity: vi.fn(),
-        clearCart: vi.fn(),
+      const items = [createMockCartItem({ productId: '1', quantity: 2 })]
+      mockUseLocalCart.mockReturnValue(mockCartWithItems(items))
+      mockQuoteService.requestQuote.mockResolvedValue({
+        success: true,
+        message: 'Cotizacion creada',
+        data: { quote_number: 'COT-001', total_amount: 200 },
       })
 
       const user = userEvent.setup()
 
-      // Act
       render(<LocalCartPage />)
       const quoteButton = screen.getByText('Solicitar Cotizacion')
       await user.click(quoteButton)
 
-      // Assert
-      expect(mockPush).toHaveBeenCalledWith('/dashboard/quotes/create?source=public-cart')
+      await waitFor(() => {
+        expect(mockQuoteService.requestQuote).toHaveBeenCalledWith({
+          items: [{ product_id: 1, quantity: 2 }],
+          notes: undefined,
+        })
+      })
     })
 
-    it('should save cart to sessionStorage before redirecting', async () => {
-      // Arrange
+    it('should show success toast after quote creation', async () => {
       mockIsAuthenticated.mockReturnValue(true)
-      const items = [createMockCartItem({ productId: '42' })]
-      mockUseLocalCart.mockReturnValue({
-        items,
-        totals: { itemCount: 2, subtotal: 200, uniqueItems: 1 },
-        isInitialized: true,
-        isEmpty: false,
-        removeFromCart: vi.fn(),
-        updateQuantity: vi.fn(),
-        incrementQuantity: vi.fn(),
-        decrementQuantity: vi.fn(),
-        clearCart: vi.fn(),
+      const items = [createMockCartItem({ productId: '1', quantity: 2 })]
+      mockUseLocalCart.mockReturnValue(mockCartWithItems(items))
+      mockQuoteService.requestQuote.mockResolvedValue({
+        success: true,
+        message: 'Cotizacion creada exitosamente',
+        data: { quote_number: 'COT-001', total_amount: 200 },
       })
 
       const user = userEvent.setup()
 
-      // Act
       render(<LocalCartPage />)
       const quoteButton = screen.getByText('Solicitar Cotizacion')
       await user.click(quoteButton)
 
-      // Assert
-      const savedCart = sessionStorage.getItem('pendingQuoteCart')
-      expect(savedCart).not.toBeNull()
-      const parsedCart = JSON.parse(savedCart!)
-      expect(parsedCart[0].productId).toBe('42')
+      await waitFor(() => {
+        expect(mockToast.success).toHaveBeenCalledWith('Cotizacion creada exitosamente')
+      })
     })
   })
 
   describe('Request Quote - Empty Cart', () => {
     it('should show error toast when cart is empty', async () => {
-      // Arrange
       mockIsAuthenticated.mockReturnValue(true)
       mockUseLocalCart.mockReturnValue({
         items: [],
@@ -595,12 +476,10 @@ describe('LocalCartPage', () => {
 
       const user = userEvent.setup()
 
-      // Act
       render(<LocalCartPage />)
       const quoteButton = screen.getByText('Solicitar Cotizacion')
       await user.click(quoteButton)
 
-      // Assert
       expect(mockToast.error).toHaveBeenCalledWith('El carrito esta vacio')
       expect(mockPush).not.toHaveBeenCalled()
     })
@@ -608,197 +487,120 @@ describe('LocalCartPage', () => {
 
   describe('Order Summary', () => {
     it('should display subtotal correctly', () => {
-      // Arrange
       const items = [
         createMockCartItem({ price: 100, quantity: 2 }),
         createMockCartItem({ productId: '2', price: 50, quantity: 3 }),
       ]
-      mockUseLocalCart.mockReturnValue({
-        items,
-        totals: { itemCount: 5, subtotal: 350, uniqueItems: 2 },
-        isInitialized: true,
-        isEmpty: false,
-        removeFromCart: vi.fn(),
-        updateQuantity: vi.fn(),
-        incrementQuantity: vi.fn(),
-        decrementQuantity: vi.fn(),
-        clearCart: vi.fn(),
-      })
+      mockUseLocalCart.mockReturnValue(mockCartWithItems(items, { itemCount: 5, subtotal: 350, uniqueItems: 2 }))
 
-      // Act
       render(<LocalCartPage />)
 
-      // Assert
-      // Subtotal appears in summary section
       expect(screen.getByText('Subtotal (5 productos)')).toBeInTheDocument()
       expect(screen.getAllByText('$350.00')).toHaveLength(2) // Subtotal and Total
     })
 
     it('should show "Por calcular" for shipping', () => {
-      // Arrange
       const items = [createMockCartItem()]
-      mockUseLocalCart.mockReturnValue({
-        items,
-        totals: { itemCount: 2, subtotal: 200, uniqueItems: 1 },
-        isInitialized: true,
-        isEmpty: false,
-        removeFromCart: vi.fn(),
-        updateQuantity: vi.fn(),
-        incrementQuantity: vi.fn(),
-        decrementQuantity: vi.fn(),
-        clearCart: vi.fn(),
-      })
+      mockUseLocalCart.mockReturnValue(mockCartWithItems(items))
 
-      // Act
       render(<LocalCartPage />)
 
-      // Assert
       expect(screen.getByText('Por calcular')).toBeInTheDocument()
     })
 
     it('should display quote info message', () => {
-      // Arrange
       const items = [createMockCartItem()]
-      mockUseLocalCart.mockReturnValue({
-        items,
-        totals: { itemCount: 2, subtotal: 200, uniqueItems: 1 },
-        isInitialized: true,
-        isEmpty: false,
-        removeFromCart: vi.fn(),
-        updateQuantity: vi.fn(),
-        incrementQuantity: vi.fn(),
-        decrementQuantity: vi.fn(),
-        clearCart: vi.fn(),
-      })
+      mockUseLocalCart.mockReturnValue(mockCartWithItems(items))
 
-      // Act
       render(<LocalCartPage />)
 
-      // Assert
       expect(screen.getByText(/Solicitar cotizacion:/i)).toBeInTheDocument()
       expect(screen.getByText(/Te contactaremos con precios especiales/i)).toBeInTheDocument()
     })
   })
 
   describe('Checkout Button', () => {
-    it('should show checkout button linking to default URL', () => {
-      // Arrange
+    it('should show checkout button with correct text', () => {
       const items = [createMockCartItem()]
-      mockUseLocalCart.mockReturnValue({
-        items,
-        totals: { itemCount: 2, subtotal: 200, uniqueItems: 1 },
-        isInitialized: true,
-        isEmpty: false,
-        removeFromCart: vi.fn(),
-        updateQuantity: vi.fn(),
-        incrementQuantity: vi.fn(),
-        decrementQuantity: vi.fn(),
-        clearCart: vi.fn(),
-      })
+      mockUseLocalCart.mockReturnValue(mockCartWithItems(items))
 
-      // Act
       render(<LocalCartPage />)
 
-      // Assert
-      const checkoutLink = screen.getByRole('link', { name: /proceder al pago/i })
-      expect(checkoutLink).toHaveAttribute('href', '/checkout')
+      // Checkout is a Button (not Link), found by text
+      expect(screen.getByText('Proceder al Pago')).toBeInTheDocument()
     })
 
-    it('should use custom checkoutUrl when provided', () => {
-      // Arrange
+    it('should redirect to login when not authenticated', async () => {
+      mockIsAuthenticated.mockReturnValue(false)
       const items = [createMockCartItem()]
-      mockUseLocalCart.mockReturnValue({
-        items,
-        totals: { itemCount: 2, subtotal: 200, uniqueItems: 1 },
-        isInitialized: true,
-        isEmpty: false,
-        removeFromCart: vi.fn(),
-        updateQuantity: vi.fn(),
-        incrementQuantity: vi.fn(),
-        decrementQuantity: vi.fn(),
-        clearCart: vi.fn(),
-      })
-
-      // Act
-      render(<LocalCartPage checkoutUrl="/custom-checkout" />)
-
-      // Assert
-      const checkoutLink = screen.getByRole('link', { name: /proceder al pago/i })
-      expect(checkoutLink).toHaveAttribute('href', '/custom-checkout')
-    })
-
-    it('should call onCheckout callback when provided', async () => {
-      // Arrange
-      const mockOnCheckout = vi.fn()
-      const items = [createMockCartItem()]
-      mockUseLocalCart.mockReturnValue({
-        items,
-        totals: { itemCount: 2, subtotal: 200, uniqueItems: 1 },
-        isInitialized: true,
-        isEmpty: false,
-        removeFromCart: vi.fn(),
-        updateQuantity: vi.fn(),
-        incrementQuantity: vi.fn(),
-        decrementQuantity: vi.fn(),
-        clearCart: vi.fn(),
-      })
+      mockUseLocalCart.mockReturnValue(mockCartWithItems(items))
 
       const user = userEvent.setup()
 
-      // Act
+      render(<LocalCartPage />)
+      const checkoutButton = screen.getByText('Proceder al Pago')
+      await user.click(checkoutButton)
+
+      expect(mockPush).toHaveBeenCalledWith('/auth/login?redirect=/cart&action=checkout')
+    })
+
+    it('should sync cart and navigate to checkout when authenticated', async () => {
+      mockIsAuthenticated.mockReturnValue(true)
+      const items = [createMockCartItem()]
+      mockUseLocalCart.mockReturnValue(mockCartWithItems(items))
+      mockCartSync.syncLocalCartToAPI.mockResolvedValue({ id: 'cart-123' })
+
+      const user = userEvent.setup()
+
+      render(<LocalCartPage />)
+      const checkoutButton = screen.getByText('Proceder al Pago')
+      await user.click(checkoutButton)
+
+      await waitFor(() => {
+        expect(mockCartSync.syncLocalCartToAPI).toHaveBeenCalledWith(items)
+        expect(mockCartSync.saveCartIdForCheckout).toHaveBeenCalledWith('cart-123')
+        expect(mockPush).toHaveBeenCalledWith('/checkout')
+      })
+    })
+
+    it('should call onCheckout callback when provided', async () => {
+      mockIsAuthenticated.mockReturnValue(true)
+      const mockOnCheckout = vi.fn()
+      const items = [createMockCartItem()]
+      mockUseLocalCart.mockReturnValue(mockCartWithItems(items))
+      mockCartSync.syncLocalCartToAPI.mockResolvedValue({ id: 'cart-456' })
+
+      const user = userEvent.setup()
+
       render(<LocalCartPage onCheckout={mockOnCheckout} />)
       const checkoutButton = screen.getByText('Proceder al Pago')
       await user.click(checkoutButton)
 
-      // Assert
-      expect(mockOnCheckout).toHaveBeenCalled()
+      await waitFor(() => {
+        expect(mockOnCheckout).toHaveBeenCalled()
+        expect(mockPush).not.toHaveBeenCalled() // should use callback, not router
+      })
     })
   })
 
   describe('Trust Badges', () => {
     it('should display trust badges', () => {
-      // Arrange
       const items = [createMockCartItem()]
-      mockUseLocalCart.mockReturnValue({
-        items,
-        totals: { itemCount: 2, subtotal: 200, uniqueItems: 1 },
-        isInitialized: true,
-        isEmpty: false,
-        removeFromCart: vi.fn(),
-        updateQuantity: vi.fn(),
-        incrementQuantity: vi.fn(),
-        decrementQuantity: vi.fn(),
-        clearCart: vi.fn(),
-      })
+      mockUseLocalCart.mockReturnValue(mockCartWithItems(items))
 
-      // Act
       render(<LocalCartPage />)
 
-      // Assert
       expect(screen.getByText('Envio Seguro')).toBeInTheDocument()
       expect(screen.getByText('Devoluciones')).toBeInTheDocument()
       expect(screen.getByText('Soporte')).toBeInTheDocument()
     })
 
     it('should display secure payment badge', () => {
-      // Arrange
       const items = [createMockCartItem()]
-      mockUseLocalCart.mockReturnValue({
-        items,
-        totals: { itemCount: 2, subtotal: 200, uniqueItems: 1 },
-        isInitialized: true,
-        isEmpty: false,
-        removeFromCart: vi.fn(),
-        updateQuantity: vi.fn(),
-        incrementQuantity: vi.fn(),
-        decrementQuantity: vi.fn(),
-        clearCart: vi.fn(),
-      })
+      mockUseLocalCart.mockReturnValue(mockCartWithItems(items))
 
-      // Act
       render(<LocalCartPage />)
 
-      // Assert
       expect(screen.getByText('Pago seguro garantizado')).toBeInTheDocument()
     })
   })

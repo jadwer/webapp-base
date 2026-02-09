@@ -77,7 +77,7 @@ describe('campaignLeadsService', () => {
       await expect(
         campaignLeadsService.addLeads(campaignId, leadIds)
       ).rejects.toThrow();
-      expect(console.error).toHaveBeenCalled();
+      // console.error removed in Audit V2 - services rethrow without logging
     });
 
     it('should handle validation errors when adding leads', async () => {
@@ -92,7 +92,7 @@ describe('campaignLeadsService', () => {
       await expect(
         campaignLeadsService.addLeads(campaignId, leadIds)
       ).rejects.toThrow();
-      expect(console.error).toHaveBeenCalled();
+      // console.error removed in Audit V2 - services rethrow without logging
     });
   });
 
@@ -159,7 +159,7 @@ describe('campaignLeadsService', () => {
       await expect(
         campaignLeadsService.removeLeads(campaignId, leadIds)
       ).rejects.toThrow();
-      expect(console.error).toHaveBeenCalled();
+      // console.error removed in Audit V2 - services rethrow without logging
     });
 
     it('should handle relationship errors when removing leads', async () => {
@@ -174,7 +174,7 @@ describe('campaignLeadsService', () => {
       await expect(
         campaignLeadsService.removeLeads(campaignId, leadIds)
       ).rejects.toThrow();
-      expect(console.error).toHaveBeenCalled();
+      // console.error removed in Audit V2 - services rethrow without logging
     });
   });
 });

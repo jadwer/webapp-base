@@ -58,7 +58,7 @@ describe('Core Entities Services', () => {
       vi.mocked(axiosClient.get).mockRejectedValue(error);
 
       await expect(departmentsService.getAll()).rejects.toThrow();
-      expect(console.error).toHaveBeenCalled();
+      // console.error removed in Audit V2 - services rethrow without logging
     });
   });
 
@@ -90,7 +90,7 @@ describe('Core Entities Services', () => {
       vi.mocked(axiosClient.get).mockRejectedValue(error);
 
       await expect(positionsService.getAll()).rejects.toThrow();
-      expect(console.error).toHaveBeenCalled();
+      // console.error removed in Audit V2 - services rethrow without logging
     });
   });
 
@@ -231,7 +231,7 @@ describe('Core Entities Services', () => {
       vi.mocked(axiosClient.post).mockRejectedValue(error);
 
       await expect(employeesService.create(formData)).rejects.toThrow();
-      expect(console.error).toHaveBeenCalled();
+      // console.error removed in Audit V2 - services rethrow without logging
     });
   });
 });

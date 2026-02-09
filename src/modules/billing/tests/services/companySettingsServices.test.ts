@@ -53,7 +53,7 @@ describe('Company Settings Services', () => {
       const result = await companySettingsService.getAll();
 
       // Assert
-      expect(axiosClient.get).toHaveBeenCalledWith('/company-settings');
+      expect(axiosClient.get).toHaveBeenCalledWith('/api/v1/company-settings');
       expect(result).toEqual(mockResponse);
     });
   });
@@ -69,7 +69,7 @@ describe('Company Settings Services', () => {
       const result = await companySettingsService.getById('1');
 
       // Assert
-      expect(axiosClient.get).toHaveBeenCalledWith('/company-settings/1');
+      expect(axiosClient.get).toHaveBeenCalledWith('/api/v1/company-settings/1');
       expect(result).toEqual(mockSetting);
     });
   });
@@ -88,7 +88,7 @@ describe('Company Settings Services', () => {
 
       // Assert
       expect(axiosClient.get).toHaveBeenCalledWith(
-        '/company-settings?filter[isActive]=true'
+        '/api/v1/company-settings?filter[isActive]=true'
       );
       expect(result).toEqual(mockSetting);
     });
@@ -136,7 +136,7 @@ describe('Company Settings Services', () => {
 
       // Assert
       expect(axiosClient.post).toHaveBeenCalledWith(
-        '/company-settings',
+        '/api/v1/company-settings',
         expect.objectContaining({
           data: expect.objectContaining({
             type: 'company_settings',
@@ -177,7 +177,7 @@ describe('Company Settings Services', () => {
 
       // Assert
       expect(axiosClient.patch).toHaveBeenCalledWith(
-        '/company-settings/1',
+        '/api/v1/company-settings/1',
         expect.any(Object)
       );
       expect(result).toEqual(mockSetting);
@@ -193,7 +193,7 @@ describe('Company Settings Services', () => {
       await companySettingsService.delete('1');
 
       // Assert
-      expect(axiosClient.delete).toHaveBeenCalledWith('/company-settings/1');
+      expect(axiosClient.delete).toHaveBeenCalledWith('/api/v1/company-settings/1');
     });
   });
 
@@ -202,87 +202,39 @@ describe('Company Settings Services', () => {
   // ==========================================================================
 
   describe('testPACConnection', () => {
-    it('should test PAC connection successfully', async () => {
-      // Arrange
-      const mockResponse = {
-        success: true,
-        message: 'Connection successful',
-      };
-      vi.mocked(axiosClient.post).mockResolvedValue({ data: mockResponse });
-
-      // Act
-      const result = await companySettingsService.testPACConnection('1');
-
-      // Assert
-      expect(axiosClient.post).toHaveBeenCalledWith('/company-settings/1/test-pac');
-      expect(result).toEqual(mockResponse);
-    });
-
-    it('should handle PAC connection failure', async () => {
-      // Arrange
-      const mockResponse = {
-        success: false,
-        message: 'Connection failed',
-      };
-      vi.mocked(axiosClient.post).mockResolvedValue({ data: mockResponse });
-
-      // Act
-      const result = await companySettingsService.testPACConnection('1');
-
-      // Assert
-      expect(result.success).toBe(false);
+    it('should throw error because endpoint is not implemented', async () => {
+      // Act & Assert
+      await expect(
+        companySettingsService.testPACConnection('1')
+      ).rejects.toThrow('La prueba de conexion PAC no esta disponible');
     });
   });
 
   describe('uploadCertificate', () => {
-    it('should upload certificate file', async () => {
+    it('should throw error because endpoint is not implemented', async () => {
       // Arrange
       const mockFile = new File(['cert content'], 'certificate.cer', {
         type: 'application/x-x509-ca-cert',
       });
-      const mockResponse = { success: true };
-      vi.mocked(axiosClient.post).mockResolvedValue({ data: mockResponse });
 
-      // Act
-      const result = await companySettingsService.uploadCertificate('1', mockFile);
-
-      // Assert
-      expect(axiosClient.post).toHaveBeenCalledWith(
-        '/company-settings/1/upload-certificate',
-        expect.any(FormData),
-        expect.objectContaining({
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        })
-      );
-      expect(result).toEqual(mockResponse);
+      // Act & Assert
+      await expect(
+        companySettingsService.uploadCertificate('1', mockFile)
+      ).rejects.toThrow('La carga de certificado no esta disponible');
     });
   });
 
   describe('uploadKey', () => {
-    it('should upload key file with password', async () => {
+    it('should throw error because endpoint is not implemented', async () => {
       // Arrange
       const mockFile = new File(['key content'], 'key.key', {
         type: 'application/octet-stream',
       });
-      const mockResponse = { success: true };
-      vi.mocked(axiosClient.post).mockResolvedValue({ data: mockResponse });
 
-      // Act
-      const result = await companySettingsService.uploadKey('1', mockFile, 'password123');
-
-      // Assert
-      expect(axiosClient.post).toHaveBeenCalledWith(
-        '/company-settings/1/upload-key',
-        expect.any(FormData),
-        expect.objectContaining({
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        })
-      );
-      expect(result).toEqual(mockResponse);
+      // Act & Assert
+      await expect(
+        companySettingsService.uploadKey('1', mockFile, 'password123')
+      ).rejects.toThrow('La carga de llave privada no esta disponible');
     });
   });
 
@@ -300,13 +252,11 @@ describe('Company Settings Services', () => {
       await expect(companySettingsService.getAll()).rejects.toThrow();
     });
 
-    it('should handle errors when testing PAC', async () => {
-      // Arrange
-      const error = createMockAxiosError(401, 'Unauthorized');
-      vi.mocked(axiosClient.post).mockRejectedValue(error);
-
-      // Act & Assert
-      await expect(companySettingsService.testPACConnection('1')).rejects.toThrow();
+    it('should throw when testing PAC (endpoint not implemented)', async () => {
+      // Act & Assert - service throws immediately without calling axios
+      await expect(companySettingsService.testPACConnection('1')).rejects.toThrow(
+        'La prueba de conexion PAC no esta disponible'
+      );
     });
   });
 });

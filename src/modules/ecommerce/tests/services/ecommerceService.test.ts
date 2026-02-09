@@ -47,7 +47,7 @@ describe('ecommerceService', () => {
       const result = await ecommerceService.orders.getAll();
 
       // Assert
-      expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/ecommerce-orders', {
+      expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/sales-orders', {
         params: {},
       });
       expect(result).toHaveLength(2);
@@ -69,7 +69,7 @@ describe('ecommerceService', () => {
       });
 
       // Assert
-      expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/ecommerce-orders', {
+      expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/sales-orders', {
         params: {
           'filter[search]': 'ECO-2025',
           'filter[status]': 'pending',
@@ -113,9 +113,9 @@ describe('ecommerceService', () => {
       const result = await ecommerceService.orders.getById('1');
 
       // Assert
-      expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/ecommerce-orders/1', {
+      expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/sales-orders/1', {
         params: {
-          include: 'items,items.product,customer,paymentMethod',
+          include: 'items,items.product,customer',
         },
       });
       expect(result.id).toBe('1');
@@ -146,10 +146,10 @@ describe('ecommerceService', () => {
 
       // Assert
       expect(mockAxios.post).toHaveBeenCalledWith(
-        '/api/v1/ecommerce-orders',
+        '/api/v1/sales-orders',
         expect.objectContaining({
           data: {
-            type: 'ecommerce-orders',
+            type: 'sales-orders',
             attributes: expect.any(Object),
           },
         })
@@ -183,10 +183,10 @@ describe('ecommerceService', () => {
 
       // Assert
       expect(mockAxios.patch).toHaveBeenCalledWith(
-        '/api/v1/ecommerce-orders/1',
+        '/api/v1/sales-orders/1',
         expect.objectContaining({
           data: {
-            type: 'ecommerce-orders',
+            type: 'sales-orders',
             id: '1',
             attributes: expect.any(Object),
           },
@@ -290,7 +290,7 @@ describe('ecommerceService', () => {
       await ecommerceService.orders.delete('1');
 
       // Assert
-      expect(mockAxios.delete).toHaveBeenCalledWith('/api/v1/ecommerce-orders/1');
+      expect(mockAxios.delete).toHaveBeenCalledWith('/api/v1/sales-orders/1');
     });
 
     it('should throw 404 error when deleting non-existent order', async () => {
@@ -343,7 +343,7 @@ describe('ecommerceService', () => {
       const result = await ecommerceService.items.getAll();
 
       // Assert
-      expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/ecommerce-order-items', {
+      expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/sales-order-items', {
         params: {},
       });
       expect(result).toHaveLength(2);
@@ -360,9 +360,9 @@ describe('ecommerceService', () => {
       await ecommerceService.items.getAll(1);
 
       // Assert
-      expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/ecommerce-order-items', {
+      expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/sales-order-items', {
         params: {
-          'filter[ecommerce_order_id]': 1,
+          'filter[sales_order_id]': 1,
         },
       });
     });
@@ -382,10 +382,10 @@ describe('ecommerceService', () => {
 
       // Assert
       expect(mockAxios.post).toHaveBeenCalledWith(
-        '/api/v1/ecommerce-order-items',
+        '/api/v1/sales-order-items',
         expect.objectContaining({
           data: {
-            type: 'ecommerce-order-items',
+            type: 'sales-order-items',
             attributes: expect.any(Object),
           },
         })
@@ -419,7 +419,7 @@ describe('ecommerceService', () => {
       await ecommerceService.items.delete('1');
 
       // Assert
-      expect(mockAxios.delete).toHaveBeenCalledWith('/api/v1/ecommerce-order-items/1');
+      expect(mockAxios.delete).toHaveBeenCalledWith('/api/v1/sales-order-items/1');
     });
   });
 });

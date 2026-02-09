@@ -28,6 +28,7 @@ const mockAxios = axiosClient as {
 };
 
 // Helper to create JSON:API response
+// The service transformFromAPI reads camelCase attributes from the backend
 function createCouponAPIResponse(coupon: ReturnType<typeof createMockCoupon>) {
   return {
     data: {
@@ -36,15 +37,15 @@ function createCouponAPIResponse(coupon: ReturnType<typeof createMockCoupon>) {
       attributes: {
         code: coupon.code,
         name: coupon.name,
-        discount_type: coupon.discountType,
-        discount_value: coupon.discountValue,
-        min_order_amount: coupon.minimumOrderAmount,
-        max_discount: coupon.maximumDiscount,
-        usage_limit: coupon.usageLimit,
-        usage_count: coupon.usageCount,
-        start_date: coupon.startsAt,
-        end_date: coupon.expiresAt,
-        is_active: coupon.isActive,
+        couponType: coupon.discountType,
+        value: coupon.discountValue,
+        minAmount: coupon.minimumOrderAmount ?? null,
+        maxAmount: coupon.maximumDiscount ?? null,
+        maxUses: coupon.usageLimit ?? null,
+        usedCount: coupon.usageCount,
+        startsAt: coupon.startsAt ?? null,
+        expiresAt: coupon.expiresAt ?? null,
+        isActive: coupon.isActive,
       },
     },
   };
@@ -72,15 +73,15 @@ describe('couponsService', () => {
               attributes: {
                 code: mockCoupon.code,
                 name: mockCoupon.name,
-                discount_type: mockCoupon.discountType,
-                discount_value: mockCoupon.discountValue,
-                min_order_amount: mockCoupon.minimumOrderAmount,
-                max_discount: mockCoupon.maximumDiscount,
-                usage_limit: mockCoupon.usageLimit,
-                usage_count: mockCoupon.usageCount,
-                start_date: mockCoupon.startsAt,
-                end_date: mockCoupon.expiresAt,
-                is_active: mockCoupon.isActive,
+                couponType: mockCoupon.discountType,
+                value: mockCoupon.discountValue,
+                minAmount: mockCoupon.minimumOrderAmount ?? null,
+                maxAmount: mockCoupon.maximumDiscount ?? null,
+                maxUses: mockCoupon.usageLimit ?? null,
+                usedCount: mockCoupon.usageCount,
+                startsAt: mockCoupon.startsAt ?? null,
+                expiresAt: mockCoupon.expiresAt ?? null,
+                isActive: mockCoupon.isActive,
               },
             },
           ],
@@ -154,13 +155,13 @@ describe('couponsService', () => {
       const result = await couponsService.create({
         code: 'SAVE10',
         name: '10% Discount',
-        discountType: 'percentage',
-        discountValue: 10,
-        minOrderAmount: 100,
-        maxDiscount: 50,
-        usageLimit: 100,
-        startDate: '2025-01-01T00:00:00Z',
-        endDate: '2025-12-31T23:59:59Z',
+        couponType: 'percentage',
+        value: 10,
+        minAmount: 100,
+        maxAmount: 50,
+        maxUses: 100,
+        startsAt: '2025-01-01T00:00:00Z',
+        expiresAt: '2025-12-31T23:59:59Z',
         isActive: true,
       });
 
@@ -171,18 +172,18 @@ describe('couponsService', () => {
           attributes: {
             code: 'SAVE10',
             name: '10% Discount',
-            discountType: 'percentage',
-            discountValue: 10,
-            minOrderAmount: 100,
-            maxDiscount: 50,
-            usageLimit: 100,
-            startDate: '2025-01-01T00:00:00Z',
-            endDate: '2025-12-31T23:59:59Z',
+            couponType: 'percentage',
+            value: 10,
+            minAmount: 100,
+            maxAmount: 50,
+            maxUses: 100,
+            startsAt: '2025-01-01T00:00:00Z',
+            expiresAt: '2025-12-31T23:59:59Z',
             isActive: true,
           },
         },
       });
-      expect(result.discountType).toBe('percentage');
+      expect(result.couponType).toBe('percentage');
     });
 
     it('should create a fixed amount coupon', async () => {
@@ -199,18 +200,18 @@ describe('couponsService', () => {
       const result = await couponsService.create({
         code: 'FLAT50',
         name: '$50 Off',
-        discountType: 'fixed_amount',
-        discountValue: 50,
-        minOrderAmount: null,
-        maxDiscount: null,
-        usageLimit: null,
-        startDate: null,
-        endDate: null,
+        couponType: 'fixed_amount',
+        value: 50,
+        minAmount: null,
+        maxAmount: null,
+        maxUses: null,
+        startsAt: null,
+        expiresAt: null,
         isActive: true,
       });
 
       // Assert
-      expect(result.discountType).toBe('fixed_amount');
+      expect(result.couponType).toBe('fixed_amount');
     });
 
     it('should create a free shipping coupon', async () => {
@@ -227,18 +228,18 @@ describe('couponsService', () => {
       const result = await couponsService.create({
         code: 'FREESHIP',
         name: 'Free Shipping',
-        discountType: 'free_shipping',
-        discountValue: 0,
-        minOrderAmount: 200,
-        maxDiscount: null,
-        usageLimit: null,
-        startDate: null,
-        endDate: null,
+        couponType: 'free_shipping',
+        value: 0,
+        minAmount: 200,
+        maxAmount: null,
+        maxUses: null,
+        startsAt: null,
+        expiresAt: null,
         isActive: true,
       });
 
       // Assert
-      expect(result.discountType).toBe('free_shipping');
+      expect(result.couponType).toBe('free_shipping');
     });
   });
 
@@ -466,22 +467,22 @@ describe('couponsService', () => {
   // ============================================
 
   describe('transformFromAPI', () => {
-    it('should transform camelCase attributes', () => {
-      // Arrange
+    it('should transform camelCase attributes from backend', () => {
+      // Arrange - backend sends camelCase attributes
       const apiResponse = {
         id: '1',
         type: 'coupons',
         attributes: {
           code: 'TEST',
           name: 'Test Coupon',
-          discountType: 'percentage',
-          discountValue: 15,
-          minOrderAmount: 100,
-          maxDiscount: 30,
-          usageLimit: 50,
-          usageCount: 10,
-          startDate: '2025-01-01T00:00:00Z',
-          endDate: '2025-12-31T23:59:59Z',
+          couponType: 'percentage',
+          value: 15,
+          minAmount: 100,
+          maxAmount: 30,
+          maxUses: 50,
+          usedCount: 10,
+          startsAt: '2025-01-01T00:00:00Z',
+          expiresAt: '2025-12-31T23:59:59Z',
           isActive: true,
         },
       };
@@ -490,29 +491,29 @@ describe('couponsService', () => {
       const result = couponsService.transformFromAPI(apiResponse);
 
       // Assert
-      expect(result.discountType).toBe('percentage');
-      expect(result.minOrderAmount).toBe(100);
-      expect(result.maxDiscount).toBe(30);
-      expect(result.usageCount).toBe(10);
+      expect(result.couponType).toBe('percentage');
+      expect(result.minAmount).toBe(100);
+      expect(result.maxAmount).toBe(30);
+      expect(result.usedCount).toBe(10);
     });
 
-    it('should transform snake_case attributes', () => {
-      // Arrange
+    it('should handle missing optional attributes gracefully', () => {
+      // Arrange - backend may omit optional fields
       const apiResponse = {
         id: '1',
         type: 'coupons',
         attributes: {
           code: 'TEST',
           name: 'Test Coupon',
-          discount_type: 'fixed_amount',
-          discount_value: 25,
-          min_order_amount: null,
-          max_discount: null,
-          usage_limit: null,
-          usage_count: 5,
-          start_date: null,
-          end_date: null,
-          is_active: false,
+          couponType: 'fixed_amount',
+          value: 25,
+          minAmount: null,
+          maxAmount: null,
+          maxUses: null,
+          usedCount: 5,
+          startsAt: null,
+          expiresAt: null,
+          isActive: false,
         },
       };
 
@@ -520,12 +521,12 @@ describe('couponsService', () => {
       const result = couponsService.transformFromAPI(apiResponse);
 
       // Assert
-      expect(result.discountType).toBe('fixed_amount');
-      expect(result.minOrderAmount).toBeNull();
+      expect(result.couponType).toBe('fixed_amount');
+      expect(result.minAmount).toBeNull();
       expect(result.isActive).toBe(false);
     });
 
-    it('should default usageCount to 0 when missing', () => {
+    it('should default usedCount to 0 when missing', () => {
       // Arrange
       const apiResponse = {
         id: '1',
@@ -533,8 +534,8 @@ describe('couponsService', () => {
         attributes: {
           code: 'TEST',
           name: 'Test',
-          discount_type: 'percentage',
-          discount_value: 10,
+          couponType: 'percentage',
+          value: 10,
         },
       };
 
@@ -542,7 +543,7 @@ describe('couponsService', () => {
       const result = couponsService.transformFromAPI(apiResponse);
 
       // Assert
-      expect(result.usageCount).toBe(0);
+      expect(result.usedCount).toBe(0);
     });
   });
 });

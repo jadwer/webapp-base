@@ -91,7 +91,7 @@ describe('activitiesService', () => {
 
       // Act & Assert
       await expect(activitiesService.getAll()).rejects.toThrow();
-      expect(console.error).toHaveBeenCalled();
+      // console.error removed in Audit V2 - services rethrow without logging
     });
   });
 
@@ -126,7 +126,7 @@ describe('activitiesService', () => {
 
       // Act & Assert
       await expect(activitiesService.getById('999')).rejects.toThrow();
-      expect(console.error).toHaveBeenCalled();
+      // console.error removed in Audit V2 - services rethrow without logging
     });
   });
 
@@ -191,7 +191,7 @@ describe('activitiesService', () => {
 
       // Act & Assert
       await expect(activitiesService.create(formData)).rejects.toThrow();
-      expect(console.error).toHaveBeenCalled();
+      // console.error removed in Audit V2 - services rethrow without logging
     });
   });
 
@@ -252,7 +252,7 @@ describe('activitiesService', () => {
 
       // Act & Assert
       await expect(activitiesService.update('999', formData)).rejects.toThrow();
-      expect(console.error).toHaveBeenCalled();
+      // console.error removed in Audit V2 - services rethrow without logging
     });
   });
 
@@ -276,7 +276,7 @@ describe('activitiesService', () => {
 
       // Act & Assert
       await expect(activitiesService.delete('999')).rejects.toThrow();
-      expect(console.error).toHaveBeenCalled();
+      // console.error removed in Audit V2 - services rethrow without logging
     });
   });
 

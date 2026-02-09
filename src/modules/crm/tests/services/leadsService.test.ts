@@ -49,7 +49,7 @@ describe('leadsService', () => {
 
       // Assert
       expect(axiosClient.get).toHaveBeenCalledWith(
-        expect.stringContaining('include=user%2CpipelineStage')
+        expect.stringContaining('include=user%2Ccontact')
       );
       expect(result).toEqual(mockResponse);
     });
@@ -90,7 +90,7 @@ describe('leadsService', () => {
 
       // Act & Assert
       await expect(leadsService.getAll()).rejects.toThrow();
-      expect(console.error).toHaveBeenCalled();
+      // console.error removed in Audit V2 - services rethrow without logging
     });
   });
 
@@ -113,7 +113,7 @@ describe('leadsService', () => {
 
       // Assert
       expect(axiosClient.get).toHaveBeenCalledWith(
-        '/api/v1/leads/5?include=user,contact,pipelineStage,campaigns'
+        '/api/v1/leads/5?include=user,contact,campaigns,activities'
       );
       expect(result).toEqual(mockResponse);
     });
@@ -125,7 +125,7 @@ describe('leadsService', () => {
 
       // Act & Assert
       await expect(leadsService.getById('999')).rejects.toThrow();
-      expect(console.error).toHaveBeenCalled();
+      // console.error removed in Audit V2 - services rethrow without logging
     });
   });
 
@@ -195,7 +195,7 @@ describe('leadsService', () => {
 
       // Act & Assert
       await expect(leadsService.create(formData)).rejects.toThrow();
-      expect(console.error).toHaveBeenCalled();
+      // console.error removed in Audit V2 - services rethrow without logging
     });
   });
 
@@ -259,7 +259,7 @@ describe('leadsService', () => {
 
       // Act & Assert
       await expect(leadsService.update('999', formData)).rejects.toThrow();
-      expect(console.error).toHaveBeenCalled();
+      // console.error removed in Audit V2 - services rethrow without logging
     });
   });
 
@@ -283,7 +283,7 @@ describe('leadsService', () => {
 
       // Act & Assert
       await expect(leadsService.delete('999')).rejects.toThrow();
-      expect(console.error).toHaveBeenCalled();
+      // console.error removed in Audit V2 - services rethrow without logging
     });
   });
 });

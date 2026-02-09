@@ -91,7 +91,7 @@ describe('campaignsService', () => {
 
       // Act & Assert
       await expect(campaignsService.getAll()).rejects.toThrow();
-      expect(console.error).toHaveBeenCalled();
+      // console.error removed in Audit V2 - services rethrow without logging
     });
   });
 
@@ -126,7 +126,7 @@ describe('campaignsService', () => {
 
       // Act & Assert
       await expect(campaignsService.getById('999')).rejects.toThrow();
-      expect(console.error).toHaveBeenCalled();
+      // console.error removed in Audit V2 - services rethrow without logging
     });
   });
 
@@ -192,7 +192,7 @@ describe('campaignsService', () => {
 
       // Act & Assert
       await expect(campaignsService.create(formData)).rejects.toThrow();
-      expect(console.error).toHaveBeenCalled();
+      // console.error removed in Audit V2 - services rethrow without logging
     });
   });
 
@@ -254,7 +254,7 @@ describe('campaignsService', () => {
 
       // Act & Assert
       await expect(campaignsService.update('999', formData)).rejects.toThrow();
-      expect(console.error).toHaveBeenCalled();
+      // console.error removed in Audit V2 - services rethrow without logging
     });
   });
 
@@ -278,7 +278,7 @@ describe('campaignsService', () => {
 
       // Act & Assert
       await expect(campaignsService.delete('999')).rejects.toThrow();
-      expect(console.error).toHaveBeenCalled();
+      // console.error removed in Audit V2 - services rethrow without logging
     });
   });
 });
