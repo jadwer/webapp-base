@@ -85,7 +85,7 @@ const cartService = {
       `/api/v1/shopping-carts/${id}`,
       {
         params: {
-          include: 'items,items.product',
+          include: 'cartItems,cartItems.product',
         },
       }
     );
@@ -226,15 +226,35 @@ const cartItemsService = {
   async add(
     shoppingCartId: number,
     productId: number,
-    quantity: number = 1
+    quantity: number = 1,
+    unitPrice: number = 0
   ): Promise<ShoppingCartItem> {
+    const subtotal = parseFloat((unitPrice * quantity).toFixed(2));
+    const taxRate = 16;
+    const taxAmount = parseFloat((subtotal * taxRate / 100).toFixed(2));
+    const total = parseFloat((subtotal + taxAmount).toFixed(2));
+
     const payload = {
       data: {
         type: 'cart-items',
         attributes: {
-          shopping_cart_id: shoppingCartId,
-          product_id: productId,
           quantity,
+          unitPrice,
+          originalPrice: unitPrice,
+          discountPercent: 0,
+          discountAmount: 0,
+          subtotal,
+          taxRate,
+          taxAmount,
+          total,
+        },
+        relationships: {
+          shoppingCart: {
+            data: { type: 'shopping-carts', id: String(shoppingCartId) },
+          },
+          product: {
+            data: { type: 'products', id: String(productId) },
+          },
         },
       },
     };
@@ -335,7 +355,8 @@ const localCartSyncService = {
       await cartItemsService.add(
         parseInt(cart.id),
         parseInt(item.productId),
-        item.quantity
+        item.quantity,
+        item.price
       );
     }
 
