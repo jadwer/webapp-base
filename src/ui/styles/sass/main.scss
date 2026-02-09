@@ -1,7 +1,9 @@
-// Import Bootstrap CSS with modern @use syntax
-@use "../../../../node_modules/bootstrap/scss/bootstrap";
+// Override Bootstrap primary color with LWM brand green
+@use "../../../../node_modules/bootstrap/scss/bootstrap" with (
+  $primary: #8AC905
+);
 
 // Bootstrap Icons se importa desde CDN en layout.tsx
 
-// Labor Wasser Landing Page Styles
+// Labor Wasser de Mexico - Brand Styles
 @import "laborwasser";

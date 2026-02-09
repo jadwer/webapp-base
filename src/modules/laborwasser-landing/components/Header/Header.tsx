@@ -87,7 +87,7 @@ export const Header: React.FC = () => {
               </div>
 
               {/* Cart Icon */}
-              <Link href="/cart" className="btn btn-link position-relative mx-2" style={{ color: '#0d6efd' }}>
+              <Link href="/cart" className="btn btn-link position-relative mx-2 header-icon">
                 <i className="bi bi-cart3" style={{ fontSize: '1.5rem' }}></i>
                 {cartItemCount > 0 && (
                   <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
@@ -190,17 +190,16 @@ export const Header: React.FC = () => {
             <div className="col-4 d-flex justify-content-end align-items-center">
               {/* User Menu / Login Icon Mobile */}
               {isLoading ? (
-                <span className="btn btn-link" style={{ color: '#0d6efd' }}>
+                <span className="btn btn-link header-icon">
                   <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                 </span>
               ) : isAuthenticated ? (
                 <div className="dropdown">
                   <button
-                    className="btn btn-link dropdown-toggle p-1"
+                    className="btn btn-link dropdown-toggle p-1 header-icon"
                     type="button"
                     data-bs-toggle="dropdown"
                     aria-expanded="false"
-                    style={{ color: '#0d6efd' }}
                   >
                     <i className="bi bi-person-circle" style={{ fontSize: '1.3rem' }}></i>
                   </button>
@@ -229,13 +228,13 @@ export const Header: React.FC = () => {
                   </ul>
                 </div>
               ) : (
-                <Link href="/auth/login" className="btn btn-link" style={{ color: '#0d6efd' }}>
+                <Link href="/auth/login" className="btn btn-link header-icon">
                   <i className="bi bi-person" style={{ fontSize: '1.3rem' }}></i>
                 </Link>
               )}
 
               {/* Cart Icon Mobile */}
-              <Link href="/cart" className="btn btn-link position-relative" style={{ color: '#0d6efd' }}>
+              <Link href="/cart" className="btn btn-link position-relative header-icon">
                 <i className="bi bi-cart3" style={{ fontSize: '1.3rem' }}></i>
                 {cartItemCount > 0 && (
                   <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style={{ fontSize: '0.6rem' }}>

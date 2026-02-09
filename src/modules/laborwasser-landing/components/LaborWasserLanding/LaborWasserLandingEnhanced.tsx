@@ -18,6 +18,7 @@ import {
   Footer,
   UltimosProductosEnhanced
 } from '../'
+import { TopNav } from '../TopNav/TopNav'
 import { PublicCatalogTemplate, useSaleProducts, useLocalCart } from '@/modules/public-catalog'
 import type { EnhancedPublicProduct } from '@/modules/public-catalog'
 import { toast } from '@/lib/toast'
@@ -116,7 +117,8 @@ export const LaborWasserLandingEnhanced: React.FC<LaborWasserLandingEnhancedProp
     <div className={`laborwasser-landing ${styles.landingPage} ${className || ''}`}>
       {/* Header with navigation */}
       <Header />
-      
+      <TopNav />
+
       {/* Main content */}
       <main className={styles.mainContent}>
         {/* Hero section */}
