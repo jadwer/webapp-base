@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useLocalCartCount } from '@/modules/public-catalog'
 import { useAuth } from '@/modules/auth'
+import { useIsClient } from '@/hooks/useIsClient'
 import { ContactOffcanvas } from '../ContactOffcanvas/ContactOffcanvas'
 
 export const Header: React.FC = () => {
@@ -12,6 +13,7 @@ export const Header: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const cartItemCount = useLocalCartCount()
   const { user, isAuthenticated, isLoading, logout } = useAuth()
+  const isClient = useIsClient()
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
@@ -97,7 +99,7 @@ export const Header: React.FC = () => {
               </Link>
 
               {/* User Menu / Login Button */}
-              {isLoading ? (
+              {!isClient || isLoading ? (
                 <div className="btn btn-outline-primary d-flex align-items-center me-2" style={{ whiteSpace: 'nowrap' }}>
                   <span className="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
                 </div>
@@ -189,7 +191,7 @@ export const Header: React.FC = () => {
             </div>
             <div className="col-4 d-flex justify-content-end align-items-center">
               {/* User Menu / Login Icon Mobile */}
-              {isLoading ? (
+              {!isClient || isLoading ? (
                 <span className="btn btn-link header-icon">
                   <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                 </span>
