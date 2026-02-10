@@ -1,9 +1,14 @@
 'use client'
 
-import { use, useState } from 'react'
+import { use, useState, useEffect, useCallback } from 'react'
 import { useSalesOrder, useSalesOrderItems } from '@/modules/sales'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
 import { formatCurrency, formatQuantity } from '@/lib/formatters'
+import { salesService } from '@/modules/sales/services'
+import { remissionService, REMISSION_STATUS_LABELS } from '@/modules/sales/services/remissionService'
+import type { Remission } from '@/modules/sales/services/remissionService'
+import { toast } from '@/lib/toast'
+import axiosClient from '@/lib/axiosClient'
 import AddItemModal from '@/modules/sales/components/AddItemModal'
 
 interface PageProps {
@@ -14,9 +19,28 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
   const resolvedParams = use(params)
   const navigation = useNavigationProgress()
   const [showAddModal, setShowAddModal] = useState(false)
+  const [remissions, setRemissions] = useState<Remission[]>([])
+  const [remissionsLoading, setRemissionsLoading] = useState(true)
+  const [actionLoading, setActionLoading] = useState<string | null>(null)
 
   const { salesOrder, isLoading: orderLoading, error: orderError } = useSalesOrder(resolvedParams.id)
   const { salesOrderItems, isLoading: itemsLoading, error: itemsError, mutate: mutateItems } = useSalesOrderItems(resolvedParams.id)
+
+  const loadRemissions = useCallback(async () => {
+    try {
+      setRemissionsLoading(true)
+      const result = await remissionService.getForOrder(resolvedParams.id)
+      setRemissions(result.remissions)
+    } catch {
+      // Silently fail - remissions are supplementary
+    } finally {
+      setRemissionsLoading(false)
+    }
+  }, [resolvedParams.id])
+
+  useEffect(() => {
+    loadRemissions()
+  }, [loadRemissions])
 
   const getStatusBadgeClass = (status: string) => {
     switch (status) {
@@ -35,6 +59,96 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
       case 'pending': return 'Pendiente'
       case 'cancelled': return 'Cancelada'
       default: return status
+    }
+  }
+
+  const handleGenerateRemission = async () => {
+    if (!confirm('Generar remision con todos los items de esta orden?')) return
+    setActionLoading('remission')
+    try {
+      await remissionService.createFromOrderFull(resolvedParams.id)
+      toast.success('Remision generada correctamente')
+      await loadRemissions()
+    } catch {
+      toast.error('Error al generar la remision')
+    } finally {
+      setActionLoading(null)
+    }
+  }
+
+  const handlePrintRemission = async (remId: string) => {
+    setActionLoading(`print-${remId}`)
+    try {
+      await remissionService.print(remId)
+      toast.success('Remision marcada como impresa')
+      await loadRemissions()
+    } catch {
+      toast.error('Error al imprimir remision')
+    } finally {
+      setActionLoading(null)
+    }
+  }
+
+  const handleDeliverRemission = async (remId: string) => {
+    if (!confirm('Marcar remision como entregada?')) return
+    setActionLoading(`deliver-${remId}`)
+    try {
+      await remissionService.deliver(remId)
+      toast.success('Remision marcada como entregada')
+      await loadRemissions()
+    } catch {
+      toast.error('Error al marcar como entregada')
+    } finally {
+      setActionLoading(null)
+    }
+  }
+
+  const handleDownloadRemissionPdf = async (remId: string) => {
+    try {
+      await remissionService.downloadPdf(remId)
+    } catch {
+      toast.error('Error al descargar PDF')
+    }
+  }
+
+  const handleCancelRemission = async (remId: string) => {
+    if (!confirm('Cancelar esta remision? Esta accion no se puede deshacer.')) return
+    setActionLoading(`cancel-${remId}`)
+    try {
+      await remissionService.cancel(remId)
+      toast.success('Remision cancelada')
+      await loadRemissions()
+    } catch {
+      toast.error('Error al cancelar remision')
+    } finally {
+      setActionLoading(null)
+    }
+  }
+
+  const handleCancelOrder = async () => {
+    if (!confirm('Cancelar esta orden de venta? Esta accion no se puede deshacer.')) return
+    setActionLoading('cancel-order')
+    try {
+      await salesService.orders.cancel(resolvedParams.id)
+      toast.success('Orden cancelada exitosamente')
+      window.location.reload()
+    } catch {
+      toast.error('Error al cancelar la orden')
+    } finally {
+      setActionLoading(null)
+    }
+  }
+
+  const handlePrintOrder = async () => {
+    try {
+      const response = await axiosClient.get(`/api/v1/sales-orders/${resolvedParams.id}/pdf/stream`, {
+        responseType: 'blob',
+      })
+      const blob = new Blob([response.data], { type: 'application/pdf' })
+      const url = window.URL.createObjectURL(blob)
+      window.open(url, '_blank')
+    } catch {
+      toast.error('Error al generar PDF de la orden')
     }
   }
 
@@ -72,6 +186,8 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
     )
   }
 
+  const isActive = salesOrder.status !== 'cancelled' && salesOrder.status !== 'completed'
+
   return (
     <div className="container-fluid py-4">
       {/* Header */}
@@ -88,21 +204,21 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
               </p>
             </div>
             <div className="btn-group">
-              <button 
+              <button
                 className="btn btn-outline-secondary"
                 onClick={() => navigation.push('/dashboard/sales')}
               >
                 <i className="bi bi-arrow-left me-2"></i>
                 Volver a Sales
               </button>
-              <button 
+              <button
                 className="btn btn-outline-primary"
                 onClick={() => navigation.push(`/dashboard/sales/${resolvedParams.id}/edit`)}
               >
                 <i className="bi bi-pencil me-2"></i>
                 Editar
               </button>
-              <button 
+              <button
                 className="btn btn-primary"
                 onClick={() => navigation.push(`/dashboard/sales/${resolvedParams.id}/items`)}
               >
@@ -115,13 +231,13 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
       </div>
 
       <div className="row">
-        {/* Información principal */}
+        {/* Informacion principal */}
         <div className="col-md-8">
           <div className="card">
             <div className="card-header">
               <h5 className="card-title mb-0">
                 <i className="bi bi-info-circle me-2"></i>
-                Información de la Orden
+                Informacion de la Orden
               </h5>
             </div>
             <div className="card-body">
@@ -130,7 +246,7 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
                   <table className="table table-borderless">
                     <tbody>
                       <tr>
-                        <td><strong>Número de Orden:</strong></td>
+                        <td><strong>Numero de Orden:</strong></td>
                         <td>{salesOrder.orderNumber}</td>
                       </tr>
                       <tr>
@@ -216,9 +332,123 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
               )}
             </div>
           </div>
+
+          {/* Remissions section */}
+          <div className="card mt-3">
+            <div className="card-header d-flex justify-content-between align-items-center">
+              <h5 className="card-title mb-0">
+                <i className="bi bi-truck me-2"></i>
+                Remisiones ({remissions.length})
+              </h5>
+              {isActive && (
+                <button
+                  className="btn btn-sm btn-success"
+                  onClick={handleGenerateRemission}
+                  disabled={actionLoading === 'remission'}
+                >
+                  {actionLoading === 'remission' ? (
+                    <span className="spinner-border spinner-border-sm me-1" />
+                  ) : (
+                    <i className="bi bi-plus me-1" />
+                  )}
+                  Generar Remision
+                </button>
+              )}
+            </div>
+            <div className="card-body p-0">
+              {remissionsLoading ? (
+                <div className="text-center py-3">
+                  <span className="spinner-border spinner-border-sm text-primary" />
+                </div>
+              ) : remissions.length === 0 ? (
+                <div className="text-center text-muted py-4">
+                  <i className="bi bi-truck" style={{ fontSize: '2rem' }} />
+                  <p className="mt-2 mb-0">No hay remisiones para esta orden.</p>
+                </div>
+              ) : (
+                <div className="table-responsive">
+                  <table className="table table-hover mb-0">
+                    <thead className="table-light">
+                      <tr>
+                        <th>Numero</th>
+                        <th>Estado</th>
+                        <th>Fecha</th>
+                        <th>Items</th>
+                        <th>Acciones</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {remissions.map((rem) => {
+                        const statusConfig = REMISSION_STATUS_LABELS[rem.status] || REMISSION_STATUS_LABELS.draft
+                        return (
+                          <tr key={rem.id}>
+                            <td className="fw-medium">{rem.remissionNumber || `REM-${rem.id}`}</td>
+                            <td>
+                              <span className={`badge ${statusConfig.badgeClass}`}>{statusConfig.label}</span>
+                            </td>
+                            <td>
+                              {rem.remissionDate
+                                ? new Date(rem.remissionDate).toLocaleDateString('es-ES')
+                                : rem.createdAt
+                                  ? new Date(rem.createdAt).toLocaleDateString('es-ES')
+                                  : 'N/A'}
+                            </td>
+                            <td>{rem.totalItems ?? '-'}</td>
+                            <td>
+                              <div className="d-flex gap-1">
+                                {rem.status === 'draft' && (
+                                  <button
+                                    className="btn btn-sm btn-outline-primary"
+                                    onClick={() => handlePrintRemission(rem.id)}
+                                    disabled={actionLoading === `print-${rem.id}`}
+                                    title="Imprimir (genera PDF)"
+                                  >
+                                    <i className="bi bi-printer" />
+                                  </button>
+                                )}
+                                {rem.status === 'printed' && (
+                                  <button
+                                    className="btn btn-sm btn-outline-success"
+                                    onClick={() => handleDeliverRemission(rem.id)}
+                                    disabled={actionLoading === `deliver-${rem.id}`}
+                                    title="Marcar como entregada"
+                                  >
+                                    <i className="bi bi-check-circle" />
+                                  </button>
+                                )}
+                                {(rem.status === 'printed' || rem.status === 'delivered') && (
+                                  <button
+                                    className="btn btn-sm btn-outline-secondary"
+                                    onClick={() => handleDownloadRemissionPdf(rem.id)}
+                                    title="Descargar PDF"
+                                  >
+                                    <i className="bi bi-file-pdf" />
+                                  </button>
+                                )}
+                                {rem.status !== 'delivered' && rem.status !== 'cancelled' && (
+                                  <button
+                                    className="btn btn-sm btn-outline-danger"
+                                    onClick={() => handleCancelRemission(rem.id)}
+                                    disabled={actionLoading === `cancel-${rem.id}`}
+                                    title="Cancelar"
+                                  >
+                                    <i className="bi bi-x" />
+                                  </button>
+                                )}
+                              </div>
+                            </td>
+                          </tr>
+                        )
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
 
-        {/* Resumen de items */}
+        {/* Resumen de items + Acciones */}
         <div className="col-md-4">
           <div className="card">
             <div className="card-header">
@@ -258,7 +488,7 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
                   </div>
                   <hr />
                   <div className="d-grid">
-                    <button 
+                    <button
                       className="btn btn-primary"
                       onClick={() => navigation.push(`/dashboard/sales/${resolvedParams.id}/items`)}
                     >
@@ -271,7 +501,7 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
                 <div className="text-center text-muted">
                   <i className="bi bi-inbox display-4 mb-3"></i>
                   <p>Sin items en esta orden</p>
-                  <button 
+                  <button
                     className="btn btn-sm btn-primary"
                     onClick={() => setShowAddModal(true)}
                   >
@@ -283,7 +513,52 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
             </div>
           </div>
 
-          {/* Acciones rápidas */}
+          {/* Generar Documentos */}
+          <div className="card mt-3">
+            <div className="card-header">
+              <h5 className="card-title mb-0">
+                <i className="bi bi-file-earmark-text me-2"></i>
+                Generar Documentos
+              </h5>
+            </div>
+            <div className="card-body">
+              <p className="text-muted" style={{ fontSize: '13px' }}>
+                Genera documentos a partir de esta orden de venta.
+              </p>
+              <div className="d-grid gap-2">
+                <button
+                  className="btn btn-success"
+                  onClick={handleGenerateRemission}
+                  disabled={!isActive || actionLoading === 'remission'}
+                >
+                  {actionLoading === 'remission' ? (
+                    <span className="spinner-border spinner-border-sm me-2" />
+                  ) : (
+                    <i className="bi bi-truck me-2"></i>
+                  )}
+                  Generar Remision
+                </button>
+                <button
+                  className="btn btn-outline-primary"
+                  onClick={() => navigation.push('/dashboard/billing/invoices/create')}
+                  disabled={!isActive}
+                >
+                  <i className="bi bi-receipt me-2"></i>
+                  Generar Factura
+                </button>
+                <button
+                  className="btn btn-outline-info"
+                  onClick={() => navigation.push('/dashboard/billing/invoices/create')}
+                  disabled={!isActive}
+                >
+                  <i className="bi bi-file-earmark-medical me-2"></i>
+                  Generar Prefactura
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Acciones rapidas */}
           <div className="card mt-3">
             <div className="card-header">
               <h5 className="card-title mb-0">
@@ -293,20 +568,23 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
             </div>
             <div className="card-body">
               <div className="d-grid gap-2">
-                <button className="btn btn-outline-primary">
+                <button
+                  className="btn btn-outline-primary"
+                  onClick={handlePrintOrder}
+                >
                   <i className="bi bi-printer me-2"></i>
                   Imprimir Orden
                 </button>
-                <button className="btn btn-outline-info">
-                  <i className="bi bi-envelope me-2"></i>
-                  Enviar por Email
-                </button>
-                <button className="btn btn-outline-success">
-                  <i className="bi bi-check-circle me-2"></i>
-                  Marcar como Entregada
-                </button>
-                <button className="btn btn-outline-danger">
-                  <i className="bi bi-x-circle me-2"></i>
+                <button
+                  className="btn btn-outline-danger"
+                  onClick={handleCancelOrder}
+                  disabled={!isActive || actionLoading === 'cancel-order'}
+                >
+                  {actionLoading === 'cancel-order' ? (
+                    <span className="spinner-border spinner-border-sm me-2" />
+                  ) : (
+                    <i className="bi bi-x-circle me-2"></i>
+                  )}
                   Cancelar Orden
                 </button>
               </div>
@@ -314,14 +592,14 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
           </div>
         </div>
       </div>
-      
+
       {/* Add Item Modal */}
       <AddItemModal
         salesOrderId={resolvedParams.id}
         isOpen={showAddModal}
         onClose={() => setShowAddModal(false)}
         onSuccess={() => {
-          mutateItems() // Refresh the items list
+          mutateItems()
           setShowAddModal(false)
         }}
       />
