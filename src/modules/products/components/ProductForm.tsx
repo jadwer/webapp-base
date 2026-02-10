@@ -196,7 +196,8 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     await onSubmit(submitData)
   }
 
-  const isFormLoading = isLoading || unitsLoading || categoriesLoading || brandsLoading || uploadingImage || uploadingDatasheet
+  const isSubmitting = isLoading || uploadingImage || uploadingDatasheet
+  const isDropdownsLoading = unitsLoading || categoriesLoading || brandsLoading
 
   return (
     <form onSubmit={handleSubmit} className="needs-validation" noValidate>
@@ -211,7 +212,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           errorText={touched.name ? errors.name : ''}
           required
           placeholder="Ingrese el nombre del producto"
-          disabled={isFormLoading}
+          disabled={isSubmitting}
           autoFocus
         />
       </div>
@@ -247,7 +248,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               errorText={touched.sku ? errors.sku : ''}
               placeholder="Código único del producto (opcional)"
               helpText="Código único para identificar el producto"
-              disabled={isFormLoading}
+              disabled={isSubmitting}
             />
           </div>
 
@@ -259,7 +260,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               onChange={(e) => handleInputChange('description', e.target.value)}
               onBlur={() => handleBlur('description')}
               placeholder="Descripción breve del producto"
-              disabled={isFormLoading}
+              disabled={isSubmitting}
             />
           </div>
 
@@ -271,7 +272,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               onChange={(e) => handleInputChange('fullDescription', e.target.value)}
               onBlur={() => handleBlur('fullDescription')}
               placeholder="Descripción detallada del producto"
-              disabled={isFormLoading}
+              disabled={isSubmitting}
             />
           </div>
         </div>
@@ -289,7 +290,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               step="0.01"
               min="0"
               leftIcon="bi-currency-dollar"
-              disabled={isFormLoading}
+              disabled={isSubmitting}
             />
           </div>
 
@@ -305,7 +306,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               step="0.01"
               min="0"
               leftIcon="bi-currency-dollar"
-              disabled={isFormLoading}
+              disabled={isSubmitting}
             />
           </div>
 
@@ -317,7 +318,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                 id="iva-checkbox"
                 checked={formData.iva}
                 onChange={(e) => handleInputChange('iva', e.target.checked)}
-                disabled={isFormLoading}
+                disabled={isSubmitting}
               />
               <label className="form-check-label" htmlFor="iva-checkbox">
                 IVA incluido
@@ -334,7 +335,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               onBlur={() => handleBlur('unitId')}
               errorText={touched.unitId ? errors.unitId : ''}
               required
-              disabled={isFormLoading}
+              disabled={isSubmitting || isDropdownsLoading}
               options={unitOptions}
             />
           </div>
@@ -348,7 +349,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               onBlur={() => handleBlur('categoryId')}
               errorText={touched.categoryId ? errors.categoryId : ''}
               required
-              disabled={isFormLoading}
+              disabled={isSubmitting || isDropdownsLoading}
               options={categoryOptions}
             />
           </div>
@@ -362,7 +363,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               onBlur={() => handleBlur('brandId')}
               errorText={touched.brandId ? errors.brandId : ''}
               required
-              disabled={isFormLoading}
+              disabled={isSubmitting || isDropdownsLoading}
               options={brandOptions}
             />
           </div>
@@ -403,7 +404,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           type="submit"
           variant="primary"
           loading={isLoading}
-          disabled={isFormLoading}
+          disabled={isSubmitting || isDropdownsLoading}
         >
           <i className="bi bi-check-lg me-2" />
           {product ? 'Actualizar producto' : 'Crear producto'}

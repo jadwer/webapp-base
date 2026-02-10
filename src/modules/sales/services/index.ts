@@ -62,6 +62,11 @@ export const salesService = {
 
     delete: async (id: string) => {
       await axiosClient.delete(`/api/v1/sales-orders/${id}`)
+    },
+
+    cancel: async (id: string) => {
+      const response = await axiosClient.post(`/api/v1/sales-orders/${id}/cancel`)
+      return response.data
     }
   },
 
