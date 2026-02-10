@@ -168,7 +168,7 @@ describe('quoteService', () => {
       // Assert
       expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/quotes', {
         params: expect.objectContaining({
-          sort: '-total_amount',
+          sort: '-totalAmount',
         }),
       });
     });
@@ -188,7 +188,7 @@ describe('quoteService', () => {
       // Assert
       expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/quotes', {
         params: expect.objectContaining({
-          sort: 'quote_date',
+          sort: 'quoteDate',
         }),
       });
     });

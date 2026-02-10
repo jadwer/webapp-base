@@ -110,15 +110,8 @@ function buildQueryParams(
 
   // Sorting
   if (sort?.field) {
-    const fieldMap: Record<string, string> = {
-      quoteNumber: 'quote_number',
-      quoteDate: 'quote_date',
-      validUntil: 'valid_until',
-      totalAmount: 'total_amount',
-      status: 'status',
-      createdAt: 'created_at'
-    }
-    const sortField = fieldMap[sort.field] || sort.field
+    // JSON:API sort uses camelCase field names (matching schema attribute names)
+    const sortField = sort.field
     params.sort = sort.direction === 'desc' ? `-${sortField}` : sortField
   }
 
@@ -493,7 +486,8 @@ export const quoteItemService = {
 }
 
 // Export as default
-export default {
+const quoteServices = {
   quotes: quoteService,
   quoteItems: quoteItemService
 }
+export default quoteServices

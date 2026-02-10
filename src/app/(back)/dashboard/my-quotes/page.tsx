@@ -38,8 +38,7 @@ export default function MyQuotesPage() {
         )
 
         setQuotes(response.data)
-      } catch (err) {
-        console.error('Error fetching quotes:', err)
+      } catch {
         setError('Error al cargar tus cotizaciones')
       } finally {
         setIsLoading(false)

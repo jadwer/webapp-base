@@ -116,7 +116,7 @@ describe('shoppingCartService', () => {
       // Assert
       expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/shopping-carts/1', {
         params: {
-          include: 'items,items.product',
+          include: 'cartItems,cartItems.product',
         },
       });
       expect(result.id).toBe('1');
@@ -298,20 +298,28 @@ describe('shoppingCartService', () => {
       expect(mockAxios.post).toHaveBeenCalledWith(
         '/api/v1/cart-items',
         expect.objectContaining({
-          data: {
+          data: expect.objectContaining({
             type: 'cart-items',
-            attributes: {
-              shopping_cart_id: 1,
-              product_id: 1,
+            attributes: expect.objectContaining({
               quantity: 1,
+              unitPrice: 0,
+              originalPrice: 0,
+            }),
+            relationships: {
+              shoppingCart: {
+                data: { type: 'shopping-carts', id: '1' },
+              },
+              product: {
+                data: { type: 'products', id: '1' },
+              },
             },
-          },
+          }),
         })
       );
       expect(result.id).toBe('1');
     });
 
-    it('should add item to cart with custom quantity', async () => {
+    it('should add item to cart with custom quantity and price', async () => {
       // Arrange
       const mockItem = createMockShoppingCartItem({ quantity: 5 });
       mockAxios.post.mockResolvedValue({
@@ -319,20 +327,32 @@ describe('shoppingCartService', () => {
       });
 
       // Act
-      const result = await shoppingCartService.items.add(1, 1, 5);
+      const result = await shoppingCartService.items.add(1, 1, 5, 100);
 
       // Assert
       expect(mockAxios.post).toHaveBeenCalledWith(
         '/api/v1/cart-items',
         expect.objectContaining({
-          data: {
+          data: expect.objectContaining({
             type: 'cart-items',
-            attributes: {
-              shopping_cart_id: 1,
-              product_id: 1,
+            attributes: expect.objectContaining({
               quantity: 5,
+              unitPrice: 100,
+              originalPrice: 100,
+              subtotal: 500,
+              taxRate: 16,
+              taxAmount: 80,
+              total: 580,
+            }),
+            relationships: {
+              shoppingCart: {
+                data: { type: 'shopping-carts', id: '1' },
+              },
+              product: {
+                data: { type: 'products', id: '1' },
+              },
             },
-          },
+          }),
         })
       );
       expect(result.quantity).toBe(5);

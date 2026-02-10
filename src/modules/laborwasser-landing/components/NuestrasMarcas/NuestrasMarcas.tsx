@@ -1,6 +1,7 @@
 'use client'
 
 import React from 'react'
+import Image from 'next/image'
 
 const brandLogos = [
   { id: '1', logo: '/images/laborwasser/logos/apera-labor-wasser.webp' },
@@ -46,10 +47,12 @@ export const NuestrasMarcas: React.FC = () => {
         {brandLogos.map((brand) => (
           <div key={brand.id} className="col">
             <div className="card">
-              <img
+              <Image
                 src={brand.logo}
                 className="card-img-top"
                 alt="Labor Wasser Mexico"
+                width={200}
+                height={100}
               />
             </div>
           </div>

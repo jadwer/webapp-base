@@ -79,7 +79,7 @@ export default function CustomerDashboard() {
       const [ordersResult, quotesResult, couponsResult, cartResult] = await Promise.allSettled([
         salesService.orders.getAll({
           'filter[contact_email]': user.email,
-          sort: '-created_at',
+          sort: '-createdAt',
           'page[size]': 5,
         }),
         quoteService.getAll(
@@ -96,11 +96,11 @@ export default function CustomerDashboard() {
         const ordersData = (ordersResult.value?.data || []).map(
           (item: { id: string; attributes: Record<string, unknown> }) => ({
             id: item.id,
-            orderNumber: item.attributes.order_number as string,
+            orderNumber: item.attributes.orderNumber as string,
             status: item.attributes.status as string,
-            totalAmount: item.attributes.total_amount as number,
-            createdAt: item.attributes.created_at as string,
-            itemCount: item.attributes.item_count as number | undefined,
+            totalAmount: item.attributes.totalAmount as number,
+            createdAt: item.attributes.createdAt as string,
+            itemCount: item.attributes.itemCount as number | undefined,
           })
         )
         setOrders(ordersData)
@@ -109,13 +109,12 @@ export default function CustomerDashboard() {
       // Process quotes
       if (quotesResult.status === 'fulfilled') {
         const quotesData = (quotesResult.value?.data || []).map(
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (item: any) => ({
+          (item: { id: string; quoteNumber: string; status: string; totalAmount: number; createdAt: string }) => ({
             id: item.id,
-            quoteNumber: item.quoteNumber || item.attributes?.quote_number || '',
-            status: item.status || item.attributes?.status || '',
-            totalAmount: item.totalAmount || item.attributes?.total_amount || 0,
-            createdAt: item.createdAt || item.attributes?.created_at || '',
+            quoteNumber: item.quoteNumber || '',
+            status: item.status || '',
+            totalAmount: item.totalAmount || 0,
+            createdAt: item.createdAt || '',
           })
         )
         setQuotes(quotesData)

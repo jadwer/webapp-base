@@ -149,27 +149,22 @@ export default function CreateQuotePage() {
     }
   }
 
-  // Helper to fetch all carts with their items
-  const fetchAllCarts = async (): Promise<CartWithItems[]> => {
-    try {
-      // Get current cart
-      const currentCart = await shoppingCartService.cart.getCurrent()
-
-      if (currentCart) {
-        return [transformCartToDisplay(currentCart)]
-      }
-
-      return []
-    } catch (error) {
-      console.error('Error fetching carts:', error)
-      return []
-    }
-  }
-
   // Load contacts and carts from API
   const loadData = useCallback(async () => {
     setIsLoadingData(true)
     setLoadError(null)
+
+    const fetchAllCarts = async (): Promise<CartWithItems[]> => {
+      try {
+        const currentCart = await shoppingCartService.cart.getCurrent()
+        if (currentCart) {
+          return [transformCartToDisplay(currentCart)]
+        }
+        return []
+      } catch {
+        return []
+      }
+    }
 
     try {
       // Fetch contacts and carts in parallel

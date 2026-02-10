@@ -2,6 +2,7 @@
 
 import React from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 
 export const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear()
@@ -13,10 +14,12 @@ export const Footer: React.FC = () => {
           <div className="col-12 col-md-3">
             <div className="row align-items-md-center d-flex">
               <div className="col social">
-                <img
+                <Image
                   src="/images/laborwasser/labor-wasser-mexico-logo-1.png"
                   className="img-fluid logo-footer d-block mx-auto"
                   alt="Labor Wasser Mexico"
+                  width={200}
+                  height={80}
                 />
                 <div className="d-flex justify-content-around mt-4">
                   <a href="#" aria-label="Facebook">

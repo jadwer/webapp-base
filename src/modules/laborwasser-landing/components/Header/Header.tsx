@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useLocalCartCount } from '@/modules/public-catalog'
 import { useAuth } from '@/modules/auth'
@@ -53,10 +54,13 @@ export const Header: React.FC = () => {
           <div className="row d-flex align-items-center">
             <div className="col-6 col-md-4 d-flex">
               <Link href="/">
-                <img
+                <Image
                   className="img-fluid logo"
                   alt="Labor Wasser de Mexico"
                   src="/images/laborwasser/labor-wasser-mexico-logo2.webp"
+                  width={250}
+                  height={60}
+                  priority
                 />
               </Link>
             </div>
@@ -165,10 +169,12 @@ export const Header: React.FC = () => {
                 data-bs-toggle="offcanvas"
                 data-bs-target="#navMenu"
               >
-                <img
+                <Image
                   src="/images/laborwasser/labor-wasser-contacto.svg"
                   className="contact-head"
                   alt="Labor Wasser Mexico - Contacto"
+                  width={30}
+                  height={30}
                 />
               </button>
             </div>
@@ -182,10 +188,12 @@ export const Header: React.FC = () => {
           <div className="row d-flex align-items-center">
             <div className="col-8 d-flex">
               <Link href="/">
-                <img
+                <Image
                   className="img-fluid logo"
                   alt="Labor Wasser de Mexico"
                   src="/images/laborwasser/labor-wasser-mexico-logo2.webp"
+                  width={200}
+                  height={48}
                 />
               </Link>
             </div>
@@ -250,10 +258,12 @@ export const Header: React.FC = () => {
                 data-bs-toggle="offcanvas"
                 data-bs-target="#navMenu"
               >
-                <img
+                <Image
                   src="/images/laborwasser/labor-wasser-contacto.svg"
                   className="contact-head"
                   alt="Labor Wasser Mexico - Contacto"
+                  width={30}
+                  height={30}
                 />
               </button>
             </div>

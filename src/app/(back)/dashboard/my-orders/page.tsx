@@ -48,24 +48,23 @@ export default function MyOrdersPage() {
         // Fetch orders filtered by user email (through contact) - uses backend scope filter
         const result = await salesService.orders.getAll({
           'filter[contact_email]': user.email,
-          sort: '-created_at',
+          sort: '-createdAt',
           'page[size]': 50
         })
 
         // Transform JSON:API response to simple array
         const ordersData = result.data?.map((item: { id: string; attributes: Record<string, unknown> }) => ({
           id: item.id,
-          orderNumber: item.attributes.order_number as string,
+          orderNumber: item.attributes.orderNumber as string,
           status: item.attributes.status as string,
-          totalAmount: item.attributes.total_amount as number,
-          createdAt: item.attributes.created_at as string,
-          expectedDeliveryDate: item.attributes.expected_delivery_date as string | undefined,
-          itemCount: item.attributes.item_count as number | undefined
+          totalAmount: item.attributes.totalAmount as number,
+          createdAt: item.attributes.createdAt as string,
+          expectedDeliveryDate: item.attributes.expectedDeliveryDate as string | undefined,
+          itemCount: item.attributes.itemCount as number | undefined
         })) || []
 
         setOrders(ordersData)
-      } catch (err) {
-        console.error('Error fetching orders:', err)
+      } catch {
         setError('Error al cargar tus pedidos')
       } finally {
         setIsLoading(false)

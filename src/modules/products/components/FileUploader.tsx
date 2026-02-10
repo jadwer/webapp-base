@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useRef, useCallback, useEffect } from 'react'
+import Image from 'next/image'
 import { toast } from '@/lib/toast'
 
 interface FileUploaderProps {
@@ -144,11 +145,14 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
           </div>
         ) : displayPreview && isImage ? (
           <div className="position-relative" style={{ maxWidth: '200px' }}>
-            <img
+            <Image
               src={displayPreview}
               alt="Preview"
               className="img-fluid rounded"
+              width={200}
+              height={150}
               style={{ maxHeight: '150px', objectFit: 'contain' }}
+              unoptimized
             />
             <button
               type="button"

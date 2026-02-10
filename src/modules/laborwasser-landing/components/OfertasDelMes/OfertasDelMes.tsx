@@ -99,10 +99,12 @@ export const OfertasDelMes: React.FC = () => {
               key={oferta.id}
               className={`col-12 col-md-4 text-center card-offer ${oferta.bgClass} d-block mx-auto`}
             >
-              <img
+              <Image
                 src={oferta.image}
                 className="img-fluid"
                 alt="Labor Wasser Mexico"
+                width={200}
+                height={200}
               />
               <p>{oferta.description}</p>
               <p>Modelo: {oferta.modelo}</p>

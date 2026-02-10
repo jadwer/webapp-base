@@ -4,7 +4,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { renderHook, waitFor } from '@testing-library/react'
+import { renderHook } from '@testing-library/react'
 import {
   usePublicProducts,
   usePublicProduct,
@@ -34,14 +34,8 @@ vi.mock('../../services/publicProductsService', () => ({
 }))
 
 import useSWR from 'swr/immutable'
-import { publicProductsService } from '../../services/publicProductsService'
 
 const mockUseSWR = useSWR as unknown as ReturnType<typeof vi.fn>
-const mockService = publicProductsService as {
-  getPublicProducts: ReturnType<typeof vi.fn>
-  getPublicProduct: ReturnType<typeof vi.fn>
-  getProductSuggestions: ReturnType<typeof vi.fn>
-}
 
 // Mock product factory
 function createMockProduct(id: string = '1', overrides: Partial<EnhancedPublicProduct> = {}): EnhancedPublicProduct {
