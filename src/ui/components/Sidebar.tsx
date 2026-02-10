@@ -139,6 +139,12 @@ const billingLinks = [
   { href: '/dashboard/billing/payments', label: 'Pagos Stripe', icon: 'bi-credit-card' }
 ]
 
+// Configuración del sistema
+const settingsLinks = [
+  { href: '/dashboard/settings/folios', label: 'Folios y Consecutivos', icon: 'bi-123' },
+  { href: '/dashboard/settings/invoice-series', label: 'Series de Facturación', icon: 'bi-collection' }
+]
+
 // Catálogo Público
 const catalogLinks = [
   { href: '/dashboard/catalog', label: 'Gestión', icon: 'bi-grid-3x3-gap' },
@@ -251,6 +257,7 @@ export default function Sidebar() {
   const [billingOpen, setBillingOpen] = useState(pathname?.startsWith('/dashboard/billing'))
   const [catalogOpen, setCatalogOpen] = useState(pathname?.startsWith('/dashboard/catalog'))
   const [ecommerceOpen, setEcommerceOpen] = useState(pathname?.startsWith('/dashboard/ecommerce'))
+  const [settingsOpen, setSettingsOpen] = useState(pathname?.startsWith('/dashboard/settings'))
   const [systemOpen, setSystemOpen] = useState(
     pathname?.startsWith('/dashboard/audit') ||
     pathname?.startsWith('/dashboard/system-health') ||
@@ -458,6 +465,9 @@ export default function Sidebar() {
 
                 {/* Módulos de gestión */}
                 {renderGroup('Recursos Humanos', 'bi-people-fill', hrOpen, setHrOpen, hrLinks)}
+
+                {/* Configuración */}
+                {renderGroup('Configuración', 'bi-sliders', settingsOpen, setSettingsOpen, settingsLinks)}
 
                 {/* Sistema y administración */}
                 {renderGroup('Sistema', 'bi-gear-wide-connected', systemOpen, setSystemOpen, systemLinks)}

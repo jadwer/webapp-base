@@ -339,6 +339,12 @@ export const PAGE_PERMISSIONS: Record<string, { roles: readonly string[]; permis
     roles: ['god', 'admin', 'administrator'],
     permissions: ['sales-orders.index']
   },
+
+  // Settings
+  '/dashboard/settings': {
+    roles: ['god', 'admin', 'administrator'],
+    permissions: []
+  },
 }
 
 /**
