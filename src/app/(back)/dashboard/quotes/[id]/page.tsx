@@ -11,6 +11,7 @@ import {
   QUOTE_STATUS_CONFIG,
   canEditQuote
 } from '@/modules/quotes'
+import { quoteService } from '@/modules/quotes/services/quoteService'
 import { toast } from '@/lib/toast'
 import { ConfirmModal, ConfirmModalHandle } from '@/ui/components/base'
 
@@ -31,6 +32,7 @@ export default function QuoteDetailPage({ params }: PageProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [editingEta, setEditingEta] = useState('')
   const [editingNotes, setEditingNotes] = useState('')
+  const [pdfLoading, setPdfLoading] = useState<'download' | 'preview' | null>(null)
 
   const formatCurrency = (amount: number, currency: string = 'MXN') => {
     return new Intl.NumberFormat('es-MX', {
@@ -94,8 +96,14 @@ export default function QuoteDetailPage({ params }: PageProps) {
 
     try {
       const result = await mutations.convert.mutateAsync({ id: quote.id })
-      toast.success(`Orden de venta ${result.data.salesOrder?.attributes?.orderNumber || ''} creada`)
-      refetch()
+      const orderNumber = result.data.salesOrder?.attributes?.orderNumber || result.data.salesOrder?.attributes?.order_number || ''
+      const salesOrderId = result.data.salesOrder?.id
+      toast.success(`Orden de venta ${orderNumber} creada`)
+      if (salesOrderId) {
+        router.push(`/dashboard/sales/${salesOrderId}`)
+      } else {
+        refetch()
+      }
     } catch {
       toast.error('Error al convertir la cotizacion')
     }
@@ -140,6 +148,55 @@ export default function QuoteDetailPage({ params }: PageProps) {
       refetch()
     } catch {
       toast.error('Error al actualizar la cotizacion')
+    }
+  }
+
+  const handleDownloadPdf = async () => {
+    if (!quote) return
+    setPdfLoading('download')
+    try {
+      await quoteService.downloadPdf(quote.id)
+      toast.success('PDF descargado')
+    } catch {
+      toast.error('Error al descargar el PDF')
+    } finally {
+      setPdfLoading(null)
+    }
+  }
+
+  const handlePreviewPdf = async () => {
+    if (!quote) return
+    setPdfLoading('preview')
+    try {
+      await quoteService.previewPdf(quote.id)
+    } catch {
+      toast.error('Error al generar vista previa del PDF')
+    } finally {
+      setPdfLoading(null)
+    }
+  }
+
+  const handleGeneratePurchaseOrder = async () => {
+    if (!quote) return
+
+    const confirmed = await confirmModalRef.current?.confirm(
+      'Se creara una orden de compra para los productos de esta cotizacion que no estan en stock.',
+      {
+        title: 'Generar Orden de Compra',
+        confirmText: 'Generar OC',
+        cancelText: 'Cancelar',
+        confirmVariant: 'primary'
+      }
+    )
+
+    if (!confirmed) return
+
+    try {
+      const result = await quoteService.generatePurchaseOrder(quote.id)
+      toast.success(result.message || 'Orden de compra generada')
+      refetch()
+    } catch {
+      toast.error('Error al generar la orden de compra')
     }
   }
 
@@ -464,18 +521,30 @@ export default function QuoteDetailPage({ params }: PageProps) {
             </div>
           )}
 
-          {/* Actions Card */}
-          <div className="card">
+          {/* PDF Actions Card */}
+          <div className="card mb-4">
             <div className="card-header">
-              <h6 className="card-title mb-0">Acciones</h6>
+              <h6 className="card-title mb-0">
+                <i className="bi bi-file-earmark-pdf me-2"></i>
+                Documento PDF
+              </h6>
             </div>
             <div className="card-body d-grid gap-2">
               <button
-                className="btn btn-outline-secondary"
-                onClick={() => window.print()}
+                className="btn btn-outline-primary"
+                onClick={handlePreviewPdf}
+                disabled={pdfLoading === 'preview'}
               >
-                <i className="bi bi-printer me-2"></i>
-                Imprimir
+                <i className="bi bi-eye me-2"></i>
+                {pdfLoading === 'preview' ? 'Generando...' : 'Vista previa PDF'}
+              </button>
+              <button
+                className="btn btn-primary"
+                onClick={handleDownloadPdf}
+                disabled={pdfLoading === 'download'}
+              >
+                <i className="bi bi-download me-2"></i>
+                {pdfLoading === 'download' ? 'Descargando...' : 'Descargar PDF'}
               </button>
               <button
                 className="btn btn-outline-secondary"
@@ -485,14 +554,32 @@ export default function QuoteDetailPage({ params }: PageProps) {
                 <i className="bi bi-envelope me-2"></i>
                 {mutations.send.isPending ? 'Enviando...' : 'Enviar por correo'}
               </button>
+            </div>
+          </div>
+
+          {/* Actions Card */}
+          <div className="card">
+            <div className="card-header">
+              <h6 className="card-title mb-0">Acciones</h6>
+            </div>
+            <div className="card-body d-grid gap-2">
               {statusConfig.canConvert && (
                 <button
-                  className="btn btn-primary"
+                  className="btn btn-success btn-lg"
                   onClick={handleConvert}
                   disabled={mutations.convert.isPending}
                 >
-                  <i className="bi bi-arrow-right-circle me-2"></i>
-                  Convertir a Orden
+                  <i className="bi bi-cart-check me-2"></i>
+                  {mutations.convert.isPending ? 'Generando...' : 'Generar Pedido'}
+                </button>
+              )}
+              {quote.status === 'accepted' && !quote.purchaseOrderId && (
+                <button
+                  className="btn btn-outline-warning"
+                  onClick={handleGeneratePurchaseOrder}
+                >
+                  <i className="bi bi-box-seam me-2"></i>
+                  Generar Orden de Compra
                 </button>
               )}
             </div>
