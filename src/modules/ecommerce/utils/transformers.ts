@@ -192,7 +192,7 @@ export function shoppingCartFromAPI(data: Record<string, unknown>): ShoppingCart
     currency: (attributes.currency as string) || 'MXN',
     couponCode: (attributes.couponCode ?? attributes.coupon_code ?? null) as string | null,
     subtotalAmount: parseFloat(String(attributes.subtotalAmount ?? attributes.subtotal_amount ?? 0)),
-    taxAmount: parseFloat(String(attributes.taxAmount ?? attributes.tax_amount ?? 0)),
+    taxAmount: parseFloat(String(attributes.computedTaxAmount ?? attributes.taxAmount ?? attributes.tax_amount ?? 0)),
     discountAmount: parseFloat(String(attributes.discountAmount ?? attributes.discount_amount ?? 0)),
     shippingAmount: parseFloat(String(attributes.shippingAmount ?? attributes.shipping_amount ?? 0)),
     totalAmount: parseFloat(String(attributes.totalAmount ?? attributes.total_amount ?? 0)) || parseFloat(String(attributes.finalTotal ?? attributes.final_total ?? 0)),
