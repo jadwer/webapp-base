@@ -42,9 +42,11 @@ const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82CA9D'
 // Date presets
 const DATE_PRESETS = [
   { label: 'Hoy', value: 'today' },
+  { label: 'Ayer', value: 'yesterday' },
   { label: 'Ultimos 7 dias', value: '7days' },
   { label: 'Ultimos 30 dias', value: '30days' },
   { label: 'Este mes', value: 'thisMonth' },
+  { label: 'Mes pasado', value: 'lastMonth' },
   { label: 'Este ano', value: 'thisYear' },
   { label: 'Personalizado', value: 'custom' },
 ]
@@ -56,23 +58,46 @@ const getPresetDates = (preset: string): { startDate: string; endDate: string } 
   switch (preset) {
     case 'today':
       return { startDate: endDate, endDate }
-    case '7days':
+    case 'yesterday': {
+      const yesterday = new Date(today)
+      yesterday.setDate(yesterday.getDate() - 1)
+      const yd = yesterday.toISOString().split('T')[0]
+      return { startDate: yd, endDate: yd }
+    }
+    case '7days': {
       const d7 = new Date(today)
       d7.setDate(d7.getDate() - 7)
       return { startDate: d7.toISOString().split('T')[0], endDate }
-    case '30days':
+    }
+    case '30days': {
       const d30 = new Date(today)
       d30.setDate(d30.getDate() - 30)
       return { startDate: d30.toISOString().split('T')[0], endDate }
-    case 'thisMonth':
+    }
+    case 'thisMonth': {
       const firstDay = new Date(today.getFullYear(), today.getMonth(), 1)
       return { startDate: firstDay.toISOString().split('T')[0], endDate }
-    case 'thisYear':
+    }
+    case 'lastMonth': {
+      const firstDayLast = new Date(today.getFullYear(), today.getMonth() - 1, 1)
+      const lastDayLast = new Date(today.getFullYear(), today.getMonth(), 0)
+      return { startDate: firstDayLast.toISOString().split('T')[0], endDate: lastDayLast.toISOString().split('T')[0] }
+    }
+    case 'thisYear': {
       const jan1 = new Date(today.getFullYear(), 0, 1)
       return { startDate: jan1.toISOString().split('T')[0], endDate }
+    }
     default:
       return { startDate: endDate, endDate }
   }
+}
+
+// Map active tab to report type for export
+const TAB_TO_REPORT_TYPE: Record<string, string> = {
+  employee: 'sales-by-employee',
+  batch: 'sales-by-batch',
+  profitability: 'sales-profitability',
+  trend: 'sales-trend',
 }
 
 export const SalesAdvancedReportsPage = () => {
@@ -82,6 +107,13 @@ export const SalesAdvancedReportsPage = () => {
   const [customEndDate, setCustomEndDate] = useState('')
   const [activeTab, setActiveTab] = useState<'employee' | 'batch' | 'profitability' | 'trend'>('employee')
   const [trendGroupBy, setTrendGroupBy] = useState<'day' | 'week' | 'month'>('day')
+
+  // Advanced filter state
+  const [employeeFilter, setEmployeeFilter] = useState('')
+  const [productFilter, setProductFilter] = useState('')
+  const [categoryFilter, setCategoryFilter] = useState('')
+  const [batchFilter, setBatchFilter] = useState('')
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false)
 
   // Export hook
   const { exportReport, isExporting } = useReportExport()
@@ -97,10 +129,23 @@ export const SalesAdvancedReportsPage = () => {
     return getPresetDates(datePreset)
   }, [datePreset, customStartDate, customEndDate])
 
-  // Fetch data
-  const { salesByEmployee, isLoading: loadingEmployee } = useSalesByEmployee({ startDate, endDate })
-  const { salesByBatch, isLoading: loadingBatch } = useSalesByBatch({ startDate, endDate })
-  const { salesProfitability, isLoading: loadingProfitability } = useSalesProfitability({ startDate, endDate })
+  // Fetch data with filters
+  const { salesByEmployee, isLoading: loadingEmployee } = useSalesByEmployee({
+    startDate,
+    endDate,
+    ...(employeeFilter ? { employeeId: parseInt(employeeFilter) } : {}),
+  })
+  const { salesByBatch, isLoading: loadingBatch } = useSalesByBatch({
+    startDate,
+    endDate,
+    ...(productFilter ? { productId: parseInt(productFilter) } : {}),
+    ...(batchFilter ? { batchNumber: batchFilter } : {}),
+  })
+  const { salesProfitability, isLoading: loadingProfitability } = useSalesProfitability({
+    startDate,
+    endDate,
+    ...(categoryFilter ? { categoryId: parseInt(categoryFilter) } : {}),
+  })
   const { salesTrend, isLoading: loadingTrend } = useSalesTrend({ startDate, endDate, groupBy: trendGroupBy })
 
   const formatCurrency = (amount?: number) => {
@@ -116,11 +161,28 @@ export const SalesAdvancedReportsPage = () => {
     return `${value.toFixed(1)}%`
   }
 
-  // Handler for export
-  const handleExport = async (reportType: string, format: 'csv' | 'xlsx') => {
+  // Handler for export - uses active tab to determine report type
+  const handleExport = async (format: 'csv' | 'xlsx') => {
+    const reportType = TAB_TO_REPORT_TYPE[activeTab] || 'sales-by-employee'
+    const params: Record<string, string | number> = { start_date: startDate, end_date: endDate }
+    if (activeTab === 'employee' && employeeFilter) params.employee_id = parseInt(employeeFilter)
+    if (activeTab === 'batch' && productFilter) params.product_id = parseInt(productFilter)
+    if (activeTab === 'batch' && batchFilter) params.batch_number = batchFilter
+    if (activeTab === 'profitability' && categoryFilter) params.category_id = parseInt(categoryFilter)
+    if (activeTab === 'trend') params.group_by = trendGroupBy
     const filename = `${reportType}_${startDate}_${endDate}.${format}`
-    await exportReport(reportType, { start_date: startDate, end_date: endDate }, format, filename)
+    await exportReport(reportType, params, format, filename)
   }
+
+  // Clear advanced filters
+  const clearFilters = () => {
+    setEmployeeFilter('')
+    setProductFilter('')
+    setCategoryFilter('')
+    setBatchFilter('')
+  }
+
+  const hasActiveFilters = employeeFilter || productFilter || categoryFilter || batchFilter
 
   return (
     <div className="container-fluid py-4">
@@ -141,7 +203,7 @@ export const SalesAdvancedReportsPage = () => {
         </div>
       </div>
 
-      {/* Date Filters */}
+      {/* Filters */}
       <div className="card mb-4">
         <div className="card-body">
           <div className="row g-3 align-items-end">
@@ -162,7 +224,7 @@ export const SalesAdvancedReportsPage = () => {
 
             {datePreset === 'custom' && (
               <>
-                <div className="col-12 col-md-3">
+                <div className="col-12 col-md-2">
                   <label className="form-label small text-muted mb-1">Fecha Inicio</label>
                   <input
                     type="date"
@@ -171,7 +233,7 @@ export const SalesAdvancedReportsPage = () => {
                     onChange={(e) => setCustomStartDate(e.target.value)}
                   />
                 </div>
-                <div className="col-12 col-md-3">
+                <div className="col-12 col-md-2">
                   <label className="form-label small text-muted mb-1">Fecha Fin</label>
                   <input
                     type="date"
@@ -183,11 +245,22 @@ export const SalesAdvancedReportsPage = () => {
               </>
             )}
 
-            <div className="col-12 col-md-3">
+            <div className="col-auto">
+              <button
+                className={`btn ${showAdvancedFilters ? 'btn-primary' : 'btn-outline-primary'}`}
+                onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+              >
+                <i className="bi bi-funnel me-1" />
+                Filtros
+                {hasActiveFilters && <span className="badge bg-danger ms-1">!</span>}
+              </button>
+            </div>
+
+            <div className="col-auto ms-auto">
               <div className="d-flex gap-2">
                 <button
                   className="btn btn-outline-secondary"
-                  onClick={() => handleExport('sales-by-employee', 'csv')}
+                  onClick={() => handleExport('csv')}
                   disabled={isExporting}
                 >
                   <i className="bi bi-download me-1" />
@@ -195,7 +268,7 @@ export const SalesAdvancedReportsPage = () => {
                 </button>
                 <button
                   className="btn btn-outline-secondary"
-                  onClick={() => handleExport('sales-by-employee', 'xlsx')}
+                  onClick={() => handleExport('xlsx')}
                   disabled={isExporting}
                 >
                   <i className="bi bi-file-earmark-excel me-1" />
@@ -204,6 +277,87 @@ export const SalesAdvancedReportsPage = () => {
               </div>
             </div>
           </div>
+
+          {/* Advanced Filters Panel */}
+          {showAdvancedFilters && (
+            <div className="row g-3 mt-2 pt-3 border-top">
+              {/* Employee filter - relevant for "Por Vendedor" tab */}
+              <div className="col-12 col-md-3">
+                <label className="form-label small text-muted mb-1">
+                  <i className="bi bi-person me-1" />
+                  ID Vendedor
+                </label>
+                <input
+                  type="number"
+                  className="form-control"
+                  placeholder="ID del vendedor"
+                  value={employeeFilter}
+                  onChange={(e) => setEmployeeFilter(e.target.value)}
+                />
+                <small className="text-muted">Filtra tab &quot;Por Vendedor&quot;</small>
+              </div>
+
+              {/* Product filter - relevant for "Por Lote" tab */}
+              <div className="col-12 col-md-3">
+                <label className="form-label small text-muted mb-1">
+                  <i className="bi bi-box me-1" />
+                  ID Producto
+                </label>
+                <input
+                  type="number"
+                  className="form-control"
+                  placeholder="ID del producto"
+                  value={productFilter}
+                  onChange={(e) => setProductFilter(e.target.value)}
+                />
+                <small className="text-muted">Filtra tab &quot;Por Lote&quot;</small>
+              </div>
+
+              {/* Batch filter - relevant for "Por Lote" tab */}
+              <div className="col-12 col-md-3">
+                <label className="form-label small text-muted mb-1">
+                  <i className="bi bi-upc me-1" />
+                  Numero de Lote
+                </label>
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Ej: BATCH-001"
+                  value={batchFilter}
+                  onChange={(e) => setBatchFilter(e.target.value)}
+                />
+                <small className="text-muted">Filtra tab &quot;Por Lote&quot;</small>
+              </div>
+
+              {/* Category filter - relevant for "Rentabilidad" tab */}
+              <div className="col-12 col-md-3">
+                <label className="form-label small text-muted mb-1">
+                  <i className="bi bi-tags me-1" />
+                  ID Categoria
+                </label>
+                <input
+                  type="number"
+                  className="form-control"
+                  placeholder="ID de la categoria"
+                  value={categoryFilter}
+                  onChange={(e) => setCategoryFilter(e.target.value)}
+                />
+                <small className="text-muted">Filtra tab &quot;Rentabilidad&quot;</small>
+              </div>
+
+              {hasActiveFilters && (
+                <div className="col-12">
+                  <button
+                    className="btn btn-sm btn-outline-danger"
+                    onClick={clearFilters}
+                  >
+                    <i className="bi bi-x-circle me-1" />
+                    Limpiar filtros
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
