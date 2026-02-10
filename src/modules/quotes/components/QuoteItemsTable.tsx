@@ -26,6 +26,7 @@ export function QuoteItemsTable({
     quotedPrice: number
     discountPercentage: number
     quantity: number
+    notes: string
   } | null>(null)
 
   const formatCurrency = (amount: number) => {
@@ -60,7 +61,8 @@ export function QuoteItemsTable({
     setEditValues({
       quotedPrice: item.quotedPrice,
       discountPercentage: item.discountPercentage,
-      quantity: item.quantity
+      quantity: item.quantity,
+      notes: item.notes || ''
     })
   }
 
@@ -78,7 +80,8 @@ export function QuoteItemsTable({
         data: {
           quotedPrice: editValues.quotedPrice,
           discountPercentage: editValues.discountPercentage,
-          quantity: editValues.quantity
+          quantity: editValues.quantity,
+          notes: editValues.notes || undefined
         }
       })
       toast.success('Item actualizado')
@@ -139,7 +142,24 @@ export function QuoteItemsTable({
             return (
               <tr key={item.id}>
                 <td className="fw-medium">
-                  {item.productName || `Producto #${item.productId}`}
+                  <div>{item.productName || `Producto #${item.productId}`}</div>
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      className="form-control form-control-sm mt-1"
+                      value={editValues?.notes ?? ''}
+                      onChange={(e) =>
+                        setEditValues((prev) => ({
+                          ...prev!,
+                          notes: e.target.value
+                        }))
+                      }
+                      placeholder="Notas (ETA, detalles, etc.)"
+                      maxLength={1000}
+                    />
+                  ) : item.notes ? (
+                    <small className="text-muted d-block">{item.notes}</small>
+                  ) : null}
                 </td>
                 <td className="text-muted">{item.productSku || '-'}</td>
                 <td className="text-center">

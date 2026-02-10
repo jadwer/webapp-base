@@ -20,6 +20,7 @@ export interface Quote {
   contactId: number
   shoppingCartId: number | null
   salesOrderId: number | null
+  purchaseOrderId: number | null
   quoteNumber: string
   status: QuoteStatus
   quoteDate: string

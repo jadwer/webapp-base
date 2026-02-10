@@ -395,6 +395,49 @@ export const quoteService = {
     const response = await axios.get<{ data: QuoteSummary }>(`${QUOTES_BASE_URL}/summary`)
 
     return response.data.data
+  },
+
+  /**
+   * Download quote PDF
+   * Opens a download in the browser
+   */
+  async downloadPdf(id: string): Promise<void> {
+    const response = await axios.get(`${QUOTES_BASE_URL}/${id}/pdf/download`, {
+      responseType: 'blob'
+    })
+
+    const blob = new Blob([response.data], { type: 'application/pdf' })
+    const url = window.URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `cotizacion-${id}.pdf`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
+  },
+
+  /**
+   * Preview quote PDF in a new tab
+   */
+  async previewPdf(id: string): Promise<void> {
+    const response = await axios.get(`${QUOTES_BASE_URL}/${id}/pdf/stream`, {
+      responseType: 'blob'
+    })
+
+    const blob = new Blob([response.data], { type: 'application/pdf' })
+    const url = window.URL.createObjectURL(blob)
+    window.open(url, '_blank')
+  },
+
+  /**
+   * Generate purchase order from quote (for out-of-stock items)
+   */
+  async generatePurchaseOrder(id: string): Promise<{ message: string; data: Record<string, unknown> }> {
+    const response = await axios.post<{ message: string; data: Record<string, unknown> }>(
+      `${QUOTES_BASE_URL}/${id}/generate-purchase-order`
+    )
+    return response.data
   }
 }
 

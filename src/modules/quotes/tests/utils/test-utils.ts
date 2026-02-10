@@ -24,6 +24,7 @@ export function createMockQuote(overrides: Partial<Quote> = {}): Quote {
     contactId: 1,
     shoppingCartId: 1,
     salesOrderId: null,
+    purchaseOrderId: null,
     quoteNumber: 'COT-26000001',
     status: 'draft' as QuoteStatus,
     quoteDate: '2026-01-21',
