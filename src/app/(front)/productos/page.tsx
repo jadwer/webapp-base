@@ -7,7 +7,7 @@
 
 'use client'
 
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { Suspense, useState, useEffect, useCallback } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { PublicCatalogTemplate, useLocalCart } from '@/modules/public-catalog'
 import type { EnhancedPublicProduct } from '@/modules/public-catalog'
@@ -48,6 +48,20 @@ const priceRange = {
 }
 
 export default function ProductosPage() {
+  return (
+    <Suspense fallback={
+      <div className="container-fluid py-4 text-center">
+        <div className="spinner-border text-primary" role="status">
+          <span className="visually-hidden">Cargando...</span>
+        </div>
+      </div>
+    }>
+      <ProductosContent />
+    </Suspense>
+  )
+}
+
+function ProductosContent() {
   const toast = useToast()
   const searchParams = useSearchParams()
   const initialSearch = searchParams.get('search') || undefined

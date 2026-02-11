@@ -25,7 +25,7 @@ export const TopNav: React.FC = () => {
           <i className="bi bi-list"></i>
         </button>
         <div className="collapse navbar-collapse" id="lwmTopNavContent">
-          <ul className="navbar-nav ms-auto">
+          <ul className="navbar-nav mx-auto">
             {/* Productos dropdown */}
             <li className="nav-item dropdown">
               <a
