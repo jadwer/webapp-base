@@ -9,12 +9,12 @@ export default function HeaderNavbar() {
     <header className={styles.header}>
       <div className={styles.container}>
         <Link href="/" className={styles.brand}>
-          <div className={styles.brandIcon}>
-            <i className="bi bi-diagram-3" aria-hidden="true"></i>
-          </div>
-          <span className={styles.brandText}>
-            Labor Wasser de México WebApp
-          </span>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/images/laborwasser/labor-wasser-mexico-logo2.webp"
+            alt="Labor Wasser de México"
+            className={styles.brandLogo}
+          />
         </Link>
 
         <div className={styles.actions}>

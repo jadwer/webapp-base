@@ -43,25 +43,9 @@ $transition-fast: 150ms ease-in-out;
   }
 }
 
-.brandIcon {
-  width: 32px;
-  height: 32px;
-  background: linear-gradient(135deg, $color-primary, $primary-700);
-  border-radius: $border-radius;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: $font-size-lg;
-  box-shadow: 0 2px 8px rgba($color-primary, 0.2);
-}
-
-.brandText {
-  font-family: $font-family-sans;
-  background: linear-gradient(135deg, $color-primary, $primary-700);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+.brandLogo {
+  height: 36px;
+  width: auto;
 }
 
 .actions {
@@ -163,15 +147,15 @@ $transition-fast: 150ms ease-in-out;
   .container {
     padding: $spacing-3;
   }
-  
-  .brandText {
-    display: none;
+
+  .brandLogo {
+    height: 28px;
   }
-  
+
   .userInfo {
     display: none;
   }
-  
+
   .userSection {
     padding: $spacing-2;
   }

@@ -54,13 +54,11 @@ export const Header: React.FC = () => {
           <div className="row d-flex align-items-center">
             <div className="col-6 col-md-4 d-flex">
               <Link href="/">
-                <Image
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
                   className="img-fluid logo"
                   alt="Labor Wasser de Mexico"
                   src="/images/laborwasser/labor-wasser-mexico-logo2.webp"
-                  width={250}
-                  height={60}
-                  priority
                 />
               </Link>
             </div>
@@ -188,12 +186,11 @@ export const Header: React.FC = () => {
           <div className="row d-flex align-items-center">
             <div className="col-8 d-flex">
               <Link href="/">
-                <Image
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
                   className="img-fluid logo"
                   alt="Labor Wasser de Mexico"
                   src="/images/laborwasser/labor-wasser-mexico-logo2.webp"
-                  width={200}
-                  height={48}
                 />
               </Link>
             </div>
