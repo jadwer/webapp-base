@@ -8,6 +8,7 @@
 'use client'
 
 import React, { useState, useEffect, useCallback } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { PublicCatalogTemplate, useLocalCart } from '@/modules/public-catalog'
 import type { EnhancedPublicProduct } from '@/modules/public-catalog'
 import { useToast } from '@/ui/hooks/useToast'
@@ -48,6 +49,8 @@ const priceRange = {
 
 export default function ProductosPage() {
   const toast = useToast()
+  const searchParams = useSearchParams()
+  const initialSearch = searchParams.get('search') || undefined
   // wishlistIds stored for future visual indicators (e.g., heart icon filled/empty)
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [wishlistIds, setWishlistIds] = useState<number[]>([])
@@ -140,6 +143,7 @@ export default function ProductosPage() {
       {/* Public Catalog Template - Complete Integration */}
       <PublicCatalogTemplate
         // Initial configuration
+        initialFilters={{ search: initialSearch }}
         initialSortField="name"
         initialSortDirection="asc"
         initialViewMode="grid"
