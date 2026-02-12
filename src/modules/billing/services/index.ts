@@ -222,11 +222,15 @@ export const cfdiInvoicesService = {
 
   /**
    * Send CFDI by email
-   * NOTE: Backend endpoint not yet implemented - requires POST /api/v1/cfdi-invoices/{id}/send-email
    */
-  sendEmail: async (id: string, email: string) => {
-    void id; void email // Backend endpoint pending
-    throw new Error('El envio de correo electronico no esta disponible. Endpoint pendiente de implementacion en backend.')
+  sendEmail: async (id: string, email: string, options?: { subject?: string; message?: string; includeXml?: boolean }) => {
+    const response = await axiosClient.post(`/api/v1/cfdi-invoices/${id}/send-email`, {
+      email,
+      subject: options?.subject,
+      message: options?.message,
+      include_xml: options?.includeXml ?? true,
+    })
+    return response.data
   },
 
   /**
@@ -260,6 +264,61 @@ export const cfdiInvoicesService = {
     acuse?: string
   }> => {
     const response = await axiosClient.get(`/api/v1/cfdi-invoices/${id}/cancellation-status`)
+    return response.data
+  },
+
+  // ============================================================================
+  // PREFACTURA (Draft Invoice Preview)
+  // ============================================================================
+
+  /**
+   * Generate prefactura for a CFDI invoice
+   */
+  prefactura: async (id: string) => {
+    const response = await axiosClient.get(`/api/v1/cfdi-invoices/${id}/prefactura`)
+    return response.data
+  },
+
+  /**
+   * Download prefactura PDF
+   */
+  prefacturaDownload: async (id: string): Promise<Blob> => {
+    const response = await axiosClient.get(`/api/v1/cfdi-invoices/${id}/prefactura/download`, {
+      responseType: 'blob',
+    })
+    return response.data
+  },
+
+  /**
+   * Preview prefactura PDF inline (returns URL)
+   */
+  prefacturaPreview: (id: string): string => {
+    return `/api/v1/cfdi-invoices/${id}/prefactura/preview`
+  },
+
+  /**
+   * Generate prefactura PDF from a SalesOrder
+   */
+  prefacturaFromOrder: async (orderId: string, options?: {
+    receptorRfc?: string
+    receptorUsoCfdi?: string
+    receptorRegimenFiscal?: string
+    receptorDomicilioFiscal?: string
+    metodoPago?: string
+    formaPago?: string
+    series?: string
+  }): Promise<Blob> => {
+    const response = await axiosClient.post(`/api/v1/sales-orders/${orderId}/prefactura`, options ?? {}, {
+      responseType: 'blob',
+    })
+    return response.data
+  },
+
+  /**
+   * Create CFDI invoice from a SalesOrder (GAP 5: automated invoicing)
+   */
+  createFromOrder: async (orderId: string) => {
+    const response = await axiosClient.post(`/api/v1/sales-orders/${orderId}/facturar`)
     return response.data
   },
 }
@@ -391,29 +450,35 @@ export const companySettingsService = {
 
   /**
    * Test PAC connection
-   * NOTE: Backend endpoint not yet implemented - requires POST /api/v1/company-settings/{id}/test-pac
    */
-  testPACConnection: async (id: string): Promise<{ success: boolean; message: string }> => {
-    void id // Backend endpoint pending
-    throw new Error('La prueba de conexion PAC no esta disponible. Endpoint pendiente de implementacion en backend.')
+  testPACConnection: async (id: string): Promise<{ success: boolean; message: string; data?: { provider: string; mode: string; balance: number; stamps_used: number; stamps_available: number } }> => {
+    const response = await axiosClient.post(`/api/v1/company-settings/${id}/test-pac`)
+    return response.data
   },
 
   /**
    * Upload certificate file (.cer)
-   * NOTE: Backend endpoint not yet implemented - requires POST /api/v1/company-settings/{id}/upload-certificate
    */
   uploadCertificate: async (id: string, file: File) => {
-    void id; void file // Backend endpoint pending
-    throw new Error('La carga de certificado no esta disponible. Endpoint pendiente de implementacion en backend.')
+    const formData = new FormData()
+    formData.append('certificate', file)
+    const response = await axiosClient.post(`/api/v1/company-settings/${id}/upload-certificate`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+    return response.data
   },
 
   /**
    * Upload key file (.key)
-   * NOTE: Backend endpoint not yet implemented - requires POST /api/v1/company-settings/{id}/upload-key
    */
   uploadKey: async (id: string, file: File, password: string) => {
-    void id; void file; void password // Backend endpoint pending
-    throw new Error('La carga de llave privada no esta disponible. Endpoint pendiente de implementacion en backend.')
+    const formData = new FormData()
+    formData.append('key', file)
+    formData.append('password', password)
+    const response = await axiosClient.post(`/api/v1/company-settings/${id}/upload-key`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+    return response.data
   },
 }
 
@@ -554,5 +619,125 @@ export const satCatalogsService = {
   getUsoCfdi: async (): Promise<SATCatalogItem[]> => {
     // Using static fallback data
     return FALLBACK_USO_CFDI
+  },
+}
+
+// ============================================================================
+// INVOICE SERIES SERVICE
+// ============================================================================
+
+export const invoiceSeriesService = {
+  /**
+   * Get all invoice series
+   */
+  getAll: async () => {
+    const response = await axiosClient.get('/api/v1/invoice-series')
+    return response.data
+  },
+
+  /**
+   * Get single invoice series by ID
+   */
+  getById: async (id: string) => {
+    const response = await axiosClient.get(`/api/v1/invoice-series/${id}`)
+    return response.data
+  },
+
+  /**
+   * Create new invoice series
+   */
+  create: async (data: { prefix: string; description?: string; tipoComprobante?: string; currentNumber?: number; padding?: number; separator?: string; yearlyReset?: boolean }) => {
+    const response = await axiosClient.post('/api/v1/invoice-series', {
+      data: {
+        type: 'invoice-series',
+        attributes: {
+          prefix: data.prefix,
+          description: data.description,
+          tipo_comprobante: data.tipoComprobante,
+          current_number: data.currentNumber ?? 0,
+          padding: data.padding ?? 6,
+          separator: data.separator ?? '-',
+          yearly_reset: data.yearlyReset ?? false,
+        },
+      },
+    })
+    return response.data
+  },
+
+  /**
+   * Update invoice series
+   */
+  update: async (id: string, data: { prefix?: string; description?: string; tipoComprobante?: string; padding?: number; separator?: string; yearlyReset?: boolean }) => {
+    const response = await axiosClient.patch(`/api/v1/invoice-series/${id}`, {
+      data: {
+        type: 'invoice-series',
+        id,
+        attributes: {
+          ...(data.prefix !== undefined && { prefix: data.prefix }),
+          ...(data.description !== undefined && { description: data.description }),
+          ...(data.tipoComprobante !== undefined && { tipo_comprobante: data.tipoComprobante }),
+          ...(data.padding !== undefined && { padding: data.padding }),
+          ...(data.separator !== undefined && { separator: data.separator }),
+          ...(data.yearlyReset !== undefined && { yearly_reset: data.yearlyReset }),
+        },
+      },
+    })
+    return response.data
+  },
+
+  /**
+   * Delete invoice series
+   */
+  delete: async (id: string) => {
+    await axiosClient.delete(`/api/v1/invoice-series/${id}`)
+  },
+
+  /**
+   * Get available series for a tipo de comprobante
+   */
+  getAvailable: async (tipoComprobante?: string) => {
+    const params = tipoComprobante ? `?filter[tipoComprobante]=${tipoComprobante}` : ''
+    const response = await axiosClient.get(`/api/v1/invoice-series/available${params}`)
+    return response.data
+  },
+
+  /**
+   * Get summary of all series with next folio numbers
+   */
+  getSummary: async () => {
+    const response = await axiosClient.get('/api/v1/invoice-series/summary')
+    return response.data
+  },
+
+  /**
+   * Initialize default series (FAC, FAC-W, N, etc.)
+   */
+  initializeDefaults: async () => {
+    const response = await axiosClient.post('/api/v1/invoice-series/initialize-defaults')
+    return response.data
+  },
+
+  /**
+   * Preview next folio without incrementing
+   */
+  previewNextFolio: async (id: string) => {
+    const response = await axiosClient.get(`/api/v1/invoice-series/${id}/preview-next-folio`)
+    return response.data
+  },
+
+  /**
+   * Set initial folio number for a series
+   */
+  setInitialFolio: async (id: string, folio: number) => {
+    const response = await axiosClient.post(`/api/v1/invoice-series/${id}/set-initial-folio`, { folio })
+    return response.data
+  },
+
+  /**
+   * Set series as default
+   */
+  setAsDefault: async (id: string) => {
+    const response = await axiosClient.post(`/api/v1/invoice-series/${id}/set-as-default`)
+    return response.data
   },
 }
