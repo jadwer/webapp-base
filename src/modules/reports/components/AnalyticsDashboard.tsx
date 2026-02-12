@@ -101,8 +101,8 @@ export function AnalyticsDashboard() {
                       </tr>
                     </thead>
                     <tbody>
-                      {dashboard.salesByPeriod.map((item: { period: string; sales: number; orders: number }, index: number) => (
-                        <tr key={index}>
+                      {dashboard.salesByPeriod.map((item: { period: string; sales: number; orders: number }) => (
+                        <tr key={item.period}>
                           <td>{item.period}</td>
                           <td className="text-end">
                             {new Intl.NumberFormat('es-MX', {
@@ -142,8 +142,8 @@ export function AnalyticsDashboard() {
                 </div>
               ) : dashboard?.topProducts?.length > 0 ? (
                 <ul className="list-unstyled mb-0">
-                  {dashboard.topProducts.map((product: { name: string; sales: number }, index: number) => (
-                    <li key={index} className="d-flex justify-content-between py-2 border-bottom">
+                  {dashboard.topProducts.map((product: { name: string; sales: number }) => (
+                    <li key={product.name} className="d-flex justify-content-between py-2 border-bottom">
                       <span className="text-truncate" style={{ maxWidth: '150px' }}>
                         {product.name}
                       </span>
@@ -180,8 +180,8 @@ export function AnalyticsDashboard() {
                 </div>
               ) : dashboard?.salesByCategory?.length > 0 ? (
                 <div>
-                  {dashboard.salesByCategory.map((cat: { category: string; sales: number; percentage: number }, index: number) => (
-                    <div key={index} className="mb-3">
+                  {dashboard.salesByCategory.map((cat: { category: string; sales: number; percentage: number }) => (
+                    <div key={cat.category} className="mb-3">
                       <div className="d-flex justify-content-between mb-1">
                         <span>{cat.category}</span>
                         <span>

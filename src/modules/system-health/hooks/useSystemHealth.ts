@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import useSWR from 'swr'
 import { systemHealthService } from '../services/systemHealthService'
 import type {
@@ -11,15 +12,29 @@ import type {
 } from '../types'
 
 /**
+ * Hook to track page visibility (pauses polling when tab is hidden)
+ */
+function usePageVisible() {
+  const [visible, setVisible] = useState(true)
+  useEffect(() => {
+    const handler = () => setVisible(!document.hidden)
+    document.addEventListener('visibilitychange', handler)
+    return () => document.removeEventListener('visibilitychange', handler)
+  }, [])
+  return visible
+}
+
+/**
  * Hook for full system health status with auto-refresh
  */
 export function useSystemHealth(refreshInterval: number = 30000) {
+  const isVisible = usePageVisible()
   const { data, error, isLoading, mutate } = useSWR<SystemHealthStatus>(
     'system-health-full',
     () => systemHealthService.getFullStatus(),
     {
       revalidateOnFocus: false,
-      refreshInterval,
+      refreshInterval: isVisible ? refreshInterval : 0,
       dedupingInterval: 5000,
     }
   )

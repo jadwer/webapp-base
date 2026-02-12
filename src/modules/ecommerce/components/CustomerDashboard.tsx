@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import Link from 'next/link'
 import { useAuth } from '@/modules/auth'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
@@ -70,9 +70,21 @@ export default function CustomerDashboard() {
 
   const displayName = user?.name || user?.email?.split('@')[0] || 'Cliente'
 
+  const abortRef = useRef<AbortController | null>(null)
+
   const fetchDashboardData = useCallback(async () => {
     if (!user?.email) return
 
+    // Cancel previous request
+    abortRef.current?.abort()
+    const controller = new AbortController()
+    abortRef.current = controller
+
+    // Clear stale data before fetch
+    setOrders([])
+    setQuotes([])
+    setCoupons([])
+    setCart(null)
     setIsLoading(true)
     try {
       // Fetch in parallel
@@ -152,33 +164,38 @@ export default function CustomerDashboard() {
     } catch {
       // Dashboard should still render even if some data fails
     } finally {
-      setIsLoading(false)
+      if (!controller.signal.aborted) {
+        setIsLoading(false)
+      }
     }
   }, [user?.email])
 
   useEffect(() => {
     if (authLoading) return
     fetchDashboardData()
+    return () => { abortRef.current?.abort() }
   }, [authLoading, fetchDashboardData])
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('es-MX', {
-      style: 'currency',
-      currency: 'MXN',
-    }).format(amount)
-  }
+  const currencyFormatter = useMemo(() => new Intl.NumberFormat('es-MX', {
+    style: 'currency',
+    currency: 'MXN',
+  }), [])
 
-  const formatDate = (dateStr: string) => {
+  const formatCurrency = useCallback((amount: number) => currencyFormatter.format(amount), [currencyFormatter])
+
+  const formatDate = useCallback((dateStr: string) => {
     if (!dateStr) return '-'
     return new Date(dateStr).toLocaleDateString('es-MX', {
       day: '2-digit',
       month: 'short',
       year: 'numeric',
     })
-  }
+  }, [])
 
   const handleCopyCoupon = (code: string) => {
-    navigator.clipboard.writeText(code)
+    if (typeof window !== 'undefined' && navigator.clipboard) {
+      navigator.clipboard.writeText(code)
+    }
   }
 
   const couponTypeLabel = (type: string, value: number) => {

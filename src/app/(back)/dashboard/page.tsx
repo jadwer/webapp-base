@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import React, { useState, useMemo, Component } from 'react'
+import type { ReactNode, ErrorInfo } from 'react'
 import Link from 'next/link'
 import { useAuth } from '@/modules/auth'
 import { isAdmin } from '@/lib/permissions'
@@ -16,6 +17,44 @@ import { useLeads, useOpportunities, useCampaigns } from '@/modules/crm/hooks'
 import { useEcommerceOrders } from '@/modules/ecommerce/hooks'
 import { useEmployees } from '@/modules/hr/hooks'
 import { useSystemHealth } from '@/modules/system-health'
+
+class DashboardErrorBoundary extends Component<
+  { children: ReactNode },
+  { hasError: boolean; error: Error | null }
+> {
+  constructor(props: { children: ReactNode }) {
+    super(props)
+    this.state = { hasError: false, error: null }
+  }
+
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error }
+  }
+
+  componentDidCatch(error: Error, info: ErrorInfo) {
+    console.error('Dashboard error:', error, info)
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="container-fluid py-5">
+          <div className="alert alert-danger">
+            <h5 className="alert-heading">Error en el Dashboard</h5>
+            <p>Ocurrio un error al cargar el dashboard. Por favor, recarga la pagina.</p>
+            <button
+              className="btn btn-outline-danger"
+              onClick={() => this.setState({ hasError: false, error: null })}
+            >
+              Reintentar
+            </button>
+          </div>
+        </div>
+      )
+    }
+    return this.props.children
+  }
+}
 
 export default function DashboardPage() {
   const { user, isLoading: authLoading } = useAuth()
@@ -33,14 +72,23 @@ export default function DashboardPage() {
   }
 
   if (!isAdmin(user)) {
-    return <CustomerDashboard />
+    return (
+      <DashboardErrorBoundary>
+        <CustomerDashboard />
+      </DashboardErrorBoundary>
+    )
   }
 
-  return <AdminDashboard />
+  return (
+    <DashboardErrorBoundary>
+      <AdminDashboard />
+    </DashboardErrorBoundary>
+  )
 }
 
 function AdminDashboard() {
   const [selectedPeriod, setSelectedPeriod] = useState<number>(30)
+  const [dropdownOpen, setDropdownOpen] = useState(false)
 
   // Accounting data
   const { balanceGeneral, isLoading: balanceLoading } = useBalanceGeneral()
@@ -67,16 +115,14 @@ function AdminDashboard() {
 
   const isLoading = balanceLoading || estadoLoading || salesLoading || purchaseLoading
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('es-MX', {
-      style: 'currency',
-      currency: 'MXN'
-    }).format(amount)
-  }
+  const currencyFormatter = useMemo(() => new Intl.NumberFormat('es-MX', {
+    style: 'currency',
+    currency: 'MXN'
+  }), [])
+  const numberFormatter = useMemo(() => new Intl.NumberFormat('es-MX'), [])
 
-  const formatNumber = (num: number) => {
-    return new Intl.NumberFormat('es-MX').format(num)
-  }
+  const formatCurrency = (amount: number) => currencyFormatter.format(amount)
+  const formatNumber = (num: number) => numberFormatter.format(num)
 
   // Calculate accounting metrics
   const totalAssets = balanceGeneral?.totals?.total_assets || 0
@@ -123,42 +169,30 @@ function AdminDashboard() {
         </div>
 
         {/* Period Selector */}
-        <div className="dropdown">
+        <div className="dropdown" style={{ position: 'relative' }}>
           <button
             className="btn btn-outline-primary dropdown-toggle"
             type="button"
-            data-bs-toggle="dropdown"
+            onClick={() => setDropdownOpen((o) => !o)}
             disabled={isLoading}
           >
             <i className="bi bi-calendar3 me-2"></i>
             {selectedPeriod} dias
           </button>
-          <ul className="dropdown-menu">
-            <li>
-              <button
-                className="dropdown-item"
-                onClick={() => setSelectedPeriod(7)}
-              >
-                7 dias
-              </button>
-            </li>
-            <li>
-              <button
-                className="dropdown-item"
-                onClick={() => setSelectedPeriod(30)}
-              >
-                30 dias
-              </button>
-            </li>
-            <li>
-              <button
-                className="dropdown-item"
-                onClick={() => setSelectedPeriod(90)}
-              >
-                90 dias
-              </button>
-            </li>
-          </ul>
+          {dropdownOpen && (
+            <ul className="dropdown-menu show" style={{ position: 'absolute', right: 0 }}>
+              {[7, 30, 90].map((days) => (
+                <li key={days}>
+                  <button
+                    className="dropdown-item"
+                    onClick={() => { setSelectedPeriod(days); setDropdownOpen(false) }}
+                  >
+                    {days} dias
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </div>
 
