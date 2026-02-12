@@ -294,16 +294,16 @@ describe('quoteService', () => {
         notes: 'Test notes',
       });
 
-      // Assert
+      // Assert - attributes stay in camelCase (JSON:API schema uses camelCase)
       expect(mockAxios.post).toHaveBeenCalledWith(
         '/api/v1/quotes',
         expect.objectContaining({
           data: {
             type: 'quotes',
             attributes: expect.objectContaining({
-              contact_id: 1,
-              quote_date: '2026-01-21',
-              valid_until: '2026-02-21',
+              contactId: 1,
+              quoteDate: '2026-01-21',
+              validUntil: '2026-02-21',
               notes: 'Test notes',
             }),
           },
@@ -328,15 +328,15 @@ describe('quoteService', () => {
         billingAddress: address,
       });
 
-      // Assert
+      // Assert - attributes stay in camelCase (JSON:API schema uses camelCase)
       expect(mockAxios.post).toHaveBeenCalledWith(
         '/api/v1/quotes',
         expect.objectContaining({
           data: {
             type: 'quotes',
             attributes: expect.objectContaining({
-              shipping_address: address,
-              billing_address: address,
+              shippingAddress: address,
+              billingAddress: address,
             }),
           },
         })
@@ -420,7 +420,7 @@ describe('quoteService', () => {
         validUntil: '2026-03-21',
       });
 
-      // Assert
+      // Assert - attributes stay in camelCase (JSON:API schema uses camelCase)
       expect(mockAxios.patch).toHaveBeenCalledWith(
         '/api/v1/quotes/1',
         expect.objectContaining({
@@ -429,7 +429,7 @@ describe('quoteService', () => {
             id: '1',
             attributes: expect.objectContaining({
               notes: 'Updated notes',
-              valid_until: '2026-03-21',
+              validUntil: '2026-03-21',
             }),
           },
         })
@@ -805,22 +805,22 @@ describe('quoteItemService', () => {
         productSku: 'PROD-001',
       });
 
-      // Assert
+      // Assert - attributes stay in camelCase (JSON:API schema uses camelCase)
       expect(mockAxios.post).toHaveBeenCalledWith(
         '/api/v1/quote-items',
         expect.objectContaining({
           data: {
             type: 'quote-items',
             attributes: expect.objectContaining({
-              quote_id: 1,
-              product_id: 1,
+              quoteId: 1,
+              productId: 1,
               quantity: 2,
-              unit_price: 500.00,
-              quoted_price: 450.00,
-              discount_percentage: 10,
-              tax_rate: 16,
-              product_name: 'Test Product',
-              product_sku: 'PROD-001',
+              unitPrice: 500.00,
+              quotedPrice: 450.00,
+              discountPercentage: 10,
+              taxRate: 16,
+              productName: 'Test Product',
+              productSku: 'PROD-001',
             }),
           },
         })
@@ -870,7 +870,7 @@ describe('quoteItemService', () => {
       // Act
       const result = await quoteItemService.update('1', { quotedPrice: 400.00 });
 
-      // Assert
+      // Assert - attributes stay in camelCase (JSON:API schema uses camelCase)
       expect(mockAxios.patch).toHaveBeenCalledWith(
         '/api/v1/quote-items/1',
         expect.objectContaining({
@@ -878,7 +878,7 @@ describe('quoteItemService', () => {
             type: 'quote-items',
             id: '1',
             attributes: {
-              quoted_price: 400.00,
+              quotedPrice: 400.00,
             },
           },
         })
@@ -896,7 +896,7 @@ describe('quoteItemService', () => {
       // Act
       const result = await quoteItemService.update('1', { discountPercentage: 15 });
 
-      // Assert
+      // Assert - attributes stay in camelCase (JSON:API schema uses camelCase)
       expect(mockAxios.patch).toHaveBeenCalledWith(
         '/api/v1/quote-items/1',
         expect.objectContaining({
@@ -904,7 +904,7 @@ describe('quoteItemService', () => {
             type: 'quote-items',
             id: '1',
             attributes: {
-              discount_percentage: 15,
+              discountPercentage: 15,
             },
           },
         })
@@ -933,7 +933,7 @@ describe('quoteItemService', () => {
         notes: 'Updated notes',
       });
 
-      // Assert
+      // Assert - attributes stay in camelCase (JSON:API schema uses camelCase)
       expect(mockAxios.patch).toHaveBeenCalledWith(
         '/api/v1/quote-items/1',
         expect.objectContaining({
@@ -942,8 +942,8 @@ describe('quoteItemService', () => {
             id: '1',
             attributes: {
               quantity: 3,
-              quoted_price: 450.00,
-              discount_percentage: 10,
+              quotedPrice: 450.00,
+              discountPercentage: 10,
               notes: 'Updated notes',
             },
           },

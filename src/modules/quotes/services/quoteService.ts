@@ -59,19 +59,15 @@ function transformToCamelCase(data: Record<string, unknown> | null | undefined):
   return transformed
 }
 
-// Transform camelCase to snake_case for API requests
-function transformToSnakeCase(data: Record<string, unknown>): Record<string, unknown> {
-  const transformed: Record<string, unknown> = {}
-
+// Strip undefined values from request data (JSON:API schema uses camelCase)
+function stripUndefined(data: Record<string, unknown>): Record<string, unknown> {
+  const result: Record<string, unknown> = {}
   for (const [key, value] of Object.entries(data)) {
-    if (value === undefined) continue
-
-    // Convert camelCase to snake_case
-    const snakeKey = key.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`)
-    transformed[snakeKey] = value
+    if (value !== undefined) {
+      result[key] = value
+    }
   }
-
-  return transformed
+  return result
 }
 
 // Parse JSON:API quote response
@@ -199,7 +195,7 @@ export const quoteService = {
    * Create new quote
    */
   async create(data: CreateQuoteRequest): Promise<Quote> {
-    const attributes = transformToSnakeCase(data as unknown as Record<string, unknown>)
+    const attributes = stripUndefined(data as unknown as Record<string, unknown>)
 
     const requestData = {
       data: {
@@ -254,7 +250,7 @@ export const quoteService = {
    * Update existing quote
    */
   async update(id: string, data: UpdateQuoteRequest): Promise<Quote> {
-    const attributes = transformToSnakeCase(data as unknown as Record<string, unknown>)
+    const attributes = stripUndefined(data as unknown as Record<string, unknown>)
 
     const requestData = {
       data: {
@@ -474,7 +470,7 @@ export const quoteItemService = {
    * Create new quote item
    */
   async create(data: CreateQuoteItemRequest): Promise<QuoteItem> {
-    const attributes = transformToSnakeCase(data as unknown as Record<string, unknown>)
+    const attributes = stripUndefined(data as unknown as Record<string, unknown>)
 
     const requestData = {
       data: {
@@ -492,7 +488,7 @@ export const quoteItemService = {
    * Update existing quote item
    */
   async update(id: string, data: UpdateQuoteItemRequest): Promise<QuoteItem> {
-    const attributes = transformToSnakeCase(data as unknown as Record<string, unknown>)
+    const attributes = stripUndefined(data as unknown as Record<string, unknown>)
 
     const requestData = {
       data: {
