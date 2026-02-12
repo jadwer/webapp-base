@@ -33,6 +33,7 @@ export default function ProductDetailPage({
   useTrackProductView(productId)
   const [quantity, setQuantity] = useState(1)
   const [imageError, setImageError] = useState(false)
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0)
 
   const handleAddToCart = useCallback(() => {
     if (!product) return
@@ -111,6 +112,12 @@ export default function ProductDetailPage({
   const inCart = isInCart(product.id)
   const cartQuantity = getQuantity(product.id)
 
+  const gallery = product.galleryImages
+  const mainImageUrl = gallery && gallery.length > 0
+    ? (gallery[selectedImageIndex]?.attributes.imageUrl || product.attributes.imageUrl)
+    : product.attributes.imageUrl
+  const mainImageAlt = gallery?.[selectedImageIndex]?.attributes.altText || product.displayName
+
   return (
     <div className="container py-4">
       {/* Breadcrumb */}
@@ -137,25 +144,66 @@ export default function ProductDetailPage({
 
       {/* Product Detail */}
       <div className="row g-4 mb-5">
-        {/* Product Image */}
+        {/* Product Image Gallery */}
         <div className="col-lg-6">
           <div className="card border-0 shadow-sm h-100">
-            <div className="card-body p-4 d-flex align-items-center justify-content-center" style={{ minHeight: '400px' }}>
-              {product.attributes.imageUrl && !imageError ? (
-                <Image
-                  src={product.attributes.imageUrl}
-                  alt={product.displayName}
-                  width={500}
-                  height={500}
-                  className="img-fluid rounded"
-                  style={{ objectFit: 'contain', maxHeight: '400px' }}
-                  onError={() => setImageError(true)}
-                  priority
-                />
-              ) : (
-                <div className="text-center text-muted">
-                  <i className="bi bi-image display-1"></i>
-                  <p className="mt-2">Sin imagen disponible</p>
+            <div className="card-body p-4">
+              {/* Main image */}
+              <div className="d-flex align-items-center justify-content-center" style={{ minHeight: '400px' }}>
+                {mainImageUrl && !imageError ? (
+                  <Image
+                    src={mainImageUrl}
+                    alt={mainImageAlt}
+                    width={500}
+                    height={500}
+                    className="img-fluid rounded"
+                    style={{ objectFit: 'contain', maxHeight: '400px' }}
+                    onError={() => setImageError(true)}
+                    priority
+                  />
+                ) : (
+                  <div className="text-center text-muted">
+                    <i className="bi bi-image display-1"></i>
+                    <p className="mt-2">Sin imagen disponible</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Thumbnail strip */}
+              {product.galleryImages && product.galleryImages.length > 1 && (
+                <div className="d-flex gap-2 mt-3 justify-content-center flex-wrap">
+                  {product.galleryImages.map((img, index) => (
+                    <button
+                      key={img.id}
+                      type="button"
+                      className="btn p-0"
+                      style={{
+                        width: 64,
+                        height: 64,
+                        border: selectedImageIndex === index
+                          ? '2px solid var(--bs-primary)'
+                          : '2px solid var(--bs-border-color)',
+                        borderRadius: 6,
+                        overflow: 'hidden',
+                        cursor: 'pointer',
+                        opacity: selectedImageIndex === index ? 1 : 0.7,
+                        transition: 'border-color 0.15s, opacity 0.15s',
+                      }}
+                      onClick={() => {
+                        setSelectedImageIndex(index)
+                        setImageError(false)
+                      }}
+                    >
+                      <Image
+                        src={img.attributes.imageUrl || `/storage/${img.attributes.filePath}`}
+                        alt={img.attributes.altText || `Imagen ${index + 1}`}
+                        width={64}
+                        height={64}
+                        style={{ objectFit: 'cover', width: '100%', height: '100%' }}
+                        unoptimized
+                      />
+                    </button>
+                  ))}
                 </div>
               )}
             </div>

@@ -88,7 +88,8 @@ export {
   PublicCatalogPagination,
   PublicCatalogTemplate,
   LocalCartPage,
-  ProductDetailPage
+  ProductDetailPage,
+  ProductQuickViewModal
 } from './components'
 
 // Export utility functions if any are created later

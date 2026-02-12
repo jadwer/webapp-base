@@ -4,6 +4,7 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react'
 import { Button, Input } from '@/ui/components/base'
 import { useUnits, useCategories, useBrands } from '../hooks'
 import { FileUploader } from './FileUploader'
+import { ImageGalleryManager } from './ImageGalleryManager'
 import { productService } from '../services/productService'
 import type { Product, CreateProductData, UpdateProductData } from '../types'
 
@@ -219,23 +220,32 @@ export const ProductForm: React.FC<ProductFormProps> = ({
 
       <div className="row">
         <div className="col-md-8">
-          {/* Imagen del producto - First in left column, above SKU */}
+          {/* Imagen del producto */}
           <div className="mb-3">
-            <FileUploader
-              label="Imagen del producto"
-              accept="image/jpeg,image/png,image/gif,image/webp"
-              maxSizeMB={10}
-              isImage={true}
-              onFileSelect={(file) => setImageFile(file)}
-              onClear={() => {
-                setImageFile(null)
-                handleInputChange('imgPath', '')
-              }}
-              previewUrl={product?.imgUrl || null}
-              isLoading={uploadingImage}
-              helpText="JPG, PNG, GIF o WebP. Máximo 10MB"
-              errorText={errors.imgPath}
-            />
+            {product?.id ? (
+              <ImageGalleryManager productId={product.id} />
+            ) : (
+              <>
+                <FileUploader
+                  label="Imagen del producto"
+                  accept="image/jpeg,image/png,image/gif,image/webp"
+                  maxSizeMB={10}
+                  isImage={true}
+                  onFileSelect={(file) => setImageFile(file)}
+                  onClear={() => {
+                    setImageFile(null)
+                    handleInputChange('imgPath', '')
+                  }}
+                  previewUrl={null}
+                  isLoading={uploadingImage}
+                  helpText="JPG, PNG, GIF o WebP. Máximo 10MB"
+                  errorText={errors.imgPath}
+                />
+                <small className="text-muted d-block mt-1">
+                  Podra agregar mas imagenes despues de guardar el producto.
+                </small>
+              </>
+            )}
           </div>
 
           <div className="mb-3">

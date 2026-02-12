@@ -1,4 +1,5 @@
 export * from './product'
+export * from './productImage'
 export * from './unit'
 export * from './category'
 export * from './brand'

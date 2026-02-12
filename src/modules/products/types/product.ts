@@ -1,6 +1,7 @@
 import { Unit } from './unit'
 import { Category } from './category'
 import { Brand } from './brand'
+import { ProductImage } from './productImage'
 
 export interface Product {
   id: string
@@ -26,6 +27,7 @@ export interface Product {
   unit?: Unit
   category?: Category
   brand?: Brand
+  images?: ProductImage[]
 }
 
 export interface CreateProductData {

@@ -47,6 +47,25 @@ export interface PublicProduct {
         type: 'brands'
       } | null
     }
+    images?: {
+      data: {
+        id: string
+        type: 'product-images'
+      }[]
+    }
+  }
+}
+
+// Product Image (from product-images include)
+export interface PublicProductImage {
+  id: string
+  type: 'product-images'
+  attributes: {
+    filePath: string
+    imageUrl: string | null
+    altText: string | null
+    sortOrder: number
+    isPrimary: boolean
   }
 }
 
@@ -149,7 +168,7 @@ export interface PublicProductPagination {
 }
 
 // Include Parameters (for relationships)
-export type PublicProductInclude = 
+export type PublicProductInclude =
   | 'unit'
   | 'category'
   | 'brand'
@@ -157,6 +176,7 @@ export type PublicProductInclude =
   | 'unit,brand'
   | 'category,brand'
   | 'unit,category,brand'
+  | 'unit,category,brand,images'
 
 // Complete Query Parameters
 export interface PublicProductsQueryParams {
@@ -192,7 +212,7 @@ export interface PublicProductsQueryParams {
 // API Response Types
 export interface PublicProductsResponse {
   data: PublicProduct[]
-  included?: (PublicUnit | PublicCategory | PublicBrand)[]
+  included?: (PublicUnit | PublicCategory | PublicBrand | PublicProductImage)[]
   meta: {
     currentPage: number
     lastPage: number
@@ -212,7 +232,7 @@ export interface PublicProductsResponse {
 
 export interface SinglePublicProductResponse {
   data: PublicProduct
-  included?: (PublicUnit | PublicCategory | PublicBrand)[]
+  included?: (PublicUnit | PublicCategory | PublicBrand | PublicProductImage)[]
 }
 
 // Error Types
@@ -267,7 +287,8 @@ export interface EnhancedPublicProduct extends PublicProduct {
   unit?: PublicUnit
   category?: PublicCategory
   brand?: PublicBrand
-  
+  galleryImages?: PublicProductImage[]
+
   // Computed display properties
   displayName: string
   displayPrice: string

@@ -22,6 +22,9 @@ export { default as LocalCartPage } from './LocalCartPage'
 // Export detail page component
 export { default as ProductDetailPage } from './ProductDetailPage'
 
+// Export quick view modal
+export { ProductQuickViewModal } from './ProductQuickViewModal'
+
 // Re-export types needed for components
 export type {
   PublicProductFilters,

@@ -17,7 +17,8 @@ import type {
   EnhancedPublicProduct,
   PublicUnit,
   PublicCategory,
-  PublicBrand
+  PublicBrand,
+  PublicProductImage
 } from '../types/publicProduct'
 
 class PublicProductsService {
@@ -144,7 +145,7 @@ class PublicProductsService {
    */
   private resolveRelationships(
     product: PublicProduct,
-    included?: (PublicUnit | PublicCategory | PublicBrand)[]
+    included?: (PublicUnit | PublicCategory | PublicBrand | PublicProductImage)[]
   ): EnhancedPublicProduct {
     const enhanced: EnhancedPublicProduct = {
       ...product,
@@ -162,7 +163,7 @@ class PublicProductsService {
       const unit = included.find(
         item => item.type === 'units' && item.id === product.relationships.unit.data?.id
       ) as PublicUnit | undefined
-      
+
       if (unit) {
         enhanced.unit = unit
         enhanced.displayUnit = unit.attributes.abbreviation || unit.attributes.name
@@ -174,7 +175,7 @@ class PublicProductsService {
       const category = included.find(
         item => item.type === 'categories' && item.id === product.relationships.category.data?.id
       ) as PublicCategory | undefined
-      
+
       if (category) {
         enhanced.category = category
         enhanced.displayCategory = category.attributes.name
@@ -186,10 +187,21 @@ class PublicProductsService {
       const brand = included.find(
         item => item.type === 'brands' && item.id === product.relationships.brand.data?.id
       ) as PublicBrand | undefined
-      
+
       if (brand) {
         enhanced.brand = brand
         enhanced.displayBrand = brand.attributes.name
+      }
+    }
+
+    // Resolve images relationship
+    if (product.relationships.images?.data) {
+      const imageIds = new Set(product.relationships.images.data.map(r => r.id))
+      const images = included
+        .filter((item): item is PublicProductImage => item.type === 'product-images' && imageIds.has(item.id))
+        .sort((a, b) => (a.attributes.sortOrder ?? 0) - (b.attributes.sortOrder ?? 0))
+      if (images.length > 0) {
+        enhanced.galleryImages = images
       }
     }
 
@@ -247,7 +259,7 @@ class PublicProductsService {
    */
   async getPublicProduct(
     id: string,
-    include: PublicProductInclude = 'unit,category,brand'
+    include: PublicProductInclude = 'unit,category,brand,images'
   ): Promise<EnhancedPublicProduct> {
     const response = await axiosClient.get<SinglePublicProductResponse>(
       `${this.baseUrl}/${id}`,

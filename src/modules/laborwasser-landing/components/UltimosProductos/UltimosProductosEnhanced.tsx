@@ -7,12 +7,12 @@
 'use client'
 
 import React, { useState, useCallback, useEffect } from 'react'
-import Image from 'next/image'
 import Link from 'next/link'
 import { Button } from '@/ui/components/base'
 import { useToast } from '@/ui/hooks/useToast'
 import {
   PublicProductsGrid,
+  ProductQuickViewModal,
   useFeaturedProducts,
   useLocalCart,
   type EnhancedPublicProduct,
@@ -252,81 +252,13 @@ export const UltimosProductosEnhanced: React.FC<UltimosProductosEnhancedProps> =
           </div>
         )}
 
-        {/* Product Modal (for future implementation) */}
+        {/* Product Quick View Modal with Gallery */}
         {enableProductModal && selectedProduct && (
-          <div 
-            className="modal fade show d-block" 
-            style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
-            onClick={() => setSelectedProduct(null)}
-          >
-            <div className="modal-dialog modal-lg" onClick={e => e.stopPropagation()}>
-              <div className="modal-content">
-                <div className="modal-header">
-                  <h5 className="modal-title">{selectedProduct.displayName}</h5>
-                  <button
-                    type="button"
-                    className="btn-close"
-                    onClick={() => setSelectedProduct(null)}
-                  ></button>
-                </div>
-                <div className="modal-body">
-                  <div className="row">
-                    <div className="col-md-6">
-                      <div className="ratio ratio-1x1 mb-3">
-                        {selectedProduct.attributes.imageUrl ? (
-                          <Image
-                            src={selectedProduct.attributes.imageUrl}
-                            alt={selectedProduct.displayName}
-                            fill
-                            className="object-fit-cover rounded"
-                            sizes="(max-width: 768px) 100vw, 50vw"
-                          />
-                        ) : (
-                          <div className="d-flex align-items-center justify-content-center bg-light rounded">
-                            <i className="bi bi-image display-4 text-muted"></i>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                    <div className="col-md-6">
-                      <h6>Detalles del Producto</h6>
-                      <ul className="list-unstyled">
-                        <li><strong>Categoría:</strong> {selectedProduct.displayCategory}</li>
-                        <li><strong>Marca:</strong> {selectedProduct.displayBrand}</li>
-                        <li><strong>Unidad:</strong> {selectedProduct.displayUnit}</li>
-                        {selectedProduct.attributes.sku && (
-                          <li><strong>SKU:</strong> {selectedProduct.attributes.sku}</li>
-                        )}
-                        <li><strong>Precio:</strong> {selectedProduct.displayPrice}</li>
-                      </ul>
-                      {selectedProduct.attributes.description && (
-                        <>
-                          <h6>Descripción</h6>
-                          <p className="text-muted">{selectedProduct.attributes.description}</p>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                </div>
-                <div className="modal-footer">
-                  <Button
-                    variant="secondary"
-                    buttonStyle="outline"
-                    onClick={() => setSelectedProduct(null)}
-                  >
-                    Cerrar
-                  </Button>
-                  <Button
-                    variant="primary"
-                    onClick={() => handleAddToCart(selectedProduct)}
-                    startIcon={<i className="bi bi-cart-plus" />}
-                  >
-                    Agregar al Carrito
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
+          <ProductQuickViewModal
+            product={selectedProduct}
+            onClose={() => setSelectedProduct(null)}
+            onAddToCart={handleAddToCart}
+          />
         )}
       </div>
     </section>

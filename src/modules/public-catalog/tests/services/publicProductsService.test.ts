@@ -256,7 +256,7 @@ describe('publicProductsService', () => {
       expect(mockAxiosClient.get).toHaveBeenCalledWith(
         '/api/public/v1/public-products/1',
         expect.objectContaining({
-          params: { include: 'unit,category,brand' },
+          params: { include: 'unit,category,brand,images' },
         })
       )
 
