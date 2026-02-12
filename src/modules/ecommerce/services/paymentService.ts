@@ -101,34 +101,31 @@ const stripeService = {
    * This prepares Stripe to accept a payment
    */
   async createPaymentIntent(request: CreatePaymentIntentRequest): Promise<CreatePaymentIntentResponse> {
-    const payload = {
-      data: {
-        type: 'payment-intents',
-        attributes: {
-          checkoutSessionId: request.checkoutSessionId,
-          amount: request.amount,
-          currency: request.currency,
-          paymentMethod: request.paymentMethod,
-          captureMethod: request.captureMethod || 'automatic',
-          metadata: request.metadata,
-        },
-      },
+    // Backend expects flat fields, not JSON:API format
+    const payload: Record<string, unknown> = {
+      amount: request.amount,
+      currency: request.currency || 'mxn',
+      capture_method: request.captureMethod || 'automatic',
     };
+    if (request.metadata) {
+      payload.metadata = request.metadata;
+    }
 
     const response = await axiosClient.post<{
       data: {
-        payment_intent_id: string;
+        id: string;
         client_secret: string;
         status: string;
         amount: number;
         currency: string;
+        transaction_id?: number;
       };
     }>('/api/v1/stripe/payment-intents', payload);
 
     const data = response.data.data;
 
     return {
-      paymentIntentId: data.payment_intent_id,
+      paymentIntentId: data.id,
       clientSecret: data.client_secret,
       status: data.status as CreatePaymentIntentResponse['status'],
       amount: data.amount,
@@ -147,7 +144,7 @@ const stripeService = {
   }> {
     const response = await axiosClient.get<{
       data: {
-        payment_intent_id: string;
+        id: string;
         status: string;
         amount: number;
         currency: string;
@@ -157,7 +154,7 @@ const stripeService = {
     const data = response.data.data;
 
     return {
-      paymentIntentId: data.payment_intent_id,
+      paymentIntentId: data.id,
       status: data.status,
       amount: data.amount,
       currency: data.currency,
@@ -169,32 +166,29 @@ const stripeService = {
    * Use this when payment method is already attached
    */
   async confirmPaymentIntent(request: ConfirmPaymentIntentRequest): Promise<ConfirmPaymentIntentResponse> {
-    const payload = {
-      data: {
-        type: 'payment-intents',
-        attributes: {
-          paymentMethodId: request.paymentMethodId,
-          returnUrl: request.returnUrl,
-        },
-      },
-    };
+    const payload: Record<string, unknown> = {};
+    if (request.paymentMethodId) {
+      payload.payment_method = request.paymentMethodId;
+    }
+    if (request.returnUrl) {
+      payload.return_url = request.returnUrl;
+    }
 
     const response = await axiosClient.post<{
       data: {
-        payment_intent_id: string;
+        id: string;
         status: string;
-        requires_action: boolean;
-        next_action_url?: string;
+        next_action: unknown;
       };
     }>(`/api/v1/stripe/payment-intents/${request.paymentIntentId}/confirm`, payload);
 
     const data = response.data.data;
 
     return {
-      paymentIntentId: data.payment_intent_id,
+      paymentIntentId: data.id,
       status: data.status as ConfirmPaymentIntentResponse['status'],
-      requiresAction: data.requires_action,
-      nextActionUrl: data.next_action_url,
+      requiresAction: !!data.next_action,
+      nextActionUrl: undefined,
     };
   },
 
@@ -203,14 +197,10 @@ const stripeService = {
    * Use this after authorization to actually charge the card
    */
   async capturePaymentIntent(request: CapturePaymentIntentRequest): Promise<EcommercePaymentTransaction> {
-    const payload = {
-      data: {
-        type: 'payment-intents',
-        attributes: {
-          amountToCapture: request.amountToCapture,
-        },
-      },
-    };
+    const payload: Record<string, unknown> = {};
+    if (request.amountToCapture) {
+      payload.amount_to_capture = request.amountToCapture;
+    }
 
     const response = await axiosClient.post<{ data: Record<string, unknown> }>(
       `/api/v1/stripe/payment-intents/${request.paymentIntentId}/capture`,
@@ -225,18 +215,9 @@ const stripeService = {
    * Use this to cancel a payment that hasn't been captured
    */
   async cancelPaymentIntent(request: CancelPaymentIntentRequest): Promise<void> {
-    const payload = {
-      data: {
-        type: 'payment-intents',
-        attributes: {
-          cancellationReason: request.cancellationReason,
-        },
-      },
-    };
-
     await axiosClient.post(
       `/api/v1/stripe/payment-intents/${request.paymentIntentId}/cancel`,
-      payload
+      {}
     );
   },
 
@@ -244,30 +225,30 @@ const stripeService = {
    * Create a refund for a captured payment
    */
   async refundPayment(request: RefundPaymentRequest): Promise<RefundPaymentResponse> {
-    const payload = {
-      data: {
-        type: 'refunds',
-        attributes: {
-          paymentIntentId: request.paymentIntentId,
-          amount: request.amount,
-          reason: request.reason,
-        },
-      },
+    const payload: Record<string, unknown> = {
+      payment_intent_id: request.paymentIntentId,
     };
+    if (request.amount) {
+      payload.amount = request.amount;
+    }
+    if (request.reason) {
+      payload.reason = request.reason;
+    }
 
     const response = await axiosClient.post<{
       data: {
-        refund_id: string;
+        id: string;
         status: string;
         amount: number;
         currency: string;
+        payment_intent: string;
       };
     }>('/api/v1/stripe/refunds', payload);
 
     const data = response.data.data;
 
     return {
-      refundId: data.refund_id,
+      refundId: data.id,
       status: data.status as RefundPaymentResponse['status'],
       amount: data.amount,
       currency: data.currency,

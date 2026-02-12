@@ -140,7 +140,7 @@ export const CheckoutPage = React.memo<CheckoutPageProps>(({ cartId }) => {
 
       const result = await paymentService.processor.initiatePayment(
         checkoutSessionId,
-        cart.totalAmount,
+        cart.finalTotal || cart.totalAmount,
         'MXN'
       )
 

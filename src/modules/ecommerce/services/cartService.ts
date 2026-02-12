@@ -174,9 +174,40 @@ const cartService = {
    * Convert cart to order
    */
   async checkout(id: string, orderData: Record<string, unknown>): Promise<Record<string, unknown>> {
+    // Transform camelCase frontend fields to snake_case backend format
+    const payload: Record<string, unknown> = {
+      customer_name: orderData.customerName,
+      customer_email: orderData.customerEmail,
+      customer_phone: orderData.customerPhone,
+      shipping_address_line1: orderData.shippingAddressLine1,
+      shipping_address_line2: orderData.shippingAddressLine2,
+      shipping_city: orderData.shippingCity,
+      shipping_state: orderData.shippingState,
+      shipping_postal_code: orderData.shippingPostalCode,
+      shipping_country: orderData.shippingCountry,
+      payment_intent_id: orderData.paymentIntentId,
+    };
+
+    // If billing address is different from shipping
+    if (orderData.billingAddressLine1) {
+      payload.billing_address = {
+        line1: orderData.billingAddressLine1,
+        line2: orderData.billingAddressLine2,
+        city: orderData.billingCity,
+        state: orderData.billingState,
+        postal_code: orderData.billingPostalCode,
+        country: orderData.billingCountry || 'Mexico',
+      };
+    }
+
+    // Pass contact_id if provided
+    if (orderData.contactId) {
+      payload.contact_id = orderData.contactId;
+    }
+
     const response = await axiosClient.post(
       `/api/v1/shopping-carts/${id}/checkout`,
-      orderData
+      payload
     );
 
     return response.data as unknown as Record<string, unknown>;
@@ -194,14 +225,38 @@ const cartItemsService = {
   async getAll(shoppingCartId: number): Promise<ShoppingCartItem[]> {
     const params: Record<string, string | number> = {
       'filter[shopping_cart_id]': shoppingCartId,
+      'include': 'product',
     };
 
-    const response = await axiosClient.get<ShoppingCartItemsResponse>(
+    const response = await axiosClient.get<ShoppingCartItemsResponse & { included?: Record<string, unknown>[] }>(
       '/api/v1/cart-items',
       { params }
     );
 
-    return response.data.data.map(item => shoppingCartItemFromAPI(item as unknown as Record<string, unknown>));
+    // Build a map of included products by id
+    const productMap = new Map<string, Record<string, unknown>>();
+    if (response.data.included) {
+      for (const inc of response.data.included) {
+        if (inc.type === 'products' && inc.id) {
+          productMap.set(String(inc.id), inc);
+        }
+      }
+    }
+
+    return response.data.data.map(item => {
+      const cartItem = shoppingCartItemFromAPI(item as unknown as Record<string, unknown>);
+
+      // Enrich with product data from included resources
+      const productData = productMap.get(String(cartItem.productId));
+      if (productData) {
+        const attrs = (productData.attributes || {}) as Record<string, unknown>;
+        cartItem.productName = (attrs.name as string) || cartItem.productName;
+        cartItem.productSku = (attrs.sku as string) || cartItem.productSku;
+        cartItem.productImage = (attrs.imgUrl as string) || cartItem.productImage;
+      }
+
+      return cartItem;
+    });
   },
 
   /**

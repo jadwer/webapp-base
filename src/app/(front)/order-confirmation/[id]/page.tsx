@@ -11,7 +11,7 @@ import { useState, useEffect, use } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/modules/auth'
-import { salesService } from '@/modules/sales/services'
+import axiosClient from '@/lib/axiosClient'
 
 interface SalesOrder {
   id: string
@@ -68,7 +68,10 @@ export default function OrderConfirmationPage({ params }: OrderConfirmationPageP
       setError(null)
 
       try {
-        const result = await salesService.orders.getById(id)
+        const response = await axiosClient.get(
+          `/api/v1/sales-orders/${id}?include=contact,items,items.product`
+        )
+        const result = response.data
         const orderData = result.data
         const attrs = orderData.attributes
 
@@ -76,28 +79,48 @@ export default function OrderConfirmationPage({ params }: OrderConfirmationPageP
           (inc: { type: string }) => inc.type === 'sales-order-items'
         ) || []
 
+        // Build a product name lookup from included products
+        const productMap: Record<string, { name: string; sku: string }> = {}
+        result.included?.filter(
+          (inc: { type: string }) => inc.type === 'products'
+        ).forEach((p: { id: string; attributes: Record<string, unknown> }) => {
+          productMap[p.id] = {
+            name: (p.attributes.name ?? p.attributes.productName) as string,
+            sku: (p.attributes.sku ?? '') as string,
+          }
+        })
+
+        // API returns camelCase attributes
+        const subtotal = (attrs.subtotalAmount ?? attrs.subtotal ?? attrs.subtotal_amount ?? 0) as number
+        const taxAmount = (attrs.taxAmount ?? attrs.tax_amount ?? 0) as number
+        const totalAmount = (attrs.totalAmount ?? attrs.total_amount ?? 0) as number
+
         setOrder({
           id: orderData.id,
-          orderNumber: attrs.order_number,
-          status: attrs.status,
-          totalAmount: attrs.total_amount,
-          subtotalAmount: attrs.subtotal_amount,
-          taxAmount: attrs.tax_amount,
-          discountAmount: attrs.discount_amount || 0,
-          createdAt: attrs.created_at,
-          shippingAddress: attrs.shipping_address,
-          shippingCity: attrs.shipping_city,
-          shippingState: attrs.shipping_state,
-          shippingPostalCode: attrs.shipping_postal_code,
-          items: includedItems.map((item: { id: string; attributes: Record<string, unknown> }) => ({
-            id: item.id,
-            productId: item.attributes.product_id as string,
-            productName: item.attributes.product_name as string,
-            sku: item.attributes.sku as string,
-            quantity: item.attributes.quantity as number,
-            unitPrice: item.attributes.unit_price as number,
-            total: item.attributes.total as number
-          }))
+          orderNumber: (attrs.orderNumber ?? attrs.order_number ?? '') as string,
+          status: attrs.status as string,
+          totalAmount,
+          subtotalAmount: subtotal || (totalAmount - taxAmount),
+          taxAmount: taxAmount || (totalAmount - subtotal),
+          discountAmount: (attrs.discountTotal ?? attrs.discount_total ?? attrs.discountAmount ?? 0) as number,
+          createdAt: (attrs.createdAt ?? attrs.created_at ?? '') as string,
+          shippingAddress: attrs.shippingAddress as string | undefined,
+          shippingCity: attrs.shippingCity as string | undefined,
+          shippingState: attrs.shippingState as string | undefined,
+          shippingPostalCode: attrs.shippingPostalCode as string | undefined,
+          items: includedItems.map((item: { id: string; attributes: Record<string, unknown> }) => {
+            const productId = (item.attributes.productId ?? item.attributes.product_id ?? '') as string
+            const product = productMap[String(productId)]
+            return {
+              id: item.id,
+              productId,
+              productName: product?.name,
+              sku: product?.sku,
+              quantity: (item.attributes.quantity ?? 0) as number,
+              unitPrice: (item.attributes.unitPrice ?? item.attributes.unit_price ?? 0) as number,
+              total: (item.attributes.total ?? 0) as number,
+            }
+          })
         })
       } catch {
         setError('No se pudo cargar la informacion del pedido')

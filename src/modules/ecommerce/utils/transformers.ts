@@ -183,6 +183,13 @@ export function shoppingCartToAPI(cart: Partial<ShoppingCart>): Record<string, u
 export function shoppingCartFromAPI(data: Record<string, unknown>): ShoppingCart {
   const attributes = (data.attributes || data) as Record<string, unknown>;
 
+  const subtotalAmount = parseFloat(String(attributes.subtotalAmount ?? attributes.subtotal_amount ?? 0));
+  const finalTotal = parseFloat(String(attributes.finalTotal ?? attributes.final_total ?? 0));
+  const rawTaxAmount = parseFloat(String(attributes.computedTaxAmount ?? attributes.taxAmount ?? attributes.tax_amount ?? 0));
+  // Backend stores taxAmount=0 in DB but computes finalTotal=subtotal+tax.
+  // Derive tax from the difference when rawTaxAmount is 0.
+  const taxAmount = rawTaxAmount || (finalTotal > subtotalAmount ? parseFloat((finalTotal - subtotalAmount).toFixed(2)) : 0);
+
   return {
     id: (data.id as string | number | undefined)?.toString() || (attributes.id as string | number | undefined)?.toString() || '',
     sessionId: (attributes.sessionId ?? attributes.session_id ?? null) as string | null,
@@ -191,13 +198,13 @@ export function shoppingCartFromAPI(data: Record<string, unknown>): ShoppingCart
     status: ((attributes.status as string) || 'active') as CartStatus,
     currency: (attributes.currency as string) || 'MXN',
     couponCode: (attributes.couponCode ?? attributes.coupon_code ?? null) as string | null,
-    subtotalAmount: parseFloat(String(attributes.subtotalAmount ?? attributes.subtotal_amount ?? 0)),
-    taxAmount: parseFloat(String(attributes.computedTaxAmount ?? attributes.taxAmount ?? attributes.tax_amount ?? 0)),
+    subtotalAmount,
+    taxAmount,
     discountAmount: parseFloat(String(attributes.discountAmount ?? attributes.discount_amount ?? 0)),
     shippingAmount: parseFloat(String(attributes.shippingAmount ?? attributes.shipping_amount ?? 0)),
-    totalAmount: parseFloat(String(attributes.totalAmount ?? attributes.total_amount ?? 0)) || parseFloat(String(attributes.finalTotal ?? attributes.final_total ?? 0)),
+    totalAmount: parseFloat(String(attributes.totalAmount ?? attributes.total_amount ?? 0)) || finalTotal,
     itemsCount: parseInt(String(attributes.itemsCount ?? attributes.items_count ?? 0)),
-    finalTotal: parseFloat(String(attributes.finalTotal ?? attributes.final_total ?? attributes.totalAmount ?? attributes.total_amount ?? 0)),
+    finalTotal: finalTotal || parseFloat(String(attributes.totalAmount ?? attributes.total_amount ?? 0)),
     isExpired: (attributes.isExpired ?? attributes.is_expired ?? false) as boolean,
     canApplyCoupon: (attributes.canApplyCoupon ?? attributes.can_apply_coupon ?? true) as boolean,
     notes: (attributes.notes as string | null) ?? null,

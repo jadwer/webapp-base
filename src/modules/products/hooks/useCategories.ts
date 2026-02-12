@@ -8,11 +8,13 @@ interface UseCategoriesParams {
   page?: { number?: number; size?: number }
   filter?: { name?: string; slug?: string }
   sort?: CategorySortOptions
+  enabled?: boolean
 }
 
 export function useCategories(params?: UseCategoriesParams) {
-  const key = params ? ['categories', params] : 'categories'
-  
+  const enabled = params?.enabled !== false
+  const key = enabled ? (params ? ['categories', params] : 'categories') : null
+
   const { data, error, isLoading, mutate } = useSWR<CategoriesResponse>(
     key,
     () => categoryService.getCategories(params),

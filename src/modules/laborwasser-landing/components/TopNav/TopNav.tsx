@@ -2,12 +2,16 @@
 
 import React from 'react'
 import Link from 'next/link'
+import { useAuth } from '@/modules/auth'
 import { useCategories } from '@/modules/products/hooks/useCategories'
 
 export const TopNav: React.FC = () => {
+  const { isAuthenticated } = useAuth()
+  // Categories endpoint requires auth - only fetch when authenticated
   const { categories, isLoading } = useCategories({
     page: { size: 50 },
     sort: { field: 'name', direction: 'asc' },
+    enabled: isAuthenticated,
   })
 
   return (
