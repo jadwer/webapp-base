@@ -433,6 +433,180 @@ export const shipmentsService = {
     }
     const response = await axiosClient.patch(`/api/v1/shipments/${id}`, payload)
     return response.data
+  },
+
+  /**
+   * Create shipment from a sales order with selected items
+   */
+  createFromOrder: async (data: {
+    sales_order_id: number
+    items: Array<{ sales_order_item_id: number; quantity: number }>
+    carrier?: string
+    tracking_number?: string
+    warehouse_id?: number
+    notes?: string
+  }) => {
+    const response = await axiosClient.post('/api/v1/shipments/create-from-order', data)
+    return response.data
+  },
+
+  /**
+   * Mark shipment as shipped
+   */
+  ship: async (id: string, data?: { tracking_number?: string; carrier?: string }) => {
+    const response = await axiosClient.post(`/api/v1/shipments/${id}/ship`, data ?? {})
+    return response.data
+  },
+
+  /**
+   * Mark shipment as delivered
+   */
+  deliver: async (id: string, data?: { actual_delivery?: string }) => {
+    const response = await axiosClient.post(`/api/v1/shipments/${id}/deliver`, data ?? {})
+    return response.data
+  },
+
+  /**
+   * Cancel a shipment
+   */
+  cancel: async (id: string, data?: { reason?: string }) => {
+    const response = await axiosClient.post(`/api/v1/shipments/${id}/cancel`, data ?? {})
+    return response.data
+  },
+
+  /**
+   * Get shipment summary for a sales order
+   */
+  getOrderSummary: async (orderId: string) => {
+    const response = await axiosClient.get(`/api/v1/sales-orders/${orderId}/shipment-summary`)
+    return response.data
+  }
+}
+
+// ============================================================================
+// REMISSIONS SERVICE (Delivery Notes)
+// ============================================================================
+
+export const remissionsService = {
+  /**
+   * Get all remissions
+   */
+  getAll: async (params?: Record<string, string | number>) => {
+    const queryParams = new URLSearchParams()
+    if (params) {
+      Object.keys(params).forEach(key => {
+        if (params[key] !== undefined && params[key] !== null && params[key] !== '') {
+          queryParams.append(key, String(params[key]))
+        }
+      })
+    }
+    const url = queryParams.toString()
+      ? `/api/v1/remissions?${queryParams.toString()}`
+      : '/api/v1/remissions'
+    const response = await axiosClient.get(url)
+    return response.data
+  },
+
+  /**
+   * Get remission by ID
+   */
+  getById: async (id: string) => {
+    const response = await axiosClient.get(`/api/v1/remissions/${id}?include=salesOrder,items`)
+    return response.data
+  },
+
+  /**
+   * Create remission from order with selected items
+   */
+  createFromOrder: async (data: {
+    sales_order_id: number
+    warehouse_id?: number
+    shipment_id?: number
+    items: Array<{
+      sales_order_item_id: number
+      quantity: number
+      batch_number?: string
+      expiry_date?: string
+      notes?: string
+    }>
+    shipping_address?: Record<string, string>
+    delivery_notes?: string
+    internal_notes?: string
+  }) => {
+    const response = await axiosClient.post('/api/v1/remissions/from-order', data)
+    return response.data
+  },
+
+  /**
+   * Create remission with ALL items from order
+   */
+  createFromOrderFull: async (data: {
+    sales_order_id: number
+    warehouse_id?: number
+    shipment_id?: number
+    shipping_address?: Record<string, string>
+    delivery_notes?: string
+    internal_notes?: string
+  }) => {
+    const response = await axiosClient.post('/api/v1/remissions/from-order-full', data)
+    return response.data
+  },
+
+  /**
+   * Get remission statistics summary
+   */
+  summary: async () => {
+    const response = await axiosClient.get('/api/v1/remissions/summary')
+    return response.data
+  },
+
+  /**
+   * Mark remission as printed (generates PDF)
+   */
+  print: async (id: string) => {
+    const response = await axiosClient.post(`/api/v1/remissions/${id}/print`)
+    return response.data
+  },
+
+  /**
+   * Mark remission as delivered
+   */
+  deliver: async (id: string, data?: { received_by?: string; delivery_notes?: string }) => {
+    const response = await axiosClient.post(`/api/v1/remissions/${id}/deliver`, data ?? {})
+    return response.data
+  },
+
+  /**
+   * Cancel a remission
+   */
+  cancel: async (id: string) => {
+    const response = await axiosClient.post(`/api/v1/remissions/${id}/cancel`)
+    return response.data
+  },
+
+  /**
+   * Get all remissions for a specific sales order
+   */
+  forOrder: async (orderId: string) => {
+    const response = await axiosClient.get(`/api/v1/sales-orders/${orderId}/remissions`)
+    return response.data
+  },
+
+  /**
+   * Download remission PDF
+   */
+  downloadPdf: async (id: string): Promise<Blob> => {
+    const response = await axiosClient.get(`/api/v1/remissions/${id}/pdf/download`, {
+      responseType: 'blob'
+    })
+    return response.data
+  },
+
+  /**
+   * Get remission PDF preview URL
+   */
+  previewPdf: (id: string): string => {
+    return `/api/v1/remissions/${id}/pdf/preview`
   }
 }
 
