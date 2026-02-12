@@ -95,7 +95,7 @@ export const LocalCartPage: React.FC<LocalCartPageProps> = ({
         sessionStorage.setItem('pendingQuoteCart', JSON.stringify(items))
         // Redirect to login with return URL to cart
         toast.info('Inicia sesión para solicitar una cotización')
-        router.push('/auth/login?redirect=/cart&action=quote')
+        router.push('/auth/login?redirect=' + encodeURIComponent('/cart?action=quote'))
         return
       }
 
@@ -152,7 +152,7 @@ export const LocalCartPage: React.FC<LocalCartPageProps> = ({
       if (!isAuthenticated) {
         // Save intent to checkout after login
         toast.info('Inicia sesion para proceder al pago')
-        router.push('/auth/login?redirect=/cart&action=checkout')
+        router.push('/auth/login?redirect=' + encodeURIComponent('/cart?action=checkout'))
         return
       }
 

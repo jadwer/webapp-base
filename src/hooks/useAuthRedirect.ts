@@ -1,30 +1,31 @@
 'use client'
 
 import { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuth } from '@/modules/auth/lib/auth'
 import { useIsClient } from './useIsClient'
 import { getDefaultRoute } from '@/lib/permissions'
 
 /**
- * Hook para redirigir usuarios autenticados según su rol
+ * Hook para redirigir usuarios autenticados según su rol.
+ * Respeta el parámetro ?redirect= en la URL si existe.
  */
 export function useAuthRedirect() {
   const { user, isAuthenticated, isLoading } = useAuth()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const isClient = useIsClient()
 
   useEffect(() => {
     // Solo proceder si ya estamos en el cliente, cargó y el usuario está autenticado
     if (isClient && !isLoading && isAuthenticated && user) {
-      console.log('🔍 useAuthRedirect - Usuario autenticado:', user)
-      
-      const defaultRoute = getDefaultRoute(user)
-      console.log('🔍 useAuthRedirect - Redirigiendo a:', defaultRoute)
-      
-      router.replace(defaultRoute)
+      // Respect redirect param if present (e.g., from login?redirect=/cart?action=quote)
+      const redirectParam = searchParams.get('redirect')
+      const targetRoute = redirectParam || getDefaultRoute(user)
+
+      router.replace(targetRoute)
     }
-  }, [isClient, user, isAuthenticated, isLoading, router])
+  }, [isClient, user, isAuthenticated, isLoading, router, searchParams])
 
   return {
     user,
