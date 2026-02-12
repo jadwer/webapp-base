@@ -247,9 +247,13 @@ class PublicProductsService {
       this.resolveRelationships(product, response.data.included)
     )
 
+    // JSON:API pagination wraps meta under meta.page
+    const rawMeta = response.data.meta as PublicProductsResponse['meta'] & { page?: PublicProductsResponse['meta'] }
+    const meta = rawMeta.page ?? rawMeta
+
     return {
       products: enhancedProducts,
-      meta: response.data.meta,
+      meta,
       links: response.data.links
     }
   }

@@ -9,31 +9,6 @@ import { useToast } from '@/ui/hooks/useToast'
 // Local storage key for wishlist
 const WISHLIST_KEY = 'laborwasser_wishlist'
 
-// Mock data for demonstration - in real app, this would come from API
-const mockCategories = [
-  { value: '1', label: 'Reactivos Quimicos', count: 45 },
-  { value: '2', label: 'Equipos de Laboratorio', count: 23 },
-  { value: '3', label: 'Material de Vidrio', count: 67 },
-  { value: '4', label: 'Instrumentos de Medicion', count: 34 },
-  { value: '5', label: 'Consumibles', count: 89 },
-  { value: '6', label: 'Kits de Analisis', count: 12 }
-]
-
-const mockBrands = [
-  { value: '1', label: 'LaborWasser', count: 123 },
-  { value: '2', label: 'ChemTech', count: 45 },
-  { value: '3', label: 'LabPro', count: 67 },
-  { value: '4', label: 'Analytik', count: 23 },
-  { value: '5', label: 'BioScience', count: 34 }
-]
-
-const mockUnits = [
-  { value: '1', label: 'Litros', count: 45 },
-  { value: '2', label: 'Kilogramos', count: 23 },
-  { value: '3', label: 'Piezas', count: 67 },
-  { value: '4', label: 'Metros', count: 12 }
-]
-
 const priceRange = {
   min: 0,
   max: 50000,
@@ -120,9 +95,9 @@ function ProductosContent() {
         initialViewMode="grid"
         initialPageSize={24}
 
-        categories={mockCategories}
-        brands={mockBrands}
-        units={mockUnits}
+        categories={[]}
+        brands={[]}
+        units={[]}
         priceRange={priceRange}
 
         onProductClick={handleProductClick}

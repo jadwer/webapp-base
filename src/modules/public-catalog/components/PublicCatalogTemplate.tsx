@@ -141,13 +141,68 @@ export const PublicCatalogTemplate: React.FC<PublicCatalogTemplateProps> = ({
     filters,
     sortParams,
     paginationParams,
-    'unit,category,brand',
+    'unit,category,brand,images',
     {
       refreshInterval,
       revalidateOnFocus: false,
       revalidateOnReconnect: true
     }
   )
+
+  // Auto-derive filter options from loaded products when not provided externally
+  const derivedCategories = useMemo(() => {
+    if (categories.length > 0) return categories
+    const map = new Map<string, { label: string; count: number }>()
+    for (const p of products) {
+      if (p.category?.id) {
+        const existing = map.get(p.category.id)
+        if (existing) {
+          existing.count++
+        } else {
+          map.set(p.category.id, { label: p.category.attributes.name, count: 1 })
+        }
+      }
+    }
+    return Array.from(map.entries())
+      .map(([value, { label, count }]) => ({ value, label, count }))
+      .sort((a, b) => a.label.localeCompare(b.label))
+  }, [categories, products])
+
+  const derivedBrands = useMemo(() => {
+    if (brands.length > 0) return brands
+    const map = new Map<string, { label: string; count: number }>()
+    for (const p of products) {
+      if (p.brand?.id) {
+        const existing = map.get(p.brand.id)
+        if (existing) {
+          existing.count++
+        } else {
+          map.set(p.brand.id, { label: p.brand.attributes.name, count: 1 })
+        }
+      }
+    }
+    return Array.from(map.entries())
+      .map(([value, { label, count }]) => ({ value, label, count }))
+      .sort((a, b) => a.label.localeCompare(b.label))
+  }, [brands, products])
+
+  const derivedUnits = useMemo(() => {
+    if (units.length > 0) return units
+    const map = new Map<string, { label: string; count: number }>()
+    for (const p of products) {
+      if (p.unit?.id) {
+        const existing = map.get(p.unit.id)
+        if (existing) {
+          existing.count++
+        } else {
+          map.set(p.unit.id, { label: p.unit.attributes.name, count: 1 })
+        }
+      }
+    }
+    return Array.from(map.entries())
+      .map(([value, { label, count }]) => ({ value, label, count }))
+      .sort((a, b) => a.label.localeCompare(b.label))
+  }, [units, products])
 
   // Event handlers
   const handleFiltersChange = useCallback((newFilters: PublicProductFilters) => {
@@ -225,9 +280,9 @@ export const PublicCatalogTemplate: React.FC<PublicCatalogTemplateProps> = ({
             sortField={sortField}
             sortDirection={sortDirection}
             viewMode={viewMode}
-            categories={categories}
-            brands={brands}
-            units={units}
+            categories={derivedCategories}
+            brands={derivedBrands}
+            units={derivedUnits}
             priceRange={priceRange}
             onFiltersChange={handleFiltersChange}
             onSortChange={handleSortChange}
