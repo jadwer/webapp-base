@@ -202,39 +202,65 @@ describe('Company Settings Services', () => {
   // ==========================================================================
 
   describe('testPACConnection', () => {
-    it('should throw error because endpoint is not implemented', async () => {
-      // Act & Assert
-      await expect(
-        companySettingsService.testPACConnection('1')
-      ).rejects.toThrow('La prueba de conexion PAC no esta disponible');
+    it('should test PAC connection for company setting', async () => {
+      // Arrange
+      const mockResponse = { success: true, message: 'Connection OK', data: { provider: 'sw', mode: 'test', balance: 100, stamps_used: 5, stamps_available: 95 } };
+      vi.mocked(axiosClient.post).mockResolvedValue({ data: mockResponse });
+
+      // Act
+      const result = await companySettingsService.testPACConnection('1');
+
+      // Assert
+      expect(axiosClient.post).toHaveBeenCalledWith('/api/v1/company-settings/1/test-pac');
+      expect(result).toEqual(mockResponse);
     });
   });
 
   describe('uploadCertificate', () => {
-    it('should throw error because endpoint is not implemented', async () => {
+    it('should upload certificate file for company setting', async () => {
       // Arrange
       const mockFile = new File(['cert content'], 'certificate.cer', {
         type: 'application/x-x509-ca-cert',
       });
+      const mockResponse = { message: 'Certificate uploaded successfully' };
+      vi.mocked(axiosClient.post).mockResolvedValue({ data: mockResponse });
 
-      // Act & Assert
-      await expect(
-        companySettingsService.uploadCertificate('1', mockFile)
-      ).rejects.toThrow('La carga de certificado no esta disponible');
+      // Act
+      const result = await companySettingsService.uploadCertificate('1', mockFile);
+
+      // Assert
+      expect(axiosClient.post).toHaveBeenCalledWith(
+        '/api/v1/company-settings/1/upload-certificate',
+        expect.any(FormData),
+        expect.objectContaining({
+          headers: { 'Content-Type': 'multipart/form-data' },
+        })
+      );
+      expect(result).toEqual(mockResponse);
     });
   });
 
   describe('uploadKey', () => {
-    it('should throw error because endpoint is not implemented', async () => {
+    it('should upload key file with password for company setting', async () => {
       // Arrange
       const mockFile = new File(['key content'], 'key.key', {
         type: 'application/octet-stream',
       });
+      const mockResponse = { message: 'Key uploaded successfully' };
+      vi.mocked(axiosClient.post).mockResolvedValue({ data: mockResponse });
 
-      // Act & Assert
-      await expect(
-        companySettingsService.uploadKey('1', mockFile, 'password123')
-      ).rejects.toThrow('La carga de llave privada no esta disponible');
+      // Act
+      const result = await companySettingsService.uploadKey('1', mockFile, 'password123');
+
+      // Assert
+      expect(axiosClient.post).toHaveBeenCalledWith(
+        '/api/v1/company-settings/1/upload-key',
+        expect.any(FormData),
+        expect.objectContaining({
+          headers: { 'Content-Type': 'multipart/form-data' },
+        })
+      );
+      expect(result).toEqual(mockResponse);
     });
   });
 
@@ -252,11 +278,13 @@ describe('Company Settings Services', () => {
       await expect(companySettingsService.getAll()).rejects.toThrow();
     });
 
-    it('should throw when testing PAC (endpoint not implemented)', async () => {
-      // Act & Assert - service throws immediately without calling axios
-      await expect(companySettingsService.testPACConnection('1')).rejects.toThrow(
-        'La prueba de conexion PAC no esta disponible'
-      );
+    it('should handle errors when testing PAC connection', async () => {
+      // Arrange
+      const error = createMockAxiosError(500, 'PAC Connection Failed');
+      vi.mocked(axiosClient.post).mockRejectedValue(error);
+
+      // Act & Assert
+      await expect(companySettingsService.testPACConnection('1')).rejects.toThrow();
     });
   });
 });

@@ -436,11 +436,24 @@ describe('CFDI Invoices Services', () => {
   });
 
   describe('sendEmail', () => {
-    it('should throw error because endpoint is not implemented', async () => {
-      // Act & Assert
-      await expect(
-        cfdiInvoicesService.sendEmail('1', 'test@example.com')
-      ).rejects.toThrow('El envio de correo electronico no esta disponible');
+    it('should send email for CFDI invoice', async () => {
+      // Arrange
+      vi.mocked(axiosClient.post).mockResolvedValue({
+        data: { message: 'Email sent successfully' },
+      });
+
+      // Act
+      const result = await cfdiInvoicesService.sendEmail('1', 'test@example.com');
+
+      // Assert
+      expect(axiosClient.post).toHaveBeenCalledWith(
+        '/api/v1/cfdi-invoices/1/send-email',
+        expect.objectContaining({
+          email: 'test@example.com',
+          include_xml: true,
+        })
+      );
+      expect(result).toEqual({ message: 'Email sent successfully' });
     });
   });
 

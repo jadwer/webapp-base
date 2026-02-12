@@ -217,7 +217,7 @@ describe('shoppingCartService', () => {
       // Arrange
       const orderData = {
         customerEmail: 'customer@example.com',
-        shippingAddress: '123 Main St',
+        shippingAddressLine1: '123 Main St',
       };
       const mockOrderResponse = { data: { id: '1', orderNumber: 'ECO-2025-001' } };
       mockAxios.post.mockResolvedValue(mockOrderResponse);
@@ -225,10 +225,13 @@ describe('shoppingCartService', () => {
       // Act
       const result = await shoppingCartService.cart.checkout('1', orderData);
 
-      // Assert
+      // Assert - service transforms camelCase to snake_case
       expect(mockAxios.post).toHaveBeenCalledWith(
         '/api/v1/shopping-carts/1/checkout',
-        orderData
+        expect.objectContaining({
+          customer_email: 'customer@example.com',
+          shipping_address_line1: '123 Main St',
+        })
       );
       expect(result).toEqual(mockOrderResponse.data);
     });
@@ -256,6 +259,7 @@ describe('shoppingCartService', () => {
       expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/cart-items', {
         params: {
           'filter[shopping_cart_id]': 1,
+          'include': 'product',
         },
       });
       expect(result).toHaveLength(2);

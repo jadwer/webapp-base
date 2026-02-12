@@ -390,7 +390,7 @@ describe('LocalCartPage', () => {
       const quoteButton = screen.getByText('Solicitar Cotizacion')
       await user.click(quoteButton)
 
-      expect(mockPush).toHaveBeenCalledWith('/auth/login?redirect=/cart&action=quote')
+      expect(mockPush).toHaveBeenCalledWith('/auth/login?redirect=' + encodeURIComponent('/cart?action=quote'))
     })
 
     it('should save cart to sessionStorage when redirecting to login', async () => {
@@ -541,7 +541,7 @@ describe('LocalCartPage', () => {
       const checkoutButton = screen.getByText('Proceder al Pago')
       await user.click(checkoutButton)
 
-      expect(mockPush).toHaveBeenCalledWith('/auth/login?redirect=/cart&action=checkout')
+      expect(mockPush).toHaveBeenCalledWith('/auth/login?redirect=' + encodeURIComponent('/cart?action=checkout'))
     })
 
     it('should sync cart and navigate to checkout when authenticated', async () => {
