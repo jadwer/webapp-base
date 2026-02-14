@@ -169,16 +169,14 @@ export const LocalCartPage: React.FC<LocalCartPageProps> = ({
 
       toast.success('Carrito listo!')
 
-      // Navigate to checkout
+      // Navigate to checkout (don't reset isSyncingToCheckout - prevents flash of empty cart)
       if (onCheckout) {
         onCheckout()
       } else {
         router.push(checkoutUrl)
       }
-    } catch (error) {
-      console.error('Error syncing cart:', error)
+    } catch {
       toast.error('Error al preparar el carrito. Por favor intenta de nuevo.')
-    } finally {
       setIsSyncingToCheckout(false)
     }
   }
@@ -225,8 +223,8 @@ export const LocalCartPage: React.FC<LocalCartPageProps> = ({
     )
   }
 
-  // Empty cart
-  if (isEmpty) {
+  // Empty cart (but not while syncing to checkout - cart was cleared before navigation)
+  if (isEmpty && !isSyncingToCheckout) {
     return (
       <div className="container py-5">
         <div className="row justify-content-center">
