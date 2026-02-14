@@ -362,6 +362,106 @@ ul {
   }
 }
 
+// --- Global Card Shadow ---
+// Cards on all (front) pages get brand shadow (catalog, cart, detail, etc.)
+.card {
+  border-radius: 10px;
+  border: none;
+  box-shadow: 0px 4px 12px 1px rgba(0, 0, 0, 0.36);
+  -webkit-box-shadow: 0px 4px 12px 1px rgba(0, 0, 0, 0.36);
+  -moz-box-shadow: 0px 4px 12px 1px rgba(0, 0, 0, 0.36);
+}
+
+// --- Global HR ---
+hr {
+  margin-top: 1rem !important;
+  margin-bottom: 1rem !important;
+}
+
+// --- Global Gutter Overrides ---
+.g-4, .gy-4 {
+  --bs-gutter-y: 2.25rem;
+}
+
+.g-4, .gx-4 {
+  --bs-gutter-x: 2.25rem;
+}
+
+// --- Products Catalog Page ---
+.container-fluid.products-page,
+.public-catalog-page {
+  margin-top: 3em;
+
+  .form-check {
+    margin-bottom: 1em;
+  }
+
+  h5 {
+    text-transform: uppercase;
+    color: #012A94;
+    font-weight: 600;
+    margin-bottom: 1em;
+  }
+
+  h1 {
+    color: #012A94;
+    font-size: 3em;
+    margin-top: 1em;
+  }
+
+  h6 {
+    font-weight: 600;
+    color: #012A94;
+  }
+
+  p {
+    margin-bottom: .35rem;
+  }
+
+  a:not(.btn):not([class*="btn-"]) {
+    color: #8AC905 !important;
+    font-weight: 600;
+
+    &:hover {
+      color: #0094FF !important;
+    }
+  }
+
+  @media (min-width: 1400px) {
+    max-width: 85% !important;
+  }
+}
+
+// --- Product Detail Page ---
+.product-detail {
+  .text-detail {
+    padding: 2em;
+
+    h5 {
+      color: #012A94 !important;
+      font-weight: 600;
+    }
+  }
+
+  .btn-primary {
+    width: 100%;
+  }
+}
+
+.product-more-info {
+  margin: 3em auto;
+
+  h4 {
+    text-transform: uppercase;
+    color: #012A94;
+    font-weight: 600;
+  }
+
+  p {
+    text-align: justify;
+  }
+}
+
 // --- Separator ---
 .separator {
   border-top: 8px solid #4EC8FC;
@@ -589,18 +689,8 @@ ul {
     }
   }
 
-  // Card styles (landing-specific shadow)
+  // Card styles (landing-specific extra padding)
   .card {
-    border-radius: 10px;
     padding: 8px;
-    border: none;
-    box-shadow: 0px 4px 12px 1px rgba(0, 0, 0, 0.36);
-    -webkit-box-shadow: 0px 4px 12px 1px rgba(0, 0, 0, 0.36);
-    -moz-box-shadow: 0px 4px 12px 1px rgba(0, 0, 0, 0.36);
-  }
-
-  hr {
-    margin-top: 1rem !important;
-    margin-bottom: 1rem !important;
   }
 }
