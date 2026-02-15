@@ -373,14 +373,93 @@ export const footerBlock: LaborWasserBlock = {
 }
 
 /**
+ * Header Block
+ * Simplified header with logo and navigation links
+ */
+export const headerBlock: LaborWasserBlock = {
+  id: 'lw-header',
+  label: 'Header con Logo',
+  category: 'LaborWasser',
+  media: '<i class="bi bi-window-sidebar"></i>',
+  content: `
+    <header style="background: #fff; border-bottom: 2px solid #8AC905; padding: 15px 0;">
+      <div class="container">
+        <div class="row align-items-center">
+          <div class="col-auto">
+            <a href="/"><img src="/images/laborwasser/labor-wasser-mexico-logo.webp" alt="Labor Wasser de Mexico" style="height: 50px;"></a>
+          </div>
+          <div class="col text-end">
+            <a href="/productos" class="btn btn-outline-success me-2">Productos</a>
+            <a href="/nosotros" class="btn btn-outline-success me-2">Nosotros</a>
+            <a href="/certificados" class="btn btn-outline-success me-2">Certificados</a>
+            <a href="/cart" class="btn btn-success"><i class="bi bi-cart3"></i> Cotizar</a>
+          </div>
+        </div>
+      </div>
+    </header>
+  `
+}
+
+/**
+ * Top Navigation Block
+ * Category navigation bar
+ */
+export const topNavBlock: LaborWasserBlock = {
+  id: 'lw-topnav',
+  label: 'Barra de Categorias',
+  category: 'LaborWasser',
+  media: '<i class="bi bi-menu-button-wide"></i>',
+  content: `
+    <nav style="background: #f8f9fa; border-bottom: 1px solid #dee2e6; padding: 8px 0;">
+      <div class="container">
+        <div class="d-flex justify-content-center gap-3 flex-wrap">
+          <a href="/productos?category=reactivos" class="text-decoration-none text-dark px-2 py-1" style="font-size: 0.9rem; font-weight: 500;">REACTIVOS</a>
+          <a href="/productos?category=medios-de-cultivo" class="text-decoration-none text-dark px-2 py-1" style="font-size: 0.9rem; font-weight: 500;">MEDIOS DE CULTIVO</a>
+          <a href="/productos?category=cristaleria" class="text-decoration-none text-dark px-2 py-1" style="font-size: 0.9rem; font-weight: 500;">CRISTALERIA</a>
+          <a href="/productos?category=analisis-de-agua" class="text-decoration-none text-dark px-2 py-1" style="font-size: 0.9rem; font-weight: 500;">ANALISIS DE AGUA</a>
+          <a href="/productos?category=proceso" class="text-decoration-none text-dark px-2 py-1" style="font-size: 0.9rem; font-weight: 500;">PROCESOS</a>
+        </div>
+      </div>
+    </nav>
+  `
+}
+
+/**
+ * Standalone CTA Block
+ * Simple call-to-action section (the one used in static pages)
+ */
+export const ctaStandaloneBlock: LaborWasserBlock = {
+  id: 'lw-cta-standalone',
+  label: 'CTA Cotizacion',
+  category: 'LaborWasser',
+  media: '<i class="bi bi-megaphone"></i>',
+  content: `
+    <section style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 60px 0; color: white;">
+      <div class="container text-center">
+        <h2 style="font-weight: 700; margin-bottom: 15px;">¿NECESITAS UNA COTIZACION?</h2>
+        <p style="font-size: 1.1rem; opacity: 0.9; margin-bottom: 25px;">
+          Ponte en contacto con nosotros y uno de nuestros representantes se pondra en contacto contigo.
+        </p>
+        <a href="/cart" class="btn btn-success btn-lg" style="padding: 12px 40px; font-weight: 600;">
+          Cotiza ahora
+        </a>
+      </div>
+    </section>
+  `
+}
+
+/**
  * Complete collection of LaborWasser blocks
  */
 export const laborWasserBlocks: LaborWasserBlock[] = [
+  headerBlock,
+  topNavBlock,
   heroBlock,
   productsShowcaseBlock,
   whyChooseBlock,
   statisticsBlock,
   ctaBlock,
+  ctaStandaloneBlock,
   brandsBlock,
   footerBlock
 ]
