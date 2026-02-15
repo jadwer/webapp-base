@@ -6,6 +6,7 @@ import { Card, Button } from '@/ui/components/base'
 import { laborWasserTemplates } from '../blocks/laborwasser-blocks'
 import { heroRevolutionBlocks } from '../blocks/hero-revolution-blocks'
 import { publicCatalogTemplates } from '../templates/PublicCatalogTemplates'
+import { staticPageTemplates } from '../templates/StaticPageTemplates'
 import styles from './TemplateGallery.module.scss'
 
 interface Template {
@@ -44,7 +45,16 @@ export const TemplateGallery: React.FC<TemplateGalleryProps> = ({
     content: template.html
   }))
 
-  const templates = [...laborTemplates, ...catalogTemplates]
+  const staticTemplates = staticPageTemplates.map(template => ({
+    id: template.id,
+    category: template.category,
+    name: template.name,
+    description: template.description,
+    thumbnail: template.thumbnail,
+    content: template.html
+  }))
+
+  const templates = [...laborTemplates, ...catalogTemplates, ...staticTemplates]
 
   const handleSelectTemplate = (template: Template) => {
     // Process dynamic hero templates

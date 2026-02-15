@@ -32,6 +32,7 @@ const eslintConfig = [
       "prefer-const": "error",
       "no-var": "error",
       "no-console": "off", // Deshabilitado temporalmente para ver errores TypeScript
+      "@next/next/no-html-link-for-pages": "off", // Muchas paginas usan <a> para rutas que aun no existen o son externas
     }
   },
   
