@@ -138,6 +138,11 @@ export const PageEditorTemplate: React.FC<PageEditorTemplateProps> = ({
             initializingRef.current = false
           }
 
+          // Expose editor on window for E2E testing / debugging
+          if (typeof window !== 'undefined') {
+            (window as unknown as Record<string, unknown>).__gjsEditor = editor
+          }
+
           setGrapesjsEditor(editor)
 
         } catch {
@@ -197,7 +202,29 @@ export const PageEditorTemplate: React.FC<PageEditorTemplateProps> = ({
 
   // Separate effect for loading content when page data becomes available
   useEffect(() => {
-    if (!grapesjsEditor || !pageContent || !pageContent.html) {
+    if (!grapesjsEditor || !pageContent) {
+      return
+    }
+
+    // If page exists but has no content, clear the loading spinner so the editor is usable
+    if (!pageContent.html) {
+      const clearLoadingSpinner = () => {
+        if (!grapesjsEditor.getContainer?.() ||
+            !grapesjsEditor.DomComponents ||
+            !grapesjsEditor.Canvas) {
+          setTimeout(clearLoadingSpinner, 500)
+          return
+        }
+        setTimeout(() => {
+          try {
+            grapesjsEditor.setComponents('')
+            grapesjsEditor.refresh()
+          } catch {
+            // Editor may have been destroyed
+          }
+        }, 200)
+      }
+      clearLoadingSpinner()
       return
     }
 
@@ -321,7 +348,9 @@ export const PageEditorTemplate: React.FC<PageEditorTemplateProps> = ({
       }
 
       // If we have an editor instance, get the current content
-      if (grapesjsEditor) {
+      // Only include editor content when editing (not during initial creation,
+      // since the editor may contain the loading spinner placeholder)
+      if (grapesjsEditor && isEditing) {
         pageData = {
           ...pageData,
           html: getCleanHtmlFromEditor(grapesjsEditor),
