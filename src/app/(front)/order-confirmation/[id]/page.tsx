@@ -11,6 +11,7 @@ import { useState, useEffect, use } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/modules/auth'
+import { usePublicSettings } from '@/modules/app-config'
 import axiosClient from '@/lib/axiosClient'
 
 interface SalesOrder {
@@ -47,6 +48,7 @@ export default function OrderConfirmationPage({ params }: OrderConfirmationPageP
   const { id } = use(params)
   const router = useRouter()
   const { isAuthenticated, isLoading: authLoading } = useAuth()
+  const { get } = usePublicSettings()
   const [order, setOrder] = useState<SalesOrder | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -329,11 +331,11 @@ export default function OrderConfirmationPage({ params }: OrderConfirmationPageP
               <p className="small text-muted mb-2">
                 Si tienes preguntas sobre tu pedido, contactanos:
               </p>
-              <a href="mailto:ventas@laborwasserdemexico.com" className="btn btn-sm btn-outline-primary w-100 mb-2">
+              <a href={`mailto:${get('company.email')}`} className="btn btn-sm btn-outline-primary w-100 mb-2">
                 <i className="bi bi-envelope me-2"></i>
                 Contactar Ventas
               </a>
-              <a href="https://wa.me/5215610400441" target="_blank" rel="noopener noreferrer" className="btn btn-sm btn-success w-100">
+              <a href={`https://wa.me/${get('company.whatsapp_number')}`} target="_blank" rel="noopener noreferrer" className="btn btn-sm btn-success w-100">
                 <i className="bi bi-whatsapp me-2"></i>
                 WhatsApp
               </a>

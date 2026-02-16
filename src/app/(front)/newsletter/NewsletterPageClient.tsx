@@ -3,11 +3,10 @@
 import React, { useState } from 'react'
 import Link from 'next/link'
 import { Button } from '@/ui/components/base'
-
-// WhatsApp number for contact
-const WHATSAPP_NUMBER = '5216104004441'
+import { usePublicSettings } from '@/modules/app-config'
 
 export const NewsletterPageClient: React.FC = () => {
+  const { get } = usePublicSettings()
   const [email, setEmail] = useState('')
   const [name, setName] = useState('')
   const [interests, setInterests] = useState<string[]>([])
@@ -51,14 +50,14 @@ export const NewsletterPageClient: React.FC = () => {
       ).join(', ')
 
       const whatsappMessage = encodeURIComponent(
-        `*Nueva suscripcion a Newsletter - Labor Wasser*\n\n` +
+        `*Nueva suscripcion a Newsletter - ${get('company.name') || 'Empresa'}*\n\n` +
         `*Nombre:* ${name}\n` +
         `*Email:* ${email}\n` +
         `*Intereses:* ${interestLabels || 'No especificados'}`
       )
 
       // Open WhatsApp to notify (optional)
-      const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${whatsappMessage}`
+      const whatsappUrl = `https://wa.me/${get('company.whatsapp_number')}?text=${whatsappMessage}`
       window.open(whatsappUrl, '_blank')
 
       setStatus('success')
@@ -247,7 +246,7 @@ export const NewsletterPageClient: React.FC = () => {
             </p>
             <div className="d-flex gap-3 justify-content-center flex-wrap">
               <a
-                href="https://wa.link/4e5cqt"
+                href={`https://wa.me/${get('company.whatsapp_number')}`}
                 className="btn btn-success"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -256,13 +255,13 @@ export const NewsletterPageClient: React.FC = () => {
                 WhatsApp
               </a>
               <a
-                href="mailto:ventas@laborwasserdemexico.com"
+                href={`mailto:${get('company.email')}`}
                 className="btn btn-outline-primary"
               >
                 <i className="bi bi-envelope me-2"></i>
                 Email
               </a>
-              <a href="tel:5575751661" className="btn btn-outline-secondary">
+              <a href={`tel:${get('company.phone').replace(/\s/g, '')}`} className="btn btn-outline-secondary">
                 <i className="bi bi-telephone me-2"></i>
                 Llamar
               </a>

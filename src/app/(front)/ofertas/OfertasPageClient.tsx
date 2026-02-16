@@ -6,8 +6,10 @@ import Image from 'next/image'
 import { useFeaturedProducts, useLocalCart, type EnhancedPublicProduct } from '@/modules/public-catalog'
 import { useToast } from '@/ui/hooks/useToast'
 import { Button } from '@/ui/components/base'
+import { usePublicSettings } from '@/modules/app-config'
 
 export const OfertasPageClient: React.FC = () => {
+  const { get } = usePublicSettings()
   const [limit, setLimit] = useState(12)
   const { products, isLoading, error, mutate } = useFeaturedProducts(limit, 'unit,category,brand')
   const { addToCart } = useLocalCart()
@@ -252,7 +254,7 @@ export const OfertasPageClient: React.FC = () => {
               </p>
               <div className="d-flex gap-3 justify-content-center flex-wrap">
                 <a
-                  href="https://wa.link/4e5cqt"
+                  href={`https://wa.me/${get('company.whatsapp_number')}`}
                   className="btn btn-light btn-lg"
                   target="_blank"
                   rel="noopener noreferrer"
@@ -261,7 +263,7 @@ export const OfertasPageClient: React.FC = () => {
                   WhatsApp
                 </a>
                 <a
-                  href="mailto:ventas@laborwasserdemexico.com"
+                  href={`mailto:${get('company.email')}`}
                   className="btn btn-outline-light btn-lg"
                 >
                   <i className="bi bi-envelope me-2"></i>

@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation'
 import { useLocalCartCount } from '@/modules/public-catalog'
 import { useAuth } from '@/modules/auth'
 import { useIsClient } from '@/hooks/useIsClient'
+import { usePublicSettings } from '@/modules/app-config'
 import { ContactOffcanvas } from '../ContactOffcanvas/ContactOffcanvas'
 
 export const Header: React.FC = () => {
@@ -15,6 +16,12 @@ export const Header: React.FC = () => {
   const cartItemCount = useLocalCartCount()
   const { user, isAuthenticated, isLoading, logout } = useAuth()
   const isClient = useIsClient()
+  const { get } = usePublicSettings()
+
+  const logoSrc = get('company.logo_path_alt') || '/images/laborwasser/labor-wasser-mexico-logo2.webp'
+  const companyName = get('company.name') || 'Logo'
+  const contactIcon = get('company.contact_icon') || '/images/laborwasser/labor-wasser-contacto.svg'
+  const whatsappNumber = get('company.whatsapp_number')
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
@@ -57,8 +64,8 @@ export const Header: React.FC = () => {
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   className="img-fluid logo"
-                  alt="Labor Wasser de Mexico"
-                  src="/images/laborwasser/labor-wasser-mexico-logo2.webp"
+                  alt={companyName}
+                  src={logoSrc}
                 />
               </Link>
             </div>
@@ -168,9 +175,9 @@ export const Header: React.FC = () => {
                 data-bs-target="#navMenu"
               >
                 <Image
-                  src="/images/laborwasser/labor-wasser-contacto.svg"
+                  src={contactIcon}
                   className="contact-head"
-                  alt="Labor Wasser Mexico - Contacto"
+                  alt={`${companyName} - Contacto`}
                   width={30}
                   height={30}
                 />
@@ -189,8 +196,8 @@ export const Header: React.FC = () => {
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   className="img-fluid logo"
-                  alt="Labor Wasser de Mexico"
-                  src="/images/laborwasser/labor-wasser-mexico-logo2.webp"
+                  alt={companyName}
+                  src={logoSrc}
                 />
               </Link>
             </div>
@@ -256,9 +263,9 @@ export const Header: React.FC = () => {
                 data-bs-target="#navMenu"
               >
                 <Image
-                  src="/images/laborwasser/labor-wasser-contacto.svg"
+                  src={contactIcon}
                   className="contact-head"
-                  alt="Labor Wasser Mexico - Contacto"
+                  alt={`${companyName} - Contacto`}
                   width={30}
                   height={30}
                 />
@@ -296,14 +303,16 @@ export const Header: React.FC = () => {
       </header>
 
       {/* WhatsApp Widget */}
+      {whatsappNumber && (
       <a
-        href="https://wa.me/5215610400441?text=Hola!%20%C2%BFC%C3%B3mo%20%20podemos%20ayudarte%3F"
+        href={`https://wa.me/${whatsappNumber}?text=Hola!%20%C2%BFC%C3%B3mo%20%20podemos%20ayudarte%3F`}
         className="whatsapp"
         target="_blank"
         rel="noopener noreferrer"
       >
         <i className="bi bi-whatsapp"></i>
       </a>
+      )}
 
       {/* Contact Offcanvas */}
       <ContactOffcanvas />

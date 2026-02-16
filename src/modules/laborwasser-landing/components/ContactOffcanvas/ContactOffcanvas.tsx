@@ -1,17 +1,25 @@
 'use client'
 
 import React, { useState } from 'react'
-
-// WhatsApp number for contact
-const WHATSAPP_NUMBER = '5216104004441' // Mexico country code + number
+import { usePublicSettings } from '@/modules/app-config'
 
 export const ContactOffcanvas: React.FC = () => {
+  const { get } = usePublicSettings()
   const [nombre, setNombre] = useState('')
   const [tel, setTel] = useState('')
   const [mail, setMail] = useState('')
   const [mensaje, setMensaje] = useState('')
   const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle')
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const whatsappNumber = get('company.whatsapp_number')
+  const companyName = get('company.name') || 'Empresa'
+  const companyEmail = get('company.email')
+  const phone = get('company.phone')
+  const phoneSecondary = get('company.phone_secondary')
+  const phoneTertiary = get('company.phone_tertiary')
+  const whatsappDisplay = get('company.whatsapp_display')
+  const address = get('company.address')
 
   const submitContact = async (event: React.FormEvent) => {
     event.preventDefault()
@@ -35,7 +43,7 @@ export const ContactOffcanvas: React.FC = () => {
 
       // Build WhatsApp message
       const whatsappMessage = encodeURIComponent(
-        `*Solicitud de Contacto - Labor Wasser*\n\n` +
+        `*Solicitud de Contacto - ${companyName}*\n\n` +
         `*Nombre:* ${nombre}\n` +
         `*Email:* ${mail}\n` +
         `*Telefono:* ${tel}\n` +
@@ -43,7 +51,7 @@ export const ContactOffcanvas: React.FC = () => {
       )
 
       // Open WhatsApp with pre-filled message
-      const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${whatsappMessage}`
+      const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`
       window.open(whatsappUrl, '_blank')
 
       setStatus('success')
@@ -61,14 +69,14 @@ export const ContactOffcanvas: React.FC = () => {
 
   // Send via email (mailto)
   const sendViaEmail = () => {
-    const subject = encodeURIComponent('Solicitud de Contacto - Labor Wasser')
+    const subject = encodeURIComponent(`Solicitud de Contacto - ${companyName}`)
     const body = encodeURIComponent(
       `Nombre: ${nombre}\n` +
       `Email: ${mail}\n` +
       `Telefono: ${tel}\n\n` +
       `Mensaje:\n${mensaje}`
     )
-    window.open(`mailto:ventas@laborwasserdemexico.com?subject=${subject}&body=${body}`, '_blank')
+    window.open(`mailto:${companyEmail}?subject=${subject}&body=${body}`, '_blank')
   }
 
   return (
@@ -185,34 +193,46 @@ export const ContactOffcanvas: React.FC = () => {
 
           <h6 className="mb-3">Contacto directo:</h6>
           <div className="col-12 login-contact">
-            <div className="d-flex mb-2">
-              <i className="bi bi-telephone-fill me-2"></i>
-              <a href="tel:5575751661">55 7575 1661</a>
-            </div>
-            <div className="d-flex mb-2">
-              <i className="bi bi-telephone-fill me-2"></i>
-              <a href="tel:5575751662">55 7575 1662</a>
-            </div>
-            <div className="d-flex mb-2">
-              <i className="bi bi-telephone-fill me-2"></i>
-              <a href="tel:5571602454">55 7160 2454</a>
-            </div>
-            <div className="d-flex mb-2">
-              <i className="bi bi-whatsapp me-2"></i>
-              <a href="https://wa.link/4e5cqt" target="_blank" rel="noopener noreferrer">
-                56 1040 0441
-              </a>
-            </div>
-            <div className="d-flex mb-2">
-              <i className="bi bi-envelope me-2"></i>
-              <a href="mailto:ventas@laborwasserdemexico.com">
-                ventas@laborwasserdemexico.com
-              </a>
-            </div>
-            <div className="d-flex mb-2">
-              <i className="bi bi-geo-alt me-2"></i>
-              <span>CDMX y Area metropolitana</span>
-            </div>
+            {phone && (
+              <div className="d-flex mb-2">
+                <i className="bi bi-telephone-fill me-2"></i>
+                <a href={`tel:${phone.replace(/\s/g, '')}`}>{phone}</a>
+              </div>
+            )}
+            {phoneSecondary && (
+              <div className="d-flex mb-2">
+                <i className="bi bi-telephone-fill me-2"></i>
+                <a href={`tel:${phoneSecondary.replace(/\s/g, '')}`}>{phoneSecondary}</a>
+              </div>
+            )}
+            {phoneTertiary && (
+              <div className="d-flex mb-2">
+                <i className="bi bi-telephone-fill me-2"></i>
+                <a href={`tel:${phoneTertiary.replace(/\s/g, '')}`}>{phoneTertiary}</a>
+              </div>
+            )}
+            {whatsappNumber && (
+              <div className="d-flex mb-2">
+                <i className="bi bi-whatsapp me-2"></i>
+                <a href={`https://wa.me/${whatsappNumber}`} target="_blank" rel="noopener noreferrer">
+                  {whatsappDisplay || whatsappNumber}
+                </a>
+              </div>
+            )}
+            {companyEmail && (
+              <div className="d-flex mb-2">
+                <i className="bi bi-envelope me-2"></i>
+                <a href={`mailto:${companyEmail}`}>
+                  {companyEmail}
+                </a>
+              </div>
+            )}
+            {address && (
+              <div className="d-flex mb-2">
+                <i className="bi bi-geo-alt me-2"></i>
+                <span>{address}</span>
+              </div>
+            )}
           </div>
         </div>
       </div>

@@ -34,7 +34,7 @@ export const appSettingsService = {
   /**
    * Get public settings (no auth needed).
    */
-  async getPublic(): Promise<{ company: Record<string, AppSettingValue>; branding: Record<string, AppSettingValue> }> {
+  async getPublic(): Promise<{ company: Record<string, AppSettingValue>; branding: Record<string, AppSettingValue>; social: Record<string, AppSettingValue> }> {
     const response = await axios.get('/api/v1/app-settings/public')
     return response.data.data
   },

@@ -10,6 +10,7 @@
 import { useState, useEffect, use } from 'react'
 import Link from 'next/link'
 import { useAuth } from '@/modules/auth'
+import { usePublicSettings } from '@/modules/app-config'
 import { QuoteStatusBadge } from '@/modules/quotes/components'
 import { quoteService, quoteItemService } from '@/modules/quotes/services/quoteService'
 import type { Quote, QuoteItem } from '@/modules/quotes/types'
@@ -22,6 +23,7 @@ interface MyQuoteDetailPageProps {
 export default function MyQuoteDetailPage({ params }: MyQuoteDetailPageProps) {
   const { id } = use(params)
   const { isLoading: authLoading } = useAuth()
+  const { get } = usePublicSettings()
   const [quote, setQuote] = useState<Quote | null>(null)
   const [items, setItems] = useState<QuoteItem[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -337,7 +339,7 @@ export default function MyQuoteDetailPage({ params }: MyQuoteDetailPageProps) {
               <p className="small text-muted mb-2">
                 Si tienes preguntas sobre esta cotizacion, contactanos:
               </p>
-              <a href="mailto:ventas@laborwasserdemexico.com" className="btn btn-sm btn-outline-primary w-100">
+              <a href={`mailto:${get('company.email')}`} className="btn btn-sm btn-outline-primary w-100">
                 <i className="bi bi-envelope me-2"></i>
                 Contactar Ventas
               </a>

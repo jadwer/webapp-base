@@ -3,9 +3,24 @@
 import React from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { usePublicSettings } from '@/modules/app-config'
 
 export const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear()
+  const { get } = usePublicSettings()
+
+  const phone = get('company.phone')
+  const phoneSecondary = get('company.phone_secondary')
+  const phoneTertiary = get('company.phone_tertiary')
+  const whatsappNumber = get('company.whatsapp_number')
+  const whatsappDisplay = get('company.whatsapp_display')
+  const email = get('company.email')
+  const address = get('company.address')
+  const companyName = get('company.name')
+  const logoFooter = get('company.logo_path_footer') || '/images/laborwasser/labor-wasser-mexico-logo-1.png'
+  const facebookUrl = get('social.facebook')
+  const instagramUrl = get('social.instagram')
+  const linkedinUrl = get('social.linkedin')
 
   return (
     <footer>
@@ -15,20 +30,20 @@ export const Footer: React.FC = () => {
             <div className="row align-items-md-center d-flex">
               <div className="col social">
                 <Image
-                  src="/images/laborwasser/labor-wasser-mexico-logo-1.png"
+                  src={logoFooter}
                   className="img-fluid logo-footer d-block mx-auto"
-                  alt="Labor Wasser Mexico"
+                  alt={companyName || 'Logo'}
                   width={200}
                   height={80}
                 />
                 <div className="d-flex justify-content-around mt-4">
-                  <a href="#" aria-label="Facebook">
+                  <a href={facebookUrl || '#'} aria-label="Facebook">
                     <i className="bi bi-facebook"></i>
                   </a>
-                  <a href="#" aria-label="Instagram">
+                  <a href={instagramUrl || '#'} aria-label="Instagram">
                     <i className="bi bi-instagram"></i>
                   </a>
-                  <a href="#" aria-label="LinkedIn">
+                  <a href={linkedinUrl || '#'} aria-label="LinkedIn">
                     <i className="bi bi-linkedin"></i>
                   </a>
                 </div>
@@ -100,37 +115,49 @@ export const Footer: React.FC = () => {
           </div>
           <div className="col-12 col-md-3 login-contact">
             <h4>Contacto</h4>
-            <div className="d-block d-md-flex mb-2">
-              <i className="bi bi-telephone-fill"></i>
-              <a href="tel:5575751661">55 7575 1661</a>
-            </div>
-            <div className="d-block d-md-flex mb-2">
-              <i className="bi bi-telephone-fill"></i>
-              <a href="tel:5575751662">55 7575 1662</a>
-            </div>
-            <div className="d-block d-md-flex mb-2">
-              <i className="bi bi-telephone-fill"></i>
-              <a href="tel:5571602454">55 7160 2454</a>
-            </div>
-            <div className="d-block d-md-flex mb-2">
-              <i className="bi bi-whatsapp"></i>
-              <a href="https://wa.link/4e5cqt">56 1040 0441</a>
-            </div>
-            <div className="d-block d-md-flex mb-2">
-              <i className="bi bi-envelope"></i>
-              <a href="mailto:ventas@laborwasserdemexico.com">
-                ventas@laborwasserdemexico.com
-              </a>
-            </div>
-            <div className="d-block d-md-flex mb-2">
-              <i className="bi bi-geo-alt"></i>
-              <a href="#">CDMX y Area metropolitana</a>
-            </div>
+            {phone && (
+              <div className="d-block d-md-flex mb-2">
+                <i className="bi bi-telephone-fill"></i>
+                <a href={`tel:${phone.replace(/\s/g, '')}`}>{phone}</a>
+              </div>
+            )}
+            {phoneSecondary && (
+              <div className="d-block d-md-flex mb-2">
+                <i className="bi bi-telephone-fill"></i>
+                <a href={`tel:${phoneSecondary.replace(/\s/g, '')}`}>{phoneSecondary}</a>
+              </div>
+            )}
+            {phoneTertiary && (
+              <div className="d-block d-md-flex mb-2">
+                <i className="bi bi-telephone-fill"></i>
+                <a href={`tel:${phoneTertiary.replace(/\s/g, '')}`}>{phoneTertiary}</a>
+              </div>
+            )}
+            {whatsappNumber && (
+              <div className="d-block d-md-flex mb-2">
+                <i className="bi bi-whatsapp"></i>
+                <a href={`https://wa.me/${whatsappNumber}`}>{whatsappDisplay || whatsappNumber}</a>
+              </div>
+            )}
+            {email && (
+              <div className="d-block d-md-flex mb-2">
+                <i className="bi bi-envelope"></i>
+                <a href={`mailto:${email}`}>
+                  {email}
+                </a>
+              </div>
+            )}
+            {address && (
+              <div className="d-block d-md-flex mb-2">
+                <i className="bi bi-geo-alt"></i>
+                <span>{address}</span>
+              </div>
+            )}
           </div>
         </div>
         <div className="row text-muted">
           <p className="text-center">
-            {currentYear}. Labor Wasser de Mexico. Todos los Derechos Reservados.
+            {currentYear}. {companyName || 'Empresa'}. Todos los Derechos Reservados.
             &nbsp;|&nbsp;
             <Link href="/aviso-privacidad">
               Aviso de privacidad

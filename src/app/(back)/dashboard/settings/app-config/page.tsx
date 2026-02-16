@@ -20,6 +20,11 @@ const GROUP_CONFIG: Record<string, { label: string; icon: string; description: s
     icon: 'bi-palette',
     description: 'Colores y apariencia visual.',
   },
+  social: {
+    label: 'Redes Sociales',
+    icon: 'bi-share',
+    description: 'URLs de redes sociales.',
+  },
   auth: {
     label: 'Autenticacion',
     icon: 'bi-shield-lock',
@@ -27,7 +32,7 @@ const GROUP_CONFIG: Record<string, { label: string; icon: string; description: s
   },
 }
 
-const GROUP_ORDER = ['company', 'branding', 'auth']
+const GROUP_ORDER = ['company', 'branding', 'social', 'auth']
 
 export default function AppConfigPage() {
   const [settings, setSettings] = useState<AppSettingsGrouped>({})
@@ -131,6 +136,10 @@ export default function AppConfigPage() {
   const groupSettings = settings[activeGroup] || {}
   const groupConfig = GROUP_CONFIG[activeGroup]
 
+  const companyName = settings.company?.['company.name']?.value
+  const companyEmail = settings.company?.['company.email']?.value
+  const needsSetup = !companyName || !companyEmail
+
   return (
     <div className="container-fluid py-4">
       <div className="d-flex justify-content-between align-items-center mb-4">
@@ -139,6 +148,18 @@ export default function AppConfigPage() {
           <p className="text-muted mb-0">Administra los datos de empresa, branding y autenticacion.</p>
         </div>
       </div>
+
+      {needsSetup && (
+        <div className="alert alert-warning d-flex align-items-start gap-2 mb-4">
+          <i className="bi bi-exclamation-triangle-fill mt-1" />
+          <div>
+            <strong>Configuracion inicial requerida</strong>
+            <p className="mb-0" style={{ fontSize: '13px' }}>
+              Completa los datos basicos de tu empresa (nombre, email, telefono) para que se muestren correctamente en el sitio web.
+            </p>
+          </div>
+        </div>
+      )}
 
       <ul className="nav nav-tabs mb-4">
         {GROUP_ORDER.map((group) => {
@@ -293,8 +314,9 @@ export default function AppConfigPage() {
         <div className="card-body">
           <h6 className="card-title">Ayuda</h6>
           <ul className="mb-0" style={{ fontSize: '13px' }}>
-            <li><strong>Empresa:</strong> Datos generales como nombre, telefono, email y direccion.</li>
+            <li><strong>Empresa:</strong> Datos generales como nombre, telefono, email, direccion y logos.</li>
             <li><strong>Branding:</strong> Color primario de la interfaz.</li>
+            <li><strong>Redes Sociales:</strong> URLs de Facebook, Instagram y LinkedIn.</li>
             <li><strong>Autenticacion:</strong> Controla si se requiere verificacion de email para usar el sistema.</li>
           </ul>
         </div>
