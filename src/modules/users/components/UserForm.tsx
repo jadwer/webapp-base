@@ -91,6 +91,7 @@ export default function UserForm({
           className="form-control"
           value={formData.email || ""}
           onChange={handleChange}
+          autoComplete="off"
           required
         />
       </div>
@@ -103,6 +104,7 @@ export default function UserForm({
           className="form-control"
           value={formData.password || ""}
           onChange={handleChange}
+          autoComplete="new-password"
           placeholder={initialValues.id ? "(Dejar vacío si no cambia)" : ""}
           {...(!initialValues.id && { required: true })}
         />
@@ -116,6 +118,7 @@ export default function UserForm({
           className="form-control"
           value={formData.password_confirmation || ""}
           onChange={handleChange}
+          autoComplete="new-password"
           {...(!initialValues.id && { required: true })}
         />
       </div>

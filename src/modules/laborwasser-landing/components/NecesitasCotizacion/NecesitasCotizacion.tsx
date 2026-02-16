@@ -8,10 +8,10 @@ export const NecesitasCotizacion: React.FC = () => {
       <div className="row align-items-center">
         <div className="col-12 col-md-5 left"></div>
         <div className="col-12 col-md-7 text-center right">
-          <h1>NECESITAS UNA COTIZACION?</h1>
+          <h1>¿NECESITAS UNA COTIZACIÓN?</h1>
           <h6>
             Ponte en contacto con nosotros y uno de nuestros representantes se
-            pondran en contacto contigo.
+            pondrán en contacto contigo.
           </h6>
 
           <button

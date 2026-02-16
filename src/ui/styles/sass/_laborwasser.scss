@@ -531,6 +531,69 @@ hr {
   }
 }
 
+// --- Hero Sections - Title banner for static pages ---
+.container-fluid.hero-sections {
+  background-image: url("/images/laborwasser/labor-wasser-mexico-hero-5.webp");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-attachment: fixed;
+
+  @media (max-width: 575.98px) {
+    height: auto;
+  }
+
+  h1 {
+    color: white;
+
+    @media (max-width: 575.98px) {
+      font-size: 1.25em !important;
+      font-weight: 600;
+    }
+  }
+
+  .row {
+    height: 40vh;
+  }
+}
+
+// --- CTA Cotizacion Banner - Global scope ---
+.container-fluid.cta {
+  height: 70vh;
+
+  @media (max-width: 575.98px) {
+    height: auto !important;
+  }
+
+  .left {
+    height: 70vh;
+    background-image: url("/images/laborwasser/labor-wasser-mexico-hero-4.webp");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    border-right: #8AC905 solid 10px;
+
+    @media (max-width: 575.98px) {
+      height: 45vh;
+    }
+  }
+
+  .right {
+    height: 70vh;
+    align-content: center;
+    background-image: url("/images/laborwasser/labor-wasser-mexico-hero-3.webp");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    color: white;
+
+    @media (max-width: 575.98px) {
+      height: auto !important;
+      padding: 5em 1em;
+    }
+  }
+}
+
 // ============================================
 // LANDING-ONLY STYLES - Scoped to .laborwasser-landing
 // These styles only apply on the home/landing page
