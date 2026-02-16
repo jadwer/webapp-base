@@ -2,8 +2,8 @@
 
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
+import Link from 'next/link'
 import NavigationProgress from './NavigationProgress'
-import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
 import { useAuth } from '@/modules/auth'
 import { isAdmin, hasAnyRole } from '@/lib/permissions'
 import styles from '@/ui/styles/modules/Sidebar.module.scss'
@@ -223,7 +223,6 @@ const myPortalLinks = [
 
 export default function Sidebar() {
   const pathname = usePathname()
-  const navigation = useNavigationProgress()
   const { user, isLoading: authLoading } = useAuth()
   const [open, setOpen] = useState(false)
 
@@ -311,13 +310,13 @@ export default function Sidebar() {
         <ul className={styles.subNavList}>
           {links.map(({ href, label, icon }) => (
             <li key={href}>
-              <button
-                onClick={() => navigation.push(href)}
+              <Link
+                href={href}
                 className={`${styles.subNavLink} ${pathname === href ? styles.active : ''}`}
               >
                 <i className={`bi ${icon} ${styles.subNavIcon}`} aria-hidden="true"></i>
                 {label}
-              </button>
+              </Link>
             </li>
           ))}
         </ul>
@@ -404,15 +403,15 @@ export default function Sidebar() {
             {/* Enlaces base (según rol) */}
             {baseLinks.map(({ href, label, icon }) => (
               <li className={styles.navItem} key={href}>
-                <button
-                  onClick={() => navigation.push(href)}
+                <Link
+                  href={href}
                   className={`${styles.navLink} ${
                     (pathname === href || (href !== '/dashboard' && pathname?.startsWith(href))) ? styles.active : ''
                   }`}
                 >
                   <i className={`bi ${icon} ${styles.navIcon}`} aria-hidden="true"></i>
                   {label}
-                </button>
+                </Link>
               </li>
             ))}
 
@@ -425,13 +424,13 @@ export default function Sidebar() {
 
                 {/* Link directo a catálogo */}
                 <li className={styles.navItem}>
-                  <button
-                    onClick={() => navigation.push('/productos')}
+                  <Link
+                    href="/productos"
                     className={styles.navLink}
                   >
                     <i className={`bi bi-grid-3x3-gap ${styles.navIcon}`} aria-hidden="true"></i>
                     Ver Catálogo
-                  </button>
+                  </Link>
                 </li>
               </>
             )}

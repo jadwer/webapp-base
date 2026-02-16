@@ -166,16 +166,13 @@ export const LocalCartPage: React.FC<LocalCartPageProps> = ({
 
       toast.success('Carrito listo!')
 
-      // Navigate to checkout FIRST, then clear local cart
-      // This prevents the flash of empty cart if user navigates back
+      // Navigate to checkout - do NOT clear local cart here.
+      // Cart is cleared after the order is successfully placed in CheckoutPage.
       if (onCheckout) {
         onCheckout()
       } else {
         router.push(checkoutUrl)
       }
-
-      // Clear local cart after navigation is initiated
-      clearCart()
     } catch {
       toast.error('Error al preparar el carrito. Por favor intenta de nuevo.')
       setIsSyncingToCheckout(false)
@@ -255,7 +252,7 @@ export const LocalCartPage: React.FC<LocalCartPageProps> = ({
       <div className="card-body">
         <div className="row align-items-center">
           {/* Product Image */}
-          <div className="col-3 col-md-2">
+          <div className="col-3 col-md-1">
             <div className="ratio ratio-1x1 bg-light rounded overflow-hidden">
               {item.imageUrl ? (
                 <Image
@@ -294,7 +291,7 @@ export const LocalCartPage: React.FC<LocalCartPageProps> = ({
 
           {/* Price */}
           <div className="col-4 col-md-2 text-center mt-3 mt-md-0">
-            <div className="fw-semibold">{formatPrice(item.price)}</div>
+            <div className="fw-semibold" style={{ whiteSpace: 'nowrap' }}>{formatPrice(item.price)}</div>
             {item.unitName && (
               <small className="text-muted">/ {item.unitName}</small>
             )}
@@ -379,8 +376,8 @@ export const LocalCartPage: React.FC<LocalCartPageProps> = ({
           {/* Table Header (desktop) */}
           <div className="d-none d-md-block mb-3">
             <div className="row text-muted small fw-semibold">
-              <div className="col-2">Producto</div>
-              <div className="col-3"></div>
+              <div className="col-1">Producto</div>
+              <div className="col-4"></div>
               <div className="col-2 text-center">Precio</div>
               <div className="col-2 text-center">Cantidad</div>
               <div className="col-2 text-end">Total</div>

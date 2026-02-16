@@ -204,6 +204,8 @@ export const CheckoutPage = React.memo<CheckoutPageProps>(({ cartId }) => {
         }
 
         const order = await checkoutCart(orderData)
+        // Clear local cart (localStorage) now that the order is confirmed
+        shoppingCartService.localSync.clearLocalCart()
         setCurrentStep('success')
         toast.success('Pago completado exitosamente!')
 
