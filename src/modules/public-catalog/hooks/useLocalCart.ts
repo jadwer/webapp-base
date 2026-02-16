@@ -27,6 +27,7 @@ export interface LocalCartItem {
   name: string
   price: number
   quantity: number
+  iva: boolean
   imageUrl: string | null
   sku: string | null
   unitName: string | null
@@ -43,6 +44,8 @@ export interface LocalCart {
 
 export interface CartTotals {
   subtotal: number
+  taxAmount: number
+  total: number
   itemCount: number
   uniqueItems: number
 }
@@ -125,6 +128,7 @@ function productToCartItem(product: EnhancedPublicProduct, quantity: number = 1)
     name: product.attributes.name,
     price: product.attributes.price ?? 0,
     quantity,
+    iva: product.attributes.iva ?? true,
     imageUrl: product.attributes.imageUrl,
     sku: product.attributes.sku,
     unitName: product.unit?.attributes.name ?? null,
@@ -167,10 +171,18 @@ export function useLocalCart() {
   // Calculate totals
   const totals = useMemo<CartTotals>(() => {
     const subtotal = cart.items.reduce((sum, item) => sum + (item.price * item.quantity), 0)
+    const taxAmount = cart.items.reduce((sum, item) => {
+      // Default to true for backwards compatibility with existing carts without iva field
+      if (item.iva !== false) {
+        return sum + (item.price * item.quantity * 0.16)
+      }
+      return sum
+    }, 0)
+    const total = subtotal + taxAmount
     const itemCount = cart.items.reduce((sum, item) => sum + item.quantity, 0)
     const uniqueItems = cart.items.length
 
-    return { subtotal, itemCount, uniqueItems }
+    return { subtotal, taxAmount, total, itemCount, uniqueItems }
   }, [cart.items])
 
   // Add product to cart
@@ -270,9 +282,12 @@ export function useLocalCart() {
         productId: item.productId,
         quantity: item.quantity,
         price: item.price,
-        name: item.name
+        name: item.name,
+        iva: item.iva
       })),
       subtotal: totals.subtotal,
+      taxAmount: totals.taxAmount,
+      total: totals.total,
       itemCount: totals.itemCount
     }
   }, [cart.items, totals])

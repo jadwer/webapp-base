@@ -282,10 +282,11 @@ const cartItemsService = {
     shoppingCartId: number,
     productId: number,
     quantity: number = 1,
-    unitPrice: number = 0
+    unitPrice: number = 0,
+    hasIva: boolean = true
   ): Promise<ShoppingCartItem> {
     const subtotal = parseFloat((unitPrice * quantity).toFixed(2));
-    const taxRate = 16;
+    const taxRate = hasIva ? 16 : 0;
     const taxAmount = parseFloat((subtotal * taxRate / 100).toFixed(2));
     const total = parseFloat((subtotal + taxAmount).toFixed(2));
 
@@ -381,6 +382,7 @@ interface LocalCartItem {
   quantity: number;
   price: number;
   name: string;
+  iva?: boolean;
   sku?: string | null;
   imageUrl?: string | null;
   brandName?: string | null;
@@ -411,7 +413,8 @@ const localCartSyncService = {
         parseInt(cart.id),
         parseInt(item.productId),
         item.quantity,
-        item.price
+        item.price,
+        item.iva ?? true
       );
     }
 

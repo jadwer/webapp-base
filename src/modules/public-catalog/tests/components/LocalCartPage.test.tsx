@@ -109,6 +109,7 @@ function createMockCartItem(overrides: Partial<LocalCartItem> = {}): LocalCartIt
     name: 'Test Product',
     price: 100,
     quantity: 2,
+    iva: true,
     imageUrl: 'https://example.com/image.jpg',
     sku: 'SKU-001',
     unitName: 'pz',
@@ -120,15 +121,20 @@ function createMockCartItem(overrides: Partial<LocalCartItem> = {}): LocalCartIt
 }
 
 // Helper: standard mock return for cart with items
-function mockCartWithItems(items: LocalCartItem[], totals?: { itemCount: number; subtotal: number; uniqueItems: number }) {
+function mockCartWithItems(items: LocalCartItem[], totals?: { itemCount: number; subtotal: number; taxAmount?: number; total?: number; uniqueItems: number }) {
+  const subtotal = items.reduce((sum, i) => sum + i.price * i.quantity, 0)
+  const taxAmount = items.reduce((sum, i) => i.iva !== false ? sum + i.price * i.quantity * 0.16 : sum, 0)
   const defaultTotals = {
     itemCount: items.reduce((sum, i) => sum + i.quantity, 0),
-    subtotal: items.reduce((sum, i) => sum + i.price * i.quantity, 0),
+    subtotal,
+    taxAmount,
+    total: subtotal + taxAmount,
     uniqueItems: items.length,
   }
+  const mergedTotals = totals ? { ...defaultTotals, ...totals } : defaultTotals
   return {
     items,
-    totals: totals || defaultTotals,
+    totals: mergedTotals,
     isInitialized: true,
     isEmpty: false,
     removeFromCart: vi.fn(),
@@ -154,7 +160,7 @@ describe('LocalCartPage', () => {
     it('should show loading spinner when cart is not initialized', () => {
       mockUseLocalCart.mockReturnValue({
         items: [],
-        totals: { itemCount: 0, subtotal: 0, uniqueItems: 0 },
+        totals: { itemCount: 0, subtotal: 0, taxAmount: 0, total: 0, uniqueItems: 0 },
         isInitialized: false,
         isEmpty: true,
         removeFromCart: vi.fn(),
@@ -175,7 +181,7 @@ describe('LocalCartPage', () => {
     it('should show empty cart message when no items', () => {
       mockUseLocalCart.mockReturnValue({
         items: [],
-        totals: { itemCount: 0, subtotal: 0, uniqueItems: 0 },
+        totals: { itemCount: 0, subtotal: 0, taxAmount: 0, total: 0, uniqueItems: 0 },
         isInitialized: true,
         isEmpty: true,
         removeFromCart: vi.fn(),
@@ -194,7 +200,7 @@ describe('LocalCartPage', () => {
     it('should link to products page when empty', () => {
       mockUseLocalCart.mockReturnValue({
         items: [],
-        totals: { itemCount: 0, subtotal: 0, uniqueItems: 0 },
+        totals: { itemCount: 0, subtotal: 0, taxAmount: 0, total: 0, uniqueItems: 0 },
         isInitialized: true,
         isEmpty: true,
         removeFromCart: vi.fn(),
@@ -213,7 +219,7 @@ describe('LocalCartPage', () => {
     it('should use custom continueShoppingUrl when provided', () => {
       mockUseLocalCart.mockReturnValue({
         items: [],
-        totals: { itemCount: 0, subtotal: 0, uniqueItems: 0 },
+        totals: { itemCount: 0, subtotal: 0, taxAmount: 0, total: 0, uniqueItems: 0 },
         isInitialized: true,
         isEmpty: true,
         removeFromCart: vi.fn(),
@@ -464,7 +470,7 @@ describe('LocalCartPage', () => {
       mockIsAuthenticated.mockReturnValue(true)
       mockUseLocalCart.mockReturnValue({
         items: [],
-        totals: { itemCount: 0, subtotal: 0, uniqueItems: 0 },
+        totals: { itemCount: 0, subtotal: 0, taxAmount: 0, total: 0, uniqueItems: 0 },
         isInitialized: true,
         isEmpty: false, // Component still renders, but items array is empty
         removeFromCart: vi.fn(),
@@ -486,17 +492,21 @@ describe('LocalCartPage', () => {
   })
 
   describe('Order Summary', () => {
-    it('should display subtotal correctly', () => {
+    it('should display subtotal and IVA correctly', () => {
       const items = [
-        createMockCartItem({ price: 100, quantity: 2 }),
-        createMockCartItem({ productId: '2', price: 50, quantity: 3 }),
+        createMockCartItem({ price: 100, quantity: 2, iva: true }),
+        createMockCartItem({ productId: '2', price: 50, quantity: 3, iva: true }),
       ]
-      mockUseLocalCart.mockReturnValue(mockCartWithItems(items, { itemCount: 5, subtotal: 350, uniqueItems: 2 }))
+      // subtotal: 350, taxAmount: 56, total: 406
+      mockUseLocalCart.mockReturnValue(mockCartWithItems(items, { itemCount: 5, subtotal: 350, taxAmount: 56, total: 406, uniqueItems: 2 }))
 
       render(<LocalCartPage />)
 
       expect(screen.getByText('Subtotal (5 productos)')).toBeInTheDocument()
-      expect(screen.getAllByText('$350.00')).toHaveLength(2) // Subtotal and Total
+      expect(screen.getByText('$350.00')).toBeInTheDocument() // Subtotal
+      expect(screen.getByText('IVA (16%)')).toBeInTheDocument()
+      expect(screen.getByText('$56.00')).toBeInTheDocument() // IVA
+      expect(screen.getByText('$406.00')).toBeInTheDocument() // Total
     })
 
     it('should show "Por calcular" for shipping', () => {

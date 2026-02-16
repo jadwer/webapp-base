@@ -298,6 +298,9 @@ export const LocalCartPage: React.FC<LocalCartPageProps> = ({
             {item.unitName && (
               <small className="text-muted">/ {item.unitName}</small>
             )}
+            <small className={item.iva ? 'text-success' : 'text-muted'}>
+              {item.iva ? 'IVA incluido' : 'Sin IVA'}
+            </small>
           </div>
 
           {/* Quantity Controls */}
@@ -416,6 +419,11 @@ export const LocalCartPage: React.FC<LocalCartPageProps> = ({
                 <span className="fw-semibold">{formatPrice(totals.subtotal)}</span>
               </div>
 
+              <div className="d-flex justify-content-between mb-2">
+                <span>IVA (16%)</span>
+                <span className="fw-semibold">{formatPrice(totals.taxAmount)}</span>
+              </div>
+
               <div className="d-flex justify-content-between mb-2 text-muted">
                 <span>Envio</span>
                 <span>Por calcular</span>
@@ -426,7 +434,7 @@ export const LocalCartPage: React.FC<LocalCartPageProps> = ({
               <div className="d-flex justify-content-between mb-4">
                 <span className="fw-bold fs-5">Total</span>
                 <span className="fw-bold fs-5 text-primary">
-                  {formatPrice(totals.subtotal)}
+                  {formatPrice(totals.total)}
                 </span>
               </div>
 

@@ -24,6 +24,7 @@ function createMockProduct(id: string = '1', overrides: Partial<EnhancedPublicPr
       barcode: `BAR-${id}`,
       imageUrl: `https://example.com/image${id}.jpg`,
       isActive: true,
+      iva: true,
       createdAt: '2024-01-01T00:00:00Z',
       updatedAt: '2024-01-01T00:00:00Z',
     },
@@ -444,8 +445,8 @@ describe('useLocalCart', () => {
   })
 
   describe('totals calculation', () => {
-    it('should calculate correct subtotal', async () => {
-      // Pre-populate cart
+    it('should calculate correct subtotal and tax', async () => {
+      // Pre-populate cart with mixed IVA products
       const existingCart = {
         items: [
           {
@@ -453,7 +454,8 @@ describe('useLocalCart', () => {
             productId: '1',
             name: 'Product 1',
             price: 100,
-            quantity: 2, // 200
+            quantity: 2, // subtotal: 200, iva: 32
+            iva: true,
             imageUrl: null,
             sku: 'SKU-1',
             unitName: 'pz',
@@ -466,7 +468,8 @@ describe('useLocalCart', () => {
             productId: '2',
             name: 'Product 2',
             price: 50,
-            quantity: 3, // 150
+            quantity: 3, // subtotal: 150, iva: 0 (exempt)
+            iva: false,
             imageUrl: null,
             sku: 'SKU-2',
             unitName: 'pz',
@@ -487,8 +490,45 @@ describe('useLocalCart', () => {
       })
 
       expect(result.current.totals.subtotal).toBe(350) // 200 + 150
+      expect(result.current.totals.taxAmount).toBe(32) // only Product 1: 200 * 0.16
+      expect(result.current.totals.total).toBe(382) // 350 + 32
       expect(result.current.totals.itemCount).toBe(5) // 2 + 3
       expect(result.current.totals.uniqueItems).toBe(2)
+    })
+
+    it('should default iva to true for items without iva field (backwards compatibility)', async () => {
+      // Simulate old cart format without iva field
+      const existingCart = {
+        items: [
+          {
+            id: 'item_1_123',
+            productId: '1',
+            name: 'Product 1',
+            price: 100,
+            quantity: 1,
+            imageUrl: null,
+            sku: 'SKU-1',
+            unitName: 'pz',
+            categoryName: 'Category',
+            brandName: 'Brand',
+            addedAt: '2024-01-01T00:00:00Z',
+          },
+        ],
+        createdAt: '2024-01-01T00:00:00Z',
+        updatedAt: '2024-01-01T00:00:00Z',
+      }
+      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(existingCart))
+
+      const { result } = renderHook(() => useLocalCart())
+
+      await waitFor(() => {
+        expect(result.current.isInitialized).toBe(true)
+      })
+
+      // Without iva field, should default to true (16% tax)
+      expect(result.current.totals.subtotal).toBe(100)
+      expect(result.current.totals.taxAmount).toBe(16) // 100 * 0.16
+      expect(result.current.totals.total).toBe(116)
     })
   })
 
@@ -530,7 +570,7 @@ describe('useLocalCart', () => {
   })
 
   describe('getCartForCheckout', () => {
-    it('should return serializable checkout data', async () => {
+    it('should return serializable checkout data with tax info', async () => {
       // Pre-populate cart
       const existingCart = {
         items: [
@@ -540,6 +580,7 @@ describe('useLocalCart', () => {
             name: 'Product 1',
             price: 100,
             quantity: 2,
+            iva: true,
             imageUrl: null,
             sku: 'SKU-1',
             unitName: 'pz',
@@ -565,7 +606,10 @@ describe('useLocalCart', () => {
       expect(checkoutData.items[0].productId).toBe('1')
       expect(checkoutData.items[0].quantity).toBe(2)
       expect(checkoutData.items[0].price).toBe(100)
+      expect(checkoutData.items[0].iva).toBe(true)
       expect(checkoutData.subtotal).toBe(200)
+      expect(checkoutData.taxAmount).toBe(32) // 200 * 0.16
+      expect(checkoutData.total).toBe(232) // 200 + 32
       expect(checkoutData.itemCount).toBe(2)
     })
   })
