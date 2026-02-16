@@ -38,7 +38,7 @@ describe('salesService', () => {
       const result = await salesService.orders.getAll()
 
       // Assert
-      expect(axios.get).toHaveBeenCalledWith('/api/v1/sales-orders?include=contact')
+      expect(axios.get).toHaveBeenCalledWith('/api/v1/sales-orders?include=contact%2Citems')
       expect(result).toEqual(apiResponse)
     })
 

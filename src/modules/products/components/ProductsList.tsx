@@ -25,7 +25,7 @@ const ProductListItem = React.memo<{
     {/* Image */}
     <div className="flex-shrink-0 me-3">
       <Image
-        src={product.imgUrl || '/images/product-placeholder.jpg'}
+        src={product.imgUrl || '/images/product-placeholder.svg'}
         alt={product.name}
         width={80}
         height={80}

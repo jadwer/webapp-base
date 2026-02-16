@@ -8,8 +8,8 @@ export const salesService = {
       // Build query string for filtering and includes
       const queryParams = new URLSearchParams()
 
-      // Add includes for relationships - include contact for better performance
-      queryParams.append('include', 'contact')
+      // Add includes for relationships - contact + items for item count
+      queryParams.append('include', 'contact,items')
 
       // Add filters if provided
       if (params) {

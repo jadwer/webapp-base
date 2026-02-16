@@ -26,7 +26,7 @@ const ProductCard = React.memo<{
       {/* Product Image */}
       <div className="position-relative">
         <Image
-          src={product.imgUrl || '/images/product-placeholder.jpg'}
+          src={product.imgUrl || '/images/product-placeholder.svg'}
           alt={product.name}
           width={200}
           height={200}

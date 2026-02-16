@@ -32,7 +32,7 @@ export default function GlobalError({
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/images/laborwasser/labor-wasser-mexico-logo.webp"
+          src="/images/laborwasser/labor-wasser-mexico-logo2.webp"
           alt="Labor Wasser de Mexico"
           style={{ height: 60, marginBottom: 30 }}
         />

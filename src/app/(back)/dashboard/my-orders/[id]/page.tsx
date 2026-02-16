@@ -85,7 +85,7 @@ export default function MyOrderDetailPage({ params }: MyOrderDetailPageProps) {
           orderNumber: attrs.orderNumber,
           status: attrs.status,
           totalAmount: attrs.totalAmount,
-          subtotalAmount: attrs.subtotal,
+          subtotalAmount: attrs.subtotal || attrs.subtotalAmount || ((attrs.finalTotal ?? attrs.totalAmount ?? 0) as number) - ((attrs.taxAmount ?? 0) as number) + ((attrs.discountTotal ?? 0) as number),
           taxAmount: attrs.taxAmount,
           discountAmount: attrs.discountTotal || 0,
           createdAt: attrs.createdAt,

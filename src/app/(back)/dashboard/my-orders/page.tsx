@@ -53,15 +53,28 @@ export default function MyOrdersPage() {
         })
 
         // Transform JSON:API response to simple array
-        const ordersData = result.data?.map((item: { id: string; attributes: Record<string, unknown> }) => ({
-          id: item.id,
-          orderNumber: item.attributes.orderNumber as string,
-          status: item.attributes.status as string,
-          totalAmount: item.attributes.totalAmount as number,
-          createdAt: item.attributes.createdAt as string,
-          expectedDeliveryDate: item.attributes.expectedDeliveryDate as string | undefined,
-          itemCount: item.attributes.itemCount as number | undefined
-        })) || []
+        // Count items from included relationships
+        const included = result.included || []
+        const ordersData = result.data?.map((item: { id: string; attributes: Record<string, unknown>; relationships?: Record<string, { data?: Array<{ type: string; id: string }> | null }> }) => {
+          // Count items from the relationships data
+          const itemsRel = item.relationships?.items?.data
+          const itemCount = Array.isArray(itemsRel) ? itemsRel.length : (
+            // Fallback: count from included array by matching order ID
+            included.filter((inc: { type: string; attributes?: Record<string, unknown> }) =>
+              inc.type === 'sales-order-items' &&
+              inc.attributes?.salesOrderId === parseInt(item.id)
+            ).length
+          )
+          return {
+            id: item.id,
+            orderNumber: item.attributes.orderNumber as string,
+            status: item.attributes.status as string,
+            totalAmount: item.attributes.totalAmount as number,
+            createdAt: item.attributes.createdAt as string,
+            expectedDeliveryDate: item.attributes.expectedDeliveryDate as string | undefined,
+            itemCount
+          }
+        }) || []
 
         setOrders(ordersData)
       } catch {

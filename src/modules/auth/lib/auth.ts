@@ -69,18 +69,20 @@ const isLoading = shouldFetch && !user && !error;
   const register = async ({
     setErrors,
     ...props
-  }: AuthErrorHandler & Record<string, unknown>) => {
+  }: AuthErrorHandler & Record<string, unknown>): Promise<boolean> => {
     setErrors({});
 
     try {
       await axios.post("/api/auth/register", props);
       await mutate();
+      return true;
     } catch (error: unknown) {
       const apiError = error as ApiError;
       if (apiError.response?.status === 422) {
         const jsonApiErrors = apiError.response.data?.errors ?? [];
         const parsed = parseJsonApiErrors(jsonApiErrors);
         setErrors?.(parsed);
+        return false;
       } else {
         throw error;
       }

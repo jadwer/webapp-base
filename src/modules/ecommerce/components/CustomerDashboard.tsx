@@ -106,14 +106,17 @@ export default function CustomerDashboard() {
       // Process orders
       if (ordersResult.status === 'fulfilled') {
         const ordersData = (ordersResult.value?.data || []).map(
-          (item: { id: string; attributes: Record<string, unknown> }) => ({
-            id: item.id,
-            orderNumber: item.attributes.orderNumber as string,
-            status: item.attributes.status as string,
-            totalAmount: item.attributes.totalAmount as number,
-            createdAt: item.attributes.createdAt as string,
-            itemCount: item.attributes.itemCount as number | undefined,
-          })
+          (item: { id: string; attributes: Record<string, unknown>; relationships?: Record<string, { data?: Array<{ type: string; id: string }> | null }> }) => {
+            const itemsRel = item.relationships?.items?.data
+            return {
+              id: item.id,
+              orderNumber: item.attributes.orderNumber as string,
+              status: item.attributes.status as string,
+              totalAmount: item.attributes.totalAmount as number,
+              createdAt: item.attributes.createdAt as string,
+              itemCount: Array.isArray(itemsRel) ? itemsRel.length : undefined,
+            }
+          }
         )
         setOrders(ordersData)
       }
@@ -164,9 +167,8 @@ export default function CustomerDashboard() {
     } catch {
       // Dashboard should still render even if some data fails
     } finally {
-      if (!controller.signal.aborted) {
-        setIsLoading(false)
-      }
+      // Always clear loading - even on abort, stale loading state is worse than stale data
+      setIsLoading(false)
     }
   }, [user?.email])
 

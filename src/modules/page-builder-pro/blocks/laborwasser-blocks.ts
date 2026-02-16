@@ -386,7 +386,7 @@ export const headerBlock: LaborWasserBlock = {
       <div class="container">
         <div class="row align-items-center">
           <div class="col-auto">
-            <a href="/"><img src="/images/laborwasser/labor-wasser-mexico-logo.webp" alt="Labor Wasser de Mexico" style="height: 50px;"></a>
+            <a href="/"><img src="/images/laborwasser/labor-wasser-mexico-logo2.webp" alt="Labor Wasser de Mexico" style="height: 50px;"></a>
           </div>
           <div class="col text-end">
             <a href="/productos" class="btn btn-outline-success me-2">Productos</a>

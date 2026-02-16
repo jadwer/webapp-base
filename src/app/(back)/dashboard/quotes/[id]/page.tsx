@@ -557,33 +557,35 @@ export default function QuoteDetailPage({ params }: PageProps) {
             </div>
           </div>
 
-          {/* Actions Card */}
-          <div className="card">
-            <div className="card-header">
-              <h6 className="card-title mb-0">Acciones</h6>
+          {/* Actions Card - only show when there are available actions */}
+          {(statusConfig.canConvert || (quote.status === 'accepted' && !quote.purchaseOrderId)) && (
+            <div className="card">
+              <div className="card-header">
+                <h6 className="card-title mb-0">Acciones</h6>
+              </div>
+              <div className="card-body d-grid gap-2">
+                {statusConfig.canConvert && (
+                  <button
+                    className="btn btn-success btn-lg"
+                    onClick={handleConvert}
+                    disabled={mutations.convert.isPending}
+                  >
+                    <i className="bi bi-cart-check me-2"></i>
+                    {mutations.convert.isPending ? 'Generando...' : 'Generar Pedido'}
+                  </button>
+                )}
+                {quote.status === 'accepted' && !quote.purchaseOrderId && (
+                  <button
+                    className="btn btn-outline-warning"
+                    onClick={handleGeneratePurchaseOrder}
+                  >
+                    <i className="bi bi-box-seam me-2"></i>
+                    Generar Orden de Compra
+                  </button>
+                )}
+              </div>
             </div>
-            <div className="card-body d-grid gap-2">
-              {statusConfig.canConvert && (
-                <button
-                  className="btn btn-success btn-lg"
-                  onClick={handleConvert}
-                  disabled={mutations.convert.isPending}
-                >
-                  <i className="bi bi-cart-check me-2"></i>
-                  {mutations.convert.isPending ? 'Generando...' : 'Generar Pedido'}
-                </button>
-              )}
-              {quote.status === 'accepted' && !quote.purchaseOrderId && (
-                <button
-                  className="btn btn-outline-warning"
-                  onClick={handleGeneratePurchaseOrder}
-                >
-                  <i className="bi bi-box-seam me-2"></i>
-                  Generar Orden de Compra
-                </button>
-              )}
-            </div>
-          </div>
+          )}
         </div>
       </div>
 
