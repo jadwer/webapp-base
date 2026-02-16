@@ -88,6 +88,26 @@ export {
   ABC_CLASS_OPTIONS
 } from './cycleCount'
 
+// ProductConversion types
+export type {
+  ProductConversion,
+  CreateProductConversionData,
+  UpdateProductConversionData,
+  ProductConversionFilters,
+  ProductConversionSortOptions
+} from './productConversion'
+
+// Fractionation types
+export type {
+  Fractionation,
+  FractionationFilters,
+  FractionationSortOptions,
+  FractionationCalculateRequest,
+  FractionationCalculateResponse,
+  FractionationExecuteRequest,
+  FractionationExecuteResponse
+} from './fractionation'
+
 // Common pagination and response types
 export interface PaginationParams {
   page?: number

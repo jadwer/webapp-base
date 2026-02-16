@@ -63,7 +63,9 @@ const inventoryLinks = [
   { href: '/dashboard/inventory/locations', label: 'Ubicaciones', icon: 'bi-geo-alt' },
   { href: '/dashboard/inventory/stock', label: 'Control de Stock', icon: 'bi-boxes' },
   { href: '/dashboard/inventory/movements', label: 'Movimientos', icon: 'bi-arrow-left-right' },
-  { href: '/dashboard/inventory/product-batch', label: 'Lotes de Productos', icon: 'bi-calendar-check' }
+  { href: '/dashboard/inventory/product-batch', label: 'Lotes de Productos', icon: 'bi-calendar-check' },
+  { href: '/dashboard/inventory/product-conversions', label: 'Conversiones', icon: 'bi-arrow-repeat' },
+  { href: '/dashboard/inventory/fraccionamiento', label: 'Fraccionamiento', icon: 'bi-scissors' }
 ]
 
 // Cotizaciones (Admin)
