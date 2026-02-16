@@ -74,11 +74,11 @@ describe('shoppingCartService', () => {
       expect(result).not.toBeNull();
     });
 
-    it('should return null when cart not found', async () => {
-      // Arrange
-      const error = new Error('Not Found');
-      (error as any).response = { status: 404 };
-      mockAxios.get.mockRejectedValue(error);
+    it('should return null when no active cart exists', async () => {
+      // Arrange - backend returns 200 with data: null
+      mockAxios.get.mockResolvedValue({
+        data: { data: null, message: 'No active cart found' },
+      });
 
       // Act
       const result = await shoppingCartService.cart.getCurrent({
@@ -89,7 +89,7 @@ describe('shoppingCartService', () => {
       expect(result).toBeNull();
     });
 
-    it('should throw error on other API failures', async () => {
+    it('should throw error on API failures', async () => {
       // Arrange
       const error = new Error('Server Error');
       (error as any).response = { status: 500 };

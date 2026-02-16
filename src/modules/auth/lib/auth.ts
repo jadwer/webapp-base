@@ -69,9 +69,11 @@ const isLoading = shouldFetch && !user && !error;
 
   const register = async ({
     setErrors,
+    setStatus,
     ...props
-  }: AuthErrorHandler & Record<string, unknown>): Promise<boolean> => {
+  }: AuthErrorHandler & { setStatus?: (msg: string | null) => void } & Record<string, unknown>): Promise<boolean> => {
     setErrors({});
+    setStatus?.(null);
 
     try {
       await axios.post("/api/auth/register", props);

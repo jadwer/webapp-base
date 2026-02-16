@@ -77,19 +77,31 @@ export default function MyOrderDetailPage({ params }: MyOrderDetailPageProps) {
         const orderData = result.data
         const attrs = orderData.attributes
 
-        // Extract items from included if present
-        const includedItems = result.included?.filter(
+        // Extract items and products from included
+        const included = result.included || []
+        const includedItems = included.filter(
           (inc: { type: string }) => inc.type === 'sales-order-items'
-        ) || []
+        )
+
+        // Build product map from included products
+        const productMap = new Map<string, { name: string; sku: string }>()
+        included.filter((inc: { type: string }) => inc.type === 'products').forEach(
+          (prod: { id: string; attributes: Record<string, unknown> }) => {
+            productMap.set(prod.id, {
+              name: prod.attributes.name as string,
+              sku: prod.attributes.sku as string,
+            })
+          }
+        )
 
         setOrder({
           id: orderData.id,
           orderNumber: attrs.orderNumber,
           status: attrs.status,
           totalAmount: attrs.totalAmount,
-          subtotalAmount: attrs.subtotal || attrs.subtotalAmount || ((attrs.finalTotal ?? attrs.totalAmount ?? 0) as number) - ((attrs.taxAmount ?? 0) as number) + ((attrs.discountTotal ?? 0) as number),
+          subtotalAmount: attrs.subtotal ?? attrs.subtotalAmount ?? ((attrs.finalTotal ?? attrs.totalAmount ?? 0) as number) - ((attrs.taxAmount ?? 0) as number) + ((attrs.discountTotal ?? 0) as number),
           taxAmount: attrs.taxAmount,
-          discountAmount: attrs.discountTotal || 0,
+          discountAmount: attrs.discountTotal ?? 0,
           createdAt: attrs.createdAt,
           expectedDeliveryDate: attrs.expectedDeliveryDate,
           shippingAddress: attrs.shippingAddress,
@@ -98,15 +110,19 @@ export default function MyOrderDetailPage({ params }: MyOrderDetailPageProps) {
           shippingPostalCode: attrs.shippingPostalCode,
           notes: attrs.notes,
           trackingNumber: attrs.trackingNumber,
-          items: includedItems.map((item: { id: string; attributes: Record<string, unknown> }) => ({
-            id: item.id,
-            productId: item.attributes.productId as string,
-            productName: item.attributes.productName as string,
-            sku: item.attributes.sku as string,
-            quantity: item.attributes.quantity as number,
-            unitPrice: item.attributes.unitPrice as number,
-            total: item.attributes.total as number
-          }))
+          items: includedItems.map((item: { id: string; attributes: Record<string, unknown>; relationships?: Record<string, { data?: { type: string; id: string } | null }> }) => {
+            const productRel = item.relationships?.product?.data
+            const product = productRel ? productMap.get(productRel.id) : null
+            return {
+              id: item.id,
+              productId: (item.attributes.productId as string) || productRel?.id || '',
+              productName: product?.name || (item.attributes.productName as string),
+              sku: product?.sku || (item.attributes.sku as string),
+              quantity: item.attributes.quantity as number,
+              unitPrice: item.attributes.unitPrice as number,
+              total: item.attributes.total as number,
+            }
+          })
         })
       } catch {
         setError('Error al cargar el pedido')
@@ -349,13 +365,13 @@ export default function MyOrderDetailPage({ params }: MyOrderDetailPageProps) {
             <div className="card-body">
               <div className="d-flex justify-content-between mb-2">
                 <span>Subtotal:</span>
-                <span>{formatPrice(order.subtotalAmount || 0)}</span>
+                <span>{formatPrice(order.subtotalAmount ?? 0)}</span>
               </div>
               <div className="d-flex justify-content-between mb-2">
                 <span>IVA (16%):</span>
-                <span>{formatPrice(order.taxAmount || 0)}</span>
+                <span>{formatPrice(order.taxAmount ?? 0)}</span>
               </div>
-              {(order.discountAmount || 0) > 0 && (
+              {(order.discountAmount ?? 0) > 0 && (
                 <div className="d-flex justify-content-between mb-2 text-success">
                   <span>Descuento:</span>
                   <span>-{formatPrice(order.discountAmount)}</span>
@@ -365,7 +381,7 @@ export default function MyOrderDetailPage({ params }: MyOrderDetailPageProps) {
               <div className="d-flex justify-content-between">
                 <strong>Total:</strong>
                 <strong className="fs-4 text-primary">
-                  {formatPrice(order.totalAmount || 0)}
+                  {formatPrice(order.totalAmount ?? 0)}
                 </strong>
               </div>
             </div>

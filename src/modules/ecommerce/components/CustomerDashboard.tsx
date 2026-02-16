@@ -73,7 +73,10 @@ export default function CustomerDashboard() {
   const abortRef = useRef<AbortController | null>(null)
 
   const fetchDashboardData = useCallback(async () => {
-    if (!user?.email) return
+    if (!user?.email) {
+      setIsLoading(false)
+      return
+    }
 
     // Cancel previous request
     abortRef.current?.abort()
@@ -252,7 +255,7 @@ export default function CustomerDashboard() {
             <div className="card border-0 shadow-sm h-100">
               <div className="card-body text-center">
                 <i className="bi bi-cart3 text-success mb-2" style={{ fontSize: '1.5rem' }}></i>
-                <h3 className="mb-0">{isLoading ? '-' : cart?.itemCount || 0}</h3>
+                <h3 className="mb-0">{isLoading ? '-' : cart?.itemCount ?? 0}</h3>
                 <small className="text-muted">En Carrito</small>
               </div>
             </div>

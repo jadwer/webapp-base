@@ -28,7 +28,7 @@ export const salesService = {
     },
 
     getById: async (id: string) => {
-      const response = await axiosClient.get(`/api/v1/sales-orders/${id}?include=contact,items`)
+      const response = await axiosClient.get(`/api/v1/sales-orders/${id}?include=contact,items.product`)
       return response.data
     },
 

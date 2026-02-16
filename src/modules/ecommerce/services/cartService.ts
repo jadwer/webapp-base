@@ -59,22 +59,17 @@ const cartService = {
       params['session_id'] = filters.sessionId;
     }
 
-    try {
-      const response = await axiosClient.get<ShoppingCartResponse>(
-        '/api/v1/shopping-carts/current',
-        { params }
-      );
+    const response = await axiosClient.get<ShoppingCartResponse>(
+      '/api/v1/shopping-carts/current',
+      { params }
+    );
 
-      return shoppingCartFromAPI(response.data.data as unknown as Record<string, unknown>);
-    } catch (error: unknown) {
-      if (error && typeof error === 'object' && 'response' in error) {
-        const axiosError = error as { response?: { status?: number } };
-        if (axiosError.response?.status === 404) {
-          return null;
-        }
-      }
-      throw error;
+    // Backend returns 200 with data: null when no active cart exists
+    if (!response.data.data) {
+      return null;
     }
+
+    return shoppingCartFromAPI(response.data.data as unknown as Record<string, unknown>);
   },
 
   /**

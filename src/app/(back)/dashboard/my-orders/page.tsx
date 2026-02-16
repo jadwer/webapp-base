@@ -195,7 +195,7 @@ export default function MyOrdersPage() {
                       </td>
                       <td>
                         <span className="badge bg-secondary">
-                          {order.itemCount || 0} productos
+                          {order.itemCount ?? 0} productos
                         </span>
                       </td>
                       <td className="text-end">

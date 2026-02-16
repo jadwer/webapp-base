@@ -40,12 +40,13 @@ export function RegisterForm() {
   });
 
   const onSubmit = async (data: RegisterFormData) => {
+    setStatus(null);
     setIsSubmitting(true);
 
     try {
       const success = await registerUser({
         ...data,
-        setErrors: (apiErrors) => {
+        setErrors: (apiErrors: Record<string, string[]>) => {
           Object.entries(apiErrors).forEach(([field, messages]) => {
             const msg = Array.isArray(messages)
               ? messages.join(", ")
@@ -67,6 +68,7 @@ export function RegisterForm() {
         setStatus("Registro exitoso. Redirigiendo al login...");
         setStatusType("success");
         setTimeout(() => router.replace("/auth/login?registered=true"), 3000);
+        return; // Don't re-enable form after success
       }
     } catch (error) {
       handleApiErrors(
