@@ -141,6 +141,7 @@ const billingLinks = [
 
 // Configuración del sistema
 const settingsLinks = [
+  { href: '/dashboard/settings/app-config', label: 'Configuracion General', icon: 'bi-gear' },
   { href: '/dashboard/settings/folios', label: 'Folios y Consecutivos', icon: 'bi-123' },
   { href: '/dashboard/settings/invoice-series', label: 'Series de Facturación', icon: 'bi-collection' }
 ]
