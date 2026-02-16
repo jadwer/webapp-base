@@ -81,9 +81,9 @@ describe('profileApi', () => {
       expect(axiosClient.patch).toHaveBeenCalledWith(
         '/api/v1/profile/password',
         {
-          currentPassword: validPayload.currentPassword,
+          current_password: validPayload.currentPassword,
           password: validPayload.password,
-          passwordConfirmation: validPayload.passwordConfirmation,
+          password_confirmation: validPayload.passwordConfirmation,
         }
       )
       expect(result).toEqual(mockResponse.data)

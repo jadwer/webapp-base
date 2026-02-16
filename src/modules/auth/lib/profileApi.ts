@@ -21,9 +21,9 @@ async function changePassword(payload: {
 }) {
   return axiosClient
     .patch("/api/v1/profile/password", {
-      currentPassword: payload.currentPassword,
+      current_password: payload.currentPassword,
       password: payload.password,
-      passwordConfirmation: payload.passwordConfirmation,
+      password_confirmation: payload.passwordConfirmation,
     })
     .then((res) => res.data)
     .catch((error) => {
