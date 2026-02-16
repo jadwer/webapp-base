@@ -335,27 +335,117 @@ describe('useAuth Hook', () => {
   // ============================================
 
   describe('forgotPassword', () => {
-    it('should call forgot password endpoint', async () => {
+    it('should call forgot password endpoint and return true on success', async () => {
       const setErrors = vi.fn()
       const setStatus = vi.fn()
 
       vi.mocked(axios.post).mockResolvedValueOnce({
-        data: { status: 'Password reset link sent!' },
+        data: { message: 'Si el correo esta registrado, recibiras un enlace.' },
       })
 
       const { result } = renderHook(() => useAuth())
 
+      let success: boolean = false
       await act(async () => {
-        await result.current.forgotPassword({
+        success = await result.current.forgotPassword({
           email: 'test@example.com',
           setErrors,
           setStatus,
         })
       })
 
+      expect(success).toBe(true)
       expect(axios.post).toHaveBeenCalledWith('/api/auth/forgot-password', {
         email: 'test@example.com',
       })
+      expect(setStatus).toHaveBeenCalledWith('Si el correo esta registrado, recibiras un enlace.')
+    })
+
+    it('should return false on validation error', async () => {
+      const setErrors = vi.fn()
+      const setStatus = vi.fn()
+
+      vi.mocked(axios.post).mockRejectedValueOnce(
+        mock422Error('email', 'Email is required')
+      )
+
+      const { result } = renderHook(() => useAuth())
+
+      let success: boolean = true
+      await act(async () => {
+        success = await result.current.forgotPassword({
+          email: '',
+          setErrors,
+          setStatus,
+        })
+      })
+
+      expect(success).toBe(false)
+      expect(setErrors).toHaveBeenCalled()
+    })
+  })
+
+  // ============================================
+  // RESET PASSWORD TESTS
+  // ============================================
+
+  describe('resetPassword', () => {
+    it('should call reset password endpoint and return true on success', async () => {
+      const setErrors = vi.fn()
+      const setStatus = vi.fn()
+
+      vi.mocked(axios.post).mockResolvedValueOnce({
+        data: { message: 'Tu contrasena ha sido restablecida exitosamente.' },
+      })
+
+      const { result } = renderHook(() => useAuth())
+
+      let success: boolean = false
+      await act(async () => {
+        success = await result.current.resetPassword({
+          token: 'valid-token',
+          email: 'test@example.com',
+          password: 'new-password-123',
+          password_confirmation: 'new-password-123',
+          setErrors,
+          setStatus,
+        })
+      })
+
+      expect(success).toBe(true)
+      expect(axios.post).toHaveBeenCalledWith('/api/auth/reset-password', {
+        token: 'valid-token',
+        email: 'test@example.com',
+        password: 'new-password-123',
+        password_confirmation: 'new-password-123',
+      })
+      expect(setStatus).toHaveBeenCalledWith('Tu contrasena ha sido restablecida exitosamente.')
+    })
+
+    it('should return false on invalid token', async () => {
+      const setErrors = vi.fn()
+      const setStatus = vi.fn()
+
+      vi.mocked(axios.post).mockRejectedValueOnce(
+        mock422Error('email', 'This password reset token is invalid.')
+      )
+
+      const { result } = renderHook(() => useAuth())
+
+      let success: boolean = true
+      await act(async () => {
+        success = await result.current.resetPassword({
+          token: 'invalid-token',
+          email: 'test@example.com',
+          password: 'new-password',
+          password_confirmation: 'new-password',
+          setErrors,
+          setStatus,
+        })
+      })
+
+      expect(success).toBe(false)
+      expect(setErrors).toHaveBeenCalled()
     })
   })
 
@@ -368,7 +458,7 @@ describe('useAuth Hook', () => {
       const setStatus = vi.fn()
 
       vi.mocked(axios.post).mockResolvedValueOnce({
-        data: { status: 'Verification email sent!' },
+        data: { message: 'Se ha enviado un enlace de verificacion a tu correo.' },
       })
 
       const { result } = renderHook(() => useAuth())
@@ -378,6 +468,21 @@ describe('useAuth Hook', () => {
       })
 
       expect(axios.post).toHaveBeenCalledWith('/api/auth/email/verification-notification')
+      expect(setStatus).toHaveBeenCalledWith('Se ha enviado un enlace de verificacion a tu correo.')
+    })
+
+    it('should handle errors gracefully', async () => {
+      const setStatus = vi.fn()
+
+      vi.mocked(axios.post).mockRejectedValueOnce(new Error('Network error'))
+
+      const { result } = renderHook(() => useAuth())
+
+      await act(async () => {
+        await result.current.resendEmailVerification({ setStatus })
+      })
+
+      expect(setStatus).toHaveBeenCalledWith('Error al enviar el correo de verificacion.')
     })
   })
 

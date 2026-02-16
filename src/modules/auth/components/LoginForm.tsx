@@ -20,6 +20,7 @@ export function LoginForm({ redirect, onLoginSuccess }: Props) {
 
   const searchParams = useSearchParams()
   const registered = searchParams.get('registered') === 'true'
+  const passwordReset = searchParams.get('reset') === 'true'
 
   const [status, setStatus] = useState<string | null>(null)
   const [statusType, setStatusType] = useState<'success' | 'danger' | 'info' | 'warning'>('info')
@@ -36,10 +37,13 @@ export function LoginForm({ redirect, onLoginSuccess }: Props) {
 
   useEffect(() => {
     if (registered) {
-      setStatus('Tu cuenta fue creada correctamente. Inicia sesión para continuar.')
+      setStatus('Tu cuenta fue creada correctamente. Inicia sesion para continuar.')
+      setStatusType('success')
+    } else if (passwordReset) {
+      setStatus('Tu contrasena ha sido restablecida. Inicia sesion con tu nueva contrasena.')
       setStatusType('success')
     }
-  }, [registered])
+  }, [registered, passwordReset])
 
   const onSubmit = async (data: LoginFormData) => {
     setIsSubmitting(true)

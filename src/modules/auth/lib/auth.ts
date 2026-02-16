@@ -10,6 +10,7 @@ import {
   AuthErrorHandler,
   AuthStatusHandler,
   ForgotPasswordParams,
+  ResetPasswordParams,
   ResendEmailVerificationParams,
 } from "../types/auth.types";
 
@@ -168,28 +169,79 @@ const isLoading = shouldFetch && !user && !error;
     setErrors,
     setStatus,
     email,
-  }: ForgotPasswordParams) => {
+  }: ForgotPasswordParams): Promise<boolean> => {
     setErrors({});
     setStatus(null);
 
-    axios
-      .post("/api/auth/forgot-password", { email })
-      .then((response) => setStatus(response.data.status))
-      .catch((error) => {
-        if (error.response?.status === 422) {
-          setErrors(error.response.data.errors);
-        } else {
-          throw error;
+    try {
+      const response = await axios.post("/api/auth/forgot-password", { email });
+      setStatus(response.data.message);
+      return true;
+    } catch (error: unknown) {
+      const apiError = error as ApiError;
+      if (apiError.response?.status === 422) {
+        const jsonApiErrors = apiError.response.data?.errors;
+        if (Array.isArray(jsonApiErrors)) {
+          const parsed = parseJsonApiErrors(jsonApiErrors);
+          setErrors(parsed);
+        } else if (jsonApiErrors && typeof jsonApiErrors === 'object') {
+          setErrors(jsonApiErrors as Record<string, string[]>);
         }
-      });
+        return false;
+      }
+      setStatus("Ocurrio un error inesperado.");
+      return false;
+    }
   };
 
-  const resendEmailVerification = ({
+  const resetPassword = async ({
+    setErrors,
     setStatus,
-  }: ResendEmailVerificationParams) => {
-    axios
-      .post("/api/auth/email/verification-notification")
-      .then((response) => setStatus(response.data.status));
+    token,
+    email,
+    password,
+    password_confirmation,
+  }: ResetPasswordParams): Promise<boolean> => {
+    setErrors({});
+    setStatus(null);
+
+    try {
+      const response = await axios.post("/api/auth/reset-password", {
+        token,
+        email,
+        password,
+        password_confirmation,
+      });
+      setStatus(response.data.message);
+      return true;
+    } catch (error: unknown) {
+      const apiError = error as ApiError;
+      if (apiError.response?.status === 422) {
+        const errors = apiError.response.data?.errors;
+        if (Array.isArray(errors)) {
+          const parsed = parseJsonApiErrors(errors);
+          setErrors(parsed);
+        } else if (errors && typeof errors === 'object') {
+          setErrors(errors as Record<string, string[]>);
+        }
+        const msg = apiError.response.data?.message;
+        if (msg) setStatus(msg);
+        return false;
+      }
+      setStatus("Ocurrio un error inesperado.");
+      return false;
+    }
+  };
+
+  const resendEmailVerification = async ({
+    setStatus,
+  }: ResendEmailVerificationParams): Promise<void> => {
+    try {
+      const response = await axios.post("/api/auth/email/verification-notification");
+      setStatus(response.data.message);
+    } catch {
+      setStatus("Error al enviar el correo de verificacion.");
+    }
   };
 
   return {
@@ -200,6 +252,7 @@ const isLoading = shouldFetch && !user && !error;
     login,
     logout,
     forgotPassword,
+    resetPassword,
     resendEmailVerification,
     error,
   };

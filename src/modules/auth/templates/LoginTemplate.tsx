@@ -47,9 +47,14 @@ export default function LoginTemplate({ redirect }: Props) {
         
         <div className={styles.authFooter}>
           <p>
+            <Link href="/auth/forgot-password">
+              ¿Olvidaste tu contrasena?
+            </Link>
+          </p>
+          <p>
             ¿No tienes una cuenta?{' '}
             <Link href="/auth/register">
-              ¡Regístrate aquí!
+              ¡Registrate aqui!
             </Link>
           </p>
         </div>
