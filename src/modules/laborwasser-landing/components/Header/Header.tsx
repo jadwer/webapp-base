@@ -49,7 +49,7 @@ export const Header: React.FC = () => {
     if (searchQuery.trim()) {
       router.push(`/productos?search=${encodeURIComponent(searchQuery.trim())}`)
     } else {
-      router.push('/productos/todos')
+      router.push('/productos')
     }
   }
 

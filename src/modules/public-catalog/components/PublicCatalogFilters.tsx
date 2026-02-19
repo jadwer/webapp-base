@@ -301,15 +301,17 @@ export const PublicCatalogFilters: React.FC<PublicCatalogFiltersProps> = ({
               <span className="badge bg-primary ms-2">{selectedCategories.length}</span>
             )}
           </h6>
-          <div className="d-flex flex-wrap gap-2">
+          <div className="d-flex flex-wrap gap-2" style={{ overflow: 'hidden' }}>
             {categories.slice(0, variant === 'sidebar' ? 10 : 6).map(category => {
               const isSelected = selectedCategories.some(sel => sel.value === category.value)
               return (
                 <button
                   key={category.value}
                   type="button"
-                  className={`btn btn-sm ${isSelected ? 'btn-primary' : 'btn-outline-secondary'}`}
+                  className={`btn btn-sm ${isSelected ? 'btn-primary' : 'btn-outline-secondary'} text-truncate`}
+                  style={{ maxWidth: '250px' }}
                   onClick={() => handleCategoryChange(category.value)}
+                  title={`${category.label}${category.count ? ` (${category.count})` : ''}`}
                 >
                   {category.label}
                   {category.count && (
@@ -341,15 +343,17 @@ export const PublicCatalogFilters: React.FC<PublicCatalogFiltersProps> = ({
               <span className="badge bg-primary ms-2">{selectedBrands.length}</span>
             )}
           </h6>
-          <div className="d-flex flex-wrap gap-2">
+          <div className="d-flex flex-wrap gap-2" style={{ overflow: 'hidden' }}>
             {brands.slice(0, variant === 'sidebar' ? 8 : 5).map(brand => {
               const isSelected = selectedBrands.some(sel => sel.value === brand.value)
               return (
                 <button
                   key={brand.value}
                   type="button"
-                  className={`btn btn-sm ${isSelected ? 'btn-primary' : 'btn-outline-secondary'}`}
+                  className={`btn btn-sm ${isSelected ? 'btn-primary' : 'btn-outline-secondary'} text-truncate`}
+                  style={{ maxWidth: '250px' }}
                   onClick={() => handleBrandChange(brand.value)}
+                  title={`${brand.label}${brand.count ? ` (${brand.count})` : ''}`}
                 >
                   {brand.label}
                   {brand.count && (

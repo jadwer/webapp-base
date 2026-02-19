@@ -43,7 +43,7 @@ export const TopNav: React.FC = () => {
               </a>
               <ul className="dropdown-menu">
                 <li>
-                  <Link className="dropdown-item" href="/productos/todos">
+                  <Link className="dropdown-item" href="/productos">
                     Todos los productos
                   </Link>
                 </li>

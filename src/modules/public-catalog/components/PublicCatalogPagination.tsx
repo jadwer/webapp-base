@@ -172,7 +172,7 @@ export const PublicCatalogPagination: React.FC<PublicCatalogPaginationProps> = (
           
           {/* Page Size Selector */}
           {showPageSizeSelector && onPageSizeChange && (
-            <div className="d-flex align-items-center gap-2">
+            <div className="d-flex align-items-center gap-2 ms-3">
               <span className="text-muted small">Mostrar:</span>
               <select
                 className="form-select form-select-sm"

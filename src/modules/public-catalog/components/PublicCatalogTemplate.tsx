@@ -300,36 +300,6 @@ export const PublicCatalogTemplate: React.FC<PublicCatalogTemplateProps> = ({
         </div>
       )}
 
-      {/* Results Summary */}
-      {!isLoading && (
-        <div className="d-flex justify-content-between align-items-center mb-3">
-          <div className="text-muted">
-            {meta.total > 0 ? (
-              <>
-                {meta.from && meta.to ? (
-                  <>Mostrando {meta.from} - {meta.to} de {meta.total} productos</>
-                ) : (
-                  <>{meta.total} productos encontrados</>
-                )}
-              </>
-            ) : (
-              'No se encontraron productos'
-            )}
-          </div>
-          
-          {/* Refresh button */}
-          <button
-            type="button"
-            className="btn btn-sm btn-outline-secondary"
-            onClick={handleRefresh}
-            disabled={isLoading}
-            title="Actualizar resultados"
-          >
-            <i className={`bi bi-arrow-clockwise ${isLoading ? 'spin' : ''}`}></i>
-          </button>
-        </div>
-      )}
-
       {/* Products Grid */}
       <div className={`catalog-grid mb-4 ${gridClassName}`}>
         <PublicProductsGrid
