@@ -291,17 +291,29 @@ export interface PurchaseReportsResponse {
 // Sales Reports Service
 export const salesReportsService = {
   async getSalesOrdersReport(period?: number): Promise<SalesReportsResponse> {
-    const params = period ? { period } : {};
-    const response = await axiosClient.get('/api/v1/sales-orders/reports', { params });
+    const params: Record<string, string> = {};
+    if (period) {
+      const endDate = new Date().toISOString().split('T')[0];
+      const startDate = new Date(Date.now() - period * 86400000).toISOString().split('T')[0];
+      params['filter[startDate]'] = startDate;
+      params['filter[endDate]'] = endDate;
+    }
+    const response = await axiosClient.get('/api/v1/reports/sales-by-customer-reports', { params });
     return response.data;
   },
 };
 
-// Purchase Reports Service  
+// Purchase Reports Service
 export const purchaseReportsService = {
   async getPurchaseOrdersReport(period?: number): Promise<PurchaseReportsResponse> {
-    const params = period ? { period } : {};
-    const response = await axiosClient.get('/api/v1/purchase-orders/reports', { params });
+    const params: Record<string, string> = {};
+    if (period) {
+      const endDate = new Date().toISOString().split('T')[0];
+      const startDate = new Date(Date.now() - period * 86400000).toISOString().split('T')[0];
+      params['filter[startDate]'] = startDate;
+      params['filter[endDate]'] = endDate;
+    }
+    const response = await axiosClient.get('/api/v1/reports/purchase-by-supplier-reports', { params });
     return response.data;
   },
 };

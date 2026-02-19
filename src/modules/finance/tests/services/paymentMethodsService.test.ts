@@ -302,7 +302,6 @@ describe('Payment Methods Service', () => {
       const formData: PaymentMethodForm = {
         name: 'Credit Card',
         code: 'CARD',
-        description: 'Credit or debit card payment',
         requiresReference: true,
         isActive: true
       }
@@ -330,13 +329,14 @@ describe('Payment Methods Service', () => {
       const result = await paymentMethodsService.create(formData)
 
       // Assert
-      // Transformer only includes name, code, and isActive (not description or requiresReference)
       expect(mockAxios.post).toHaveBeenCalledWith('/api/v1/payment-methods', {
         data: {
           type: 'payment-methods',
           attributes: {
             name: formData.name,
             code: formData.code,
+            type: null,
+            requiresReference: formData.requiresReference,
             isActive: formData.isActive
           }
         }

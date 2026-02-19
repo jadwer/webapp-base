@@ -327,15 +327,14 @@ describe('Payment Applications Service', () => {
       const result = await paymentApplicationsService.create(formData)
 
       // Assert
-      // Transformer includes metadata field
+      // Transformer sends amount (BE field name) instead of appliedAmount, no apInvoiceId (BE doesn't support it)
       expect(mockAxios.post).toHaveBeenCalledWith('/api/v1/payment-applications', {
         data: {
           type: 'payment-applications',
           attributes: {
             paymentId: formData.paymentId,
             arInvoiceId: formData.arInvoiceId,
-            apInvoiceId: formData.apInvoiceId,
-            appliedAmount: formData.appliedAmount,
+            amount: formData.appliedAmount,
             notes: formData.notes,
             metadata: null
           }

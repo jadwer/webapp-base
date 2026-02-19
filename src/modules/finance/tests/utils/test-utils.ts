@@ -121,6 +121,7 @@ export const createMockBankAccount = (overrides?: Partial<BankAccount>): BankAcc
   accountNumber: '012345678901',
   bankName: 'BBVA',
   currency: 'MXN',
+  glAccountId: null,
   currentBalance: 50000.00,
   accountType: 'checking',
   isActive: true,
@@ -157,12 +158,13 @@ export const createMockPaymentMethod = (overrides?: Partial<PaymentMethod>): Pay
   id: '1',
   name: 'Bank Transfer',
   code: 'TRANSFER',
+  type: 'electronic',
+  requiresReference: true,
   isActive: true,
   createdAt: '2025-08-20T10:00:00.000Z',
   updatedAt: '2025-08-20T10:00:00.000Z',
   // Legacy fields
   description: 'Electronic bank transfer',
-  requiresReference: true,
   ...overrides,
 })
 

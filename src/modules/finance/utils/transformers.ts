@@ -222,6 +222,7 @@ export const transformBankAccountFromAPI = (apiData: Record<string, unknown>): B
     accountNumber: (attributes.accountNumber || attributes.account_number || '') as string,
     bankName: (attributes.bankName || attributes.bank_name || '') as string,
     currency: (attributes.currency || 'MXN') as string,
+    glAccountId: (attributes.glAccountId ?? attributes.gl_account_id ?? null) as number | null,
     currentBalance: Number(attributes.currentBalance || attributes.current_balance || 0),
     accountType: (attributes.accountType || attributes.account_type || '') as string,
     isActive: (attributes.isActive ?? attributes.is_active ?? true) as boolean,
@@ -463,7 +464,7 @@ export const transformPaymentApplicationFromAPI = (apiData: Record<string, unkno
     paymentId: Number(attributes.paymentId || attributes.payment_id || 0),
     arInvoiceId: attributes.arInvoiceId != null ? Number(attributes.arInvoiceId) : (attributes.ar_invoice_id != null ? Number(attributes.ar_invoice_id) : null),
     apInvoiceId: attributes.apInvoiceId != null ? Number(attributes.apInvoiceId) : (attributes.ap_invoice_id != null ? Number(attributes.ap_invoice_id) : null),
-    appliedAmount: Number(attributes.appliedAmount || attributes.applied_amount || 0),
+    appliedAmount: Number(attributes.amount || attributes.appliedAmount || attributes.applied_amount || 0),
     notes: (attributes.notes ?? null) as string | null,
     metadata: (attributes.metadata ?? null) as Record<string, unknown> | null,
     createdAt: (attributes.createdAt || attributes.created_at || '') as string,
@@ -473,7 +474,7 @@ export const transformPaymentApplicationFromAPI = (apiData: Record<string, unkno
     paymentNumber,
     // Legacy fields
     applicationDate: (attributes.applicationDate || attributes.application_date || attributes.createdAt || '') as string,
-    amount: String(attributes.appliedAmount || attributes.applied_amount || 0),
+    amount: String(attributes.amount || attributes.appliedAmount || attributes.applied_amount || 0),
   }
 }
 
@@ -495,8 +496,7 @@ export const transformPaymentApplicationToAPI = (data: PaymentApplicationForm) =
       attributes: {
         paymentId: data.paymentId,
         arInvoiceId: data.arInvoiceId || null,
-        apInvoiceId: data.apInvoiceId || null,
-        appliedAmount: data.appliedAmount,
+        amount: data.appliedAmount,
         notes: data.notes || null,
         metadata: data.metadata || null,
       },
@@ -513,12 +513,13 @@ export const transformPaymentMethodFromAPI = (apiData: Record<string, unknown>):
     id: apiData.id as string,
     name: (attributes.name || '') as string,
     code: (attributes.code || '') as string,
+    type: (attributes.type || '') as string,
+    requiresReference: (attributes.requiresReference ?? attributes.requires_reference ?? false) as boolean,
     isActive: (attributes.isActive ?? attributes.is_active ?? true) as boolean,
     createdAt: (attributes.createdAt || attributes.created_at || '') as string,
     updatedAt: (attributes.updatedAt || attributes.updated_at || '') as string,
     // Legacy fields for backward compatibility
     description: (attributes.description || '') as string,
-    requiresReference: (attributes.requiresReference ?? attributes.requires_reference ?? false) as boolean,
   }
 }
 
@@ -539,6 +540,8 @@ export const transformPaymentMethodToAPI = (data: PaymentMethodForm) => {
       attributes: {
         name: data.name,
         code: data.code,
+        type: data.type || null,
+        requiresReference: data.requiresReference ?? false,
         isActive: data.isActive ?? true,
       },
     },

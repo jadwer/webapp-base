@@ -28,7 +28,6 @@ export const PaymentMethodForm: React.FC<PaymentMethodFormProps> = ({
   const [formData, setFormData] = useState<PaymentMethodFormType>({
     name: '',
     code: '',
-    description: '',
     requiresReference: false,
     isActive: true
   })
@@ -42,7 +41,7 @@ export const PaymentMethodForm: React.FC<PaymentMethodFormProps> = ({
       setFormData({
         name: paymentMethod.name,
         code: paymentMethod.code,
-        description: paymentMethod.description || '',
+        type: paymentMethod.type || '',
         requiresReference: paymentMethod.requiresReference,
         isActive: paymentMethod.isActive
       })
@@ -64,10 +63,6 @@ export const PaymentMethodForm: React.FC<PaymentMethodFormProps> = ({
       newErrors.code = 'El código no puede exceder 20 caracteres'
     } else if (!/^[A-Z0-9_-]+$/.test(formData.code)) {
       newErrors.code = 'El código solo puede contener letras mayúsculas, números, guiones y guiones bajos'
-    }
-
-    if (formData.description && formData.description.length > 500) {
-      newErrors.description = 'La descripción no puede exceder 500 caracteres'
     }
 
     setErrors(newErrors)
@@ -202,25 +197,22 @@ export const PaymentMethodForm: React.FC<PaymentMethodFormProps> = ({
                   </div>
                 </div>
 
-                {/* Description */}
+                {/* Type */}
                 <div className="mb-3">
-                  <label htmlFor="description" className="form-label">
-                    Descripción
+                  <label htmlFor="type" className="form-label">
+                    Tipo
                   </label>
-                  <textarea
-                    id="description"
-                    className={`form-control ${errors.description ? 'is-invalid' : ''}`}
-                    value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    placeholder="Descripción opcional del método de pago"
-                    rows={3}
+                  <input
+                    type="text"
+                    id="type"
+                    className="form-control"
+                    value={formData.type || ''}
+                    onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+                    placeholder="Ej: electronic, cash, check"
                     disabled={isSubmitting}
                   />
-                  {errors.description && (
-                    <div className="invalid-feedback">{errors.description}</div>
-                  )}
                   <div className="form-text">
-                    Descripción opcional (máx. 500 caracteres)
+                    Tipo de método de pago (opcional)
                   </div>
                 </div>
 

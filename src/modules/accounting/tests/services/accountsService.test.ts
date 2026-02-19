@@ -153,7 +153,7 @@ describe('Accounts Service', () => {
 
       // Assert
       expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/accounts', {
-        params: { 'filter[isPostable]': 1 }
+        params: { 'filter[isPostable]': true }
       })
       expect(result.data).toEqual(mockAccounts)
     })

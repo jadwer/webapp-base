@@ -161,6 +161,7 @@ export interface BankAccount {
   accountNumber: string;
   bankName: string;
   currency: string;
+  glAccountId: number | null;
   currentBalance: number;
   accountType: string;
   isActive: boolean;
@@ -178,13 +179,14 @@ export interface PaymentMethod {
   id: string;
   name: string;
   code: string;
+  type: string;
+  requiresReference: boolean;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
 
   // Legacy fields for backward compatibility
   description?: string;
-  requiresReference?: boolean;
 }
 
 // ===== FORM INTERFACES =====
@@ -194,6 +196,7 @@ export interface BankAccountForm {
   accountNumber: string;
   bankName: string;
   currency: string;
+  glAccountId?: number | null;
   currentBalance?: number;
   accountType: string;
   isActive?: boolean;
@@ -296,10 +299,9 @@ export interface PaymentApplicationForm {
 export interface PaymentMethodForm {
   name: string;
   code: string;
-  isActive?: boolean;
-  // Legacy fields
-  description?: string;
+  type?: string;
   requiresReference?: boolean;
+  isActive?: boolean;
 }
 
 // ===== API RESPONSE TYPES =====

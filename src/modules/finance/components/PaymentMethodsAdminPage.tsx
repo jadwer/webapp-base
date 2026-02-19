@@ -192,7 +192,7 @@ export const PaymentMethodsAdminPage: React.FC<PaymentMethodsAdminPageProps> = (
                     <tr>
                       <th>Código</th>
                       <th>Nombre</th>
-                      <th>Descripción</th>
+                      <th>Tipo</th>
                       <th>Referencia</th>
                       <th>Estado</th>
                       <th className="text-end">Acciones</th>
@@ -209,7 +209,7 @@ export const PaymentMethodsAdminPage: React.FC<PaymentMethodsAdminPageProps> = (
                         </td>
                         <td>
                           <span className="text-muted">
-                            {method.description || '-'}
+                            {method.type || '-'}
                           </span>
                         </td>
                         <td>

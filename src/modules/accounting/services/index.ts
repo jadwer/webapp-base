@@ -67,7 +67,7 @@ export const accountsService = {
 
   // Helper method to get only postable accounts for journal lines
   async getPostableAccounts(params: Record<string, unknown> = {}): Promise<AccountingAPIResponse<Account>> {
-    return this.getAll({ ...params, 'filter[isPostable]': 1 });
+    return this.getAll({ ...params, 'filter[isPostable]': true });
   },
 };
 
@@ -299,7 +299,7 @@ export const getJournalLines = (params?: { entryId?: string; filters?: Record<st
   const queryParams: Record<string, unknown> = {};
 
   if (params?.entryId) {
-    queryParams['filter[entryId]'] = params.entryId;
+    queryParams['filter[journalEntryId]'] = params.entryId;
   }
 
   if (params?.filters) {
