@@ -53,6 +53,7 @@ const contactsLinks = [
   { href: '/dashboard/contacts', label: 'Gestión', icon: 'bi-person-lines-fill' },
   { href: '/dashboard/contacts/customers', label: 'Clientes', icon: 'bi-person-check' },
   { href: '/dashboard/contacts/suppliers', label: 'Proveedores', icon: 'bi-building' },
+  { href: '/dashboard/contacts/prospects', label: 'Prospectos', icon: 'bi-person-dash' },
   { href: '/dashboard/contacts/create', label: 'Crear Contacto', icon: 'bi-person-plus' }
 ]
 

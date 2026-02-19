@@ -34,6 +34,9 @@ export default function CreateContactPage() {
         finalData.isCustomer = true
       } else if (suggestedType === 'supplier') {
         finalData.isSupplier = true
+      } else if (suggestedType === 'prospect') {
+        finalData.isCustomer = false
+        finalData.isSupplier = false
       }
       
       const result = await createContact(finalData)
@@ -71,7 +74,7 @@ export default function CreateContactPage() {
             <div>
               <h1 className="h3 mb-0">Nuevo Contacto</h1>
               <p className="text-muted mb-0">
-                Crear un nuevo {suggestedType === 'customer' ? 'cliente' : suggestedType === 'supplier' ? 'proveedor' : 'contacto'}
+                Crear un nuevo {suggestedType === 'customer' ? 'cliente' : suggestedType === 'supplier' ? 'proveedor' : suggestedType === 'prospect' ? 'prospecto' : 'contacto'}
               </p>
             </div>
           </div>

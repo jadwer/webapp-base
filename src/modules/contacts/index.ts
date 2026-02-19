@@ -25,6 +25,7 @@ export {
   useContactsByType,
   useCustomers,
   useSuppliers,
+  useProspects,
   useActiveContacts
 } from './hooks'
 

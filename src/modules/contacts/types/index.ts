@@ -110,6 +110,7 @@ export interface ContactFilters {
   status?: string
   isCustomer?: boolean
   isSupplier?: boolean
+  isProspect?: boolean
   classification?: string
 }
 
@@ -154,6 +155,7 @@ export interface ContactParsed extends Contact {
   statusLabel: string
   isActiveCustomer: boolean
   isActiveSupplier: boolean
+  isProspect: boolean
   hasDocuments: boolean
   hasAddresses: boolean
   hasPeople: boolean

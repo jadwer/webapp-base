@@ -178,10 +178,6 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
       }
     }
     
-    if (!formData.isCustomer && !formData.isSupplier) {
-      newErrors.type = 'Debe ser cliente, proveedor o ambos'
-    }
-    
     if (Object.keys(newErrors).length > 0) {
       setFormErrors(newErrors)
       return
@@ -682,6 +678,12 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
                   </div>
                   {formErrors.type && (
                     <div className="text-danger small mt-1">{formErrors.type}</div>
+                  )}
+                  {!formData.isCustomer && !formData.isSupplier && !formErrors.type && (
+                    <div className="text-warning small mt-1">
+                      <i className="bi bi-info-circle me-1"></i>
+                      Este contacto se guardara como Prospecto
+                    </div>
                   )}
                 </div>
 

@@ -56,6 +56,7 @@ export const parseContact = (rawContact: unknown): ContactParsed => {
     statusLabel: contact.status === 'active' ? 'Activo' : contact.status === 'inactive' ? 'Inactivo' : 'Suspendido',
     isActiveCustomer: contact.isCustomer && contact.status === 'active',
     isActiveSupplier: contact.isSupplier && contact.status === 'active',
+    isProspect: !contact.isCustomer && !contact.isSupplier,
     hasDocuments: false,
     hasAddresses: false,
     hasPeople: false
@@ -168,6 +169,12 @@ export const useSuppliers = () => {
 export const useActiveContacts = () => {
   return useContacts({
     filters: { status: 'active' }
+  })
+}
+
+export const useProspects = () => {
+  return useContacts({
+    filters: { isProspect: true }
   })
 }
 

@@ -119,7 +119,7 @@ export const ContactsTableSimple: React.FC<ContactsTableSimpleProps> = ({
     if (contact.isSupplier) {
       return <span className="badge bg-success">Proveedor</span>
     }
-    return <span className="badge bg-secondary">Contacto</span>
+    return <span className="badge bg-warning text-dark">Prospecto</span>
   }
 
   return (

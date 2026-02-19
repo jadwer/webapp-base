@@ -20,6 +20,7 @@ interface ContactsAdminPageRealProps {
   defaultFilters?: {
     isCustomer?: boolean
     isSupplier?: boolean
+    isProspect?: boolean
     status?: 'active' | 'inactive' | 'suspended'
     contactType?: 'person' | 'company'
   }
@@ -30,6 +31,7 @@ export const ContactsAdminPageReal = ({ defaultFilters = {} }: ContactsAdminPage
   const [currentPage, setCurrentPage] = useState(1)
   const [statusFilter, setStatusFilter] = useState('')
   const [contactTypeFilter, setContactTypeFilter] = useState('')
+  const [prospectFilter, setProspectFilter] = useState(false)
   const pageSize = 20
   const navigation = useNavigationProgress()
   const { deleteContact } = useContactMutations()
@@ -40,6 +42,7 @@ export const ContactsAdminPageReal = ({ defaultFilters = {} }: ContactsAdminPage
       search: searchTerm || undefined,
       status: statusFilter || undefined,
       contactType: contactTypeFilter || undefined,
+      isProspect: prospectFilter || undefined,
       // Apply default filters
       ...defaultFilters
     },
@@ -60,6 +63,7 @@ export const ContactsAdminPageReal = ({ defaultFilters = {} }: ContactsAdminPage
     return {
       totalCustomers: allContacts.filter(c => c.isCustomer).length,
       totalSuppliers: allContacts.filter(c => c.isSupplier).length,
+      totalProspects: allContacts.filter(c => !c.isCustomer && !c.isSupplier).length,
       activeContacts: allContacts.filter(c => c.status === 'active').length,
       companies: allContacts.filter(c => c.contactType === 'company').length
     }
@@ -78,6 +82,11 @@ export const ContactsAdminPageReal = ({ defaultFilters = {} }: ContactsAdminPage
 
   const handleContactTypeFilterChange = (type: string) => {
     setContactTypeFilter(type)
+    setCurrentPage(1)
+  }
+
+  const handleProspectFilterChange = (value: boolean) => {
+    setProspectFilter(value)
     setCurrentPage(1)
   }
 
@@ -113,12 +122,14 @@ export const ContactsAdminPageReal = ({ defaultFilters = {} }: ContactsAdminPage
 
   // Dynamic page title based on filters
   const getPageTitle = () => {
+    if (defaultFilters.isProspect) return 'Gestión de Prospectos'
     if (defaultFilters.isCustomer) return 'Gestión de Clientes'
     if (defaultFilters.isSupplier) return 'Gestión de Proveedores'
     return 'Gestión de Contactos'
   }
   
   const getPageDescription = () => {
+    if (defaultFilters.isProspect) return 'Contactos que aun no son clientes ni proveedores'
     if (defaultFilters.isCustomer) return 'Administración de clientes y personas de contacto'
     if (defaultFilters.isSupplier) return 'Administración de proveedores y empresas'
     return 'Administración de clientes, proveedores y personas de contacto'
@@ -142,15 +153,22 @@ export const ContactsAdminPageReal = ({ defaultFilters = {} }: ContactsAdminPage
             <i className="bi bi-person-plus me-2" />
             Nuevo Cliente
           </Button>
-          <Button 
-            variant="secondary" 
+          <Button
+            variant="warning"
+            onClick={() => navigation.push('/dashboard/contacts/create?type=prospect')}
+          >
+            <i className="bi bi-person-dash me-2" />
+            Nuevo Prospecto
+          </Button>
+          <Button
+            variant="secondary"
             onClick={() => navigation.push('/dashboard/contacts/create?type=supplier')}
           >
             <i className="bi bi-building-add me-2" />
             Nuevo Proveedor
           </Button>
-          <Button 
-            variant="primary" 
+          <Button
+            variant="primary"
             onClick={() => navigation.push('/dashboard/contacts/create')}
           >
             <i className="bi bi-plus-lg me-2" />
@@ -161,7 +179,7 @@ export const ContactsAdminPageReal = ({ defaultFilters = {} }: ContactsAdminPage
 
       {/* Summary Cards */}
       <div className="row g-3 mb-4">
-        <div className="col-md-3">
+        <div className="col">
           <div className="card border-0 bg-primary text-white">
             <div className="card-body">
               <div className="d-flex justify-content-between align-items-center">
@@ -174,7 +192,7 @@ export const ContactsAdminPageReal = ({ defaultFilters = {} }: ContactsAdminPage
             </div>
           </div>
         </div>
-        <div className="col-md-3">
+        <div className="col">
           <div className="card border-0 bg-success text-white">
             <div className="card-body">
               <div className="d-flex justify-content-between align-items-center">
@@ -187,7 +205,20 @@ export const ContactsAdminPageReal = ({ defaultFilters = {} }: ContactsAdminPage
             </div>
           </div>
         </div>
-        <div className="col-md-3">
+        <div className="col">
+          <div className="card border-0 bg-warning text-dark">
+            <div className="card-body">
+              <div className="d-flex justify-content-between align-items-center">
+                <div>
+                  <h6 className="card-title" style={{ opacity: 0.7 }}>Prospectos</h6>
+                  <h3 className="mb-0">{contactMetrics.totalProspects}</h3>
+                </div>
+                <i className="bi bi-person-dash" style={{ fontSize: '2rem', opacity: 0.7 }} />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="col">
           <div className="card border-0 bg-info text-white">
             <div className="card-body">
               <div className="d-flex justify-content-between align-items-center">
@@ -200,8 +231,8 @@ export const ContactsAdminPageReal = ({ defaultFilters = {} }: ContactsAdminPage
             </div>
           </div>
         </div>
-        <div className="col-md-3">
-          <div className="card border-0 bg-warning text-white">
+        <div className="col">
+          <div className="card border-0 bg-secondary text-white">
             <div className="card-body">
               <div className="d-flex justify-content-between align-items-center">
                 <div>
@@ -223,6 +254,8 @@ export const ContactsAdminPageReal = ({ defaultFilters = {} }: ContactsAdminPage
         onStatusFilterChange={handleStatusFilterChange}
         contactTypeFilter={contactTypeFilter}
         onContactTypeFilterChange={handleContactTypeFilterChange}
+        prospectFilter={prospectFilter}
+        onProspectFilterChange={handleProspectFilterChange}
         placeholder="Buscar contactos por nombre, email, teléfono..."
       />
 

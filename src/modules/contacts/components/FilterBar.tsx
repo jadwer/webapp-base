@@ -16,6 +16,8 @@ interface FilterBarProps {
   onStatusFilterChange?: (value: string) => void
   contactTypeFilter?: string
   onContactTypeFilterChange?: (value: string) => void
+  prospectFilter?: boolean
+  onProspectFilterChange?: (value: boolean) => void
   placeholder?: string
   className?: string
 }
@@ -27,6 +29,8 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   onStatusFilterChange,
   contactTypeFilter = '',
   onContactTypeFilterChange,
+  prospectFilter = false,
+  onProspectFilterChange,
   placeholder = 'Buscar contactos...',
   className = ''
 }) => {
@@ -118,6 +122,21 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                 <i className="bi bi-building me-1"></i>
                 Solo empresas
               </button>
+              {onProspectFilterChange && (
+                <button
+                  type="button"
+                  className={`btn btn-sm ${prospectFilter ? 'btn-warning' : 'btn-outline-warning'}`}
+                  onClick={() => {
+                    onSearchChange('')
+                    onStatusFilterChange?.('')
+                    onContactTypeFilterChange?.('')
+                    onProspectFilterChange(!prospectFilter)
+                  }}
+                >
+                  <i className="bi bi-person-dash me-1"></i>
+                  Solo prospectos
+                </button>
+              )}
               <button
                 type="button"
                 className="btn btn-sm btn-outline-secondary"
@@ -125,6 +144,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                   onSearchChange('')
                   onStatusFilterChange?.('')
                   onContactTypeFilterChange?.('')
+                  onProspectFilterChange?.(false)
                 }}
               >
                 <i className="bi bi-x-lg me-1"></i>
@@ -135,7 +155,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
         </div>
 
         {/* Active Filters Indicator */}
-        {(searchTerm || statusFilter || contactTypeFilter) && (
+        {(searchTerm || statusFilter || contactTypeFilter || prospectFilter) && (
           <div className="mt-3 pt-3 border-top">
             <small className="text-muted d-block mb-2">
               <i className="bi bi-funnel me-1"></i>
@@ -178,6 +198,19 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                     style={{ fontSize: '0.6em' }}
                     onClick={() => onContactTypeFilterChange?.('')}
                     aria-label="Limpiar filtro de tipo"
+                  ></button>
+                </span>
+              )}
+              {prospectFilter && (
+                <span className="badge bg-warning text-dark">
+                  <i className="bi bi-person-dash me-1"></i>
+                  Solo prospectos
+                  <button
+                    type="button"
+                    className="btn-close ms-2"
+                    style={{ fontSize: '0.6em' }}
+                    onClick={() => onProspectFilterChange?.(false)}
+                    aria-label="Limpiar filtro de prospectos"
                   ></button>
                 </span>
               )}
