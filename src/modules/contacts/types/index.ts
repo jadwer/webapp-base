@@ -5,7 +5,7 @@
  */
 
 // ===== TYPE CONSTANTS =====
-export type ContactType = 'individual' | 'company' | 'government'
+export type ContactType = 'person' | 'company'
 export type ContactStatus = 'active' | 'inactive' | 'suspended' | 'archived'
 export type AddressType = 'billing' | 'shipping' | 'fiscal' | 'other'
 export type DocumentType = 'id_card' | 'tax_certificate' | 'contract' | 'license' | 'other'

@@ -11,6 +11,8 @@ import { useCallback } from 'react'
 import { contactsService, contactAddressesService, contactDocumentsService, contactPeopleService, processIncludedData } from '../services'
 import type {
   Contact,
+  ContactType,
+  ContactStatus,
   ContactParsed,
   UseContactsParams,
   CreateContactData,
@@ -22,25 +24,38 @@ import type {
 
 // ===== TRANSFORM UTILITIES =====
 export const parseContact = (rawContact: unknown): ContactParsed => {
-  // Extract contact data from JSON:API structure
-  const contactData = rawContact as { id: string; attributes: Omit<Contact, 'id' | 'contactType'> }
-  
-  // Create contact with proper typing
-  const contact = {
-    id: contactData.id,
-    ...contactData.attributes,
-    // Derive contactType from data structure (all API contacts are companies for now)
-    contactType: 'company' as const
-  } as Contact
+  // Service layer already flattens JSON:API to { id, ...attributes }
+  const c = rawContact as Record<string, unknown>
+
+  const contact: Contact = {
+    id: String(c.id || ''),
+    contactType: (c.contactType as ContactType) || 'company',
+    name: (c.name as string) || '',
+    legalName: c.legalName as string | undefined,
+    taxId: c.taxId as string | undefined,
+    email: c.email as string | undefined,
+    phone: c.phone as string | undefined,
+    website: c.website as string | undefined,
+    status: (c.status as ContactStatus) || 'active',
+    isCustomer: Boolean(c.isCustomer),
+    isSupplier: Boolean(c.isSupplier),
+    creditLimit: c.creditLimit as number | undefined,
+    currentCredit: c.currentCredit as number | undefined,
+    classification: c.classification as string | undefined,
+    paymentTerms: c.paymentTerms as number | undefined,
+    notes: c.notes as string | undefined,
+    metadata: c.metadata as Record<string, unknown> | undefined,
+    createdAt: (c.createdAt as string) || '',
+    updatedAt: (c.updatedAt as string) || '',
+  }
 
   return {
     ...contact,
     displayName: contact.legalName || contact.name,
-    contactTypeLabel: contact.contactType === 'individual' ? 'Persona física' : 'Empresa',
+    contactTypeLabel: contact.contactType === 'person' ? 'Persona física' : 'Empresa',
     statusLabel: contact.status === 'active' ? 'Activo' : contact.status === 'inactive' ? 'Inactivo' : 'Suspendido',
     isActiveCustomer: contact.isCustomer && contact.status === 'active',
     isActiveSupplier: contact.isSupplier && contact.status === 'active',
-    // These will be computed when we add relationships
     hasDocuments: false,
     hasAddresses: false,
     hasPeople: false
@@ -132,7 +147,7 @@ export const useContactMutations = () => {
 }
 
 // ===== SPECIALIZED HOOKS (for future use) =====
-export const useContactsByType = (contactType: 'individual' | 'company') => {
+export const useContactsByType = (contactType: 'person' | 'company') => {
   return useContacts({
     filters: { contactType }
   })

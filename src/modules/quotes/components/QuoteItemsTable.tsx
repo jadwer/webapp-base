@@ -1,9 +1,18 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import type { QuoteItem } from '../types'
 import { useQuoteItemMutations } from '../hooks'
+import { productService } from '@/modules/products/services'
 import { toast } from '@/lib/toast'
+
+interface Product {
+  id: string
+  name: string
+  sku: string
+  price: number
+  iva?: boolean
+}
 
 interface QuoteItemsTableProps {
   items: QuoteItem[]
@@ -28,6 +37,74 @@ export function QuoteItemsTable({
     quantity: number
     notes: string
   } | null>(null)
+
+  // Add product state
+  const [isAddingProduct, setIsAddingProduct] = useState(false)
+  const [productSearch, setProductSearch] = useState('')
+  const [searchResults, setSearchResults] = useState<Product[]>([])
+  const [isSearching, setIsSearching] = useState(false)
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
+  const [addQuantity, setAddQuantity] = useState(1)
+  const [addPrice, setAddPrice] = useState(0)
+
+  const searchProducts = useCallback(async (term: string) => {
+    if (term.length < 2) {
+      setSearchResults([])
+      return
+    }
+    setIsSearching(true)
+    try {
+      const response = await productService.getProducts({
+        filters: { name: term },
+        page: { size: 20 }
+      })
+      const products: Product[] = (response.data || []).map((p) => ({
+        id: String(p.id),
+        name: p.name || '',
+        sku: p.sku || '',
+        price: p.price || 0,
+        iva: p.iva ?? true
+      }))
+      setSearchResults(products)
+    } catch {
+      setSearchResults([])
+    } finally {
+      setIsSearching(false)
+    }
+  }, [])
+
+  const handleSelectProduct = (product: Product) => {
+    setSelectedProduct(product)
+    setAddPrice(product.price)
+    setAddQuantity(1)
+    setProductSearch(product.name)
+    setSearchResults([])
+  }
+
+  const handleAddItem = async () => {
+    if (!selectedProduct) return
+    try {
+      await mutations.create.mutateAsync({
+        quoteId: parseInt(quoteId),
+        productId: parseInt(selectedProduct.id),
+        quantity: addQuantity,
+        unitPrice: selectedProduct.price,
+        quotedPrice: addPrice,
+        taxRate: selectedProduct.iva ? 16 : 0,
+        productName: selectedProduct.name,
+        productSku: selectedProduct.sku
+      })
+      toast.success('Producto agregado')
+      setIsAddingProduct(false)
+      setSelectedProduct(null)
+      setProductSearch('')
+      setAddQuantity(1)
+      setAddPrice(0)
+      onItemsChanged?.()
+    } catch {
+      toast.error('Error al agregar el producto')
+    }
+  }
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('es-MX', {
@@ -109,15 +186,132 @@ export function QuoteItemsTable({
   const totalTax = items.reduce((sum, item) => sum + item.taxAmount, 0)
   const grandTotal = items.reduce((sum, item) => sum + item.total, 0)
 
-  if (items.length === 0) {
+  if (items.length === 0 && !isAddingProduct) {
     return (
       <div className="text-center py-5 text-muted">
-        No hay items en esta cotizacion
+        <p className="mb-2">No hay items en esta cotizacion</p>
+        {editable && (
+          <button
+            className="btn btn-outline-primary btn-sm"
+            onClick={() => setIsAddingProduct(true)}
+          >
+            <i className="bi bi-plus-circle me-1"></i>
+            Agregar Producto
+          </button>
+        )}
       </div>
     )
   }
 
   return (
+    <div>
+      {/* Add Product Button */}
+      {editable && !isAddingProduct && (
+        <div className="p-3 border-bottom">
+          <button
+            className="btn btn-outline-primary btn-sm"
+            onClick={() => setIsAddingProduct(true)}
+          >
+            <i className="bi bi-plus-circle me-1"></i>
+            Agregar Producto
+          </button>
+        </div>
+      )}
+
+      {/* Add Product Form */}
+      {isAddingProduct && (
+        <div className="p-3 border-bottom bg-light">
+          <div className="row g-2 align-items-end">
+            <div className="col-md-4">
+              <label className="form-label small">Producto</label>
+              <div className="position-relative">
+                <input
+                  type="text"
+                  className="form-control form-control-sm"
+                  placeholder="Buscar por nombre o SKU..."
+                  value={productSearch}
+                  onChange={(e) => {
+                    setProductSearch(e.target.value)
+                    setSelectedProduct(null)
+                    searchProducts(e.target.value)
+                  }}
+                  autoFocus
+                />
+                {isSearching && (
+                  <div className="position-absolute end-0 top-50 translate-middle-y me-2">
+                    <span className="spinner-border spinner-border-sm"></span>
+                  </div>
+                )}
+                {searchResults.length > 0 && (
+                  <div className="position-absolute w-100 bg-white border rounded-bottom shadow-sm" style={{ zIndex: 1050, maxHeight: '200px', overflowY: 'auto' }}>
+                    {searchResults.map((p) => (
+                      <button
+                        key={p.id}
+                        type="button"
+                        className="btn btn-link text-start w-100 text-decoration-none px-3 py-2 border-bottom"
+                        onClick={() => handleSelectProduct(p)}
+                      >
+                        <div className="fw-medium">{p.name}</div>
+                        <small className="text-muted">{p.sku} - ${p.price.toFixed(2)}</small>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className="col-md-2">
+              <label className="form-label small">Cantidad</label>
+              <input
+                type="number"
+                className="form-control form-control-sm"
+                value={addQuantity}
+                onChange={(e) => setAddQuantity(parseFloat(e.target.value) || 1)}
+                min={0.01}
+                step={0.01}
+              />
+            </div>
+            <div className="col-md-2">
+              <label className="form-label small">Precio Cotizado</label>
+              <input
+                type="number"
+                className="form-control form-control-sm"
+                value={addPrice}
+                onChange={(e) => setAddPrice(parseFloat(e.target.value) || 0)}
+                min={0}
+                step={0.01}
+              />
+            </div>
+            <div className="col-md-4 d-flex gap-2">
+              <button
+                className="btn btn-primary btn-sm"
+                onClick={handleAddItem}
+                disabled={!selectedProduct || mutations.create.isPending}
+              >
+                {mutations.create.isPending ? (
+                  <span className="spinner-border spinner-border-sm"></span>
+                ) : (
+                  <>
+                    <i className="bi bi-plus me-1"></i>
+                    Agregar
+                  </>
+                )}
+              </button>
+              <button
+                className="btn btn-outline-secondary btn-sm"
+                onClick={() => {
+                  setIsAddingProduct(false)
+                  setSelectedProduct(null)
+                  setProductSearch('')
+                  setSearchResults([])
+                }}
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     <div className="table-responsive">
       <table className="table table-hover mb-0">
         <thead className="table-light">
@@ -332,6 +526,7 @@ export function QuoteItemsTable({
           </tr>
         </tfoot>
       </table>
+    </div>
     </div>
   )
 }

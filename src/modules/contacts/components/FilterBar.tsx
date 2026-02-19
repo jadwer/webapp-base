@@ -82,7 +82,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
               onChange={(e) => onContactTypeFilterChange?.(e.target.value)}
             >
               <option value="">Todos</option>
-              <option value="individual">Persona física</option>
+              <option value="person">Persona física</option>
               <option value="company">Empresa</option>
             </select>
           </div>
@@ -171,7 +171,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
               {contactTypeFilter && (
                 <span className="badge bg-success">
                   <i className="bi bi-people me-1"></i>
-                  Tipo: {contactTypeFilter === 'individual' ? 'Persona física' : 'Empresa'}
+                  Tipo: {contactTypeFilter === 'person' ? 'Persona física' : 'Empresa'}
                   <button
                     type="button"
                     className="btn-close btn-close-white ms-2"

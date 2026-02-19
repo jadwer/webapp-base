@@ -21,7 +21,7 @@ interface ContactsAdminPageRealProps {
     isCustomer?: boolean
     isSupplier?: boolean
     status?: 'active' | 'inactive' | 'suspended'
-    contactType?: 'individual' | 'company'
+    contactType?: 'person' | 'company'
   }
 }
 

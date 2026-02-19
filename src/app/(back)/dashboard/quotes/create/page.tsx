@@ -43,6 +43,11 @@ export default function CreateQuotePage() {
 
   const mutations = useQuoteMutations()
 
+  // Creation mode: 'from-cart' or 'from-scratch'
+  const [mode, setMode] = useState<'from-cart' | 'from-scratch'>(
+    sourceFromUrl === 'public-cart' || cartIdFromUrl ? 'from-cart' : 'from-scratch'
+  )
+
   // Form state
   const [selectedCartId, setSelectedCartId] = useState<string>(cartIdFromUrl || '')
   const [selectedContactId, setSelectedContactId] = useState<string>(contactIdFromUrl || '')
@@ -231,6 +236,27 @@ export default function CreateQuotePage() {
       return
     }
 
+    // From-scratch mode: create blank quote directly
+    if (mode === 'from-scratch') {
+      try {
+        const result = await mutations.create.mutateAsync({
+          contactId: parseInt(selectedContactId),
+          quoteDate: new Date().toISOString().split('T')[0],
+          validUntil: validUntil || undefined,
+          notes: notes || undefined,
+          termsAndConditions: termsAndConditions || undefined,
+          currency: 'MXN'
+        })
+
+        toast.success('Cotización creada. Agrega los productos a continuación.')
+        router.push(`/dashboard/quotes/${result.id}`)
+      } catch {
+        toast.error('Error al crear la cotización')
+      }
+      return
+    }
+
+    // From-cart mode
     let cartIdToUse = selectedCartId
 
     // If we have a public cart preview but no selected cart, create backend cart first
@@ -260,9 +286,8 @@ export default function CreateQuotePage() {
 
       toast.success('Cotización creada exitosamente')
       router.push(`/dashboard/quotes/${result.data.id}`)
-    } catch (error) {
+    } catch {
       toast.error('Error al crear la cotización')
-      console.error(error)
     }
   }
 
@@ -426,18 +451,46 @@ export default function CreateQuotePage() {
                 Nueva Cotización
               </h1>
               <p className="text-muted mb-0">
-                Crea una cotización a partir de un carrito de compras
+                {mode === 'from-scratch'
+                  ? 'Crea una cotización en blanco y agrega productos manualmente'
+                  : 'Crea una cotización a partir de un carrito de compras'
+                }
               </p>
             </div>
           </div>
         </div>
       </div>
 
+      {/* Mode Tabs */}
+      <ul className="nav nav-tabs mb-4">
+        <li className="nav-item">
+          <button
+            type="button"
+            className={`nav-link ${mode === 'from-scratch' ? 'active' : ''}`}
+            onClick={() => setMode('from-scratch')}
+          >
+            <i className="bi bi-file-earmark-plus me-1"></i>
+            Desde Cero
+          </button>
+        </li>
+        <li className="nav-item">
+          <button
+            type="button"
+            className={`nav-link ${mode === 'from-cart' ? 'active' : ''}`}
+            onClick={() => setMode('from-cart')}
+          >
+            <i className="bi bi-cart me-1"></i>
+            Desde Carrito
+          </button>
+        </li>
+      </ul>
+
       <form onSubmit={handleSubmit}>
         <div className="row">
           {/* Left Column - Selection */}
           <div className="col-lg-6">
-            {/* Cart Selection */}
+            {/* Cart Selection - only in from-cart mode */}
+            {mode === 'from-cart' && (
             <div className="card mb-4">
               <div className="card-header">
                 <h5 className="card-title mb-0">
@@ -544,6 +597,25 @@ export default function CreateQuotePage() {
                 )}
               </div>
             </div>
+            )}
+
+            {/* From-scratch info */}
+            {mode === 'from-scratch' && (
+              <div className="card mb-4 border-info">
+                <div className="card-body">
+                  <div className="d-flex align-items-start">
+                    <i className="bi bi-info-circle text-info me-3 fs-4"></i>
+                    <div>
+                      <strong>Cotización en blanco</strong>
+                      <p className="text-muted small mb-0">
+                        Se creará una cotización vacía. Podrás agregar productos
+                        manualmente desde la página de detalle después de crearla.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Contact Selection */}
             <div className="card mb-4">
@@ -662,9 +734,10 @@ export default function CreateQuotePage() {
                     type="submit"
                     className="btn btn-primary btn-lg"
                     disabled={
-                      (!selectedCartId && !publicCartPreview) ||
+                      (mode === 'from-cart' && !selectedCartId && !publicCartPreview) ||
                       !selectedContactId ||
                       mutations.createFromCart.isPending ||
+                      mutations.create.isPending ||
                       isCreatingBackendCart
                     }
                   >
@@ -673,7 +746,7 @@ export default function CreateQuotePage() {
                         <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
                         Sincronizando carrito...
                       </>
-                    ) : mutations.createFromCart.isPending ? (
+                    ) : (mutations.createFromCart.isPending || mutations.create.isPending) ? (
                       <>
                         <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
                         Creando cotización...
@@ -681,7 +754,7 @@ export default function CreateQuotePage() {
                     ) : (
                       <>
                         <i className="bi bi-file-text me-2"></i>
-                        Crear Cotización
+                        {mode === 'from-scratch' ? 'Crear Cotización en Blanco' : 'Crear Cotización'}
                       </>
                     )}
                   </button>
@@ -694,7 +767,10 @@ export default function CreateQuotePage() {
                   </button>
                 </div>
                 <p className="text-muted text-center small mt-3 mb-0">
-                  La cotización se creará como borrador. Podrás editar los precios antes de enviarla al cliente.
+                  {mode === 'from-scratch'
+                    ? 'La cotización se creará como borrador sin productos. Agrégalos desde el detalle.'
+                    : 'La cotización se creará como borrador. Podrás editar los precios antes de enviarla al cliente.'
+                  }
                 </p>
               </div>
             </div>

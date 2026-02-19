@@ -14,6 +14,8 @@ import {
 import { quoteService } from '@/modules/quotes/services/quoteService'
 import { toast } from '@/lib/toast'
 import { ConfirmModal, ConfirmModalHandle } from '@/ui/components/base'
+import { useAuth } from '@/modules/auth'
+import { isAdmin } from '@/lib/permissions'
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -24,6 +26,9 @@ export default function QuoteDetailPage({ params }: PageProps) {
   const router = useRouter()
   const mutations = useQuoteMutations()
   const confirmModalRef = useRef<ConfirmModalHandle>(null)
+
+  const { user } = useAuth()
+  const userIsAdmin = isAdmin(user ?? null)
 
   const { data: quote, isLoading: quoteLoading, error: quoteError, mutate: refetch } = useQuote(id)
   const { data: items = [], mutate: refetchItems } = useQuoteItems(id)
@@ -304,7 +309,7 @@ export default function QuoteDetailPage({ params }: PageProps) {
                 <i className="bi bi-file-earmark-text me-2"></i>
                 Informacion de la Cotizacion
               </h5>
-              {canEditQuote(quote) && !isEditing && (
+              {canEditQuote(quote, userIsAdmin) && !isEditing && (
                 <button className="btn btn-sm btn-outline-primary" onClick={handleStartEdit}>
                   <i className="bi bi-pencil me-1"></i>
                   Editar
@@ -417,7 +422,7 @@ export default function QuoteDetailPage({ params }: PageProps) {
                 items={items}
                 quoteId={id}
                 currency={quote.currency}
-                editable={canEditQuote(quote)}
+                editable={canEditQuote(quote, userIsAdmin)}
                 onItemsChanged={() => {
                   refetchItems()
                   refetch()

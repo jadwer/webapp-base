@@ -97,7 +97,7 @@ export interface Contact {
   name: string
   email?: string
   phone?: string
-  type: 'individual' | 'company'
+  type: 'person' | 'company'
 }
 
 export interface StockRef {
@@ -343,7 +343,11 @@ export function getStatusConfig(status: QuoteStatus): QuoteStatusConfig {
   return QUOTE_STATUS_CONFIG[status] || QUOTE_STATUS_CONFIG.draft
 }
 
-export function canEditQuote(quote: Quote): boolean {
+export function canEditQuote(quote: Quote, isAdmin?: boolean): boolean {
+  // Admins can edit quotes in any non-terminal status
+  if (isAdmin && !['converted', 'cancelled'].includes(quote.status)) {
+    return true
+  }
   return QUOTE_STATUS_CONFIG[quote.status]?.canEdit ?? false
 }
 

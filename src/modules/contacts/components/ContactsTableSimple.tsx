@@ -167,7 +167,7 @@ export const ContactsTableSimple: React.FC<ContactsTableSimpleProps> = ({
                   {contact.contactType === 'company' && (
                     <small className="text-muted">Empresa</small>
                   )}
-                  {contact.contactType === 'individual' && (
+                  {contact.contactType === 'person' && (
                     <small className="text-muted">Persona física</small>
                   )}
                 </div>

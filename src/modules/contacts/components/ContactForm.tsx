@@ -130,11 +130,11 @@ export const ContactForm: React.FC<ContactFormProps> = ({
             id="contactType"
             className="form-select"
             value={formData.contactType}
-            onChange={(e) => updateField('contactType', e.target.value as 'individual' | 'company')}
+            onChange={(e) => updateField('contactType', e.target.value as 'person' | 'company')}
             disabled={isLoading}
           >
             <option value="company">Empresa</option>
-            <option value="individual">Persona física</option>
+            <option value="person">Persona física</option>
           </select>
         </div>
 
