@@ -157,7 +157,7 @@ describe('Bank Transactions Service', () => {
           'filter[transaction_type]': 'credit',
           'filter[reconciliation_status]': 'unreconciled',
           'page[size]': '10',
-          sort: '-transaction_date'
+          sort: '-transactionDate'
         })
       })
     })
@@ -694,7 +694,7 @@ describe('Bank Transactions Service', () => {
       expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/bank-transactions', {
         params: expect.objectContaining({
           'filter[bank_account_id]': '123',
-          sort: '-transaction_date'
+          sort: '-transactionDate'
         })
       })
     })
@@ -718,7 +718,7 @@ describe('Bank Transactions Service', () => {
       expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/bank-transactions', {
         params: expect.objectContaining({
           'filter[reconciliation_status]': 'unreconciled',
-          sort: 'transaction_date'
+          sort: 'transactionDate'
         })
       })
     })

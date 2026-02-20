@@ -116,7 +116,7 @@ export const BalanceGeneralReport = () => {
     )
   }
 
-  if (!balanceGeneral) {
+  if (!balanceGeneral || !balanceGeneral.totals || !balanceGeneral.data) {
     return (
       <div className="alert alert-info">
         <h5 className="alert-heading">

@@ -639,15 +639,7 @@ export const bankTransactionsService = {
     // Apply sorting
     if (sort) {
       const sortPrefix = sort.direction === 'desc' ? '-' : '';
-      const fieldMap: Record<string, string> = {
-        transactionDate: 'transaction_date',
-        amount: 'amount',
-        transactionType: 'transaction_type',
-        reconciliationStatus: 'reconciliation_status',
-        createdAt: 'created_at',
-        statementNumber: 'statement_number',
-      };
-      params.sort = `${sortPrefix}${fieldMap[sort.field] || sort.field}`;
+      params.sort = `${sortPrefix}${sort.field}`;
     }
 
     // Apply pagination

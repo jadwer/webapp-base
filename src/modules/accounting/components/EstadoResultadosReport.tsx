@@ -113,7 +113,7 @@ export const EstadoResultadosReport = () => {
     )
   }
 
-  if (!estadoResultados?.data) {
+  if (!estadoResultados?.data || !estadoResultados.data.revenue || !estadoResultados.data.expenses) {
     return (
       <div className="alert alert-info">
         <h5 className="alert-heading">

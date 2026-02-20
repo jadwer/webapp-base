@@ -81,7 +81,7 @@ export const BalanzaComprobacionReport = () => {
     )
   }
 
-  if (!balanzaComprobacion?.data || balanzaComprobacion.data.length === 0) {
+  if (!balanzaComprobacion?.data || !balanzaComprobacion.totals || balanzaComprobacion.data.length === 0) {
     return (
       <div className="alert alert-info">
         <h5 className="alert-heading">
