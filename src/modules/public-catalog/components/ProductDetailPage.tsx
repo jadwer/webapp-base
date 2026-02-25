@@ -9,6 +9,7 @@
 import React, { useState, useCallback } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 import { usePublicProduct, useProductSuggestions } from '../hooks/usePublicProducts'
 import { useLocalCart } from '../hooks/useLocalCart'
 import { useTrackProductView } from '@/modules/ecommerce/hooks/useProductViews'
@@ -17,6 +18,7 @@ import type { EnhancedPublicProduct } from '../types/publicProduct'
 interface ProductDetailPageProps {
   productId: string
   onAddToCart?: (product: EnhancedPublicProduct) => void
+  onRequestQuote?: (product: EnhancedPublicProduct) => void
   backUrl?: string
   backLabel?: string
 }
@@ -24,9 +26,11 @@ interface ProductDetailPageProps {
 export default function ProductDetailPage({
   productId,
   onAddToCart,
+  onRequestQuote,
   backUrl = '/productos',
   backLabel = 'Volver al catalogo'
 }: ProductDetailPageProps) {
+  const router = useRouter()
   const { product, isLoading, error } = usePublicProduct(productId)
   const { suggestions, isLoading: suggestionsLoading } = useProductSuggestions(productId, 4)
   const { addToCart, isInCart, getQuantity } = useLocalCart()
@@ -44,6 +48,18 @@ export default function ProductDetailPage({
       onAddToCart(product)
     }
   }, [product, quantity, addToCart, onAddToCart])
+
+  const handleRequestQuote = useCallback(() => {
+    if (!product) return
+
+    addToCart(product, quantity)
+
+    if (onRequestQuote) {
+      onRequestQuote(product)
+    }
+
+    router.push('/cart?action=quote')
+  }, [product, quantity, addToCart, onRequestQuote, router])
 
   const handleQuantityChange = (delta: number) => {
     setQuantity(prev => Math.max(1, prev + delta))
@@ -341,6 +357,15 @@ export default function ProductDetailPage({
                     Agregar al Carrito
                   </button>
                 </div>
+
+                {/* Request Quote Button */}
+                <button
+                  className="btn btn-success w-100 mb-3"
+                  onClick={handleRequestQuote}
+                >
+                  <i className="bi bi-file-earmark-text me-2"></i>
+                  Solicitar Cotizacion
+                </button>
 
                 {/* View Cart Link */}
                 {inCart && (

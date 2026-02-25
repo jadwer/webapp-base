@@ -41,6 +41,7 @@ interface PublicCatalogTemplateProps {
   // Event handlers
   onProductClick?: (product: EnhancedPublicProduct) => void
   onAddToCart?: (product: EnhancedPublicProduct) => void
+  onRequestQuote?: (product: EnhancedPublicProduct) => void
   onAddToWishlist?: (product: EnhancedPublicProduct) => void
   
   // Configuration
@@ -86,6 +87,7 @@ export const PublicCatalogTemplate: React.FC<PublicCatalogTemplateProps> = ({
   priceRange = { min: 0, max: 10000, step: 100 },
   onProductClick,
   onAddToCart,
+  onRequestQuote,
   onAddToWishlist,
   showFilters = true,
   showSearch = true,
@@ -307,6 +309,7 @@ export const PublicCatalogTemplate: React.FC<PublicCatalogTemplateProps> = ({
           viewMode={viewMode}
           onProductClick={onProductClick}
           onAddToCart={onAddToCart}
+          onRequestQuote={onRequestQuote}
           onAddToWishlist={onAddToWishlist}
           isLoading={isLoading}
           emptyMessage={emptyMessage}

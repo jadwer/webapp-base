@@ -20,6 +20,7 @@ interface PublicProductsGridProps {
   displayProps?: Partial<ProductDisplayProps>
   onProductClick?: (product: EnhancedPublicProduct) => void
   onAddToCart?: (product: EnhancedPublicProduct) => void
+  onRequestQuote?: (product: EnhancedPublicProduct) => void
   onAddToWishlist?: (product: EnhancedPublicProduct) => void
   isLoading?: boolean
   emptyMessage?: string
@@ -33,6 +34,7 @@ export const PublicProductsGrid: React.FC<PublicProductsGridProps> = ({
   displayProps = {},
   onProductClick,
   onAddToCart,
+  onRequestQuote,
   onAddToWishlist,
   isLoading = false,
   emptyMessage = 'No se encontraron productos',
@@ -251,6 +253,7 @@ export const PublicProductsGrid: React.FC<PublicProductsGridProps> = ({
               layout={viewMode as 'grid' | 'list' | 'compact' | 'showcase'}
               onProductClick={onProductClick}
               onAddToCart={onAddToCart}
+              onRequestQuote={onRequestQuote}
               onAddToWishlist={onAddToWishlist}
               showActions={viewMode !== 'list'} // List view has less space for actions
             />

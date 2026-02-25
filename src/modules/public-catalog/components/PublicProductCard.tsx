@@ -17,6 +17,7 @@ interface PublicProductCardProps {
   layout?: 'grid' | 'list' | 'compact' | 'showcase'
   onProductClick?: (product: EnhancedPublicProduct) => void
   onAddToCart?: (product: EnhancedPublicProduct) => void
+  onRequestQuote?: (product: EnhancedPublicProduct) => void
   onAddToWishlist?: (product: EnhancedPublicProduct) => void
   showActions?: boolean
   className?: string
@@ -28,6 +29,7 @@ export const PublicProductCard: React.FC<PublicProductCardProps> = ({
   layout = 'grid',
   onProductClick,
   onAddToCart,
+  onRequestQuote,
   onAddToWishlist,
   showActions = true,
   className = ''
@@ -72,6 +74,14 @@ export const PublicProductCard: React.FC<PublicProductCardProps> = ({
     e.stopPropagation()
     if (onAddToCart) {
       onAddToCart(product)
+    }
+  }
+
+  // Handle request quote
+  const handleRequestQuote = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    if (onRequestQuote) {
+      onRequestQuote(product)
     }
   }
 
@@ -179,28 +189,42 @@ export const PublicProductCard: React.FC<PublicProductCardProps> = ({
 
       {/* Actions */}
       {showActions && layout !== 'compact' && (
-        <div className="d-flex gap-2">
-          {onAddToCart && product.attributes.price !== null && (
+        <div className="d-flex flex-column gap-2">
+          <div className="d-flex gap-2">
+            {onAddToCart && product.attributes.price !== null && (
+              <Button
+                variant="primary"
+                size={layout === 'showcase' ? 'medium' : 'small'}
+                onClick={handleAddToCart}
+                className="flex-grow-1"
+                startIcon={<i className="bi bi-cart-plus" />}
+              >
+                {layout === 'showcase' ? 'Agregar al carrito' : 'Agregar'}
+              </Button>
+            )}
+
+            {onAddToWishlist && (
+              <Button
+                variant="secondary"
+                buttonStyle="outline"
+                size={layout === 'showcase' ? 'medium' : 'small'}
+                onClick={handleAddToWishlist}
+                title="Agregar a favoritos"
+              >
+                <i className="bi bi-heart" />
+              </Button>
+            )}
+          </div>
+          {onRequestQuote && (
             <Button
-              variant="primary"
-              size={layout === 'showcase' ? 'medium' : 'small'}
-              onClick={handleAddToCart}
-              className="flex-grow-1"
-              startIcon={<i className="bi bi-cart-plus" />}
-            >
-              {layout === 'showcase' ? 'Agregar al carrito' : 'Agregar'}
-            </Button>
-          )}
-          
-          {onAddToWishlist && (
-            <Button
-              variant="secondary"
+              variant="success"
               buttonStyle="outline"
-              size={layout === 'showcase' ? 'medium' : 'small'}
-              onClick={handleAddToWishlist}
-              title="Agregar a favoritos"
+              size="small"
+              onClick={handleRequestQuote}
+              className="w-100"
+              startIcon={<i className="bi bi-file-earmark-text" />}
             >
-              <i className="bi bi-heart" />
+              Cotizar
             </Button>
           )}
         </div>

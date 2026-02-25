@@ -1,7 +1,7 @@
 'use client'
 
 import React, { Suspense, useState, useEffect, useCallback } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useSearchParams, useRouter } from 'next/navigation'
 import { PublicCatalogTemplate, useLocalCart } from '@/modules/public-catalog'
 import type { EnhancedPublicProduct } from '@/modules/public-catalog'
 import { useToast } from '@/ui/hooks/useToast'
@@ -31,6 +31,7 @@ export default function ProductosPage() {
 
 function ProductosContent() {
   const toast = useToast()
+  const router = useRouter()
   const searchParams = useSearchParams()
   const initialSearch = searchParams.get('search') || undefined
   // wishlistIds stored for future visual indicators (e.g., heart icon filled/empty)
@@ -84,6 +85,12 @@ function ProductosContent() {
     })
   }, [toast])
 
+  const handleRequestQuote = useCallback((product: EnhancedPublicProduct) => {
+    addToCart(product, 1)
+    toast.info(`${product.displayName} agregado. Redirigiendo a cotización...`)
+    router.push('/cart?action=quote')
+  }, [addToCart, toast, router])
+
   return (
     <div className="container-fluid py-4">
       <h1 className="text-primary mb-4">Todos los productos</h1>
@@ -102,6 +109,7 @@ function ProductosContent() {
 
         onProductClick={handleProductClick}
         onAddToCart={handleAddToCart}
+        onRequestQuote={handleRequestQuote}
         onAddToWishlist={handleAddToWishlist}
 
         showFilters={true}
@@ -138,7 +146,7 @@ function ProductosContent() {
                 Contactar Ventas
               </a>
               <a
-                href="/cotizacion"
+                href="/cart"
                 className="btn btn-outline-primary btn-lg"
               >
                 <i className="bi bi-calculator me-2"></i>
