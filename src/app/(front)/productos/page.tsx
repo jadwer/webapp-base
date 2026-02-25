@@ -88,7 +88,8 @@ function ProductosContent() {
   const handleRequestQuote = useCallback((product: EnhancedPublicProduct) => {
     addToCart(product, 1)
     toast.info(`${product.displayName} agregado. Redirigiendo a cotización...`)
-    router.push('/cart?action=quote')
+    // Use setTimeout to let React flush the state update + localStorage save
+    setTimeout(() => router.push('/cart?action=quote'), 50)
   }, [addToCart, toast, router])
 
   return (

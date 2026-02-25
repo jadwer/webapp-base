@@ -58,7 +58,8 @@ export default function ProductDetailPage({
       onRequestQuote(product)
     }
 
-    router.push('/cart?action=quote')
+    // Use setTimeout to let React flush the state update + localStorage save
+    setTimeout(() => router.push('/cart?action=quote'), 50)
   }, [product, quantity, addToCart, onRequestQuote, router])
 
   const handleQuantityChange = (delta: number) => {
