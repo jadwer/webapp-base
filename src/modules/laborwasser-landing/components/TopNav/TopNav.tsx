@@ -56,7 +56,7 @@ export const TopNav: React.FC = () => {
                     <li key={category.id}>
                       <Link
                         className="dropdown-item"
-                        href={`/productos/${category.slug || category.name.toLowerCase().replace(/\s+/g, '-')}`}
+                        href={`/productos?categoryId=${category.id}`}
                       >
                         {category.name}
                       </Link>

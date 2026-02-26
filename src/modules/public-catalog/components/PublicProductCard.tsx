@@ -129,15 +129,15 @@ export const PublicProductCard: React.FC<PublicProductCardProps> = ({
 
       {/* Category & Brand */}
       {(showCategory || showBrand) && (
-        <div className="d-flex flex-wrap gap-1 mb-2">
+        <div className="d-flex flex-wrap gap-1 mb-2" style={{ overflow: 'hidden' }}>
           {showCategory && product.category && (
-            <span className="badge bg-secondary bg-opacity-10 text-secondary">
+            <span className="badge bg-secondary bg-opacity-10 text-secondary text-truncate" style={{ maxWidth: '100%' }}>
               <i className="bi bi-tag me-1" />
               {product.displayCategory}
             </span>
           )}
           {showBrand && product.brand && (
-            <span className="badge bg-primary bg-opacity-10 text-primary">
+            <span className="badge bg-primary bg-opacity-10 text-primary text-truncate" style={{ maxWidth: '100%' }}>
               <i className="bi bi-award me-1" />
               {product.displayBrand}
             </span>

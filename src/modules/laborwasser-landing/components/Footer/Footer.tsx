@@ -4,10 +4,18 @@ import React from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePublicSettings } from '@/modules/app-config'
+import { useAuth } from '@/modules/auth'
+import { useCategories } from '@/modules/products/hooks/useCategories'
 
 export const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear()
   const { get } = usePublicSettings()
+  const { isAuthenticated } = useAuth()
+  const { categories } = useCategories({
+    page: { size: 20 },
+    sort: { field: 'name', direction: 'asc' },
+    enabled: isAuthenticated,
+  })
 
   const phone = get('company.phone')
   const phoneSecondary = get('company.phone_secondary')
@@ -54,30 +62,17 @@ export const Footer: React.FC = () => {
             <h4>Productos</h4>
             <ul>
               <li>
-                <Link className="dropdown-item" href="/productos?category=reactivos">
-                  Reactivos
+                <Link className="dropdown-item" href="/productos">
+                  Todos los productos
                 </Link>
               </li>
-              <li>
-                <Link className="dropdown-item" href="/productos?category=medios-de-cultivo">
-                  Medios de cultivo
-                </Link>
-              </li>
-              <li>
-                <Link className="dropdown-item" href="/productos?category=cristaleria">
-                  Cristaleria
-                </Link>
-              </li>
-              <li>
-                <Link className="dropdown-item" href="/productos?category=analisis-de-agua">
-                  Analisis de agua
-                </Link>
-              </li>
-              <li>
-                <Link className="dropdown-item" href="/productos?category=proceso">
-                  Procesos
-                </Link>
-              </li>
+              {categories.map((category) => (
+                <li key={category.id}>
+                  <Link className="dropdown-item" href={`/productos?categoryId=${category.id}`}>
+                    {category.name}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
           <div className="col-12 col-md-3">

@@ -34,6 +34,7 @@ function ProductosContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const initialSearch = searchParams.get('search') || undefined
+  const initialCategoryId = searchParams.get('categoryId') || undefined
   // wishlistIds stored for future visual indicators (e.g., heart icon filled/empty)
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [wishlistIds, setWishlistIds] = useState<number[]>([])
@@ -97,7 +98,8 @@ function ProductosContent() {
       <h1 className="text-primary mb-4">Todos los productos</h1>
 
       <PublicCatalogTemplate
-        initialFilters={{ search: initialSearch }}
+        key={`catalog-${initialCategoryId || 'all'}-${initialSearch || ''}`}
+        initialFilters={{ search: initialSearch, categoryId: initialCategoryId }}
         initialSortField="name"
         initialSortDirection="asc"
         initialViewMode="grid"
@@ -158,7 +160,10 @@ function ProductosContent() {
         }
 
         refreshInterval={300000}
-        emptyMessage="No se encontraron productos que coincidan con los filtros seleccionados"
+        emptyMessage={initialCategoryId
+          ? 'No se encontraron productos para esta categoria. Es posible que la categoria no exista o no tenga productos asociados.'
+          : 'No se encontraron productos que coincidan con los filtros seleccionados'
+        }
       />
     </div>
   )
