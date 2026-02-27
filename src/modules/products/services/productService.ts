@@ -124,7 +124,12 @@ export const productService = {
           },
           brand: {
             data: { type: 'brands', id: data.brandId }
-          }
+          },
+          ...(data.currencyId && {
+            currency: {
+              data: { type: 'currencies', id: data.currencyId }
+            }
+          })
         }
       }
     }
@@ -155,6 +160,9 @@ export const productService = {
     }
     if (data.brandId) {
       relationships.brand = { data: { type: 'brands', id: data.brandId } }
+    }
+    if (data.currencyId) {
+      relationships.currency = { data: { type: 'currencies', id: data.currencyId } }
     }
 
     const payload = {
@@ -188,7 +196,8 @@ export const productService = {
       iva: productData.iva,
       unitId: productData.unitId,
       categoryId: productData.categoryId,
-      brandId: productData.brandId
+      brandId: productData.brandId,
+      currencyId: productData.currencyId
     }
 
     return this.createProduct(duplicateData)

@@ -28,7 +28,7 @@ export const ProductFormTemplate: React.FC<ProductFormTemplateProps> = ({
 
   const { product, isLoading: isLoadingProduct, error: loadError } = useProduct(
     productId, 
-    ['unit', 'category', 'brand']
+    ['unit', 'category', 'brand', 'currency']
   )
   
   const { createProduct, updateProduct, error: mutationError } = useProductMutations()

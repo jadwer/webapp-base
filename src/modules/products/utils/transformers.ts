@@ -1,4 +1,4 @@
-import { Product, Unit, Category, Brand } from '../types'
+import { Product, ProductCurrency, Unit, Category, Brand } from '../types'
 
 export interface JsonApiResource {
   id: string
@@ -59,11 +59,13 @@ export function transformJsonApiProduct(
   let unit: Unit | undefined
   let category: Category | undefined
   let brand: Brand | undefined
+  let currency: ProductCurrency | undefined
 
   if (resource.relationships) {
     const unitRel = resource.relationships.unit?.data
     const categoryRel = resource.relationships.category?.data
     const brandRel = resource.relationships.brand?.data
+    const currencyRel = resource.relationships.currency?.data
 
     if (unitRel && includedMap[`${unitRel.type}:${unitRel.id}`]) {
       unit = transformJsonApiUnit(includedMap[`${unitRel.type}:${unitRel.id}`])
@@ -73,6 +75,15 @@ export function transformJsonApiProduct(
     }
     if (brandRel && includedMap[`${brandRel.type}:${brandRel.id}`]) {
       brand = transformJsonApiBrand(includedMap[`${brandRel.type}:${brandRel.id}`])
+    }
+    if (currencyRel && includedMap[`${currencyRel.type}:${currencyRel.id}`]) {
+      const r = includedMap[`${currencyRel.type}:${currencyRel.id}`]
+      currency = {
+        id: r.id,
+        code: (r.attributes.code || '') as string,
+        name: (r.attributes.name || '') as string,
+        symbol: (r.attributes.symbol || '') as string,
+      }
     }
   }
 
@@ -93,10 +104,12 @@ export function transformJsonApiProduct(
     unitId: (resource.relationships?.unit?.data?.id || '') as string,
     categoryId: (resource.relationships?.category?.data?.id || '') as string,
     brandId: (resource.relationships?.brand?.data?.id || '') as string,
+    currencyId: (resource.relationships?.currency?.data?.id || null) as string | null,
     createdAt: (resource.attributes.createdAt || '') as string,
     updatedAt: (resource.attributes.updatedAt || '') as string,
     unit,
     category,
-    brand
+    brand,
+    currency,
   }
 }

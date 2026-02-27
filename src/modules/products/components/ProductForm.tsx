@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react'
 import { Button, Input } from '@/ui/components/base'
-import { useUnits, useCategories, useBrands } from '../hooks'
+import { useUnits, useCategories, useBrands, useCurrencies } from '../hooks'
 import { FileUploader } from './FileUploader'
 import { ImageGalleryManager } from './ImageGalleryManager'
 import { productService } from '../services/productService'
@@ -33,7 +33,8 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     datasheetPath: product?.datasheetPath || '',
     unitId: product?.unitId || '',
     categoryId: product?.categoryId || '',
-    brandId: product?.brandId || ''
+    brandId: product?.brandId || '',
+    currencyId: product?.currencyId || ''
   })
 
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -48,6 +49,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   const { units, isLoading: unitsLoading } = useUnits()
   const { categories, isLoading: categoriesLoading } = useCategories()
   const { brands, isLoading: brandsLoading } = useBrands()
+  const { currencies, defaultCurrencyId, isLoading: currenciesLoading } = useCurrencies()
 
   // Memoize options to prevent re-renders when SWR hooks update
   const unitOptions = useMemo(() => [
@@ -65,6 +67,11 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     ...brands.map(brand => ({ value: brand.id, label: brand.name }))
   ], [brands])
 
+  const currencyOptions = useMemo(() => [
+    { value: '', label: 'Seleccione una moneda' },
+    ...currencies.map(c => ({ value: c.id, label: `${c.name} (${c.code})` }))
+  ], [currencies])
+
   useEffect(() => {
     if (product) {
       setFormData({
@@ -79,10 +86,18 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         datasheetPath: product.datasheetPath || '',
         unitId: product.unitId || '',
         categoryId: product.categoryId || '',
-        brandId: product.brandId || ''
+        brandId: product.brandId || '',
+        currencyId: product.currencyId || ''
       })
     }
   }, [product])
+
+  // Auto-set default currency (MXN) for new products
+  useEffect(() => {
+    if (!product && defaultCurrencyId && !formData.currencyId) {
+      setFormData(prev => ({ ...prev, currencyId: defaultCurrencyId }))
+    }
+  }, [product, defaultCurrencyId, formData.currencyId])
 
   const validateForm = useCallback((): boolean => {
     const newErrors: Record<string, string> = {}
@@ -191,14 +206,15 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       ...(finalDatasheetPath && { datasheetPath: finalDatasheetPath }),
       unitId: formData.unitId,
       categoryId: formData.categoryId,
-      brandId: formData.brandId
+      brandId: formData.brandId,
+      ...(formData.currencyId && { currencyId: formData.currencyId })
     }
 
     await onSubmit(submitData)
   }
 
   const isSubmitting = isLoading || uploadingImage || uploadingDatasheet
-  const isDropdownsLoading = unitsLoading || categoriesLoading || brandsLoading
+  const isDropdownsLoading = unitsLoading || categoriesLoading || brandsLoading || currenciesLoading
 
   return (
     <form onSubmit={handleSubmit} className="needs-validation" noValidate>
@@ -334,6 +350,18 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                 IVA incluido
               </label>
             </div>
+          </div>
+
+          <div className="mb-3">
+            <Input
+              label="Moneda"
+              type="select"
+              value={formData.currencyId}
+              onChange={(e) => handleInputChange('currencyId', e.target.value)}
+              onBlur={() => handleBlur('currencyId')}
+              disabled={isSubmitting || isDropdownsLoading}
+              options={currencyOptions}
+            />
           </div>
 
           <div className="mb-3">

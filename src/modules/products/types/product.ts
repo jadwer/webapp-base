@@ -3,6 +3,13 @@ import { Category } from './category'
 import { Brand } from './brand'
 import { ProductImage } from './productImage'
 
+export interface ProductCurrency {
+  id: string
+  code: string
+  name: string
+  symbol: string
+}
+
 export interface Product {
   id: string
   name: string
@@ -20,6 +27,7 @@ export interface Product {
   unitId: string
   categoryId: string | null
   brandId: string | null
+  currencyId?: string | null
   createdAt: string
   updatedAt: string
 
@@ -27,6 +35,7 @@ export interface Product {
   unit?: Unit
   category?: Category
   brand?: Brand
+  currency?: ProductCurrency
   images?: ProductImage[]
 }
 
@@ -44,6 +53,7 @@ export interface CreateProductData {
   unitId: string
   categoryId?: string | null
   brandId?: string | null
+  currencyId?: string | null
 }
 
 export type UpdateProductData = Partial<CreateProductData>
