@@ -2,16 +2,17 @@ import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 
 export function formatPrice(
-  price: number | null | undefined, 
-  currency: string = 'ARS'
+  price: number | null | undefined,
+  currency: string = 'MXN'
 ): string {
   if (price === null || price === undefined || isNaN(price)) {
     return 'N/A'
   }
-  
-  return new Intl.NumberFormat('es-AR', {
+
+  return new Intl.NumberFormat('es-MX', {
     style: 'currency',
     currency,
+    currencyDisplay: 'narrowSymbol',
     minimumFractionDigits: 2,
     maximumFractionDigits: 2
   }).format(price)
@@ -25,7 +26,7 @@ export function formatNumber(
     return 'N/A'
   }
   
-  return new Intl.NumberFormat('es-AR', {
+  return new Intl.NumberFormat('es-MX', {
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals
   }).format(value)

@@ -249,11 +249,9 @@ export default function ProductDetailPage({
                 <span className="display-5 fw-bold text-primary">
                   {product.displayPrice}
                 </span>
-                {product.unit && (
-                  <span className="text-muted ms-2">
-                    / {product.displayUnit}
-                  </span>
-                )}
+                <span className="text-muted ms-2">
+                  {product.displayCurrency}{product.unit ? ` / ${product.displayUnit}` : ''}
+                </span>
               </div>
 
               {/* SKU & Barcode */}
@@ -420,7 +418,7 @@ export default function ProductDetailPage({
                       )}
                       <h6 className="text-dark mb-2">{suggestedProduct.displayName}</h6>
                       <p className="text-primary fw-bold mb-0">
-                        {suggestedProduct.displayPrice}
+                        {suggestedProduct.displayPrice} {suggestedProduct.displayCurrency}
                       </p>
                     </div>
                   </Link>

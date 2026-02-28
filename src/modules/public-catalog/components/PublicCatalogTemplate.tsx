@@ -143,7 +143,7 @@ export const PublicCatalogTemplate: React.FC<PublicCatalogTemplateProps> = ({
     filters,
     sortParams,
     paginationParams,
-    'unit,category,brand,images',
+    'unit,category,brand,images,currency',
     {
       refreshInterval,
       revalidateOnFocus: false,

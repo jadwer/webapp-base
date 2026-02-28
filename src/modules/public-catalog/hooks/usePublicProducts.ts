@@ -66,7 +66,7 @@ export function usePublicProducts(
   filters?: PublicProductFilters,
   sort?: PublicProductSort[],
   pagination?: PublicProductPagination,
-  include: PublicProductInclude = 'unit,category,brand',
+  include: PublicProductInclude = 'unit,category,brand,currency',
   options?: {
     refreshInterval?: number
     revalidateOnFocus?: boolean
@@ -137,7 +137,7 @@ export function usePublicProducts(
  */
 export function usePublicProduct(
   id: string | null | undefined,
-  include: PublicProductInclude = 'unit,category,brand',
+  include: PublicProductInclude = 'unit,category,brand,currency',
   options?: {
     refreshInterval?: number
     revalidateOnFocus?: boolean
@@ -178,7 +178,7 @@ export function usePublicProduct(
 export function usePublicProductSearch(
   query: string,
   pagination?: PublicProductPagination,
-  include: PublicProductInclude = 'unit,category,brand'
+  include: PublicProductInclude = 'unit,category,brand,currency'
 ): UsePublicProductsResult {
   // Use the same filters-based approach for consistency
   const filters = useMemo((): PublicProductFilters => ({
@@ -207,7 +207,7 @@ export function usePublicProductSearch(
 export function usePublicProductsByCategory(
   categoryId: string | null,
   pagination?: PublicProductPagination,
-  include: PublicProductInclude = 'unit,category,brand'
+  include: PublicProductInclude = 'unit,category,brand,currency'
 ): UsePublicProductsResult {
   const filters = useMemo((): PublicProductFilters | undefined => 
     categoryId ? { categoryId } : undefined
@@ -222,7 +222,7 @@ export function usePublicProductsByCategory(
 export function usePublicProductsByBrand(
   brandId: string | null,
   pagination?: PublicProductPagination,
-  include: PublicProductInclude = 'unit,category,brand'
+  include: PublicProductInclude = 'unit,category,brand,currency'
 ): UsePublicProductsResult {
   const filters = useMemo((): PublicProductFilters | undefined => 
     brandId ? { brandId } : undefined
@@ -236,7 +236,7 @@ export function usePublicProductsByBrand(
  */
 export function useFeaturedProducts(
   limit: number = 12,
-  include: PublicProductInclude = 'unit,category,brand'
+  include: PublicProductInclude = 'unit,category,brand,currency'
 ): {
   products: EnhancedPublicProduct[]
   isLoading: boolean
@@ -269,7 +269,7 @@ export function useFeaturedProducts(
  */
 export function useProductsOnOffer(
   pagination?: PublicProductPagination,
-  include: PublicProductInclude = 'unit,category,brand'
+  include: PublicProductInclude = 'unit,category,brand,currency'
 ): UsePublicProductsResult {
   const filters = useMemo((): PublicProductFilters => ({}), [])
   const sort = useMemo((): PublicProductSort[] => ([
@@ -285,7 +285,7 @@ export function useProductsOnOffer(
  */
 export function useSaleProducts(
   limit: number = 6,
-  include: PublicProductInclude = 'unit,category,brand'
+  include: PublicProductInclude = 'unit,category,brand,currency'
 ): {
   products: EnhancedPublicProduct[]
   isLoading: boolean
@@ -319,7 +319,7 @@ export function useSaleProducts(
 export function useProductSuggestions(
   productId: string | null,
   limit: number = 6,
-  include: PublicProductInclude = 'unit,category,brand'
+  include: PublicProductInclude = 'unit,category,brand,currency'
 ): {
   suggestions: EnhancedPublicProduct[]
   isLoading: boolean
@@ -358,7 +358,7 @@ export function useProductsByPriceRange(
   minPrice: number | null,
   maxPrice: number | null,
   pagination?: PublicProductPagination,
-  include: PublicProductInclude = 'unit,category,brand'
+  include: PublicProductInclude = 'unit,category,brand,currency'
 ): UsePublicProductsResult {
   const filters = useMemo((): PublicProductFilters | undefined => {
     if (minPrice === null && maxPrice === null) return undefined

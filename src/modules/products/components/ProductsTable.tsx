@@ -152,9 +152,9 @@ export const ProductsTable: React.FC<ProductsTableProps> = ({
                     )}
                   </td>
                   <td>
-                    <div className="fw-medium">{formatPrice(product.price)}</div>
+                    <div className="fw-medium">{formatPrice(product.price, product.currency?.code || 'MXN')} {product.currency?.code || 'MXN'}</div>
                     {product.cost && (
-                      <small className="text-muted">Costo: {formatPrice(product.cost)}</small>
+                      <small className="text-muted">Costo: {formatPrice(product.cost, product.currency?.code || 'MXN')}</small>
                     )}
                     {product.iva && (
                       <small className="badge bg-info text-dark ms-1">IVA</small>

@@ -35,7 +35,7 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
   // Fetch full product data with images included
   const { product: fullProduct } = usePublicProduct(
     product.id,
-    'unit,category,brand,images'
+    'unit,category,brand,images,currency'
   )
 
   // Use full product data if available, fallback to list product
@@ -146,7 +146,7 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
                   {displayProduct.attributes.sku && (
                     <li><strong>SKU:</strong> {displayProduct.attributes.sku}</li>
                   )}
-                  <li><strong>Precio:</strong> {displayProduct.displayPrice}</li>
+                  <li><strong>Precio:</strong> {displayProduct.displayPrice} {displayProduct.displayCurrency}</li>
                 </ul>
                 {displayProduct.attributes.description && (
                   <>

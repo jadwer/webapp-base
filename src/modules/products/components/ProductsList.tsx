@@ -4,6 +4,7 @@ import React from 'react'
 import Image from 'next/image'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { Button } from '@/ui/components/base'
+import { formatPrice } from '../utils/formatting'
 import type { Product } from '../types'
 
 interface ProductsListProps {
@@ -61,8 +62,8 @@ const ProductListItem = React.memo<{
           <div className="d-flex justify-content-between">
             <span className="text-muted small">Precio:</span>
             <div>
-              <span className="fw-bold text-success">${product.price?.toFixed(2)}</span>
-              <small className="text-muted ms-1">+IVA</small>
+              <span className="fw-bold text-success">{formatPrice(product.price, product.currency?.code || 'MXN')}</span>
+              <small className="text-muted ms-1">{product.currency?.code || 'MXN'}{product.iva ? ' +IVA' : ''}</small>
             </div>
           </div>
         </div>

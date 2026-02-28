@@ -114,7 +114,7 @@ describe('publicProductsService', () => {
         '/api/public/v1/public-products',
         expect.objectContaining({
           params: expect.objectContaining({
-            include: 'unit,category,brand',
+            include: 'unit,category,brand,currency',
           }),
         })
       )
@@ -256,7 +256,7 @@ describe('publicProductsService', () => {
       expect(mockAxiosClient.get).toHaveBeenCalledWith(
         '/api/public/v1/public-products/1',
         expect.objectContaining({
-          params: { include: 'unit,category,brand,images' },
+          params: { include: 'unit,category,brand,images,currency' },
         })
       )
 

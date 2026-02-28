@@ -160,16 +160,16 @@ export const PublicProductCard: React.FC<PublicProductCardProps> = ({
         {showPrice && (
           <div>
             {product.attributes.price !== null ? (
-              <span className={`fw-bold ${layout === 'showcase' ? 'fs-4 text-primary' : 'fs-5'}`}>
-                {product.displayPrice}
-              </span>
+              <>
+                <span className={`fw-bold ${layout === 'showcase' ? 'fs-4 text-primary' : 'fs-5'}`}>
+                  {product.displayPrice}
+                </span>
+                <small className="text-muted ms-1">
+                  {product.displayCurrency}{showUnit && product.unit ? ` / ${product.displayUnit}` : ''}
+                </small>
+              </>
             ) : (
               <span className="text-muted">Precio no disponible</span>
-            )}
-            {showUnit && product.unit && (
-              <small className="text-muted ms-1">
-                / {product.displayUnit}
-              </small>
             )}
           </div>
         )}

@@ -4,6 +4,7 @@ import React from 'react'
 import Image from 'next/image'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { Button } from '@/ui/components/base'
+import { formatPrice } from '../utils/formatting'
 import type { Product } from '../types'
 
 interface ProductsGridProps {
@@ -58,9 +59,9 @@ const ProductCard = React.memo<{
           <div className="col-6">
             <div className="text-center">
               <div className="fw-bold text-success">
-                ${product.price?.toFixed(2)}
+                {formatPrice(product.price, product.currency?.code || 'MXN')}
               </div>
-              <small className="text-muted">+IVA</small>
+              <small className="text-muted">{product.currency?.code || 'MXN'}{product.iva ? ' +IVA' : ''}</small>
             </div>
           </div>
           <div className="col-6">

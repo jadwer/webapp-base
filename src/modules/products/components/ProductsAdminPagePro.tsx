@@ -90,7 +90,7 @@ export const ProductsAdminPagePro = React.memo(() => {
     page: { number: currentPage, size: 20 },
     filters,
     sort,
-    include: ['unit', 'category', 'brand']
+    include: ['unit', 'category', 'brand', 'currency']
   })
 
   const { deleteProduct, isLoading: isMutating } = useProductMutations()

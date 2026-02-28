@@ -47,6 +47,12 @@ export interface PublicProduct {
         type: 'brands'
       } | null
     }
+    currency?: {
+      data: {
+        id: string
+        type: 'currencies'
+      } | null
+    }
     images?: {
       data: {
         id: string
@@ -100,6 +106,17 @@ export interface PublicBrand {
     slug: string | null
     logoUrl: string | null
     websiteUrl: string | null
+  }
+}
+
+export interface PublicCurrency {
+  id: string
+  type: 'currencies'
+  attributes: {
+    code: string
+    name: string
+    symbol: string
+    exchangeRate: number
   }
 }
 
@@ -177,6 +194,8 @@ export type PublicProductInclude =
   | 'category,brand'
   | 'unit,category,brand'
   | 'unit,category,brand,images'
+  | 'unit,category,brand,currency'
+  | 'unit,category,brand,images,currency'
 
 // Complete Query Parameters
 export interface PublicProductsQueryParams {
@@ -212,7 +231,7 @@ export interface PublicProductsQueryParams {
 // API Response Types
 export interface PublicProductsResponse {
   data: PublicProduct[]
-  included?: (PublicUnit | PublicCategory | PublicBrand | PublicProductImage)[]
+  included?: (PublicUnit | PublicCategory | PublicBrand | PublicCurrency | PublicProductImage)[]
   meta: {
     currentPage: number
     lastPage: number
@@ -232,7 +251,7 @@ export interface PublicProductsResponse {
 
 export interface SinglePublicProductResponse {
   data: PublicProduct
-  included?: (PublicUnit | PublicCategory | PublicBrand | PublicProductImage)[]
+  included?: (PublicUnit | PublicCategory | PublicBrand | PublicCurrency | PublicProductImage)[]
 }
 
 // Error Types
@@ -287,11 +306,13 @@ export interface EnhancedPublicProduct extends PublicProduct {
   unit?: PublicUnit
   category?: PublicCategory
   brand?: PublicBrand
+  currency?: PublicCurrency
   galleryImages?: PublicProductImage[]
 
   // Computed display properties
   displayName: string
   displayPrice: string
+  displayCurrency: string
   displayCategory: string
   displayBrand: string
   displayUnit: string

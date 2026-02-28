@@ -4,6 +4,7 @@ import React from 'react'
 import Image from 'next/image'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { Button } from '@/ui/components/base'
+import { formatPrice } from '../utils/formatting'
 import type { Product } from '../types'
 
 interface ProductsCompactProps {
@@ -48,11 +49,11 @@ const ProductCompactRow = React.memo<{
     </div>
 
     {/* Price */}
-    <div className="text-end me-2" style={{ width: '80px' }}>
+    <div className="text-end me-2" style={{ width: '100px' }}>
       <div className="fw-bold text-success small">
-        ${product.price?.toFixed(2)}
+        {formatPrice(product.price, product.currency?.code || 'MXN')}
       </div>
-      <small className="text-muted">+IVA</small>
+      <small className="text-muted">{product.currency?.code || 'MXN'}{product.iva ? ' +IVA' : ''}</small>
     </div>
 
     {/* Stock */}
@@ -171,7 +172,7 @@ export const ProductsCompact = React.memo<ProductsCompactProps>(({
           <div className="me-2" style={{ width: '80px' }}>
             <strong>CATEGORÍA</strong>
           </div>
-          <div className="text-end me-2" style={{ width: '80px' }}>
+          <div className="text-end me-2" style={{ width: '100px' }}>
             <strong>PRECIO</strong>
           </div>
           <div className="text-center me-2" style={{ width: '50px' }}>

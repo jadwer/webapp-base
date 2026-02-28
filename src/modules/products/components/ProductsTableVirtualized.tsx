@@ -4,6 +4,7 @@ import React from 'react'
 import Image from 'next/image'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { Button } from '@/ui/components/base'
+import { formatPrice } from '../utils/formatting'
 import type { Product } from '../types'
 
 interface ProductsTableVirtualizedProps {
@@ -47,12 +48,14 @@ const ProductRow = React.memo<{
     </div>
 
     {/* Price */}
-    <div className="text-end me-3" style={{ width: '120px' }}>
+    <div className="text-end me-3" style={{ width: '150px' }}>
       <div className="fw-bold text-success">
-        ${product.price?.toFixed(2)}
-        <span className="small text-muted ms-1">+IVA</span>
+        {formatPrice(product.price, product.currency?.code || 'MXN')} {product.currency?.code || 'MXN'}
+        {product.iva && <span className="small text-muted ms-1">+IVA</span>}
       </div>
-      <div className="small text-muted">Costo: ${product.cost?.toFixed(2)}</div>
+      {product.cost != null && (
+        <div className="small text-muted">Costo: {formatPrice(product.cost, product.currency?.code || 'MXN')}</div>
+      )}
     </div>
 
     {/* Stock */}
@@ -161,7 +164,7 @@ export const ProductsTableVirtualized = React.memo<ProductsTableVirtualizedProps
           <div className="flex-fill me-3" style={{ minWidth: '200px' }}>
             <small className="fw-bold text-uppercase text-muted">Producto</small>
           </div>
-          <div className="text-center me-3" style={{ width: '120px' }}>
+          <div className="text-center me-3" style={{ width: '150px' }}>
             <small className="fw-bold text-uppercase text-muted">Precio</small>
           </div>
           <div className="text-center me-3" style={{ width: '80px' }}>

@@ -691,7 +691,7 @@ describe('usePublicProducts', () => {
 
       // Assert
       expect(mockUseSWR).toHaveBeenCalledWith(
-        'product-suggestions:42:8:unit,category,brand',
+        'product-suggestions:42:8:unit,category,brand,currency',
         expect.any(Function),
         expect.any(Object)
       )

@@ -20,11 +20,14 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   onView,
   className
 }) => {
+  const currencyCode = product.currency?.code || 'MXN'
   const formatPrice = (price: number | null | undefined) => {
     if (price === null || price === undefined) return 'N/A'
-    return new Intl.NumberFormat('es-AR', {
+    return new Intl.NumberFormat('es-MX', {
       style: 'currency',
-      currency: 'ARS'
+      currency: currencyCode,
+      currencyDisplay: 'narrowSymbol',
+      minimumFractionDigits: 2
     }).format(price)
   }
 
@@ -71,9 +74,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
         <div className="row mb-3">
           <div className="col-6">
-            <div className="fw-bold text-primary">{formatPrice(product.price)}</div>
+            <div className="fw-bold text-primary">{formatPrice(product.price)} {currencyCode}</div>
             {product.cost && (
-              <small className="text-muted">Costo: {formatPrice(product.cost)}</small>
+              <small className="text-muted">Costo: {formatPrice(product.cost)} {currencyCode}</small>
             )}
           </div>
           <div className="col-6 text-end">

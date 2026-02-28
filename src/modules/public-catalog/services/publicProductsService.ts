@@ -18,6 +18,7 @@ import type {
   PublicUnit,
   PublicCategory,
   PublicBrand,
+  PublicCurrency,
   PublicProductImage
 } from '../types/publicProduct'
 
@@ -145,18 +146,32 @@ class PublicProductsService {
    */
   private resolveRelationships(
     product: PublicProduct,
-    included?: (PublicUnit | PublicCategory | PublicBrand | PublicProductImage)[]
+    included?: (PublicUnit | PublicCategory | PublicBrand | PublicCurrency | PublicProductImage)[]
   ): EnhancedPublicProduct {
     const enhanced: EnhancedPublicProduct = {
       ...product,
       displayName: product.attributes.name,
       displayPrice: this.formatPrice(product.attributes.price),
+      displayCurrency: 'MXN',
       displayCategory: 'Sin categoría',
       displayBrand: 'Sin marca',
       displayUnit: 'Sin unidad'
     }
 
     if (!included) return enhanced
+
+    // Resolve currency relationship
+    if (product.relationships.currency?.data) {
+      const curr = included.find(
+        item => item.type === 'currencies' && item.id === product.relationships.currency?.data?.id
+      ) as PublicCurrency | undefined
+
+      if (curr) {
+        enhanced.currency = curr
+        enhanced.displayCurrency = curr.attributes.code
+        enhanced.displayPrice = this.formatPrice(product.attributes.price, curr.attributes.code)
+      }
+    }
 
     // Resolve unit relationship
     if (product.relationships.unit.data) {
@@ -211,14 +226,15 @@ class PublicProductsService {
   /**
    * Format price for display
    */
-  private formatPrice(price: number | null): string {
+  private formatPrice(price: number | null, currencyCode: string = 'MXN'): string {
     if (price === null || price === undefined) {
       return 'Precio no disponible'
     }
-    
+
     return new Intl.NumberFormat('es-MX', {
       style: 'currency',
-      currency: 'MXN',
+      currency: currencyCode,
+      currencyDisplay: 'narrowSymbol',
       minimumFractionDigits: 2
     }).format(price)
   }
@@ -230,7 +246,7 @@ class PublicProductsService {
     filters?: PublicProductFilters,
     sort?: PublicProductSort[],
     pagination?: PublicProductPagination,
-    include: PublicProductInclude = 'unit,category,brand'
+    include: PublicProductInclude = 'unit,category,brand,currency'
   ): Promise<{
     products: EnhancedPublicProduct[]
     meta: PublicProductsResponse['meta']
@@ -263,7 +279,7 @@ class PublicProductsService {
    */
   async getPublicProduct(
     id: string,
-    include: PublicProductInclude = 'unit,category,brand,images'
+    include: PublicProductInclude = 'unit,category,brand,images,currency'
   ): Promise<EnhancedPublicProduct> {
     const response = await axiosClient.get<SinglePublicProductResponse>(
       `${this.baseUrl}/${id}`,
@@ -285,7 +301,7 @@ class PublicProductsService {
   async searchProducts(
     query: string,
     pagination?: PublicProductPagination,
-    include: PublicProductInclude = 'unit,category,brand'
+    include: PublicProductInclude = 'unit,category,brand,currency'
   ): Promise<{
     products: EnhancedPublicProduct[]
     meta: PublicProductsResponse['meta']
@@ -305,7 +321,7 @@ class PublicProductsService {
   async getProductsByCategory(
     categoryId: string,
     pagination?: PublicProductPagination,
-    include: PublicProductInclude = 'unit,category,brand'
+    include: PublicProductInclude = 'unit,category,brand,currency'
   ): Promise<{
     products: EnhancedPublicProduct[]
     meta: PublicProductsResponse['meta']
@@ -325,7 +341,7 @@ class PublicProductsService {
   async getProductsByBrand(
     brandId: string,
     pagination?: PublicProductPagination,
-    include: PublicProductInclude = 'unit,category,brand'
+    include: PublicProductInclude = 'unit,category,brand,currency'
   ): Promise<{
     products: EnhancedPublicProduct[]
     meta: PublicProductsResponse['meta']
@@ -346,7 +362,7 @@ class PublicProductsService {
     minPrice: number,
     maxPrice: number,
     pagination?: PublicProductPagination,
-    include: PublicProductInclude = 'unit,category,brand'
+    include: PublicProductInclude = 'unit,category,brand,currency'
   ): Promise<{
     products: EnhancedPublicProduct[]
     meta: PublicProductsResponse['meta']
@@ -368,7 +384,7 @@ class PublicProductsService {
    */
   async getFeaturedProducts(
     limit: number = 12,
-    include: PublicProductInclude = 'unit,category,brand'
+    include: PublicProductInclude = 'unit,category,brand,currency'
   ): Promise<EnhancedPublicProduct[]> {
     const result = await this.getPublicProducts(
       undefined, // Remove isActive filter as it's not supported
@@ -386,7 +402,7 @@ class PublicProductsService {
    */
   async getProductsOnOffer(
     pagination?: PublicProductPagination,
-    include: PublicProductInclude = 'unit,category,brand'
+    include: PublicProductInclude = 'unit,category,brand,currency'
   ): Promise<{
     products: EnhancedPublicProduct[]
     meta: PublicProductsResponse['meta']
@@ -407,7 +423,7 @@ class PublicProductsService {
   async getProductSuggestions(
     productId: string,
     limit: number = 6,
-    include: PublicProductInclude = 'unit,category,brand'
+    include: PublicProductInclude = 'unit,category,brand,currency'
   ): Promise<EnhancedPublicProduct[]> {
     try {
       // First get the product to know its category and brand

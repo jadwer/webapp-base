@@ -4,6 +4,7 @@ import React from 'react'
 import Image from 'next/image'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { Button } from '@/ui/components/base'
+import { formatPrice } from '../utils/formatting'
 import type { Product } from '../types'
 
 interface ProductsShowcaseProps {
@@ -73,8 +74,8 @@ const ProductShowcaseCard = React.memo<{
         {/* Pricing Showcase */}
         <div className="mb-4 p-3 bg-light rounded">
           <div className="display-5 fw-bold text-primary mb-2">
-            ${product.price?.toFixed(2) || '0.00'}
-            <small className="text-muted fs-6 ms-2">+IVA</small>
+            {formatPrice(product.price, product.currency?.code || 'MXN')}
+            <small className="text-muted fs-6 ms-2">{product.currency?.code || 'MXN'}{product.iva ? ' +IVA' : ''}</small>
           </div>
           <div className="row g-2 text-center">
             <div className="col-6">
@@ -83,7 +84,7 @@ const ProductShowcaseCard = React.memo<{
             </div>
             <div className="col-6">
               <small className="text-muted">Costo</small>
-              <div className="fw-bold text-secondary">${product.cost?.toFixed(2) || '0.00'}</div>
+              <div className="fw-bold text-secondary">{formatPrice(product.cost, product.currency?.code || 'MXN')}</div>
             </div>
           </div>
         </div>
