@@ -92,7 +92,7 @@ describe('salesService', () => {
       const result = await salesService.orders.getById('5')
 
       // Assert
-      expect(axios.get).toHaveBeenCalledWith('/api/v1/sales-orders/5?include=contact,items')
+      expect(axios.get).toHaveBeenCalledWith('/api/v1/sales-orders/5?include=contact,items.product')
       expect(result).toEqual(apiResponse)
     })
 

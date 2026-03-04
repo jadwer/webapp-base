@@ -272,16 +272,18 @@ const cartItemsService = {
 
   /**
    * Add item to cart
+   *
+   * @param taxRate - Tax rate as percentage (e.g. 16 for 16% IVA). Defaults to 16.
+   *                  The backend CartItemObserver may recalculate if currency conversion applies.
    */
   async add(
     shoppingCartId: number,
     productId: number,
     quantity: number = 1,
     unitPrice: number = 0,
-    hasIva: boolean = true
+    taxRate: number = 16
   ): Promise<ShoppingCartItem> {
     const subtotal = parseFloat((unitPrice * quantity).toFixed(2));
-    const taxRate = hasIva ? 16 : 0;
     const taxAmount = parseFloat((subtotal * taxRate / 100).toFixed(2));
     const total = parseFloat((subtotal + taxAmount).toFixed(2));
 
@@ -378,6 +380,7 @@ interface LocalCartItem {
   price: number;
   name: string;
   iva?: boolean;
+  taxRate?: number;
   sku?: string | null;
   imageUrl?: string | null;
   brandName?: string | null;
@@ -409,7 +412,7 @@ const localCartSyncService = {
         parseInt(item.productId),
         item.quantity,
         item.price,
-        item.iva ?? true
+        item.taxRate ?? (item.iva === false ? 0 : 16)
       );
     }
 

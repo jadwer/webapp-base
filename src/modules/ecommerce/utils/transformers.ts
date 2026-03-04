@@ -251,6 +251,13 @@ export function shoppingCartItemFromAPI(data: Record<string, unknown>): Shopping
     quantity: parseInt(String(attributes.quantity || 1)),
     unitPrice: parseFloat(String(attributes.unitPrice ?? attributes.unit_price ?? 0)),
     totalPrice: parseFloat(String(attributes.total ?? attributes.totalPrice ?? attributes.total_price ?? 0)),
+    originalCurrencyCode: (attributes.originalCurrencyCode ?? attributes.original_currency_code ?? null) as string | null,
+    originalUnitPrice: attributes.originalUnitPrice != null || attributes.original_unit_price != null
+      ? parseFloat(String(attributes.originalUnitPrice ?? attributes.original_unit_price))
+      : null,
+    exchangeRateUsed: attributes.exchangeRateUsed != null || attributes.exchange_rate_used != null
+      ? parseFloat(String(attributes.exchangeRateUsed ?? attributes.exchange_rate_used))
+      : null,
     createdAt: (attributes.createdAt ?? attributes.created_at) as string | undefined,
     updatedAt: (attributes.updatedAt ?? attributes.updated_at) as string | undefined,
   };

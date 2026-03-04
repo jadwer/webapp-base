@@ -202,6 +202,11 @@ export interface ShoppingCartItem {
   unitPrice: number;
   totalPrice: number;
 
+  // Currency traceability (set when product currency differs from cart currency)
+  originalCurrencyCode?: string | null;
+  originalUnitPrice?: number | null;
+  exchangeRateUsed?: number | null;
+
   // Timestamps
   createdAt?: string;
   updatedAt?: string;
@@ -237,6 +242,11 @@ export interface CartItem {
   metadata: Record<string, unknown> | null;
   createdAt: string;
   updatedAt: string;
+
+  // Currency traceability (set when product currency differs from cart currency)
+  originalCurrencyCode?: string | null;
+  originalUnitPrice?: number | null;
+  exchangeRateUsed?: number | null;
 
   // Relationships
   shoppingCart?: ShoppingCart;
@@ -658,6 +668,7 @@ export interface Coupon {
   customerIds: number[];
   productIds: number[];
   categoryIds: number[];
+  currency: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -677,6 +688,7 @@ export interface CouponFormData {
   customerIds?: number[];
   productIds?: number[];
   categoryIds?: number[];
+  currency?: string | null;
 }
 
 // ============================================
