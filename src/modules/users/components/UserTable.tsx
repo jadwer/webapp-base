@@ -9,7 +9,14 @@ interface Props {
 
 export default function UserTable({ users, onEdit, onDelete, onRestore }: Props) {
   return (
-    <table className="table table-striped">
+    <table className="table table-striped" style={{ tableLayout: 'fixed' }}>
+      <colgroup>
+        <col />
+        <col />
+        <col style={{ width: '120px' }} />
+        <col style={{ width: '110px' }} />
+        <col style={{ width: '140px' }} />
+      </colgroup>
       <thead>
         <tr>
           <th>Nombre</th>

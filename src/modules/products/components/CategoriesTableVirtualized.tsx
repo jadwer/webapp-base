@@ -186,13 +186,7 @@ export const CategoriesTableVirtualized = React.memo<CategoriesTableVirtualizedP
           >
             <table className="table table-hover mb-0" style={{ tableLayout: 'fixed' }}>
               <colgroup>
-                <col style={{ width: '50px' }} />
-                <col style={{ width: '250px' }} />
-                <col />
-                <col style={{ width: '100px' }} />
-                <col style={{ width: '130px' }} />
-                <col style={{ width: '150px' }} />
-                <col style={{ width: '120px' }} />
+                {COL_WIDTHS.map((w, i) => <col key={i} style={w !== 'auto' ? { width: w } : undefined} />)}
               </colgroup>
               <tbody>
                 {virtualizer.getVirtualItems().map((virtualItem) => {

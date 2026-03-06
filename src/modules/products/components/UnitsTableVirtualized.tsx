@@ -5,6 +5,8 @@ import { useVirtualizer } from '@tanstack/react-virtual'
 import { Button } from '@/ui/components/base'
 import type { Unit } from '../types'
 
+const COL_WIDTHS = ['auto', 'auto', '100px', '140px'] as const
+
 interface UnitsTableVirtualizedProps {
   units: Unit[]
   isLoading?: boolean
@@ -13,97 +15,21 @@ interface UnitsTableVirtualizedProps {
   onView?: (unit: Unit) => void
 }
 
-const UnitRow = React.memo<{
-  unit: Unit
-  style: React.CSSProperties
-  onEdit?: (unit: Unit) => void
-  onDelete?: (unitId: string) => void
-  onView?: (unit: Unit) => void
-}>(({ unit, style, onEdit, onDelete, onView }) => (
-  <div 
-    style={style} 
-    className="d-flex align-items-center border-bottom bg-white hover-bg-light transition-all"
-  >
-    {/* Name & Abbreviation */}
-    <div className="flex-fill me-3" style={{ minWidth: '200px' }}>
-      <div className="fw-bold text-dark mb-1">{unit.name}</div>
-      <small className="text-muted">
-        {unit.code ? `Código: ${unit.code}` : unit.unitType || 'Sin tipo'}
-      </small>
-    </div>
-
-    {/* Description */}
-    <div className="flex-fill me-3" style={{ minWidth: '300px' }}>
-      <div className="small text-muted">
-        {unit.description || <span className="fst-italic">Sin descripción</span>}
-      </div>
-    </div>
-
-    {/* Products Count */}
-    <div className="text-center me-3" style={{ width: '100px' }}>
-      <span className="badge bg-secondary rounded-pill">
-        {unit.productsCount ?? 0}
-      </span>
-    </div>
-
-    {/* Actions */}
-    <div className="d-flex gap-1" style={{ width: '140px' }}>
-      {onView && (
-        <Button
-          size="small"
-          variant="primary"
-          buttonStyle="outline"
-          onClick={() => onView(unit)}
-          title="Ver detalles"
-        >
-          <i className="bi bi-eye" />
-        </Button>
-      )}
-      {onEdit && (
-        <Button
-          size="small"
-          variant="secondary"
-          buttonStyle="outline"
-          onClick={() => onEdit(unit)}
-          title="Editar"
-        >
-          <i className="bi bi-pencil" />
-        </Button>
-      )}
-      {onDelete && (
-        <Button
-          size="small"
-          variant="danger"
-          buttonStyle="outline"
-          onClick={() => onDelete(unit.id)}
-          title="Eliminar"
-        >
-          <i className="bi bi-trash" />
-        </Button>
-      )}
-    </div>
-  </div>
-))
-
-UnitRow.displayName = 'UnitRow'
-
-export const UnitsTableVirtualized = React.memo<UnitsTableVirtualizedProps>(({ 
-  units, 
+export const UnitsTableVirtualized = React.memo<UnitsTableVirtualizedProps>(({
+  units,
   isLoading = false,
   onEdit,
   onDelete,
-  onView 
+  onView
 }) => {
   const parentRef = React.useRef<HTMLDivElement>(null)
 
   const virtualizer = useVirtualizer({
     count: units.length,
     getScrollElement: () => parentRef.current,
-    estimateSize: () => 70, // Height per row
+    estimateSize: () => 70,
     overscan: 10,
   })
-
-  const virtualItems = virtualizer.getVirtualItems()
 
   if (isLoading && units.length === 0) {
     return (
@@ -124,72 +50,103 @@ export const UnitsTableVirtualized = React.memo<UnitsTableVirtualizedProps>(({
         <div className="card-body text-center py-5">
           <i className="bi bi-rulers display-1 text-muted mb-3"></i>
           <h5 className="text-muted">No se encontraron unidades</h5>
-          <p className="text-muted">Intenta cambiar los filtros de búsqueda o crea una nueva unidad.</p>
+          <p className="text-muted">Intenta cambiar los filtros de busqueda o crea una nueva unidad.</p>
         </div>
       </div>
     )
   }
 
+  const colgroup = (
+    <colgroup>
+      {COL_WIDTHS.map((w, i) => <col key={i} style={w !== 'auto' ? { width: w } : undefined} />)}
+    </colgroup>
+  )
+
   return (
     <div className="card">
-      {/* Header */}
-      <div className="card-header bg-light">
-        <div className="d-flex align-items-center">
-          <div className="flex-fill me-3" style={{ minWidth: '200px' }}>
-            <small className="fw-bold text-uppercase text-muted">Unidad</small>
-          </div>
-          <div className="flex-fill me-3" style={{ minWidth: '300px' }}>
-            <small className="fw-bold text-uppercase text-muted">Descripción</small>
-          </div>
-          <div className="text-center me-3" style={{ width: '100px' }}>
-            <small className="fw-bold text-uppercase text-muted">Productos</small>
-          </div>
-          <div className="text-center" style={{ width: '140px' }}>
-            <small className="fw-bold text-uppercase text-muted">Acciones</small>
+      <div className="table-responsive">
+        <table className="table table-hover mb-0" style={{ tableLayout: 'fixed' }}>
+          {colgroup}
+          <thead className="table-light sticky-top">
+            <tr className="text-nowrap">
+              <th>Unidad</th>
+              <th>Descripcion</th>
+              <th className="text-center">Productos</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+        </table>
+
+        <div ref={parentRef} style={{ height: '400px', overflow: 'auto' }} className="position-relative">
+          <div style={{ height: `${virtualizer.getTotalSize()}px`, width: '100%', position: 'relative' }}>
+            <table className="table table-hover mb-0" style={{ tableLayout: 'fixed' }}>
+              {colgroup}
+              <tbody>
+                {virtualizer.getVirtualItems().map((virtualItem) => {
+                  const unit = units[virtualItem.index]
+                  return (
+                    <tr
+                      key={unit.id}
+                      data-index={virtualItem.index}
+                      style={{
+                        height: `${virtualItem.size}px`,
+                        transform: `translateY(${virtualItem.start}px)`,
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        display: 'table',
+                        tableLayout: 'fixed',
+                      }}
+                      className="hover-bg-light transition-all"
+                    >
+                      <td>
+                        <div className="fw-bold text-dark">{unit.name}</div>
+                        <small className="text-muted">
+                          {unit.code ? `Codigo: ${unit.code}` : unit.unitType || 'Sin tipo'}
+                        </small>
+                      </td>
+
+                      <td>
+                        <div className="small text-muted text-truncate">
+                          {unit.description || <span className="fst-italic">Sin descripcion</span>}
+                        </div>
+                      </td>
+
+                      <td style={{ width: COL_WIDTHS[2] }} className="text-center">
+                        <span className="badge bg-secondary rounded-pill">
+                          {unit.productsCount ?? 0}
+                        </span>
+                      </td>
+
+                      <td style={{ width: COL_WIDTHS[3] }}>
+                        <div className="d-flex gap-1">
+                          {onView && (
+                            <Button size="small" variant="primary" buttonStyle="ghost" onClick={() => onView(unit)} title="Ver detalles">
+                              <i className="bi bi-eye" />
+                            </Button>
+                          )}
+                          {onEdit && (
+                            <Button size="small" variant="warning" buttonStyle="ghost" onClick={() => onEdit(unit)} title="Editar">
+                              <i className="bi bi-pencil" />
+                            </Button>
+                          )}
+                          {onDelete && (
+                            <Button size="small" variant="danger" buttonStyle="ghost" onClick={() => onDelete(unit.id)} title="Eliminar">
+                              <i className="bi bi-trash" />
+                            </Button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
 
-      {/* Virtualized Content */}
-      <div 
-        ref={parentRef}
-        style={{
-          height: '400px', // Smaller height for auxiliary modules
-          overflow: 'auto'
-        }}
-      >
-        <div
-          style={{
-            height: virtualizer.getTotalSize(),
-            width: '100%',
-            position: 'relative'
-          }}
-        >
-          {virtualItems.map((virtualRow) => {
-            const unit = units[virtualRow.index]
-            return (
-              <UnitRow
-                key={unit.id}
-                unit={unit}
-                style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  width: '100%',
-                  height: `${virtualRow.size}px`,
-                  transform: `translateY(${virtualRow.start}px)`,
-                  padding: '12px 16px'
-                }}
-                onEdit={onEdit}
-                onDelete={onDelete}
-                onView={onView}
-              />
-            )
-          })}
-        </div>
-      </div>
-
-      {/* Footer with count */}
       <div className="card-footer bg-light">
         <div className="d-flex justify-content-between align-items-center">
           <small className="text-muted">
@@ -197,7 +154,7 @@ export const UnitsTableVirtualized = React.memo<UnitsTableVirtualizedProps>(({
           </small>
           <small className="text-muted">
             <i className="bi bi-lightning me-1"></i>
-            Tabla virtualizada para máximo rendimiento
+            Tabla virtualizada
           </small>
         </div>
       </div>
