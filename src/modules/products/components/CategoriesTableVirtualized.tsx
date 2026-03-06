@@ -5,6 +5,8 @@ import { useVirtualizer } from '@tanstack/react-virtual'
 import { Button } from '@/ui/components/base'
 import type { Category } from '../types'
 
+const COL_WIDTHS = ['50px', '220px', 'auto', '100px', '130px', '140px', '120px'] as const
+
 interface CategoriesTableVirtualizedProps {
   categories: Category[]
   isLoading?: boolean
@@ -153,21 +155,23 @@ export const CategoriesTableVirtualized = React.memo<CategoriesTableVirtualizedP
       </div>
       
       <div className="table-responsive">
-        <table className="table table-hover mb-0">
+        <table className="table table-hover mb-0" style={{ tableLayout: 'fixed' }}>
+          <colgroup>
+            {COL_WIDTHS.map((w, i) => <col key={i} style={w !== 'auto' ? { width: w } : undefined} />)}
+          </colgroup>
           <thead className="table-light sticky-top">
-            <tr>
-              <th style={{ width: '50px' }}></th>
-              <th style={{ width: '300px' }}>Categoría</th>
+            <tr className="text-nowrap">
+              <th></th>
+              <th>Categoría</th>
               <th>Descripción</th>
-              <th style={{ width: '100px' }}>Productos</th>
-              <th style={{ width: '120px' }}>Estado</th>
-              <th style={{ width: '180px' }}>Fecha Creación</th>
-              <th style={{ width: '150px' }}>Acciones</th>
+              <th className="text-center">Prods</th>
+              <th>Estado</th>
+              <th>Creación</th>
+              <th>Acciones</th>
             </tr>
           </thead>
         </table>
-        
-        {/* Virtualized Table Body */}
+
         <div
           ref={parentRef}
           style={{ height: '600px', overflow: 'auto' }}
@@ -180,7 +184,16 @@ export const CategoriesTableVirtualized = React.memo<CategoriesTableVirtualizedP
               position: 'relative',
             }}
           >
-            <table className="table table-hover mb-0">
+            <table className="table table-hover mb-0" style={{ tableLayout: 'fixed' }}>
+              <colgroup>
+                <col style={{ width: '50px' }} />
+                <col style={{ width: '250px' }} />
+                <col />
+                <col style={{ width: '100px' }} />
+                <col style={{ width: '130px' }} />
+                <col style={{ width: '150px' }} />
+                <col style={{ width: '120px' }} />
+              </colgroup>
               <tbody>
                 {virtualizer.getVirtualItems().map((virtualItem) => {
                   const category = categories[virtualItem.index]
@@ -196,44 +209,41 @@ export const CategoriesTableVirtualized = React.memo<CategoriesTableVirtualizedP
                         top: 0,
                         left: 0,
                         width: '100%',
+                        display: 'table',
+                        tableLayout: 'fixed',
                       }}
                       className="hover-bg-light transition-all"
                     >
-                      {/* Icon */}
-                      <td style={{ width: '50px' }}>
+                      <td style={{ width: COL_WIDTHS[0] }}>
                         <div className="bg-primary-subtle rounded-circle p-2 d-inline-flex align-items-center justify-content-center">
                           <i className="bi bi-tag-fill text-primary" />
                         </div>
                       </td>
-                      
-                      {/* Name */}
-                      <td style={{ width: '300px' }}>
-                        <div className="fw-semibold">{category.name}</div>
+
+                      <td style={{ width: COL_WIDTHS[1] }}>
+                        <div className="fw-semibold text-truncate">{category.name}</div>
                         {category.slug && (
                           <code className="small text-muted">{category.slug}</code>
                         )}
                       </td>
-                      
-                      {/* Description */}
+
                       <td>
-                        <div className="text-truncate-lines-2 small">
+                        <div className="text-truncate small">
                           {category.description || (
                             <span className="text-muted fst-italic">Sin descripción</span>
                           )}
                         </div>
                       </td>
-                      
-                      {/* Products Count */}
-                      <td style={{ width: '100px' }}>
+
+                      <td style={{ width: COL_WIDTHS[3] }}>
                         <div className="d-flex align-items-center justify-content-center">
                           <span className="badge bg-secondary rounded-pill">
                             {category.productsCount ?? 0}
                           </span>
                         </div>
                       </td>
-                      
-                      {/* Status */}
-                      <td style={{ width: '120px' }}>
+
+                      <td style={{ width: COL_WIDTHS[4] }}>
                         <div className="form-check form-switch d-flex align-items-center gap-2">
                           <input
                             className="form-check-input"
@@ -249,10 +259,9 @@ export const CategoriesTableVirtualized = React.memo<CategoriesTableVirtualizedP
                         </div>
                       </td>
 
-                      {/* Created At */}
-                      <td style={{ width: '180px' }}>
+                      <td style={{ width: COL_WIDTHS[5] }}>
                         <div className="small text-muted">
-                          {category.createdAt ? 
+                          {category.createdAt ?
                             new Intl.DateTimeFormat('es-ES', {
                               dateStyle: 'short',
                               timeStyle: 'short'
@@ -261,9 +270,8 @@ export const CategoriesTableVirtualized = React.memo<CategoriesTableVirtualizedP
                           }
                         </div>
                       </td>
-                      
-                      {/* Actions */}
-                      <td style={{ width: '150px' }}>
+
+                      <td style={{ width: COL_WIDTHS[6] }}>
                         <div className="d-flex gap-1">
                           {onView && (
                             <Button

@@ -5,6 +5,8 @@ import { useVirtualizer } from '@tanstack/react-virtual'
 import { Button } from '@/ui/components/base'
 import type { Brand } from '../types'
 
+const COL_WIDTHS = ['50px', '220px', 'auto', '100px', '130px', '140px', '120px'] as const
+
 interface BrandsTableVirtualizedProps {
   brands: Brand[]
   isLoading?: boolean
@@ -103,23 +105,35 @@ export const BrandsTableVirtualized = React.memo<BrandsTableVirtualizedProps>(({
       </div>
       
       <div className="table-responsive">
-        <table className="table table-hover mb-0">
+        <table className="table table-hover mb-0" style={{ tableLayout: 'fixed' }}>
+          <colgroup>
+            {COL_WIDTHS.map((w, i) => <col key={i} style={w !== 'auto' ? { width: w } : undefined} />)}
+          </colgroup>
           <thead className="table-light sticky-top">
-            <tr>
-              <th style={{ width: '50px' }}></th>
-              <th style={{ width: '300px' }}>Marca</th>
+            <tr className="text-nowrap">
+              <th></th>
+              <th>Marca</th>
               <th>Descripción</th>
-              <th style={{ width: '100px' }}>Productos</th>
-              <th style={{ width: '120px' }}>Estado</th>
-              <th style={{ width: '180px' }}>Fecha Creación</th>
-              <th style={{ width: '150px' }}>Acciones</th>
+              <th className="text-center">Prods</th>
+              <th>Estado</th>
+              <th>Creación</th>
+              <th>Acciones</th>
             </tr>
           </thead>
         </table>
-        
+
         <div ref={parentRef} style={{ height: '600px', overflow: 'auto' }} className="position-relative">
           <div style={{ height: `${virtualizer.getTotalSize()}px`, width: '100%', position: 'relative' }}>
-            <table className="table table-hover mb-0">
+            <table className="table table-hover mb-0" style={{ tableLayout: 'fixed' }}>
+              <colgroup>
+                <col style={{ width: '50px' }} />
+                <col style={{ width: '250px' }} />
+                <col />
+                <col style={{ width: '100px' }} />
+                <col style={{ width: '130px' }} />
+                <col style={{ width: '150px' }} />
+                <col style={{ width: '120px' }} />
+              </colgroup>
               <tbody>
                 {virtualizer.getVirtualItems().map((virtualItem) => {
                   const brand = brands[virtualItem.index]
@@ -135,36 +149,37 @@ export const BrandsTableVirtualized = React.memo<BrandsTableVirtualizedProps>(({
                         top: 0,
                         left: 0,
                         width: '100%',
+                        display: 'table',
+                        tableLayout: 'fixed',
                       }}
                       className="hover-bg-light transition-all"
                     >
-                      <td style={{ width: '50px' }}>
+                      <td style={{ width: COL_WIDTHS[0] }}>
                         <div className="bg-primary-subtle rounded-circle p-2 d-inline-flex align-items-center justify-content-center">
                           <i className="bi bi-award-fill text-primary" />
                         </div>
                       </td>
-                      
-                      <td style={{ width: '300px' }}>
-                        <div className="fw-semibold">{brand.name}</div>
+
+                      <td style={{ width: COL_WIDTHS[1] }}>
+                        <div className="fw-semibold text-truncate">{brand.name}</div>
                         {brand.slug && <code className="small text-muted">{brand.slug}</code>}
                       </td>
-                      
+
                       <td>
-                        <div className="text-truncate-lines-2 small">
+                        <div className="text-truncate small">
                           {brand.description || <span className="text-muted fst-italic">Sin descripción</span>}
                         </div>
                       </td>
-                      
-                      {/* Products Count */}
-                      <td style={{ width: '100px' }}>
+
+                      <td style={{ width: COL_WIDTHS[3] }}>
                         <div className="d-flex align-items-center justify-content-center">
                           <span className="badge bg-secondary rounded-pill">
                             {brand.productsCount ?? 0}
                           </span>
                         </div>
                       </td>
-                      
-                      <td style={{ width: '120px' }}>
+
+                      <td style={{ width: COL_WIDTHS[4] }}>
                         <div className="form-check form-switch d-flex align-items-center gap-2">
                           <input
                             className="form-check-input"
@@ -180,13 +195,13 @@ export const BrandsTableVirtualized = React.memo<BrandsTableVirtualizedProps>(({
                         </div>
                       </td>
 
-                      <td style={{ width: '180px' }}>
+                      <td style={{ width: COL_WIDTHS[5] }}>
                         <div className="small text-muted">
                           {brand.createdAt ? new Intl.DateTimeFormat('es-ES', { dateStyle: 'short', timeStyle: 'short' }).format(new Date(brand.createdAt)) : 'Sin fecha'}
                         </div>
                       </td>
-                      
-                      <td style={{ width: '150px' }}>
+
+                      <td style={{ width: COL_WIDTHS[6] }}>
                         <div className="d-flex gap-1">
                           {onView && <Button size="small" variant="primary" buttonStyle="ghost" onClick={() => onView(brand)} title="Ver detalles"><i className="bi bi-eye" /></Button>}
                           {onEdit && <Button size="small" variant="warning" buttonStyle="ghost" onClick={() => onEdit(brand)} title="Editar marca"><i className="bi bi-pencil" /></Button>}
