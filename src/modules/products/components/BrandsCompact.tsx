@@ -10,9 +10,10 @@ interface BrandsCompactProps {
   onEdit?: (brand: Brand) => void
   onView?: (brand: Brand) => void
   onDelete?: (brandId: string) => void
+  onToggleActive?: (brand: Brand) => void
 }
 
-export const BrandsCompact = React.memo<BrandsCompactProps>(({ brands, isLoading = false, onEdit, onView, onDelete }) => {
+export const BrandsCompact = React.memo<BrandsCompactProps>(({ brands, isLoading = false, onEdit, onView, onDelete, onToggleActive }) => {
   if (isLoading) {
     return (
       <div className="card shadow-sm">
@@ -71,6 +72,10 @@ export const BrandsCompact = React.memo<BrandsCompactProps>(({ brands, isLoading
                   {brand.slug && <code className="bg-light px-2 py-1 rounded me-2 small">{brand.slug}</code>}
                 </div>
                 {brand.description && <small className="text-muted text-truncate">{brand.description}</small>}
+              </div>
+
+              <div className="form-check form-switch mb-0 me-2">
+                <input className="form-check-input" type="checkbox" role="switch" checked={brand.isActive !== false} onChange={() => onToggleActive?.(brand)} title={brand.isActive !== false ? 'Desactivar' : 'Activar'} />
               </div>
 
               <div className="d-flex gap-1 ms-2">

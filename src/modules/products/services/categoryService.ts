@@ -77,7 +77,8 @@ export const categoryService = {
         attributes: {
           name: data.name,
           ...(data.description && { description: data.description }),
-          ...(data.slug && { slug: data.slug })
+          ...(data.slug && { slug: data.slug }),
+          ...(data.isActive !== undefined && { isActive: data.isActive })
         }
       }
     }
@@ -92,6 +93,7 @@ export const categoryService = {
     if (data.name !== undefined) attributes.name = data.name
     if (data.description !== undefined) attributes.description = data.description
     if (data.slug !== undefined) attributes.slug = data.slug
+    if (data.isActive !== undefined) attributes.isActive = data.isActive
 
     const payload = {
       data: {
@@ -107,5 +109,13 @@ export const categoryService = {
 
   async deleteCategory(id: string): Promise<void> {
     await axios.delete(`${CATEGORIES_ENDPOINT}/${id}`)
+  },
+
+  async toggleActive(categoryId: string, isActive: boolean, includeProducts?: boolean): Promise<{ message: string; category_updated: boolean; products_affected: number }> {
+    const response = await axios.post(`/api/v1/categories/${categoryId}/toggle-active`, {
+      is_active: isActive,
+      include_products: includeProducts ?? false
+    })
+    return response.data
   }
 }

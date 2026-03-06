@@ -11,6 +11,7 @@ interface CategoriesTableVirtualizedProps {
   onEdit?: (category: Category) => void
   onView?: (category: Category) => void
   onDelete?: (categoryId: string) => void
+  onToggleActive?: (category: Category) => void
 }
 
 export const CategoriesTableVirtualized = React.memo<CategoriesTableVirtualizedProps>(({
@@ -18,7 +19,8 @@ export const CategoriesTableVirtualized = React.memo<CategoriesTableVirtualizedP
   isLoading = false,
   onEdit,
   onView,
-  onDelete
+  onDelete,
+  onToggleActive
 }) => {
   const parentRef = React.useRef<HTMLDivElement>(null)
   
@@ -232,8 +234,21 @@ export const CategoriesTableVirtualized = React.memo<CategoriesTableVirtualizedP
                       
                       {/* Status */}
                       <td style={{ width: '120px' }}>
+                        <div className="form-check form-switch d-flex align-items-center gap-2">
+                          <input
+                            className="form-check-input"
+                            type="checkbox"
+                            role="switch"
+                            checked={category.isActive !== false}
+                            onChange={() => onToggleActive?.(category)}
+                            title={category.isActive !== false ? 'Desactivar categoría' : 'Activar categoría'}
+                          />
+                          <span className={`badge ${category.isActive !== false ? 'bg-success' : 'bg-secondary'}`}>
+                            {category.isActive !== false ? 'Activa' : 'Inactiva'}
+                          </span>
+                        </div>
                       </td>
-                      
+
                       {/* Created At */}
                       <td style={{ width: '180px' }}>
                         <div className="small text-muted">

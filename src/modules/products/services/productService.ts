@@ -236,6 +236,53 @@ export const productService = {
   }
 }
 
+export interface BulkToggleResponse {
+  message: string
+  affected_count: number
+}
+
+export interface BulkPriceUpdateResponse {
+  message: string
+  affected_count: number
+  operation: 'increase' | 'decrease'
+  percentage: number
+}
+
+export const productBulkService = {
+  async bulkToggleActive(productIds: number[], isActive: boolean): Promise<BulkToggleResponse> {
+    const response = await axios.post('/api/v1/products/bulk-toggle-active', {
+      product_ids: productIds,
+      is_active: isActive
+    })
+    return response.data
+  },
+
+  async bulkToggleByBrand(brandId: number, isActive: boolean): Promise<BulkToggleResponse> {
+    const response = await axios.post('/api/v1/products/bulk-toggle-by-brand', {
+      brand_id: brandId,
+      is_active: isActive
+    })
+    return response.data
+  },
+
+  async bulkToggleByCategory(categoryId: number, isActive: boolean): Promise<BulkToggleResponse> {
+    const response = await axios.post('/api/v1/products/bulk-toggle-by-category', {
+      category_id: categoryId,
+      is_active: isActive
+    })
+    return response.data
+  },
+
+  async bulkPriceUpdate(brandId: number, percentage: number, operation: 'increase' | 'decrease'): Promise<BulkPriceUpdateResponse> {
+    const response = await axios.post('/api/v1/products/bulk-price-update', {
+      brand_id: brandId,
+      percentage,
+      operation
+    })
+    return response.data
+  }
+}
+
 /**
  * Response from file upload endpoints
  */

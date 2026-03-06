@@ -10,9 +10,10 @@ interface CategoriesShowcaseProps {
   onEdit?: (category: Category) => void
   onView?: (category: Category) => void
   onDelete?: (categoryId: string) => void
+  onToggleActive?: (category: Category) => void
 }
 
-export const CategoriesShowcase = React.memo<CategoriesShowcaseProps>(({ categories, isLoading = false, onEdit, onView, onDelete }) => {
+export const CategoriesShowcase = React.memo<CategoriesShowcaseProps>(({ categories, isLoading = false, onEdit, onView, onDelete, onToggleActive }) => {
   if (isLoading) {
     return (
       <div className="row g-4">
@@ -72,6 +73,12 @@ export const CategoriesShowcase = React.memo<CategoriesShowcaseProps>(({ categor
 
                 {/* Status Badge */}
                 <div className="position-absolute top-0 end-0 m-3">
+                  <div className="bg-white bg-opacity-90 rounded px-3 py-2 shadow d-flex align-items-center gap-2">
+                    <div className="form-check form-switch mb-0">
+                      <input className="form-check-input" type="checkbox" role="switch" checked={category.isActive !== false} onChange={() => onToggleActive?.(category)} title={category.isActive !== false ? 'Desactivar' : 'Activar'} />
+                      <span className={`badge ${category.isActive !== false ? 'bg-success' : 'bg-secondary'}`}>{category.isActive !== false ? 'Activa' : 'Inactiva'}</span>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Slug Badge */}

@@ -14,6 +14,8 @@ import { PaginationPro } from './PaginationPro'
 import { useCategories, useCategoryMutations, useErrorHandler } from '../hooks'
 import { useCategoriesUIStore, useCategoriesFilters, useCategoriesSort, useCategoriesPage, useCategoriesViewMode } from '../store/categoriesUIStore'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
+import { categoryService } from '../services/categoryService'
+import type { Category } from '../types'
 
 const CategoriesStatsBar = React.memo<{ 
   total: number
@@ -65,7 +67,7 @@ export const CategoriesAdminPagePro = React.memo(() => {
   const navigation = useNavigationProgress()
   const confirmModalRef = useRef<ConfirmModalHandle>(null)
   // Función simple de toast usando DOM directo
-  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+  const showToast = React.useCallback((message: string, type: 'success' | 'error' = 'success') => {
     // Crear toast elemento directamente
     const toast = document.createElement('div')
     toast.style.cssText = `
@@ -108,7 +110,7 @@ export const CategoriesAdminPagePro = React.memo(() => {
         }, 300)
       }
     }, 4000)
-  }
+  }, [])
   const { handleError } = useErrorHandler()
 
   // Get UI state from Zustand store
@@ -162,7 +164,7 @@ export const CategoriesAdminPagePro = React.memo(() => {
         handleError(error, 'Error al eliminar categoría')
       }
     }
-  }, [deleteCategory, refresh, handleError])
+  }, [deleteCategory, refresh, handleError, showToast])
 
   const handleCreateNew = React.useCallback(() => {
     navigation.push('/dashboard/products/categories/create')
@@ -172,6 +174,37 @@ export const CategoriesAdminPagePro = React.memo(() => {
     navigation.push('/dashboard/products')
   }, [navigation])
 
+  const handleToggleActive = React.useCallback(async (category: Category) => {
+    const newState = !(category.isActive !== false)
+    const action = newState ? 'activar' : 'desactivar'
+
+    let includeProducts = false
+    if (!newState && (category.productsCount ?? 0) > 0) {
+      const confirmed = await confirmModalRef.current?.confirm(
+        `¿Desactivar la categoría "${category.name}"? Tiene ${category.productsCount} producto(s) asociado(s). ¿También desactivar sus productos?`,
+        {
+          title: 'Desactivar Categoría',
+          confirmText: 'Desactivar categoría y productos',
+          cancelText: 'Solo la categoría',
+          confirmVariant: 'warning',
+          icon: <i className="bi bi-exclamation-triangle-fill text-warning" />
+        }
+      )
+      includeProducts = confirmed ?? false
+    }
+
+    try {
+      const result = await categoryService.toggleActive(category.id, newState, includeProducts)
+      refresh()
+      const msg = result.products_affected > 0
+        ? `Categoría ${newState ? 'activada' : 'desactivada'}. ${result.products_affected} producto(s) afectado(s).`
+        : `Categoría ${newState ? 'activada' : 'desactivada'} exitosamente.`
+      showToast(msg, 'success')
+    } catch (error) {
+      handleError(error, `Error al ${action} categoría`)
+    }
+  }, [confirmModalRef, refresh, showToast, handleError])
+
   // Dynamic view rendering based on viewMode
   const renderCategoriesView = React.useCallback(() => {
     const props = {
@@ -180,6 +213,7 @@ export const CategoriesAdminPagePro = React.memo(() => {
       onEdit: handleEdit,
       onView: handleView,
       onDelete: handleDelete,
+      onToggleActive: handleToggleActive,
     }
 
     switch (viewMode) {
@@ -196,7 +230,7 @@ export const CategoriesAdminPagePro = React.memo(() => {
       default:
         return <CategoriesTableVirtualized {...props} />
     }
-  }, [viewMode, categories, isLoading, handleEdit, handleView, handleDelete])
+  }, [viewMode, categories, isLoading, handleEdit, handleView, handleDelete, handleToggleActive])
 
   return (
     <div className="container-fluid py-4">

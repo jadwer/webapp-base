@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { getAllUsers } from '../services/usersService'
 import { User } from '../types/user'
 
-export function useUsers() {
+export function useUsers(options?: { trashed?: 'with' | 'only' | 'without' }) {
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -12,7 +12,7 @@ export function useUsers() {
   const fetchUsers = useCallback(async () => {
     setLoading(true)
     try {
-      const data = await getAllUsers()
+      const data = await getAllUsers(options?.trashed ? { trashed: options.trashed } : undefined)
       setUsers(data)
       setError(null)
     } catch (err) {
@@ -21,7 +21,7 @@ export function useUsers() {
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [options?.trashed])
 
   useEffect(() => {
     fetchUsers()

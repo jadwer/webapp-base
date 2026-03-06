@@ -10,9 +10,10 @@ interface BrandsGridProps {
   onEdit?: (brand: Brand) => void
   onView?: (brand: Brand) => void
   onDelete?: (brandId: string) => void
+  onToggleActive?: (brand: Brand) => void
 }
 
-export const BrandsGrid = React.memo<BrandsGridProps>(({ brands, isLoading = false, onEdit, onView, onDelete }) => {
+export const BrandsGrid = React.memo<BrandsGridProps>(({ brands, isLoading = false, onEdit, onView, onDelete, onToggleActive }) => {
   if (isLoading) {
     return (
       <div className="row g-3">
@@ -59,11 +60,13 @@ export const BrandsGrid = React.memo<BrandsGridProps>(({ brands, isLoading = fal
                 </div>
               </div>
 
-              {brand.slug && (
-                <div className="mb-2">
-                  <code className="bg-light px-2 py-1 rounded small text-muted">{brand.slug}</code>
+              <div className="d-flex align-items-center gap-2 mb-2">
+                {brand.slug && <code className="bg-light px-2 py-1 rounded small text-muted">{brand.slug}</code>}
+                <div className="form-check form-switch ms-auto mb-0">
+                  <input className="form-check-input" type="checkbox" role="switch" checked={brand.isActive !== false} onChange={() => onToggleActive?.(brand)} title={brand.isActive !== false ? 'Desactivar' : 'Activar'} />
+                  <span className={`badge ${brand.isActive !== false ? 'bg-success' : 'bg-secondary'}`}>{brand.isActive !== false ? 'Activa' : 'Inactiva'}</span>
                 </div>
-              )}
+              </div>
 
               <div className="flex-fill">
                 {brand.description ? (

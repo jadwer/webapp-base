@@ -27,6 +27,7 @@ export function transformJsonApiCategory(resource: JsonApiResource): Category {
     name: (resource.attributes.name || '') as string,
     description: resource.attributes.description as string | undefined,
     slug: (resource.attributes.slug || '') as string,
+    isActive: Boolean(resource.attributes.isActive ?? true),
     createdAt: (resource.attributes.createdAt || '') as string,
     updatedAt: (resource.attributes.updatedAt || '') as string,
     productsCount: resource.attributes.productsCount as number | undefined
@@ -39,6 +40,7 @@ export function transformJsonApiBrand(resource: JsonApiResource): Brand {
     name: (resource.attributes.name || '') as string,
     description: resource.attributes.description as string | undefined,
     slug: (resource.attributes.slug || '') as string,
+    isActive: Boolean(resource.attributes.isActive ?? true),
     createdAt: (resource.attributes.createdAt || '') as string,
     updatedAt: (resource.attributes.updatedAt || '') as string,
     productsCount: resource.attributes.productsCount as number | undefined

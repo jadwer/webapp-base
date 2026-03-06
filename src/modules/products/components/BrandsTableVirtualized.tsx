@@ -11,6 +11,7 @@ interface BrandsTableVirtualizedProps {
   onEdit?: (brand: Brand) => void
   onView?: (brand: Brand) => void
   onDelete?: (brandId: string) => void
+  onToggleActive?: (brand: Brand) => void
 }
 
 export const BrandsTableVirtualized = React.memo<BrandsTableVirtualizedProps>(({
@@ -18,7 +19,8 @@ export const BrandsTableVirtualized = React.memo<BrandsTableVirtualizedProps>(({
   isLoading = false,
   onEdit,
   onView,
-  onDelete
+  onDelete,
+  onToggleActive
 }) => {
   const parentRef = React.useRef<HTMLDivElement>(null)
   
@@ -163,8 +165,21 @@ export const BrandsTableVirtualized = React.memo<BrandsTableVirtualizedProps>(({
                       </td>
                       
                       <td style={{ width: '120px' }}>
+                        <div className="form-check form-switch d-flex align-items-center gap-2">
+                          <input
+                            className="form-check-input"
+                            type="checkbox"
+                            role="switch"
+                            checked={brand.isActive !== false}
+                            onChange={() => onToggleActive?.(brand)}
+                            title={brand.isActive !== false ? 'Desactivar marca' : 'Activar marca'}
+                          />
+                          <span className={`badge ${brand.isActive !== false ? 'bg-success' : 'bg-secondary'}`}>
+                            {brand.isActive !== false ? 'Activa' : 'Inactiva'}
+                          </span>
+                        </div>
                       </td>
-                      
+
                       <td style={{ width: '180px' }}>
                         <div className="small text-muted">
                           {brand.createdAt ? new Intl.DateTimeFormat('es-ES', { dateStyle: 'short', timeStyle: 'short' }).format(new Date(brand.createdAt)) : 'Sin fecha'}

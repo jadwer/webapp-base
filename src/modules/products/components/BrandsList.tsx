@@ -10,9 +10,10 @@ interface BrandsListProps {
   onEdit?: (brand: Brand) => void
   onView?: (brand: Brand) => void
   onDelete?: (brandId: string) => void
+  onToggleActive?: (brand: Brand) => void
 }
 
-export const BrandsList = React.memo<BrandsListProps>(({ brands, isLoading = false, onEdit, onView, onDelete }) => {
+export const BrandsList = React.memo<BrandsListProps>(({ brands, isLoading = false, onEdit, onView, onDelete, onToggleActive }) => {
   if (isLoading) {
     return (
       <div style={{ height: '600px', overflowY: 'auto' }}>
@@ -63,6 +64,10 @@ export const BrandsList = React.memo<BrandsListProps>(({ brands, isLoading = fal
                       {brand.slug && <code className="ms-2 bg-light px-2 py-1 rounded small">{brand.slug}</code>}
                     </h5>
                     <div className="d-flex align-items-center gap-2">
+                      <div className="form-check form-switch mb-0">
+                        <input className="form-check-input" type="checkbox" role="switch" checked={brand.isActive !== false} onChange={() => onToggleActive?.(brand)} title={brand.isActive !== false ? 'Desactivar' : 'Activar'} />
+                        <span className={`badge ${brand.isActive !== false ? 'bg-success' : 'bg-secondary'}`}>{brand.isActive !== false ? 'Activa' : 'Inactiva'}</span>
+                      </div>
                     </div>
                   </div>
                   

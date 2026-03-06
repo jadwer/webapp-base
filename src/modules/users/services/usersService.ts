@@ -28,9 +28,13 @@ const prepareRoleRelationship = (roleId: string | undefined) => {
   }
 }
 
-export const getAllUsers = async (): Promise<User[]> => {
+export const getAllUsers = async (params?: { trashed?: 'with' | 'only' | 'without' }): Promise<User[]> => {
   try {
-    const response = await axiosClient.get(`${RESOURCE}?include=roles`)
+    let url = `${RESOURCE}?include=roles`
+    if (params?.trashed) {
+      url += `&filter[trashed]=${params.trashed}`
+    }
+    const response = await axiosClient.get(url)
     
     // Crear un mapa de roles incluidos para búsqueda rápida
     const rolesMap = new Map()
@@ -215,4 +219,9 @@ export const syncRoles = async (
   roles: string[]
 ): Promise<void> => {
   await axiosClient.post(`${RESOURCE}/${userId}/sync-roles`, { roles })
+}
+
+export const restoreUser = async (id: string): Promise<{ message: string; data: { id: number; name: string; email: string } }> => {
+  const response = await axiosClient.post(`${RESOURCE}/${id}/restore`)
+  return response.data
 }

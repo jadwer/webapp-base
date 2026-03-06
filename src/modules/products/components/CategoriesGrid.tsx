@@ -10,6 +10,7 @@ interface CategoriesGridProps {
   onEdit?: (category: Category) => void
   onView?: (category: Category) => void
   onDelete?: (categoryId: string) => void
+  onToggleActive?: (category: Category) => void
 }
 
 export const CategoriesGrid = React.memo<CategoriesGridProps>(({
@@ -17,7 +18,8 @@ export const CategoriesGrid = React.memo<CategoriesGridProps>(({
   isLoading = false,
   onEdit,
   onView,
-  onDelete
+  onDelete,
+  onToggleActive
 }) => {
   if (isLoading) {
     return (
@@ -89,14 +91,14 @@ export const CategoriesGrid = React.memo<CategoriesGridProps>(({
                 </div>
               </div>
 
-              {/* Slug */}
-              {category.slug && (
-                <div className="mb-2">
-                  <code className="bg-light px-2 py-1 rounded small text-muted">
-                    {category.slug}
-                  </code>
+              {/* Slug & Status */}
+              <div className="d-flex align-items-center gap-2 mb-2">
+                {category.slug && <code className="bg-light px-2 py-1 rounded small text-muted">{category.slug}</code>}
+                <div className="form-check form-switch ms-auto mb-0">
+                  <input className="form-check-input" type="checkbox" role="switch" checked={category.isActive !== false} onChange={() => onToggleActive?.(category)} title={category.isActive !== false ? 'Desactivar' : 'Activar'} />
+                  <span className={`badge ${category.isActive !== false ? 'bg-success' : 'bg-secondary'}`}>{category.isActive !== false ? 'Activa' : 'Inactiva'}</span>
                 </div>
-              )}
+              </div>
 
               {/* Description */}
               <div className="flex-fill">

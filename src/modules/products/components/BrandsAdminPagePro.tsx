@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useRef, useCallback } from 'react'
+import React, { useRef, useCallback, useState } from 'react'
 import { Button, ConfirmModal } from '@/ui/components/base'
 import type { ConfirmModalHandle } from '@/ui/components/base'
 import { BrandsTableVirtualized } from './BrandsTableVirtualized'
@@ -11,9 +11,12 @@ import { BrandsShowcase } from './BrandsShowcase'
 import { BrandsFiltersSimple } from './BrandsFiltersSimple'
 import { BrandsViewModeSelector } from './BrandsViewModeSelector'
 import { PaginationPro } from './PaginationPro'
+import { BulkPriceUpdateDialog } from './BulkPriceUpdateDialog'
 import { useBrands, useBrandMutations, useErrorHandler } from '../hooks'
 import { useBrandsUIStore, useBrandsFilters, useBrandsSort, useBrandsPage, useBrandsViewMode } from '../store/brandsUIStore'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
+import { brandService } from '../services/brandService'
+import type { Brand } from '../types'
 
 const BrandsStatsBar = React.memo<{ 
   total: number
@@ -175,6 +178,40 @@ export const BrandsAdminPagePro = React.memo(() => {
     navigation.push('/dashboard/products')
   }, [navigation])
 
+  // Bulk Price Update Dialog state
+  const [showPriceDialog, setShowPriceDialog] = useState(false)
+
+  const handleToggleActive = React.useCallback(async (brand: Brand) => {
+    const newState = !(brand.isActive !== false)
+    const action = newState ? 'activar' : 'desactivar'
+
+    let includeProducts = false
+    if (!newState && (brand.productsCount ?? 0) > 0) {
+      const confirmed = await confirmModalRef.current?.confirm(
+        `¿Desactivar la marca "${brand.name}"? Tiene ${brand.productsCount} producto(s) asociado(s). ¿También desactivar sus productos?`,
+        {
+          title: 'Desactivar Marca',
+          confirmText: 'Desactivar marca y productos',
+          cancelText: 'Solo la marca',
+          confirmVariant: 'warning',
+          icon: <i className="bi bi-exclamation-triangle-fill text-warning" />
+        }
+      )
+      includeProducts = confirmed ?? false
+    }
+
+    try {
+      const result = await brandService.toggleActive(brand.id, newState, includeProducts)
+      refresh()
+      const msg = result.products_affected > 0
+        ? `Marca ${newState ? 'activada' : 'desactivada'}. ${result.products_affected} producto(s) afectado(s).`
+        : `Marca ${newState ? 'activada' : 'desactivada'} exitosamente.`
+      showToast(msg, 'success')
+    } catch (error) {
+      handleError(error, `Error al ${action} marca`)
+    }
+  }, [confirmModalRef, refresh, showToast, handleError])
+
   // Dynamic view rendering based on viewMode
   const renderBrandsView = React.useCallback(() => {
     const props = {
@@ -183,6 +220,7 @@ export const BrandsAdminPagePro = React.memo(() => {
       onEdit: handleEdit,
       onView: handleView,
       onDelete: handleDelete,
+      onToggleActive: handleToggleActive,
     }
 
     switch (viewMode) {
@@ -199,7 +237,7 @@ export const BrandsAdminPagePro = React.memo(() => {
       default:
         return <BrandsTableVirtualized {...props} />
     }
-  }, [viewMode, brands, isLoading, handleEdit, handleView, handleDelete])
+  }, [viewMode, brands, isLoading, handleEdit, handleView, handleDelete, handleToggleActive])
 
   return (
     <div className="container-fluid py-4">
@@ -241,6 +279,14 @@ export const BrandsAdminPagePro = React.memo(() => {
             >
               <i className="bi bi-arrow-clockwise me-2" />
               Actualizar
+            </Button>
+            <Button
+              variant="success"
+              buttonStyle="outline"
+              onClick={() => setShowPriceDialog(true)}
+            >
+              <i className="bi bi-currency-dollar me-2" />
+              Actualizar Precios
             </Button>
             <Button
               variant="primary"
@@ -339,6 +385,17 @@ export const BrandsAdminPagePro = React.memo(() => {
         </div>
       </div>
       
+      {/* Bulk Price Update Dialog */}
+      <BulkPriceUpdateDialog
+        show={showPriceDialog}
+        onHide={() => setShowPriceDialog(false)}
+        brands={brands}
+        onSuccess={() => {
+          refresh()
+          showToast('Precios actualizados exitosamente', 'success')
+        }}
+      />
+
       {/* Confirm Modal */}
       <ConfirmModal ref={confirmModalRef} />
     </div>

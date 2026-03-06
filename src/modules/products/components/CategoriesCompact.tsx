@@ -10,9 +10,10 @@ interface CategoriesCompactProps {
   onEdit?: (category: Category) => void
   onView?: (category: Category) => void
   onDelete?: (categoryId: string) => void
+  onToggleActive?: (category: Category) => void
 }
 
-export const CategoriesCompact = React.memo<CategoriesCompactProps>(({ categories, isLoading = false, onEdit, onView, onDelete }) => {
+export const CategoriesCompact = React.memo<CategoriesCompactProps>(({ categories, isLoading = false, onEdit, onView, onDelete, onToggleActive }) => {
   if (isLoading) {
     return (
       <div className="card shadow-sm">
@@ -85,6 +86,11 @@ export const CategoriesCompact = React.memo<CategoriesCompactProps>(({ categorie
                 {category.description && (
                   <small className="text-muted text-truncate">{category.description}</small>
                 )}
+              </div>
+
+              {/* Toggle */}
+              <div className="form-check form-switch mb-0 me-2">
+                <input className="form-check-input" type="checkbox" role="switch" checked={category.isActive !== false} onChange={() => onToggleActive?.(category)} title={category.isActive !== false ? 'Desactivar' : 'Activar'} />
               </div>
 
               {/* Actions */}

@@ -77,7 +77,8 @@ export const brandService = {
         attributes: {
           name: data.name,
           ...(data.description && { description: data.description }),
-          ...(data.slug && { slug: data.slug })
+          ...(data.slug && { slug: data.slug }),
+          ...(data.isActive !== undefined && { isActive: data.isActive })
         }
       }
     }
@@ -92,6 +93,7 @@ export const brandService = {
     if (data.name !== undefined) attributes.name = data.name
     if (data.description !== undefined) attributes.description = data.description
     if (data.slug !== undefined) attributes.slug = data.slug
+    if (data.isActive !== undefined) attributes.isActive = data.isActive
 
     const payload = {
       data: {
@@ -107,5 +109,13 @@ export const brandService = {
 
   async deleteBrand(id: string): Promise<void> {
     await axios.delete(`${BRANDS_ENDPOINT}/${id}`)
+  },
+
+  async toggleActive(brandId: string, isActive: boolean, includeProducts?: boolean): Promise<{ message: string; brand_updated: boolean; products_affected: number }> {
+    const response = await axios.post(`/api/v1/brands/${brandId}/toggle-active`, {
+      is_active: isActive,
+      include_products: includeProducts ?? false
+    })
+    return response.data
   }
 }

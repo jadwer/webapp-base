@@ -9,6 +9,7 @@ export interface User {
   roles?: Role[] // Relación completa con roles
   createdAt?: string
   updatedAt?: string
+  deletedAt?: string | null
 }
 
 export interface Role {

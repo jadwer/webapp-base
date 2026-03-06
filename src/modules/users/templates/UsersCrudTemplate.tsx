@@ -5,13 +5,16 @@ import ToastNotifier, { ToastNotifierHandle } from '@/ui/ToastNotifier'
 import ConfirmModal, { ConfirmModalHandle } from '@/ui/ConfirmModal'
 import { useUsers } from '../hooks/useUsers'
 import { useUserForm } from '../hooks/useUserForm'
-import { deleteUser } from '../services/usersService'
+import { deleteUser, restoreUser } from '../services/usersService'
 import { User } from '../types/user'
 import UserForm from '../components/UserForm'
 import UserTable from '../components/UserTable'
 
 export default function UsersCrudTemplate() {
-  const { users, loading: loadingUsers, error, refetch } = useUsers()
+  const [showDeleted, setShowDeleted] = useState(false)
+  const { users, loading: loadingUsers, error, refetch } = useUsers(
+    showDeleted ? { trashed: 'with' } : undefined
+  )
   const [editingUser, setEditingUser] = useState<User | null>(null)
 
   const toastRef = useRef<ToastNotifierHandle>(null)
@@ -48,6 +51,19 @@ export default function UsersCrudTemplate() {
     }
   }
 
+  const handleRestore = async (id: string) => {
+    const confirmed = await confirmRef.current?.confirm('¿Restaurar este usuario eliminado?')
+    if (!confirmed) return
+
+    try {
+      await restoreUser(id)
+      toastRef.current?.show('Usuario restaurado con éxito', 'success')
+      refetch()
+    } catch {
+      toastRef.current?.show('Error al restaurar el usuario', 'error')
+    }
+  }
+
   return (
     <div className="container mt-4">
       <h2>Gestión de Usuarios</h2>
@@ -75,10 +91,25 @@ export default function UsersCrudTemplate() {
         </div>
 
         <div className="col-md-6">
-          <h4>Lista de Usuarios</h4>
+          <div className="d-flex justify-content-between align-items-center mb-2">
+            <h4 className="mb-0">Lista de Usuarios</h4>
+            <div className="form-check form-switch">
+              <input
+                className="form-check-input"
+                type="checkbox"
+                role="switch"
+                id="showDeletedToggle"
+                checked={showDeleted}
+                onChange={e => setShowDeleted(e.target.checked)}
+              />
+              <label className="form-check-label" htmlFor="showDeletedToggle">
+                Mostrar eliminados
+              </label>
+            </div>
+          </div>
           {loadingUsers && <p>Cargando...</p>}
           {error && <p className="text-danger">{error}</p>}
-          <UserTable users={users} onEdit={handleEdit} onDelete={handleDelete} />
+          <UserTable users={users} onEdit={handleEdit} onDelete={handleDelete} onRestore={handleRestore} />
         </div>
       </div>
     </div>
