@@ -10,6 +10,7 @@ export const TopNav: React.FC = () => {
   // Categories endpoint requires auth - only fetch when authenticated
   const { categories, isLoading } = useCategories({
     page: { size: 50 },
+    filter: { isActive: true },
     sort: { field: 'name', direction: 'asc' },
     enabled: isAuthenticated,
   })

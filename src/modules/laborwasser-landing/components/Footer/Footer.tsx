@@ -13,6 +13,7 @@ export const Footer: React.FC = () => {
   const { isAuthenticated } = useAuth()
   const { categories } = useCategories({
     page: { size: 20 },
+    filter: { isActive: true },
     sort: { field: 'name', direction: 'asc' },
     enabled: isAuthenticated,
   })

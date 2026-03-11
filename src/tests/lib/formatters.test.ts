@@ -14,8 +14,6 @@ import {
 } from '@/lib/formatters'
 
 describe('formatters', () => {
-  const originalEnv = process.env
-
   beforeEach(() => {
     // Reset env before each test to ensure isolation
     vi.stubEnv('NEXT_PUBLIC_CURRENCY', '')

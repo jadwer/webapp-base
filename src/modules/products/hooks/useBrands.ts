@@ -6,7 +6,7 @@ import { BrandsResponse, BrandSortOptions } from '../types'
 
 interface UseBrandsParams {
   page?: { number?: number; size?: number }
-  filter?: { name?: string; slug?: string }
+  filter?: { name?: string; slug?: string; isActive?: boolean }
   sort?: BrandSortOptions
 }
 

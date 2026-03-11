@@ -6,7 +6,7 @@ import { CategoriesResponse, CategorySortOptions } from '../types'
 
 interface UseCategoriesParams {
   page?: { number?: number; size?: number }
-  filter?: { name?: string; slug?: string }
+  filter?: { name?: string; slug?: string; isActive?: boolean }
   sort?: CategorySortOptions
   enabled?: boolean
 }

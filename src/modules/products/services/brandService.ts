@@ -15,11 +15,11 @@ const BRANDS_ENDPOINT = '/api/v1/brands'
 export const brandService = {
   async getBrands(params?: {
     page?: { number?: number; size?: number }
-    filter?: { name?: string; slug?: string }
+    filter?: { name?: string; slug?: string; isActive?: boolean }
     sort?: BrandSortOptions
   }): Promise<BrandsResponse> {
     const queryParams: QueryParams = {}
-    
+
     if (params?.page) {
       if (params.page.number !== undefined) {
         queryParams['page[number]'] = params.page.number
@@ -28,10 +28,11 @@ export const brandService = {
         queryParams['page[size]'] = params.page.size
       }
     }
-    
+
     if (params?.filter) {
       if (params.filter.name) queryParams['filter[name]'] = params.filter.name
       if (params.filter.slug) queryParams['filter[slug]'] = params.filter.slug
+      if (params.filter.isActive !== undefined) queryParams['filter[is_active]'] = params.filter.isActive ? '1' : '0'
     }
     
     if (params?.sort) {
