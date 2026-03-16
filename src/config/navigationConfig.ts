@@ -297,6 +297,19 @@ export const adminNavigation: NavigationSection = {
       ],
     },
 
+    // Correos
+    {
+      key: 'mailer-manager',
+      label: 'Correos',
+      icon: 'bi-envelope',
+      activePathPrefixes: ['/dashboard/mailer-manager'],
+      permissions: [],
+      items: [
+        { href: '/dashboard/mailer-manager', label: 'Plantillas', icon: 'bi-palette', permissions: ['email-templates.index'] },
+        { href: '/dashboard/mailer-manager/system-emails', label: 'Emails del Sistema', icon: 'bi-gear', permissions: ['system-emails.index'] },
+      ],
+    },
+
     // Configuración
     {
       key: 'settings',

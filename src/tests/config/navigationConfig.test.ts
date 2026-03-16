@@ -15,8 +15,8 @@ describe('navigationConfig', () => {
       expect(adminNavigation.topLinks).toHaveLength(3)
     })
 
-    it('has 18 groups', () => {
-      expect(adminNavigation.groups).toHaveLength(18)
+    it('has 19 groups', () => {
+      expect(adminNavigation.groups).toHaveLength(19)
     })
 
     it('has 6 disabled modules', () => {
