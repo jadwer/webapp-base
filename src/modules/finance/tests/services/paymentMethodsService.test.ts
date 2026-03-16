@@ -515,7 +515,7 @@ describe('Payment Methods Service', () => {
 
     it('should update description', async () => {
       // Arrange
-      const updateData = { description: 'Updated description' }
+      const updateData = { name: 'Updated with description' }
       const mockMethod = createMockPaymentMethod({ description: 'Updated description' })
 
       const mockResponse = {

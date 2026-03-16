@@ -28,7 +28,7 @@ vi.mock('../../services/couponsService', () => ({
   },
 }));
 
-const mockService = couponsService as {
+const mockService = couponsService as unknown as {
   getAll: ReturnType<typeof vi.fn>;
   getById: ReturnType<typeof vi.fn>;
   create: ReturnType<typeof vi.fn>;
@@ -89,10 +89,10 @@ describe('useCoupons Hooks', () => {
         createdCoupon = await result.current.createCoupon({
           code: 'NEW10',
           name: 'New Coupon',
-          discountType: 'percentage',
-          discountValue: 10,
+          couponType: 'percentage',
+          value: 10,
           isActive: true,
-        });
+        } as any);
       });
 
       // Assert
@@ -149,10 +149,10 @@ describe('useCoupons Hooks', () => {
         result.current.createCoupon({
           code: 'TEST',
           name: 'Test',
-          discountType: 'percentage',
-          discountValue: 10,
+          couponType: 'percentage',
+          value: 10,
           isActive: true,
-        });
+        } as any);
       });
 
       // Check loading state
@@ -451,10 +451,10 @@ describe('useCoupons Hooks', () => {
           const coupon = await result.current.createCoupon({
             code: `TYPE_${discountType.toUpperCase()}`,
             name: `${discountType} coupon`,
-            discountType,
-            discountValue: discountType === 'free_shipping' ? 0 : 10,
+            couponType: discountType as any,
+            value: discountType === 'free_shipping' ? 0 : 10,
             isActive: true,
-          });
+          } as any);
           expect(coupon.discountType).toBe(discountType);
         });
       }

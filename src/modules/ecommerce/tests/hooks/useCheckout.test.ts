@@ -31,7 +31,7 @@ vi.mock('../../services/cartService', () => ({
   },
 }));
 
-const mockCheckoutService = checkoutSessionsService as {
+const mockCheckoutService = checkoutSessionsService as unknown as {
   create: ReturnType<typeof vi.fn>;
   getById: ReturnType<typeof vi.fn>;
   update: ReturnType<typeof vi.fn>;

@@ -8,7 +8,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { AccountForm } from '../../components/AccountForm'
 import { createMockAccount } from '../utils/test-utils'
-import type { AccountForm as AccountFormData } from '../../types'
+import type { AccountFormData } from '../../types'
 
 describe('AccountForm Integration Tests', () => {
   const mockOnSubmit = vi.fn()

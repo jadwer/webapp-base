@@ -152,8 +152,9 @@ describe('salesReportsService', () => {
 
       // Assert
       expect(axios.get).toHaveBeenCalledWith('/api/v1/sales-orders/customers?period=90')
-      expect(result.customers).toHaveLength(2)
-      expect(result.customers[0].name).toBe('Customer A')
+      const data = result as { customers: Array<{ name: string }> }
+      expect(data.customers).toHaveLength(2)
+      expect(data.customers[0].name).toBe('Customer A')
     })
 
     it('should fetch top customers with custom period', async () => {

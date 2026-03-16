@@ -1,6 +1,6 @@
 'use client'
 
-import { use, useState, useEffect, useCallback } from 'react'
+import { use, useState, useEffect, useCallback, useRef } from 'react'
 import { useSalesOrder, useSalesOrderItems } from '@/modules/sales'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
 import { formatCurrency, formatQuantity } from '@/lib/formatters'
@@ -10,6 +10,8 @@ import type { Remission } from '@/modules/sales/services/remissionService'
 import { toast } from '@/lib/toast'
 import axiosClient from '@/lib/axiosClient'
 import AddItemModal from '@/modules/sales/components/AddItemModal'
+import StockAvailabilityPanel from '@/modules/sales/components/StockAvailabilityPanel'
+import ConfirmModal, { ConfirmModalHandle } from '@/ui/components/base/ConfirmModal'
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -22,6 +24,7 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
   const [remissions, setRemissions] = useState<Remission[]>([])
   const [remissionsLoading, setRemissionsLoading] = useState(true)
   const [actionLoading, setActionLoading] = useState<string | null>(null)
+  const confirmModalRef = useRef<ConfirmModalHandle>(null)
 
   const { salesOrder, isLoading: orderLoading, error: orderError } = useSalesOrder(resolvedParams.id)
   const { salesOrderItems, isLoading: itemsLoading, error: itemsError, mutate: mutateItems } = useSalesOrderItems(resolvedParams.id)
@@ -63,14 +66,25 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
   }
 
   const handleGenerateRemission = async () => {
-    if (!confirm('Generar remision con todos los items de esta orden?')) return
+    const confirmed = await confirmModalRef.current?.confirm('Generar remision con todos los items de esta orden?', {
+      title: 'Confirmar',
+      confirmVariant: 'warning'
+    })
+    if (!confirmed) return
     setActionLoading('remission')
     try {
       await remissionService.createFromOrderFull(resolvedParams.id)
       toast.success('Remision generada correctamente')
       await loadRemissions()
-    } catch {
-      toast.error('Error al generar la remision')
+    } catch (err) {
+      const error = err as { response?: { status?: number; data?: { error?: string; insufficient_items?: Array<{ product_name: string; sku: string; required: number; available: number; deficit: number }>; suggestion?: string } } }
+      if (error.response?.status === 422 && error.response?.data?.insufficient_items) {
+        const items = error.response.data.insufficient_items
+        const itemsList = items.map(i => `- ${i.product_name} (${i.sku}): necesita ${i.required}, disponible ${i.available}, faltan ${i.deficit}`).join('\n')
+        toast.error(`Stock insuficiente:\n${itemsList}\n\n${error.response.data.suggestion || 'Genere una Orden de Compra primero.'}`)
+      } else {
+        toast.error('Error al generar la remision')
+      }
     } finally {
       setActionLoading(null)
     }
@@ -90,7 +104,11 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
   }
 
   const handleDeliverRemission = async (remId: string) => {
-    if (!confirm('Marcar remision como entregada?')) return
+    const confirmed = await confirmModalRef.current?.confirm('Marcar remision como entregada?', {
+      title: 'Confirmar',
+      confirmVariant: 'warning'
+    })
+    if (!confirmed) return
     setActionLoading(`deliver-${remId}`)
     try {
       await remissionService.deliver(remId)
@@ -112,7 +130,11 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
   }
 
   const handleCancelRemission = async (remId: string) => {
-    if (!confirm('Cancelar esta remision? Esta accion no se puede deshacer.')) return
+    const confirmed = await confirmModalRef.current?.confirm('Cancelar esta remision? Esta accion no se puede deshacer.', {
+      title: 'Confirmar',
+      confirmVariant: 'danger'
+    })
+    if (!confirmed) return
     setActionLoading(`cancel-${remId}`)
     try {
       await remissionService.cancel(remId)
@@ -126,7 +148,11 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
   }
 
   const handleCancelOrder = async () => {
-    if (!confirm('Cancelar esta orden de venta? Esta accion no se puede deshacer.')) return
+    const confirmed = await confirmModalRef.current?.confirm('Cancelar esta orden de venta? Esta accion no se puede deshacer.', {
+      title: 'Confirmar',
+      confirmVariant: 'danger'
+    })
+    if (!confirmed) return
     setActionLoading('cancel-order')
     try {
       await salesService.orders.cancel(resolvedParams.id)
@@ -332,6 +358,9 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
               )}
             </div>
           </div>
+
+          {/* Stock Availability */}
+          <StockAvailabilityPanel salesOrderId={resolvedParams.id} />
 
           {/* Remissions section */}
           <div className="card mt-3">
@@ -603,6 +632,7 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
           setShowAddModal(false)
         }}
       />
+      <ConfirmModal ref={confirmModalRef} />
     </div>
   )
 }

@@ -20,7 +20,7 @@ vi.mock('@/lib/axiosClient', () => ({
 
 import axiosClient from '@/lib/axiosClient';
 
-const mockAxios = axiosClient as {
+const mockAxios = axiosClient as unknown as {
   get: ReturnType<typeof vi.fn>;
   post: ReturnType<typeof vi.fn>;
   patch: ReturnType<typeof vi.fn>;
@@ -234,7 +234,7 @@ describe('productReviewsService', () => {
 
     it('should create review without optional fields', async () => {
       // Arrange
-      const mockReview = createMockProductReview({ title: null, content: null });
+      const mockReview = createMockProductReview({ title: '', content: '' });
       mockAxios.post.mockResolvedValue({
         data: createReviewAPIResponse(mockReview),
       });

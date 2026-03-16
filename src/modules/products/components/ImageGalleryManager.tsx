@@ -7,6 +7,7 @@ import { productService } from '../services/productService'
 import { productImageService } from '../services/productImageService'
 import { useProductImages } from '../hooks/useProductImages'
 import type { ProductImage } from '../types/productImage'
+import ConfirmModal, { ConfirmModalHandle } from '@/ui/components/base/ConfirmModal'
 
 interface ImageGalleryManagerProps {
   productId: string
@@ -20,6 +21,7 @@ export const ImageGalleryManager: React.FC<ImageGalleryManagerProps> = ({ produc
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [settingPrimaryId, setSettingPrimaryId] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const confirmModalRef = useRef<ConfirmModalHandle>(null)
 
   const handleFilesSelect = useCallback(async (files: FileList) => {
     const validFiles = Array.from(files).filter(file => {
@@ -84,7 +86,11 @@ export const ImageGalleryManager: React.FC<ImageGalleryManagerProps> = ({ produc
   }
 
   const handleDelete = async (image: ProductImage) => {
-    if (!window.confirm('¿Eliminar esta imagen?')) return
+    const confirmed = await confirmModalRef.current?.confirm('¿Eliminar esta imagen?', {
+      title: 'Confirmar',
+      confirmVariant: 'danger'
+    })
+    if (!confirmed) return
     setDeletingId(image.id)
     try {
       await productImageService.delete(image.id)
@@ -294,6 +300,7 @@ export const ImageGalleryManager: React.FC<ImageGalleryManagerProps> = ({ produc
       <small className="text-muted d-block mt-1">
         Arrastra para reordenar. JPG, PNG, GIF o WebP. Max 10MB por imagen.
       </small>
+      <ConfirmModal ref={confirmModalRef} />
     </div>
   )
 }

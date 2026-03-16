@@ -6,7 +6,9 @@
 
 'use client'
 
+import { useRef } from 'react'
 import { useReviewMutations } from '../hooks/useProductReviews'
+import ConfirmModal, { ConfirmModalHandle } from '@/ui/components/base/ConfirmModal'
 
 interface ProductReview {
   id: string
@@ -36,11 +38,16 @@ export function ProductReviewCard({
   onDeleted,
 }: ProductReviewCardProps) {
   const { deleteReview, isDeleting } = useReviewMutations()
+  const confirmModalRef = useRef<ConfirmModalHandle>(null)
 
   const isOwner = currentUserId === review.userId
 
   const handleDelete = async () => {
-    if (!confirm('Estas seguro de eliminar esta resena?')) return
+    const confirmed = await confirmModalRef.current?.confirm('Estas seguro de eliminar esta resena?', {
+      title: 'Confirmar',
+      confirmVariant: 'danger'
+    })
+    if (!confirmed) return
     try {
       await deleteReview(review.id)
       onDeleted?.()
@@ -114,6 +121,7 @@ export function ProductReviewCard({
           </div>
         )}
       </div>
+      <ConfirmModal ref={confirmModalRef} />
     </div>
   )
 }

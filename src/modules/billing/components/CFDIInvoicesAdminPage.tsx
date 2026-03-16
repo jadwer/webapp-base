@@ -1,12 +1,14 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useCFDIInvoices, useCFDIInvoicesMutations, useCFDIWorkflow } from '../hooks'
 import type { CFDIInvoicesFilters, CFDIStatus, TipoComprobante } from '../types'
 import { toast } from '@/lib/toast'
+import ConfirmModal, { ConfirmModalHandle } from '@/ui/components/base/ConfirmModal'
 
 export function CFDIInvoicesAdminPage() {
   const [filters, setFilters] = useState<CFDIInvoicesFilters>({})
+  const confirmModalRef = useRef<ConfirmModalHandle>(null)
   const { invoices, isLoading, error, mutate } = useCFDIInvoices(filters)
   const { deleteInvoice, downloadXML, downloadPDF } = useCFDIInvoicesMutations()
   const { generateXML, generatePDF, stampInvoice, cancelInvoice } = useCFDIWorkflow()
@@ -95,7 +97,11 @@ export function CFDIInvoicesAdminPage() {
   }
 
   const handleDelete = async (id: string) => {
-    if (!confirm('¿Eliminar esta factura CFDI?')) return
+    const confirmed = await confirmModalRef.current?.confirm('¿Eliminar esta factura CFDI?', {
+      title: 'Confirmar',
+      confirmVariant: 'danger'
+    })
+    if (!confirmed) return
 
     try {
       await deleteInvoice(id)
@@ -422,6 +428,7 @@ export function CFDIInvoicesAdminPage() {
           )}
         </div>
       </div>
+      <ConfirmModal ref={confirmModalRef} />
     </div>
   )
 }

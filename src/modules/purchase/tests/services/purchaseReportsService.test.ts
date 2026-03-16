@@ -163,9 +163,10 @@ describe('purchaseReportsService', () => {
 
       // Assert
       expect(axios.get).toHaveBeenCalledWith('/api/v1/purchase-orders/suppliers?start_date=1980-01-01&end_date=2025-12-31')
-      expect(result.suppliers).toHaveLength(2)
-      expect(result.suppliers[0].name).toBe('Supplier A')
-      expect(result.suppliers[0].totalPurchased).toBe(10000)
+      const data = result as { suppliers: Array<{ name: string; totalPurchased: number }> }
+      expect(data.suppliers).toHaveLength(2)
+      expect(data.suppliers[0].name).toBe('Supplier A')
+      expect(data.suppliers[0].totalPurchased).toBe(10000)
     })
 
     it('should fetch top suppliers with custom date range', async () => {
@@ -196,8 +197,9 @@ describe('purchaseReportsService', () => {
 
       // Assert
       expect(axios.get).toHaveBeenCalledWith('/api/v1/purchase-orders/suppliers?start_date=2025-01-01&end_date=2025-12-31')
-      expect(result.suppliers).toHaveLength(1)
-      expect(result.suppliers[0].name).toBe('Supplier C')
+      const data = result as { suppliers: Array<{ name: string }> }
+      expect(data.suppliers).toHaveLength(1)
+      expect(data.suppliers[0].name).toBe('Supplier C')
     })
 
     it('should handle empty suppliers list', async () => {

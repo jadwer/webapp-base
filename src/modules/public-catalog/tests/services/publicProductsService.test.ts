@@ -14,7 +14,7 @@ vi.mock('@/lib/axiosClient', () => ({
   },
 }))
 
-const mockAxiosClient = vi.mocked(axiosClient)
+const mockAxiosClient = axiosClient as unknown as { get: ReturnType<typeof vi.fn> }
 
 // Mock response factory
 function createMockProductsResponse(productCount: number = 2) {

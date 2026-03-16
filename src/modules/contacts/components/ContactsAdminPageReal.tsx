@@ -6,7 +6,7 @@
 
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import { useContacts, useContactMutations } from '../hooks'
 import { ContactsTableSimple } from './ContactsTableSimple'
 import { FilterBar } from './FilterBar'
@@ -15,6 +15,7 @@ import { Button } from '@/ui/components/base/Button'
 import { Alert } from '@/ui/components/base/Alert'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
 import { toast } from '@/lib/toast'
+import ConfirmModal, { ConfirmModalHandle } from '@/ui/components/base/ConfirmModal'
 
 interface ContactsAdminPageRealProps {
   defaultFilters?: {
@@ -34,6 +35,7 @@ export const ContactsAdminPageReal = ({ defaultFilters = {} }: ContactsAdminPage
   const [prospectFilter, setProspectFilter] = useState(false)
   const pageSize = 20
   const navigation = useNavigationProgress()
+  const confirmModalRef = useRef<ConfirmModalHandle>(null)
   const { deleteContact } = useContactMutations()
 
   // Hook principal con filtros
@@ -97,9 +99,11 @@ export const ContactsAdminPageReal = ({ defaultFilters = {} }: ContactsAdminPage
   const handleDelete = async (contact: { id: string; displayName?: string; name?: string }) => {
     const confirmMessage = `¿Estás seguro de que quieres eliminar el contacto "${contact.displayName || contact.name}"?\n\nEsta acción no se puede deshacer.`
     
-    if (!confirm(confirmMessage)) {
-      return
-    }
+    const confirmed = await confirmModalRef.current?.confirm(confirmMessage, {
+      title: 'Confirmar',
+      confirmVariant: 'danger'
+    })
+    if (!confirmed) return
     
     try {
       await deleteContact(contact.id)
@@ -291,6 +295,7 @@ export const ContactsAdminPageReal = ({ defaultFilters = {} }: ContactsAdminPage
           )}
         </div>
       </div>
+      <ConfirmModal ref={confirmModalRef} />
     </div>
   )
 }

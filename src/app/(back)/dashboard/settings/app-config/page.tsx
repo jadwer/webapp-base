@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { appSettingsService, type AppSettingValue, type AppSettingsGrouped } from '@/modules/app-config/services/appSettingsService'
+import axiosClient from '@/lib/axiosClient'
 import { toast } from '@/lib/toast'
 
 interface EditingState {
@@ -30,9 +31,16 @@ const GROUP_CONFIG: Record<string, { label: string; icon: string; description: s
     icon: 'bi-shield-lock',
     description: 'Configuracion de autenticacion y seguridad.',
   },
+  mail: {
+    label: 'Correo del Sistema',
+    icon: 'bi-envelope',
+    description: 'Configuracion del correo electronico del sistema (SMTP).',
+  },
 }
 
-const GROUP_ORDER = ['company', 'branding', 'social', 'auth']
+const GROUP_ORDER = ['company', 'branding', 'social', 'auth', 'mail']
+
+const PASSWORD_KEYS = ['mail.smtp_password']
 
 export default function AppConfigPage() {
   const [settings, setSettings] = useState<AppSettingsGrouped>({})
@@ -40,6 +48,8 @@ export default function AppConfigPage() {
   const [editing, setEditing] = useState<EditingState | null>(null)
   const [saving, setSaving] = useState(false)
   const [activeGroup, setActiveGroup] = useState('company')
+  const [testEmail, setTestEmail] = useState('')
+  const [sendingTest, setSendingTest] = useState(false)
 
   const loadSettings = useCallback(async () => {
     try {
@@ -235,7 +245,7 @@ export default function AppConfigPage() {
                               </div>
                             ) : isEditing ? (
                               <input
-                                type="text"
+                                type={PASSWORD_KEYS.includes(setting.key) ? 'password' : 'text'}
                                 className="form-control form-control-sm"
                                 value={String(editing.value ?? '')}
                                 onChange={(e) =>
@@ -263,6 +273,8 @@ export default function AppConfigPage() {
                                     />
                                     {String(setting.value || '—')}
                                   </span>
+                                ) : PASSWORD_KEYS.includes(setting.key) && setting.value ? (
+                                  '••••••••'
                                 ) : (
                                   String(setting.value ?? '—')
                                 )}
@@ -310,6 +322,58 @@ export default function AppConfigPage() {
         </div>
       )}
 
+      {activeGroup === 'mail' && (
+        <div className="card mt-3">
+          <div className="card-header">
+            <i className="bi bi-send me-2" />
+            <span className="fw-semibold">Enviar correo de prueba</span>
+          </div>
+          <div className="card-body">
+            <p className="text-muted mb-3" style={{ fontSize: '13px' }}>
+              Verifica que la configuracion SMTP sea correcta enviando un correo de prueba.
+            </p>
+            <div className="d-flex gap-2 align-items-end">
+              <div className="flex-grow-1">
+                <label className="form-label" style={{ fontSize: '13px' }}>Email de destino</label>
+                <input
+                  type="email"
+                  className="form-control form-control-sm"
+                  placeholder="correo@ejemplo.com"
+                  value={testEmail}
+                  onChange={(e) => setTestEmail(e.target.value)}
+                  disabled={sendingTest}
+                />
+              </div>
+              <button
+                className="btn btn-sm btn-primary"
+                disabled={sendingTest || !testEmail}
+                onClick={async () => {
+                  setSendingTest(true)
+                  try {
+                    const res = await axiosClient.post('/api/v1/app-settings/test-email', { email: testEmail })
+                    toast.success(res.data.message || 'Correo de prueba enviado')
+                  } catch (err) {
+                    const error = err as { response?: { data?: { details?: string; error?: string } } }
+                    toast.error(error.response?.data?.details || error.response?.data?.error || 'Error al enviar correo de prueba')
+                  } finally {
+                    setSendingTest(false)
+                  }
+                }}
+              >
+                {sendingTest ? (
+                  <span className="spinner-border spinner-border-sm" />
+                ) : (
+                  <>
+                    <i className="bi bi-send me-1" />
+                    Enviar prueba
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="card mt-3">
         <div className="card-body">
           <h6 className="card-title">Ayuda</h6>
@@ -318,6 +382,7 @@ export default function AppConfigPage() {
             <li><strong>Branding:</strong> Color primario de la interfaz.</li>
             <li><strong>Redes Sociales:</strong> URLs de Facebook, Instagram y LinkedIn.</li>
             <li><strong>Autenticacion:</strong> Controla si se requiere verificacion de email para usar el sistema.</li>
+            <li><strong>Correo del Sistema:</strong> Configuracion SMTP para enviar correos (notificaciones, cotizaciones, recuperacion de contrasena).</li>
           </ul>
         </div>
       </div>

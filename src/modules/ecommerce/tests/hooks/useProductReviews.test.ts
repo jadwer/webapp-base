@@ -24,7 +24,7 @@ vi.mock('../../services/productReviewsService', () => ({
   },
 }));
 
-const mockService = productReviewsService as {
+const mockService = productReviewsService as unknown as {
   getByProduct: ReturnType<typeof vi.fn>;
   getRatingSummary: ReturnType<typeof vi.fn>;
   getRecommendations: ReturnType<typeof vi.fn>;
@@ -245,7 +245,7 @@ describe('useProductReviews Hooks', () => {
         });
       });
 
-      expect(submittedReview.isVerifiedPurchase).toBe(true);
+      expect(submittedReview!.isVerifiedPurchase).toBe(true);
     });
 
     it('should track review approval status', async () => {
@@ -268,13 +268,13 @@ describe('useProductReviews Hooks', () => {
       });
 
       // New reviews start as pending
-      expect(submittedReview.status).toBe('pending');
+      expect(submittedReview!.status).toBe('pending');
     });
 
     it('should associate review with contact', async () => {
       // Business Rule: Reviews are linked to contacts
       const reviewWithContact = createMockProductReview({
-        contactId: 10,
+        userId: 10,
       });
       mockService.create.mockResolvedValue(reviewWithContact);
 
@@ -290,7 +290,7 @@ describe('useProductReviews Hooks', () => {
         });
       });
 
-      expect(submittedReview.contactId).toBe(10);
+      expect(submittedReview!.userId).toBe(10);
     });
 
     it('should require title and content for review', async () => {
@@ -313,8 +313,8 @@ describe('useProductReviews Hooks', () => {
         });
       });
 
-      expect(review.title).toBe('Great product');
-      expect(review.content).toBe('I really enjoyed using this product.');
+      expect(review!.title).toBe('Great product');
+      expect(review!.content).toBe('I really enjoyed using this product.');
     });
   });
 });

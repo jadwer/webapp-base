@@ -86,17 +86,17 @@ import { toast } from '@/lib/toast'
 import quoteServiceModule from '@/modules/quotes/services/quoteService'
 import { shoppingCartService } from '@/modules/ecommerce/services'
 
-const mockToast = toast as {
+const mockToast = toast as unknown as {
   success: ReturnType<typeof vi.fn>
   error: ReturnType<typeof vi.fn>
   info: ReturnType<typeof vi.fn>
 }
 
-const mockQuoteService = quoteServiceModule.quotes as {
+const mockQuoteService = quoteServiceModule.quotes as unknown as {
   requestQuote: ReturnType<typeof vi.fn>
 }
 
-const mockCartSync = shoppingCartService.localSync as {
+const mockCartSync = shoppingCartService.localSync as unknown as {
   syncLocalCartToAPI: ReturnType<typeof vi.fn>
   saveCartIdForCheckout: ReturnType<typeof vi.fn>
 }

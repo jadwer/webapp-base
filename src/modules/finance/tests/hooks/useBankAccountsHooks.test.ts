@@ -122,6 +122,7 @@ describe('Bank Accounts Hooks', () => {
         accountNumber: '1234567890',
         accountType: 'checking',
         currency: 'USD',
+        glAccountId: null,
         currentBalance: 10000,
         isActive: true
       }

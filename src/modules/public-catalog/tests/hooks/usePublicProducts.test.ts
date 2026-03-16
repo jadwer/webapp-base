@@ -45,11 +45,20 @@ function createMockProduct(id: string = '1', overrides: Partial<EnhancedPublicPr
     attributes: {
       name: `Product ${id}`,
       description: `Description for product ${id}`,
+      fullDescription: null,
       price: 100,
+      cost: null,
+      compareAtPrice: null,
+      isOnSale: false,
+      saleStartsAt: null,
+      saleEndsAt: null,
+      saleBadge: null,
       sku: `SKU-${id}`,
-      barcode: `BAR-${id}`,
+      iva: true,
+      imgPath: null,
+      datasheetPath: null,
       imageUrl: `https://example.com/image${id}.jpg`,
-      isActive: true,
+      datasheetUrl: null,
       createdAt: '2024-01-01T00:00:00Z',
       updatedAt: '2024-01-01T00:00:00Z',
     },
@@ -60,6 +69,7 @@ function createMockProduct(id: string = '1', overrides: Partial<EnhancedPublicPr
     },
     displayName: `Product ${id}`,
     displayPrice: '$100.00',
+    displayCurrency: 'MXN',
     displayUnit: 'pz',
     displayCategory: 'Category 1',
     displayBrand: 'Brand 1',
@@ -99,7 +109,7 @@ function createMockProduct(id: string = '1', overrides: Partial<EnhancedPublicPr
 
 function createMockProductsResponse(products: EnhancedPublicProduct[]): PublicProductsResponse {
   return {
-    products,
+    data: products as unknown as PublicProductsResponse['data'],
     meta: {
       currentPage: 1,
       lastPage: 1,
@@ -134,7 +144,7 @@ describe('usePublicProducts', () => {
       const mockResponse = createMockProductsResponse(mockProducts)
 
       mockUseSWR.mockReturnValue({
-        data: mockResponse,
+        data: { products: mockResponse.data, meta: mockResponse.meta, links: mockResponse.links },
         error: undefined,
         mutate: vi.fn(),
         isLoading: false,
@@ -494,8 +504,9 @@ describe('usePublicProducts', () => {
     it('should return featured products with default limit', () => {
       // Arrange
       const mockProducts = Array.from({ length: 12 }, (_, i) => createMockProduct(`${i + 1}`))
+      const mockResponse = createMockProductsResponse(mockProducts)
       mockUseSWR.mockReturnValue({
-        data: createMockProductsResponse(mockProducts),
+        data: { products: mockResponse.data, meta: mockResponse.meta, links: mockResponse.links },
         error: undefined,
         mutate: vi.fn(),
         isLoading: false,

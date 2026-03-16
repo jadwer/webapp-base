@@ -5,12 +5,13 @@
 
 'use client'
 
-import React from 'react'
+import React, { useRef } from 'react'
 import { useContact, useContactMutations } from '@/modules/contacts'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
 import { ContactViewTabs } from '@/modules/contacts/components/ContactViewTabs'
 import { Alert } from '@/ui/components/base/Alert'
 import { toast } from '@/lib/toast'
+import ConfirmModal, { ConfirmModalHandle } from '@/ui/components/base/ConfirmModal'
 
 interface ContactDetailPageProps {
   params: Promise<{ id: string }>
@@ -20,6 +21,7 @@ export default function ContactDetailPage({ params }: ContactDetailPageProps) {
   const resolvedParams = React.use(params)
   const navigation = useNavigationProgress()
   const { deleteContact } = useContactMutations()
+  const confirmModalRef = useRef<ConfirmModalHandle>(null)
   // Use includes to get all related data in one request
   const { contact, addresses, documents, people, isLoading, error } = useContact(
     resolvedParams.id,
@@ -66,9 +68,11 @@ export default function ContactDetailPage({ params }: ContactDetailPageProps) {
     
     const confirmMessage = `¿Estás seguro de que quieres eliminar el contacto "${contact.displayName}"?\n\nEsta acción también eliminará:\n- ${addresses.length} dirección(es)\n- ${documents.length} documento(s)\n- ${people.length} persona(s)\n\nEsta acción no se puede deshacer.`
     
-    if (!confirm(confirmMessage)) {
-      return
-    }
+    const confirmed = await confirmModalRef.current?.confirm(confirmMessage, {
+      title: 'Confirmar',
+      confirmVariant: 'danger'
+    })
+    if (!confirmed) return
     
     try {
       // Note: The backend should handle cascade deletion automatically
@@ -137,6 +141,7 @@ export default function ContactDetailPage({ params }: ContactDetailPageProps) {
         onEdit={handleEdit}
         onDelete={handleDelete}
       />
+      <ConfirmModal ref={confirmModalRef} />
     </div>
   )
 }

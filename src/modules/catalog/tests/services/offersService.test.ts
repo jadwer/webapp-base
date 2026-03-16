@@ -15,6 +15,10 @@ vi.mock('@/modules/products', () => ({
   }
 }))
 
+const mockGetProducts = vi.mocked(productService.getProducts) as any
+const mockGetProduct = vi.mocked(productService.getProduct) as any
+const mockUpdateProduct = vi.mocked(productService.updateProduct) as any
+
 describe('Offers Service', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -29,7 +33,7 @@ describe('Offers Service', () => {
         { id: '3', name: 'Product 3', price: 200, cost: 150, isActive: true, createdAt: '', updatedAt: '' }
       ]
 
-      vi.mocked(productService.getProducts).mockResolvedValue({
+      mockGetProducts.mockResolvedValue({
         data: mockProducts,
         meta: { total: 3 }
       })
@@ -53,7 +57,7 @@ describe('Offers Service', () => {
         { id: '2', name: 'Samsung Galaxy', sku: 'SG-001', price: 900, cost: 700, isActive: true, createdAt: '', updatedAt: '' }
       ]
 
-      vi.mocked(productService.getProducts).mockResolvedValue({
+      mockGetProducts.mockResolvedValue({
         data: mockProducts,
         meta: { total: 2 }
       })
@@ -73,7 +77,7 @@ describe('Offers Service', () => {
         { id: '2', name: 'Product 2', price: 100, cost: 70, isActive: true, createdAt: '', updatedAt: '' }  // 30% discount
       ]
 
-      vi.mocked(productService.getProducts).mockResolvedValue({
+      mockGetProducts.mockResolvedValue({
         data: mockProducts,
         meta: { total: 2 }
       })
@@ -92,7 +96,7 @@ describe('Offers Service', () => {
         { id: '1', name: 'Product 1', price: 100, cost: 100, isActive: true, createdAt: '', updatedAt: '' } // No discount
       ]
 
-      vi.mocked(productService.getProducts).mockResolvedValue({
+      mockGetProducts.mockResolvedValue({
         data: mockProducts,
         meta: { total: 1 }
       })
@@ -106,7 +110,7 @@ describe('Offers Service', () => {
 
     it('should handle API errors', async () => {
       // Arrange
-      vi.mocked(productService.getProducts).mockRejectedValue(new Error('API Error'))
+      mockGetProducts.mockRejectedValue(new Error('API Error'))
 
       // Act & Assert
       await expect(offersService.getAll()).rejects.toThrow('API Error')
@@ -126,7 +130,7 @@ describe('Offers Service', () => {
         updatedAt: '2025-01-01'
       }
 
-      vi.mocked(productService.getProduct).mockResolvedValue({
+      mockGetProduct.mockResolvedValue({
         data: mockProduct
       })
 
@@ -152,7 +156,7 @@ describe('Offers Service', () => {
         updatedAt: '2025-01-01'
       }
 
-      vi.mocked(productService.getProduct).mockResolvedValue({
+      mockGetProduct.mockResolvedValue({
         data: mockProduct
       })
 
@@ -172,7 +176,7 @@ describe('Offers Service', () => {
         { id: '2', name: 'Product B', price: 100, cost: 80, isActive: true, createdAt: '', updatedAt: '' }
       ]
 
-      vi.mocked(productService.getProducts).mockResolvedValue({
+      mockGetProducts.mockResolvedValue({
         data: mockProducts,
         meta: { total: 2 }
       })
@@ -189,7 +193,7 @@ describe('Offers Service', () => {
 
     it('should apply search filter', async () => {
       // Arrange
-      vi.mocked(productService.getProducts).mockResolvedValue({
+      mockGetProducts.mockResolvedValue({
         data: [{ id: '1', name: 'Searched Product', price: 100, cost: null, isActive: true, createdAt: '', updatedAt: '' }],
         meta: { total: 1 }
       })
@@ -218,8 +222,8 @@ describe('Offers Service', () => {
         updatedAt: '2025-01-01'
       }
 
-      vi.mocked(productService.updateProduct).mockResolvedValue({ data: mockUpdatedProduct })
-      vi.mocked(productService.getProduct).mockResolvedValue({ data: mockUpdatedProduct })
+      mockUpdateProduct.mockResolvedValue({ data: mockUpdatedProduct })
+      mockGetProduct.mockResolvedValue({ data: mockUpdatedProduct })
 
       // Act
       const result = await offersService.create({
@@ -260,8 +264,8 @@ describe('Offers Service', () => {
         updatedAt: '2025-01-01'
       }
 
-      vi.mocked(productService.updateProduct).mockResolvedValue({ data: mockUpdatedProduct })
-      vi.mocked(productService.getProduct).mockResolvedValue({ data: mockUpdatedProduct })
+      mockUpdateProduct.mockResolvedValue({ data: mockUpdatedProduct })
+      mockGetProduct.mockResolvedValue({ data: mockUpdatedProduct })
 
       // Act
       const result = await offersService.update('1', {
@@ -297,8 +301,8 @@ describe('Offers Service', () => {
         updatedAt: '2025-01-01'
       }
 
-      vi.mocked(productService.getProduct).mockResolvedValue({ data: mockProduct })
-      vi.mocked(productService.updateProduct).mockResolvedValue({ data: { ...mockProduct, cost: 100 } })
+      mockGetProduct.mockResolvedValue({ data: mockProduct })
+      mockUpdateProduct.mockResolvedValue({ data: { ...mockProduct, cost: 100 } })
 
       // Act
       const result = await offersService.remove('1')
@@ -312,7 +316,7 @@ describe('Offers Service', () => {
 
     it('should throw error when product not found', async () => {
       // Arrange
-      vi.mocked(productService.getProduct).mockResolvedValue({ data: null })
+      mockGetProduct.mockResolvedValue({ data: null })
 
       // Act & Assert
       await expect(offersService.remove('999')).rejects.toThrow('Producto no encontrado')
@@ -327,7 +331,7 @@ describe('Offers Service', () => {
         { id: '2', name: 'Product 2', price: 200, cost: 150, isActive: true, createdAt: '', updatedAt: '', category: { id: '1', name: 'Electronics' } }
       ]
 
-      vi.mocked(productService.getProducts).mockResolvedValue({
+      mockGetProducts.mockResolvedValue({
         data: mockProducts,
         meta: { total: 2 }
       })
@@ -344,7 +348,7 @@ describe('Offers Service', () => {
 
     it('should return zero metrics when no offers exist', async () => {
       // Arrange
-      vi.mocked(productService.getProducts).mockResolvedValue({
+      mockGetProducts.mockResolvedValue({
         data: [],
         meta: { total: 0 }
       })

@@ -67,6 +67,22 @@ export const salesService = {
     cancel: async (id: string) => {
       const response = await axiosClient.post(`/api/v1/sales-orders/${id}/cancel`)
       return response.data
+    },
+
+    getStockAvailability: async (id: string) => {
+      const response = await axiosClient.get(`/api/v1/sales-orders/${id}/stock-availability`)
+      return response.data as {
+        items: Array<{
+          product_id: number
+          product_name: string
+          sku: string
+          required_quantity: number
+          available_quantity: number
+          is_sufficient: boolean
+          deficit: number
+        }>
+        all_sufficient: boolean
+      }
     }
   },
 

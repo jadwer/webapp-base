@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { Role } from '../types/role'
 import { useRoles } from '../hooks/useRoles'
 import { useRoleActions } from '../hooks/useRoles'
@@ -8,6 +8,7 @@ import StatusMessage from '@/ui/StatusMessage'
 import { Skeleton } from '@/ui/Skeleton'
 import { RoleForm } from './RoleForm'
 import { toast } from '@/lib/toast'
+import ConfirmModal, { ConfirmModalHandle } from '@/ui/components/base/ConfirmModal'
 
 interface RolesTableProps {
   onRoleSelect?: (role: Role) => void
@@ -18,13 +19,19 @@ export function RolesTable({ onRoleSelect, selectedRole }: RolesTableProps) {
   const { roles, isLoading, error } = useRoles(['permissions'])
   const { deleteRole } = useRoleActions()
   
+  const confirmModalRef = useRef<ConfirmModalHandle>(null)
+
   const [editModal, setEditModal] = useState<{
     isOpen: boolean
     role: Role | null
   }>({ isOpen: false, role: null })
 
   const handleDelete = async (id: number) => {
-    if (window.confirm('¿Estás seguro de que quieres eliminar este rol?')) {
+    const confirmed = await confirmModalRef.current?.confirm('¿Estás seguro de que quieres eliminar este rol?', {
+      title: 'Confirmar',
+      confirmVariant: 'danger'
+    })
+    if (confirmed) {
       try {
         await deleteRole(id)
         // Ya no necesitamos mutate manual, useRoleActions lo hace automáticamente
@@ -160,6 +167,8 @@ export function RolesTable({ onRoleSelect, selectedRole }: RolesTableProps) {
           )}
         </div>
       </div>
+
+      <ConfirmModal ref={confirmModalRef} />
 
       {/* Modal para editar rol */}
       {editModal.isOpen && editModal.role && (

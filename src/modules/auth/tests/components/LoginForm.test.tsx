@@ -34,6 +34,7 @@ describe('LoginForm', () => {
       logout: vi.fn(),
       register: vi.fn(),
       forgotPassword: vi.fn(),
+      resetPassword: vi.fn(),
       resendEmailVerification: vi.fn(),
       error: null,
     })

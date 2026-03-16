@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import Link from 'next/link'
 import {
   useCompanySettings,
@@ -9,6 +9,7 @@ import {
 } from '@/modules/billing/hooks'
 import type { CompanySetting, CompanySettingFormData } from '@/modules/billing/types'
 import { toast } from '@/lib/toast'
+import ConfirmModal, { ConfirmModalHandle } from '@/ui/components/base/ConfirmModal'
 
 // =============================================================================
 // COMPANY SETTING FORM COMPONENT
@@ -520,6 +521,7 @@ export default function BillingSettingsPage() {
   const { createSetting, updateSetting, deleteSetting, testPACConnection } =
     useCompanySettingsMutations()
 
+  const confirmModalRef = useRef<ConfirmModalHandle>(null)
   const [showForm, setShowForm] = useState(false)
   const [editingSetting, setEditingSetting] = useState<CompanySetting | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -566,7 +568,11 @@ export default function BillingSettingsPage() {
   }
 
   const handleDelete = async (id: string) => {
-    if (!confirm('¿Estás seguro de eliminar esta configuración?')) return
+    const confirmed = await confirmModalRef.current?.confirm('¿Estás seguro de eliminar esta configuración?', {
+      title: 'Confirmar',
+      confirmVariant: 'danger'
+    })
+    if (!confirmed) return
 
     try {
       await deleteSetting(id)
@@ -825,6 +831,7 @@ export default function BillingSettingsPage() {
           )}
         </>
       )}
+      <ConfirmModal ref={confirmModalRef} />
     </div>
   )
 }

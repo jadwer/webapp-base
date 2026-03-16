@@ -373,7 +373,7 @@ describe('CFDI Invoices Services', () => {
 
       const cancelRequest = {
         motivo: '01',
-        uuidReemplazo: null,
+        uuidReemplazo: undefined,
       };
 
       // Act

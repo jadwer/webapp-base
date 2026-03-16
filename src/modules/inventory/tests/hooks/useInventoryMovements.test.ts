@@ -171,6 +171,7 @@ describe('useInventoryMovementsMutations', () => {
         movementDate: '2025-01-01',
         quantity: 100,
         status: 'completed',
+        userId: '1',
       }
       const createdMovement = createMockMovement({
         id: '10',
@@ -199,6 +200,7 @@ describe('useInventoryMovementsMutations', () => {
         movementDate: '2025-01-01',
         quantity: -10,
         status: 'completed',
+        userId: '1',
       }
       const error = new Error('Validation failed')
       vi.mocked(inventoryMovementsService.create).mockRejectedValue(error)

@@ -50,7 +50,7 @@ vi.mock('swr', async () => {
           const promise = fetcher()
           if (promise && typeof promise.then === 'function') {
             promise.then((data: unknown) => {
-              result.data = data
+              result.data = data as undefined
             })
           }
         } catch {

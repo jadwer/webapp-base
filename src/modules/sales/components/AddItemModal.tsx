@@ -12,22 +12,34 @@ interface AddItemModalProps {
 }
 
 export default function AddItemModal({ salesOrderId, isOpen, onClose, onSuccess }: AddItemModalProps) {
-  const { products, isLoading: productsLoading } = useSalesProducts()
+  const [productSearch, setProductSearch] = useState('')
+  const [debouncedSearch, setDebouncedSearch] = useState('')
+  const { products, isLoading: productsLoading } = useSalesProducts(
+    debouncedSearch ? { 'filter[search]': debouncedSearch } : {}
+  )
   const { createSalesOrderItem } = useSalesOrderItemMutations()
-  
+
   const [formData, setFormData] = useState({
     productId: '',
     quantity: 1,
     unitPrice: 0,
     discount: 0
   })
-  
+
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  
+
   // Calcular total
   const total = (formData.quantity * formData.unitPrice) - formData.discount
-  
+
+  // Debounce search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(productSearch)
+    }, 300)
+    return () => clearTimeout(timer)
+  }, [productSearch])
+
   // Reset form when modal opens
   useEffect(() => {
     if (isOpen) {
@@ -37,10 +49,12 @@ export default function AddItemModal({ salesOrderId, isOpen, onClose, onSuccess 
         unitPrice: 0,
         discount: 0
       })
+      setProductSearch('')
+      setDebouncedSearch('')
       setError(null)
     }
   }, [isOpen])
-  
+
   // Update unit price when product changes
   const handleProductChange = (productId: string) => {
     setFormData(prev => ({ ...prev, productId }))
@@ -81,9 +95,9 @@ export default function AddItemModal({ salesOrderId, isOpen, onClose, onSuccess 
       setIsSubmitting(false)
     }
   }
-  
+
   if (!isOpen) return null
-  
+
   return (
     <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
       <div className="modal-dialog modal-lg">
@@ -93,14 +107,14 @@ export default function AddItemModal({ salesOrderId, isOpen, onClose, onSuccess 
               <i className="bi bi-plus-circle me-2"></i>
               Agregar Item a la Orden
             </h5>
-            <button 
-              type="button" 
-              className="btn-close" 
+            <button
+              type="button"
+              className="btn-close"
               onClick={onClose}
               disabled={isSubmitting}
             ></button>
           </div>
-          
+
           <form onSubmit={handleSubmit}>
             <div className="modal-body">
               {error && (
@@ -109,12 +123,25 @@ export default function AddItemModal({ salesOrderId, isOpen, onClose, onSuccess 
                   {error}
                 </div>
               )}
-              
+
               <div className="row g-3">
                 <div className="col-12">
                   <label className="form-label">
                     Producto <span className="text-danger">*</span>
                   </label>
+                  <div className="mb-2">
+                    <input
+                      type="text"
+                      className="form-control"
+                      placeholder="Buscar por nombre o SKU..."
+                      value={productSearch}
+                      onChange={(e) => setProductSearch(e.target.value)}
+                      disabled={isSubmitting}
+                    />
+                    <small className="text-muted">
+                      {productsLoading ? 'Buscando...' : `${products.length} productos encontrados`}
+                    </small>
+                  </div>
                   <select
                     className="form-select"
                     value={formData.productId}
@@ -134,11 +161,8 @@ export default function AddItemModal({ salesOrderId, isOpen, onClose, onSuccess 
                       )
                     })}
                   </select>
-                  {productsLoading && (
-                    <small className="text-muted">Cargando productos...</small>
-                  )}
                 </div>
-                
+
                 <div className="col-md-4">
                   <label className="form-label">
                     Cantidad <span className="text-danger">*</span>
@@ -154,7 +178,7 @@ export default function AddItemModal({ salesOrderId, isOpen, onClose, onSuccess 
                     disabled={isSubmitting}
                   />
                 </div>
-                
+
                 <div className="col-md-4">
                   <label className="form-label">
                     Precio Unitario <span className="text-danger">*</span>
@@ -170,7 +194,7 @@ export default function AddItemModal({ salesOrderId, isOpen, onClose, onSuccess 
                     disabled={isSubmitting}
                   />
                 </div>
-                
+
                 <div className="col-md-4">
                   <label className="form-label">Descuento</label>
                   <input
@@ -183,7 +207,7 @@ export default function AddItemModal({ salesOrderId, isOpen, onClose, onSuccess 
                     disabled={isSubmitting}
                   />
                 </div>
-                
+
                 <div className="col-12">
                   <div className="card bg-light">
                     <div className="card-body">
@@ -210,7 +234,7 @@ export default function AddItemModal({ salesOrderId, isOpen, onClose, onSuccess 
                 </div>
               </div>
             </div>
-            
+
             <div className="modal-footer">
               <button
                 type="button"

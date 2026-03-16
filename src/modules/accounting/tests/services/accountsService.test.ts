@@ -27,7 +27,7 @@ vi.mock('../../utils/transformers', () => ({
   transformAccountToAPI: vi.fn((data) => ({ data: { type: 'accounts', attributes: data } }))
 }))
 
-const mockAxios = axiosClient as {
+const mockAxios = axiosClient as unknown as {
   get: ReturnType<typeof vi.fn>
   post: ReturnType<typeof vi.fn>
   patch: ReturnType<typeof vi.fn>

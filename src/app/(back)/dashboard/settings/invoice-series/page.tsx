@@ -1,11 +1,12 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { invoiceSeriesService, CFDI_TYPE_LABELS, SOURCE_TYPE_LABELS } from '@/modules/billing/services/invoiceSeriesService'
 import type { InvoiceSeries, CreateInvoiceSeriesRequest, UpdateInvoiceSeriesRequest } from '@/modules/billing/services/invoiceSeriesService'
 import { companySettingsService } from '@/modules/billing/services'
 import type { CompanySetting } from '@/modules/billing/types'
 import { toast } from '@/lib/toast'
+import ConfirmModal, { ConfirmModalHandle } from '@/ui/components/base/ConfirmModal'
 
 export default function InvoiceSeriesSettingsPage() {
   const [series, setSeries] = useState<InvoiceSeries[]>([])
@@ -26,6 +27,7 @@ export default function InvoiceSeriesSettingsPage() {
   })
 
   const [editForm, setEditForm] = useState<UpdateInvoiceSeriesRequest & { initialFolioOverride?: number }>({})
+  const confirmModalRef = useRef<ConfirmModalHandle>(null)
 
   const loadData = useCallback(async () => {
     try {
@@ -138,7 +140,11 @@ export default function InvoiceSeriesSettingsPage() {
   }
 
   const handleDelete = async (id: string, code: string) => {
-    if (!confirm(`Eliminar la serie "${code}"? Esta accion no se puede deshacer.`)) return
+    const confirmed = await confirmModalRef.current?.confirm(`Eliminar la serie "${code}"? Esta accion no se puede deshacer.`, {
+      title: 'Confirmar',
+      confirmVariant: 'danger'
+    })
+    if (!confirmed) return
     try {
       await invoiceSeriesService.delete(id)
       toast.success('Serie eliminada')
@@ -501,6 +507,7 @@ export default function InvoiceSeriesSettingsPage() {
           </div>
         </div>
       </div>
+      <ConfirmModal ref={confirmModalRef} />
     </div>
   )
 }
