@@ -8,8 +8,8 @@
 const fs = require('fs');
 const path = require('path');
 
-const sourceDir = path.join(__dirname, 'node_modules', 'bootstrap-icons', 'font', 'fonts');
-const targetDir = path.join(__dirname, 'public', 'fonts');
+const sourceDir = path.join(__dirname, '..', 'node_modules', 'bootstrap-icons', 'font', 'fonts');
+const targetDir = path.join(__dirname, '..', 'public', 'fonts');
 
 // Crear directorio de destino si no existe
 if (!fs.existsSync(targetDir)) {
