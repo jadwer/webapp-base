@@ -7,6 +7,7 @@ import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
 import { useProduct, useProductMutations } from '../hooks'
 import ProductForm from '../components/ProductForm'
 import type { CreateProductData, UpdateProductData } from '../types'
+import { parseJsonApiErrors } from '../utils/errorHandling'
 
 interface ProductFormTemplateProps {
   productId?: string
@@ -129,8 +130,25 @@ export const ProductFormTemplate: React.FC<ProductFormTemplateProps> = ({
       {(loadError || mutationError) && (
         <div className="alert alert-danger mb-4" role="alert">
           <i className="bi bi-exclamation-triangle me-2" />
-          {loadError ? 'Error al cargar el producto' : 'Error al guardar el producto'}
-          {loadError?.message || mutationError?.message}
+          <strong>
+            {loadError ? 'Error al cargar el producto' : 'Error al guardar el producto'}
+          </strong>
+          {mutationError && (() => {
+            const errors = parseJsonApiErrors(mutationError)
+            return errors.length > 0 ? (
+              <ul className="mb-0 mt-2">
+                {errors.map((err, i) => (
+                  <li key={i}>
+                    {err.field && <strong>{err.field}: </strong>}
+                    {err.message}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <div className="mt-1">{mutationError.message}</div>
+            )
+          })()}
+          {loadError && <div className="mt-1">{loadError.message}</div>}
         </div>
       )}
 

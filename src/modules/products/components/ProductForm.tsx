@@ -163,15 +163,15 @@ export const ProductForm: React.FC<ProductFormProps> = ({
 
     if (!validateForm()) return
 
-    let finalImgPath = formData.imgPath
-    let finalDatasheetPath = formData.datasheetPath
+    let newImgPath: string | undefined
+    let newDatasheetPath: string | undefined
 
-    // Upload image if new file selected
+    // Upload image only if a new file was selected (single-image FileUploader used on create)
     if (imageFile) {
       setUploadingImage(true)
       try {
         const result = await productService.uploadImage(imageFile)
-        finalImgPath = result.path
+        newImgPath = result.path
       } catch {
         setErrors(prev => ({ ...prev, imgPath: 'Error al subir la imagen' }))
         setUploadingImage(false)
@@ -185,7 +185,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       setUploadingDatasheet(true)
       try {
         const result = await productService.uploadDatasheet(datasheetFile)
-        finalDatasheetPath = result.path
+        newDatasheetPath = result.path
       } catch {
         setErrors(prev => ({ ...prev, datasheetPath: 'Error al subir la hoja de datos' }))
         setUploadingDatasheet(false)
@@ -202,8 +202,10 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       ...(formData.price && { price: Number(formData.price) }),
       ...(formData.cost && { cost: Number(formData.cost) }),
       iva: formData.iva,
-      ...(finalImgPath && { imgPath: finalImgPath }),
-      ...(finalDatasheetPath && { datasheetPath: finalDatasheetPath }),
+      // Only send imgPath if a new file was uploaded. Otherwise let the ProductImage
+      // Observer manage it to stay in sync with the gallery.
+      ...(newImgPath && { imgPath: newImgPath }),
+      ...(newDatasheetPath && { datasheetPath: newDatasheetPath }),
       unitId: formData.unitId,
       categoryId: formData.categoryId,
       brandId: formData.brandId,

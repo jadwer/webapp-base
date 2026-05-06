@@ -11,7 +11,16 @@ import { formatDate, formatPrice } from '@/modules/products/utils'
 export default function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
   const navigation = useNavigationProgress()
-  const { product, isLoading, error } = useProduct(id, ['unit', 'category', 'brand'])
+  const { product, isLoading, error } = useProduct(id, ['unit', 'category', 'brand', 'images'])
+
+  const primaryImage = React.useMemo(() => {
+    if (!product?.images || product.images.length === 0) return null
+    const primary = product.images.find(img => img.isPrimary)
+    const first = product.images[0]
+    return primary ?? first
+  }, [product?.images])
+
+  const displayImageUrl = primaryImage?.imageUrl ?? product?.imgUrl
 
 
   if (isLoading) {
@@ -81,17 +90,34 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
         {/* Main Information */}
         <div className="col-lg-8">
           {/* Product Image - First in left column */}
-          {product.imgUrl && (
+          {displayImageUrl && (
             <Card className="mb-4">
               <div className="card-body text-center py-4">
                 <Image
-                  src={product.imgUrl}
-                  alt={product.name}
+                  src={displayImageUrl}
+                  alt={primaryImage?.altText || product.name}
                   width={400}
                   height={300}
                   className="img-fluid rounded"
                   style={{ maxHeight: 300, objectFit: 'contain' }}
                 />
+                {product.images && product.images.length > 1 && (
+                  <div className="d-flex justify-content-center gap-2 mt-3 flex-wrap">
+                    {product.images.map(img => (
+                      img.imageUrl && (
+                        <Image
+                          key={img.id}
+                          src={img.imageUrl}
+                          alt={img.altText || product.name}
+                          width={60}
+                          height={60}
+                          className="rounded border"
+                          style={{ objectFit: 'cover', opacity: img.id === primaryImage?.id ? 1 : 0.6 }}
+                        />
+                      )
+                    ))}
+                  </div>
+                )}
               </div>
             </Card>
           )}

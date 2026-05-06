@@ -2,6 +2,16 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   // devIndicators: false
+  async redirects() {
+    return [
+      {
+        source: '/:path*',
+        has: [{ type: 'host', value: 'www.laborwasserdemexico.com' }],
+        destination: 'https://laborwasserdemexico.com/:path*',
+        permanent: true,
+      },
+    ]
+  },
   images: {
     remotePatterns: [
       // Local development
@@ -26,7 +36,7 @@ const nextConfig: NextConfig = {
       // Production server
       {
         protocol: 'https',
-        hostname: 'api.laborwasserdemexico.com',
+        hostname: 'erpapi.laborwasserdemexico.com',
         pathname: '/storage/**',
       },
     ],
