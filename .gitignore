@@ -1,60 +1,57 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
-# dependencies
-/node_modules
-/.pnp
+# Dependencies
+node_modules/
+.pnp/
 .pnp.*
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/versions
 
-# testing
-/coverage
-/playwright-report
-/playwright/.cache
-/test-results
+# Build outputs
+dist/
+.next/
+out/
+build/
+*.tsbuildinfo
+next-env.d.ts
 
-# next.js
-/.next/
-/out/
+# Testing
+coverage/
+playwright-report/
+playwright/.cache/
+test-results/
+html/
+*.lcov
 
-# production
-/build
-
-# misc
-.DS_Store
-*.pem
-
-# debug
+# Logs
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
-.env*
+# Env files
+.env
+.env.local
+.env.*.local
+.env.development
+.env.production
+.env.test
 !.env.example
 
-# vercel
-.vercel
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
 
-# typescript
-*.tsbuildinfo
-next-env.d.ts
-
-# For backups
+# Backups & local
 *.zip
-
-# Installer packages
 *.deb
 *.rpm
-
-# Local env copies
+*.pem
 _env_local
 
-#
-Contexto_General.md
+# Vercel
+.vercel/
 
-/html/html/html.meta.json.gz
+# Changesets (do not ignore .changeset itself, only generated)
+# Keep .changeset/ tracked
+
+# pnpm
+.pnpm-store/

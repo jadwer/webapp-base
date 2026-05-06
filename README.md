@@ -1,92 +1,31 @@
-# 🚀 Proyecto Base Frontend – `webapp-base`
+# lwm-codebase
 
-**Plantilla oficial de Labor Wasser de México** para proyectos frontend modulares y escalables con **arquitectura enterprise**.
+WordPress-style monorepo for LWM ERP. Master alive (`apps/template`) + shared `@lwm/*` packages consumed by client repos.
 
-Este proyecto está construido con **Next.js App Router** y está diseñado para servir como base para nuevos ERPs, sistemas internos o plataformas web reutilizando módulos desacoplados y **componentes de nivel enterprise**.
-
----
-
-## 🚀 Build de Producción
-
-El proyecto está completamente listo para producción. Para generar el build:
+## Quick start
 
 ```bash
-npm run build
-npm start
+pnpm install
+pnpm dev          # starts apps/template Next.js dev server
+pnpm build        # builds all packages + template
+pnpm test         # runs all tests
 ```
 
-📖 **Guía completa de despliegue:** [`PRODUCTION_DEPLOYMENT.md`](./PRODUCTION_DEPLOYMENT.md)
+## Structure
 
----
+| Path | Contains |
+|---|---|
+| `apps/template/` | Next.js 15 demo. Master alive. |
+| `packages/<name>/` | `@lwm/<name>` published to GitHub Packages. |
+| `legacy_files/` | Historical docs pre-refactor (not part of build). |
 
-## Documentación Completa
+## Contributing
 
-Consulta la documentación técnica completa en:
+1. Make changes in a package or in `apps/template`.
+2. If a package changed, run `pnpm changeset` to record the bump.
+3. Commit (manually — see [CLAUDE.md](./CLAUDE.md) for git policy).
 
-[`docs/README.PROYECTO_BASE_LWM_WEBAPP.md`](./docs/README.PROYECTO_BASE_LWM_WEBAPP.md)
+## Architecture
 
----
-
-## Inicio rápido
-
-```bash
-npm install
-cp .env.local.example .env.local
-npm run dev
-```
-
----
-
-## ✨ Módulos Enterprise Incluidos
-
-- **`auth`** - Sistema de autenticación completo con Laravel Sanctum
-- **`roles`** - Gestión de roles y permisos (Permission Manager)
-- **`page-builder-pro`** - Constructor visual de páginas con GrapeJS (CRUD completo)
-- **`products`** ⭐ **ENTERPRISE MODULE** - Sistema completo de gestión con:
-  - **🏆 4 entidades completas** (Products, Categories, Brands, Units)
-  - **🚀 5 vistas virtualizadas** en cada entidad (Table, Grid, List, Compact, Showcase)
-  - **⚡ Performance excepcional** con TanStack Virtual + React.memo + Zustand
-  - **🎯 Zero re-renders** con UI state separation 
-  - **🛡️ Error handling enterprise** con FK constraint detection
-  - **📱 UX profesional** con filtros debounced y focus preservation
-  - **🔗 JSON:API completo** con relationship handling
-  - **✨ Toast notifications** con DOM directo y animaciones CSS
-- **`inventory`** ⭐ **ENTERPRISE MODULE** - Sistema de gestión de inventario con:
-  - **🏆 Warehouses completo** (Iteración 1 + 1.5 completadas)
-  - **🚀 5 vistas virtualizadas** (Table, Grid, List, Compact, Showcase)  
-  - **⚡ Performance optimization** para 500K+ registros con TanStack Virtual
-  - **🎨 Professional UI/UX** con hero cards, animations y responsive design
-  - **🛡️ Enterprise error handling** y toast notifications
-  - **🔗 JSON:API integration** con business rules validation
-- **`contacts`** ⭐ **FULL-CRUD MODULE** - Sistema completo de gestión de contactos con:
-  - **🏆 CRUD completo** (Contacts, Addresses, Documents, People)
-  - **📎 Document management** con upload, view, download y verification
-  - **🎨 Professional modals** reemplazando window.confirm() con ConfirmModal
-  - **🛡️ Advanced error handling** con type guards y user-friendly messages
-  - **📱 Tabbed interface** para visualización completa de entidades relacionadas
-  - **🔗 JSON:API includes** para carga eficiente de relationships
-  - **✨ Authentication consistency** con token management robusto
-
-### 🎊 **Sistema de Error Handling Enterprise Avanzado**
-- **FK Constraint Detection** automática para eliminaciones
-- **User-friendly messages** específicos por entidad
-- **Beautiful toast notifications** con animaciones profesionales
-- **Graceful error handling** sin crashes del sistema
-- **Professional UX** con modales de confirmación elegantes
-- **Document management errors** con popup blocker detection
-- **Authentication consistency** con token validation automática
-- **TypeScript strict error handling** con unknown types y type guards
-
----
-
-## Estructura destacada
-
-- `src/modules`: módulos independientes y portables
-- `src/ui`: Design System base (atm-ui)
-- `src/lib`: funciones y clientes API reutilizables
-
----
-
-## Recomendación
-
-Este proyecto está diseñado para integrarse con `api-base`, el backend modular de Labor Wasser de México.
+See [CLAUDE.md](./CLAUDE.md) for the WordPress-style refactor strategy.
+Full plan: `~/.claude/plans/zesty-snacking-dijkstra.md`.
