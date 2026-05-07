@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import AuthStatus from '@/modules/auth/components/AuthStatus'
+import { AuthStatus } from '@/modules/auth'
 import { usePublicSettings } from '@/modules/app-config'
 import styles from '@/ui/styles/modules/HeaderNavbar.module.scss'
 

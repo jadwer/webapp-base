@@ -3,7 +3,7 @@
 import { Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { useAuthRedirect } from '@/hooks/useAuthRedirect'
-import LoginTemplate from '@/modules/auth/templates/LoginTemplate'
+import { LoginTemplate } from '@/modules/auth'
 
 function LoginContent() {
   const searchParams = useSearchParams()

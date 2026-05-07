@@ -1,6 +1,6 @@
 'use client'
 
-import ForgotPasswordTemplate from '@/modules/auth/templates/ForgotPasswordTemplate'
+import { ForgotPasswordTemplate } from '@/modules/auth'
 
 export default function ForgotPasswordPage() {
   return <ForgotPasswordTemplate />

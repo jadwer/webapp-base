@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { appSettingsService, type AppSettingValue, type AppSettingsGrouped } from '@/modules/app-config/services/appSettingsService'
+import { appSettingsService, type AppSettingValue, type AppSettingsGrouped } from '@/modules/app-config'
 import axiosClient from '@/lib/axiosClient'
 import { toast } from '@/lib/toast'
 

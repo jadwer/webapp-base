@@ -1,6 +1,6 @@
 'use client'
 
-import { useAuth } from '@/modules/auth/lib/auth'
+import { useAuth } from '@/modules/auth'
 import { useIsClient } from '@/hooks/useIsClient'
 import { useState, useRef } from 'react'
 import { useUsers } from '@/modules/users/hooks/useUsers'

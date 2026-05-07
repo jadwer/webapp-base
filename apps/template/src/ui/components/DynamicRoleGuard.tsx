@@ -1,7 +1,7 @@
 'use client'
 
 import { ReactNode } from 'react'
-import { useAuth } from '@/modules/auth/lib/auth'
+import { useAuth } from '@/modules/auth'
 import { useIsClient } from '@/hooks/useIsClient'
 import { hasAnyRole, hasAnyPermission, canAccessPage } from '@/lib/permissions'
 

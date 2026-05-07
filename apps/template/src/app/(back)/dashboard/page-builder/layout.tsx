@@ -1,4 +1,4 @@
-import AuthenticatedLayout from "@/modules/auth/components/AuthenticatedLayout"
+import { AuthenticatedLayout } from '@/modules/auth'
 import 'grapesjs/dist/css/grapes.min.css';
 
 export default function PageBuilderLayout({

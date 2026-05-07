@@ -1,6 +1,6 @@
 'use client'
 
-import { useAuth } from '@/modules/auth/lib/auth'
+import { useAuth } from '@/modules/auth'
 import { useIsClient } from '@/hooks/useIsClient'
 import { getUserRoles, isAdmin, isSuperAdmin } from '@/lib/permissions'
 

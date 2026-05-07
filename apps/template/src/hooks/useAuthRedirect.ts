@@ -2,9 +2,8 @@
 
 import { useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useAuth } from '@/modules/auth/lib/auth'
+import { useAuth, getDefaultRoute } from '@/modules/auth'
 import { useIsClient } from './useIsClient'
-import { getDefaultRoute } from '@/lib/permissions'
 
 /**
  * Hook para redirigir usuarios autenticados según su rol.

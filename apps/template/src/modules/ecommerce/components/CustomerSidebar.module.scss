@@ -1,8 +1,8 @@
 // CustomerSidebar - Sidebar colapsable para clientes en paginas publicas
 // Reutiliza tokens del design system
-@use '../../../ui/styles/tokens/_colors.scss' as *;
-@use '../../../ui/styles/tokens/_spacing.scss' as *;
-@use '../../../ui/styles/tokens/_typography.scss' as *;
+@use 'tokens/_colors.scss' as *;
+@use 'tokens/_spacing.scss' as *;
+@use 'tokens/_typography.scss' as *;
 
 $transition-fast: 150ms ease-in-out;
 $transition-normal: 250ms ease-in-out;

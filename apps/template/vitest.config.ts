@@ -47,7 +47,10 @@ export default defineConfig({
       'src/ui/**/*.{test,spec}.{js,ts,tsx}',
       'src/tests/**/*.{test,spec}.{js,ts,tsx}'
     ],
-    exclude: ['node_modules/', 'src/test/setup.ts'],
+    // Package tests live in packages/<name>/src/tests/ and run from the
+    // package itself via `pnpm --filter @lwm/<name> test`. Excluded here to
+    // avoid double-running.
+    exclude: ['node_modules/', 'src/test/setup.ts', '../../packages/**'],
     
     // Environment matching - usar node para integration tests
     environmentMatchGlobs: [

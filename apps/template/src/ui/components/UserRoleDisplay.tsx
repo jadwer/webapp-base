@@ -1,6 +1,6 @@
 'use client'
 
-import { useAuth } from '@/modules/auth/lib/auth'
+import { useAuth } from '@/modules/auth'
 
 export default function UserRoleDisplay() {
   const { user, isLoading } = useAuth()

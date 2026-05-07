@@ -1,14 +1,4 @@
-interface Props {
-  message: string | null
-  type?: 'success' | 'danger' | 'warning' | 'info'
-}
-
-export default function StatusMessage({ message, type = 'info' }: Props) {
-  if (!message) return null
-
-  return (
-    <div className={`alert alert-${type}`} role="alert">
-      {message}
-    </div>
-  )
-}
+// Compatibility shim. StatusMessage now lives in @lwm/ui. Existing default
+// imports `from '@/ui/StatusMessage'` keep working through the named-to-default
+// re-aliasing below; named imports also resolve via the same line.
+export { StatusMessage as default, StatusMessage } from '@lwm/ui'

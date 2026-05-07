@@ -1,4 +1,4 @@
-// @lwm/app-config - placeholder. Real implementation lands in Fase 2/3.
-
-export {}
-
+export { usePublicSettings } from './hooks/usePublicSettings'
+export type { PublicSettings } from './hooks/usePublicSettings'
+export { appSettingsService } from './services/appSettingsService'
+export type { AppSettingValue, AppSettingsGrouped } from './services/appSettingsService'

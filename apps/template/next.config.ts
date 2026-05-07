@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import path from "path";
 
 /**
  * Next.js config for the webapp-base TEMPLATE (master alive).
@@ -54,7 +55,21 @@ const nextConfig: NextConfig = {
   // run them through its own SWC + CSS-modules pipeline so component styles
   // resolve to real class hashes (instead of the empty stubs tsup emits when
   // SCSS is treated as a side-effect-free import).
-  transpilePackages: ['@lwm/ui'],
+  //
+  // Every @lwm/* package that ships .module.scss imports must be listed here.
+  // Tenants in clients/<name>/webapp/ MUST mirror this list in their own
+  // next.config.ts; otherwise CSS Modules from these packages render unstyled.
+  transpilePackages: ['@lwm/ui', '@lwm/auth', '@lwm/app-config'],
+  // Single source of truth for SCSS design tokens lives in @lwm/ui. Every
+  // *.module.scss across the workspace can `@use 'tokens/_colors.scss' as *`
+  // without a relative `../../../` chain. Old-style relative imports inside
+  // packages/ui (which keep `../tokens/...`) still work because that path is
+  // valid relative to their own location.
+  sassOptions: {
+    includePaths: [
+      path.join(__dirname, "..", "..", "packages", "ui", "src", "styles"),
+    ],
+  },
   images: { remotePatterns },
 };
 

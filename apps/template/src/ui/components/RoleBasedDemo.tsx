@@ -1,6 +1,6 @@
 'use client'
 
-import { useAuth } from '@/modules/auth/lib/auth'
+import { useAuth } from '@/modules/auth'
 import { getDefaultRoute } from '@/lib/permissions'
 import UserRoleDisplay from '@/ui/components/UserRoleDisplay'
 import RoleGuard from '@/ui/components/RoleGuard'

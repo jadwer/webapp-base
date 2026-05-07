@@ -2,7 +2,7 @@
 
 import { Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
-import ResetPasswordTemplate from '@/modules/auth/templates/ResetPasswordTemplate'
+import { ResetPasswordTemplate } from '@/modules/auth'
 import styles from '@/modules/auth/styles/AuthTemplate.module.scss'
 import Link from 'next/link'
 
