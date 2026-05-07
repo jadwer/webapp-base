@@ -3,7 +3,7 @@
 import { useState, useCallback } from 'react'
 import type { QuoteItem } from '../types'
 import { useQuoteItemMutations } from '../hooks'
-import { productService } from '@/modules/products/services'
+import { productService } from '@/modules/products'
 import { toast } from '@/lib/toast'
 
 interface Product {

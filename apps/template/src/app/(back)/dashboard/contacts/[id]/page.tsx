@@ -8,7 +8,7 @@
 import React, { useRef } from 'react'
 import { useContact, useContactMutations } from '@/modules/contacts'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
-import { ContactViewTabs } from '@/modules/contacts/components/ContactViewTabs'
+import { ContactViewTabs } from '@/modules/contacts'
 import { Alert } from '@/ui/components/base/Alert'
 import { toast } from '@/lib/toast'
 import ConfirmModal, { ConfirmModalHandle } from '@/ui/components/base/ConfirmModal'

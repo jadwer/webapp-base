@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { UnitFormWrapper } from '@/modules/products/components/UnitFormWrapper'
+import { UnitFormWrapper } from '@/modules/products'
 import { useRouter } from 'next/navigation'
 
 interface EditUnitPageProps {

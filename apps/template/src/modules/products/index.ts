@@ -1,22 +1,3 @@
-// Types
-export * from './types/product'
-export * from './types/unit'
-export * from './types/category'
-export * from './types/brand'
-export * from './types/api'
-export type { ViewMode } from './types'
-
-// Services
-export * from './services'
-
-// Hooks
-export * from './hooks'
-
-// Components
-export * from './components'
-
-// Templates
-export * from './templates'
-
-// Utils
-export * from './utils'
+// Compatibility shim. Products module now lives in @lwm/products.
+// Existing imports `from '@/modules/products'` keep working through this re-export.
+export * from '@lwm/products'

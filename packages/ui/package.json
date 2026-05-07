@@ -38,9 +38,11 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "clsx": "^2.1.0"
+    "clsx": "^2.1.0",
+    "nprogress": "^0.2.0"
   },
   "devDependencies": {
+    "@types/nprogress": "^0.2.3",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "tsup": "^8.3.5",

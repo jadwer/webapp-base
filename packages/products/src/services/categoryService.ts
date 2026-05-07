@@ -1,0 +1,122 @@
+import { axiosClient as axios } from '@lwm/auth'
+import {
+  CategoriesResponse,
+  CategoryResponse,
+  CreateCategoryRequest,
+  UpdateCategoryRequest,
+  QueryParams,
+  CategorySortOptions
+} from '../types'
+import { transformJsonApiCategory, JsonApiResource } from '../utils/transformers'
+import type { JsonApiResponse } from '../types'
+
+const CATEGORIES_ENDPOINT = '/api/v1/categories'
+
+export const categoryService = {
+  async getCategories(params?: {
+    page?: { number?: number; size?: number }
+    filter?: { name?: string; slug?: string; isActive?: boolean }
+    sort?: CategorySortOptions
+  }): Promise<CategoriesResponse> {
+    const queryParams: QueryParams = {}
+
+    if (params?.page) {
+      if (params.page.number !== undefined) {
+        queryParams['page[number]'] = params.page.number
+      }
+      if (params.page.size !== undefined) {
+        queryParams['page[size]'] = params.page.size
+      }
+    }
+
+    if (params?.filter) {
+      if (params.filter.name) queryParams['filter[name]'] = params.filter.name
+      if (params.filter.slug) queryParams['filter[slug]'] = params.filter.slug
+      if (params.filter.isActive !== undefined) queryParams['filter[is_active]'] = params.filter.isActive ? '1' : '0'
+    }
+    
+    if (params?.sort) {
+      const direction = params.sort.direction === 'desc' ? '-' : ''
+      queryParams.sort = `${direction}${params.sort.field}`
+    }
+
+    const response = await axios.get(CATEGORIES_ENDPOINT, { params: queryParams })
+
+    const jsonApiResponse = response.data as JsonApiResponse<JsonApiResource[]>
+    
+    // Transform the response
+    const transformedData = Array.isArray(jsonApiResponse.data) 
+      ? jsonApiResponse.data.map(resource => transformJsonApiCategory(resource))
+      : []
+    
+    return {
+      data: transformedData,
+      meta: jsonApiResponse.meta,
+      links: jsonApiResponse.links
+    }
+  },
+
+  async getCategory(id: string): Promise<CategoryResponse> {
+    const response = await axios.get(`${CATEGORIES_ENDPOINT}/${id}`)
+
+    const jsonApiResponse = response.data as JsonApiResponse<JsonApiResource>
+    
+    // Transform the single resource response
+    const transformedCategory = transformJsonApiCategory(jsonApiResponse.data)
+    
+    return {
+      data: transformedCategory,
+      meta: jsonApiResponse.meta,
+      links: jsonApiResponse.links
+    }
+  },
+
+  async createCategory(data: CreateCategoryRequest): Promise<CategoryResponse> {
+    const payload = {
+      data: {
+        type: 'categories',
+        attributes: {
+          name: data.name,
+          ...(data.description && { description: data.description }),
+          ...(data.slug && { slug: data.slug }),
+          ...(data.isActive !== undefined && { isActive: data.isActive })
+        }
+      }
+    }
+
+    const response = await axios.post(CATEGORIES_ENDPOINT, payload)
+    return response.data
+  },
+
+  async updateCategory(id: string, data: UpdateCategoryRequest): Promise<CategoryResponse> {
+    const attributes: Record<string, string | boolean | number> = {}
+
+    if (data.name !== undefined) attributes.name = data.name
+    if (data.description !== undefined) attributes.description = data.description
+    if (data.slug !== undefined) attributes.slug = data.slug
+    if (data.isActive !== undefined) attributes.isActive = data.isActive
+
+    const payload = {
+      data: {
+        type: 'categories',
+        id,
+        attributes
+      }
+    }
+
+    const response = await axios.patch(`${CATEGORIES_ENDPOINT}/${id}`, payload)
+    return response.data
+  },
+
+  async deleteCategory(id: string): Promise<void> {
+    await axios.delete(`${CATEGORIES_ENDPOINT}/${id}`)
+  },
+
+  async toggleActive(categoryId: string, isActive: boolean, includeProducts?: boolean): Promise<{ message: string; category_updated: boolean; products_affected: number }> {
+    const response = await axios.post(`/api/v1/categories/${categoryId}/toggle-active`, {
+      is_active: isActive,
+      include_products: includeProducts ?? false
+    })
+    return response.data
+  }
+}

@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useQuoteMutations } from '@/modules/quotes'
-import { contactsService } from '@/modules/contacts/services'
+import { contactsService } from '@/modules/contacts'
 import { shoppingCartService } from '@/modules/ecommerce'
 import type { ShoppingCart } from '@/modules/ecommerce'
 import { stockService } from '@/modules/inventory'

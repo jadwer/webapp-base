@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { BrandFormWrapper } from '@/modules/products/components/BrandFormWrapper'
+import { BrandFormWrapper } from '@/modules/products'
 import { useRouter } from 'next/navigation'
 
 interface EditBrandPageProps {

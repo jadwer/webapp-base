@@ -8,7 +8,7 @@
 
 import React, { memo, useCallback, useState, useEffect } from 'react'
 import type { InventoryMovement, InventoryMovementParsed, CreateMovementData, UpdateMovementData, WarehouseParsed, WarehouseLocationParsed } from '../types'
-import type { Product } from '@/modules/products/types'
+import type { Product } from '@/modules/products'
 import { useProductBatches } from '../hooks'
 
 interface InventoryMovementFormProps {

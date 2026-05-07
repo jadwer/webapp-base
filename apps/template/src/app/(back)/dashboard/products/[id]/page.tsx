@@ -4,9 +4,7 @@ import React, { use } from 'react'
 import Image from 'next/image'
 import { Card, Button } from '@/ui/components/base'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
-import { useProduct } from '@/modules/products'
-import { StatusBadge } from '@/modules/products/components'
-import { formatDate, formatPrice } from '@/modules/products/utils'
+import { useProduct, StatusBadge, formatDate, formatPrice } from '@/modules/products'
 
 export default function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)

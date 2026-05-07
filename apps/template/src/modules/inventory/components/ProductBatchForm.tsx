@@ -16,7 +16,7 @@ import type {
   UpdateProductBatchRequest,
   ProductBatchStatus
 } from '../types'
-import type { Product } from '@/modules/products/types'
+import type { Product } from '@/modules/products'
 import type { WarehouseParsed, WarehouseLocationParsed } from '../types'
 
 interface ProductBatchFormProps {

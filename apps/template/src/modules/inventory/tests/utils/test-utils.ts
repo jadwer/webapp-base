@@ -14,7 +14,7 @@ import type {
   ParsedCycleCount,
   JsonApiResponse
 } from '../../types'
-import type { Product } from '@/modules/products/types'
+import type { Product } from '@/modules/products'
 
 // =================
 // MOCK FACTORIES

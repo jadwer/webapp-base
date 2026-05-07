@@ -6,12 +6,12 @@
 'use client'
 
 import React from 'react'
-import { ContactFormTabs } from '@/modules/contacts/components/ContactFormTabs'
+import { ContactFormTabs } from '@/modules/contacts'
 import { useContactMutations } from '@/modules/contacts'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
 import { useSearchParams } from 'next/navigation'
-import type { ContactFormData } from '@/modules/contacts/types'
-import { parseContact } from '@/modules/contacts/hooks'
+import type { ContactFormData } from '@/modules/contacts'
+import { parseContact } from '@/modules/contacts'
 import { toast } from '@/lib/toast'
 
 export default function CreateContactPage() {

@@ -3,7 +3,7 @@
  * Types for offers/promotions derived from products
  */
 
-import type { Product } from '@/modules/products/types'
+import type { Product } from '@/modules/products'
 
 /**
  * Offer - A product with price > cost (representing a discount/promotion)

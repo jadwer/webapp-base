@@ -1,6 +1,6 @@
 'use client'
 
-import { BrandsAdminPagePro } from '@/modules/products/components/BrandsAdminPagePro'
+import { BrandsAdminPagePro } from '@/modules/products'
 
 export default function BrandsPage() {
   return <BrandsAdminPagePro />

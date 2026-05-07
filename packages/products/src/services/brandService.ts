@@ -1,0 +1,122 @@
+import { axiosClient as axios } from '@lwm/auth'
+import {
+  BrandsResponse,
+  BrandResponse,
+  CreateBrandRequest,
+  UpdateBrandRequest,
+  QueryParams,
+  BrandSortOptions
+} from '../types'
+import { transformJsonApiBrand, JsonApiResource } from '../utils/transformers'
+import type { JsonApiResponse } from '../types'
+
+const BRANDS_ENDPOINT = '/api/v1/brands'
+
+export const brandService = {
+  async getBrands(params?: {
+    page?: { number?: number; size?: number }
+    filter?: { name?: string; slug?: string; isActive?: boolean }
+    sort?: BrandSortOptions
+  }): Promise<BrandsResponse> {
+    const queryParams: QueryParams = {}
+
+    if (params?.page) {
+      if (params.page.number !== undefined) {
+        queryParams['page[number]'] = params.page.number
+      }
+      if (params.page.size !== undefined) {
+        queryParams['page[size]'] = params.page.size
+      }
+    }
+
+    if (params?.filter) {
+      if (params.filter.name) queryParams['filter[name]'] = params.filter.name
+      if (params.filter.slug) queryParams['filter[slug]'] = params.filter.slug
+      if (params.filter.isActive !== undefined) queryParams['filter[is_active]'] = params.filter.isActive ? '1' : '0'
+    }
+    
+    if (params?.sort) {
+      const direction = params.sort.direction === 'desc' ? '-' : ''
+      queryParams.sort = `${direction}${params.sort.field}`
+    }
+
+    const response = await axios.get(BRANDS_ENDPOINT, { params: queryParams })
+
+    const jsonApiResponse = response.data as JsonApiResponse<JsonApiResource[]>
+    
+    // Transform the response
+    const transformedData = Array.isArray(jsonApiResponse.data) 
+      ? jsonApiResponse.data.map(resource => transformJsonApiBrand(resource))
+      : []
+    
+    return {
+      data: transformedData,
+      meta: jsonApiResponse.meta,
+      links: jsonApiResponse.links
+    }
+  },
+
+  async getBrand(id: string): Promise<BrandResponse> {
+    const response = await axios.get(`${BRANDS_ENDPOINT}/${id}`)
+
+    const jsonApiResponse = response.data as JsonApiResponse<JsonApiResource>
+    
+    // Transform the single resource response
+    const transformedBrand = transformJsonApiBrand(jsonApiResponse.data)
+    
+    return {
+      data: transformedBrand,
+      meta: jsonApiResponse.meta,
+      links: jsonApiResponse.links
+    }
+  },
+
+  async createBrand(data: CreateBrandRequest): Promise<BrandResponse> {
+    const payload = {
+      data: {
+        type: 'brands',
+        attributes: {
+          name: data.name,
+          ...(data.description && { description: data.description }),
+          ...(data.slug && { slug: data.slug }),
+          ...(data.isActive !== undefined && { isActive: data.isActive })
+        }
+      }
+    }
+
+    const response = await axios.post(BRANDS_ENDPOINT, payload)
+    return response.data
+  },
+
+  async updateBrand(id: string, data: UpdateBrandRequest): Promise<BrandResponse> {
+    const attributes: Record<string, string | boolean | number> = {}
+
+    if (data.name !== undefined) attributes.name = data.name
+    if (data.description !== undefined) attributes.description = data.description
+    if (data.slug !== undefined) attributes.slug = data.slug
+    if (data.isActive !== undefined) attributes.isActive = data.isActive
+
+    const payload = {
+      data: {
+        type: 'brands',
+        id,
+        attributes
+      }
+    }
+
+    const response = await axios.patch(`${BRANDS_ENDPOINT}/${id}`, payload)
+    return response.data
+  },
+
+  async deleteBrand(id: string): Promise<void> {
+    await axios.delete(`${BRANDS_ENDPOINT}/${id}`)
+  },
+
+  async toggleActive(brandId: string, isActive: boolean, includeProducts?: boolean): Promise<{ message: string; brand_updated: boolean; products_affected: number }> {
+    const response = await axios.post(`/api/v1/brands/${brandId}/toggle-active`, {
+      is_active: isActive,
+      include_products: includeProducts ?? false
+    })
+    return response.data
+  }
+}

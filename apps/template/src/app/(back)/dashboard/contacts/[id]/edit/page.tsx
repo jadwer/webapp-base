@@ -6,12 +6,12 @@
 'use client'
 
 import React from 'react'
-import { ContactFormTabs } from '@/modules/contacts/components/ContactFormTabs'
+import { ContactFormTabs } from '@/modules/contacts'
 import { useContact, useContactMutations } from '@/modules/contacts'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
 import { Alert } from '@/ui/components/base/Alert'
 import { toast } from '@/lib/toast'
-import type { ContactFormData } from '@/modules/contacts/types'
+import type { ContactFormData } from '@/modules/contacts'
 
 interface EditContactPageProps {
   params: Promise<{ id: string }>

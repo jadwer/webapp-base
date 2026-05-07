@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { CategoryFormWrapper } from '@/modules/products/components/CategoryFormWrapper'
+import { CategoryFormWrapper } from '@/modules/products'
 import { useRouter } from 'next/navigation'
 
 interface EditCategoryPageProps {
