@@ -5,7 +5,7 @@
 import { useState } from 'react'
 import { useSalesOrderMutations, useSalesContacts, useSalesOrderItemMutations } from '@/modules/sales'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
-import ItemsManager from '@/modules/sales/components/ItemsManager'
+import { ItemsManager } from '@/modules/sales'
 import { formatCurrency } from '@/lib/formatters'
 
 interface OrderItem {

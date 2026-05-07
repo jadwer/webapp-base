@@ -11,7 +11,7 @@ import {
   QUOTE_STATUS_CONFIG,
   canEditQuote
 } from '@/modules/quotes'
-import { quoteService } from '@/modules/quotes/services/quoteService'
+import { quoteService } from '@/modules/quotes'
 import { toast } from '@/lib/toast'
 import { ConfirmModal, ConfirmModalHandle } from '@/ui/components/base'
 import { useAuth } from '@/modules/auth'

@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { useRouter } from 'next/navigation'
-import OrderForm from '@/modules/ecommerce/components/OrderForm'
+import { OrderForm } from '@/modules/ecommerce'
 import { useEcommerceOrder, useEcommerceOrderMutations } from '@/modules/ecommerce'
 import type { EcommerceOrderFormData } from '@/modules/ecommerce'
 

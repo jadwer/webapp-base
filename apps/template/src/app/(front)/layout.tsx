@@ -2,7 +2,7 @@
 
 import { PublicHeader } from '@/ui/components/PublicHeader'
 import { PublicFooter } from '@/ui/components/PublicFooter'
-import CustomerSidebar from '@/modules/ecommerce/components/CustomerSidebar'
+import { CustomerSidebar } from '@/modules/ecommerce'
 
 /**
  * Public route group layout for the template.

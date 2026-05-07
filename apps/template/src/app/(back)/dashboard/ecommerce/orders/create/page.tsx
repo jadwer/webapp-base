@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { useRouter } from 'next/navigation'
-import OrderForm from '@/modules/ecommerce/components/OrderForm'
+import { OrderForm } from '@/modules/ecommerce'
 
 export default function CreateOrderPage() {
   const router = useRouter()

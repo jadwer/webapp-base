@@ -5,7 +5,7 @@ import type { ReactNode, ErrorInfo } from 'react'
 import Link from 'next/link'
 import { useAuth } from '@/modules/auth'
 import { isAdmin } from '@/lib/permissions'
-import CustomerDashboard from '@/modules/ecommerce/components/CustomerDashboard'
+import { CustomerDashboard } from '@/modules/ecommerce'
 import {
   useBalanceGeneral,
   useEstadoResultados,
@@ -14,7 +14,7 @@ import {
 } from '@/modules/accounting'
 import { useCFDIInvoices } from '@/modules/billing/hooks'
 import { useLeads, useOpportunities, useCampaigns } from '@/modules/crm/hooks'
-import { useEcommerceOrders } from '@/modules/ecommerce/hooks'
+import { useEcommerceOrders } from '@/modules/ecommerce'
 import { useEmployees } from '@/modules/hr/hooks'
 import { useSystemHealth } from '@/modules/system-health'
 

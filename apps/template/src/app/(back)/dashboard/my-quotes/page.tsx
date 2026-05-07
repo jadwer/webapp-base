@@ -10,9 +10,9 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useAuth } from '@/modules/auth'
-import { QuoteStatusBadge } from '@/modules/quotes/components'
-import { quoteService } from '@/modules/quotes/services/quoteService'
-import type { Quote } from '@/modules/quotes/types'
+import { QuoteStatusBadge } from '@/modules/quotes'
+import { quoteService } from '@/modules/quotes'
+import type { Quote } from '@/modules/quotes'
 
 export default function MyQuotesPage() {
   const { user, isLoading: authLoading } = useAuth()

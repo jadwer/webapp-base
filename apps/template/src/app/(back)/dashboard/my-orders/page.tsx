@@ -10,7 +10,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useAuth } from '@/modules/auth'
-import { salesService } from '@/modules/sales/services'
+import { salesService } from '@/modules/sales'
 
 interface SalesOrder {
   id: string

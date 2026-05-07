@@ -59,7 +59,7 @@ const nextConfig: NextConfig = {
   // Every @lwm/* package that ships .module.scss imports must be listed here.
   // Tenants in clients/<name>/webapp/ MUST mirror this list in their own
   // next.config.ts; otherwise CSS Modules from these packages render unstyled.
-  transpilePackages: ['@lwm/ui', '@lwm/auth', '@lwm/app-config', '@lwm/products', '@lwm/contacts'],
+  transpilePackages: ['@lwm/ui', '@lwm/auth', '@lwm/app-config', '@lwm/products', '@lwm/contacts', '@lwm/sales', '@lwm/ecommerce'],
   // Single source of truth for SCSS design tokens lives in @lwm/ui. Every
   // *.module.scss across the workspace can `@use 'tokens/_colors.scss' as *`
   // without a relative `../../../` chain. Old-style relative imports inside

@@ -11,7 +11,7 @@ import { useState, useEffect, use } from 'react'
 import Link from 'next/link'
 import { useAuth } from '@/modules/auth'
 import { usePublicSettings } from '@/modules/app-config'
-import { salesService } from '@/modules/sales/services'
+import { salesService } from '@/modules/sales'
 
 interface SalesOrder {
   id: string

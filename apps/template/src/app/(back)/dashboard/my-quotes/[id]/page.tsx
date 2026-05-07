@@ -11,9 +11,9 @@ import { useState, useEffect, use } from 'react'
 import Link from 'next/link'
 import { useAuth } from '@/modules/auth'
 import { usePublicSettings } from '@/modules/app-config'
-import { QuoteStatusBadge } from '@/modules/quotes/components'
-import { quoteService, quoteItemService } from '@/modules/quotes/services/quoteService'
-import type { Quote, QuoteItem } from '@/modules/quotes/types'
+import { QuoteStatusBadge } from '@/modules/quotes'
+import { quoteService, quoteItemService } from '@/modules/quotes'
+import type { Quote, QuoteItem } from '@/modules/quotes'
 import { toast } from '@/lib/toast'
 
 interface MyQuoteDetailPageProps {

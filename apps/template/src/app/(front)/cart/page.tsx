@@ -9,7 +9,7 @@
 'use client'
 
 import { Suspense } from 'react'
-import { LocalCartPage } from '@/modules/public-catalog/components/LocalCartPage'
+import { LocalCartPage } from '@/modules/public-catalog'
 
 function CartPageContent() {
   return (

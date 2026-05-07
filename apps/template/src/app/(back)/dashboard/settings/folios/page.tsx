@@ -1,8 +1,8 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { folioSequenceService, DOCUMENT_TYPE_LABELS } from '@/modules/sales/services/folioSequenceService'
-import type { FolioSequence, UpdateFolioSequenceRequest } from '@/modules/sales/services/folioSequenceService'
+import { folioSequenceService, DOCUMENT_TYPE_LABELS } from '@/modules/sales'
+import type { FolioSequence, UpdateFolioSequenceRequest } from '@/modules/sales'
 import { toast } from '@/lib/toast'
 
 export default function FoliosSettingsPage() {

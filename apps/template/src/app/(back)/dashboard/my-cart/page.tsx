@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useAuth } from '@/modules/auth'
-import { useCart } from '@/modules/ecommerce/hooks/useShoppingCart'
+import { useCart } from '@/modules/ecommerce'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
 
 export default function MyCartPage() {

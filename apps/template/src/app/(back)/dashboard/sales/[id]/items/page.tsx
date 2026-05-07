@@ -4,7 +4,7 @@ import { useState, use } from 'react'
 import { useSalesOrderItems } from '@/modules/sales'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
 import { formatCurrency, formatQuantity } from '@/lib/formatters'
-import AddItemModal from '@/modules/sales/components/AddItemModal'
+import { AddItemModal } from '@/modules/sales'
 
 interface PageProps {
   params: Promise<{ id: string }>
