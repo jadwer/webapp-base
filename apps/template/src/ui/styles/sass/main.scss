@@ -1,9 +1,25 @@
-// Override Bootstrap primary color with LWM brand green
+// Bootstrap brand color (compile-time).
+//
+// Why a hardcoded hex and not `var(--brand-primary)`:
+// Bootstrap's SCSS uses Sass color functions (darken, lighten, color-mix,
+// theme-colors generation) that REQUIRE a compile-time color value. CSS
+// custom properties are not resolvable at SCSS compile time, so passing
+// `var(--brand-primary)` here breaks Bootstrap's internal color math.
+//
+// How tenants override this:
+//   1. Set `--brand-primary` on `:root` in their own clients/<name>/webapp/src/styles/branding.scss
+//      for any custom components that use the variable directly.
+//   2. To override Bootstrap's $primary itself, the tenant ships their own
+//      apps/template/src/ui/styles/sass/main.scss with a different hex value
+//      (the file lives in the template, not the package — by design).
+//
+// Default placeholder color: a neutral blue. Tenants will swap this hex
+// in their own copy of main.scss.
 @use "../../../../node_modules/bootstrap/scss/bootstrap" with (
-  $primary: #8AC905
+  $primary: #2563eb
 );
 
 // Bootstrap Icons se importa desde CDN en layout.tsx
-
-// Labor Wasser de Mexico - Brand Styles
-@import "laborwasser";
+//
+// Tenant brand-specific styles go in clients/<name>/webapp/src/styles/branding.scss
+// or are layered via CSS custom properties in their own SCSS partials.

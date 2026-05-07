@@ -427,7 +427,7 @@ const localCartSyncService = {
    */
   clearLocalCart(): void {
     if (typeof window !== 'undefined') {
-      localStorage.removeItem('laborwasser_cart');
+      localStorage.removeItem('app_cart');
     }
   },
 

@@ -1,0 +1,59 @@
+// Design Tokens - Spacing
+// ========================
+// Sistema de espaciado consistente basado en múltiplos de 4px
+
+// Base unit
+$spacing-unit: 0.25rem; // 4px
+
+// Spacing scale
+$spacing-0: 0;
+$spacing-1: $spacing-unit;        // 4px
+$spacing-2: $spacing-unit * 2;    // 8px
+$spacing-3: $spacing-unit * 3;    // 12px
+$spacing-4: $spacing-unit * 4;    // 16px
+$spacing-5: $spacing-unit * 5;    // 20px
+$spacing-6: $spacing-unit * 6;    // 24px
+$spacing-8: $spacing-unit * 8;    // 32px
+$spacing-10: $spacing-unit * 10;  // 40px
+$spacing-12: $spacing-unit * 12;  // 48px
+$spacing-16: $spacing-unit * 16;  // 64px
+$spacing-20: $spacing-unit * 20;  // 80px
+$spacing-24: $spacing-unit * 24;  // 96px
+$spacing-32: $spacing-unit * 32;  // 128px
+
+// Semantic spacing aliases
+$spacing-xs: $spacing-1;   // 4px
+$spacing-sm: $spacing-2;   // 8px
+$spacing-md: $spacing-4;   // 16px
+$spacing-lg: $spacing-6;   // 24px
+$spacing-xl: $spacing-8;   // 32px
+$spacing-2xl: $spacing-12; // 48px
+$spacing-3xl: $spacing-16; // 64px
+
+// Component specific spacing
+$component-padding-sm: $spacing-2 $spacing-3;    // 8px 12px
+$component-padding-md: $spacing-3 $spacing-4;    // 12px 16px
+$component-padding-lg: $spacing-4 $spacing-6;    // 16px 24px
+
+$container-padding: $spacing-4;  // 16px
+$section-spacing: $spacing-8;    // 32px
+$element-spacing: $spacing-4;    // 16px
+
+// Border radius
+$border-radius-none: 0;
+$border-radius-sm: 0.125rem;  // 2px
+$border-radius-md: 0.375rem;  // 6px
+$border-radius-lg: 0.5rem;    // 8px
+$border-radius-xl: 0.75rem;   // 12px
+$border-radius-2xl: 1rem;     // 16px
+$border-radius-full: 9999px;
+
+// Default border radius
+$border-radius: $border-radius-md;
+
+// Shadows
+$shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+$shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+$shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+$shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+

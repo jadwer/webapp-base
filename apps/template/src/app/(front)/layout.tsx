@@ -1,10 +1,15 @@
 'use client'
 
-import { Header } from '@/modules/laborwasser-landing/components/Header/Header'
-import { TopNav } from '@/modules/laborwasser-landing/components/TopNav/TopNav'
-import { Footer } from '@/modules/laborwasser-landing/components/Footer/Footer'
+import { PublicHeader } from '@/ui/components/PublicHeader'
+import { PublicFooter } from '@/ui/components/PublicFooter'
 import CustomerSidebar from '@/modules/ecommerce/components/CustomerSidebar'
 
+/**
+ * Public route group layout for the template.
+ *
+ * Tenants replace PublicHeader / PublicFooter here with their own
+ * branded versions imported from `clients/<name>/webapp/src/modules/landing/`.
+ */
 export default function FrontLayout({
   children,
 }: {
@@ -12,11 +17,10 @@ export default function FrontLayout({
 }) {
   return (
     <>
-      <Header />
-      <TopNav />
+      <PublicHeader />
       <CustomerSidebar />
       <main>{children}</main>
-      <Footer />
+      <PublicFooter />
     </>
   )
 }

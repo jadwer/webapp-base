@@ -1,5 +1,5 @@
 # Proyecto Base Frontend – `webapp-base`  
-Plantilla oficial de Labor Wasser de México
+Plantilla generica para apps tenant del codebase
 
 Este proyecto es una base moderna, ultra modular y escalable con Next.js App Router. Permite desarrollar rápidamente interfaces desacopladas, exportar/importar módulos entre proyectos, y trabajar con diseñadores y clientes de forma fluida.
 
@@ -227,6 +227,6 @@ npm dev
 
 ## Notas finales
 
-Este proyecto base está alineado con `api-base`, el backend oficial de Labor Wasser de México.  
+Este proyecto base está alineado con `api-base`, el backend Laravel del codebase.  
 Permite importar módulos entre proyectos, mantener consistencia en estructura y escalar sin acoplamientos.
 

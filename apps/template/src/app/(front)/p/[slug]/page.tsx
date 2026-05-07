@@ -21,8 +21,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 
   return {
-    title: `${page.title} - Labor Wasser de Mexico`,
-    description: `${page.title} - Labor Wasser de Mexico, distribuidor de productos y equipos para laboratorio.`,
+    title: `${page.title}`,
+    description: `${page.title}`,
     robots: { index: true, follow: true },
   };
 }

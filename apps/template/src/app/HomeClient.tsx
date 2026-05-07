@@ -2,21 +2,22 @@
 
 import dynamic from 'next/dynamic'
 
-// Cargar el componente dinámicamente para evitar problemas de SSR/hidratación
-const LaborWasserLandingEnhanced = dynamic(
-  () => import('@/modules/laborwasser-landing').then((mod) => ({ default: mod.LaborWasserLandingEnhanced })),
-  { 
+// Load lazily to avoid SSR/hydration issues that some tenant landings (rich
+// product carousels, GrapesJS-rendered sections) require.
+const DemoLanding = dynamic(
+  () => import('@/modules/example-landing').then((mod) => ({ default: mod.DemoLanding })),
+  {
     ssr: false,
     loading: () => (
       <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '100vh' }}>
         <div className="text-center">
           <div className="spinner-border text-primary mb-3" role="status">
-            <span className="visually-hidden">Cargando...</span>
+            <span className="visually-hidden">Loading...</span>
           </div>
-          <p className="text-muted">Cargando Labor Wasser...</p>
+          <p className="text-muted">Loading...</p>
         </div>
       </div>
-    )
+    ),
   }
 )
 
@@ -25,14 +26,6 @@ interface HomeClientProps {
   enableProductModal?: boolean
 }
 
-export default function HomeClient({ 
-  showFullCatalog = false, 
-  enableProductModal = true 
-}: HomeClientProps) {
-  return (
-    <LaborWasserLandingEnhanced 
-      showFullCatalog={showFullCatalog}
-      enableProductModal={enableProductModal}
-    />
-  )
+export default function HomeClient(props: HomeClientProps = {}) {
+  return <DemoLanding {...props} />
 }

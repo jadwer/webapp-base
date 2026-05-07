@@ -8,7 +8,9 @@ import pluginUiEditorPlus from "./plugins/grapesjs-ui-editor-plus";
 import pluginStorageLocal from "./plugins/grapesjs-storage-local";
 import organizeDefaultBlocks from "./plugins/grapesjs-organize-default-blocks";
 import { ensureGrapeJSGlobalInit } from "./globalInit";
-import { registerLaborWasserBlocks } from "./blocks/laborwasser-blocks";
+// Tenant-specific block libraries live in client repos under
+// clients/<name>/webapp/src/modules/page-builder-blocks/ and are wired by
+// the tenant's own page-builder bootstrap, not from the template.
 import { registerHeroRevolutionBlocks } from "./blocks/hero-revolution-blocks";
 import { registerPublicCatalogBlocks } from "./blocks/public-catalog-blocks";
 import { registerSliderEditorComponent } from "./components/SliderEditorComponent";
@@ -110,7 +112,7 @@ export default async function initPageBuilder(
             head.appendChild(link);
           }
           
-          // Also inject Bootstrap Icons for LaborWasser blocks
+          // Also inject Bootstrap Icons for icon-using blocks
           if (!head.querySelector('link[href*="bootstrap-icons"]')) {
             const iconsLink = canvasDoc.createElement("link");
             iconsLink.rel = "stylesheet";
@@ -120,12 +122,9 @@ export default async function initPageBuilder(
         }
       }
 
-      // Register LaborWasser blocks
-      try {
-        registerLaborWasserBlocks(editor);
-      } catch {
-        // Error registering LaborWasser blocks
-      }
+      // Tenant-specific blocks register themselves via the tenant's own
+      // bootstrap. The template only registers the generic block libraries
+      // below.
 
       // Register Hero Revolution blocks
       try {

@@ -3,9 +3,10 @@
 import React, { useState } from 'react'
 import { Card, Button } from '@/ui/components/base'
 // import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
-import { laborWasserTemplates } from '../blocks/laborwasser-blocks'
+// Tenant-specific block libraries and template galleries were stashed during
+// the WordPress-style refactor. Tenants ship their own templates under
+// clients/<name>/webapp/src/modules/page-builder-blocks/.
 import { heroRevolutionBlocks } from '../blocks/hero-revolution-blocks'
-import { publicCatalogTemplates } from '../templates/PublicCatalogTemplates'
 import { staticPageTemplates } from '../templates/StaticPageTemplates'
 import styles from './TemplateGallery.module.scss'
 
@@ -29,22 +30,8 @@ export const TemplateGallery: React.FC<TemplateGalleryProps> = ({
   // const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null) // Removed unused state
   const [previewTemplate, setPreviewTemplate] = useState<Template | null>(null)
 
-  // Combine all templates
-  const laborTemplates = Object.entries(laborWasserTemplates).map(([key, template]) => ({
-    id: key,
-    category: 'LaborWasser',
-    ...template
-  }))
-
-  const catalogTemplates = publicCatalogTemplates.map(template => ({
-    id: template.id,
-    category: template.category,
-    name: template.name,
-    description: template.description,
-    thumbnail: template.thumbnail,
-    content: template.html
-  }))
-
+  // Combine all generic template sources. Tenant-specific template sources are
+  // wired in by the tenant's own gallery component.
   const staticTemplates = staticPageTemplates.map(template => ({
     id: template.id,
     category: template.category,
@@ -54,7 +41,7 @@ export const TemplateGallery: React.FC<TemplateGalleryProps> = ({
     content: template.html
   }))
 
-  const templates = [...laborTemplates, ...catalogTemplates, ...staticTemplates]
+  const templates = [...staticTemplates]
 
   const handleSelectTemplate = (template: Template) => {
     // Process dynamic hero templates

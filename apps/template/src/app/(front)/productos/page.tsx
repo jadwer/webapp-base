@@ -7,7 +7,7 @@ import type { EnhancedPublicProduct } from '@/modules/public-catalog'
 import { useToast } from '@/ui/hooks/useToast'
 
 // Local storage key for wishlist
-const WISHLIST_KEY = 'laborwasser_wishlist'
+const WISHLIST_KEY = 'app_wishlist'
 
 const priceRange = {
   min: 0,

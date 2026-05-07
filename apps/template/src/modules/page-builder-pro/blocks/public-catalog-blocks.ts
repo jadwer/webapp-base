@@ -73,7 +73,7 @@ export function registerPublicCatalogBlocks(editor: Editor) {
                     <div class="col-md-2">
                       <select class="form-select">
                         <option>Todas las marcas</option>
-                        <option>LaborWasser</option>
+                        <option>Acme</option>
                         <option>ChemTech</option>
                         <option>LabPro</option>
                       </select>
@@ -131,7 +131,7 @@ export function registerPublicCatalogBlocks(editor: Editor) {
                         <i class="bi bi-tag me-1"></i>Reactivos
                       </span>
                       <span class="badge bg-primary bg-opacity-10 text-primary small">
-                        <i class="bi bi-award me-1"></i>LaborWasser
+                        <i class="bi bi-award me-1"></i>Acme
                       </span>
                     </div>
                     <div class="d-flex justify-content-between align-items-center">
@@ -340,7 +340,7 @@ export function registerPublicCatalogBlocks(editor: Editor) {
                   </div>
                   <div class="card-body">
                     <div class="mb-2">
-                      <span class="badge bg-secondary bg-opacity-10 text-secondary small">LaborWasser</span>
+                      <span class="badge bg-secondary bg-opacity-10 text-secondary small">Acme</span>
                       <span class="badge bg-primary bg-opacity-10 text-primary small">Reactivos</span>
                     </div>
                     <h6 class="card-title">Ácido Sulfúrico Concentrado</h6>
@@ -521,7 +521,7 @@ export function registerPublicCatalogBlocks(editor: Editor) {
                   </div>
                   <div class="card-body">
                     <div class="mb-2">
-                      <span class="badge bg-success bg-opacity-10 text-success small">LaborWasser</span>
+                      <span class="badge bg-success bg-opacity-10 text-success small">Acme</span>
                       <span class="badge bg-primary bg-opacity-10 text-primary small">Reactivos</span>
                     </div>
                     <h5 class="card-title">Kit de Reactivos Básicos</h5>

@@ -54,7 +54,7 @@ export interface CartTotals {
 // Constants
 // ============================================
 
-const CART_STORAGE_KEY = 'laborwasser_cart'
+const CART_STORAGE_KEY = 'app_cart'
 
 // ============================================
 // Internal Sync System (same-tab updates)

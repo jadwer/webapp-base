@@ -8,7 +8,7 @@ import styles from '@/ui/styles/modules/HeaderNavbar.module.scss'
 export default function HeaderNavbar() {
   const { get } = usePublicSettings()
 
-  const logoSrc = get('company.logo_path_alt') || '/images/laborwasser/labor-wasser-mexico-logo2.webp'
+  const logoSrc = get('company.logo_path_alt') || '/images/brand/logo.svg'
   const companyName = get('company.name') || 'Logo'
 
   return (

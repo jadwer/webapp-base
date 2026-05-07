@@ -1,0 +1,30 @@
+// Design Tokens - Index
+// ======================
+// Archivo principal que importa todos los design tokens
+
+@import 'colors';
+@import 'spacing';
+@import 'typography';
+
+// Transitions y animaciones
+$transition-fast: 150ms ease-in-out;
+$transition-normal: 250ms ease-in-out;
+$transition-slow: 400ms ease-in-out;
+
+// Z-index scale
+$z-index-dropdown: 1000;
+$z-index-sticky: 1020;
+$z-index-fixed: 1030;
+$z-index-modal-backdrop: 1040;
+$z-index-modal: 1050;
+$z-index-popover: 1060;
+$z-index-tooltip: 1070;
+
+// Breakpoints (mantener compatibilidad con Bootstrap)
+$breakpoint-xs: 0;
+$breakpoint-sm: 576px;
+$breakpoint-md: 768px;
+$breakpoint-lg: 992px;
+$breakpoint-xl: 1200px;
+$breakpoint-xxl: 1400px;
+

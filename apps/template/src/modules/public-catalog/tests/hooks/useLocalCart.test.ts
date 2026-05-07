@@ -9,7 +9,7 @@ import { useLocalCart, useLocalCartCount } from '../../hooks/useLocalCart'
 import type { EnhancedPublicProduct } from '../../types/publicProduct'
 
 // Constants matching the hook
-const CART_STORAGE_KEY = 'laborwasser_cart'
+const CART_STORAGE_KEY = 'app_cart'
 
 // Mock product factory
 function createMockProduct(id: string = '1', overrides: Partial<EnhancedPublicProduct> = {}): EnhancedPublicProduct {

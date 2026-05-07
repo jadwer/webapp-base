@@ -6,12 +6,12 @@
 
 export const publicCatalogTemplates = [
   {
-    id: 'laborwasser-enhanced-landing',
+    id: 'demo-enhanced-landing',
     name: 'LaborWasser Enhanced Landing',
     category: 'Landing Pages',
     description: 'Landing page completa con integración del catálogo público avanzado',
-    thumbnail: '/templates/laborwasser-enhanced.jpg',
-    tags: ['landing', 'catalog', 'products', 'laborwasser', 'enhanced'],
+    thumbnail: '/templates/demo-enhanced.jpg',
+    tags: ['landing', 'catalog', 'products', 'demo', 'enhanced'],
     html: `
 <!DOCTYPE html>
 <html lang="es">
@@ -458,7 +458,7 @@ export const publicCatalogTemplates = [
                         </p>
                         <p class="mb-2">
                             <i class="bi bi-envelope me-2"></i>
-                            ventas@laborwasser.com.mx
+                            info@example.com
                         </p>
                     </div>
                 </div>

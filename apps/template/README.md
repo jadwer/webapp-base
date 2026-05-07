@@ -1,92 +1,72 @@
-# 🚀 Proyecto Base Frontend – `webapp-base`
+# webapp-base template
 
-**Plantilla oficial de Labor Wasser de México** para proyectos frontend modulares y escalables con **arquitectura enterprise**.
+Generic Next.js + React 19 + Bootstrap 5 frontend template for ERP-style apps
+backed by `api-base` (Laravel + JSON:API). Lives at `apps/template/` inside
+the `lwm-codebase` monorepo and serves as the demo/master that every tenant
+client repo extends.
 
-Este proyecto está construido con **Next.js App Router** y está diseñado para servir como base para nuevos ERPs, sistemas internos o plataformas web reutilizando módulos desacoplados y **componentes de nivel enterprise**.
-
----
-
-## 🚀 Build de Producción
-
-El proyecto está completamente listo para producción. Para generar el build:
+## Quick start
 
 ```bash
-npm run build
-npm start
+# from the monorepo root:
+pnpm install
+pnpm dev
 ```
 
-📖 **Guía completa de despliegue:** [`PRODUCTION_DEPLOYMENT.md`](./PRODUCTION_DEPLOYMENT.md)
+Configure backend URL by copying `.env.example` to `.env.local` (or
+`.env.development`) and pointing `NEXT_PUBLIC_BACKEND_URL` at your local
+Laravel instance.
 
----
-
-## Documentación Completa
-
-Consulta la documentación técnica completa en:
-
-[`docs/README.PROYECTO_BASE_LWM_WEBAPP.md`](./docs/README.PROYECTO_BASE_LWM_WEBAPP.md)
-
----
-
-## Inicio rápido
+## Production build
 
 ```bash
-npm install
-cp .env.local.example .env.local
-npm run dev
+pnpm --filter ./apps/template build
+pnpm --filter ./apps/template start
 ```
 
----
+## Architecture
 
-## ✨ Módulos Enterprise Incluidos
+- `src/modules/<name>/`: independent, portable feature modules (auth, products,
+  contacts, sales, ecommerce, page-builder-pro, mailer-manager, etc.). Each
+  module owns its components, hooks, services, types, and templates.
+- `src/ui/`: thin layer of layout-level UI (HeaderNavbar, Sidebar,
+  DashboardLayout). Base primitives (Button, Card, Modal, Input, etc.) are
+  imported from the shared `@lwm/ui` workspace package.
+- `src/app/`: Next.js App Router routes, split into `(back)` (dashboard) and
+  `(front)` (public store) groups.
+- `src/lib/`: shared API clients (axios + Sanctum token interceptor) and
+  utilities.
 
-- **`auth`** - Sistema de autenticación completo con Laravel Sanctum
-- **`roles`** - Gestión de roles y permisos (Permission Manager)
-- **`page-builder-pro`** - Constructor visual de páginas con GrapeJS (CRUD completo)
-- **`products`** ⭐ **ENTERPRISE MODULE** - Sistema completo de gestión con:
-  - **🏆 4 entidades completas** (Products, Categories, Brands, Units)
-  - **🚀 5 vistas virtualizadas** en cada entidad (Table, Grid, List, Compact, Showcase)
-  - **⚡ Performance excepcional** con TanStack Virtual + React.memo + Zustand
-  - **🎯 Zero re-renders** con UI state separation 
-  - **🛡️ Error handling enterprise** con FK constraint detection
-  - **📱 UX profesional** con filtros debounced y focus preservation
-  - **🔗 JSON:API completo** con relationship handling
-  - **✨ Toast notifications** con DOM directo y animaciones CSS
-- **`inventory`** ⭐ **ENTERPRISE MODULE** - Sistema de gestión de inventario con:
-  - **🏆 Warehouses completo** (Iteración 1 + 1.5 completadas)
-  - **🚀 5 vistas virtualizadas** (Table, Grid, List, Compact, Showcase)  
-  - **⚡ Performance optimization** para 500K+ registros con TanStack Virtual
-  - **🎨 Professional UI/UX** con hero cards, animations y responsive design
-  - **🛡️ Enterprise error handling** y toast notifications
-  - **🔗 JSON:API integration** con business rules validation
-- **`contacts`** ⭐ **FULL-CRUD MODULE** - Sistema completo de gestión de contactos con:
-  - **🏆 CRUD completo** (Contacts, Addresses, Documents, People)
-  - **📎 Document management** con upload, view, download y verification
-  - **🎨 Professional modals** reemplazando window.confirm() con ConfirmModal
-  - **🛡️ Advanced error handling** con type guards y user-friendly messages
-  - **📱 Tabbed interface** para visualización completa de entidades relacionadas
-  - **🔗 JSON:API includes** para carga eficiente de relationships
-  - **✨ Authentication consistency** con token management robusto
+## Tenant overrides
 
-### 🎊 **Sistema de Error Handling Enterprise Avanzado**
-- **FK Constraint Detection** automática para eliminaciones
-- **User-friendly messages** específicos por entidad
-- **Beautiful toast notifications** con animaciones profesionales
-- **Graceful error handling** sin crashes del sistema
-- **Professional UX** con modales de confirmación elegantes
-- **Document management errors** con popup blocker detection
-- **Authentication consistency** con token validation automática
-- **TypeScript strict error handling** con unknown types y type guards
+This template is the master that ships generic placeholder branding,
+landing, and seeders. Tenants build their own client repo at
+`clients/<name>/webapp/` that consumes `@lwm/*` packages and replaces:
 
----
+- Landing module → `clients/<name>/webapp/src/modules/landing/`
+- Branding (colors, logo, favicon) → `clients/<name>/webapp/src/styles/branding.scss`
+  + `clients/<name>/webapp/public/images/brand/`
+- Public-site Header/Footer → `clients/<name>/webapp/src/ui/components/PublicHeader.tsx`
+  (overrides this template's placeholder)
+- Static pages content → tenant's PageBuilder seeder (e.g.
+  `clients/<name>/api/Modules/PageBuilder/Database/Seeders/<Name>PagesSeeder.php`)
 
-## Estructura destacada
+Backend overrides go through `app/Providers/CustomerServiceProvider.php` in
+the tenant's `api-base` clone (see api-base's docstring on that file).
 
-- `src/modules`: módulos independientes y portables
-- `src/ui`: Design System base (atm-ui)
-- `src/lib`: funciones y clientes API reutilizables
+## Scripts
 
----
+| Command | Effect |
+| --- | --- |
+| `npm run dev` | Next dev server with Turbopack |
+| `npm run build` | Production build |
+| `npm run start` | Production runtime |
+| `npm run lint` | ESLint |
+| `npm run sass` | Watch SCSS compilation (rare; Next handles it via SCSS modules) |
+| `npx vitest run` | Run the 1716-test suite once |
 
-## Recomendación
+## Documentation
 
-Este proyecto está diseñado para integrarse con `api-base`, el backend modular de Labor Wasser de México.
+- Monorepo-level WP-style refactor: `../../CLAUDE.md`
+- Per-module conventions: `./CLAUDE.md`
+- Plan: `~/.claude/plans/zesty-snacking-dijkstra.md`

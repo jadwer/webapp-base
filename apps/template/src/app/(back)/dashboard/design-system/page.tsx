@@ -36,7 +36,7 @@ export default function DesignSystemPage() {
       <div className="container-fluid">
         <div className="row">
           <div className="col-12">
-            <h1 className="mb-4">Sistema de Diseño - Labor Wasser de México</h1>
+            <h1 className="mb-4">Sistema de Diseño</h1>
             <p className="text-muted mb-5">
               Catálogo de componentes UI para mantener consistencia visual en toda la aplicación.
             </p>
