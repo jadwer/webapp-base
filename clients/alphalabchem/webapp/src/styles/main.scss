@@ -1,0 +1,13 @@
+// AlphaLab Chemicals — Main stylesheet entrypoint.
+//
+// 1) Tenant brand tokens (CSS custom properties for components that read them).
+@use './branding.scss';
+
+// 2) Bootstrap with the AlphaLab primary color.
+//    Bootstrap's SCSS uses Sass color functions that REQUIRE a compile-time
+//    hex (not a CSS custom property), so the brand primary is hardcoded
+//    here. The matching --brand-primary CSS var is set in branding.scss
+//    and used by @lwm/ui components that read it at runtime.
+@use 'bootstrap/scss/bootstrap' with (
+  $primary: #1B3766
+);

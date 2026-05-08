@@ -1,3 +1,8 @@
 packages:
   - 'apps/*'
   - 'packages/*'
+  # Tenant client webapps. Each clients/<name>/webapp/ is a thin Next.js
+  # consumer of the @lwm/* packages, with its own dependencies (branding,
+  # navigationConfig, etc.). The matching backend repo lives outside this
+  # monorepo (e.g. ../api-alphalabchem/ as a git clone of api-base).
+  - 'clients/*/webapp'

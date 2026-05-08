@@ -1,0 +1,37 @@
+// AlphaLab Chemicals — Brand tokens.
+//
+// Source: client logo + footer banner reviewed 2026-05-08. Hex values are a
+// visual reading; replace with the official brand guide hex codes when the
+// client provides them.
+//
+// Design system (Bootstrap 5 + @lwm/ui Button/Card/etc) reads `--brand-*`
+// CSS custom properties at runtime, so swapping these :root values updates
+// the entire UI without rebuilding the SCSS chain.
+
+:root {
+  // Primary deep navy — wordmark "Alpha", main CTAs.
+  --brand-primary: #1B3766;
+  --brand-primary-dark: #0F2752;
+  --brand-primary-light: #2C549E;
+
+  // Secondary teal — wordmark "Lab", accents, hover states.
+  --brand-secondary: #1A8B8C;
+  --brand-secondary-dark: #126263;
+  --brand-secondary-light: #2DAEAF;
+
+  // Accent green-lime — value pillars (chemistry leaf), success states.
+  --brand-accent: #7AC74F;
+  --brand-accent-dark: #5DA635;
+  --brand-accent-light: #9BD876;
+
+  // Neutral palette (kept aligned to LWM template defaults).
+  --brand-bg: #FFFFFF;
+  --brand-bg-muted: #F8F9FA;
+  --brand-text: #212529;
+  --brand-text-muted: #6C757D;
+  --brand-border: #DEE2E6;
+
+  // Footer banner background (the dark navy band with the 4 pillars).
+  --brand-banner-bg: #0F2752;
+  --brand-banner-text: #FFFFFF;
+}
