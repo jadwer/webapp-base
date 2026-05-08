@@ -22,10 +22,12 @@ interface JsonApiResponse {
 
 export async function fetchPageBySlug(slug: string) {
   try {
+    // Next.js extends RequestInit with a `next` field for ISR/cache hints.
+    // The DOM lib doesn't know about it, so cast to keep tsc happy.
     const res = await fetch(`${API_URL}/api/v1/pages?filter[slug]=${slug}`, {
       headers: { Accept: "application/vnd.api+json" },
       next: { revalidate: 60 }, // SSR con caché
-    });
+    } as RequestInit & { next?: { revalidate?: number } });
 
     if (!res.ok) return null;
 
