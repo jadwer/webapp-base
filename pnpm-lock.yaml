@@ -192,6 +192,9 @@ importers:
 
   clients/alphalabchem/webapp:
     dependencies:
+      '@hookform/resolvers':
+        specifier: ^5.1.1
+        version: 5.2.2(react-hook-form@7.58.1(react@19.1.0))
       '@lwm/app-config':
         specifier: workspace:*
         version: link:../../../packages/app-config
@@ -222,6 +225,15 @@ importers:
       '@lwm/ui':
         specifier: workspace:*
         version: link:../../../packages/ui
+      '@stripe/react-stripe-js':
+        specifier: ^3.1.1
+        version: 3.10.0(@stripe/stripe-js@5.10.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@stripe/stripe-js':
+        specifier: ^5.5.0
+        version: 5.10.0
+      '@tanstack/react-virtual':
+        specifier: ^3.13.12
+        version: 3.13.24(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       axios:
         specifier: 1.10.0
         version: 1.10.0
@@ -234,6 +246,24 @@ importers:
       clsx:
         specifier: 2.1.1
         version: 2.1.1
+      date-fns:
+        specifier: 4.1.0
+        version: 4.1.0
+      framer-motion:
+        specifier: 12.19.1
+        version: 12.19.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      grapesjs:
+        specifier: 0.22.8
+        version: 0.22.8
+      grapesjs-blocks-basic:
+        specifier: ^1.0.2
+        version: 1.0.2
+      grapesjs-preset-newsletter:
+        specifier: ^1.0.2
+        version: 1.0.2
+      grapesjs-preset-webpage:
+        specifier: ^1.0.3
+        version: 1.0.3
       lucide-react:
         specifier: 0.523.0
         version: 0.523.0(react@19.1.0)
@@ -255,6 +285,12 @@ importers:
       react-hook-form:
         specifier: 7.58.1
         version: 7.58.1(react@19.1.0)
+      recharts:
+        specifier: ^3.6.0
+        version: 3.8.1(@types/react@19.2.14)(react-dom@19.1.0(react@19.1.0))(react-is@17.0.2)(react@19.1.0)(redux@5.0.1)
+      shadcn-ui:
+        specifier: 0.9.5
+        version: 0.9.5
       swr:
         specifier: 2.3.3
         version: 2.3.3(react@19.1.0)

@@ -40,13 +40,16 @@ export default function AlphaLabHeader() {
                 Catálogo
               </Link>
             </li>
+            {/* /p/<slug> son rutas dinámicas servidas por el PageBuilder.
+                Devuelven 404 hasta que el admin cree la pagina via
+                /dashboard/pages con el slug correspondiente. */}
             <li className="nav-item">
-              <Link className="nav-link" href="/nosotros">
+              <Link className="nav-link" href="/p/nosotros">
                 Nosotros
               </Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" href="/contacto">
+              <Link className="nav-link" href="/p/contacto">
                 Contacto
               </Link>
             </li>

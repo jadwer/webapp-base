@@ -46,10 +46,10 @@ export default function AlphaLabFooter() {
             &copy; {new Date().getFullYear()} AlphaLab Chemicals. Todos los derechos reservados.
           </div>
           <div className="d-flex gap-3 mt-2 mt-md-0">
-            <Link href="/aviso-privacidad" className="text-white-50 text-decoration-none">
+            <Link href="/p/aviso-privacidad" className="text-white-50 text-decoration-none">
               Aviso de privacidad
             </Link>
-            <Link href="/derechos-reservados" className="text-white-50 text-decoration-none">
+            <Link href="/p/derechos-reservados" className="text-white-50 text-decoration-none">
               Términos
             </Link>
             <a
