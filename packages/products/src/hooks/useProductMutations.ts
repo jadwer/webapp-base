@@ -40,14 +40,20 @@ export function useProductMutations() {
     try {
       const response = await productService.updateProduct(id, data)
       
-      // Invalidate specific product and products list
-      await mutate(['product', id], response, { revalidate: false })
+      // Invalidate the specific product detail (useProduct keys with
+      // ['product', id, include?]; match by predicate so the include slot
+      // is irrelevant) and the products list.
+      await mutate(
+        (key) => Array.isArray(key) && key[0] === 'product' && key[1] === id,
+        undefined,
+        { revalidate: true }
+      )
       await mutate(
         (key) => Array.isArray(key) && key[0] === 'products',
         undefined,
         { revalidate: true }
       )
-      
+
       return response
     } catch (err) {
       const error = err as Error
@@ -61,12 +67,17 @@ export function useProductMutations() {
   const deleteProduct = async (id: string) => {
     setIsLoading(true)
     setError(null)
-    
+
     try {
       await productService.deleteProduct(id)
-      
-      // Invalidate specific product and products list
-      await mutate(['product', id], undefined, { revalidate: false })
+
+      // Invalidate the specific product detail and the products list
+      // (predicate match so the include slot of the SWR key is ignored).
+      await mutate(
+        (key) => Array.isArray(key) && key[0] === 'product' && key[1] === id,
+        undefined,
+        { revalidate: false }
+      )
       await mutate(
         (key) => Array.isArray(key) && key[0] === 'products',
         undefined,

@@ -35,6 +35,10 @@ export {
   uploadAvatar,
 } from './lib/profileApi'
 export { handleApiErrors } from './lib/handleApiErrors'
+// Re-export parseJsonApiErrors so consumers can get JSON:API error parsing
+// from the package that owns the HTTP client (auth). Source of truth still
+// lives in @lwm/ui to avoid duplication; @lwm/ui keeps its own export too.
+export { parseJsonApiErrors } from '@lwm/ui'
 
 // ============================================
 // HTTP CLIENT

@@ -3,10 +3,14 @@
 import useSWR from 'swr'
 import { permissionsService } from '../services/permissionsService'
 
-// Hook para obtener todos los permisos
+// Hook para obtener todos los permisos.
+// La SWR key esta namespaceada como 'roles:permissions' para evitar la
+// colision con la `usePermissions` del top-level del paquete (que usa la
+// key cruda 'permissions' y devuelve un shape distinto). Aliased en el
+// barrel principal como `useRolePermissions`.
 export function usePermissions() {
   const { data, error, isLoading, mutate } = useSWR(
-    'permissions',
+    'roles:permissions',
     () => permissionsService.getAll(),
     {
       revalidateOnFocus: false,
