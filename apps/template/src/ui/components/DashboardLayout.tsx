@@ -1,32 +1,35 @@
+// Compatibility shim. DashboardLayout now lives in @lwm/ui.
+// Template-side wrapper that defaults to the template's navigationConfig
+// while still letting a caller override it (a clients/<name>/ page that
+// renders the layout with its own modules).
 'use client'
 
-import Sidebar from '@/ui/components/Sidebar'
-import HeaderNavbar from '@/ui/components/HeaderNavbar'
-import { ToastContainer } from '@/ui/components/base/ToastContainer'
-import { useToastStore } from '@/ui/stores/toastStore'
-import styles from '@/ui/styles/modules/DashboardLayout.module.scss'
+import {
+  DashboardLayout as DashboardLayoutBase,
+  type DashboardLayoutProps,
+  type NavigationConfig,
+} from '@lwm/ui'
+import {
+  adminNavigation,
+  customerNavigation,
+  customerExtraLinks,
+} from '@/config/navigationConfig'
 
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const { toasts, hideToast } = useToastStore()
+const defaultNavigationConfig: NavigationConfig = {
+  admin: adminNavigation,
+  customer: customerNavigation,
+  customerExtraLinks,
+}
 
+export default function DashboardLayout({
+  children,
+  navigationConfig,
+}: Omit<DashboardLayoutProps, 'navigationConfig'> & {
+  navigationConfig?: NavigationConfig
+}) {
   return (
-    <div className={styles.layout}>
-      <HeaderNavbar />
-      <div className={styles.container}>
-        <Sidebar />
-        <div className={styles.content}>
-          <main className={styles.mainContent}>
-            {children}
-          </main>
-        </div>
-      </div>
-      
-      {/* Global toast container for the dashboard */}
-      <ToastContainer 
-        toasts={toasts}
-        onClose={hideToast}
-        position="top-right"
-      />
-    </div>
+    <DashboardLayoutBase navigationConfig={navigationConfig ?? defaultNavigationConfig}>
+      {children}
+    </DashboardLayoutBase>
   )
 }

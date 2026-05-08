@@ -38,9 +38,11 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
+    "@lwm/app-config": "workspace:*",
     "clsx": "^2.1.0",
     "nprogress": "^0.2.0",
-    "react-bootstrap": "^2.10.10"
+    "react-bootstrap": "^2.10.10",
+    "zustand": "^5.0.6"
   },
   "devDependencies": {
     "@types/nprogress": "^0.2.3",
@@ -50,6 +52,7 @@
     "typescript": "^5.7.2"
   },
   "peerDependencies": {
+    "@lwm/auth": "workspace:*",
     "next": "^15.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"

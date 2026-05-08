@@ -3,11 +3,18 @@ import { renderHook } from '@testing-library/react'
 import { useNavigation } from '@/hooks/useNavigation'
 import type { User } from '@/lib/permissions'
 
-// Mock auth module
+// Mock auth via @lwm/auth (the SUT now lives in @lwm/ui and imports
+// useAuth, isAdmin, hasAnyRole, hasAnyPermission from @lwm/auth). We
+// partial-mock the barrel to keep the rest of @lwm/auth real and
+// override only useAuth.
 const mockUser = vi.fn<() => User | null>()
-vi.mock('@/modules/auth', () => ({
-  useAuth: () => ({ user: mockUser() }),
-}))
+vi.mock('@lwm/auth', async () => {
+  const actual = await vi.importActual<typeof import('@lwm/auth')>('@lwm/auth')
+  return {
+    ...actual,
+    useAuth: () => ({ user: mockUser() }),
+  }
+})
 
 function makeUser(overrides: Partial<User> & { roleName?: string; permissionNames?: string[] } = {}): User {
   const { roleName = 'god', permissionNames = [], ...rest } = overrides

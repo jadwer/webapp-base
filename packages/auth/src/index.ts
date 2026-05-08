@@ -35,10 +35,11 @@ export {
   uploadAvatar,
 } from './lib/profileApi'
 export { handleApiErrors } from './lib/handleApiErrors'
-// Re-export parseJsonApiErrors so consumers can get JSON:API error parsing
-// from the package that owns the HTTP client (auth). Source of truth still
-// lives in @lwm/ui to avoid duplication; @lwm/ui keeps its own export too.
-export { parseJsonApiErrors } from '@lwm/ui'
+// Note: parseJsonApiErrors lives in @lwm/ui (utils/parseJsonApiErrors).
+// Earlier in Fase 3.6 we re-exported it from here for "auth owns errors"
+// coherence, but Subfase 3.7 makes @lwm/ui depend on @lwm/auth (peer)
+// and re-exporting back would create an avoidable loop. Consumers
+// continue to import parseJsonApiErrors from @lwm/ui directly.
 
 // ============================================
 // HTTP CLIENT
