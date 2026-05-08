@@ -47,6 +47,13 @@ const envPattern = apiHostPattern()
 if (envPattern) remotePatterns.push(envPattern)
 
 const nextConfig: NextConfig = {
+  // Build self-contained output for cPanel deploy. Phusion Passenger spawns
+  // node on a single dir; `standalone` bundles required node_modules
+  // including @lwm/* workspace deps resolved inline. `outputFileTracingRoot`
+  // points to the monorepo root so Next traces the actual symlinked
+  // packages instead of stopping at the cwd.
+  output: 'standalone',
+  outputFileTracingRoot: path.join(__dirname, '..', '..', '..'),
   transpilePackages: [
     '@lwm/ui',
     '@lwm/auth',
