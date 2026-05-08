@@ -3,9 +3,8 @@
 import { useAuth } from '@/modules/auth'
 import { useIsClient } from '@/hooks/useIsClient'
 import { useState, useRef } from 'react'
-import { useUsers } from '@/modules/users/hooks/useUsers'
-import { useUserForm } from '@/modules/users/hooks/useUserForm'
-import { User } from '@/modules/users/types/user'
+import { useUsers, useUserForm } from '@/modules/users'
+import type { User } from '@/modules/users'
 import ToastNotifier, { ToastNotifierHandle } from '@/ui/ToastNotifier'
 
 export default function UsersDiagnosticPage() {

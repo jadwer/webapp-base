@@ -4,7 +4,7 @@ import dynamic from 'next/dynamic'
 import { DynamicRoleGuard } from '@/ui/components/DynamicRoleGuard'
 
 const PermissionsCrudTemplate = dynamic(
-  () => import('@/modules/permissions/templates/PermissionsCrudTemplate'),
+  () => import('@/modules/permissions').then(m => m.PermissionsCrudTemplate),
   { ssr: false }
 )
 

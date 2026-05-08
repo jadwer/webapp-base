@@ -1,4 +1,4 @@
-import RolesPage from '@/modules/roles/pages/RolesPage'
+import { RolesPage } from '@/modules/roles'
 import { DynamicRoleGuard } from '@/ui/components/DynamicRoleGuard'
 
 export default function Roles() {

@@ -36,6 +36,7 @@
     "@lwm/ecommerce": "workspace:*",
     "@lwm/mailer-manager": "workspace:*",
     "@lwm/page-builder": "workspace:*",
+    "@lwm/permissions": "workspace:*",
     "@lwm/products": "workspace:*",
     "@lwm/sales": "workspace:*",
     "@lwm/ui": "workspace:*",

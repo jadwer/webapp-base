@@ -1,4 +1,4 @@
-import PermissionManagerPage from '@/modules/roles/pages/PermissionManagerPage'
+import { PermissionManagerPage } from '@/modules/roles'
 import { DynamicRoleGuard } from '@/ui/components/DynamicRoleGuard'
 
 export default function PermissionManager() {

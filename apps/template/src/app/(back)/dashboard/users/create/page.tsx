@@ -2,8 +2,7 @@
 
 import React from 'react'
 import { useRouter } from 'next/navigation'
-import UserForm from '@/modules/users/components/UserForm'
-import { useUserForm } from '@/modules/users/hooks/useUserForm'
+import { UserForm, useUserForm } from '@/modules/users'
 
 export default function CreateUserPage() {
   const router = useRouter()

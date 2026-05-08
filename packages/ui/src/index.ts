@@ -8,6 +8,7 @@
 export * from './components/base'
 export { default as StatusMessage } from './components/StatusMessage'
 export { default as ToastNotifier, type ToastNotifierHandle, type ToastType as ToastNotifierType } from './components/ToastNotifier'
+export { Skeleton } from './components/Skeleton'
 export * from './hooks/useToast'
 export * from './hooks/useIsClient'
 export * from './hooks/useNavigationProgress'

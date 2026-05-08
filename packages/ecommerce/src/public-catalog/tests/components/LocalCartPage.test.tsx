@@ -14,14 +14,18 @@ const mockReplace = vi.fn()
 const mockIsAuthenticated = vi.fn()
 const mockUseLocalCart = vi.fn()
 
-// Mock toast - use factory function to avoid hoisting issues
-vi.mock('@/lib/toast', () => ({
-  toast: {
-    success: vi.fn(),
-    error: vi.fn(),
-    info: vi.fn(),
-  },
-}))
+// Mock toast via @lwm/ui (partial preserves rest of barrel)
+vi.mock('@lwm/ui', async () => {
+  const actual = await vi.importActual<typeof import('@lwm/ui')>('@lwm/ui')
+  return {
+    ...actual,
+    toast: {
+      success: vi.fn(),
+      error: vi.fn(),
+      info: vi.fn(),
+    },
+  }
+})
 
 // Mock next/navigation
 vi.mock('next/navigation', () => ({
@@ -48,37 +52,51 @@ vi.mock('next/link', () => ({
   ),
 }))
 
-// Mock auth hook
-vi.mock('@/modules/auth', () => ({
-  useAuth: () => ({
-    isAuthenticated: mockIsAuthenticated(),
-    isLoading: false,
-  }),
-}))
+// Mock auth hook via @lwm/auth (partial preserves rest of barrel)
+vi.mock('@lwm/auth', async () => {
+  const actual = await vi.importActual<typeof import('@lwm/auth')>('@lwm/auth')
+  return {
+    ...actual,
+    useAuth: () => ({
+      isAuthenticated: mockIsAuthenticated(),
+      isLoading: false,
+    }),
+  }
+})
 
 // Mock useLocalCart hook
 vi.mock('../../hooks/useLocalCart', () => ({
   useLocalCart: () => mockUseLocalCart(),
 }))
 
-// Mock quote service
-vi.mock('@/modules/quotes/services/quoteService', () => ({
-  default: {
-    quotes: {
-      requestQuote: vi.fn(),
+// Mock quote service via @lwm/sales (partial mock preserves rest of barrel)
+vi.mock('@lwm/sales', async () => {
+  const actual = await vi.importActual<typeof import('@lwm/sales')>('@lwm/sales')
+  return {
+    ...actual,
+    quoteServices: {
+      quotes: {
+        requestQuote: vi.fn(),
+      },
     },
-  },
-}))
+  }
+})
 
-// Mock shopping cart service
-vi.mock('@/modules/ecommerce/services', () => ({
-  shoppingCartService: {
-    localSync: {
-      syncLocalCartToAPI: vi.fn(),
-      saveCartIdForCheckout: vi.fn(),
+// Mock shopping cart service via @lwm/ecommerce barrel (partial preserves
+// the rest of the package; the SUT consumes it through this path).
+vi.mock('@lwm/ecommerce', async () => {
+  const actual = await vi.importActual<typeof import('@lwm/ecommerce')>('@lwm/ecommerce')
+  return {
+    ...actual,
+    shoppingCartService: {
+      ...actual.shoppingCartService,
+      localSync: {
+        syncLocalCartToAPI: vi.fn(),
+        saveCartIdForCheckout: vi.fn(),
+      },
     },
-  },
-}))
+  }
+})
 
 // Import after mocks
 import { LocalCartPage } from '../../components/LocalCartPage'

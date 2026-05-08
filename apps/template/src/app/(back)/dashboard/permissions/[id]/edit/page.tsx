@@ -3,7 +3,7 @@
 import React from 'react'
 import { useRouter } from 'next/navigation'
 import { PermissionForm, usePermission, usePermissionActions } from '@/modules/permissions'
-import { PermissionFormData } from '@/modules/permissions/types/permission'
+import type { PermissionFormData } from '@/modules/permissions'
 
 interface EditPermissionPageProps {
   params: Promise<{

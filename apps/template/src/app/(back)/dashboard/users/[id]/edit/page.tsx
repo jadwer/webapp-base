@@ -2,10 +2,8 @@
 
 import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import UserForm from '@/modules/users/components/UserForm'
-import { useUserForm } from '@/modules/users/hooks/useUserForm'
-import { getUser } from '@/modules/users/services/usersService'
-import { User } from '@/modules/users/types/user'
+import { UserForm, useUserForm, getUser } from '@/modules/users'
+import type { User } from '@/modules/users'
 
 interface EditUserPageProps {
   params: Promise<{

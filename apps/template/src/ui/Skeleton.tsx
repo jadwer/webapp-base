@@ -1,3 +1,2 @@
-export function Skeleton({ className }: { className: string }) {
-  return <div className={`animate-pulse bg-gray-300 rounded ${className}`} />;
-}
+// Compatibility shim. Skeleton now lives in @lwm/ui.
+export { Skeleton } from '@lwm/ui'
