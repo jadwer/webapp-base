@@ -1,37 +1,64 @@
 {
   "name": "@lwm/mailer-manager",
   "version": "0.0.0",
-  "description": "MailerManager module: email templates editor + system emails.",
+  "description": "MailerManager module: email template editor (GrapesJS) + system emails registry.",
   "license": "UNLICENSED",
   "private": false,
   "publishConfig": {
     "access": "restricted",
-    "registry": "https://npm.pkg.github.com"
+    "registry": "https://npm.pkg.github.com",
+    "main": "./dist/index.js",
+    "module": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "import": "./dist/index.js"
+      }
+    }
   },
   "type": "module",
-  "main": "./dist/index.js",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./src/index.ts",
+  "module": "./src/index.ts",
+  "types": "./src/index.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
+      "types": "./src/index.ts",
+      "import": "./src/index.ts"
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "src"
   ],
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
     "typecheck": "tsc --noEmit",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "test": "vitest run --passWithNoTests",
+    "test:watch": "vitest watch"
+  },
+  "dependencies": {
+    "@lwm/auth": "workspace:*",
+    "@lwm/ui": "workspace:*",
+    "grapesjs": "^0.22.8",
+    "grapesjs-blocks-basic": "^1.0.2",
+    "grapesjs-preset-newsletter": "^1.0.2",
+    "swr": "^2.0.0"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.7.0",
+    "@testing-library/react": "^16.3.0",
+    "@types/react": "^19.0.0",
+    "@vitejs/plugin-react": "^5.0.0",
+    "happy-dom": "^18.0.1",
     "tsup": "^8.3.5",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "vitest": "^3.2.4"
   },
   "peerDependencies": {
+    "next": "^15.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   }

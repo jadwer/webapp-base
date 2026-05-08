@@ -242,6 +242,7 @@ export { discountRulesService } from './discountRulesService'
 
 // Remission Service (delivery notes / remisiones)
 export { remissionService, REMISSION_STATUS_LABELS } from './remissionService'
+export type { Remission, RemissionItem } from './remissionService'
 
 // Folio Sequence Service (numeracion de documentos)
 export { folioSequenceService, DOCUMENT_TYPE_LABELS } from './folioSequenceService'

@@ -35,6 +35,12 @@ importers:
       '@lwm/ecommerce':
         specifier: workspace:*
         version: link:../../packages/ecommerce
+      '@lwm/mailer-manager':
+        specifier: workspace:*
+        version: link:../../packages/mailer-manager
+      '@lwm/page-builder':
+        specifier: workspace:*
+        version: link:../../packages/page-builder
       '@lwm/products':
         specifier: workspace:*
         version: link:../../packages/products
@@ -376,35 +382,134 @@ importers:
 
   packages/mailer-manager:
     dependencies:
+      '@lwm/auth':
+        specifier: workspace:*
+        version: link:../auth
+      '@lwm/ui':
+        specifier: workspace:*
+        version: link:../ui
+      grapesjs:
+        specifier: ^0.22.8
+        version: 0.22.8
+      grapesjs-blocks-basic:
+        specifier: ^1.0.2
+        version: 1.0.2
+      grapesjs-preset-newsletter:
+        specifier: ^1.0.2
+        version: 1.0.2
+      next:
+        specifier: ^15.0.0
+        version: 15.5.16(@babel/core@7.29.0)(@playwright/test@1.59.1)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(sass@1.89.2)
       react:
         specifier: ^19.0.0
         version: 19.1.0
       react-dom:
         specifier: ^19.0.0
         version: 19.1.0(react@19.1.0)
+      swr:
+        specifier: ^2.0.0
+        version: 2.3.3(react@19.1.0)
     devDependencies:
+      '@testing-library/jest-dom':
+        specifier: ^6.7.0
+        version: 6.9.1
+      '@testing-library/react':
+        specifier: ^16.3.0
+        version: 16.3.2(@testing-library/dom@10.4.1)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@types/react':
+        specifier: ^19.0.0
+        version: 19.2.14
+      '@vitejs/plugin-react':
+        specifier: ^5.0.0
+        version: 5.2.0(vite@7.3.2(@types/node@20.19.39)(sass@1.89.2))
+      happy-dom:
+        specifier: ^18.0.1
+        version: 18.0.1
       tsup:
         specifier: ^8.3.5
         version: 8.5.1(postcss@8.5.14)(typescript@5.9.3)
       typescript:
         specifier: ^5.7.2
         version: 5.9.3
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.4(@types/node@20.19.39)(@vitest/ui@3.2.4)(happy-dom@18.0.1)(jsdom@26.1.0)(msw@2.14.3(@types/node@20.19.39)(typescript@5.9.3))(sass@1.89.2)
 
   packages/page-builder:
     dependencies:
+      '@hookform/resolvers':
+        specifier: ^5.0.0
+        version: 5.2.2(react-hook-form@7.58.1(react@19.1.0))
+      '@lwm/auth':
+        specifier: workspace:*
+        version: link:../auth
+      '@lwm/ui':
+        specifier: workspace:*
+        version: link:../ui
+      clsx:
+        specifier: ^2.1.0
+        version: 2.1.1
+      date-fns:
+        specifier: ^4.0.0
+        version: 4.1.0
+      grapesjs:
+        specifier: ^0.22.8
+        version: 0.22.8
+      grapesjs-blocks-basic:
+        specifier: ^1.0.2
+        version: 1.0.2
+      grapesjs-preset-newsletter:
+        specifier: ^1.0.2
+        version: 1.0.2
+      grapesjs-preset-webpage:
+        specifier: ^1.0.3
+        version: 1.0.3
+      next:
+        specifier: ^15.0.0
+        version: 15.5.16(@babel/core@7.29.0)(@playwright/test@1.59.1)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(sass@1.89.2)
       react:
         specifier: ^19.0.0
         version: 19.1.0
+      react-bootstrap:
+        specifier: ^2.10.10
+        version: 2.10.10(@types/react@19.2.14)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       react-dom:
         specifier: ^19.0.0
         version: 19.1.0(react@19.1.0)
+      react-hook-form:
+        specifier: ^7.0.0
+        version: 7.58.1(react@19.1.0)
+      swr:
+        specifier: ^2.0.0
+        version: 2.3.3(react@19.1.0)
+      zod:
+        specifier: ^3.0.0
+        version: 3.25.76
     devDependencies:
+      '@testing-library/jest-dom':
+        specifier: ^6.7.0
+        version: 6.9.1
+      '@testing-library/react':
+        specifier: ^16.3.0
+        version: 16.3.2(@testing-library/dom@10.4.1)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@types/react':
+        specifier: ^19.0.0
+        version: 19.2.14
+      '@vitejs/plugin-react':
+        specifier: ^5.0.0
+        version: 5.2.0(vite@7.3.2(@types/node@20.19.39)(sass@1.89.2))
+      happy-dom:
+        specifier: ^18.0.1
+        version: 18.0.1
       tsup:
         specifier: ^8.3.5
         version: 8.5.1(postcss@8.5.14)(typescript@5.9.3)
       typescript:
         specifier: ^5.7.2
         version: 5.9.3
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.4(@types/node@20.19.39)(@vitest/ui@3.2.4)(happy-dom@18.0.1)(jsdom@26.1.0)(msw@2.14.3(@types/node@20.19.39)(typescript@5.9.3))(sass@1.89.2)
 
   packages/permissions:
     dependencies:
@@ -558,6 +663,9 @@ importers:
       react:
         specifier: ^19.0.0
         version: 19.1.0
+      react-bootstrap:
+        specifier: ^2.10.10
+        version: 2.10.10(@types/react@19.2.14)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       react-dom:
         specifier: ^19.0.0
         version: 19.1.0(react@19.1.0)

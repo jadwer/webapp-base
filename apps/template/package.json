@@ -34,6 +34,8 @@
     "@lwm/auth": "workspace:*",
     "@lwm/contacts": "workspace:*",
     "@lwm/ecommerce": "workspace:*",
+    "@lwm/mailer-manager": "workspace:*",
+    "@lwm/page-builder": "workspace:*",
     "@lwm/products": "workspace:*",
     "@lwm/sales": "workspace:*",
     "@lwm/ui": "workspace:*",

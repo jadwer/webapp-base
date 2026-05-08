@@ -1,4 +1,4 @@
-import SystemEmailsTemplate from '@/modules/mailer-manager/templates/SystemEmailsTemplate'
+import { SystemEmailsTemplate } from '@/modules/mailer-manager'
 import { DynamicRoleGuard } from '@/ui/components/DynamicRoleGuard'
 
 export default function SystemEmailsPage() {

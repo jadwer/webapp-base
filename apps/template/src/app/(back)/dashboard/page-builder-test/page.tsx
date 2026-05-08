@@ -2,9 +2,7 @@
 
 import { useRef, useEffect } from 'react'
 import { Editor } from 'grapesjs'
-import initPageBuilder from '@/modules/page-builder-pro'
-import ToastNotifier, { ToastNotifierHandle } from '@/modules/page-builder-pro/components/ToastNotifier'
-import { ToastType } from '@/modules/page-builder-pro/types/ToastType'
+import initPageBuilder, { ToastNotifier, type ToastNotifierHandle, type ToastType } from '@/modules/page-builder-pro'
 
 export default function PageBuilderTestPage() {
   const editorRef = useRef<HTMLDivElement>(null)

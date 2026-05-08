@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 // import { useRouter } from 'next/navigation'
-import { TemplateGallery } from '@/modules/page-builder-pro/components/TemplateGallery'
+import { TemplateGallery } from '@/modules/page-builder-pro'
 import { usePageActions } from '@/modules/page-builder-pro'
 import { Button } from '@/ui/components/base'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'

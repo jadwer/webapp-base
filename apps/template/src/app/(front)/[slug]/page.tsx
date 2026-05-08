@@ -2,9 +2,9 @@ export const dynamic = "force-dynamic"
 
 import { notFound } from "next/navigation"
 import { Metadata } from "next"
-import { fetchPageBySlug } from "@/modules/page-builder-pro/services/fetchPage"
-import { injectPageBuilderCSS } from "@/modules/page-builder-pro/styles/injectCss"
-import SafeHtmlRenderer from "@/modules/page-builder-pro/components/SafeHtmlRenderer"
+import { fetchPageBySlug } from "@/modules/page-builder-pro"
+import { injectPageBuilderCSS } from "@/modules/page-builder-pro"
+import { SafeHtmlRenderer } from "@/modules/page-builder-pro"
 
 type PageProps = {
   params: Promise<{

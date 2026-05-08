@@ -1,7 +1,7 @@
 'use client'
 
 import { use } from 'react'
-import EmailTemplateEditorTemplate from '@/modules/mailer-manager/templates/EmailTemplateEditorTemplate'
+import { EmailTemplateEditorTemplate } from '@/modules/mailer-manager'
 import { DynamicRoleGuard } from '@/ui/components/DynamicRoleGuard'
 
 export default function EditEmailTemplatePage({ params }: { params: Promise<{ id: string }> }) {

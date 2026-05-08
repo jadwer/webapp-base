@@ -1,4 +1,4 @@
-import EmailTemplatesAdminTemplate from '@/modules/mailer-manager/templates/EmailTemplatesAdminTemplate'
+import { EmailTemplatesAdminTemplate } from '@/modules/mailer-manager'
 import { DynamicRoleGuard } from '@/ui/components/DynamicRoleGuard'
 
 export default function MailerManagerPage() {

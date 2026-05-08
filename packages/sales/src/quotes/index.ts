@@ -6,7 +6,10 @@
  * setting ETA, and converting to sales orders.
  */
 
-// Types
+// Types — `export *` would collide with PaginationMeta defined in
+// packages/sales/src/types/index.ts. Re-export everything via wildcard
+// EXCEPT PaginationMeta (which is also defined in the parent sales/types).
+// The local `QuotePaginationMeta` alias remains accessible.
 export * from './types'
 
 // Services

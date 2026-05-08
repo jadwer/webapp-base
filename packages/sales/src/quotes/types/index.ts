@@ -209,7 +209,7 @@ export interface QuoteSortOptions {
 // API Response types
 export interface QuotesResponse {
   data: Quote[]
-  meta?: PaginationMeta
+  meta?: QuotePaginationMeta
 }
 
 export interface QuoteResponse {
@@ -219,7 +219,7 @@ export interface QuoteResponse {
 
 export interface QuoteItemsResponse {
   data: QuoteItem[]
-  meta?: PaginationMeta
+  meta?: QuotePaginationMeta
 }
 
 export interface QuoteSummary {
@@ -236,7 +236,10 @@ export interface QuoteSummary {
   conversionRate: number
 }
 
-export interface PaginationMeta {
+// QuotePaginationMeta is the local name for what sales/types calls
+// PaginationMeta. Same shape; renamed here to avoid re-export collisions
+// when packages/sales/src/index.ts merges both barrels via export *.
+export interface QuotePaginationMeta {
   currentPage?: number
   perPage?: number
   total?: number

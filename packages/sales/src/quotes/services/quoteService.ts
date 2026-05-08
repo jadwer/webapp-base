@@ -21,7 +21,7 @@ import type {
   QuoteFilters,
   QuoteSortOptions,
   QuoteSummary,
-  PaginationMeta
+  QuotePaginationMeta
 } from '../types'
 
 // JSON:API resource types
@@ -40,7 +40,7 @@ interface JsonApiResource {
 
 interface JsonApiResponse<T> {
   data: T
-  meta?: PaginationMeta
+  meta?: QuotePaginationMeta
   included?: JsonApiResource[]
 }
 
@@ -162,7 +162,7 @@ export const quoteService = {
     page?: number,
     pageSize?: number,
     include?: string[]
-  ): Promise<{ data: Quote[]; meta?: PaginationMeta }> {
+  ): Promise<{ data: Quote[]; meta?: QuotePaginationMeta }> {
     const params = buildQueryParams(filters, sort, page, pageSize, include || ['contact', 'items'])
 
     const response = await axios.get<JsonApiResponse<JsonApiResource[]>>(QUOTES_BASE_URL, { params })
