@@ -12,6 +12,19 @@ export interface NavigationItem {
   label: string
   icon: string           // Bootstrap Icon class (bi-*)
   permissions: string[]  // OR logic - empty = visible to anyone in the audience
+  /**
+   * Optional `target` for the rendered anchor. When set (typically `_blank`),
+   * the Sidebar will pass it through to the `<a>` tag. Leave undefined for
+   * default same-tab navigation handled by Next.js `<Link>`.
+   */
+  target?: '_blank' | '_self' | '_parent' | '_top'
+  /**
+   * Marks the link as pointing to an external URL. When true, the Sidebar
+   * renders a plain `<a>` (with rel="noopener noreferrer") instead of a
+   * Next.js `<Link>`, so the browser performs a full navigation rather than
+   * client-side routing.
+   */
+  external?: boolean
 }
 
 export interface NavigationGroup {

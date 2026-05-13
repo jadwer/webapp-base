@@ -4,42 +4,21 @@
  * Migrado de arrays hardcodeados en Sidebar.tsx.
  * Los permisos usan lógica OR - si el usuario tiene CUALQUIERA, ve el item.
  * Un array vacío de permissions = visible para todos en la audiencia.
+ *
+ * Los tipos (NavigationItem, NavigationGroup, etc.) son la fuente única
+ * en @lwm/ui — aquí solo se importan y re-exportan para mantener compat
+ * con consumidores que hagan `import type { NavigationItem } from
+ * '@/config/navigationConfig'`.
  */
 
-// ============================================
-// Tipos
-// ============================================
+import type {
+  NavigationItem,
+  NavigationGroup,
+  DisabledModule,
+  NavigationSection,
+} from '@lwm/ui'
 
-export interface NavigationItem {
-  href: string
-  label: string
-  icon: string           // Bootstrap Icon class (bi-*)
-  permissions: string[]  // OR logic - vacío = visible para todos en la audiencia
-}
-
-export interface NavigationGroup {
-  key: string
-  label: string
-  icon: string
-  activePathPrefixes: string[]
-  items: NavigationItem[]
-  permissions: string[]  // Permisos a nivel grupo (vacío = visible si tiene hijos visibles)
-  badge?: { text: string; color: string }
-}
-
-export interface DisabledModule {
-  key: string
-  label: string
-  icon: string
-  tooltip: string
-}
-
-export interface NavigationSection {
-  audience: 'admin' | 'customer'
-  topLinks: NavigationItem[]
-  groups: NavigationGroup[]
-  disabledModules: DisabledModule[]
-}
+export type { NavigationItem, NavigationGroup, DisabledModule, NavigationSection }
 
 // ============================================
 // Navegación ADMIN

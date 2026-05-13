@@ -40,6 +40,43 @@ export default function Sidebar({ navigationConfig }: SidebarProps) {
     setOpenGroups(prev => ({ ...prev, [key]: !prev[key] }))
   }
 
+  // Helper: render an anchor or Next Link based on the item's `external`
+  // flag. External links use a plain <a> with rel="noopener noreferrer"
+  // (mandatory when target="_blank") so the browser performs a full
+  // navigation; internal links go through Next's <Link> for client-side
+  // routing. `target` is honored for both.
+  const renderLinkBody = (icon: string, iconClassName: string, label: string) => (
+    <>
+      <i className={`bi ${icon} ${iconClassName}`} aria-hidden="true"></i>
+      {label}
+    </>
+  )
+
+  const renderItemLink = (
+    item: NavigationItem,
+    className: string,
+    iconClassName: string,
+  ) => {
+    const body = renderLinkBody(item.icon, iconClassName, item.label)
+    if (item.external) {
+      return (
+        <a
+          href={item.href}
+          className={className}
+          target={item.target ?? '_blank'}
+          rel="noopener noreferrer"
+        >
+          {body}
+        </a>
+      )
+    }
+    return (
+      <Link href={item.href} className={className} target={item.target}>
+        {body}
+      </Link>
+    )
+  }
+
   // Helper: render a collapsible group
   const renderGroup = (
     key: string,
@@ -79,15 +116,13 @@ export default function Sidebar({ navigationConfig }: SidebarProps) {
 
       <div className={`${styles.subMenu} ${isOpen ? styles.expanded : styles.collapsed}`}>
         <ul className={styles.subNavList}>
-          {links.map(({ href, label, icon }) => (
-            <li key={href}>
-              <Link
-                href={href}
-                className={`${styles.subNavLink} ${pathname === href ? styles.active : ''}`}
-              >
-                <i className={`bi ${icon} ${styles.subNavIcon}`} aria-hidden="true"></i>
-                {label}
-              </Link>
+          {links.map((item) => (
+            <li key={item.href}>
+              {renderItemLink(
+                item,
+                `${styles.subNavLink} ${pathname === item.href ? styles.active : ''}`,
+                styles.subNavIcon,
+              )}
             </li>
           ))}
         </ul>
@@ -140,17 +175,15 @@ export default function Sidebar({ navigationConfig }: SidebarProps) {
         <nav className={styles.navigation}>
           <ul className={styles.navList}>
             {/* Top links (Panel Principal, Mi perfil, Usuarios...) */}
-            {topLinks.map(({ href, label, icon }) => (
-              <li className={styles.navItem} key={href}>
-                <Link
-                  href={href}
-                  className={`${styles.navLink} ${
-                    (pathname === href || (href !== '/dashboard' && pathname?.startsWith(href))) ? styles.active : ''
-                  }`}
-                >
-                  <i className={`bi ${icon} ${styles.navIcon}`} aria-hidden="true"></i>
-                  {label}
-                </Link>
+            {topLinks.map((item) => (
+              <li className={styles.navItem} key={item.href}>
+                {renderItemLink(
+                  item,
+                  `${styles.navLink} ${
+                    (pathname === item.href || (item.href !== '/dashboard' && pathname?.startsWith(item.href))) ? styles.active : ''
+                  }`,
+                  styles.navIcon,
+                )}
               </li>
             ))}
 
@@ -167,12 +200,9 @@ export default function Sidebar({ navigationConfig }: SidebarProps) {
                   group.badge
                 ))}
 
-                {extraLinks.map(({ href, label, icon }) => (
-                  <li className={styles.navItem} key={href}>
-                    <Link href={href} className={styles.navLink}>
-                      <i className={`bi ${icon} ${styles.navIcon}`} aria-hidden="true"></i>
-                      {label}
-                    </Link>
+                {extraLinks.map((item) => (
+                  <li className={styles.navItem} key={item.href}>
+                    {renderItemLink(item, styles.navLink, styles.navIcon)}
                   </li>
                 ))}
               </>

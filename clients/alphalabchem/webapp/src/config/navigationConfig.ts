@@ -16,39 +16,17 @@
  */
 
 // ============================================
-// Tipos
+// Tipos — fuente única en @lwm/ui
 // ============================================
 
-export interface NavigationItem {
-  href: string
-  label: string
-  icon: string           // Bootstrap Icon class (bi-*)
-  permissions: string[]  // OR logic - vacío = visible para todos en la audiencia
-}
+import type {
+  NavigationItem,
+  NavigationGroup,
+  DisabledModule,
+  NavigationSection,
+} from '@lwm/ui'
 
-export interface NavigationGroup {
-  key: string
-  label: string
-  icon: string
-  activePathPrefixes: string[]
-  items: NavigationItem[]
-  permissions: string[]  // Permisos a nivel grupo (vacío = visible si tiene hijos visibles)
-  badge?: { text: string; color: string }
-}
-
-export interface DisabledModule {
-  key: string
-  label: string
-  icon: string
-  tooltip: string
-}
-
-export interface NavigationSection {
-  audience: 'admin' | 'customer'
-  topLinks: NavigationItem[]
-  groups: NavigationGroup[]
-  disabledModules: DisabledModule[]
-}
+export type { NavigationItem, NavigationGroup, DisabledModule, NavigationSection }
 
 // ============================================
 // Navegación ADMIN
