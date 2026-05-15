@@ -8,6 +8,34 @@ import { ImageGalleryManager } from './ImageGalleryManager'
 import { productService } from '../services/productService'
 import type { Product, CreateProductData, UpdateProductData } from '../types'
 
+/**
+ * Extract a human-readable message from an upload error. The backend may
+ * return JSON:API errors ({errors:[{detail}]}), a Laravel validation
+ * payload ({message, errors:{field:[...]}}), or a plain Error. Falls back
+ * to the provided generic message so the UI is never blank.
+ */
+function extractUploadError(err: unknown, fallback: string): string {
+  if (typeof err === 'object' && err !== null) {
+    const e = err as {
+      response?: { data?: { errors?: Array<{ detail?: string }> | Record<string, string[]>; message?: string } }
+      message?: string
+    }
+    const data = e.response?.data
+    if (data) {
+      if (Array.isArray(data.errors) && data.errors[0]?.detail) {
+        return data.errors[0].detail
+      }
+      if (data.errors && typeof data.errors === 'object' && !Array.isArray(data.errors)) {
+        const firstField = Object.values(data.errors)[0]
+        if (Array.isArray(firstField) && firstField[0]) return firstField[0]
+      }
+      if (data.message) return data.message
+    }
+    if (e.message) return e.message
+  }
+  return fallback
+}
+
 interface ProductFormProps {
   product?: Product
   isLoading?: boolean
@@ -172,8 +200,8 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       try {
         const result = await productService.uploadImage(imageFile)
         newImgPath = result.path
-      } catch {
-        setErrors(prev => ({ ...prev, imgPath: 'Error al subir la imagen' }))
+      } catch (err: unknown) {
+        setErrors(prev => ({ ...prev, imgPath: extractUploadError(err, 'Error al subir la imagen') }))
         setUploadingImage(false)
         return
       }
@@ -186,8 +214,8 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       try {
         const result = await productService.uploadDatasheet(datasheetFile)
         newDatasheetPath = result.path
-      } catch {
-        setErrors(prev => ({ ...prev, datasheetPath: 'Error al subir la hoja de datos' }))
+      } catch (err: unknown) {
+        setErrors(prev => ({ ...prev, datasheetPath: extractUploadError(err, 'Error al subir la hoja de datos') }))
         setUploadingDatasheet(false)
         return
       }
@@ -249,10 +277,24 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                   accept="image/jpeg,image/png,image/gif,image/webp"
                   maxSizeMB={10}
                   isImage={true}
-                  onFileSelect={(file) => setImageFile(file)}
+                  onFileSelect={(file) => {
+                    setImageFile(file)
+                    // Clear stale upload error so re-selecting a new file
+                    // doesn't keep the red banner from the previous attempt.
+                    setErrors(prev => {
+                      if (!prev.imgPath) return prev
+                      const { imgPath: _drop, ...rest } = prev
+                      return rest
+                    })
+                  }}
                   onClear={() => {
                     setImageFile(null)
                     handleInputChange('imgPath', '')
+                    setErrors(prev => {
+                      if (!prev.imgPath) return prev
+                      const { imgPath: _drop, ...rest } = prev
+                      return rest
+                    })
                   }}
                   previewUrl={null}
                   isLoading={uploadingImage}
@@ -414,10 +456,22 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               accept="application/pdf"
               maxSizeMB={10}
               isImage={false}
-              onFileSelect={(file) => setDatasheetFile(file)}
+              onFileSelect={(file) => {
+                setDatasheetFile(file)
+                setErrors(prev => {
+                  if (!prev.datasheetPath) return prev
+                  const { datasheetPath: _drop, ...rest } = prev
+                  return rest
+                })
+              }}
               onClear={() => {
                 setDatasheetFile(null)
                 handleInputChange('datasheetPath', '')
+                setErrors(prev => {
+                  if (!prev.datasheetPath) return prev
+                  const { datasheetPath: _drop, ...rest } = prev
+                  return rest
+                })
               }}
               currentFileName={product?.datasheetPath ? 'Archivo existente' : undefined}
               isLoading={uploadingDatasheet}

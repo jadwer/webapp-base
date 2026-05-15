@@ -3,7 +3,8 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { Button, Input, Select } from '@lwm/ui'
 import { useUnits, useCategories, useBrands } from '../hooks'
-import { useProductsUIStore } from '../store/productsUIStore'
+import { useProductsUIStore, useProductsFilters } from '../store/productsUIStore'
+import type { ProductFilters } from '../types'
 
 const useDebounce = (value: string, delay: number) => {
   const [debouncedValue, setDebouncedValue] = useState(value)
@@ -21,12 +22,24 @@ const useDebounce = (value: string, delay: number) => {
   return debouncedValue
 }
 
+// Type guard for filter values that may come back from sessionStorage as
+// arbitrary unknown (Zustand persist hydration). We coerce to string and
+// fall back to '' for selects so the controlled inputs stay valid.
+const asStr = (v: ProductFilters[keyof ProductFilters]): string => (typeof v === 'string' ? v : '')
+
 export const ProductsFiltersSimple = React.memo(() => {
-  // Local state for instant UI feedback
-  const [searchTerm, setSearchTerm] = useState('')
-  const [selectedCategory, setSelectedCategory] = useState('')
-  const [selectedBrand, setSelectedBrand] = useState('')
-  const [selectedUnit, setSelectedUnit] = useState('')
+  // Read persisted filters from the store as the initial value of the
+  // local state. Without this, a remount (e.g. after the user opens a
+  // product detail and clicks back) would reset the inputs to '' and
+  // the useEffect below would write an empty filter set back into the
+  // store on first render — wiping the user's search.
+  const persistedFilters = useProductsFilters()
+
+  // Local state for instant UI feedback, seeded from persisted store
+  const [searchTerm, setSearchTerm] = useState(() => asStr(persistedFilters.name))
+  const [selectedCategory, setSelectedCategory] = useState(() => asStr(persistedFilters.categoryId))
+  const [selectedBrand, setSelectedBrand] = useState(() => asStr(persistedFilters.brandId))
+  const [selectedUnit, setSelectedUnit] = useState(() => asStr(persistedFilters.unitId))
   
   // Input refs for focus preservation
   const searchInputRef = useRef<HTMLInputElement>(null)
