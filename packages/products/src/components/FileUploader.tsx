@@ -46,9 +46,23 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
   }, [localPreview])
 
   const handleFileSelect = useCallback((file: File) => {
-    // Validate size
+    // Validate size (client-side check before hitting the network; the
+    // backend enforces the same limit via Laravel `mimes:...|max:...`).
     if (file.size > maxSizeMB * 1024 * 1024) {
-      toast.warning(`El archivo excede el tamano maximo de ${maxSizeMB}MB`)
+      const sizeMB = (file.size / (1024 * 1024)).toFixed(2)
+      toast.warning(
+        `El archivo "${file.name}" pesa ${sizeMB} MB y supera el límite de ${maxSizeMB} MB. Comprime la imagen y vuelve a intentarlo.`
+      )
+      return
+    }
+
+    // Validate mime/extension for images (defense in depth — backend also
+    // checks). Helps the user understand WHY a file is rejected instead of
+    // surfacing a generic backend validation error after the upload.
+    if (isImage && !/^image\/(jpe?g|png|gif|webp)$/i.test(file.type)) {
+      toast.warning(
+        `El archivo "${file.name}" no es una imagen válida. Usa JPG, PNG, GIF o WebP.`
+      )
       return
     }
 

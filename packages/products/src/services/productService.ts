@@ -205,7 +205,16 @@ export const productService = {
 
   /**
    * Upload product image
-   * Returns the path to use when creating/updating a product
+   * Returns the path to use when creating/updating a product.
+   *
+   * Bug G fix (2026-05-15): the axios global client defaults Content-Type
+   * to application/vnd.api+json (for JSON:API requests). Sending FormData
+   * with that header — OR with a bare 'multipart/form-data' override
+   * lacking a boundary — leaves PHP unable to parse $_FILES, so Laravel
+   * sees the file as missing and emits the `validation.uploaded` key
+   * ("The file failed to upload"). Setting Content-Type to undefined here
+   * forces axios to delete the inherited header and regenerate
+   * multipart/form-data; boundary=... from the FormData itself.
    */
   async uploadImage(file: File): Promise<UploadResponse> {
     const formData = new FormData()
@@ -213,15 +222,15 @@ export const productService = {
 
     const response = await axios.post('/api/v1/products/upload-image', formData, {
       headers: {
-        'Content-Type': 'multipart/form-data'
-      }
+        'Content-Type': undefined,
+      },
     })
     return response.data
   },
 
   /**
-   * Upload product datasheet (PDF)
-   * Returns the path to use when creating/updating a product
+   * Upload product datasheet (PDF). See uploadImage above for the
+   * Content-Type: undefined rationale (Bug G).
    */
   async uploadDatasheet(file: File): Promise<UploadResponse> {
     const formData = new FormData()
@@ -229,8 +238,8 @@ export const productService = {
 
     const response = await axios.post('/api/v1/products/upload-datasheet', formData, {
       headers: {
-        'Content-Type': 'multipart/form-data'
-      }
+        'Content-Type': undefined,
+      },
     })
     return response.data
   }
