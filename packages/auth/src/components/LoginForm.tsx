@@ -7,8 +7,8 @@ import { useAuth } from '../lib/auth'
 import { handleApiErrors } from '../lib/handleApiErrors'
 import { useSearchParams } from 'next/navigation'
 import { useState, useEffect } from 'react'
-import { StatusMessage } from '@lwm/ui'
-import { Input } from '@lwm/ui'
+import { StatusMessage } from '@lwm/primitives'
+import { Input } from '@lwm/primitives'
 
 interface Props {
   redirect: string

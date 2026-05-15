@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '../lib/auth'
-import { useIsClient } from '@lwm/ui'
+import { useIsClient } from '@lwm/primitives'
 import { useEffect } from 'react'
 
 export default function AuthStatus() {

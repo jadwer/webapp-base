@@ -1,8 +1,8 @@
 // DashboardLayout Component Styles
 // =================================
-@use '../tokens/_colors.scss' as *;
-@use '../tokens/_spacing.scss' as *;
-@use '../tokens/_typography.scss' as *;
+@use '../../../../primitives/src/styles/tokens/_colors.scss' as *;
+@use '../../../../primitives/src/styles/tokens/_spacing.scss' as *;
+@use '../../../../primitives/src/styles/tokens/_typography.scss' as *;
 
 .layout {
   min-height: 100vh;

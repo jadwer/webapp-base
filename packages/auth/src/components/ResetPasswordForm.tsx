@@ -6,8 +6,8 @@ import { resetPasswordSchema, ResetPasswordFormData } from '../schemas/reset-pas
 import { useAuth } from '../lib/auth'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
-import { StatusMessage } from '@lwm/ui'
-import { Input } from '@lwm/ui'
+import { StatusMessage } from '@lwm/primitives'
+import { Input } from '@lwm/primitives'
 import styles from '../styles/LoginForm.module.scss'
 
 interface Props {

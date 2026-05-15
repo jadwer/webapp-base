@@ -75,8 +75,16 @@ export const useToastStore = create<ToastStore>((set, get) => ({
   }
 }))
 
-// Hook conveniente para usar desde componentes
-export const useGlobalToast = () => {
+// Hook conveniente para usar desde componentes.
+//
+// Renombrado de `useGlobalToast` a `useToastStoreHook` el 2026-05-12 para
+// evitar colision de nombres con `useGlobalToast` del context provider en
+// components/GlobalToastProvider.tsx (deuda B4). El barrel principal de
+// @lwm/ui solo exporta este store via `useToastStore` (sin el hook
+// helper), y el provider context expone su propio `useGlobalToast`. Si
+// algun consumer necesita el helper basado en store, debe importarlo
+// como `useToastStoreHook` para no confundir con el del provider.
+export const useToastStoreHook = () => {
   const { addToast, hideToast, hideAllToasts } = useToastStore()
   
   const show = (

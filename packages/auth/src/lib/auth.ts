@@ -3,7 +3,7 @@
 import useSWR from "swr";
 import axios from '../lib/axiosClient';
 import { useRouter } from "next/navigation";
-import { parseJsonApiErrors } from '@lwm/ui';
+import { parseJsonApiErrors } from '@lwm/primitives';
 
 import {
   UseAuthOptions,

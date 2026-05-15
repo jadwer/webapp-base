@@ -2,7 +2,7 @@
 
 import { useAuth } from '@lwm/auth'
 import { useRouter } from 'next/navigation'
-import { useIsClient } from '../hooks/useIsClient'
+import { useIsClient } from '@lwm/primitives'
 import { useEffect, ReactNode } from 'react'
 
 interface RoleGuardProps {

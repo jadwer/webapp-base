@@ -1,5 +1,5 @@
 // src/modules/auth/lib/handleApiErrors.ts
-import { parseJsonApiErrors } from '@lwm/ui'
+import { parseJsonApiErrors } from '@lwm/primitives'
 
 export interface ErrorResponse {
   response?: {

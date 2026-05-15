@@ -7,7 +7,8 @@ import path from 'path'
  * Mirrors apps/template/next.config.ts. The transpilePackages list MUST
  * stay in sync with the template's; otherwise CSS Modules from the
  * @lwm/* packages render unstyled at build time. The sassOptions
- * includePath points at @lwm/ui's tokens so any *.module.scss in the
+ * includePath points at @lwm/primitives' tokens (moved there from
+ * @lwm/ui in 2026-05-12 — deuda B5) so any *.module.scss in the
  * workspace can resolve `@use 'tokens/_colors.scss' as *` without a
  * relative chain.
  */
@@ -55,6 +56,7 @@ const nextConfig: NextConfig = {
   output: 'standalone',
   outputFileTracingRoot: path.join(__dirname, '..', '..', '..'),
   transpilePackages: [
+    '@lwm/primitives',
     '@lwm/ui',
     '@lwm/auth',
     '@lwm/app-config',
@@ -68,9 +70,10 @@ const nextConfig: NextConfig = {
   ],
   sassOptions: {
     includePaths: [
-      // packages/ui/src/styles is 4 levels up from
-      // clients/alphalabchem/webapp/.
-      path.join(__dirname, '..', '..', '..', 'packages', 'ui', 'src', 'styles'),
+      // packages/primitives/src/styles is 4 levels up from
+      // clients/alphalabchem/webapp/. Tokens moved here from @lwm/ui in
+      // 2026-05-12 to break the @lwm/auth ↔ @lwm/ui cycle (deuda B5).
+      path.join(__dirname, '..', '..', '..', 'packages', 'primitives', 'src', 'styles'),
     ],
   },
   images: { remotePatterns },

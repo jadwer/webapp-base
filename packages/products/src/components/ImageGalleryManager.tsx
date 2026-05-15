@@ -192,7 +192,7 @@ export const ImageGalleryManager: React.FC<ImageGalleryManagerProps> = ({ produc
             }}
           >
             <Image
-              src={image.imageUrl || `/storage/${image.filePath}`}
+              src={image.imageUrl || `${process.env.NEXT_PUBLIC_BACKEND_URL ?? ''}/storage/${image.filePath}`}
               alt={image.altText || 'Imagen del producto'}
               fill
               sizes="120px"

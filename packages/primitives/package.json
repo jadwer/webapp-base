@@ -1,7 +1,7 @@
 {
-  "name": "@lwm/ui",
+  "name": "@lwm/primitives",
   "version": "0.0.0",
-  "description": "Shared design system components for LWM codebase apps (Button, Card, Modal, Input, etc.).",
+  "description": "Auth-agnostic UI primitives and utilities shared between @lwm/ui (layout) and @lwm/auth (forms). Lives below both to break the historical @lwm/auth ↔ @lwm/ui import cycle (deuda B5).",
   "license": "UNLICENSED",
   "private": false,
   "publishConfig": {
@@ -38,23 +38,15 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@lwm/app-config": "workspace:*",
-    "@lwm/primitives": "workspace:*",
-    "clsx": "^2.1.0",
-    "nprogress": "^0.2.0",
-    "react-bootstrap": "^2.10.10",
-    "zustand": "^5.0.6"
+    "clsx": "^2.1.0"
   },
   "devDependencies": {
-    "@types/nprogress": "^0.2.3",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "tsup": "^8.3.5",
     "typescript": "^5.7.2"
   },
   "peerDependencies": {
-    "@lwm/auth": "workspace:*",
-    "next": "^15.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   }

@@ -1,6 +1,6 @@
 // src/modules/auth/lib/profileApi.ts
 import axiosClient from '../lib/axiosClient';
-import { parseJsonApiErrors } from '@lwm/ui';
+import { parseJsonApiErrors } from '@lwm/primitives';
 
 /**
  * Obtener información del usuario autenticado

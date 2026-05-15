@@ -8,8 +8,10 @@ export type { ButtonProps } from './Button'
 export { Card, CardHeader, CardContent, CardFooter, CardMedia } from './Card'
 export type { CardProps, CardSectionProps } from './Card'
 
-export { Input, Textarea, Select } from './Input'
-export type { InputProps, TextareaProps, SelectProps } from './Input'
+// Input/Textarea/Select moved to @lwm/primitives (deuda B5 break cycle).
+// Re-exported here to keep `@lwm/ui` barrel surface unchanged for consumers.
+export { Input, Textarea, Select } from '@lwm/primitives'
+export type { InputProps, TextareaProps, SelectProps } from '@lwm/primitives'
 
 export { Checkbox } from './Checkbox'
 export type { CheckboxProps } from './Checkbox'

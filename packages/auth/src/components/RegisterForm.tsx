@@ -10,7 +10,7 @@ import { useAuth } from '../lib/auth';
 import { handleApiErrors } from '../lib/handleApiErrors';
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { StatusMessage, Input } from '@lwm/ui';
+import { StatusMessage, Input } from '@lwm/primitives';
 import styles from '../styles/LoginForm.module.scss';
 
 export function RegisterForm() {

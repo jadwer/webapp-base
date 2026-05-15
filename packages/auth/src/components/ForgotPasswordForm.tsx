@@ -5,8 +5,8 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { forgotPasswordSchema, ForgotPasswordFormData } from '../schemas/forgot-password.schema'
 import { useAuth } from '../lib/auth'
 import { useState } from 'react'
-import { StatusMessage } from '@lwm/ui'
-import { Input } from '@lwm/ui'
+import { StatusMessage } from '@lwm/primitives'
+import { Input } from '@lwm/primitives'
 
 export function ForgotPasswordForm() {
   const { forgotPassword } = useAuth()

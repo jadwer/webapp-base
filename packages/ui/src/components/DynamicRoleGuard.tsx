@@ -2,7 +2,7 @@
 
 import { ReactNode } from 'react'
 import { useAuth, hasAnyRole, hasAnyPermission, canAccessPage } from '@lwm/auth'
-import { useIsClient } from '../hooks/useIsClient'
+import { useIsClient } from '@lwm/primitives'
 
 interface RoleGuardProps {
   children: ReactNode
