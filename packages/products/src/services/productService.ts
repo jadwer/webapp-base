@@ -107,8 +107,14 @@ export const productService = {
         attributes: {
           name: data.name,
           ...(data.sku && { sku: data.sku }),
-          ...(data.description && { description: data.description }),
-          ...(data.fullDescription && { fullDescription: data.fullDescription }),
+          // description + fullDescription are NOT NULL in the products table
+          // (no default), even though the Request marks them nullable. The
+          // legacy LWM frontend always sent both fields (even as empty
+          // strings), which kept inserts safe. The refactor's conditional
+          // spread broke that contract and produced SQL 1364. Always send
+          // the field; coerce undefined/null to '' so MySQL gets a value.
+          description: data.description ?? '',
+          fullDescription: data.fullDescription ?? '',
           ...(data.price !== undefined && { price: data.price }),
           ...(data.cost !== undefined && { cost: data.cost }),
           iva: data.iva ?? false,
@@ -144,8 +150,11 @@ export const productService = {
 
     if (data.name !== undefined) attributes.name = data.name
     if (data.sku !== undefined) attributes.sku = data.sku
-    if (data.description !== undefined) attributes.description = data.description
-    if (data.fullDescription !== undefined) attributes.fullDescription = data.fullDescription
+    // description/fullDescription columns are NOT NULL. Coerce null -> ''
+    // so the PATCH never produces SQL 1364 if the operator clears the
+    // textarea (which yields null in some controlled-input flows).
+    if (data.description !== undefined) attributes.description = data.description ?? ''
+    if (data.fullDescription !== undefined) attributes.fullDescription = data.fullDescription ?? ''
     if (data.price !== undefined) attributes.price = data.price
     if (data.cost !== undefined) attributes.cost = data.cost
     if (data.iva !== undefined) attributes.iva = data.iva

@@ -167,6 +167,9 @@ export const PublicProductCard: React.FC<PublicProductCardProps> = ({
                 <small className="text-muted ms-1">
                   {product.displayCurrency}{showUnit && product.unit ? ` / ${product.displayUnit}` : ''}
                 </small>
+                <small className={`d-block ${product.attributes.iva ? 'text-success' : 'text-muted'}`}>
+                  {product.attributes.iva ? 'IVA incluido' : '+ 16% IVA'}
+                </small>
               </>
             ) : (
               <span className="text-muted">Precio no disponible</span>

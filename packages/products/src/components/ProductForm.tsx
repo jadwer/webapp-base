@@ -134,10 +134,16 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       newErrors.name = 'El nombre del producto es requerido'
     }
 
-    // Description required so the catalog isn't filled with skeleton
-    // products. Backend column is NOT NULL — we enforce client-side too.
+    // Description + fullDescription both required so the catalog isn't
+    // filled with skeleton products. Backend columns are both NOT NULL —
+    // we enforce client-side too. Service layer also coerces null -> ''
+    // as a belt-and-suspenders measure for the SQL 1364 case.
     if (!formData.description.trim()) {
       newErrors.description = 'La descripción corta es requerida'
+    }
+
+    if (!formData.fullDescription.trim()) {
+      newErrors.fullDescription = 'La descripción completa es requerida'
     }
 
     if (!formData.unitId) {
@@ -232,7 +238,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       name: formData.name,
       ...(formData.sku && { sku: formData.sku }),
       description: formData.description,
-      ...(formData.fullDescription && { fullDescription: formData.fullDescription }),
+      fullDescription: formData.fullDescription,
       ...(formData.price && { price: Number(formData.price) }),
       ...(formData.cost && { cost: Number(formData.cost) }),
       iva: formData.iva,
@@ -351,6 +357,8 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               onBlur={() => handleBlur('fullDescription')}
               placeholder="Descripción detallada del producto"
               disabled={isSubmitting}
+              errorText={touched.fullDescription ? errors.fullDescription : ''}
+              required
             />
           </div>
         </div>

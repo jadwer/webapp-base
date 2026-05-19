@@ -252,6 +252,18 @@ export default function ProductDetailPage({
                 <span className="text-muted ms-2">
                   {product.displayCurrency}{product.unit ? ` / ${product.displayUnit}` : ''}
                 </span>
+                {/* IVA hint — required by alphalab operator so customers know
+                    whether the listed price is final or has tax added at
+                    checkout. Backend field `iva` is a boolean: true means
+                    the price already includes 16% VAT; false means VAT is
+                    added on top. */}
+                {product.attributes.price !== null && (
+                  <div className="mt-1">
+                    <small className={product.attributes.iva ? 'text-success' : 'text-muted'}>
+                      {product.attributes.iva ? 'IVA incluido' : '+ 16% IVA'}
+                    </small>
+                  </div>
+                )}
               </div>
 
               {/* SKU & Barcode */}

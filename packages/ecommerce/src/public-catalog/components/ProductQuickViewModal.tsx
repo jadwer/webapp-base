@@ -146,7 +146,13 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
                   {displayProduct.attributes.sku && (
                     <li><strong>SKU:</strong> {displayProduct.attributes.sku}</li>
                   )}
-                  <li><strong>Precio:</strong> {displayProduct.displayPrice} {displayProduct.displayCurrency}</li>
+                  <li>
+                    <strong>Precio:</strong> {displayProduct.displayPrice} {displayProduct.displayCurrency}
+                    {' '}
+                    <small className={displayProduct.attributes.iva ? 'text-success' : 'text-muted'}>
+                      ({displayProduct.attributes.iva ? 'IVA incluido' : '+ 16% IVA'})
+                    </small>
+                  </li>
                 </ul>
                 {displayProduct.attributes.description && (
                   <>
