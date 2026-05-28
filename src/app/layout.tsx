@@ -26,13 +26,13 @@ export default function RootLayout({
         />
         <Script
           async
-          src="https://www.googletagmanager.com/gtag/js?id=G-M1SCXB58G4"></Script>
+          src="https://www.googletagmanager.com/gtag/js?id=G-BG4P3QWZW3"></Script>
         <Script id="google-analytics">
           {`window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
 
-            gtag('config', 'G-M1SCXB58G4');
+            gtag('config', 'G-BG4P3QWZW3');
 `}
         </Script>
       </head>
