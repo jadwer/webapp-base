@@ -186,15 +186,19 @@ export const BrandsAdminPagePro = React.memo(() => {
     const action = newState ? 'activar' : 'desactivar'
 
     let includeProducts = false
-    if (!newState && (brand.productsCount ?? 0) > 0) {
+    if ((brand.productsCount ?? 0) > 0) {
       const confirmed = await confirmModalRef.current?.confirm(
-        `¿Desactivar la marca "${brand.name}"? Tiene ${brand.productsCount} producto(s) asociado(s). ¿También desactivar sus productos?`,
+        newState
+          ? `¿Activar la marca "${brand.name}"? Tiene ${brand.productsCount} producto(s) asociado(s). ¿También activar sus productos?`
+          : `¿Desactivar la marca "${brand.name}"? Tiene ${brand.productsCount} producto(s) asociado(s). ¿También desactivar sus productos?`,
         {
-          title: 'Desactivar Marca',
-          confirmText: 'Desactivar marca y productos',
+          title: newState ? 'Activar Marca' : 'Desactivar Marca',
+          confirmText: newState ? 'Activar marca y productos' : 'Desactivar marca y productos',
           cancelText: 'Solo la marca',
-          confirmVariant: 'warning',
-          icon: <i className="bi bi-exclamation-triangle-fill text-warning" />
+          confirmVariant: newState ? 'primary' : 'warning',
+          icon: newState
+            ? <i className="bi bi-check-circle-fill text-success" />
+            : <i className="bi bi-exclamation-triangle-fill text-warning" />
         }
       )
       includeProducts = confirmed ?? false
