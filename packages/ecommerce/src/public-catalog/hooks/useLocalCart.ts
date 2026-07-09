@@ -58,6 +58,14 @@ export interface CartTotals {
 
 const CART_STORAGE_KEY = 'app_cart'
 
+/**
+ * Legacy localStorage keys from previous systems.
+ * On first load, if CART_STORAGE_KEY is empty and one of these keys holds a
+ * valid cart, its content is migrated to CART_STORAGE_KEY (one-shot).
+ * Tenants migrating from another system can extend this list.
+ */
+export const LEGACY_CART_KEYS = ['laborwasser_cart']
+
 // ============================================
 // Internal Sync System (same-tab updates)
 // ============================================
@@ -89,10 +97,49 @@ function getEmptyCart(): LocalCart {
   }
 }
 
+/**
+ * One-shot migration of a legacy cart key to CART_STORAGE_KEY.
+ * Pure helper (storage injectable) so it can be unit tested.
+ * Silent on any failure: corrupt JSON or unavailable storage means the cart
+ * simply starts empty.
+ */
+export function migrateLegacyCartStorage(
+  storage?: Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>
+): void {
+  const store = storage ?? (typeof window !== 'undefined' ? window.localStorage : null)
+  if (!store) return
+
+  try {
+    // Never overwrite an existing cart
+    if (store.getItem(CART_STORAGE_KEY) !== null) return
+
+    for (const legacyKey of LEGACY_CART_KEYS) {
+      const raw = store.getItem(legacyKey)
+      if (!raw) continue
+
+      try {
+        const parsed = JSON.parse(raw) as LocalCart
+        if (parsed && Array.isArray(parsed.items)) {
+          store.setItem(CART_STORAGE_KEY, raw)
+          store.removeItem(legacyKey)
+          return
+        }
+      } catch {
+        // Corrupt JSON in legacy key: ignore it and keep checking other keys
+      }
+    }
+  } catch {
+    // Storage unavailable (private mode, quota, etc.): start empty
+  }
+}
+
 function loadCartFromStorage(): LocalCart {
   if (typeof window === 'undefined') {
     return getEmptyCart()
   }
+
+  // Migrate legacy cart (production LWM used 'laborwasser_cart') before reading
+  migrateLegacyCartStorage()
 
   try {
     const stored = localStorage.getItem(CART_STORAGE_KEY)
@@ -339,6 +386,9 @@ export function useLocalCartCount(): number {
         setCount(0)
       }
     }
+
+    // Migrate legacy cart before initial read (no-op if already migrated)
+    migrateLegacyCartStorage()
 
     // Initial load
     updateCount()

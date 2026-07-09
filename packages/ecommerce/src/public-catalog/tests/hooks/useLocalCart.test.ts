@@ -5,11 +5,17 @@
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { renderHook, act, waitFor } from '@testing-library/react'
-import { useLocalCart, useLocalCartCount } from '../../hooks/useLocalCart'
+import {
+  useLocalCart,
+  useLocalCartCount,
+  migrateLegacyCartStorage,
+  LEGACY_CART_KEYS
+} from '../../hooks/useLocalCart'
 import type { EnhancedPublicProduct } from '../../types/publicProduct'
 
 // Constants matching the hook
 const CART_STORAGE_KEY = 'app_cart'
+const LEGACY_KEY = 'laborwasser_cart'
 
 // Mock product factory
 function createMockProduct(id: string = '1', overrides: Partial<EnhancedPublicProduct> = {}): EnhancedPublicProduct {
@@ -620,6 +626,181 @@ describe('useLocalCart', () => {
       expect(checkoutData.taxAmount).toBe(32) // 200 * 0.16
       expect(checkoutData.total).toBe(232) // 200 + 32
       expect(checkoutData.itemCount).toBe(2)
+    })
+  })
+})
+
+describe('legacy cart migration', () => {
+  beforeEach(() => {
+    localStorage.clear()
+  })
+
+  afterEach(() => {
+    localStorage.clear()
+  })
+
+  function createLegacyCart() {
+    return {
+      items: [
+        {
+          id: 'item_9_555',
+          productId: '9',
+          name: 'Legacy Product',
+          price: 300,
+          quantity: 2,
+          imageUrl: null,
+          sku: 'SKU-9',
+          unitName: 'pz',
+          categoryName: 'Category',
+          brandName: 'Brand',
+          addedAt: '2024-01-01T00:00:00Z',
+        },
+      ],
+      createdAt: '2024-01-01T00:00:00Z',
+      updatedAt: '2024-01-01T00:00:00Z',
+    }
+  }
+
+  describe('migrateLegacyCartStorage (pure helper)', () => {
+    it('should expose laborwasser_cart in LEGACY_CART_KEYS', () => {
+      expect(LEGACY_CART_KEYS).toContain('laborwasser_cart')
+    })
+
+    it('should copy legacy cart to app_cart and remove legacy key', () => {
+      const legacyCart = createLegacyCart()
+      localStorage.setItem(LEGACY_KEY, JSON.stringify(legacyCart))
+
+      migrateLegacyCartStorage()
+
+      expect(localStorage.getItem(CART_STORAGE_KEY)).toBe(JSON.stringify(legacyCart))
+      expect(localStorage.getItem(LEGACY_KEY)).toBeNull()
+    })
+
+    it('should not overwrite existing app_cart', () => {
+      const currentCart = { items: [], createdAt: 'now', updatedAt: 'now' }
+      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(currentCart))
+      localStorage.setItem(LEGACY_KEY, JSON.stringify(createLegacyCart()))
+
+      migrateLegacyCartStorage()
+
+      expect(localStorage.getItem(CART_STORAGE_KEY)).toBe(JSON.stringify(currentCart))
+      // Legacy key untouched (migration only runs when app_cart is empty)
+      expect(localStorage.getItem(LEGACY_KEY)).not.toBeNull()
+    })
+
+    it('should do nothing when no legacy key exists', () => {
+      migrateLegacyCartStorage()
+
+      expect(localStorage.getItem(CART_STORAGE_KEY)).toBeNull()
+    })
+
+    it('should silently ignore corrupt JSON in legacy key', () => {
+      localStorage.setItem(LEGACY_KEY, '{not valid json!!')
+
+      expect(() => migrateLegacyCartStorage()).not.toThrow()
+      expect(localStorage.getItem(CART_STORAGE_KEY)).toBeNull()
+    })
+
+    it('should ignore legacy value without valid cart shape', () => {
+      localStorage.setItem(LEGACY_KEY, JSON.stringify({ foo: 'bar' }))
+
+      migrateLegacyCartStorage()
+
+      expect(localStorage.getItem(CART_STORAGE_KEY)).toBeNull()
+    })
+
+    it('should accept an injected storage implementation', () => {
+      const store = new Map<string, string>()
+      const fakeStorage = {
+        getItem: (key: string) => store.get(key) ?? null,
+        setItem: (key: string, value: string) => { store.set(key, value) },
+        removeItem: (key: string) => { store.delete(key) },
+      }
+      const legacyCart = createLegacyCart()
+      fakeStorage.setItem(LEGACY_KEY, JSON.stringify(legacyCart))
+
+      migrateLegacyCartStorage(fakeStorage)
+
+      expect(fakeStorage.getItem(CART_STORAGE_KEY)).toBe(JSON.stringify(legacyCart))
+      expect(fakeStorage.getItem(LEGACY_KEY)).toBeNull()
+    })
+  })
+
+  describe('useLocalCart integration', () => {
+    it('should load a migrated legacy cart on mount and remove the legacy key', async () => {
+      localStorage.setItem(LEGACY_KEY, JSON.stringify(createLegacyCart()))
+
+      const { result } = renderHook(() => useLocalCart())
+
+      await waitFor(() => {
+        expect(result.current.isInitialized).toBe(true)
+      })
+
+      expect(result.current.items.length).toBe(1)
+      expect(result.current.items[0].name).toBe('Legacy Product')
+      expect(result.current.items[0].quantity).toBe(2)
+      expect(localStorage.getItem(LEGACY_KEY)).toBeNull()
+      expect(localStorage.getItem(CART_STORAGE_KEY)).not.toBeNull()
+    })
+
+    it('should prefer existing app_cart over legacy cart', async () => {
+      const currentCart = {
+        items: [
+          {
+            id: 'item_1_123',
+            productId: '1',
+            name: 'Current Product',
+            price: 100,
+            quantity: 1,
+            imageUrl: null,
+            sku: 'SKU-1',
+            unitName: 'pz',
+            categoryName: 'Category',
+            brandName: 'Brand',
+            addedAt: '2024-01-01T00:00:00Z',
+          },
+        ],
+        createdAt: '2024-01-01T00:00:00Z',
+        updatedAt: '2024-01-01T00:00:00Z',
+      }
+      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(currentCart))
+      localStorage.setItem(LEGACY_KEY, JSON.stringify(createLegacyCart()))
+
+      const { result } = renderHook(() => useLocalCart())
+
+      await waitFor(() => {
+        expect(result.current.isInitialized).toBe(true)
+      })
+
+      expect(result.current.items.length).toBe(1)
+      expect(result.current.items[0].name).toBe('Current Product')
+    })
+
+    it('should start empty when legacy cart JSON is corrupt', async () => {
+      localStorage.setItem(LEGACY_KEY, '{corrupt json')
+
+      const { result } = renderHook(() => useLocalCart())
+
+      await waitFor(() => {
+        expect(result.current.isInitialized).toBe(true)
+      })
+
+      expect(result.current.items).toEqual([])
+      expect(result.current.isEmpty).toBe(true)
+    })
+  })
+
+  describe('useLocalCartCount integration', () => {
+    it('should count items from a migrated legacy cart', async () => {
+      localStorage.setItem(LEGACY_KEY, JSON.stringify(createLegacyCart()))
+
+      const { result } = renderHook(() => useLocalCartCount())
+
+      await waitFor(() => {
+        expect(result.current).toBe(2)
+      })
+
+      expect(localStorage.getItem(LEGACY_KEY)).toBeNull()
     })
   })
 })

@@ -17,10 +17,12 @@ export {
   useProductsByPriceRange
 } from './usePublicProducts'
 
-// Export localStorage cart hooks
+// Export localStorage cart hooks + legacy migration helpers
 export {
   useLocalCart,
-  useLocalCartCount
+  useLocalCartCount,
+  LEGACY_CART_KEYS,
+  migrateLegacyCartStorage
 } from './useLocalCart'
 
 // Export cart types

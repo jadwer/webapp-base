@@ -69,9 +69,11 @@ export {
   useSaleProducts,
   useProductSuggestions,
   useProductsByPriceRange,
-  // LocalStorage cart hooks
+  // LocalStorage cart hooks + legacy migration helpers
   useLocalCart,
-  useLocalCartCount
+  useLocalCartCount,
+  LEGACY_CART_KEYS,
+  migrateLegacyCartStorage
 } from './hooks'
 
 // Export cart types

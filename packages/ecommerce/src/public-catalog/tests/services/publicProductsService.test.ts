@@ -147,7 +147,7 @@ describe('publicProductsService', () => {
       )
     })
 
-    it('should pass category filter correctly', async () => {
+    it('should pass single category filter as plural param', async () => {
       const mockResponse = createMockProductsResponse(1)
       mockAxiosClient.get.mockResolvedValueOnce(mockResponse)
 
@@ -157,13 +157,29 @@ describe('publicProductsService', () => {
         '/api/public/v1/public-products',
         expect.objectContaining({
           params: expect.objectContaining({
-            'filter[category_id]': '5',
+            'filter[categories]': '5',
           }),
         })
       )
     })
 
-    it('should pass brand filter correctly', async () => {
+    it('should pass multiple category IDs as CSV in plural param', async () => {
+      const mockResponse = createMockProductsResponse(1)
+      mockAxiosClient.get.mockResolvedValueOnce(mockResponse)
+
+      await publicProductsService.getPublicProducts({ categoryId: ['1', '2', '3'] })
+
+      expect(mockAxiosClient.get).toHaveBeenCalledWith(
+        '/api/public/v1/public-products',
+        expect.objectContaining({
+          params: expect.objectContaining({
+            'filter[categories]': '1,2,3',
+          }),
+        })
+      )
+    })
+
+    it('should pass single brand filter as plural param', async () => {
       const mockResponse = createMockProductsResponse(1)
       mockAxiosClient.get.mockResolvedValueOnce(mockResponse)
 
@@ -173,10 +189,65 @@ describe('publicProductsService', () => {
         '/api/public/v1/public-products',
         expect.objectContaining({
           params: expect.objectContaining({
-            'filter[brand_id]': '3',
+            'filter[brands]': '3',
           }),
         })
       )
+    })
+
+    it('should pass multiple brand IDs as CSV in plural param', async () => {
+      const mockResponse = createMockProductsResponse(1)
+      mockAxiosClient.get.mockResolvedValueOnce(mockResponse)
+
+      await publicProductsService.getPublicProducts({ brandId: ['1', '2'] })
+
+      expect(mockAxiosClient.get).toHaveBeenCalledWith(
+        '/api/public/v1/public-products',
+        expect.objectContaining({
+          params: expect.objectContaining({
+            'filter[brands]': '1,2',
+          }),
+        })
+      )
+    })
+
+    it('should pass unit filter as plural param with CSV', async () => {
+      const mockResponse = createMockProductsResponse(1)
+      mockAxiosClient.get.mockResolvedValueOnce(mockResponse)
+
+      await publicProductsService.getPublicProducts({ unitId: ['4', '7'] })
+
+      expect(mockAxiosClient.get).toHaveBeenCalledWith(
+        '/api/public/v1/public-products',
+        expect.objectContaining({
+          params: expect.objectContaining({
+            'filter[units]': '4,7',
+          }),
+        })
+      )
+    })
+
+    it('should not send legacy singular id params or unsupported filters', async () => {
+      const mockResponse = createMockProductsResponse(1)
+      mockAxiosClient.get.mockResolvedValueOnce(mockResponse)
+
+      await publicProductsService.getPublicProducts({
+        categoryId: ['1', '2'],
+        brandId: '3',
+        unitId: '4',
+      })
+
+      const params = mockAxiosClient.get.mock.calls[0][1].params
+      expect(params).not.toHaveProperty('filter[category_id]')
+      expect(params).not.toHaveProperty('filter[brand_id]')
+      expect(params).not.toHaveProperty('filter[unit_id]')
+      expect(params).not.toHaveProperty('filter[category_slug]')
+      expect(params).not.toHaveProperty('filter[brand_slug]')
+      expect(params).not.toHaveProperty('filter[barcode]')
+      expect(params).not.toHaveProperty('filter[created_after]')
+      expect(params).not.toHaveProperty('filter[created_before]')
+      expect(params).not.toHaveProperty('filter[updated_after]')
+      expect(params).not.toHaveProperty('filter[updated_before]')
     })
 
     it('should pass price range filters correctly', async () => {
@@ -323,7 +394,7 @@ describe('publicProductsService', () => {
         '/api/public/v1/public-products',
         expect.objectContaining({
           params: expect.objectContaining({
-            'filter[category_id]': '5',
+            'filter[categories]': '5',
           }),
         })
       )
@@ -343,7 +414,7 @@ describe('publicProductsService', () => {
         '/api/public/v1/public-products',
         expect.objectContaining({
           params: expect.objectContaining({
-            'filter[brand_id]': '2',
+            'filter[brands]': '2',
           }),
         })
       )

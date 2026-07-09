@@ -42,40 +42,31 @@ class PublicProductsService {
         params['filter[search]'] = filters.search
       }
       
+      // Multi-value filters: backend maps plural params (brands/categories/units)
+      // to WhereIn with comma delimiter. Singular *_id params only accept a
+      // single value, so we always send the plural form (works for 1..n values).
       if (filters.categoryId) {
-        params['filter[category_id]'] = Array.isArray(filters.categoryId) 
-          ? filters.categoryId.join(',') 
+        params['filter[categories]'] = Array.isArray(filters.categoryId)
+          ? filters.categoryId.join(',')
           : filters.categoryId
       }
-      
-      if (filters.categorySlug) {
-        params['filter[category_slug]'] = Array.isArray(filters.categorySlug)
-          ? filters.categorySlug.join(',')
-          : filters.categorySlug
-      }
-      
+
       if (filters.brandId) {
-        params['filter[brand_id]'] = Array.isArray(filters.brandId)
+        params['filter[brands]'] = Array.isArray(filters.brandId)
           ? filters.brandId.join(',')
           : filters.brandId
       }
-      
-      if (filters.brandSlug) {
-        params['filter[brand_slug]'] = Array.isArray(filters.brandSlug)
-          ? filters.brandSlug.join(',')
-          : filters.brandSlug
-      }
-      
+
       if (filters.unitId) {
-        params['filter[unit_id]'] = Array.isArray(filters.unitId)
+        params['filter[units]'] = Array.isArray(filters.unitId)
           ? filters.unitId.join(',')
           : filters.unitId
       }
-      
+
       if (filters.priceMin !== undefined) {
         params['filter[price_min]'] = filters.priceMin.toString()
       }
-      
+
       if (filters.priceMax !== undefined) {
         params['filter[price_max]'] = filters.priceMax.toString()
       }
@@ -92,26 +83,6 @@ class PublicProductsService {
 
       if (filters.sku) {
         params['filter[sku]'] = filters.sku
-      }
-      
-      if (filters.barcode) {
-        params['filter[barcode]'] = filters.barcode
-      }
-      
-      if (filters.createdAfter) {
-        params['filter[created_after]'] = filters.createdAfter
-      }
-      
-      if (filters.createdBefore) {
-        params['filter[created_before]'] = filters.createdBefore
-      }
-      
-      if (filters.updatedAfter) {
-        params['filter[updated_after]'] = filters.updatedAfter
-      }
-      
-      if (filters.updatedBefore) {
-        params['filter[updated_before]'] = filters.updatedBefore
       }
     }
 

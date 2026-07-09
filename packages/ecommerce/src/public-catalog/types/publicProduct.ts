@@ -125,21 +125,19 @@ export interface PublicProductFilters {
   // Search across multiple fields
   search?: string
   
-  // Category filtering
+  // Category filtering (single value or multi-select, sent as filter[categories] CSV)
   categoryId?: string | string[]
-  categorySlug?: string | string[]
-  
-  // Brand filtering
+
+  // Brand filtering (single value or multi-select, sent as filter[brands] CSV)
   brandId?: string | string[]
-  brandSlug?: string | string[]
-  
-  // Unit filtering
+
+  // Unit filtering (single value or multi-select, sent as filter[units] CSV)
   unitId?: string | string[]
-  
+
   // Price range filtering
   priceMin?: number
   priceMax?: number
-  
+
   // Product status
   isActive?: boolean
 
@@ -148,15 +146,6 @@ export interface PublicProductFilters {
 
   // SKU filtering
   sku?: string
-  
-  // Barcode filtering
-  barcode?: string
-  
-  // Date range filtering
-  createdAfter?: string
-  createdBefore?: string
-  updatedAfter?: string
-  updatedBefore?: string
 }
 
 // Sorting Options
@@ -199,24 +188,17 @@ export type PublicProductInclude =
 
 // Complete Query Parameters
 export interface PublicProductsQueryParams {
-  // Filtering
+  // Filtering (plural params support CSV multi-value via backend WhereIn)
   'filter[search]'?: string
-  'filter[category_id]'?: string
-  'filter[category_slug]'?: string
-  'filter[brand_id]'?: string
-  'filter[brand_slug]'?: string
-  'filter[unit_id]'?: string
+  'filter[categories]'?: string
+  'filter[brands]'?: string
+  'filter[units]'?: string
   'filter[price_min]'?: string
   'filter[price_max]'?: string
   'filter[is_active]'?: string
   'filter[is_on_sale]'?: string
   'filter[sku]'?: string
-  'filter[barcode]'?: string
-  'filter[created_after]'?: string
-  'filter[created_before]'?: string
-  'filter[updated_after]'?: string
-  'filter[updated_before]'?: string
-  
+
   // Sorting
   sort?: string
   
