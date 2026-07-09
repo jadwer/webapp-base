@@ -1,0 +1,1 @@
+export { LaborWasserLanding } from './LaborWasserLanding'

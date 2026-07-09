@@ -1,0 +1,1 @@
+export { OfertasDelMes } from './OfertasDelMes'

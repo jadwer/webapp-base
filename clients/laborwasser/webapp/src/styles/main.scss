@@ -1,0 +1,20 @@
+// Labor Wasser de Mexico — Main stylesheet entrypoint.
+//
+// 1) Tenant brand tokens (CSS custom properties for components that read them).
+@use './branding.scss';
+
+// 2) Bootstrap with the LWM primary color.
+//    Bootstrap's SCSS uses Sass color functions that REQUIRE a compile-time
+//    hex (not a CSS custom property), so the brand primary is hardcoded
+//    here. The matching --brand-primary CSS var is set in branding.scss
+//    and used by @lwm/ui components that read it at runtime.
+@use 'bootstrap/scss/bootstrap' with (
+  $primary: #8AC905
+);
+
+// 3) Legacy LWM styles (typography, header/footer/topnav/offcanvas classes,
+//    hero/offers/about/cta sections, whatsapp widget, etc). Ported verbatim
+//    from legacy_files/lwm-stash/styles/_laborwasser.scss — global rules
+//    apply to all (front) pages, .laborwasser-landing rules are scoped to
+//    the home page only.
+@use '../modules/landing/styles/laborwasser.scss';

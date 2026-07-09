@@ -1,0 +1,92 @@
+// POR QUE COMPRAR COMPONENT STYLES
+// Stats and about section - Labor Wasser de Mexico
+
+.porQueComprar {
+  padding: 60px 0;
+  background: white;
+}
+
+// Stats section - prominente como en el sitio original
+.statItem {
+  text-align: center;
+  padding: 30px 20px;
+  background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
+  border-radius: 12px;
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 30px rgba(13, 110, 253, 0.3);
+  }
+}
+
+.statNumber {
+  font-size: 3rem;
+  font-weight: 800;
+  color: white;
+  margin-bottom: 8px;
+  line-height: 1;
+
+  @media (max-width: 767px) {
+    font-size: 2.5rem;
+  }
+}
+
+.statLabel {
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+// Section header
+.sectionHeader {
+  text-align: center;
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.sectionTitle {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #212529;
+  margin-bottom: 24px;
+
+  @media (max-width: 767px) {
+    font-size: 1.5rem;
+  }
+}
+
+.sectionDescription {
+  font-size: 1rem;
+  line-height: 1.8;
+  color: #6c757d;
+  text-align: center;
+}
+
+// Responsive adjustments
+@media (max-width: 991px) {
+  .porQueComprar {
+    padding: 50px 0;
+  }
+}
+
+@media (max-width: 767px) {
+  .porQueComprar {
+    padding: 40px 0;
+  }
+
+  .statItem {
+    padding: 24px 16px;
+  }
+
+  .statNumber {
+    font-size: 2rem;
+  }
+
+  .statLabel {
+    font-size: 0.9rem;
+  }
+}

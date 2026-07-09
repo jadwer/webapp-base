@@ -1,0 +1,137 @@
+// LABORWASSER LANDING PAGE STYLES
+// Main landing page container and global styles
+
+.landingPage {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  
+  // Global typography improvements for landing page
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  line-height: 1.6;
+  color: #212529;
+}
+
+.mainContent {
+  flex: 1;
+  
+  // Ensure smooth scrolling between sections
+  scroll-behavior: smooth;
+}
+
+// Enhanced focus states for accessibility within landing page
+.landingPage {
+  button:focus,
+  a:focus,
+  input:focus,
+  select:focus,
+  textarea:focus {
+    outline: 2px solid #007bff;
+    outline-offset: 2px;
+  }
+}
+
+// Section spacing consistency
+.mainContent > * {
+  position: relative;
+  
+  // Add subtle section separators
+  &:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #e9ecef, transparent);
+    opacity: 0.5;
+  }
+}
+
+// Loading states for dynamic sections
+.mainContent {
+  .skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.5s infinite;
+    border-radius: 4px;
+  }
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 991px) {
+  .mainContent {
+    // Adjust section spacing on tablets
+    > * {
+      &:not(:last-child)::after {
+        width: 40px;
+      }
+    }
+  }
+}
+
+@media (max-width: 767px) {
+  .mainContent {
+    // Remove section separators on mobile
+    > * {
+      &:not(:last-child)::after {
+        display: none;
+      }
+    }
+  }
+}
+
+// Performance optimizations
+.landingPage {
+  // Enable GPU acceleration for smooth animations
+  will-change: scroll-position;
+  
+  // Optimize font rendering
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+// Accessibility improvements
+@media (prefers-reduced-motion: reduce) {
+  .landingPage {
+    scroll-behavior: auto;
+    
+    * {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+// Print styles
+@media print {
+  .landingPage {
+    font-size: 12pt;
+    line-height: 1.4;
+    color: #000;
+    background: #fff;
+    
+    // Hide non-essential elements when printing
+    .mainContent > *:not(:nth-child(-n+3)) {
+      display: none;
+    }
+    
+    // Optimize header for print
+    header {
+      position: static !important;
+      box-shadow: none !important;
+    }
+  }
+}

@@ -1,0 +1,201 @@
+// HERO COMPONENT STYLES
+// Main banner section - Labor Wasser de Mexico
+// Colors: Primary blue #0d6efd, Secondary blue #0b5ed7
+
+.hero {
+  position: relative;
+  background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 50%, #084298 100%);
+  color: white;
+  padding: 100px 0 80px;
+  overflow: hidden;
+  min-height: 450px;
+  display: flex;
+  align-items: center;
+}
+
+.heroContent {
+  position: relative;
+  z-index: 2;
+}
+
+.heroTitle {
+  font-size: 3.2rem;
+  font-weight: 800;
+  line-height: 1.15;
+  margin-bottom: 32px;
+  text-transform: uppercase;
+  letter-spacing: -0.5px;
+
+  @media (max-width: 991px) {
+    font-size: 2.5rem;
+  }
+
+  @media (max-width: 767px) {
+    font-size: 1.8rem;
+    text-align: center;
+  }
+}
+
+.heroTitleHighlight {
+  color: white;
+  background: linear-gradient(90deg, #198754, #20c997);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.heroActions {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+
+  @media (max-width: 767px) {
+    justify-content: center;
+  }
+}
+
+.heroCta {
+  display: inline-flex;
+  align-items: center;
+  padding: 14px 36px;
+  font-weight: 600;
+  font-size: 1rem;
+  border-radius: 50px;
+  background: #198754;
+  color: white;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  border: none;
+
+  &:hover {
+    background: #157347;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(25, 135, 84, 0.4);
+    color: white;
+  }
+
+  i {
+    transition: transform 0.3s ease;
+  }
+
+  &:hover i {
+    transform: translateX(4px);
+  }
+}
+
+.heroSecondary {
+  display: inline-flex;
+  align-items: center;
+  padding: 14px 36px;
+  font-weight: 600;
+  font-size: 1rem;
+  border-radius: 50px;
+  background: transparent;
+  color: white;
+  text-decoration: none;
+  border: 2px solid rgba(255, 255, 255, 0.9);
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: white;
+    transform: translateY(-2px);
+    color: white;
+  }
+}
+
+// Hero image section
+.heroImage {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+}
+
+.heroImageMain {
+  max-width: 100%;
+  height: auto;
+  filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.2));
+}
+
+// Background decorative shapes
+.heroBackground {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.heroShape1 {
+  position: absolute;
+  width: 400px;
+  height: 400px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 50%;
+  top: -200px;
+  right: -100px;
+  animation: float 6s ease-in-out infinite;
+}
+
+.heroShape2 {
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  background: rgba(40, 167, 69, 0.1);
+  border-radius: 50%;
+  bottom: -150px;
+  left: -100px;
+  animation: float 8s ease-in-out infinite reverse;
+}
+
+// Animations
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 767px) {
+  .hero {
+    padding: 60px 0;
+    text-align: center;
+  }
+  
+  .heroActions {
+    flex-direction: column;
+    align-items: center;
+    
+    .heroCta,
+    .heroSecondary {
+      width: 100%;
+      max-width: 280px;
+    }
+  }
+  
+  .heroImagePlaceholder {
+    height: 240px;
+  }
+  
+  .heroImageContent {
+    i {
+      font-size: 3rem;
+    }
+    
+    span {
+      font-size: 1rem;
+    }
+  }
+}
+
+// Dark mode compatibility
+@media (prefers-color-scheme: dark) {
+  .hero {
+    background: linear-gradient(135deg, #1a365d 0%, #2c5282 100%);
+  }
+}

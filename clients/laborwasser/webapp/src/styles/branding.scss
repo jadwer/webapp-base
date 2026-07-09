@@ -1,0 +1,38 @@
+// Labor Wasser de Mexico — Brand tokens.
+//
+// Source: original laborwasserdemexico.com styles (legacy_files/lwm-stash).
+// Primary green #8AC905 is the LWM brand color used across buttons, header
+// icons and hero highlights. Secondary navy #012A94 and accent blue #0094FF
+// come from the legacy hover/heading palette (_laborwasser.scss).
+//
+// Design system (Bootstrap 5 + @lwm/ui Button/Card/etc) reads `--brand-*`
+// CSS custom properties at runtime, so swapping these :root values updates
+// the entire UI without rebuilding the SCSS chain.
+
+:root {
+  // Primary lime green — CTAs, header icons, hero highlights.
+  --brand-primary: #8AC905;
+  --brand-primary-dark: #6FA004;
+  --brand-primary-light: #A3E020;
+
+  // Secondary deep navy — headings, footer bottom bar, dropdown active state.
+  --brand-secondary: #012A94;
+  --brand-secondary-dark: #011D67;
+  --brand-secondary-light: #1E3FB8;
+
+  // Accent blue — hover states, offer cards (blue-1/blue-2).
+  --brand-accent: #0094FF;
+  --brand-accent-dark: #0072C6;
+  --brand-accent-light: #4EC8FC;
+
+  // Neutral palette (kept aligned to LWM template defaults).
+  --brand-bg: #FFFFFF;
+  --brand-bg-muted: #F8F9FA;
+  --brand-text: #212529;
+  --brand-text-muted: #6C757D;
+  --brand-border: #DEE2E6;
+
+  // Footer banner background (dark navy bottom bar).
+  --brand-banner-bg: #012A94;
+  --brand-banner-text: #FFFFFF;
+}
