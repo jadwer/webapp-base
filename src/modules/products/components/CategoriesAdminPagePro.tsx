@@ -179,15 +179,19 @@ export const CategoriesAdminPagePro = React.memo(() => {
     const action = newState ? 'activar' : 'desactivar'
 
     let includeProducts = false
-    if (!newState && (category.productsCount ?? 0) > 0) {
+    if ((category.productsCount ?? 0) > 0) {
       const confirmed = await confirmModalRef.current?.confirm(
-        `¿Desactivar la categoría "${category.name}"? Tiene ${category.productsCount} producto(s) asociado(s). ¿También desactivar sus productos?`,
+        newState
+          ? `¿Activar la categoría "${category.name}"? Tiene ${category.productsCount} producto(s) asociado(s). ¿También activar sus productos?`
+          : `¿Desactivar la categoría "${category.name}"? Tiene ${category.productsCount} producto(s) asociado(s). ¿También desactivar sus productos?`,
         {
-          title: 'Desactivar Categoría',
-          confirmText: 'Desactivar categoría y productos',
+          title: newState ? 'Activar Categoría' : 'Desactivar Categoría',
+          confirmText: newState ? 'Activar categoría y productos' : 'Desactivar categoría y productos',
           cancelText: 'Solo la categoría',
-          confirmVariant: 'warning',
-          icon: <i className="bi bi-exclamation-triangle-fill text-warning" />
+          confirmVariant: newState ? 'primary' : 'warning',
+          icon: newState
+            ? <i className="bi bi-check-circle-fill text-success" />
+            : <i className="bi bi-exclamation-triangle-fill text-warning" />
         }
       )
       includeProducts = confirmed ?? false
