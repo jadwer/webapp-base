@@ -139,6 +139,19 @@ export const adminNavigation: NavigationSection = {
       ],
     },
 
+    // Comisiones
+    {
+      key: 'commissions',
+      label: 'Comisiones',
+      icon: 'bi-percent',
+      activePathPrefixes: ['/dashboard/commissions'],
+      permissions: [],
+      items: [
+        { href: '/dashboard/commissions', label: 'Comisiones', icon: 'bi-percent', permissions: ['commissions.index'] },
+        { href: '/dashboard/commissions/by-employee', label: 'Reporte por Vendedor', icon: 'bi-bar-chart', permissions: ['commissions.index'] },
+      ],
+    },
+
     // Compras
     {
       key: 'purchase',
