@@ -51,6 +51,12 @@ const envPattern = apiHostPattern();
 if (envPattern) remotePatterns.push(envPattern);
 
 const nextConfig: NextConfig = {
+  // Self-contained build for cPanel/Passenger deploys (marca blanca demo).
+  // Same pattern as clients/*/webapp: standalone bundles the needed
+  // node_modules with @lwm/* resolved inline, and outputFileTracingRoot
+  // points at the monorepo root so tracing follows the workspace symlinks.
+  output: 'standalone',
+  outputFileTracingRoot: path.join(__dirname, '..', '..'),
   // Workspace packages ship TS+SCSS source. transpilePackages tells Next to
   // run them through its own SWC + CSS-modules pipeline so component styles
   // resolve to real class hashes (instead of the empty stubs tsup emits when
