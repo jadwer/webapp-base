@@ -296,6 +296,33 @@ export interface PaymentApplicationForm {
   metadata?: Record<string, unknown>;
 }
 
+// ===== AR INVOICE PAYMENT REGISTRATION =====
+// POST /api/v1/ar-invoices/{id}/register-payment
+export interface RegisterARPaymentForm {
+  paymentDate: string;
+  amount: number;
+  formaPago: string;
+  reference?: string;
+  comments?: string;
+}
+
+export interface RegisterARPaymentResponse {
+  message: string;
+  invoice: {
+    id: string;
+    totalAmount: number;
+    paidAmount: number;
+    balance: number;
+    status: InvoiceStatus;
+  };
+}
+
+// ===== SAT CATALOGS (used for payment method select) =====
+export interface SatFormaPago {
+  clave: string;
+  descripcion: string;
+}
+
 export interface PaymentMethodForm {
   name: string;
   code: string;

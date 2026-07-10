@@ -74,6 +74,49 @@ Customer invoices to be collected.
 - `POST /api/v1/ar-invoices` - Create
 - `PATCH /api/v1/ar-invoices/:id` - Update
 - `DELETE /api/v1/ar-invoices/:id` - Delete
+- `POST /api/v1/ar-invoices/:id/register-payment` - Register a payment (see below)
+
+#### Cuentas por Cobrar: flujo de registro de pagos
+
+**Pantalla:** `/dashboard/finance/ar-invoices` (`ARInvoicesAdminPageReal`)
+
+Cada factura AR muestra su saldo (`totalAmount - paidAmount`) y un badge de
+estado que incluye "Vencida" cuando `dueDate` ya pasó y la factura no está
+pagada/cancelada. La acción "Registrar pago" (icono billetera en la tabla)
+abre `RegisterPaymentModal`, que:
+
+1. Precarga fecha de hoy y monto = saldo pendiente.
+2. Carga la forma de pago desde el catalogo SAT real
+   (`GET /api/v1/sat/forma-pago`, hook `useFormaPagoOptions`), no un catalogo
+   hardcodeado.
+3. Valida en cliente que el monto sea mayor a cero y no exceda el saldo
+   antes de enviar.
+4. Envia `POST /api/v1/ar-invoices/{id}/register-payment` con
+   `{ payment_date, amount, forma_pago, reference?, comments? }` via
+   `arInvoicesService.registerPayment` (hook `useRegisterARPayment`).
+5. En 200, refresca la lista (`mutate()` de `useARInvoices`) y muestra un
+   toast de exito; el saldo baja y el badge pasa a `partial` o `paid`.
+6. En 422 (sobrepago, forma de pago invalida, factura cancelada), muestra el
+   mensaje del backend (`response.data.message` o el primer error JSON:API)
+   dentro del modal sin cerrarlo.
+
+```typescript
+import { arInvoicesService } from '@/modules/finance'
+
+const response = await arInvoicesService.registerPayment('42', {
+  paymentDate: '2026-07-10',
+  amount: 500,
+  formaPago: '03', // clave SAT, ej. Transferencia electronica de fondos
+  reference: 'REF-123',
+  comments: 'Pago parcial',
+})
+// response.invoice: { id, totalAmount, paidAmount, balance, status }
+```
+
+**Reportes de antiguedad (aging AR/AP):** `AgingReportsPage`
+(`/dashboard/reports/aging-reports`) ya muestra buckets 0-30/31-60/61-90/90+
+y totales por cliente/proveedor usando `GET /api/v1/reports/aging-ar` y
+`aging-ap`; no requirio cambios para esta fase.
 
 ### 3. AP Payments
 Payments made to suppliers.
