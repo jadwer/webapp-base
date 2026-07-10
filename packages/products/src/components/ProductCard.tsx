@@ -115,6 +115,36 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           </div>
         </div>
 
+        {(product.satClaveProdServ || product.satClaveUnidad || product.productType || product.taxRate !== undefined) && (
+          <div className="mb-3">
+            <small className="text-muted d-block mb-1">Datos fiscales (SAT):</small>
+            <div className="d-flex flex-wrap gap-1">
+              {product.satClaveProdServ && (
+                <span className="badge bg-light text-dark border" title="Clave Prod/Serv SAT">
+                  Prod/Serv: {product.satClaveProdServ}
+                </span>
+              )}
+              {product.satClaveUnidad && (
+                <span className="badge bg-light text-dark border" title="Clave Unidad SAT">
+                  Unidad: {product.satClaveUnidad}
+                </span>
+              )}
+              {product.productType && (
+                <span className="badge bg-light text-dark border">
+                  {product.productType === 'finished'
+                    ? 'Terminado'
+                    : product.productType === 'raw_material'
+                      ? 'Materia prima'
+                      : 'Ambos'}
+                </span>
+              )}
+              <span className="badge bg-light text-dark border">
+                IVA: {product.taxRate === null || product.taxRate === undefined ? 'Exento' : `${product.taxRate}%`}
+              </span>
+            </div>
+          </div>
+        )}
+
         <div className="d-flex gap-1">
           {onView && (
             <Button

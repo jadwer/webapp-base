@@ -10,6 +10,12 @@ export interface ProductCurrency {
   symbol: string
 }
 
+/**
+ * Tipo de producto para efectos de manufactura/inventario SAT.
+ * 'both' = el producto puede venderse terminado o consumirse como insumo.
+ */
+export type ProductType = 'finished' | 'raw_material' | 'both'
+
 export interface Product {
   id: string
   name: string
@@ -30,6 +36,14 @@ export interface Product {
   currencyId?: string | null
   createdAt: string
   updatedAt: string
+
+  // Datos fiscales SAT (ver packages/products/README.md, seccion
+  // "Campos fiscales SAT" para la semantica completa).
+  satClaveProdServ?: string | null
+  satClaveUnidad?: string | null
+  productType?: ProductType | null
+  // taxRate: null = Exento de IVA; 0 = tasa 0%; number = tasa en % (16, 8, etc.)
+  taxRate?: number | null
 
   // Relationships
   unit?: Unit
@@ -54,6 +68,10 @@ export interface CreateProductData {
   categoryId?: string | null
   brandId?: string | null
   currencyId?: string | null
+  satClaveProdServ?: string | null
+  satClaveUnidad?: string | null
+  productType?: ProductType | null
+  taxRate?: number | null
 }
 
 export type UpdateProductData = Partial<CreateProductData>

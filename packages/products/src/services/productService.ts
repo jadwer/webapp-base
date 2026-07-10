@@ -119,7 +119,16 @@ export const productService = {
           ...(data.cost !== undefined && { cost: data.cost }),
           iva: data.iva ?? false,
           ...(data.imgPath && { imgPath: data.imgPath }),
-          ...(data.datasheetPath && { datasheetPath: data.datasheetPath })
+          ...(data.datasheetPath && { datasheetPath: data.datasheetPath }),
+          // Datos fiscales SAT. satClaveProdServ/satClaveUnidad usan cadena
+          // vacia -> undefined (no se envia el atributo) para no pisar el
+          // valor con '' cuando el combobox esta vacio en creacion.
+          ...(data.satClaveProdServ && { satClaveProdServ: data.satClaveProdServ }),
+          ...(data.satClaveUnidad && { satClaveUnidad: data.satClaveUnidad }),
+          ...(data.productType !== undefined && { productType: data.productType }),
+          // taxRate: null (Exento) es un valor valido, se debe enviar
+          // explicitamente. Solo se omite si es undefined (no tocado).
+          ...(data.taxRate !== undefined && { taxRate: data.taxRate })
         },
         relationships: {
           unit: {
@@ -145,7 +154,7 @@ export const productService = {
   },
 
   async updateProduct(id: string, data: UpdateProductRequest): Promise<ProductResponse> {
-    const attributes: Record<string, string | boolean | number> = {}
+    const attributes: Record<string, string | boolean | number | null> = {}
     const relationships: Record<string, { data: { type: string; id: string } }> = {}
 
     if (data.name !== undefined) attributes.name = data.name
@@ -160,6 +169,11 @@ export const productService = {
     if (data.iva !== undefined) attributes.iva = data.iva
     if (data.imgPath !== undefined) attributes.imgPath = data.imgPath
     if (data.datasheetPath !== undefined) attributes.datasheetPath = data.datasheetPath
+    if (data.satClaveProdServ !== undefined) attributes.satClaveProdServ = data.satClaveProdServ
+    if (data.satClaveUnidad !== undefined) attributes.satClaveUnidad = data.satClaveUnidad
+    if (data.productType !== undefined) attributes.productType = data.productType
+    // taxRate: null (Exento) es valido y debe viajar en el PATCH.
+    if (data.taxRate !== undefined) attributes.taxRate = data.taxRate
 
     if (data.unitId) {
       relationships.unit = { data: { type: 'units', id: data.unitId } }
@@ -206,7 +220,11 @@ export const productService = {
       unitId: productData.unitId,
       categoryId: productData.categoryId,
       brandId: productData.brandId,
-      currencyId: productData.currencyId
+      currencyId: productData.currencyId,
+      satClaveProdServ: productData.satClaveProdServ,
+      satClaveUnidad: productData.satClaveUnidad,
+      productType: productData.productType,
+      taxRate: productData.taxRate
     }
 
     return this.createProduct(duplicateData)

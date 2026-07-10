@@ -5,8 +5,40 @@ import { Button, Input } from '@lwm/ui'
 import { useUnits, useCategories, useBrands, useCurrencies } from '../hooks'
 import { FileUploader } from './FileUploader'
 import { ImageGalleryManager } from './ImageGalleryManager'
+import { SatKeyCombobox } from './SatKeyCombobox'
 import { productService } from '../services/productService'
-import type { Product, CreateProductData, UpdateProductData } from '../types'
+import type { Product, CreateProductData, UpdateProductData, ProductType } from '../types'
+
+// Tasas de IVA fijas ofrecidas por el select. 'Exento' mapea a null,
+// las demas son numeros. Si el producto trae un taxRate que no calza con
+// ninguna de estas, se agrega una opcion "Personalizado" (ver taxRateOptions).
+const STANDARD_TAX_RATES = [16, 8, 0] as const
+const EXENTO_VALUE = 'exento'
+const CUSTOM_VALUE_PREFIX = 'custom:'
+
+// Exportadas (no solo locales) para poder testear el mapeo Exento/null de
+// forma aislada, sin tener que montar el formulario completo con sus
+// dependencias SWR (useUnits/useCategories/useBrands/useCurrencies).
+export function taxRateToSelectValue(taxRate: number | null | undefined): string {
+  if (taxRate === null || taxRate === undefined) return EXENTO_VALUE
+  if ((STANDARD_TAX_RATES as readonly number[]).includes(taxRate)) return String(taxRate)
+  return `${CUSTOM_VALUE_PREFIX}${taxRate}`
+}
+
+export function selectValueToTaxRate(selectValue: string): number | null {
+  if (selectValue === EXENTO_VALUE) return null
+  if (selectValue.startsWith(CUSTOM_VALUE_PREFIX)) {
+    return Number(selectValue.slice(CUSTOM_VALUE_PREFIX.length))
+  }
+  return Number(selectValue)
+}
+
+const PRODUCT_TYPE_OPTIONS: { value: string; label: string }[] = [
+  { value: '', label: 'Sin definir' },
+  { value: 'finished', label: 'Terminado' },
+  { value: 'raw_material', label: 'Materia prima' },
+  { value: 'both', label: 'Ambos' }
+]
 
 /**
  * Extract a human-readable message from an upload error. The backend may
@@ -62,7 +94,11 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     unitId: product?.unitId || '',
     categoryId: product?.categoryId || '',
     brandId: product?.brandId || '',
-    currencyId: product?.currencyId || ''
+    currencyId: product?.currencyId || '',
+    satClaveProdServ: product?.satClaveProdServ ?? null as string | null,
+    satClaveUnidad: product?.satClaveUnidad ?? null as string | null,
+    productType: (product?.productType ?? '') as ProductType | '',
+    taxRateSelect: taxRateToSelectValue(product?.taxRate)
   })
 
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -100,6 +136,24 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     ...currencies.map(c => ({ value: c.id, label: `${c.name} (${c.code})` }))
   ], [currencies])
 
+  // Opciones del select de IVA. Si el producto trae una tasa custom (no 16/8/0
+  // ni Exento) se agrega una opcion adicional para no perder ese valor al abrir
+  // el formulario de edicion.
+  const taxRateOptions = useMemo(() => {
+    const base = [
+      { value: '16', label: '16%' },
+      { value: '8', label: '8%' },
+      { value: '0', label: '0%' },
+      { value: EXENTO_VALUE, label: 'Exento' }
+    ]
+    const currentValue = formData.taxRateSelect
+    if (currentValue.startsWith(CUSTOM_VALUE_PREFIX)) {
+      const customRate = currentValue.slice(CUSTOM_VALUE_PREFIX.length)
+      base.push({ value: currentValue, label: `Personalizado: ${customRate}%` })
+    }
+    return base
+  }, [formData.taxRateSelect])
+
   useEffect(() => {
     if (product) {
       setFormData({
@@ -115,7 +169,11 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         unitId: product.unitId || '',
         categoryId: product.categoryId || '',
         brandId: product.brandId || '',
-        currencyId: product.currencyId || ''
+        currencyId: product.currencyId || '',
+        satClaveProdServ: product.satClaveProdServ ?? null,
+        satClaveUnidad: product.satClaveUnidad ?? null,
+        productType: product.productType ?? '',
+        taxRateSelect: taxRateToSelectValue(product.taxRate)
       })
     }
   }, [product])
@@ -175,7 +233,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   }, [formData])
 
   // Memoized input handler to prevent unnecessary re-renders
-  const handleInputChange = useCallback((field: string, value: string | boolean) => {
+  const handleInputChange = useCallback((field: string, value: string | boolean | null) => {
     setFormData(prev => ({ ...prev, [field]: value }))
     // Clear error for this field without triggering full validation
     setErrors(prev => {
@@ -249,7 +307,15 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       unitId: formData.unitId,
       categoryId: formData.categoryId,
       brandId: formData.brandId,
-      ...(formData.currencyId && { currencyId: formData.currencyId })
+      ...(formData.currencyId && { currencyId: formData.currencyId }),
+      // Datos fiscales SAT. satClaveProdServ/satClaveUnidad siempre se
+      // envian (incluso null) para poder limpiarlos con el boton "x" del
+      // combobox. taxRate tambien viaja siempre: null == Exento es un
+      // valor valido, no "sin tocar".
+      satClaveProdServ: formData.satClaveProdServ,
+      satClaveUnidad: formData.satClaveUnidad,
+      productType: formData.productType || null,
+      taxRate: selectValueToTaxRate(formData.taxRateSelect)
     }
 
     await onSubmit(submitData)
@@ -494,6 +560,60 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               helpText="Archivo PDF. Máximo 10MB"
               errorText={errors.datasheetPath}
             />
+          </div>
+        </div>
+      </div>
+
+      {/* Datos fiscales SAT */}
+      <div className="mt-4">
+        <h6 className="mb-3">Datos fiscales (SAT)</h6>
+        <div className="row">
+          <div className="col-md-6">
+            <SatKeyCombobox
+              label="Clave Prod/Serv (SAT)"
+              kind="claveProdServ"
+              value={formData.satClaveProdServ}
+              onChange={(clave) => handleInputChange('satClaveProdServ', clave)}
+              placeholder="Buscar o capturar clave de producto/servicio"
+              helpText="Escriba para buscar en el catálogo SAT o capture la clave directamente"
+              disabled={isSubmitting}
+            />
+          </div>
+          <div className="col-md-6">
+            <SatKeyCombobox
+              label="Clave Unidad (SAT)"
+              kind="claveUnidad"
+              value={formData.satClaveUnidad}
+              onChange={(clave) => handleInputChange('satClaveUnidad', clave)}
+              placeholder="Buscar o capturar clave de unidad"
+              helpText="Escriba para buscar en el catálogo SAT o capture la clave directamente"
+              disabled={isSubmitting}
+            />
+          </div>
+          <div className="col-md-6">
+            <div className="mb-3">
+              <Input
+                label="Tipo de producto"
+                type="select"
+                value={formData.productType}
+                onChange={(e) => handleInputChange('productType', e.target.value)}
+                disabled={isSubmitting}
+                options={PRODUCT_TYPE_OPTIONS}
+              />
+            </div>
+          </div>
+          <div className="col-md-6">
+            <div className="mb-3">
+              <Input
+                label="IVA"
+                type="select"
+                value={formData.taxRateSelect}
+                onChange={(e) => handleInputChange('taxRateSelect', e.target.value)}
+                disabled={isSubmitting}
+                options={taxRateOptions}
+                helpText="Exento no aplica IVA (distinto de tasa 0%)"
+              />
+            </div>
           </div>
         </div>
       </div>

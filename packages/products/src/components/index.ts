@@ -1,6 +1,7 @@
 export * from './ProductsTable'
 export * from './ProductForm'
 export * from './ProductCard'
+export * from './SatKeyCombobox'
 export * from './StatusBadge'
 export * from './FileUploader'
 export { ProductFiltersComponent } from './ProductFilters'

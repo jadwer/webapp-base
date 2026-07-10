@@ -12,6 +12,9 @@ interface Product {
   sku: string
   price: number
   iva?: boolean
+  // taxRate: null = Exento (0% IVA); number = tasa en % (16, 8, 0, custom).
+  // undefined = el backend aun no trae este campo para este producto.
+  taxRate?: number | null
 }
 
 type DiscountMode = 'percent' | 'amount'
@@ -83,7 +86,8 @@ export function QuoteItemsTable({
         name: p.name || '',
         sku: p.sku || '',
         price: p.price || 0,
-        iva: p.iva ?? true
+        iva: p.iva ?? true,
+        taxRate: p.taxRate
       }))
       setSearchResults(products)
     } catch {
@@ -97,8 +101,12 @@ export function QuoteItemsTable({
     setSelectedProduct(product)
     setAddPrice(String(product.price))
     setAddQuantity('1')
-    // Default segun el flag de IVA del producto; editable antes de agregar
-    setAddTaxRate(product.iva ? '16' : '0')
+    // Default de IVA: prioriza taxRate (dato fiscal SAT real del producto)
+    // sobre el flag legado iva. taxRate null = Exento -> 0% en la cotizacion
+    // (el motor de cotizaciones no modela "exento" como estado propio, solo
+    // tasa numerica; 0% es el equivalente correcto). Si taxRate no vino
+    // (undefined, backend viejo o producto sin el campo), cae al flag iva.
+    setAddTaxRate(String(product.taxRate ?? (product.iva ? 16 : 0)))
     setAddErrors({})
     setProductSearch(product.name)
     setSearchResults([])
