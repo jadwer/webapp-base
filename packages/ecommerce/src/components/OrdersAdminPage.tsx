@@ -15,7 +15,7 @@ import { PaginationSimple } from './PaginationSimple'
 import { Button, ConfirmModal } from '@lwm/ui'
 import type { ConfirmModalHandle } from '@lwm/ui'
 import { useNavigationProgress } from '@lwm/ui'
-import { useToast } from '@lwm/ui'
+import { toast } from '@lwm/ui'
 import type { EcommerceOrder, OrderStatus, PaymentStatus, ShippingStatus } from '../types'
 
 export const OrdersAdminPage = React.memo(() => {
@@ -28,7 +28,6 @@ export const OrdersAdminPage = React.memo(() => {
 
   const navigation = useNavigationProgress()
   const confirmModalRef = useRef<ConfirmModalHandle>(null)
-  const toast = useToast()
 
   const { deleteEcommerceOrder } = useEcommerceOrderMutations()
 
@@ -117,7 +116,7 @@ export const OrdersAdminPage = React.memo(() => {
         toast.error((error as Error).message || 'Error al eliminar la orden')
       }
     }
-  }, [deleteEcommerceOrder, toast])
+  }, [deleteEcommerceOrder])
 
   const handleCreateNew = React.useCallback(() => {
     navigation.push('/dashboard/ecommerce/orders/create')

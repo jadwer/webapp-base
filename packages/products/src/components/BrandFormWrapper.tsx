@@ -4,7 +4,7 @@ import React from 'react'
 import { useRouter } from 'next/navigation'
 import { BrandForm } from './BrandForm'
 import { useBrand, useBrandMutations } from '../hooks'
-import { useToast } from '@lwm/ui'
+import { toast } from '@lwm/ui'
 import type { CreateBrandData, UpdateBrandData } from '../types'
 
 interface BrandFormWrapperProps {
@@ -19,7 +19,6 @@ export const BrandFormWrapper: React.FC<BrandFormWrapperProps> = ({
   onCancel
 }) => {
   const router = useRouter()
-  const toast = useToast()
   const { brand, isLoading: brandLoading, error: brandError } = useBrand(brandId)
   const { createBrand, updateBrand, isLoading: mutationLoading } = useBrandMutations()
 

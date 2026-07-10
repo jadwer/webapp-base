@@ -11,7 +11,7 @@ import React, { useState, useCallback, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import { Button, Input } from '@lwm/ui'
 import { useNavigationProgress } from '@lwm/ui'
-import { useToast } from '@lwm/ui'
+import { toast } from '@lwm/ui'
 import { useShoppingCart, useShoppingCartItems, useShoppingCartMutations } from '../hooks'
 import { paymentService } from '../services/paymentService'
 import { shoppingCartService } from '../services'
@@ -25,7 +25,6 @@ interface CheckoutPageProps {
 
 export const CheckoutPage = React.memo<CheckoutPageProps>(({ cartId }) => {
   const navigation = useNavigationProgress()
-  const toast = useToast()
   const redirectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // Cleanup redirect timer on unmount
@@ -127,7 +126,7 @@ export const CheckoutPage = React.memo<CheckoutPageProps>(({ cartId }) => {
       return false
     }
     return true
-  }, [customerName, customerEmail, shippingAddressLine1, shippingCity, shippingState, shippingPostalCode, toast])
+  }, [customerName, customerEmail, shippingAddressLine1, shippingCity, shippingState, shippingPostalCode])
 
   // Initialize payment intent when moving to payment step
   const initializePayment = useCallback(async () => {
@@ -157,7 +156,7 @@ export const CheckoutPage = React.memo<CheckoutPageProps>(({ cartId }) => {
     } finally {
       setIsInitializingPayment(false)
     }
-  }, [cart, effectiveCartId, toast])
+  }, [cart, effectiveCartId])
 
   // Handle continue to payment
   const handleContinueToPayment = useCallback(async () => {
@@ -229,13 +228,13 @@ export const CheckoutPage = React.memo<CheckoutPageProps>(({ cartId }) => {
     shippingState, shippingPostalCode, shippingCountry,
     sameBillingAddress, billingAddressLine1, billingAddressLine2,
     billingCity, billingState, billingPostalCode, billingCountry,
-    checkoutCart, toast, navigation
+    checkoutCart, navigation
   ])
 
   // Handle payment error
   const handlePaymentError = useCallback((error: string) => {
     toast.error(error)
-  }, [toast])
+  }, [])
 
   // Loading state
   if (isLoading) {

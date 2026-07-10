@@ -4,7 +4,7 @@ import React from 'react'
 import { useRouter } from 'next/navigation'
 import { CategoryForm } from './CategoryForm'
 import { useCategory, useCategoryMutations } from '../hooks'
-import { useToast } from '@lwm/ui'
+import { toast } from '@lwm/ui'
 import { Alert } from '@lwm/ui'
 import type { CreateCategoryData, UpdateCategoryData } from '../types'
 
@@ -20,7 +20,6 @@ export const CategoryFormWrapper: React.FC<CategoryFormWrapperProps> = ({
   onCancel
 }) => {
   const router = useRouter()
-  const toast = useToast()
   const { category, isLoading: categoryLoading, error: categoryError } = useCategory(categoryId)
   const { createCategory, updateCategory, isLoading: mutationLoading } = useCategoryMutations()
 

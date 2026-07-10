@@ -4,7 +4,7 @@ import React from 'react'
 import { useRouter } from 'next/navigation'
 import { UnitForm } from './UnitForm'
 import { useUnit, useUnitMutations } from '../hooks'
-import { useToast } from '@lwm/ui'
+import { toast } from '@lwm/ui'
 import type { CreateUnitData, UpdateUnitData } from '../types'
 
 interface UnitFormWrapperProps {
@@ -19,7 +19,6 @@ export const UnitFormWrapper: React.FC<UnitFormWrapperProps> = ({
   onCancel
 }) => {
   const router = useRouter()
-  const toast = useToast()
   const { unit, isLoading: unitLoading, error: unitError } = useUnit(unitId)
   const { createUnit, updateUnit, isLoading: mutationLoading } = useUnitMutations()
 

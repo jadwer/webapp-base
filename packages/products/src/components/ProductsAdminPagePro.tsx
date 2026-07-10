@@ -14,7 +14,7 @@ import { PaginationPro } from './PaginationPro'
 import { useProducts, useProductMutations } from '../hooks'
 import { useProductsUIStore, useProductsFilters, useProductsSort, useProductsPage, useProductsViewMode } from '../store/productsUIStore'
 import { useNavigationProgress } from '@lwm/ui'
-import { useToast } from '@lwm/ui'
+import { toast } from '@lwm/ui'
 
 const ProductsStatsBar = React.memo<{ 
   total: number
@@ -76,7 +76,6 @@ ProductsStatsBar.displayName = 'ProductsStatsBar'
 export const ProductsAdminPagePro = React.memo(() => {
   const navigation = useNavigationProgress()
   const confirmModalRef = useRef<ConfirmModalHandle>(null)
-  const toast = useToast()
 
   // Get UI state from Zustand store
   const filters = useProductsFilters()
@@ -132,7 +131,7 @@ export const ProductsAdminPagePro = React.memo(() => {
         toast.error((error as Error).message)
       }
     }
-  }, [deleteProduct, refresh, toast])
+  }, [deleteProduct, refresh])
 
   const handleCreateNew = React.useCallback(() => {
     navigation.push('/dashboard/products/create')

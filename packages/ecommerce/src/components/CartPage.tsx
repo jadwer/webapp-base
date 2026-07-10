@@ -11,7 +11,7 @@ import React, { useState, useCallback, useRef } from 'react'
 import Image from 'next/image'
 import { Button } from '@lwm/ui'
 import { useNavigationProgress } from '@lwm/ui'
-import { useToast } from '@lwm/ui'
+import { toast } from '@lwm/ui'
 import { useCart } from '../hooks'
 import { quoteService } from '@lwm/sales'
 import { ConfirmModal, ConfirmModalHandle } from '@lwm/ui'
@@ -24,7 +24,6 @@ interface CartPageProps {
 
 export const CartPage = React.memo<CartPageProps>(({ sessionId, contactId }) => {
   const navigation = useNavigationProgress()
-  const toast = useToast()
   const [updatingItemId, setUpdatingItemId] = useState<string | null>(null)
   const [isRequestingQuote, setIsRequestingQuote] = useState(false)
   const confirmModalRef = useRef<ConfirmModalHandle>(null)
@@ -63,7 +62,7 @@ export const CartPage = React.memo<CartPageProps>(({ sessionId, contactId }) => 
     } finally {
       setUpdatingItemId(null)
     }
-  }, [updateItemQuantity, toast])
+  }, [updateItemQuantity])
 
   // Handle remove item
   const handleRemoveItem = useCallback(async (itemId: string, productName: string) => {
@@ -80,7 +79,7 @@ export const CartPage = React.memo<CartPageProps>(({ sessionId, contactId }) => 
       console.error('Error removing item:', error)
       toast.error('Error al eliminar el producto')
     }
-  }, [removeItem, toast])
+  }, [removeItem])
 
   // Handle clear cart
   const handleClearCart = useCallback(async () => {
@@ -97,7 +96,7 @@ export const CartPage = React.memo<CartPageProps>(({ sessionId, contactId }) => 
       console.error('Error clearing cart:', error)
       toast.error('Error al vaciar el carrito')
     }
-  }, [clearAllItems, toast])
+  }, [clearAllItems])
 
   // Handle checkout
   const handleCheckout = useCallback(() => {
@@ -139,7 +138,7 @@ export const CartPage = React.memo<CartPageProps>(({ sessionId, contactId }) => 
     } finally {
       setIsRequestingQuote(false)
     }
-  }, [cart?.id, contactId, navigation, toast])
+  }, [cart?.id, contactId, navigation])
 
   // Loading state
   if (isLoading) {
