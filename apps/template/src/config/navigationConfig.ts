@@ -193,9 +193,11 @@ export const adminNavigation: NavigationSection = {
       permissions: [],
       items: [
         { href: '/dashboard/reports', label: 'Dashboard Reportes', icon: 'bi-speedometer2', permissions: ['reports.balance-sheets.index'] },
+        { href: '/dashboard/reports/sales-history', label: 'Histórico de Ventas', icon: 'bi-receipt', permissions: ['reports.balance-sheets.index'] },
         { href: '/dashboard/reports/financial-statements', label: 'Estados Financieros', icon: 'bi-file-earmark-text', permissions: ['reports.balance-sheets.index'] },
         { href: '/dashboard/reports/aging-reports', label: 'Antigüedad AR/AP', icon: 'bi-clock-history', permissions: ['reports.aging.index'] },
         { href: '/dashboard/reports/management-reports', label: 'Reportes Gerenciales', icon: 'bi-graph-up', permissions: ['reports.balance-sheets.index'] },
+        { href: '/dashboard/reports/sales-advanced', label: 'Ventas Avanzadas', icon: 'bi-graph-up-arrow', permissions: ['reports.balance-sheets.index'] },
       ],
     },
 

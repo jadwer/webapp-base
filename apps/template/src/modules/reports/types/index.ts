@@ -531,6 +531,73 @@ export interface SalesTrend {
 }
 
 // ============================================================================
+// SALES HISTORY (Historico de Ventas)
+// ============================================================================
+
+export type SalesHistoryGroupBy = 'none' | 'customer' | 'salesperson' | 'status' | 'day' | 'month'
+
+export interface SalesHistoryFilters {
+  startDate: string
+  endDate: string
+  contactId?: number
+  assignedTo?: number
+  productId?: number
+  categoryId?: number
+  brandId?: number
+  status?: string[]
+  currency?: string
+  iva?: string
+  orderNumber?: string
+  groupBy?: SalesHistoryGroupBy
+  pageNumber?: number
+  pageSize?: number
+}
+
+export interface SalesHistoryRow {
+  orderId: number
+  orderNumber: string
+  date: string
+  customerName: string
+  salespersonName: string | null
+  cost: number
+  profit: number
+  subtotal: number
+  discount: number
+  iva: number
+  total: number
+  status: string
+}
+
+export interface SalesHistoryTotals {
+  cost: number
+  profit: number
+  subtotal: number
+  discount: number
+  iva: number
+  total: number
+  count: number
+}
+
+export interface SalesHistoryGroupRow {
+  groupKey: string
+  groupLabel: string
+  cost: number
+  profit: number
+  subtotal: number
+  discount: number
+  iva: number
+  total: number
+  count: number
+}
+
+export interface SalesHistoryReport {
+  rows: SalesHistoryRow[]
+  totals: SalesHistoryTotals
+  grouped?: SalesHistoryGroupRow[]
+  meta?: Record<string, unknown>
+}
+
+// ============================================================================
 // RESPONSE TYPES
 // ============================================================================
 

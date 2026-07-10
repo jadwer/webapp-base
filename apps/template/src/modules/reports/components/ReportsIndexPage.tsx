@@ -245,6 +245,83 @@ export const ReportsIndexPage = () => {
         </div>
       </div>
 
+      {/* Sales History (Historico de Ventas) */}
+      <div className="row g-4 mt-2">
+        <div className="col-12">
+          <div className="card border-primary">
+            <div className="card-body">
+              <div className="d-flex align-items-start mb-3">
+                <div className="bg-primary bg-opacity-10 rounded p-3 me-3">
+                  <i className="bi bi-receipt text-primary" style={{ fontSize: '2rem' }} />
+                </div>
+                <div className="flex-grow-1">
+                  <h5 className="card-title mb-1">
+                    Histórico de Ventas
+                    <span className="badge bg-primary ms-2">Nuevo</span>
+                  </h5>
+                  <p className="text-muted small mb-0">
+                    Reporte operativo diario: cada venta con costo, utilidad, descuento, IVA y estatus
+                  </p>
+                </div>
+              </div>
+              <div className="row mb-3">
+                <div className="col-md-3">
+                  <ul className="list-unstyled mb-0 small">
+                    <li className="mb-2">
+                      <i className="bi bi-funnel text-primary me-2" />
+                      <strong>Filtros combinables</strong>
+                    </li>
+                    <li className="text-muted ps-4">
+                      Cliente, vendedor, producto, categoría, marca, estatus, folio
+                    </li>
+                  </ul>
+                </div>
+                <div className="col-md-3">
+                  <ul className="list-unstyled mb-0 small">
+                    <li className="mb-2">
+                      <i className="bi bi-collection text-primary me-2" />
+                      <strong>Agrupar por</strong>
+                    </li>
+                    <li className="text-muted ps-4">
+                      Cliente, vendedor, estatus, día o mes
+                    </li>
+                  </ul>
+                </div>
+                <div className="col-md-3">
+                  <ul className="list-unstyled mb-0 small">
+                    <li className="mb-2">
+                      <i className="bi bi-calculator text-primary me-2" />
+                      <strong>Totales del conjunto</strong>
+                    </li>
+                    <li className="text-muted ps-4">
+                      Costo, utilidad, subtotal, IVA y total
+                    </li>
+                  </ul>
+                </div>
+                <div className="col-md-3">
+                  <ul className="list-unstyled mb-0 small">
+                    <li className="mb-2">
+                      <i className="bi bi-download text-primary me-2" />
+                      <strong>Exportación</strong>
+                    </li>
+                    <li className="text-muted ps-4">
+                      Excel, CSV y PDF con los mismos filtros
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <Link
+                href="/dashboard/reports/sales-history"
+                className="btn btn-primary w-100"
+              >
+                <i className="bi bi-receipt me-2" />
+                Ver Histórico de Ventas
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Info Cards */}
       <div className="row mt-4">
         <div className="col-12">

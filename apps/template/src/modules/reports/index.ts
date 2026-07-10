@@ -25,6 +25,12 @@ export type {
   PeriodReportFilters,
   AgingReportFilters,
   ReportResponse,
+  SalesHistoryFilters,
+  SalesHistoryRow,
+  SalesHistoryTotals,
+  SalesHistoryGroupRow,
+  SalesHistoryReport,
+  SalesHistoryGroupBy,
 } from './types'
 
 // Services
@@ -39,6 +45,7 @@ export {
   salesByProductService,
   purchaseBySupplierService,
   purchaseByProductService,
+  salesHistoryService,
 } from './services'
 
 // Hooks
@@ -53,6 +60,7 @@ export {
   useSalesByProduct,
   usePurchaseBySupplier,
   usePurchaseByProduct,
+  useSalesHistory,
 } from './hooks'
 
 // Transformers
@@ -77,6 +85,7 @@ export {
   transformPurchaseBySupplierResponse,
   transformJsonApiPurchaseByProduct,
   transformPurchaseByProductResponse,
+  transformSalesHistoryResponse,
 } from './utils/transformers'
 
 // Components
@@ -86,4 +95,5 @@ export {
   AgingReportsPage,
   ManagementReportsPage,
   SalesAdvancedReportsPage,
+  SalesHistoryPage,
 } from './components'

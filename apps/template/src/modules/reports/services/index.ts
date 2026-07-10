@@ -15,7 +15,10 @@ import type {
   SalesByEmployeeFilters,
   SalesByBatchFilters,
   SalesTrendFilters,
+  SalesHistoryFilters,
+  SalesHistoryReport,
 } from '../types'
+import { transformSalesHistoryResponse } from '../utils/transformers'
 
 // Base URL for all reports
 const REPORTS_BASE = '/api/v1/reports'
@@ -451,10 +454,66 @@ export const salesTrendService = {
 }
 
 // ============================================================================
+// SALES HISTORY (Historico de Ventas)
+// ============================================================================
+
+export type SalesHistoryExportFormat = 'csv' | 'excel' | 'pdf'
+
+/**
+ * Builds snake_case query params for /reports/sales-history endpoints
+ * from camelCase frontend filters.
+ */
+const buildSalesHistoryParams = (filters: SalesHistoryFilters): URLSearchParams => {
+  const queryParams = new URLSearchParams()
+  queryParams.append('start_date', filters.startDate)
+  queryParams.append('end_date', filters.endDate)
+
+  if (filters.contactId) queryParams.append('contact_id', filters.contactId.toString())
+  if (filters.assignedTo) queryParams.append('assigned_to', filters.assignedTo.toString())
+  if (filters.productId) queryParams.append('product_id', filters.productId.toString())
+  if (filters.categoryId) queryParams.append('category_id', filters.categoryId.toString())
+  if (filters.brandId) queryParams.append('brand_id', filters.brandId.toString())
+  if (filters.status?.length) queryParams.append('status', filters.status.join(','))
+  if (filters.currency) queryParams.append('currency', filters.currency)
+  if (filters.iva !== undefined && filters.iva !== '') queryParams.append('iva', filters.iva)
+  if (filters.orderNumber) queryParams.append('order_number', filters.orderNumber)
+  if (filters.groupBy && filters.groupBy !== 'none') queryParams.append('group_by', filters.groupBy)
+
+  return queryParams
+}
+
+export const salesHistoryService = {
+  /**
+   * Get sales history report (paginated rows + totals, optionally grouped)
+   */
+  getReport: async (filters: SalesHistoryFilters): Promise<SalesHistoryReport> => {
+    const queryParams = buildSalesHistoryParams(filters)
+    if (filters.pageNumber) queryParams.append('page[number]', filters.pageNumber.toString())
+    if (filters.pageSize) queryParams.append('page[size]', filters.pageSize.toString())
+
+    const url = `${REPORTS_BASE}/sales-history?${queryParams.toString()}`
+    const response = await axiosClient.get(url)
+    return transformSalesHistoryResponse(response.data)
+  },
+
+  /**
+   * Export sales history with the same filters (blob download)
+   */
+  export: async (filters: SalesHistoryFilters, format: SalesHistoryExportFormat): Promise<Blob> => {
+    const queryParams = buildSalesHistoryParams(filters)
+    queryParams.append('format', format)
+
+    const url = `${REPORTS_BASE}/sales-history/export?${queryParams.toString()}`
+    const response = await axiosClient.get(url, { responseType: 'blob' })
+    return response.data
+  },
+}
+
+// ============================================================================
 // REPORT EXPORT
 // ============================================================================
 
-export type ExportFormat = 'xlsx' | 'csv' | 'pdf'
+export type ExportFormat = 'xlsx' | 'csv' | 'pdf' | 'excel'
 
 export const reportExportService = {
   /**
