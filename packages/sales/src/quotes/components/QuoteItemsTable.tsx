@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback } from 'react'
-import type { QuoteItem } from '../types'
+import type { QuoteItem, UpdateQuoteItemRequest } from '../types'
 import { useQuoteItemMutations } from '../hooks'
 import { productService } from '@lwm/products'
 import { toast } from '@lwm/ui'
@@ -12,6 +12,28 @@ interface Product {
   sku: string
   price: number
   iva?: boolean
+}
+
+type DiscountMode = 'percent' | 'amount'
+
+// Borrador de edicion: los inputs guardan el texto tal cual (permite vaciar
+// el campo mientras se teclea) y se parsea al guardar. 0 es valido para
+// precio, descuento e IVA; cantidad minima 0.01 (igual que el backend).
+interface EditDraft {
+  quotedPrice: string
+  quantity: string
+  discountMode: DiscountMode
+  discountValue: string
+  taxRate: string
+  notes: string
+}
+
+// Parsea un borrador: vacio o no numerico regresa null (error inline, no se guarda)
+const parseDraftNumber = (raw: string): number | null => {
+  const trimmed = raw.trim()
+  if (trimmed === '') return null
+  const value = Number(trimmed)
+  return Number.isFinite(value) ? value : null
 }
 
 interface QuoteItemsTableProps {
@@ -31,12 +53,8 @@ export function QuoteItemsTable({
 }: QuoteItemsTableProps) {
   const mutations = useQuoteItemMutations(quoteId)
   const [editingId, setEditingId] = useState<string | null>(null)
-  const [editValues, setEditValues] = useState<{
-    quotedPrice: number
-    discountPercentage: number
-    quantity: number
-    notes: string
-  } | null>(null)
+  const [editValues, setEditValues] = useState<EditDraft | null>(null)
+  const [editErrors, setEditErrors] = useState<Record<string, string>>({})
 
   // Add product state
   const [isAddingProduct, setIsAddingProduct] = useState(false)
@@ -44,8 +62,10 @@ export function QuoteItemsTable({
   const [searchResults, setSearchResults] = useState<Product[]>([])
   const [isSearching, setIsSearching] = useState(false)
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
-  const [addQuantity, setAddQuantity] = useState(1)
-  const [addPrice, setAddPrice] = useState(0)
+  const [addQuantity, setAddQuantity] = useState('1')
+  const [addPrice, setAddPrice] = useState('0')
+  const [addTaxRate, setAddTaxRate] = useState('16')
+  const [addErrors, setAddErrors] = useState<Record<string, string>>({})
 
   const searchProducts = useCallback(async (term: string) => {
     if (term.length < 2) {
@@ -75,22 +95,46 @@ export function QuoteItemsTable({
 
   const handleSelectProduct = (product: Product) => {
     setSelectedProduct(product)
-    setAddPrice(product.price)
-    setAddQuantity(1)
+    setAddPrice(String(product.price))
+    setAddQuantity('1')
+    // Default segun el flag de IVA del producto; editable antes de agregar
+    setAddTaxRate(product.iva ? '16' : '0')
+    setAddErrors({})
     setProductSearch(product.name)
     setSearchResults([])
   }
 
   const handleAddItem = async () => {
     if (!selectedProduct) return
+
+    const quantity = parseDraftNumber(addQuantity)
+    const price = parseDraftNumber(addPrice)
+    const taxRate = parseDraftNumber(addTaxRate)
+
+    const errors: Record<string, string> = {}
+    if (quantity === null || quantity < 0.01) {
+      errors.quantity = 'Cantidad minima 0.01'
+    }
+    if (price === null || price < 0) {
+      errors.price = 'Precio invalido (0 es valido)'
+    }
+    if (taxRate === null || taxRate < 0 || taxRate > 100) {
+      errors.taxRate = 'IVA entre 0 y 100'
+    }
+    if (Object.keys(errors).length > 0) {
+      setAddErrors(errors)
+      return
+    }
+    setAddErrors({})
+
     try {
       await mutations.create.mutateAsync({
         quoteId: parseInt(quoteId),
         productId: parseInt(selectedProduct.id),
-        quantity: addQuantity,
+        quantity: quantity!,
         unitPrice: selectedProduct.price,
-        quotedPrice: addPrice,
-        taxRate: selectedProduct.iva ? 16 : 0,
+        quotedPrice: price!,
+        taxRate: taxRate!,
         productName: selectedProduct.name,
         productSku: selectedProduct.sku
       })
@@ -98,8 +142,9 @@ export function QuoteItemsTable({
       setIsAddingProduct(false)
       setSelectedProduct(null)
       setProductSearch('')
-      setAddQuantity(1)
-      setAddPrice(0)
+      setAddQuantity('1')
+      setAddPrice('0')
+      setAddTaxRate('16')
       onItemsChanged?.()
     } catch {
       toast.error('Error al agregar el producto')
@@ -135,10 +180,13 @@ export function QuoteItemsTable({
 
   const handleStartEdit = (item: QuoteItem) => {
     setEditingId(item.id)
+    setEditErrors({})
     setEditValues({
-      quotedPrice: item.quotedPrice,
-      discountPercentage: item.discountPercentage,
-      quantity: item.quantity,
+      quotedPrice: String(item.quotedPrice),
+      quantity: String(item.quantity),
+      discountMode: 'percent',
+      discountValue: String(item.discountPercentage),
+      taxRate: String(item.taxRate),
       notes: item.notes || ''
     })
   }
@@ -146,24 +194,76 @@ export function QuoteItemsTable({
   const handleCancelEdit = () => {
     setEditingId(null)
     setEditValues(null)
+    setEditErrors({})
+  }
+
+  const handleDiscountModeChange = (item: QuoteItem, mode: DiscountMode) => {
+    setEditValues((prev) =>
+      prev
+        ? {
+            ...prev,
+            discountMode: mode,
+            discountValue:
+              mode === 'percent'
+                ? String(item.discountPercentage)
+                : String(item.discountAmount)
+          }
+        : prev
+    )
+    setEditErrors((prev) => {
+      const next = { ...prev }
+      delete next.discount
+      return next
+    })
   }
 
   const handleSaveEdit = async (itemId: string) => {
     if (!editValues) return
 
+    const quantity = parseDraftNumber(editValues.quantity)
+    const quotedPrice = parseDraftNumber(editValues.quotedPrice)
+    const discountValue = parseDraftNumber(editValues.discountValue)
+    const taxRate = parseDraftNumber(editValues.taxRate)
+
+    const errors: Record<string, string> = {}
+    if (quantity === null || quantity < 0.01) {
+      errors.quantity = 'Cantidad minima 0.01'
+    }
+    if (quotedPrice === null || quotedPrice < 0) {
+      errors.quotedPrice = 'Precio invalido (0 es valido)'
+    }
+    if (discountValue === null || discountValue < 0) {
+      errors.discount = 'Descuento invalido'
+    } else if (editValues.discountMode === 'percent' && discountValue > 100) {
+      errors.discount = 'Maximo 100%'
+    }
+    if (taxRate === null || taxRate < 0 || taxRate > 100) {
+      errors.taxRate = 'IVA entre 0 y 100'
+    }
+    if (Object.keys(errors).length > 0) {
+      setEditErrors(errors)
+      return
+    }
+
+    // Se envia discountPercentage O discountAmount segun el modo, nunca ambos
+    const data: UpdateQuoteItemRequest = {
+      quantity: quantity!,
+      quotedPrice: quotedPrice!,
+      taxRate: taxRate!,
+      notes: editValues.notes || undefined
+    }
+    if (editValues.discountMode === 'percent') {
+      data.discountPercentage = discountValue!
+    } else {
+      data.discountAmount = discountValue!
+    }
+
     try {
-      await mutations.update.mutateAsync({
-        id: itemId,
-        data: {
-          quotedPrice: editValues.quotedPrice,
-          discountPercentage: editValues.discountPercentage,
-          quantity: editValues.quantity,
-          notes: editValues.notes || undefined
-        }
-      })
+      await mutations.update.mutateAsync({ id: itemId, data })
       toast.success('Item actualizado')
       setEditingId(null)
       setEditValues(null)
+      setEditErrors({})
       onItemsChanged?.()
     } catch {
       toast.error('Error al actualizar el item')
@@ -263,25 +363,46 @@ export function QuoteItemsTable({
               <label className="form-label small">Cantidad</label>
               <input
                 type="number"
-                className="form-control form-control-sm"
+                className={`form-control form-control-sm${addErrors.quantity ? ' is-invalid' : ''}`}
                 value={addQuantity}
-                onChange={(e) => setAddQuantity(parseFloat(e.target.value) || 1)}
+                onChange={(e) => setAddQuantity(e.target.value)}
                 min={0.01}
                 step={0.01}
               />
+              {addErrors.quantity && (
+                <div className="invalid-feedback d-block small">{addErrors.quantity}</div>
+              )}
             </div>
             <div className="col-md-2">
               <label className="form-label small">Precio Cotizado</label>
               <input
                 type="number"
-                className="form-control form-control-sm"
+                className={`form-control form-control-sm${addErrors.price ? ' is-invalid' : ''}`}
                 value={addPrice}
-                onChange={(e) => setAddPrice(parseFloat(e.target.value) || 0)}
+                onChange={(e) => setAddPrice(e.target.value)}
                 min={0}
                 step={0.01}
               />
+              {addErrors.price && (
+                <div className="invalid-feedback d-block small">{addErrors.price}</div>
+              )}
             </div>
-            <div className="col-md-4 d-flex gap-2">
+            <div className="col-md-1">
+              <label className="form-label small">IVA %</label>
+              <input
+                type="number"
+                className={`form-control form-control-sm${addErrors.taxRate ? ' is-invalid' : ''}`}
+                value={addTaxRate}
+                onChange={(e) => setAddTaxRate(e.target.value)}
+                min={0}
+                max={100}
+                step={0.01}
+              />
+              {addErrors.taxRate && (
+                <div className="invalid-feedback d-block small">{addErrors.taxRate}</div>
+              )}
+            </div>
+            <div className="col-md-3 d-flex gap-2">
               <button
                 className="btn btn-primary btn-sm"
                 onClick={handleAddItem}
@@ -303,6 +424,7 @@ export function QuoteItemsTable({
                   setSelectedProduct(null)
                   setProductSearch('')
                   setSearchResults([])
+                  setAddErrors({})
                 }}
               >
                 Cancelar
@@ -376,20 +498,26 @@ export function QuoteItemsTable({
                 </td>
                 <td className="text-end">
                   {isEditing ? (
-                    <input
-                      type="number"
-                      className="form-control form-control-sm text-end"
-                      style={{ width: '80px' }}
-                      value={editValues?.quantity ?? item.quantity}
-                      onChange={(e) =>
-                        setEditValues((prev) => ({
-                          ...prev!,
-                          quantity: parseFloat(e.target.value) || 0
-                        }))
-                      }
-                      min={0.01}
-                      step={0.01}
-                    />
+                    <div>
+                      <input
+                        type="number"
+                        className={`form-control form-control-sm text-end${editErrors.quantity ? ' is-invalid' : ''}`}
+                        style={{ width: '80px' }}
+                        aria-label="Cantidad"
+                        value={editValues?.quantity ?? ''}
+                        onChange={(e) =>
+                          setEditValues((prev) => ({
+                            ...prev!,
+                            quantity: e.target.value
+                          }))
+                        }
+                        min={0.01}
+                        step={0.01}
+                      />
+                      {editErrors.quantity && (
+                        <div className="invalid-feedback d-block small text-nowrap">{editErrors.quantity}</div>
+                      )}
+                    </div>
                   ) : (
                     item.quantity
                   )}
@@ -399,20 +527,26 @@ export function QuoteItemsTable({
                 </td>
                 <td className="text-end">
                   {isEditing ? (
-                    <input
-                      type="number"
-                      className="form-control form-control-sm text-end"
-                      style={{ width: '100px' }}
-                      value={editValues?.quotedPrice ?? item.quotedPrice}
-                      onChange={(e) =>
-                        setEditValues((prev) => ({
-                          ...prev!,
-                          quotedPrice: parseFloat(e.target.value) || 0
-                        }))
-                      }
-                      min={0}
-                      step={0.01}
-                    />
+                    <div>
+                      <input
+                        type="number"
+                        className={`form-control form-control-sm text-end${editErrors.quotedPrice ? ' is-invalid' : ''}`}
+                        style={{ width: '100px' }}
+                        aria-label="Precio cotizado"
+                        value={editValues?.quotedPrice ?? ''}
+                        onChange={(e) =>
+                          setEditValues((prev) => ({
+                            ...prev!,
+                            quotedPrice: e.target.value
+                          }))
+                        }
+                        min={0}
+                        step={0.01}
+                      />
+                      {editErrors.quotedPrice && (
+                        <div className="invalid-feedback d-block small text-nowrap">{editErrors.quotedPrice}</div>
+                      )}
+                    </div>
                   ) : (
                     <span
                       className={
@@ -429,28 +563,76 @@ export function QuoteItemsTable({
                 </td>
                 <td className="text-end">
                   {isEditing ? (
-                    <input
-                      type="number"
-                      className="form-control form-control-sm text-end"
-                      style={{ width: '80px' }}
-                      value={editValues?.discountPercentage ?? item.discountPercentage}
-                      onChange={(e) =>
-                        setEditValues((prev) => ({
-                          ...prev!,
-                          discountPercentage: parseFloat(e.target.value) || 0
-                        }))
-                      }
-                      min={0}
-                      max={100}
-                      step={0.01}
-                    />
+                    <div style={{ minWidth: '140px' }}>
+                      <div className="input-group input-group-sm">
+                        <input
+                          type="number"
+                          className={`form-control text-end${editErrors.discount ? ' is-invalid' : ''}`}
+                          aria-label="Descuento"
+                          value={editValues?.discountValue ?? ''}
+                          onChange={(e) =>
+                            setEditValues((prev) => ({
+                              ...prev!,
+                              discountValue: e.target.value
+                            }))
+                          }
+                          min={0}
+                          step={0.01}
+                        />
+                        <select
+                          className="form-select"
+                          style={{ maxWidth: '58px' }}
+                          aria-label="Modo de descuento"
+                          title="Descuento en porcentaje o monto"
+                          value={editValues?.discountMode ?? 'percent'}
+                          onChange={(e) =>
+                            handleDiscountModeChange(item, e.target.value as DiscountMode)
+                          }
+                        >
+                          <option value="percent">%</option>
+                          <option value="amount">$</option>
+                        </select>
+                      </div>
+                      {editErrors.discount && (
+                        <div className="invalid-feedback d-block small text-nowrap">{editErrors.discount}</div>
+                      )}
+                    </div>
                   ) : (
                     <span className={item.discountPercentage > 0 ? 'text-success' : ''}>
                       {formatPercentage(item.discountPercentage)}
+                      {item.discountAmount > 0 && (
+                        <small className="text-muted d-block">-{formatCurrency(item.discountAmount)}</small>
+                      )}
                     </span>
                   )}
                 </td>
-                <td className="text-end">{formatPercentage(item.taxRate)}</td>
+                <td className="text-end">
+                  {isEditing ? (
+                    <div>
+                      <input
+                        type="number"
+                        className={`form-control form-control-sm text-end${editErrors.taxRate ? ' is-invalid' : ''}`}
+                        style={{ width: '80px' }}
+                        aria-label="IVA %"
+                        value={editValues?.taxRate ?? ''}
+                        onChange={(e) =>
+                          setEditValues((prev) => ({
+                            ...prev!,
+                            taxRate: e.target.value
+                          }))
+                        }
+                        min={0}
+                        max={100}
+                        step={0.01}
+                      />
+                      {editErrors.taxRate && (
+                        <div className="invalid-feedback d-block small text-nowrap">{editErrors.taxRate}</div>
+                      )}
+                    </div>
+                  ) : (
+                    formatPercentage(item.taxRate)
+                  )}
+                </td>
                 <td className="text-end fw-medium">{formatCurrency(item.total)}</td>
                 {editable && (
                   <td className="text-end">

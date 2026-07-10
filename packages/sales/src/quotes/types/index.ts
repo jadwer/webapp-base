@@ -166,7 +166,9 @@ export interface CreateQuoteItemRequest {
   quantity: number
   unitPrice: number
   quotedPrice: number
+  /** Enviar discountPercentage O discountAmount, nunca ambos (el backend responde 422) */
   discountPercentage?: number
+  discountAmount?: number
   taxRate?: number
   productName?: string
   productSku?: string
@@ -176,7 +178,9 @@ export interface CreateQuoteItemRequest {
 export interface UpdateQuoteItemRequest {
   quantity?: number
   quotedPrice?: number
+  /** Enviar discountPercentage O discountAmount, nunca ambos (el backend responde 422) */
   discountPercentage?: number
+  discountAmount?: number
   taxRate?: number
   notes?: string
 }
