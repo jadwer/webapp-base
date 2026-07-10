@@ -276,13 +276,15 @@ const paymentProcessor = {
   async initiatePayment(
     checkoutSessionId: number,
     amount: number,
-    currency: string = 'MXN'
+    currency: string = 'MXN',
+    metadata?: Record<string, unknown>
   ): Promise<PaymentProcessingResult> {
     try {
       const response = await stripeService.createPaymentIntent({
         checkoutSessionId,
         amount,
         currency,
+        metadata,
       });
 
       return {

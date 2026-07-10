@@ -48,14 +48,12 @@ export const CheckoutPage = React.memo<CheckoutPageProps>(({ cartId }) => {
   const isLoading = isLoadingCart || isLoadingItems
   const isCheckingOut = cartMutations.isCheckingOut
 
-  // Checkout function
+  // Checkout function: creates the order (pending payment) BEFORE charging.
+  // Local cart/localStorage is NOT cleared here; only after successful payment.
   const checkoutCart = useCallback(
     async (orderData: Record<string, unknown>) => {
       if (cart) {
-        const result = await cartMutations.checkout(cart.id, orderData)
-        // Clear cart ID from localStorage after successful checkout
-        shoppingCartService.localSync.clearCartIdForCheckout()
-        return result
+        return await cartMutations.checkout(cart.id, orderData)
       }
       throw new Error('No cart available')
     },
@@ -66,6 +64,8 @@ export const CheckoutPage = React.memo<CheckoutPageProps>(({ cartId }) => {
   const [currentStep, setCurrentStep] = useState<CheckoutStep>('info')
   const [clientSecret, setClientSecret] = useState<string | null>(null)
   const [isInitializingPayment, setIsInitializingPayment] = useState(false)
+  // Order created at checkout (before payment), used to link the PaymentIntent
+  const [orderId, setOrderId] = useState<string | null>(null)
 
   // Form state
   const [customerName, setCustomerName] = useState('')
@@ -128,9 +128,19 @@ export const CheckoutPage = React.memo<CheckoutPageProps>(({ cartId }) => {
     return true
   }, [customerName, customerEmail, shippingAddressLine1, shippingCity, shippingState, shippingPostalCode])
 
-  // Initialize payment intent when moving to payment step
+  // Extract backend error message from an axios-style error (e.g. 422 "No contact found...")
+  const getApiErrorMessage = (error: unknown): string | null => {
+    if (typeof error === 'object' && error !== null && 'response' in error) {
+      const response = (error as { response?: { data?: { error?: string; message?: string } } }).response
+      return response?.data?.error || response?.data?.message || null
+    }
+    return null
+  }
+
+  // Initialize payment intent when moving to payment step.
+  // The order already exists at this point; link the PaymentIntent to it via metadata.
   const initializePayment = useCallback(async () => {
-    if (!cart) return
+    if (!cart || !orderId) return
 
     setIsInitializingPayment(true)
     try {
@@ -140,7 +150,8 @@ export const CheckoutPage = React.memo<CheckoutPageProps>(({ cartId }) => {
       const result = await paymentService.processor.initiatePayment(
         checkoutSessionId,
         cart.finalTotal || cart.totalAmount,
-        'MXN'
+        'MXN',
+        { order_id: orderId, cart_id: effectiveCartId }
       )
 
       if (result.success && result.clientSecret) {
@@ -156,13 +167,58 @@ export const CheckoutPage = React.memo<CheckoutPageProps>(({ cartId }) => {
     } finally {
       setIsInitializingPayment(false)
     }
-  }, [cart, effectiveCartId])
+  }, [cart, effectiveCartId, orderId])
 
-  // Handle continue to payment
+  // Handle continue to payment: create the order FIRST (pending payment),
+  // then move to the payment step. If the order cannot be created (e.g. 422),
+  // the error is shown before the card is ever touched.
   const handleContinueToPayment = useCallback(async () => {
     if (!validateInfoForm()) return
-    setCurrentStep('payment')
-  }, [validateInfoForm])
+
+    // Order already created (user navigated back and forth): go straight to payment
+    if (orderId) {
+      setCurrentStep('payment')
+      return
+    }
+
+    try {
+      const orderData = {
+        customerName,
+        customerEmail,
+        customerPhone,
+        shippingAddressLine1,
+        shippingAddressLine2,
+        shippingCity,
+        shippingState,
+        shippingPostalCode,
+        shippingCountry,
+        ...(sameBillingAddress ? {} : {
+          billingAddressLine1,
+          billingAddressLine2,
+          billingCity,
+          billingState,
+          billingPostalCode,
+          billingCountry,
+        }),
+      }
+
+      const order = await checkoutCart(orderData)
+      const orderResponse = order.data as { id: string }
+      setOrderId(orderResponse.id)
+      setCurrentStep('payment')
+    } catch (error) {
+      console.error('Error creating order:', error)
+      toast.error(getApiErrorMessage(error) || 'No se pudo crear la orden. Verifica tus datos e intenta de nuevo.')
+    }
+  }, [
+    validateInfoForm, orderId,
+    customerName, customerEmail, customerPhone,
+    shippingAddressLine1, shippingAddressLine2, shippingCity,
+    shippingState, shippingPostalCode, shippingCountry,
+    sameBillingAddress, billingAddressLine1, billingAddressLine2,
+    billingCity, billingState, billingPostalCode, billingCountry,
+    checkoutCart
+  ])
 
   // Initialize payment when step changes to payment
   useEffect(() => {
@@ -171,7 +227,8 @@ export const CheckoutPage = React.memo<CheckoutPageProps>(({ cartId }) => {
     }
   }, [currentStep, clientSecret, initializePayment])
 
-  // Handle payment success
+  // Handle payment success: the order already exists, so only verify the
+  // payment and then clear the local cart. No further checkout call needed.
   const handlePaymentSuccess = useCallback(async (intentId: string) => {
     setCurrentStep('processing')
 
@@ -180,56 +237,27 @@ export const CheckoutPage = React.memo<CheckoutPageProps>(({ cartId }) => {
       const verification = await paymentService.processor.verifyPayment(intentId)
 
       if (verification.success) {
-        // Complete checkout and create order
-        const orderData = {
-          customerName,
-          customerEmail,
-          customerPhone,
-          shippingAddressLine1,
-          shippingAddressLine2,
-          shippingCity,
-          shippingState,
-          shippingPostalCode,
-          shippingCountry,
-          paymentIntentId: intentId,
-          ...(sameBillingAddress ? {} : {
-            billingAddressLine1,
-            billingAddressLine2,
-            billingCity,
-            billingState,
-            billingPostalCode,
-            billingCountry,
-          }),
-        }
-
-        const order = await checkoutCart(orderData)
-        // Clear local cart (localStorage) now that the order is confirmed
+        // Clear local cart (localStorage) only after successful payment
+        shoppingCartService.localSync.clearCartIdForCheckout()
         shoppingCartService.localSync.clearLocalCart()
         setCurrentStep('success')
         toast.success('Pago completado exitosamente!')
 
         // Redirect to confirmation after short delay
         redirectTimerRef.current = setTimeout(() => {
-          const orderResponse = order.data as { id: string }
-          navigation.push(`/order-confirmation/${orderResponse.id}`)
+          navigation.push(`/order-confirmation/${orderId}`)
         }, 2000)
       } else {
-        toast.error(verification.error || 'Error al verificar el pago')
+        // Order stays pending; the customer can retry the payment
+        toast.error(verification.error || 'El pago no se pudo completar. Tu orden quedo pendiente de pago, puedes intentar de nuevo.')
         setCurrentStep('payment')
       }
     } catch (error) {
-      console.error('Error completing checkout:', error)
-      toast.error('Error al completar la orden')
+      console.error('Error verifying payment:', error)
+      toast.error('No se pudo verificar el pago. Tu orden quedo pendiente de pago, puedes intentar de nuevo.')
       setCurrentStep('payment')
     }
-  }, [
-    customerName, customerEmail, customerPhone,
-    shippingAddressLine1, shippingAddressLine2, shippingCity,
-    shippingState, shippingPostalCode, shippingCountry,
-    sameBillingAddress, billingAddressLine1, billingAddressLine2,
-    billingCity, billingState, billingPostalCode, billingCountry,
-    checkoutCart, navigation
-  ])
+  }, [orderId, navigation])
 
   // Handle payment error
   const handlePaymentError = useCallback((error: string) => {
