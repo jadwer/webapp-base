@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from 'react'
 import type { QuoteItem, UpdateQuoteItemRequest } from '../types'
+import { getQuoteItemStockStatus } from '../utils/stock'
 import { useQuoteItemMutations } from '../hooks'
 import { productService } from '@lwm/products'
 import { toast } from '@lwm/ui'
@@ -170,21 +171,9 @@ export function QuoteItemsTable({
     return `${value.toFixed(2)}%`
   }
 
-  // Calculate total available stock across all warehouses
-  const getTotalAvailableStock = (item: QuoteItem): number => {
-    if (!item.product?.stock || item.product.stock.length === 0) return 0
-    return item.product.stock.reduce((sum, s) => sum + (s.availableQuantity || 0), 0)
-  }
-
-  // Get stock status for display
-  const getStockStatus = (item: QuoteItem): { available: number; sufficient: boolean; lowStock: boolean } => {
-    const available = getTotalAvailableStock(item)
-    return {
-      available,
-      sufficient: available >= item.quantity,
-      lowStock: available > 0 && available < item.quantity
-    }
-  }
+  // Stock helpers extraidos a ../utils/stock (Fase A): tambien los usan
+  // GenerateSaleModal / GenerateOrderModal para el semaforo de stock.
+  const getStockStatus = getQuoteItemStockStatus
 
   const handleStartEdit = (item: QuoteItem) => {
     setEditingId(item.id)

@@ -1,4 +1,4 @@
-import { JsonApiResource, SalesOrder, SalesOrderItem, Contact, SalesOrderFormData, OrderStatus, InvoicingStatus } from '../types'
+import { JsonApiResource, SalesOrder, SalesOrderItem, Contact, SalesOrderFormData, OrderStatus, InvoicingStatus, PaymentMethod, SalesOrderType } from '../types'
 
 export function transformContact(resource: JsonApiResource | Record<string, unknown>): Contact {
   if (!resource) return { id: '', name: '', type: 'individual' }
@@ -23,6 +23,12 @@ export function transformJsonApiSalesOrder(resource: JsonApiResource): SalesOrde
     status: (attributes.status || 'draft') as OrderStatus,
     approvedAt: (attributes.approved_at ?? attributes.approvedAt ?? null) as string | null,
     deliveredAt: (attributes.delivered_at ?? attributes.deliveredAt ?? null) as string | null,
+    // Fase A - Venta directa vs Pedido
+    orderType: (attributes.order_type || attributes.orderType || 'order') as SalesOrderType,
+    customerPoNumber: (attributes.customer_po_number ?? attributes.customerPoNumber ?? null) as string | null,
+    customerPoPath: (attributes.customer_po_path ?? attributes.customerPoPath ?? null) as string | null,
+    paymentMethod: (attributes.payment_method ?? attributes.paymentMethod ?? null) as PaymentMethod | null,
+    creditDays: (attributes.credit_days ?? attributes.creditDays ?? null) as number | null,
     // Finance integration fields
     arInvoiceId: (attributes.ar_invoice_id ?? attributes.arInvoiceId ?? null) as number | null,
     invoicingStatus: (attributes.invoicing_status || attributes.invoicingStatus || 'pending') as InvoicingStatus,

@@ -35,6 +35,8 @@ export function createMockQuote(overrides: Partial<Quote> = {}): Quote {
     taxAmount: 160.00,
     totalAmount: 1160.00,
     currency: 'MXN',
+    paymentMethod: null,
+    creditDays: null,
     notes: 'Test quote notes',
     internalNotes: null,
     termsAndConditions: 'Standard terms',

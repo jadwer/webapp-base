@@ -2,6 +2,70 @@
 
 Complete sales order management system with real-time reporting and customer analytics.
 
+## Flujo Operaciones: Venta directa vs Pedido (Fase A)
+
+Las acciones de documento se agrupan en el dropdown **Operaciones**
+(`OperationsMenu`, componente reutilizable de este package). Aparece en el
+detalle de cotizacion, en cada fila de `QuotesTable` y en el detalle de la
+orden de venta.
+
+### Cotizaciones (menu Operaciones)
+
+| Accion | Que hace |
+|---|---|
+| Generar venta | Abre `GenerateSaleModal`: convierte a orden tipo `direct_sale` |
+| Generar pedido | Abre `GenerateOrderModal`: convierte a orden tipo `order` |
+| Prefactura | PDF de vista previa de la orden generada (habilitada tras convertir) |
+| Enviar | `QuoteSendButton` integrado como item del menu (`asMenuItem`) |
+| Duplicar | Duplica la cotizacion |
+| Exportar partidas CSV | CSV client-side desde los items (`exportQuoteItemsCsv`) |
+| Descargar PDF | PDF de la cotizacion |
+
+El antiguo `QuoteConvertModal` fue absorbido por los dos modales nuevos.
+
+### Venta directa vs Pedido
+
+| | Venta directa (`direct_sale`) | Pedido (`order`) |
+|---|---|---|
+| Uso | Mostrador / sucursal / inmediata | Proceso completo (compra de faltante, logistica) |
+| Stock | PRESUPONE stock: si falta, NO procede (422 con detalle por item) | No bloquea: se informan `items_requiring_purchase` |
+| OC del cliente | No aplica | `customer_po_number` REQUERIDO + PDF opcional (se sube tras crear la orden) |
+| Status inicial | `confirmed` | `pending` |
+
+Ambos modales prellenan `payment_method` (PPD/PUE) y `credit_days` desde la
+cotizacion (defaults: PUE en venta, PPD en pedido, 30 dias). La cotizacion
+guarda esos campos (`paymentMethod`, `creditDays`) y viajan a la orden al
+convertir. La regla fiscal: al FACTURAR una orden, los items sin stock
+suficiente bloquean la factura (422); la prefactura no se bloquea.
+
+### Semantica del stock (semaforo)
+
+El semaforo por item (QuoteItemsTable y `GenerateSaleModal`) usa
+`getTotalAvailableStock` / `getQuoteItemStockStatus` (`quotes/utils/stock`):
+suma `availableQuantity` de TODOS los almacenes del producto
+(`item.product.stock`, cargado con include `product,product.stock`).
+
+- Verde: disponible >= cantidad pedida
+- Amarillo: hay stock pero no alcanza (`lowStock`)
+- Rojo: sin stock
+
+Es el mismo dato que valida el backend en convert (venta directa) y en
+facturar, asi que el CTA deshabilitado del modal anticipa el 422 del server.
+
+### Ordenes de venta (menu Operaciones)
+
+Facturar, Prefactura, Marcar como surtido (transicion a `delivered` via
+`orderTrackingService.updateStatus`), Exportar partidas CSV, PDF de la orden
+y Cancelar. La orden muestra `orderType`, `customerPoNumber` (con descarga
+del PDF de la OC via `salesService.orders.downloadCustomerPo`),
+`paymentMethod` y `creditDays`.
+
+### Remisiones
+
+`remissionService` cubre el flujo basico: lista con filtros, crear desde
+orden (`createFromOrderFull`), imprimir, marcar entregada, PDF. La pantalla
+vive en el template (`dashboard/remissions`).
+
 ## Features
 
 ### Core Functionality

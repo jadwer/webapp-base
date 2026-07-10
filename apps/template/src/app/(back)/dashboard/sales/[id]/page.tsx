@@ -4,9 +4,11 @@ import { use, useState, useEffect, useCallback, useRef } from 'react'
 import { useSalesOrder, useSalesOrderItems } from '@/modules/sales'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
 import { formatCurrency, formatQuantity } from '@/lib/formatters'
-import { salesService } from '@/modules/sales'
+import { salesService, orderTrackingService, ORDER_TYPE_LABELS, exportSalesOrderItemsCsv } from '@/modules/sales'
 import { remissionService, REMISSION_STATUS_LABELS } from '@/modules/sales'
 import type { Remission } from '@/modules/sales'
+import { OperationsMenu } from '@/modules/sales'
+import type { OperationsMenuItem } from '@/modules/sales'
 import { toast } from '@/lib/toast'
 import axiosClient from '@/lib/axiosClient'
 import { AddItemModal } from '@/modules/sales'
@@ -244,6 +246,59 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
     }
   }
 
+  // Fase A: "Marcar como surtido" = transicion a delivered (workflow existente)
+  const handleMarkDelivered = async () => {
+    const confirmed = await confirmModalRef.current?.confirm(
+      'Marcar la orden como surtida (entregada)? Esto habilita la facturacion.',
+      {
+        title: 'Marcar como surtido',
+        confirmText: 'Marcar surtido',
+        cancelText: 'Cancelar',
+        confirmVariant: 'primary'
+      }
+    )
+    if (!confirmed) return
+    setActionLoading('deliver-order')
+    try {
+      await orderTrackingService.updateStatus(resolvedParams.id, { status: 'delivered' })
+      toast.success('Orden marcada como surtida')
+      mutateOrder()
+    } catch (err) {
+      const error = err as { response?: { data?: { message?: string; error?: string } } }
+      toast.error(
+        error.response?.data?.message ||
+          error.response?.data?.error ||
+          'Error al marcar la orden como surtida'
+      )
+    } finally {
+      setActionLoading(null)
+    }
+  }
+
+  // Exportar partidas CSV (client-side, desde los items ya cargados)
+  const handleExportCsv = () => {
+    if (!salesOrder) return
+    if (!salesOrderItems || salesOrderItems.length === 0) {
+      toast.error('La orden no tiene partidas para exportar')
+      return
+    }
+    exportSalesOrderItemsCsv(salesOrder.orderNumber, salesOrderItems)
+    toast.success('Partidas exportadas')
+  }
+
+  // Descarga del PDF de la OC del cliente (pedidos)
+  const handleDownloadCustomerPo = async () => {
+    if (!salesOrder) return
+    setActionLoading('download-po')
+    try {
+      await salesService.orders.downloadCustomerPo(resolvedParams.id, salesOrder.orderNumber)
+    } catch {
+      toast.error('Error al descargar el PDF de la OC del cliente')
+    } finally {
+      setActionLoading(null)
+    }
+  }
+
   if (orderLoading) {
     return (
       <div className="container-fluid py-4">
@@ -279,6 +334,63 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
   }
 
   const isActive = salesOrder.status !== 'cancelled' && salesOrder.status !== 'completed'
+  const canInvoice = salesOrder.status === 'delivered' || salesOrder.status === 'completed'
+  const canMarkDelivered = !['delivered', 'completed', 'cancelled'].includes(salesOrder.status)
+
+  // Menu Operaciones (Fase A): agrupa facturacion, surtido, cancelacion y exports
+  const operationsItems: OperationsMenuItem[] = [
+    {
+      key: 'facturar',
+      label: 'Facturar',
+      icon: 'bi-receipt',
+      onClick: handleFacturar,
+      disabled: actionLoading === 'facturar' || !canInvoice,
+      title: canInvoice
+        ? 'Generar CFDI a partir de esta orden'
+        : 'La orden debe estar entregada o completada para facturar'
+    },
+    {
+      key: 'prefactura',
+      label: 'Prefactura',
+      icon: 'bi-file-earmark-medical',
+      onClick: handlePrefactura,
+      disabled: actionLoading === 'prefactura',
+      title: 'Vista previa de la prefactura (no crea la factura)'
+    },
+    {
+      key: 'mark-delivered',
+      label: 'Marcar como surtido',
+      icon: 'bi-box-seam',
+      onClick: handleMarkDelivered,
+      disabled: actionLoading === 'deliver-order' || !canMarkDelivered,
+      title: canMarkDelivered
+        ? 'Transicion de la orden a entregada'
+        : 'La orden ya esta surtida, completada o cancelada'
+    },
+    { type: 'divider', key: 'div-docs' },
+    {
+      key: 'export-csv',
+      label: 'Exportar partidas CSV',
+      icon: 'bi-filetype-csv',
+      onClick: handleExportCsv
+    },
+    {
+      key: 'pdf',
+      label: 'PDF de la orden',
+      icon: 'bi-file-earmark-pdf',
+      onClick: handlePrintOrder
+    },
+    { type: 'divider', key: 'div-danger' },
+    {
+      key: 'cancel',
+      label: 'Cancelar orden',
+      icon: 'bi-x-circle',
+      variant: 'danger',
+      onClick: handleCancelOrder,
+      disabled: !isActive || actionLoading === 'cancel-order',
+      title: isActive ? undefined : 'La orden ya esta cancelada o completada'
+    }
+  ]
 
   return (
     <div className="container-fluid py-4">
@@ -295,7 +407,7 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
                 Detalles completos de la orden de venta
               </p>
             </div>
-            <div className="btn-group">
+            <div className="d-flex gap-2 flex-wrap">
               <button
                 className="btn btn-outline-secondary"
                 onClick={() => navigation.push('/dashboard/sales')}
@@ -311,12 +423,16 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
                 Editar
               </button>
               <button
-                className="btn btn-primary"
+                className="btn btn-outline-primary"
                 onClick={() => navigation.push(`/dashboard/sales/${resolvedParams.id}/items`)}
               >
                 <i className="bi bi-box-seam me-2"></i>
                 Ver Items ({salesOrderItems?.length || 0})
               </button>
+              <OperationsMenu
+                items={operationsItems}
+                loading={['facturar', 'prefactura', 'deliver-order', 'cancel-order'].includes(actionLoading || '')}
+              />
             </div>
           </div>
         </div>
@@ -367,6 +483,33 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
                           </strong>
                         </td>
                       </tr>
+                      <tr>
+                        <td><strong>Tipo:</strong></td>
+                        <td>
+                          <span className={`badge ${salesOrder.orderType === 'direct_sale' ? 'bg-success' : 'bg-info'}`}>
+                            {ORDER_TYPE_LABELS[salesOrder.orderType || 'order']}
+                          </span>
+                        </td>
+                      </tr>
+                      {salesOrder.customerPoNumber && (
+                        <tr>
+                          <td><strong>OC Cliente:</strong></td>
+                          <td>
+                            {salesOrder.customerPoNumber}
+                            {salesOrder.customerPoPath && (
+                              <button
+                                className="btn btn-sm btn-link p-0 ms-2"
+                                onClick={handleDownloadCustomerPo}
+                                disabled={actionLoading === 'download-po'}
+                                title="Descargar PDF de la OC del cliente"
+                              >
+                                <i className="bi bi-file-earmark-pdf me-1"></i>
+                                PDF
+                              </button>
+                            )}
+                          </td>
+                        </tr>
+                      )}
                     </tbody>
                   </table>
                 </div>
@@ -409,6 +552,20 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
                         <td><strong>Actualizada:</strong></td>
                         <td>
                           {salesOrder.updatedAt ? new Date(salesOrder.updatedAt).toLocaleDateString('es-ES') : 'N/A'}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td><strong>Metodo de pago:</strong></td>
+                        <td>
+                          {salesOrder.paymentMethod || <span className="text-muted">No especificado</span>}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td><strong>Dias de credito:</strong></td>
+                        <td>
+                          {salesOrder.creditDays != null
+                            ? `${salesOrder.creditDays} dias`
+                            : <span className="text-muted">No especificado</span>}
                         </td>
                       </tr>
                     </tbody>
@@ -618,7 +775,8 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
             </div>
             <div className="card-body">
               <p className="text-muted" style={{ fontSize: '13px' }}>
-                Genera documentos a partir de esta orden de venta.
+                Genera documentos a partir de esta orden de venta. Facturar, prefactura,
+                surtido, cancelacion y exports viven en el menu Operaciones.
               </p>
               <div className="d-grid gap-2">
                 <button
@@ -632,72 +790,6 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
                     <i className="bi bi-truck me-2"></i>
                   )}
                   Generar Remision
-                </button>
-                <button
-                  className="btn btn-outline-primary"
-                  onClick={handleFacturar}
-                  disabled={
-                    actionLoading === 'facturar' ||
-                    !(salesOrder.status === 'delivered' || salesOrder.status === 'completed')
-                  }
-                  title={
-                    salesOrder.status === 'delivered' || salesOrder.status === 'completed'
-                      ? 'Generar CFDI a partir de esta orden'
-                      : 'La orden debe estar entregada o completada para facturar'
-                  }
-                >
-                  {actionLoading === 'facturar' ? (
-                    <span className="spinner-border spinner-border-sm me-2" />
-                  ) : (
-                    <i className="bi bi-receipt me-2"></i>
-                  )}
-                  Facturar
-                </button>
-                <button
-                  className="btn btn-outline-info"
-                  onClick={handlePrefactura}
-                  disabled={actionLoading === 'prefactura'}
-                  title="Vista previa de la prefactura (no crea la factura)"
-                >
-                  {actionLoading === 'prefactura' ? (
-                    <span className="spinner-border spinner-border-sm me-2" />
-                  ) : (
-                    <i className="bi bi-file-earmark-medical me-2"></i>
-                  )}
-                  Prefactura
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Acciones rapidas */}
-          <div className="card mt-3">
-            <div className="card-header">
-              <h5 className="card-title mb-0">
-                <i className="bi bi-lightning me-2"></i>
-                Acciones
-              </h5>
-            </div>
-            <div className="card-body">
-              <div className="d-grid gap-2">
-                <button
-                  className="btn btn-outline-primary"
-                  onClick={handlePrintOrder}
-                >
-                  <i className="bi bi-printer me-2"></i>
-                  Imprimir Orden
-                </button>
-                <button
-                  className="btn btn-outline-danger"
-                  onClick={handleCancelOrder}
-                  disabled={!isActive || actionLoading === 'cancel-order'}
-                >
-                  {actionLoading === 'cancel-order' ? (
-                    <span className="spinner-border spinner-border-sm me-2" />
-                  ) : (
-                    <i className="bi bi-x-circle me-2"></i>
-                  )}
-                  Cancelar Orden
                 </button>
               </div>
             </div>

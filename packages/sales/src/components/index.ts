@@ -5,6 +5,10 @@ export { default as AddItemModal } from './AddItemModal'
 export { default as ItemsManager } from './ItemsManager'
 export { default as StockAvailabilityPanel } from './StockAvailabilityPanel'
 
+// Operations dropdown (Fase A - menu Operaciones)
+export { OperationsMenu } from './OperationsMenu'
+export type { OperationsMenuItem, OperationsMenuProps } from './OperationsMenu'
+
 // DiscountRules Components - v1.1 (SA-M003)
 export { DiscountRuleStatusBadge } from './DiscountRuleStatusBadge'
 export { DiscountRulesTable } from './DiscountRulesTable'

@@ -5,6 +5,8 @@
  * Backend: Modules/Sales/app/Models/Quote.php
  */
 
+import type { PaymentMethod, SalesOrderType } from '../../types'
+
 // Quote Status Flow: draft → sent → accepted/rejected/expired → converted/cancelled
 export type QuoteStatus =
   | 'draft'      // Created, not sent
@@ -31,6 +33,9 @@ export interface Quote {
   taxAmount: number
   totalAmount: number
   currency: string
+  // Fase A - Venta directa vs Pedido: condiciones de pago (viajan a la orden al convertir)
+  paymentMethod: PaymentMethod | null
+  creditDays: number | null
   notes: string | null
   internalNotes: string | null
   termsAndConditions: string | null
@@ -132,6 +137,8 @@ export interface CreateQuoteRequest {
   validUntil?: string
   estimatedEta?: string
   currency?: string
+  paymentMethod?: PaymentMethod
+  creditDays?: number
   notes?: string
   internalNotes?: string
   termsAndConditions?: string
@@ -143,6 +150,8 @@ export interface UpdateQuoteRequest {
   contactId?: number
   validUntil?: string
   estimatedEta?: string
+  paymentMethod?: PaymentMethod | null
+  creditDays?: number | null
   notes?: string
   internalNotes?: string
   termsAndConditions?: string
@@ -185,9 +194,33 @@ export interface UpdateQuoteItemRequest {
   notes?: string
 }
 
+/**
+ * Body de POST /quotes/{id}/convert (REST plano, snake_case).
+ *
+ * - order_type 'direct_sale': valida stock de TODOS los items; 422 con
+ *   detalle de faltantes si alguno no alcanza. La orden nace 'confirmed'.
+ * - order_type 'order': no bloquea por stock; la respuesta incluye
+ *   items_requiring_purchase. Requiere customer_po_number. Nace 'pending'.
+ * - payment_method / credit_days: defaults desde la quote si se omiten.
+ */
 export interface ConvertQuoteRequest {
+  order_type?: SalesOrderType
+  customer_po_number?: string
+  payment_method?: PaymentMethod
+  credit_days?: number
   shipping_address?: Address
   billing_address?: Address
+}
+
+/**
+ * Item con stock insuficiente. Aparece en el 422 de convert (venta directa)
+ * y en items_requiring_purchase de la respuesta de convert (pedido).
+ */
+export interface StockShortageItem {
+  product_id: number
+  product_name: string
+  requested: number
+  available: number
 }
 
 export interface RejectQuoteRequest {

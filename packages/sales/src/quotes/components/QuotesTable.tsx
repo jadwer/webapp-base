@@ -3,9 +3,15 @@
 import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { QuoteStatusBadge } from './QuoteStatusBadge'
+import { GenerateSaleModal } from './GenerateSaleModal'
+import { GenerateOrderModal } from './GenerateOrderModal'
 import type { Quote } from '../types'
 import { QUOTE_STATUS_CONFIG } from '../types'
 import { useQuoteMutations } from '../hooks'
+import { quoteService, quoteItemService } from '../services'
+import { salesService } from '../../services'
+import { OperationsMenu, type OperationsMenuItem } from '../../components/OperationsMenu'
+import { exportQuoteItemsCsv } from '../../utils/exportCsv'
 import { toast } from '@lwm/ui'
 import { ConfirmModal, ConfirmModalHandle } from '@lwm/ui'
 
@@ -19,6 +25,8 @@ export function QuotesTable({ quotes, isLoading, onQuoteUpdated }: QuotesTablePr
   const router = useRouter()
   const mutations = useQuoteMutations()
   const [actionLoading, setActionLoading] = useState<string | null>(null)
+  // Modal de conversion abierto: { quote, type } (Fase A: venta directa vs pedido)
+  const [convertModal, setConvertModal] = useState<{ quote: Quote; type: 'sale' | 'order' } | null>(null)
   const confirmModalRef = useRef<ConfirmModalHandle>(null)
 
   const formatCurrency = (amount: number, currency: string = 'MXN') => {
@@ -38,7 +46,7 @@ export function QuotesTable({ quotes, isLoading, onQuoteUpdated }: QuotesTablePr
   }
 
   const handleAction = async (
-    action: 'send' | 'accept' | 'reject' | 'convert' | 'cancel' | 'duplicate',
+    action: 'send' | 'accept' | 'reject' | 'cancel' | 'duplicate',
     quote: Quote
   ) => {
     setActionLoading(quote.id)
@@ -57,10 +65,6 @@ export function QuotesTable({ quotes, isLoading, onQuoteUpdated }: QuotesTablePr
           await mutations.reject.mutateAsync({ id: quote.id })
           toast.success('Cotizacion rechazada')
           break
-        case 'convert':
-          const result = await mutations.convert.mutateAsync({ id: quote.id })
-          toast.success(`Orden de venta ${result.data.salesOrder?.attributes?.orderNumber || ''} creada`)
-          break
         case 'cancel':
           await mutations.cancel.mutateAsync(quote.id)
           toast.success('Cotizacion cancelada')
@@ -73,6 +77,51 @@ export function QuotesTable({ quotes, isLoading, onQuoteUpdated }: QuotesTablePr
       onQuoteUpdated?.()
     } catch {
       toast.error('Error al ejecutar la accion')
+    } finally {
+      setActionLoading(null)
+    }
+  }
+
+  const handleDownloadPdf = async (quote: Quote) => {
+    setActionLoading(quote.id)
+    try {
+      await quoteService.downloadPdf(quote.id)
+    } catch {
+      toast.error('Error al descargar el PDF')
+    } finally {
+      setActionLoading(null)
+    }
+  }
+
+  // Exportar partidas CSV (client-side): la lista no trae los items con
+  // detalle, se piden bajo demanda y se arma el CSV en el navegador.
+  const handleExportCsv = async (quote: Quote) => {
+    setActionLoading(quote.id)
+    try {
+      const items = await quoteItemService.getByQuoteId(quote.id)
+      if (items.length === 0) {
+        toast.error('La cotizacion no tiene partidas para exportar')
+        return
+      }
+      exportQuoteItemsCsv(quote.quoteNumber, items)
+      toast.success('Partidas exportadas')
+    } catch {
+      toast.error('Error al exportar las partidas')
+    } finally {
+      setActionLoading(null)
+    }
+  }
+
+  // Prefactura: disponible cuando la cotizacion ya tiene orden generada
+  const handlePrefactura = async (quote: Quote) => {
+    if (!quote.salesOrderId) return
+    setActionLoading(quote.id)
+    try {
+      const blob = await salesService.orders.prefactura(String(quote.salesOrderId))
+      const url = window.URL.createObjectURL(blob)
+      window.open(url, '_blank')
+    } catch {
+      toast.error('Error al generar la prefactura')
     } finally {
       setActionLoading(null)
     }
@@ -98,6 +147,126 @@ export function QuotesTable({ quotes, isLoading, onQuoteUpdated }: QuotesTablePr
     } catch {
       toast.error('Error al eliminar la cotizacion')
     }
+  }
+
+  const handleConverted = (salesOrderId: string) => {
+    setConvertModal(null)
+    onQuoteUpdated?.()
+    router.push(`/dashboard/sales/${salesOrderId}`)
+  }
+
+  const buildMenuItems = (quote: Quote): OperationsMenuItem[] => {
+    const statusConfig = QUOTE_STATUS_CONFIG[quote.status]
+    const items: OperationsMenuItem[] = [
+      {
+        key: 'view',
+        label: 'Ver detalle',
+        icon: 'bi-eye',
+        onClick: () => router.push(`/dashboard/quotes/${quote.id}`)
+      }
+    ]
+
+    if (statusConfig.canConvert) {
+      items.push(
+        {
+          key: 'generate-sale',
+          label: 'Generar venta',
+          icon: 'bi-cash-coin',
+          onClick: () => setConvertModal({ quote, type: 'sale' })
+        },
+        {
+          key: 'generate-order',
+          label: 'Generar pedido',
+          icon: 'bi-clipboard-check',
+          onClick: () => setConvertModal({ quote, type: 'order' })
+        }
+      )
+    }
+
+    items.push({
+      key: 'prefactura',
+      label: 'Prefactura',
+      icon: 'bi-file-earmark-medical',
+      onClick: () => handlePrefactura(quote),
+      disabled: !quote.salesOrderId,
+      title: quote.salesOrderId
+        ? 'Vista previa de la prefactura de la orden generada'
+        : 'Disponible cuando la cotizacion tenga una orden generada'
+    })
+
+    if (statusConfig.canSend && (quote.itemsCount ?? 0) > 0) {
+      items.push({
+        key: 'send',
+        label: 'Enviar al cliente',
+        icon: 'bi-send',
+        onClick: () => handleAction('send', quote)
+      })
+    }
+
+    if (statusConfig.canAccept) {
+      items.push({
+        key: 'accept',
+        label: 'Marcar aceptada',
+        icon: 'bi-check-lg',
+        onClick: () => handleAction('accept', quote)
+      })
+    }
+
+    if (statusConfig.canReject) {
+      items.push({
+        key: 'reject',
+        label: 'Marcar rechazada',
+        icon: 'bi-x-lg',
+        onClick: () => handleAction('reject', quote)
+      })
+    }
+
+    items.push(
+      { type: 'divider', key: 'div-docs' },
+      {
+        key: 'duplicate',
+        label: 'Duplicar',
+        icon: 'bi-copy',
+        onClick: () => handleAction('duplicate', quote)
+      },
+      {
+        key: 'export-csv',
+        label: 'Exportar partidas CSV',
+        icon: 'bi-filetype-csv',
+        onClick: () => handleExportCsv(quote)
+      },
+      {
+        key: 'download-pdf',
+        label: 'Descargar PDF',
+        icon: 'bi-file-earmark-pdf',
+        onClick: () => handleDownloadPdf(quote)
+      }
+    )
+
+    if (statusConfig.canCancel) {
+      items.push({
+        key: 'cancel',
+        label: 'Cancelar',
+        icon: 'bi-x-circle',
+        variant: 'warning',
+        onClick: () => handleAction('cancel', quote)
+      })
+    }
+
+    if (quote.status === 'draft') {
+      items.push(
+        { type: 'divider', key: 'div-danger' },
+        {
+          key: 'delete',
+          label: 'Eliminar',
+          icon: 'bi-trash',
+          variant: 'danger',
+          onClick: () => handleDelete(quote.id)
+        }
+      )
+    }
+
+    return items
   }
 
   if (isLoading) {
@@ -131,12 +300,11 @@ export function QuotesTable({ quotes, isLoading, onQuoteUpdated }: QuotesTablePr
               <th>Items</th>
               <th className="text-end">Total</th>
               <th>Estado</th>
-              <th className="text-end">Acciones</th>
+              <th className="text-end">Operaciones</th>
             </tr>
           </thead>
           <tbody>
             {quotes.map((quote) => {
-              const statusConfig = QUOTE_STATUS_CONFIG[quote.status]
               const isExpired = quote.validUntil && new Date(quote.validUntil) < new Date()
 
               return (
@@ -157,117 +325,12 @@ export function QuotesTable({ quotes, isLoading, onQuoteUpdated }: QuotesTablePr
                     <QuoteStatusBadge status={quote.status} />
                   </td>
                   <td className="text-end">
-                    <div className="dropdown">
-                      <button
-                        className="btn btn-sm btn-outline-secondary dropdown-toggle"
-                        type="button"
-                        data-bs-toggle="dropdown"
-                        disabled={actionLoading === quote.id}
-                      >
-                        {actionLoading === quote.id ? (
-                          <span className="spinner-border spinner-border-sm" role="status"></span>
-                        ) : (
-                          <i className="bi bi-three-dots"></i>
-                        )}
-                      </button>
-                      <ul className="dropdown-menu dropdown-menu-end">
-                        <li>
-                          <button
-                            className="dropdown-item"
-                            onClick={() => router.push(`/dashboard/quotes/${quote.id}`)}
-                          >
-                            <i className="bi bi-eye me-2"></i>
-                            Ver detalle
-                          </button>
-                        </li>
-
-                        {statusConfig.canSend && (quote.itemsCount ?? 0) > 0 && (
-                          <li>
-                            <button
-                              className="dropdown-item"
-                              onClick={() => handleAction('send', quote)}
-                            >
-                              <i className="bi bi-send me-2"></i>
-                              Enviar al cliente
-                            </button>
-                          </li>
-                        )}
-
-                        {statusConfig.canAccept && (
-                          <li>
-                            <button
-                              className="dropdown-item"
-                              onClick={() => handleAction('accept', quote)}
-                            >
-                              <i className="bi bi-check-lg me-2"></i>
-                              Marcar aceptada
-                            </button>
-                          </li>
-                        )}
-
-                        {statusConfig.canReject && (
-                          <li>
-                            <button
-                              className="dropdown-item"
-                              onClick={() => handleAction('reject', quote)}
-                            >
-                              <i className="bi bi-x-lg me-2"></i>
-                              Marcar rechazada
-                            </button>
-                          </li>
-                        )}
-
-                        {statusConfig.canConvert && (
-                          <li>
-                            <button
-                              className="dropdown-item"
-                              onClick={() => handleAction('convert', quote)}
-                            >
-                              <i className="bi bi-file-earmark-text me-2"></i>
-                              Convertir a orden
-                            </button>
-                          </li>
-                        )}
-
-                        <li><hr className="dropdown-divider" /></li>
-
-                        <li>
-                          <button
-                            className="dropdown-item"
-                            onClick={() => handleAction('duplicate', quote)}
-                          >
-                            <i className="bi bi-copy me-2"></i>
-                            Duplicar
-                          </button>
-                        </li>
-
-                        {statusConfig.canCancel && (
-                          <li>
-                            <button
-                              className="dropdown-item"
-                              onClick={() => handleAction('cancel', quote)}
-                            >
-                              <i className="bi bi-x-circle me-2"></i>
-                              Cancelar
-                            </button>
-                          </li>
-                        )}
-
-                        {quote.status === 'draft' && (
-                          <>
-                            <li><hr className="dropdown-divider" /></li>
-                            <li>
-                              <button
-                                className="dropdown-item text-danger"
-                                onClick={() => handleDelete(quote.id)}
-                              >
-                                <i className="bi bi-trash me-2"></i>
-                                Eliminar
-                              </button>
-                            </li>
-                          </>
-                        )}
-                      </ul>
+                    <div className="d-inline-block">
+                      <OperationsMenu
+                        items={buildMenuItems(quote)}
+                        buttonClassName="btn btn-sm btn-outline-secondary dropdown-toggle"
+                        loading={actionLoading === quote.id}
+                      />
                     </div>
                   </td>
                 </tr>
@@ -276,6 +339,24 @@ export function QuotesTable({ quotes, isLoading, onQuoteUpdated }: QuotesTablePr
           </tbody>
         </table>
       </div>
+
+      {/* Modales de conversion (Fase A: venta directa vs pedido) */}
+      {convertModal && (
+        <>
+          <GenerateSaleModal
+            quote={convertModal.quote}
+            isOpen={convertModal.type === 'sale'}
+            onClose={() => setConvertModal(null)}
+            onConverted={handleConverted}
+          />
+          <GenerateOrderModal
+            quote={convertModal.quote}
+            isOpen={convertModal.type === 'order'}
+            onClose={() => setConvertModal(null)}
+            onConverted={handleConverted}
+          />
+        </>
+      )}
 
       <ConfirmModal ref={confirmModalRef} />
     </>

@@ -69,6 +69,48 @@ export const salesService = {
       return response.data
     },
 
+    /**
+     * Sube el PDF de la orden de compra del cliente (pedidos).
+     * multipart/form-data campo `file`, PDF max 10MB.
+     * Content-Type: undefined deja que el browser ponga el boundary
+     * (mismo patron que productService.uploadImage).
+     */
+    uploadCustomerPo: async (id: string, file: File) => {
+      const formData = new FormData()
+      formData.append('file', file)
+      const response = await axiosClient.post(`/api/v1/sales-orders/${id}/upload-customer-po`, formData, {
+        headers: { 'Content-Type': undefined }
+      })
+      return response.data
+    },
+
+    /** Descarga el PDF de la orden de compra del cliente. */
+    downloadCustomerPo: async (id: string, orderNumber?: string) => {
+      const response = await axiosClient.get(`/api/v1/sales-orders/${id}/download-customer-po`, {
+        responseType: 'blob'
+      })
+      const blob = new Blob([response.data], { type: 'application/pdf' })
+      const url = window.URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `oc-cliente-${orderNumber || id}.pdf`
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      window.URL.revokeObjectURL(url)
+    },
+
+    /**
+     * Prefactura (PDF de vista previa, no crea CFDI) a partir de la orden.
+     * Endpoint del modulo Billing: POST /sales-orders/{id}/prefactura.
+     */
+    prefactura: async (id: string): Promise<Blob> => {
+      const response = await axiosClient.post(`/api/v1/sales-orders/${id}/prefactura`, {}, {
+        responseType: 'blob'
+      })
+      return response.data
+    },
+
     getStockAvailability: async (id: string) => {
       const response = await axiosClient.get(`/api/v1/sales-orders/${id}/stock-availability`)
       return response.data as {

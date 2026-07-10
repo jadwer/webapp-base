@@ -21,7 +21,10 @@ import type {
   QuoteFilters,
   QuoteSortOptions,
   QuoteSummary,
-  QuotePaginationMeta
+  QuotePaginationMeta,
+  ProductRef,
+  StockRef,
+  StockShortageItem
 } from '../types'
 
 // JSON:API resource types
@@ -86,6 +89,52 @@ function parseQuoteItem(resource: JsonApiResource): QuoteItem {
     id: resource.id,
     ...attributes
   } as QuoteItem
+}
+
+// Resolve the product (with its stock) for a quote item from the JSON:API
+// `included` array. El semaforo de stock (QuoteItemsTable y los modales de
+// Generar venta / Generar pedido) depende de item.product.stock.
+function resolveQuoteItemProduct(
+  resource: JsonApiResource,
+  includedMap: Map<string, JsonApiResource>
+): ProductRef | undefined {
+  const productRel = resource.relationships?.product as
+    | { data?: { type: string; id: string } | null }
+    | undefined
+  if (!productRel?.data) return undefined
+
+  const productResource = includedMap.get(`${productRel.data.type}:${productRel.data.id}`)
+  if (!productResource) return undefined
+
+  const productAttrs = transformToCamelCase(productResource.attributes)
+
+  // Stock relationship (HasMany) -> stocks in included
+  const stockRel = productResource.relationships?.stock as
+    | { data?: Array<{ type: string; id: string }> }
+    | undefined
+  const stock: StockRef[] = (stockRel?.data || [])
+    .map((ref) => includedMap.get(`${ref.type}:${ref.id}`))
+    .filter((s): s is JsonApiResource => Boolean(s))
+    .map((s) => ({
+      id: s.id,
+      ...transformToCamelCase(s.attributes)
+    })) as StockRef[]
+
+  return {
+    id: productResource.id,
+    name: (productAttrs.name as string) || '',
+    sku: (productAttrs.sku as string) || '',
+    price: (productAttrs.price as number) || 0,
+    stock
+  }
+}
+
+function buildIncludedMap(included?: JsonApiResource[]): Map<string, JsonApiResource> {
+  const map = new Map<string, JsonApiResource>()
+  for (const resource of included || []) {
+    map.set(`${resource.type}:${resource.id}`, resource)
+  }
+  return map
 }
 
 // Build query parameters for API requests
@@ -316,11 +365,16 @@ export const quoteService = {
   },
 
   /**
-   * Convert quote to sales order
+   * Convert quote to sales order (venta directa o pedido).
+   *
+   * order_type 'direct_sale' con stock insuficiente responde 422 con
+   * `errors: StockShortageItem[]`. order_type 'order' regresa ademas
+   * `items_requiring_purchase` (informativo, no bloquea).
    */
   async convert(id: string, data?: ConvertQuoteRequest): Promise<{
     data: { quote: Quote; salesOrder: { type: string; id: string; attributes: Record<string, unknown> } }
     message: string
+    items_requiring_purchase?: StockShortageItem[]
   }> {
     const response = await axios.post<{
       data: {
@@ -328,6 +382,8 @@ export const quoteService = {
         salesOrder: { type: string; id: string; attributes: Record<string, unknown> }
       }
       message: string
+      items_requiring_purchase?: StockShortageItem[]
+      meta?: { items_requiring_purchase?: StockShortageItem[] }
     }>(`${QUOTES_BASE_URL}/${id}/convert`, data || {})
 
     return {
@@ -335,7 +391,9 @@ export const quoteService = {
         quote: parseQuote(response.data.data.quote),
         salesOrder: response.data.data.salesOrder
       },
-      message: response.data.message
+      message: response.data.message,
+      items_requiring_purchase:
+        response.data.items_requiring_purchase ?? response.data.meta?.items_requiring_purchase
     }
   },
 
@@ -446,11 +504,21 @@ export const quoteItemService = {
     const response = await axios.get<JsonApiResponse<JsonApiResource[]>>(QUOTE_ITEMS_BASE_URL, {
       params: {
         'filter[quote]': quoteId,
-        include: 'product'
+        include: 'product,product.stock'
       }
     })
 
-    return response.data.data.map(parseQuoteItem)
+    // Resolver product + stock desde included para el semaforo de stock
+    const includedMap = buildIncludedMap(response.data.included)
+
+    return response.data.data.map((resource) => {
+      const item = parseQuoteItem(resource)
+      const product = resolveQuoteItemProduct(resource, includedMap)
+      if (product) {
+        item.product = product
+      }
+      return item
+    })
   },
 
   /**

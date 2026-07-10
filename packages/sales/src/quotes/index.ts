@@ -34,5 +34,10 @@ export {
   QuoteItemsTable,
   QuoteSummaryCards,
   QuoteSendButton,
-  QuoteConvertModal
+  GenerateSaleModal,
+  GenerateOrderModal
 } from './components'
+
+// Stock helpers (semaforo de stock de items de cotizacion)
+export { getTotalAvailableStock, getQuoteItemStockStatus } from './utils/stock'
+export type { QuoteItemStockStatus } from './utils/stock'

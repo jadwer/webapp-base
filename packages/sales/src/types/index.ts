@@ -16,6 +16,18 @@ export type OrderStatus =
 export type InvoicingStatus = 'pending' | 'partial' | 'invoiced' | 'not_required'
 export type FinancialStatus = 'pending' | 'partial' | 'paid' | 'overdue'
 
+// Fase A - Venta directa vs Pedido
+// Metodo de pago SAT: PUE (pago en una exhibicion) | PPD (pago en parcialidades o diferido)
+export type PaymentMethod = 'PPD' | 'PUE'
+// direct_sale = venta directa (mostrador, presupone stock, nace confirmed)
+// order = pedido (proceso completo, requiere OC del cliente, nace pending)
+export type SalesOrderType = 'direct_sale' | 'order'
+
+export const ORDER_TYPE_LABELS: Record<SalesOrderType, string> = {
+  direct_sale: 'Venta directa',
+  order: 'Pedido',
+}
+
 export interface SalesOrder {
   id: string
   contactId: number
@@ -25,6 +37,12 @@ export interface SalesOrder {
   status: OrderStatus
   approvedAt: string | null
   deliveredAt: string | null
+  // Fase A - Venta directa vs Pedido
+  orderType?: SalesOrderType
+  customerPoNumber?: string | null
+  customerPoPath?: string | null
+  paymentMethod?: PaymentMethod | null
+  creditDays?: number | null
   // Finance integration fields
   arInvoiceId: number | null
   invoicingStatus: InvoicingStatus

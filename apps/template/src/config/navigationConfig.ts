@@ -129,11 +129,12 @@ export const adminNavigation: NavigationSection = {
       key: 'sales',
       label: 'Ventas',
       icon: 'bi-cart-check',
-      activePathPrefixes: ['/dashboard/sales'],
+      activePathPrefixes: ['/dashboard/sales', '/dashboard/remissions'],
       permissions: [],
       items: [
         { href: '/dashboard/sales', label: 'Órdenes de Venta', icon: 'bi-cart-check', permissions: ['sales-orders.index'] },
         { href: '/dashboard/sales/create', label: 'Nueva Orden', icon: 'bi-plus-circle', permissions: ['sales-orders.store'] },
+        { href: '/dashboard/remissions', label: 'Remisiones', icon: 'bi-truck', permissions: ['remissions.index'] },
         { href: '/dashboard/sales/reports', label: 'Reportes', icon: 'bi-graph-up', permissions: ['sales-orders.index'] },
         { href: '/dashboard/sales/customers', label: 'Clientes', icon: 'bi-person-heart', permissions: ['sales-orders.index'] },
       ],

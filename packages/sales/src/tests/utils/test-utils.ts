@@ -49,6 +49,12 @@ export const mockSalesOrder = (overrides?: Partial<SalesOrder>): SalesOrder => (
   status: 'draft',
   approvedAt: null,
   deliveredAt: null,
+  // Fase A - Venta directa vs Pedido
+  orderType: 'order',
+  customerPoNumber: null,
+  customerPoPath: null,
+  paymentMethod: null,
+  creditDays: null,
   arInvoiceId: null,
   invoicingStatus: 'pending',
   invoicingNotes: null,
