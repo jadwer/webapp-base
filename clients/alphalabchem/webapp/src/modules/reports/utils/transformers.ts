@@ -17,6 +17,15 @@ import type {
   PurchaseBySupplier,
   PurchaseByProduct,
   ReportResponse,
+  ReportPeriod,
+  EmployeeSales,
+  SalesByEmployee,
+  BatchSales,
+  SalesByBatch,
+  ProductProfitability,
+  SalesProfitability,
+  SalesTrendData,
+  SalesTrend,
 } from '../types'
 
 // ============================================================================
@@ -483,5 +492,173 @@ export function transformPurchaseByProductResponse(response: Record<string, unkn
   return {
     data: transformJsonApiPurchaseByProduct(response.data as Record<string, unknown>),
     meta: response.meta as Record<string, unknown> | undefined,
+  }
+}
+
+// ============================================================================
+// PHASE 13: ADVANCED SALES REPORTS (snake_case backend -> camelCase frontend)
+// ============================================================================
+
+function toNumber(value: unknown): number {
+  const n = Number(value)
+  return Number.isFinite(n) ? n : 0
+}
+
+
+type RawRecord = Record<string, unknown>
+
+function toRecord(value: unknown): RawRecord {
+  return value && typeof value === 'object' ? (value as RawRecord) : {}
+}
+
+function toRecordArray(value: unknown): RawRecord[] {
+  return Array.isArray(value) ? (value as RawRecord[]) : []
+}
+
+function transformReportPeriod(raw: unknown): ReportPeriod {
+  const period = toRecord(raw)
+  return {
+    startDate: (period.start_date ?? period.startDate ?? '') as string,
+    endDate: (period.end_date ?? period.endDate ?? '') as string,
+  }
+}
+
+function transformEmployeeSales(raw: RawRecord): EmployeeSales {
+  const rawId = raw.employee_id ?? raw.employeeId
+  return {
+    employeeId: rawId === null || rawId === undefined ? null : toNumber(rawId),
+    employeeName: (raw.employee_name ?? raw.employeeName ?? '') as string,
+    orderCount: toNumber(raw.order_count ?? raw.orderCount),
+    totalSales: toNumber(raw.total_sales ?? raw.totalSales),
+    totalCost: toNumber(raw.total_cost ?? raw.totalCost),
+    grossProfit: toNumber(raw.gross_profit ?? raw.grossProfit),
+    marginPercentage: toNumber(raw.margin_percentage ?? raw.marginPercentage),
+    averageOrderValue: toNumber(raw.average_order_value ?? raw.averageOrderValue),
+  }
+}
+
+export function transformSalesByEmployeeReport(raw: unknown): SalesByEmployee {
+  const report = toRecord(raw)
+  const summary = toRecord(report.summary)
+
+  return {
+    period: transformReportPeriod(report.period),
+    reportType: (report.report_type ?? report.reportType ?? 'sales_by_employee') as string,
+    currency: (report.currency ?? 'MXN') as string,
+    employees: toRecordArray(report.employees).map(transformEmployeeSales),
+    summary: {
+      totalEmployees: toNumber(summary.total_employees ?? summary.totalEmployees),
+      totalOrders: toNumber(summary.total_orders ?? summary.totalOrders),
+      totalSales: toNumber(summary.total_sales ?? summary.totalSales),
+      totalCost: toNumber(summary.total_cost ?? summary.totalCost),
+      totalProfit: toNumber(summary.total_profit ?? summary.totalProfit),
+      averageMargin: toNumber(summary.average_margin ?? summary.averageMargin),
+    },
+  }
+}
+
+function transformBatchSales(raw: RawRecord): BatchSales {
+  return {
+    batchId: toNumber(raw.batch_id ?? raw.batchId),
+    batchNumber: (raw.batch_number ?? raw.batchNumber ?? '') as string,
+    lotNumber: (raw.lot_number ?? raw.lotNumber ?? null) as string | null,
+    productId: toNumber(raw.product_id ?? raw.productId),
+    productName: (raw.product_name ?? raw.productName ?? '') as string,
+    productSku: (raw.product_sku ?? raw.productSku ?? '') as string,
+    expirationDate: (raw.expiration_date ?? raw.expirationDate ?? null) as string | null,
+    isExpiringSoon: Boolean(raw.is_expiring_soon ?? raw.isExpiringSoon),
+    quantitySold: toNumber(raw.quantity_sold ?? raw.quantitySold),
+    unitCost: toNumber(raw.unit_cost ?? raw.unitCost),
+    totalCost: toNumber(raw.total_cost ?? raw.totalCost),
+    estimatedRevenue: toNumber(raw.estimated_revenue ?? raw.estimatedRevenue),
+    grossProfit: toNumber(raw.gross_profit ?? raw.grossProfit),
+    marginPercentage: toNumber(raw.margin_percentage ?? raw.marginPercentage),
+    movementCount: toNumber(raw.movement_count ?? raw.movementCount),
+  }
+}
+
+export function transformSalesByBatchReport(raw: unknown): SalesByBatch {
+  const report = toRecord(raw)
+  const summary = toRecord(report.summary)
+
+  return {
+    period: transformReportPeriod(report.period),
+    reportType: (report.report_type ?? report.reportType ?? 'sales_by_batch') as string,
+    currency: (report.currency ?? 'MXN') as string,
+    batches: toRecordArray(report.batches).map(transformBatchSales),
+    summary: {
+      totalBatches: toNumber(summary.total_batches ?? summary.totalBatches),
+      totalQuantitySold: toNumber(summary.total_quantity_sold ?? summary.totalQuantitySold),
+      totalCost: toNumber(summary.total_cost ?? summary.totalCost),
+      totalRevenue: toNumber(summary.total_revenue ?? summary.totalRevenue),
+      totalProfit: toNumber(summary.total_profit ?? summary.totalProfit),
+      averageMargin: toNumber(summary.average_margin ?? summary.averageMargin),
+    },
+  }
+}
+
+function transformProductProfitability(raw: RawRecord): ProductProfitability {
+  return {
+    productId: toNumber(raw.product_id ?? raw.productId),
+    productCode: (raw.product_code ?? raw.productCode ?? '') as string,
+    productName: (raw.product_name ?? raw.productName ?? '') as string,
+    categoryName: (raw.category_name ?? raw.categoryName ?? '') as string,
+    quantitySold: toNumber(raw.quantity_sold ?? raw.quantitySold),
+    revenue: toNumber(raw.revenue),
+    cost: toNumber(raw.cost),
+    grossProfit: toNumber(raw.gross_profit ?? raw.grossProfit),
+    marginPercentage: toNumber(raw.margin_percentage ?? raw.marginPercentage),
+    averagePrice: toNumber(raw.average_price ?? raw.averagePrice),
+    averageCost: toNumber(raw.average_cost ?? raw.averageCost),
+  }
+}
+
+export function transformProfitabilityReport(raw: unknown): SalesProfitability {
+  const report = toRecord(raw)
+  const summary = toRecord(report.summary)
+
+  return {
+    period: transformReportPeriod(report.period),
+    reportType: (report.report_type ?? report.reportType ?? 'sales_profitability') as string,
+    currency: (report.currency ?? 'MXN') as string,
+    products: toRecordArray(report.products).map(transformProductProfitability),
+    summary: {
+      totalProducts: toNumber(summary.total_products ?? summary.totalProducts),
+      totalQuantity: toNumber(summary.total_quantity ?? summary.totalQuantity),
+      totalRevenue: toNumber(summary.total_revenue ?? summary.totalRevenue),
+      totalCost: toNumber(summary.total_cost ?? summary.totalCost),
+      totalProfit: toNumber(summary.total_profit ?? summary.totalProfit),
+      averageMargin: toNumber(summary.average_margin ?? summary.averageMargin),
+    },
+  }
+}
+
+function transformSalesTrendData(raw: RawRecord): SalesTrendData {
+  return {
+    period: (raw.period ?? '') as string,
+    orderCount: toNumber(raw.order_count ?? raw.orderCount),
+    totalSales: toNumber(raw.total_sales ?? raw.totalSales),
+    subtotal: toNumber(raw.subtotal),
+    taxTotal: toNumber(raw.tax_total ?? raw.taxTotal),
+    averageOrderValue: toNumber(raw.average_order_value ?? raw.averageOrderValue),
+  }
+}
+
+export function transformSalesTrendReport(raw: unknown): SalesTrend {
+  const report = toRecord(raw)
+  const summary = toRecord(report.summary)
+
+  return {
+    period: transformReportPeriod(report.period),
+    reportType: (report.report_type ?? report.reportType ?? 'sales_trend') as string,
+    groupBy: (report.group_by ?? report.groupBy ?? 'day') as string,
+    currency: (report.currency ?? 'MXN') as string,
+    trends: toRecordArray(report.trends).map(transformSalesTrendData),
+    summary: {
+      totalPeriods: toNumber(summary.total_periods ?? summary.totalPeriods),
+      totalOrders: toNumber(summary.total_orders ?? summary.totalOrders),
+      totalSales: toNumber(summary.total_sales ?? summary.totalSales),
+      averagePerPeriod: toNumber(summary.average_per_period ?? summary.averagePerPeriod),
+    },
   }
 }

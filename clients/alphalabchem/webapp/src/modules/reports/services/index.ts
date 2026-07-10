@@ -16,6 +16,12 @@ import type {
   SalesByBatchFilters,
   SalesTrendFilters,
 } from '../types'
+import {
+  transformSalesByEmployeeReport,
+  transformSalesByBatchReport,
+  transformProfitabilityReport,
+  transformSalesTrendReport,
+} from '../utils/transformers'
 
 // Base URL for all reports
 const REPORTS_BASE = '/api/v1/reports'
@@ -400,7 +406,8 @@ export const salesByEmployeeService = {
 
     const url = `${REPORTS_BASE}/sales-by-employee?${queryParams.toString()}`
     const response = await axiosClient.get(url)
-    return response.data
+    // Backend responds { data: { period, report_type, employees, summary } } in snake_case
+    return { data: transformSalesByEmployeeReport(response.data?.data) }
   },
 }
 
@@ -418,7 +425,8 @@ export const salesByBatchService = {
 
     const url = `${REPORTS_BASE}/sales-by-batch?${queryParams.toString()}`
     const response = await axiosClient.get(url)
-    return response.data
+    // Backend responds { data: { period, report_type, batches, summary } } in snake_case
+    return { data: transformSalesByBatchReport(response.data?.data) }
   },
 }
 
@@ -433,7 +441,8 @@ export const salesProfitabilityService = {
 
     const url = `${REPORTS_BASE}/sales-profitability?${queryParams.toString()}`
     const response = await axiosClient.get(url)
-    return response.data
+    // Backend responds { data: { period, report_type, products, summary } } in snake_case
+    return { data: transformProfitabilityReport(response.data?.data) }
   },
 }
 
@@ -446,7 +455,8 @@ export const salesTrendService = {
 
     const url = `${REPORTS_BASE}/sales-trend?${queryParams.toString()}`
     const response = await axiosClient.get(url)
-    return response.data
+    // Backend responds { data: { period, report_type, trends, summary } } in snake_case
+    return { data: transformSalesTrendReport(response.data?.data) }
   },
 }
 

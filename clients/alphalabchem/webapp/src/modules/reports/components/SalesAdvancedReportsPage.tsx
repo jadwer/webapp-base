@@ -650,7 +650,7 @@ export const SalesAdvancedReportsPage = () => {
                                     <span className="text-muted">-</span>
                                   )}
                                 </td>
-                                <td className="text-end">{batch.quantitySold.toFixed(0)}</td>
+                                <td className="text-end">{(batch.quantitySold ?? 0).toFixed(0)}</td>
                                 <td className="text-end">{formatCurrency(batch.unitCost)}</td>
                                 <td className="text-end">{formatCurrency(batch.estimatedRevenue)}</td>
                                 <td className="text-end">
@@ -790,7 +790,7 @@ export const SalesAdvancedReportsPage = () => {
                                 <td><code>{product.productCode}</code></td>
                                 <td><strong>{product.productName}</strong></td>
                                 <td><small className="text-muted">{product.categoryName}</small></td>
-                                <td className="text-end">{product.quantitySold.toFixed(0)}</td>
+                                <td className="text-end">{(product.quantitySold ?? 0).toFixed(0)}</td>
                                 <td className="text-end">{formatCurrency(product.revenue)}</td>
                                 <td className="text-end text-muted">{formatCurrency(product.cost)}</td>
                                 <td className="text-end text-success">
