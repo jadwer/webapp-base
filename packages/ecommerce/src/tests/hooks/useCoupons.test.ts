@@ -433,9 +433,9 @@ describe('useCoupons Hooks', () => {
       expect(applyResult?.error).toBe('Coupon is not active');
     });
 
-    it('should create coupon with all discount types', async () => {
-      // Business Rule: Support all discount types
-      const discountTypes: Array<'percentage' | 'fixed_amount' | 'free_shipping'> = [
+    it('should create coupon with all coupon types', async () => {
+      // Business Rule: Support all coupon types (CouponSchema: percentage|fixed_amount|free_shipping)
+      const couponTypes: Array<'percentage' | 'fixed_amount' | 'free_shipping'> = [
         'percentage',
         'fixed_amount',
         'free_shipping',
@@ -443,19 +443,19 @@ describe('useCoupons Hooks', () => {
 
       const { result } = renderHook(() => useCouponMutations());
 
-      for (const discountType of discountTypes) {
-        const mockCoupon = createMockCoupon({ discountType });
+      for (const couponType of couponTypes) {
+        const mockCoupon = createMockCoupon({ couponType });
         mockService.create.mockResolvedValueOnce(mockCoupon);
 
         await act(async () => {
           const coupon = await result.current.createCoupon({
-            code: `TYPE_${discountType.toUpperCase()}`,
-            name: `${discountType} coupon`,
-            couponType: discountType as any,
-            value: discountType === 'free_shipping' ? 0 : 10,
+            code: `TYPE_${couponType.toUpperCase()}`,
+            name: `${couponType} coupon`,
+            couponType,
+            value: couponType === 'free_shipping' ? 0 : 10,
             isActive: true,
           } as any);
-          expect(coupon.discountType).toBe(discountType);
+          expect(coupon.couponType).toBe(couponType);
         });
       }
     });

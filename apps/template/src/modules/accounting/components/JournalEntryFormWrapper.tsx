@@ -4,7 +4,7 @@ import React from 'react'
 import { useRouter } from 'next/navigation'
 import { JournalEntryForm } from './JournalEntryForm'
 import { useJournalEntry, useJournalEntryMutations } from '../hooks'
-import { useToast } from '@/ui/hooks/useToast'
+import { toast } from '@/lib/toast'
 import { Alert } from '@/ui/components/base'
 import type { JournalEntryWithLines } from '../types'
 
@@ -20,7 +20,6 @@ export const JournalEntryFormWrapper: React.FC<JournalEntryFormWrapperProps> = (
   onCancel
 }) => {
   const router = useRouter()
-  const toast = useToast()
   const { journalEntry, isLoading: journalEntryLoading, error: journalEntryError } = useJournalEntry(journalEntryId || null)
   const { createJournalEntryWithLines } = useJournalEntryMutations()
 

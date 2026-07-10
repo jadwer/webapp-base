@@ -4,7 +4,7 @@ import React from 'react'
 import { useRouter } from 'next/navigation'
 import { AccountForm } from './AccountForm'
 import { useAccount, useAccountMutations } from '../hooks'
-import { useToast } from '@/ui/hooks/useToast'
+import { toast } from '@/lib/toast'
 import { Alert } from '@/ui/components/base'
 import type { AccountFormData } from '../types'
 
@@ -20,7 +20,6 @@ export const AccountFormWrapper: React.FC<AccountFormWrapperProps> = ({
   onCancel
 }) => {
   const router = useRouter()
-  const toast = useToast()
   const { account, isLoading: accountLoading, error: accountError } = useAccount(accountId || null)
   const { createAccount, updateAccount } = useAccountMutations()
 

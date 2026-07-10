@@ -404,23 +404,25 @@ export function createMockRatingSummary(overrides?: Partial<MockRatingSummary>):
   }
 }
 
+// Mirrors the real Coupon type (src/types/index.ts): couponType percentage|fixed_amount|free_shipping
 export interface MockCoupon {
   id: string
   code: string
   name: string
-  description?: string
-  discountType: 'percentage' | 'fixed_amount' | 'free_shipping'
-  discountValue: number
-  minimumOrderAmount?: number
-  maximumDiscount?: number
-  usageLimit?: number
-  usageCount: number
-  perUserLimit?: number
-  startsAt?: string
-  expiresAt?: string
+  description: string | null
+  couponType: 'percentage' | 'fixed_amount' | 'free_shipping'
+  value: number
+  minAmount: number
+  maxAmount: number | null
+  maxUses: number
+  usedCount: number
+  startsAt: string
+  expiresAt: string
   isActive: boolean
-  applicableProducts?: number[]
-  applicableCategories?: number[]
+  customerIds: number[]
+  productIds: number[]
+  categoryIds: number[]
+  currency: string | null
   createdAt: string
   updatedAt: string
 }
@@ -431,18 +433,19 @@ export function createMockCoupon(overrides?: Partial<MockCoupon>): MockCoupon {
     code: 'SAVE10',
     name: '10% Discount',
     description: 'Save 10% on your order',
-    discountType: 'percentage',
-    discountValue: 10,
-    minimumOrderAmount: 100,
-    maximumDiscount: 50,
-    usageLimit: 100,
-    usageCount: 25,
-    perUserLimit: 1,
+    couponType: 'percentage',
+    value: 10,
+    minAmount: 100,
+    maxAmount: 50,
+    maxUses: 100,
+    usedCount: 25,
     startsAt: '2025-01-01T00:00:00Z',
     expiresAt: '2025-12-31T23:59:59Z',
     isActive: true,
-    applicableProducts: [],
-    applicableCategories: [],
+    customerIds: [],
+    productIds: [],
+    categoryIds: [],
+    currency: null,
     createdAt: '2025-01-01T00:00:00Z',
     updatedAt: '2025-01-01T00:00:00Z',
     ...overrides,

@@ -4,7 +4,7 @@ import React, { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useFeaturedProducts, useLocalCart, type EnhancedPublicProduct } from '@/modules/public-catalog'
-import { useToast } from '@/ui/hooks/useToast'
+import { toast } from '@/lib/toast'
 import { Button } from '@/ui/components/base'
 import { usePublicSettings } from '@/modules/app-config'
 
@@ -13,7 +13,6 @@ export const OfertasPageClient: React.FC = () => {
   const [limit, setLimit] = useState(12)
   const { products, isLoading, error, mutate } = useFeaturedProducts(limit, 'unit,category,brand')
   const { addToCart } = useLocalCart()
-  const toast = useToast()
 
   const handleAddToCart = (product: EnhancedPublicProduct) => {
     addToCart(product, 1)

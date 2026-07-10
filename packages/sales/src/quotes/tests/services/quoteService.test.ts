@@ -23,14 +23,18 @@ import {
 } from '../utils/test-utils';
 
 // Mock axios client
-vi.mock('@/lib/axiosClient', () => ({
-  default: {
-    get: vi.fn(),
-    post: vi.fn(),
-    patch: vi.fn(),
-    delete: vi.fn(),
-  },
-}));
+vi.mock('@lwm/auth', async () => {
+  const actual = await vi.importActual<typeof import('@lwm/auth')>('@lwm/auth');
+  return {
+    ...actual,
+    axiosClient: {
+      get: vi.fn(),
+      post: vi.fn(),
+      patch: vi.fn(),
+      delete: vi.fn(),
+    },
+  };
+});
 
 import { axiosClient } from '@lwm/auth';
 
@@ -746,7 +750,7 @@ describe('quoteItemService', () => {
       expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/quote-items', {
         params: {
           'filter[quote]': '1',
-          include: 'product',
+          include: 'product,product.stock',
         },
       });
       expect(result).toHaveLength(2);

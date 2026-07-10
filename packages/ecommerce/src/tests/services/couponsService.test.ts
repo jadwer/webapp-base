@@ -42,12 +42,12 @@ function createCouponAPIResponse(coupon: ReturnType<typeof createMockCoupon>) {
       attributes: {
         code: coupon.code,
         name: coupon.name,
-        couponType: coupon.discountType,
-        value: coupon.discountValue,
-        minAmount: coupon.minimumOrderAmount ?? null,
-        maxAmount: coupon.maximumDiscount ?? null,
-        maxUses: coupon.usageLimit ?? null,
-        usedCount: coupon.usageCount,
+        couponType: coupon.couponType,
+        value: coupon.value,
+        minAmount: coupon.minAmount ?? null,
+        maxAmount: coupon.maxAmount ?? null,
+        maxUses: coupon.maxUses ?? null,
+        usedCount: coupon.usedCount,
         startsAt: coupon.startsAt ?? null,
         expiresAt: coupon.expiresAt ?? null,
         isActive: coupon.isActive,
@@ -78,12 +78,12 @@ describe('couponsService', () => {
               attributes: {
                 code: mockCoupon.code,
                 name: mockCoupon.name,
-                couponType: mockCoupon.discountType,
-                value: mockCoupon.discountValue,
-                minAmount: mockCoupon.minimumOrderAmount ?? null,
-                maxAmount: mockCoupon.maximumDiscount ?? null,
-                maxUses: mockCoupon.usageLimit ?? null,
-                usedCount: mockCoupon.usageCount,
+                couponType: mockCoupon.couponType,
+                value: mockCoupon.value,
+                minAmount: mockCoupon.minAmount ?? null,
+                maxAmount: mockCoupon.maxAmount ?? null,
+                maxUses: mockCoupon.maxUses ?? null,
+                usedCount: mockCoupon.usedCount,
                 startsAt: mockCoupon.startsAt ?? null,
                 expiresAt: mockCoupon.expiresAt ?? null,
                 isActive: mockCoupon.isActive,
@@ -194,8 +194,8 @@ describe('couponsService', () => {
     it('should create a fixed amount coupon', async () => {
       // Arrange
       const mockCoupon = createMockCoupon({
-        discountType: 'fixed_amount',
-        discountValue: 50,
+        couponType: 'fixed_amount',
+        value: 50,
       });
       mockAxios.post.mockResolvedValue({
         data: createCouponAPIResponse(mockCoupon),
@@ -222,8 +222,8 @@ describe('couponsService', () => {
     it('should create a free shipping coupon', async () => {
       // Arrange
       const mockCoupon = createMockCoupon({
-        discountType: 'free_shipping',
-        discountValue: 0,
+        couponType: 'free_shipping',
+        value: 0,
       });
       mockAxios.post.mockResolvedValue({
         data: createCouponAPIResponse(mockCoupon),

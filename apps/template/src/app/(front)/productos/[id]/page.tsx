@@ -8,7 +8,7 @@
 
 import React, { use } from 'react'
 import { ProductDetailPage } from '@/modules/public-catalog'
-import { useToast } from '@/ui/hooks/useToast'
+import { toast } from '@/lib/toast'
 import type { EnhancedPublicProduct } from '@/modules/public-catalog'
 
 interface ProductDetailRouteProps {
@@ -17,7 +17,6 @@ interface ProductDetailRouteProps {
 
 export default function ProductDetailRoute({ params }: ProductDetailRouteProps) {
   const { id } = use(params)
-  const toast = useToast()
 
   const handleAddToCart = (product: EnhancedPublicProduct) => {
     toast.success(`${product.displayName} agregado al carrito`)
