@@ -138,6 +138,22 @@ export function useCFDIInvoicesMutations() {
     await cfdiInvoicesService.sendEmail(id, email)
   }, [])
 
+  const validateSAT = useCallback(async (id: string) => {
+    return await cfdiInvoicesService.validateSAT(id)
+  }, [])
+
+  const getCancellationStatus = useCallback(async (id: string) => {
+    return await cfdiInvoicesService.getCancellationStatus(id)
+  }, [])
+
+  const downloadPrefactura = useCallback(async (id: string) => {
+    return await cfdiInvoicesService.prefacturaDownload(id)
+  }, [])
+
+  const previewPrefactura = useCallback((id: string) => {
+    return cfdiInvoicesService.prefacturaPreview(id)
+  }, [])
+
   return {
     createInvoice,
     createInvoiceWithItems,
@@ -150,6 +166,10 @@ export function useCFDIInvoicesMutations() {
     downloadXML,
     downloadPDF,
     sendEmail,
+    validateSAT,
+    getCancellationStatus,
+    downloadPrefactura,
+    previewPrefactura,
   }
 }
 
@@ -391,5 +411,35 @@ export function useCFDIWorkflow() {
     generatePDF,
     stampInvoice,
     cancelInvoice,
+  }
+}
+
+// ============================================================================
+// SALES ORDER BILLING HOOKS (Prefactura / Facturar directly from SalesOrder)
+// ============================================================================
+
+/**
+ * Hook for billing actions triggered from a SalesOrder
+ * - prefacturaFromOrder: preview PDF of prefactura without creating a CFDI record
+ * - facturar: creates the CFDI invoice from the sales order (GAP 5 automation)
+ */
+export function useSalesOrderBillingMutations() {
+  const prefacturaFromOrder = useCallback(
+    async (
+      orderId: string,
+      options?: Parameters<typeof cfdiInvoicesService.prefacturaFromOrder>[1]
+    ) => {
+      return await cfdiInvoicesService.prefacturaFromOrder(orderId, options)
+    },
+    []
+  )
+
+  const facturar = useCallback(async (orderId: string) => {
+    return await cfdiInvoicesService.createFromOrder(orderId)
+  }, [])
+
+  return {
+    prefacturaFromOrder,
+    facturar,
   }
 }

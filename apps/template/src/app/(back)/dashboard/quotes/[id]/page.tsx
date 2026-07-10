@@ -8,6 +8,8 @@ import {
   useQuoteMutations,
   QuoteStatusBadge,
   QuoteItemsTable,
+  QuoteSendButton,
+  QuoteConvertModal,
   QUOTE_STATUS_CONFIG,
   canEditQuote
 } from '@/modules/quotes'
@@ -55,15 +57,11 @@ export default function QuoteDetailPage({ params }: PageProps) {
     })
   }
 
-  const handleAction = async (action: 'send' | 'accept' | 'cancel' | 'duplicate') => {
+  const handleAction = async (action: 'accept' | 'cancel' | 'duplicate') => {
     if (!quote) return
 
     try {
       switch (action) {
-        case 'send':
-          await mutations.send.mutateAsync(quote.id)
-          toast.success('Cotizacion enviada al cliente')
-          break
         case 'accept':
           await mutations.accept.mutateAsync(quote.id)
           toast.success('Cotizacion marcada como aceptada')
@@ -84,34 +82,8 @@ export default function QuoteDetailPage({ params }: PageProps) {
     }
   }
 
-  const handleConvert = async () => {
-    if (!quote) return
-
-    const confirmed = await confirmModalRef.current?.confirm(
-      'Esta accion creara una nueva orden de venta con los productos y precios de esta cotizacion. La cotizacion quedara marcada como "Convertida".',
-      {
-        title: 'Convertir a Orden de Venta',
-        confirmText: 'Convertir',
-        cancelText: 'Cancelar',
-        confirmVariant: 'primary'
-      }
-    )
-
-    if (!confirmed) return
-
-    try {
-      const result = await mutations.convert.mutateAsync({ id: quote.id })
-      const orderNumber = result.data.salesOrder?.attributes?.orderNumber || result.data.salesOrder?.attributes?.order_number || ''
-      const salesOrderId = result.data.salesOrder?.id
-      toast.success(`Orden de venta ${orderNumber} creada`)
-      if (salesOrderId) {
-        router.push(`/dashboard/sales/${salesOrderId}`)
-      } else {
-        refetch()
-      }
-    } catch {
-      toast.error('Error al convertir la cotizacion')
-    }
+  const handleConverted = (salesOrderId: string) => {
+    router.push(`/dashboard/sales/${salesOrderId}`)
   }
 
   const handleReject = async () => {
@@ -551,14 +523,7 @@ export default function QuoteDetailPage({ params }: PageProps) {
                 <i className="bi bi-download me-2"></i>
                 {pdfLoading === 'download' ? 'Descargando...' : 'Descargar PDF'}
               </button>
-              <button
-                className="btn btn-outline-secondary"
-                onClick={() => handleAction('send')}
-                disabled={mutations.send.isPending || !['draft', 'sent'].includes(quote.status)}
-              >
-                <i className="bi bi-envelope me-2"></i>
-                {mutations.send.isPending ? 'Enviando...' : 'Enviar por correo'}
-              </button>
+              <QuoteSendButton quote={quote} onSent={refetch} className="btn btn-outline-secondary" />
             </div>
           </div>
 
@@ -570,14 +535,7 @@ export default function QuoteDetailPage({ params }: PageProps) {
               </div>
               <div className="card-body d-grid gap-2">
                 {statusConfig.canConvert && (
-                  <button
-                    className="btn btn-success btn-lg"
-                    onClick={handleConvert}
-                    disabled={mutations.convert.isPending}
-                  >
-                    <i className="bi bi-cart-check me-2"></i>
-                    {mutations.convert.isPending ? 'Generando...' : 'Generar Pedido'}
-                  </button>
+                  <QuoteConvertModal quote={quote} onConverted={handleConverted} className="btn btn-success btn-lg" />
                 )}
                 {quote.status === 'accepted' && !quote.purchaseOrderId && (
                   <button

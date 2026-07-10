@@ -1,8 +1,9 @@
 'use client'
 
-import React from 'react'
+import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { useCFDIInvoice } from '@/modules/billing'
+import { useCFDIInvoice, useCFDIInvoicesMutations } from '@/modules/billing'
+import { toast } from '@/lib/toast'
 
 interface InvoiceViewPageProps {
   params: Promise<{
@@ -14,7 +15,9 @@ const STATUS_BADGES: Record<string, { class: string; label: string }> = {
   draft: { class: 'bg-secondary', label: 'Borrador' },
   generated: { class: 'bg-info', label: 'Generado' },
   stamped: { class: 'bg-success', label: 'Timbrado' },
+  valid: { class: 'bg-success', label: 'Vigente' },
   cancelled: { class: 'bg-danger', label: 'Cancelado' },
+  error: { class: 'bg-warning', label: 'Error' },
 }
 
 const TIPO_LABELS: Record<string, string> = {
@@ -29,6 +32,25 @@ export default function InvoiceViewPage({ params }: InvoiceViewPageProps) {
   const resolvedParams = React.use(params)
   const router = useRouter()
   const { invoice, isLoading } = useCFDIInvoice(resolvedParams.id)
+  const { validateSAT, getCancellationStatus, downloadPrefactura, previewPrefactura } =
+    useCFDIInvoicesMutations()
+
+  const [satValidation, setSatValidation] = useState<{
+    valid: boolean
+    uuid: string
+    status: 'Vigente' | 'Cancelado'
+    fechaEmision: string
+    rfcEmisor: string
+    rfcReceptor: string
+  } | null>(null)
+  const [cancellationStatus, setCancellationStatus] = useState<{
+    status: 'cancellation_pending' | 'cancelled'
+    fechaCancelacion?: string
+    acuse?: string
+  } | null>(null)
+  const [validatingSat, setValidatingSat] = useState(false)
+  const [checkingCancellation, setCheckingCancellation] = useState(false)
+  const [prefacturaLoading, setPrefacturaLoading] = useState<'preview' | 'download' | null>(null)
 
   const handleEdit = () => {
     router.push(`/dashboard/billing/invoices/${resolvedParams.id}/edit`)
@@ -36,6 +58,69 @@ export default function InvoiceViewPage({ params }: InvoiceViewPageProps) {
 
   const handleBack = () => {
     router.push('/dashboard/billing/invoices')
+  }
+
+  const handleValidateSAT = async () => {
+    setValidatingSat(true)
+    try {
+      const result = await validateSAT(resolvedParams.id)
+      setSatValidation(result)
+      toast.success(
+        result.valid ? `CFDI vigente ante el SAT (${result.status})` : `CFDI ${result.status} ante el SAT`
+      )
+    } catch {
+      toast.error('Error al validar el CFDI con el SAT')
+    } finally {
+      setValidatingSat(false)
+    }
+  }
+
+  const handleCheckCancellationStatus = async () => {
+    setCheckingCancellation(true)
+    try {
+      const result = await getCancellationStatus(resolvedParams.id)
+      setCancellationStatus(result)
+      toast.success(
+        result.status === 'cancelled'
+          ? 'Cancelacion confirmada ante el SAT'
+          : 'Cancelacion en proceso ante el SAT'
+      )
+    } catch {
+      toast.error('Error al consultar el estatus de cancelacion')
+    } finally {
+      setCheckingCancellation(false)
+    }
+  }
+
+  const handlePreviewPrefactura = () => {
+    setPrefacturaLoading('preview')
+    try {
+      const url = previewPrefactura(resolvedParams.id)
+      window.open(url, '_blank')
+    } catch {
+      toast.error('Error al generar la vista previa de la prefactura')
+    } finally {
+      setPrefacturaLoading(null)
+    }
+  }
+
+  const handleDownloadPrefactura = async () => {
+    setPrefacturaLoading('download')
+    try {
+      const blob = await downloadPrefactura(resolvedParams.id)
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `prefactura-${resolvedParams.id}.pdf`
+      document.body.appendChild(a)
+      a.click()
+      window.URL.revokeObjectURL(url)
+      document.body.removeChild(a)
+    } catch {
+      toast.error('Error al descargar la prefactura')
+    } finally {
+      setPrefacturaLoading(null)
+    }
   }
 
   if (isLoading) {
@@ -94,6 +179,63 @@ export default function InvoiceViewPage({ params }: InvoiceViewPageProps) {
                 )}
               </p>
             </div>
+            <div className="btn-group me-2">
+              <button
+                className="btn btn-outline-secondary"
+                onClick={handlePreviewPrefactura}
+                disabled={prefacturaLoading === 'preview'}
+                title="Ver prefactura en una pestaña nueva"
+              >
+                {prefacturaLoading === 'preview' ? (
+                  <span className="spinner-border spinner-border-sm me-2" />
+                ) : (
+                  <i className="bi bi-file-earmark-medical me-2" />
+                )}
+                Prefactura
+              </button>
+              <button
+                className="btn btn-outline-secondary"
+                onClick={handleDownloadPrefactura}
+                disabled={prefacturaLoading === 'download'}
+                title="Descargar prefactura en PDF"
+              >
+                {prefacturaLoading === 'download' ? (
+                  <span className="spinner-border spinner-border-sm" />
+                ) : (
+                  <i className="bi bi-download" />
+                )}
+              </button>
+            </div>
+            {(invoice.status === 'stamped' || invoice.status === 'valid' || invoice.status === 'cancelled') && (
+              <button
+                className="btn btn-outline-primary me-2"
+                onClick={handleValidateSAT}
+                disabled={validatingSat}
+                title="Validar el CFDI directamente ante el SAT"
+              >
+                {validatingSat ? (
+                  <span className="spinner-border spinner-border-sm me-2" />
+                ) : (
+                  <i className="bi bi-patch-check me-2" />
+                )}
+                Validar en SAT
+              </button>
+            )}
+            {invoice.status === 'cancelled' && (
+              <button
+                className="btn btn-outline-info me-2"
+                onClick={handleCheckCancellationStatus}
+                disabled={checkingCancellation}
+                title="Consultar estatus de cancelacion ante el SAT"
+              >
+                {checkingCancellation ? (
+                  <span className="spinner-border spinner-border-sm me-2" />
+                ) : (
+                  <i className="bi bi-hourglass-split me-2" />
+                )}
+                Estatus de cancelacion
+              </button>
+            )}
             {invoice.status === 'draft' && (
               <button className="btn btn-warning" onClick={handleEdit}>
                 <i className="bi bi-pencil me-2" />
@@ -101,6 +243,42 @@ export default function InvoiceViewPage({ params }: InvoiceViewPageProps) {
               </button>
             )}
           </div>
+
+          {/* Resultados de validacion SAT / cancelacion */}
+          {(satValidation || cancellationStatus) && (
+            <div className="row justify-content-center mb-4">
+              <div className="col-lg-10 col-xl-8">
+                {satValidation && (
+                  <div className={`alert ${satValidation.valid ? 'alert-success' : 'alert-warning'} d-flex align-items-start`}>
+                    <i className={`bi ${satValidation.valid ? 'bi-patch-check-fill' : 'bi-exclamation-triangle-fill'} me-2 fs-5`} />
+                    <div>
+                      <strong>Validacion SAT: {satValidation.status}</strong>
+                      <br />
+                      <small>
+                        UUID {satValidation.uuid} - Emision {satValidation.fechaEmision} - Emisor {satValidation.rfcEmisor} - Receptor {satValidation.rfcReceptor}
+                      </small>
+                    </div>
+                  </div>
+                )}
+                {cancellationStatus && (
+                  <div className={`alert ${cancellationStatus.status === 'cancelled' ? 'alert-success' : 'alert-info'} d-flex align-items-start`}>
+                    <i className={`bi ${cancellationStatus.status === 'cancelled' ? 'bi-check-circle-fill' : 'bi-hourglass-split'} me-2 fs-5`} />
+                    <div>
+                      <strong>
+                        {cancellationStatus.status === 'cancelled' ? 'Cancelacion confirmada' : 'Cancelacion pendiente'}
+                      </strong>
+                      {cancellationStatus.fechaCancelacion && (
+                        <>
+                          <br />
+                          <small>Fecha de cancelacion: {cancellationStatus.fechaCancelacion}</small>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Content */}
           <div className="row justify-content-center">

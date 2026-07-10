@@ -64,6 +64,8 @@ export {
   useCompanySettingsMutations,
   // Workflow hooks
   useCFDIWorkflow,
+  // SalesOrder billing hooks (prefactura / facturar)
+  useSalesOrderBillingMutations,
 } from './hooks'
 
 // ============================================================================

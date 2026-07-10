@@ -11,6 +11,7 @@ import { toast } from '@/lib/toast'
 import axiosClient from '@/lib/axiosClient'
 import { AddItemModal } from '@/modules/sales'
 import { StockAvailabilityPanel } from '@/modules/sales'
+import { useSalesOrderBillingMutations } from '@/modules/billing'
 import ConfirmModal, { ConfirmModalHandle } from '@/ui/components/base/ConfirmModal'
 
 interface PageProps {
@@ -25,8 +26,9 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
   const [remissionsLoading, setRemissionsLoading] = useState(true)
   const [actionLoading, setActionLoading] = useState<string | null>(null)
   const confirmModalRef = useRef<ConfirmModalHandle>(null)
+  const { prefacturaFromOrder, facturar } = useSalesOrderBillingMutations()
 
-  const { salesOrder, isLoading: orderLoading, error: orderError } = useSalesOrder(resolvedParams.id)
+  const { salesOrder, isLoading: orderLoading, error: orderError, mutate: mutateOrder } = useSalesOrder(resolvedParams.id)
   const { salesOrderItems, isLoading: itemsLoading, error: itemsError, mutate: mutateItems } = useSalesOrderItems(resolvedParams.id)
 
   const loadRemissions = useCallback(async () => {
@@ -160,6 +162,70 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
       window.location.reload()
     } catch {
       toast.error('Error al cancelar la orden')
+    } finally {
+      setActionLoading(null)
+    }
+  }
+
+  const handlePrefactura = async () => {
+    setActionLoading('prefactura')
+    try {
+      const blob = await prefacturaFromOrder(resolvedParams.id)
+      const url = window.URL.createObjectURL(blob)
+      window.open(url, '_blank')
+    } catch {
+      toast.error('Error al generar la prefactura')
+    } finally {
+      setActionLoading(null)
+    }
+  }
+
+  const handleFacturar = async () => {
+    const confirmed = await confirmModalRef.current?.confirm(
+      'Se generara el CFDI (factura fiscal) a partir de esta orden de venta. Esta accion no se puede deshacer.',
+      {
+        title: 'Facturar orden de venta',
+        confirmText: 'Facturar',
+        cancelText: 'Cancelar',
+        confirmVariant: 'primary'
+      }
+    )
+    if (!confirmed) return
+
+    setActionLoading('facturar')
+    try {
+      const result = await facturar(resolvedParams.id)
+      const invoiceData = (result as { data?: { id?: string; attributes?: Record<string, unknown> } })?.data
+      const folio = invoiceData?.attributes
+        ? `${invoiceData.attributes.series ?? ''}-${invoiceData.attributes.folio ?? ''}`
+        : ''
+      const invoiceId = invoiceData?.id
+
+      toast.success(
+        folio && folio !== '-' ? `Factura ${folio} generada correctamente` : 'Factura generada correctamente'
+      )
+
+      if (invoiceId) {
+        navigation.push(`/dashboard/billing/invoices/${invoiceId}`)
+      } else {
+        mutateOrder()
+      }
+    } catch (err) {
+      const error = err as { response?: { status?: number; data?: { message?: string; error?: string } } }
+      if (error.response?.status === 422) {
+        toast.error(
+          error.response.data?.message ||
+            error.response.data?.error ||
+            'La orden no se encuentra en un estado valido para facturar'
+        )
+      } else if (error.response?.status === 500) {
+        toast.error(
+          error.response.data?.message ||
+            'Error interno al generar la factura. Verifique la configuracion fiscal (CSD, PAC).'
+        )
+      } else {
+        toast.error('Error al facturar la orden de venta')
+      }
     } finally {
       setActionLoading(null)
     }
@@ -569,19 +635,36 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
                 </button>
                 <button
                   className="btn btn-outline-primary"
-                  onClick={() => navigation.push('/dashboard/billing/invoices/create')}
-                  disabled={!isActive}
+                  onClick={handleFacturar}
+                  disabled={
+                    actionLoading === 'facturar' ||
+                    !(salesOrder.status === 'delivered' || salesOrder.status === 'completed')
+                  }
+                  title={
+                    salesOrder.status === 'delivered' || salesOrder.status === 'completed'
+                      ? 'Generar CFDI a partir de esta orden'
+                      : 'La orden debe estar entregada o completada para facturar'
+                  }
                 >
-                  <i className="bi bi-receipt me-2"></i>
-                  Generar Factura
+                  {actionLoading === 'facturar' ? (
+                    <span className="spinner-border spinner-border-sm me-2" />
+                  ) : (
+                    <i className="bi bi-receipt me-2"></i>
+                  )}
+                  Facturar
                 </button>
                 <button
                   className="btn btn-outline-info"
-                  onClick={() => navigation.push('/dashboard/billing/invoices/create')}
-                  disabled={!isActive}
+                  onClick={handlePrefactura}
+                  disabled={actionLoading === 'prefactura'}
+                  title="Vista previa de la prefactura (no crea la factura)"
                 >
-                  <i className="bi bi-file-earmark-medical me-2"></i>
-                  Generar Prefactura
+                  {actionLoading === 'prefactura' ? (
+                    <span className="spinner-border spinner-border-sm me-2" />
+                  ) : (
+                    <i className="bi bi-file-earmark-medical me-2"></i>
+                  )}
+                  Prefactura
                 </button>
               </div>
             </div>

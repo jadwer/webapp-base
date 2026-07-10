@@ -458,6 +458,147 @@ describe('CFDI Invoices Services', () => {
   });
 
   // ==========================================================================
+  // SAT VALIDATION / CANCELLATION STATUS
+  // ==========================================================================
+
+  describe('validateSAT', () => {
+    it('should validate CFDI status with SAT', async () => {
+      // Arrange
+      const mockResult = {
+        valid: true,
+        uuid: 'ABCD-1234',
+        status: 'Vigente' as const,
+        fechaEmision: '2025-01-15T10:00:00Z',
+        rfcEmisor: 'AAA010101AAA',
+        rfcReceptor: 'XAXX010101000',
+      };
+      vi.mocked(axiosClient.get).mockResolvedValue({ data: mockResult });
+
+      // Act
+      const result = await cfdiInvoicesService.validateSAT('1');
+
+      // Assert
+      expect(axiosClient.get).toHaveBeenCalledWith('/api/v1/cfdi-invoices/1/validate-sat');
+      expect(result).toEqual(mockResult);
+    });
+  });
+
+  describe('getCancellationStatus', () => {
+    it('should fetch cancellation status', async () => {
+      // Arrange
+      const mockResult = {
+        status: 'cancellation_pending' as const,
+      };
+      vi.mocked(axiosClient.get).mockResolvedValue({ data: mockResult });
+
+      // Act
+      const result = await cfdiInvoicesService.getCancellationStatus('1');
+
+      // Assert
+      expect(axiosClient.get).toHaveBeenCalledWith('/api/v1/cfdi-invoices/1/cancellation-status');
+      expect(result).toEqual(mockResult);
+    });
+  });
+
+  // ==========================================================================
+  // PREFACTURA
+  // ==========================================================================
+
+  describe('prefactura', () => {
+    it('should fetch prefactura data', async () => {
+      // Arrange
+      const mockResult = { data: { total: 116000 } };
+      vi.mocked(axiosClient.get).mockResolvedValue({ data: mockResult });
+
+      // Act
+      const result = await cfdiInvoicesService.prefactura('1');
+
+      // Assert
+      expect(axiosClient.get).toHaveBeenCalledWith('/api/v1/cfdi-invoices/1/prefactura');
+      expect(result).toEqual(mockResult);
+    });
+  });
+
+  describe('prefacturaDownload', () => {
+    it('should download prefactura PDF as blob', async () => {
+      // Arrange
+      const mockBlob = new Blob(['%PDF'], { type: 'application/pdf' });
+      vi.mocked(axiosClient.get).mockResolvedValue({ data: mockBlob });
+
+      // Act
+      const result = await cfdiInvoicesService.prefacturaDownload('1');
+
+      // Assert
+      expect(axiosClient.get).toHaveBeenCalledWith(
+        '/api/v1/cfdi-invoices/1/prefactura/download',
+        expect.objectContaining({ responseType: 'blob' })
+      );
+      expect(result).toBeInstanceOf(Blob);
+    });
+  });
+
+  describe('prefacturaPreview', () => {
+    it('should return the prefactura preview URL without making a request', () => {
+      // Act
+      const url = cfdiInvoicesService.prefacturaPreview('1');
+
+      // Assert
+      expect(url).toBe('/api/v1/cfdi-invoices/1/prefactura/preview');
+      expect(axiosClient.get).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('prefacturaFromOrder', () => {
+    it('should request prefactura PDF from a sales order', async () => {
+      // Arrange
+      const mockBlob = new Blob(['%PDF'], { type: 'application/pdf' });
+      vi.mocked(axiosClient.post).mockResolvedValue({ data: mockBlob });
+
+      // Act
+      const result = await cfdiInvoicesService.prefacturaFromOrder('5');
+
+      // Assert
+      expect(axiosClient.post).toHaveBeenCalledWith(
+        '/api/v1/sales-orders/5/prefactura',
+        {},
+        expect.objectContaining({ responseType: 'blob' })
+      );
+      expect(result).toBeInstanceOf(Blob);
+    });
+
+    it('should forward optional receptor overrides', async () => {
+      // Arrange
+      const mockBlob = new Blob(['%PDF'], { type: 'application/pdf' });
+      vi.mocked(axiosClient.post).mockResolvedValue({ data: mockBlob });
+
+      // Act
+      await cfdiInvoicesService.prefacturaFromOrder('5', { receptorRfc: 'XAXX010101000' });
+
+      // Assert
+      expect(axiosClient.post).toHaveBeenCalledWith(
+        '/api/v1/sales-orders/5/prefactura',
+        { receptorRfc: 'XAXX010101000' },
+        expect.objectContaining({ responseType: 'blob' })
+      );
+    });
+  });
+
+  describe('createFromOrder', () => {
+    it('should create CFDI invoice from a sales order', async () => {
+      // Arrange
+      const mockResponse = { data: { id: '10', type: 'cfdi_invoices', attributes: { series: 'A', folio: 1 } } };
+      vi.mocked(axiosClient.post).mockResolvedValue({ data: mockResponse });
+
+      // Act
+      const result = await cfdiInvoicesService.createFromOrder('5');
+
+      // Assert
+      expect(axiosClient.post).toHaveBeenCalledWith('/api/v1/sales-orders/5/facturar');
+      expect(result).toEqual(mockResponse);
+    });
+  });
+
+  // ==========================================================================
   // ERROR HANDLING
   // ==========================================================================
 

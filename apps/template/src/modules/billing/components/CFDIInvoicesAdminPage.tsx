@@ -10,8 +10,11 @@ export function CFDIInvoicesAdminPage() {
   const [filters, setFilters] = useState<CFDIInvoicesFilters>({})
   const confirmModalRef = useRef<ConfirmModalHandle>(null)
   const { invoices, isLoading, error, mutate } = useCFDIInvoices(filters)
-  const { deleteInvoice, downloadXML, downloadPDF } = useCFDIInvoicesMutations()
+  const { deleteInvoice, downloadXML, downloadPDF, validateSAT, getCancellationStatus } =
+    useCFDIInvoicesMutations()
   const { generateXML, generatePDF, stampInvoice, cancelInvoice } = useCFDIWorkflow()
+  const [validatingId, setValidatingId] = useState<string | null>(null)
+  const [checkingCancelId, setCheckingCancelId] = useState<string | null>(null)
 
   // Calculate metrics
   const totalInvoices = invoices.length
@@ -93,6 +96,36 @@ export function CFDIInvoicesAdminPage() {
       document.body.removeChild(a)
     } catch {
       toast.error('Error al descargar PDF')
+    }
+  }
+
+  const handleValidateSAT = async (id: string) => {
+    setValidatingId(id)
+    try {
+      const result = await validateSAT(id)
+      toast.success(
+        result.valid ? `CFDI vigente ante el SAT (${result.status})` : `CFDI ${result.status} ante el SAT`
+      )
+    } catch {
+      toast.error('Error al validar el CFDI con el SAT')
+    } finally {
+      setValidatingId(null)
+    }
+  }
+
+  const handleCheckCancellationStatus = async (id: string) => {
+    setCheckingCancelId(id)
+    try {
+      const result = await getCancellationStatus(id)
+      toast.success(
+        result.status === 'cancelled'
+          ? 'Cancelacion confirmada ante el SAT'
+          : 'Cancelacion en proceso ante el SAT'
+      )
+    } catch {
+      toast.error('Error al consultar el estatus de cancelacion')
+    } finally {
+      setCheckingCancelId(null)
     }
   }
 
@@ -403,6 +436,18 @@ export function CFDIInvoicesAdminPage() {
                                 <i className="bi bi-download" /> PDF
                               </button>
                               <button
+                                className="btn btn-outline-info"
+                                onClick={() => handleValidateSAT(invoice.id)}
+                                disabled={validatingId === invoice.id}
+                                title="Validar en SAT"
+                              >
+                                {validatingId === invoice.id ? (
+                                  <span className="spinner-border spinner-border-sm" />
+                                ) : (
+                                  <i className="bi bi-patch-check" />
+                                )}
+                              </button>
+                              <button
                                 className="btn btn-outline-danger"
                                 onClick={() => handleCancel(invoice.id)}
                                 title="Cancelar"
@@ -410,6 +455,20 @@ export function CFDIInvoicesAdminPage() {
                                 <i className="bi bi-x-circle" />
                               </button>
                             </>
+                          )}
+                          {invoice.status === 'cancelled' && (
+                            <button
+                              className="btn btn-outline-info"
+                              onClick={() => handleCheckCancellationStatus(invoice.id)}
+                              disabled={checkingCancelId === invoice.id}
+                              title="Estatus de cancelacion"
+                            >
+                              {checkingCancelId === invoice.id ? (
+                                <span className="spinner-border spinner-border-sm" />
+                              ) : (
+                                <i className="bi bi-hourglass-split" />
+                              )}
+                            </button>
                           )}
                           <button
                             className="btn btn-outline-danger"
