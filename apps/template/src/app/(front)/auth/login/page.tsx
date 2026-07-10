@@ -4,6 +4,7 @@ import { Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { useAuthRedirect } from '@/hooks/useAuthRedirect'
 import { LoginTemplate } from '@/modules/auth'
+import { DemoLoginCards } from '@/modules/demo'
 
 function LoginContent() {
   const searchParams = useSearchParams()
@@ -25,7 +26,13 @@ function LoginContent() {
     )
   }
 
-  return <LoginTemplate redirect={redirect} />
+  return (
+    <>
+      {/* Demo mode only: cards that pre-fill the login form with demo credentials */}
+      <DemoLoginCards />
+      <LoginTemplate redirect={redirect} />
+    </>
+  )
 }
 
 export default function LoginPage() {

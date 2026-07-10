@@ -3,11 +3,16 @@ import '@/ui/styles/sass/main.scss';
 import '@/ui/styles/nprogress.css';
 import Script from "next/script";
 import NavigationProgress from '@/ui/components/NavigationProgress';
+import { DemoBanner } from '@/modules/demo';
 // BootStrapClient no es necesario para los íconos
 
 export const metadata: Metadata = {
   title: "WebApp Base Template",
   description: "",
+  // Demo builds must never be indexed by search engines.
+  ...(process.env.NEXT_PUBLIC_DEMO_MODE === 'true'
+    ? { robots: { index: false, follow: false } }
+    : {}),
 };
 
 export default function RootLayout({
@@ -31,6 +36,9 @@ export default function RootLayout({
       </head>
       <body>
         <NavigationProgress />
+        {/* Demo mode banner: renders null unless NEXT_PUBLIC_DEMO_MODE=true
+            AND the backend confirms demo mode (double check in useDemoMode). */}
+        <DemoBanner />
         {children}
         {/* Bootstrap JS for interactive components (offcanvas, modals, etc.) */}
         <Script
