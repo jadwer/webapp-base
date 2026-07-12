@@ -154,6 +154,13 @@ export function useCFDIInvoicesMutations() {
     return cfdiInvoicesService.prefacturaPreview(id)
   }, [])
 
+  const emitPaymentComplement = useCallback(
+    async (arInvoiceId: number, paymentId?: number) => {
+      return await cfdiInvoicesService.emitPaymentComplement(arInvoiceId, paymentId)
+    },
+    []
+  )
+
   return {
     createInvoice,
     createInvoiceWithItems,
@@ -170,6 +177,35 @@ export function useCFDIInvoicesMutations() {
     getCancellationStatus,
     downloadPrefactura,
     previewPrefactura,
+    emitPaymentComplement,
+  }
+}
+
+// ============================================================================
+// PAYMENT COMPLEMENT (REP) HOOKS
+// ============================================================================
+
+/**
+ * Hook to fetch the Complementos de Pago (REP, tipo P) emitted for a PPD invoice.
+ * Pass the parent invoice's arInvoiceId; null/undefined disables the request.
+ */
+export function usePaymentComplements(arInvoiceId: number | null | undefined) {
+  const { data, error, isLoading, mutate } = useSWR(
+    arInvoiceId ? ['payment-complements', arInvoiceId] : null,
+    () => cfdiInvoicesService.getPaymentComplements(arInvoiceId as number),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: true,
+    }
+  )
+
+  return {
+    complements: (data?.data as CFDIInvoice[]) || [],
+    meta: data?.meta,
+    links: data?.links,
+    isLoading,
+    error,
+    mutate,
   }
 }
 

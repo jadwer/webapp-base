@@ -7,6 +7,7 @@ export interface PublicSettings {
   company: Record<string, AppSettingValue>
   branding: Record<string, AppSettingValue>
   social: Record<string, AppSettingValue>
+  pricing: Record<string, AppSettingValue>
 }
 
 // Module-level cache - shared across all hook instances, survives re-renders
@@ -55,5 +56,12 @@ export function usePublicSettings() {
 
   const isConfigured = !!(settings && get('company.name') && get('company.email'))
 
-  return { settings, loading, get, isConfigured }
+  // pricing.prices_include_tax: false (default/B2B) = net prices, tax added on top.
+  // true (B2C) = displayed prices already include tax.
+  const pricingSetting = settings?.pricing?.['pricing.prices_include_tax']
+  const pricesIncludeTax = pricingSetting
+    ? pricingSetting.value === true || pricingSetting.value === 'true'
+    : false
+
+  return { settings, loading, get, isConfigured, pricesIncludeTax }
 }

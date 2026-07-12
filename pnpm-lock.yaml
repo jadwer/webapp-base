@@ -599,6 +599,9 @@ importers:
 
   packages/ecommerce:
     dependencies:
+      '@lwm/app-config':
+        specifier: workspace:*
+        version: link:../app-config
       '@lwm/auth':
         specifier: workspace:*
         version: link:../auth

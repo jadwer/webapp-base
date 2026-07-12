@@ -9,6 +9,8 @@
 import React from 'react'
 import Image from 'next/image'
 import { Button } from '@lwm/ui'
+import { usePublicSettings } from '@lwm/app-config'
+import { taxHintLabel } from '../../utils/taxHint'
 import type { EnhancedPublicProduct, ProductDisplayProps } from '../types/publicProduct'
 
 interface PublicProductCardProps {
@@ -34,6 +36,7 @@ export const PublicProductCard: React.FC<PublicProductCardProps> = ({
   showActions = true,
   className = ''
 }) => {
+  const { pricesIncludeTax } = usePublicSettings()
   const {
     showPrice = true,
     showDescription = true,
@@ -167,10 +170,11 @@ export const PublicProductCard: React.FC<PublicProductCardProps> = ({
                 <small className="text-muted ms-1">
                   {product.displayCurrency}{showUnit && product.unit ? ` / ${product.displayUnit}` : ''}
                 </small>
-                {/* Precios de catalogo son NETOS (decision de negocio 2026-07-11):
-                    el IVA se suma al cotizar/cobrar, nunca "incluido". */}
+                {/* Tax hint reflects the tenant's pricing.prices_include_tax
+                    setting: net prices (default) show "+ 16% IVA" added on
+                    top; tax-included tenants show "IVA incluido" instead. */}
                 <small className={`d-block ${product.attributes.iva ? 'text-muted' : 'text-success'}`}>
-                  {product.attributes.iva ? '+ 16% IVA' : 'IVA 0%'}
+                  {taxHintLabel(product.attributes.iva, pricesIncludeTax)}
                 </small>
               </>
             ) : (

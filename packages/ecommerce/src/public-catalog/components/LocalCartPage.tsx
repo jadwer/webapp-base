@@ -17,6 +17,8 @@ import { useAuth } from '@lwm/auth'
 import { toast } from '@lwm/ui'
 import { quoteServices as quoteServiceModule } from '@lwm/sales'
 import { shoppingCartService } from '@lwm/ecommerce'
+import { usePublicSettings } from '@lwm/app-config'
+import { taxHintLabel } from '../../utils/taxHint'
 
 interface LocalCartPageProps {
   onCheckout?: () => void
@@ -32,6 +34,7 @@ export const LocalCartPage: React.FC<LocalCartPageProps> = ({
   const router = useRouter()
   const searchParams = useSearchParams()
   const { isAuthenticated, isLoading: authLoading } = useAuth()
+  const { pricesIncludeTax } = usePublicSettings()
   const [isRequestingQuote, setIsRequestingQuote] = useState(false)
   const [isSyncingToCheckout, setIsSyncingToCheckout] = useState(false)
   const [showQuoteModal, setShowQuoteModal] = useState(false)
@@ -301,7 +304,7 @@ export const LocalCartPage: React.FC<LocalCartPageProps> = ({
               <small className="text-muted">/ {item.unitName}</small>
             )}
             <small className={item.iva ? 'text-success' : 'text-muted'}>
-              {item.iva ? '+ 16% IVA' : 'IVA 0%'}
+              {taxHintLabel(item.iva, pricesIncludeTax)}
             </small>
           </div>
 

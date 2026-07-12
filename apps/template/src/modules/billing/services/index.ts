@@ -22,6 +22,7 @@ import type {
   CFDICancelResponse,
   CFDIGenerateResponse,
   CreateCFDIInvoiceData,
+  PaymentComplementResponse,
 } from '../types'
 import {
   transformJsonApiCFDIInvoice,
@@ -57,6 +58,9 @@ export const cfdiInvoicesService = {
     }
     if (filters?.receptorRfc) {
       queryParams.append('filter[receptorRfc]', filters.receptorRfc)
+    }
+    if (filters?.arInvoiceId !== undefined) {
+      queryParams.append('filter[arInvoiceId]', filters.arInvoiceId.toString())
     }
     if (filters?.dateFrom) {
       queryParams.append('filter[dateFrom]', filters.dateFrom)
@@ -320,6 +324,73 @@ export const cfdiInvoicesService = {
   createFromOrder: async (orderId: string) => {
     const response = await axiosClient.post(`/api/v1/sales-orders/${orderId}/facturar`)
     return response.data
+  },
+
+  // ============================================================================
+  // COMPLEMENTO DE PAGOS 2.0 (REP)
+  // ============================================================================
+
+  /**
+   * List the Complementos de Pago (REP, tipo P) emitted for a PPD invoice.
+   *
+   * A REP shares the same ar_invoice_id as the PPD invoice it settles, so the
+   * REPs of a given invoice are fetched by filtering cfdi-invoices on
+   * tipoComprobante=P AND arInvoiceId={parent invoice ar_invoice_id}.
+   *
+   * @param arInvoiceId The parent PPD invoice's arInvoiceId (Finance AR invoice id)
+   */
+  getPaymentComplements: async (arInvoiceId: number) => {
+    return await cfdiInvoicesService.getAll({
+      tipoComprobante: 'P',
+      arInvoiceId,
+    })
+  },
+
+  /**
+   * Manually (re)emit a Complemento de Pagos (REP) for the latest abono of a PPD
+   * invoice. Custom endpoint (not JSON:API).
+   *
+   * POST /api/v1/ar-invoices/{arInvoiceId}/payment-complement
+   *
+   * Backend guards: 201 fresh REP, 200 idempotent (already existed), 422 when the
+   * invoice is PUE or has no applied payments, 403 without permission.
+   *
+   * @param arInvoiceId The Finance AR invoice id (route binding)
+   * @param paymentId   Optional specific abono; defaults to the latest applied payment
+   */
+  emitPaymentComplement: async (
+    arInvoiceId: number,
+    paymentId?: number
+  ): Promise<PaymentComplementResponse> => {
+    const body = paymentId ? { payment_id: paymentId } : {}
+    const response = await axiosClient.post(
+      `/api/v1/ar-invoices/${arInvoiceId}/payment-complement`,
+      body
+    )
+    const raw = response.data as {
+      message: string
+      data: {
+        id: string | number
+        series: string
+        folio: number
+        uuid?: string
+        status: PaymentComplementResponse['data']['status']
+        tipo_comprobante: PaymentComplementResponse['data']['tipoComprobante']
+        monto_pago: number
+      }
+    }
+    return {
+      message: raw.message,
+      data: {
+        id: String(raw.data.id),
+        series: raw.data.series,
+        folio: raw.data.folio,
+        uuid: raw.data.uuid,
+        status: raw.data.status,
+        tipoComprobante: raw.data.tipo_comprobante,
+        montoPago: raw.data.monto_pago,
+      },
+    }
   },
 }
 

@@ -10,6 +10,8 @@ import React, { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePublicProduct } from '../hooks/usePublicProducts'
+import { usePublicSettings } from '@lwm/app-config'
+import { taxHintLabel } from '../../utils/taxHint'
 import type { EnhancedPublicProduct } from '../types/publicProduct'
 
 interface ProductQuickViewModalProps {
@@ -31,6 +33,7 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
 }) => {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0)
   const [imageError, setImageError] = useState(false)
+  const { pricesIncludeTax } = usePublicSettings()
 
   // Fetch full product data with images included
   const { product: fullProduct } = usePublicProduct(
@@ -150,7 +153,7 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
                     <strong>Precio:</strong> {displayProduct.displayPrice} {displayProduct.displayCurrency}
                     {' '}
                     <small className={displayProduct.attributes.iva ? 'text-success' : 'text-muted'}>
-                      ({displayProduct.attributes.iva ? '+ 16% IVA' : 'IVA 0%'})
+                      ({taxHintLabel(displayProduct.attributes.iva, pricesIncludeTax)})
                     </small>
                   </li>
                 </ul>

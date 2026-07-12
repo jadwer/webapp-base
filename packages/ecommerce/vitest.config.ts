@@ -7,6 +7,7 @@ export default definePackageConfig({
     include: [
       'src/tests/**/*.{test,spec}.{ts,tsx}',
       'src/public-catalog/tests/**/*.{test,spec}.{ts,tsx}',
+      'src/utils/**/*.{test,spec}.{ts,tsx}',
     ],
     exclude: ['node_modules/', 'dist/'],
   },
@@ -16,6 +17,7 @@ export default definePackageConfig({
       '@lwm/auth': path.resolve(__dirname, '../auth/src'),
       '@lwm/products': path.resolve(__dirname, '../products/src'),
       '@lwm/sales': path.resolve(__dirname, '../sales/src'),
+      '@lwm/app-config': path.resolve(__dirname, '../app-config/src'),
     },
   },
 })

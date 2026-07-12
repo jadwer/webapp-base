@@ -40,6 +40,7 @@
     "test:watch": "vitest watch"
   },
   "dependencies": {
+    "@lwm/app-config": "workspace:*",
     "@lwm/auth": "workspace:*",
     "@lwm/products": "workspace:*",
     "@lwm/sales": "workspace:*",

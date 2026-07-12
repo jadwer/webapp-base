@@ -53,6 +53,14 @@ export interface CFDIInvoice {
   metodoPago: MetodoPago
   condicionesPago?: string
 
+  // Complemento de Pagos 2.0 (REP) - only populated when tipoComprobante === 'P'
+  // NOTE: these are exposed by the backend only if the CFDIInvoiceSchema publishes
+  // them. When absent they stay undefined and the UI falls back gracefully.
+  arPaymentId?: number
+  fechaPago?: string
+  montoPago?: number // In cents
+  formaPagoP?: string // SAT forma de pago catalog code used in the REP
+
   // Related CFDI
   cfdiRelacionadoTipo?: string // 01, 02, 03, etc.
   cfdiRelacionadoUuids?: string[]
@@ -261,6 +269,7 @@ export interface CFDIInvoicesFilters {
   status?: CFDIStatus
   tipoComprobante?: TipoComprobante
   receptorRfc?: string
+  arInvoiceId?: number
   dateFrom?: string
   dateTo?: string
 }
@@ -302,6 +311,28 @@ export interface CFDIDownloadInfo {
   xmlPath?: string
   pdfPath?: string
   uuid?: string
+}
+
+// ============================================================================
+// PAYMENT COMPLEMENT (REP - Complemento de Pagos 2.0)
+// ============================================================================
+
+/**
+ * Response payload returned by
+ * POST /api/v1/ar-invoices/{invoice}/payment-complement
+ * (custom endpoint, not JSON:API). 201 on a fresh REP, 200 when idempotent.
+ */
+export interface PaymentComplementResponse {
+  message: string
+  data: {
+    id: string
+    series: string
+    folio: number
+    uuid?: string
+    status: CFDIStatus
+    tipoComprobante: TipoComprobante
+    montoPago: number // In cents
+  }
 }
 
 // ============================================================================

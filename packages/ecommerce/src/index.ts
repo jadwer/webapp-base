@@ -139,6 +139,8 @@ export {
   formatCardDisplay,
 } from './utils/transformers';
 
+export { taxHintLabel } from './utils/taxHint';
+
 // ============================================
 // Components
 // ============================================

@@ -13,6 +13,8 @@ import { useRouter } from 'next/navigation'
 import { usePublicProduct, useProductSuggestions } from '../hooks/usePublicProducts'
 import { useLocalCart } from '../hooks/useLocalCart'
 import { useTrackProductView } from '@lwm/ecommerce'
+import { usePublicSettings } from '@lwm/app-config'
+import { taxHintLabel } from '../../utils/taxHint'
 import type { EnhancedPublicProduct } from '../types/publicProduct'
 
 interface ProductDetailPageProps {
@@ -34,6 +36,7 @@ export default function ProductDetailPage({
   const { product, isLoading, error } = usePublicProduct(productId)
   const { suggestions, isLoading: suggestionsLoading } = useProductSuggestions(productId, 4)
   const { addToCart, isInCart, getQuantity } = useLocalCart()
+  const { pricesIncludeTax } = usePublicSettings()
   useTrackProductView(productId)
   const [quantity, setQuantity] = useState(1)
   const [imageError, setImageError] = useState(false)
@@ -252,15 +255,13 @@ export default function ProductDetailPage({
                 <span className="text-muted ms-2">
                   {product.displayCurrency}{product.unit ? ` / ${product.displayUnit}` : ''}
                 </span>
-                {/* IVA hint. Catalog prices are NET (business decision
-                    2026-07-11): `iva` true means 16% VAT is added when
-                    quoting/charging; false means the product carries no VAT.
-                    The old copy said "IVA incluido" which contradicted the
-                    cart math (tax was added on top anyway). */}
+                {/* Tax hint reflects the tenant's pricing.prices_include_tax
+                    setting: net prices (default) show "+ 16% IVA" added on
+                    top; tax-included tenants show "IVA incluido" instead. */}
                 {product.attributes.price !== null && (
                   <div className="mt-1">
                     <small className={product.attributes.iva ? 'text-muted' : 'text-success'}>
-                      {product.attributes.iva ? '+ 16% IVA' : 'IVA 0%'}
+                      {taxHintLabel(product.attributes.iva, pricesIncludeTax)}
                     </small>
                   </div>
                 )}

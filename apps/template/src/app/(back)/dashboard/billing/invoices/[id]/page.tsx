@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { useCFDIInvoice, useCFDIInvoicesMutations } from '@/modules/billing'
+import { useCFDIInvoice, useCFDIInvoicesMutations, PaymentComplementsSection } from '@/modules/billing'
 import { toast } from '@/lib/toast'
 
 interface InvoiceViewPageProps {
@@ -344,7 +344,7 @@ export default function InvoiceViewPage({ params }: InvoiceViewPageProps) {
               </div>
 
               {/* Totales */}
-              <div className="card shadow-sm border-0">
+              <div className="card shadow-sm border-0 mb-4">
                 <div className="card-header bg-light">
                   <h5 className="mb-0">
                     <i className="bi bi-calculator me-2" />
@@ -368,6 +368,14 @@ export default function InvoiceViewPage({ params }: InvoiceViewPageProps) {
                   </div>
                 </div>
               </div>
+
+              {/* Complementos de pago (REP) - solo para facturas PPD timbradas */}
+              {invoice.metodoPago === 'PPD' &&
+                (invoice.status === 'stamped' ||
+                  invoice.status === 'valid' ||
+                  invoice.status === 'cancelled') && (
+                  <PaymentComplementsSection invoice={invoice} />
+                )}
             </div>
           </div>
         </div>
