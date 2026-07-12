@@ -30,7 +30,7 @@ export const adminNavigation: NavigationSection = {
   topLinks: [
     { href: '/dashboard', label: 'Panel Principal', icon: 'bi-house', permissions: [] },
     { href: '/dashboard/profile', label: 'Mi perfil', icon: 'bi-person-circle', permissions: [] },
-    { href: '/dashboard/users', label: 'Usuarios', icon: 'bi-people', permissions: ['users.index'] },
+    { href: '/dashboard/users', label: 'Usuarios', icon: 'bi-people', permissions: ['users.index'], quickCreateHref: '/dashboard/users/create' },
   ],
 
   groups: [
@@ -102,6 +102,7 @@ export const adminNavigation: NavigationSection = {
       icon: 'bi-person-rolodex',
       activePathPrefixes: ['/dashboard/contacts'],
       permissions: [],
+      quickCreateHref: '/dashboard/contacts/create',
       items: [
         { href: '/dashboard/contacts', label: 'Gestión', icon: 'bi-person-lines-fill', permissions: ['contacts.index'] },
         { href: '/dashboard/contacts/customers', label: 'Clientes', icon: 'bi-person-check', permissions: ['contacts.index'] },
@@ -118,6 +119,7 @@ export const adminNavigation: NavigationSection = {
       icon: 'bi-file-earmark-text',
       activePathPrefixes: ['/dashboard/quotes'],
       permissions: [],
+      quickCreateHref: '/dashboard/quotes/create',
       items: [
         { href: '/dashboard/quotes', label: 'Lista Cotizaciones', icon: 'bi-list-ul', permissions: ['quotes.index'] },
         { href: '/dashboard/quotes/create', label: 'Nueva Cotización', icon: 'bi-plus-circle', permissions: ['quotes.store'] },
@@ -131,6 +133,7 @@ export const adminNavigation: NavigationSection = {
       icon: 'bi-cart-check',
       activePathPrefixes: ['/dashboard/sales', '/dashboard/remissions'],
       permissions: [],
+      quickCreateHref: '/dashboard/sales/create',
       items: [
         { href: '/dashboard/sales', label: 'Órdenes de Venta', icon: 'bi-cart-check', permissions: ['sales-orders.index'] },
         { href: '/dashboard/sales/create', label: 'Nueva Orden', icon: 'bi-plus-circle', permissions: ['sales-orders.store'] },
@@ -160,6 +163,7 @@ export const adminNavigation: NavigationSection = {
       icon: 'bi-cart-plus',
       activePathPrefixes: ['/dashboard/purchase'],
       permissions: [],
+      quickCreateHref: '/dashboard/purchase/create',
       items: [
         { href: '/dashboard/purchase', label: 'Órdenes de Compra', icon: 'bi-cart-plus', permissions: ['purchase-orders.index'] },
         { href: '/dashboard/purchase/create', label: 'Nueva Orden', icon: 'bi-plus-circle', permissions: ['purchase-orders.store'] },
@@ -222,6 +226,7 @@ export const adminNavigation: NavigationSection = {
       icon: 'bi-receipt-cutoff',
       activePathPrefixes: ['/dashboard/billing'],
       permissions: [],
+      quickCreateHref: '/dashboard/billing/invoices/create',
       items: [
         { href: '/dashboard/billing', label: 'Dashboard Facturación', icon: 'bi-speedometer2', permissions: ['cfdi-invoices.index'] },
         { href: '/dashboard/billing/invoices', label: 'Facturas CFDI', icon: 'bi-file-earmark-text', permissions: ['cfdi-invoices.index'] },

@@ -77,6 +77,7 @@ vi.mock('@lwm/sales', async () => {
     quoteServices: {
       quotes: {
         requestQuote: vi.fn(),
+        createFromCart: vi.fn(),
       },
     },
   }
@@ -112,6 +113,7 @@ const mockToast = toast as unknown as {
 
 const mockQuoteService = quoteServiceModule.quotes as unknown as {
   requestQuote: ReturnType<typeof vi.fn>
+  createFromCart: ReturnType<typeof vi.fn>
 }
 
 const mockCartSync = shoppingCartService.localSync as unknown as {
@@ -212,7 +214,7 @@ describe('LocalCartPage', () => {
       render(<LocalCartPage />)
 
       expect(screen.getByText('Tu carrito esta vacio')).toBeInTheDocument()
-      expect(screen.getByText('Ver Productos')).toBeInTheDocument()
+      expect(screen.getByText('Agregar mas productos')).toBeInTheDocument()
     })
 
     it('should link to products page when empty', () => {
@@ -230,7 +232,7 @@ describe('LocalCartPage', () => {
 
       render(<LocalCartPage />)
 
-      const link = screen.getByRole('link', { name: /ver productos/i })
+      const link = screen.getByRole('link', { name: /agregar mas productos/i })
       expect(link).toHaveAttribute('href', '/productos')
     })
 
@@ -249,7 +251,7 @@ describe('LocalCartPage', () => {
 
       render(<LocalCartPage continueShoppingUrl="/catalog" />)
 
-      const link = screen.getByRole('link', { name: /ver productos/i })
+      const link = screen.getByRole('link', { name: /agregar mas productos/i })
       expect(link).toHaveAttribute('href', '/catalog')
     })
   })
@@ -411,7 +413,7 @@ describe('LocalCartPage', () => {
       const user = userEvent.setup()
 
       render(<LocalCartPage />)
-      const quoteButton = screen.getByText('Solicitar Cotizacion')
+      const quoteButton = screen.getByText('Generar Cotizacion')
       await user.click(quoteButton)
 
       expect(mockPush).toHaveBeenCalledWith('/auth/login?redirect=' + encodeURIComponent('/cart?action=quote'))
@@ -425,7 +427,7 @@ describe('LocalCartPage', () => {
       const user = userEvent.setup()
 
       render(<LocalCartPage />)
-      const quoteButton = screen.getByText('Solicitar Cotizacion')
+      const quoteButton = screen.getByText('Generar Cotizacion')
       await user.click(quoteButton)
 
       const savedCart = sessionStorage.getItem('pendingQuoteCart')
@@ -437,48 +439,82 @@ describe('LocalCartPage', () => {
   })
 
   describe('Request Quote - Authenticated', () => {
-    it('should call requestQuote API when authenticated', async () => {
+    it('should open the quote modal and call createFromCart on confirm', async () => {
       mockIsAuthenticated.mockReturnValue(true)
       const items = [createMockCartItem({ productId: '1', quantity: 2 })]
       mockUseLocalCart.mockReturnValue(mockCartWithItems(items))
-      mockQuoteService.requestQuote.mockResolvedValue({
-        success: true,
+      mockCartSync.syncLocalCartToAPI.mockResolvedValue({ id: '789' })
+      mockQuoteService.createFromCart.mockResolvedValue({
+        data: { id: '99' },
         message: 'Cotizacion creada',
-        data: { quote_number: 'COT-001', total_amount: 200 },
       })
 
       const user = userEvent.setup()
 
       render(<LocalCartPage />)
-      const quoteButton = screen.getByText('Solicitar Cotizacion')
-      await user.click(quoteButton)
+      // Opens the modal (does not call the API yet)
+      await user.click(screen.getByText('Generar Cotizacion'))
+      expect(mockQuoteService.createFromCart).not.toHaveBeenCalled()
+
+      // Confirm inside the modal
+      const confirmButtons = screen.getAllByText('Generar Cotizacion')
+      await user.click(confirmButtons[confirmButtons.length - 1])
 
       await waitFor(() => {
-        expect(mockQuoteService.requestQuote).toHaveBeenCalledWith({
-          items: [{ product_id: 1, quantity: 2 }],
+        expect(mockCartSync.syncLocalCartToAPI).toHaveBeenCalledWith(items)
+        expect(mockQuoteService.createFromCart).toHaveBeenCalledWith({
+          shopping_cart_id: 789,
           notes: undefined,
         })
       })
     })
 
-    it('should show success toast after quote creation', async () => {
+    it('should show success toast and redirect to the quote detail page', async () => {
       mockIsAuthenticated.mockReturnValue(true)
       const items = [createMockCartItem({ productId: '1', quantity: 2 })]
       mockUseLocalCart.mockReturnValue(mockCartWithItems(items))
-      mockQuoteService.requestQuote.mockResolvedValue({
-        success: true,
+      mockCartSync.syncLocalCartToAPI.mockResolvedValue({ id: 'cart-99' })
+      mockQuoteService.createFromCart.mockResolvedValue({
+        data: { id: '42' },
         message: 'Cotizacion creada exitosamente',
-        data: { quote_number: 'COT-001', total_amount: 200 },
       })
 
       const user = userEvent.setup()
 
       render(<LocalCartPage />)
-      const quoteButton = screen.getByText('Solicitar Cotizacion')
-      await user.click(quoteButton)
+      await user.click(screen.getByText('Generar Cotizacion'))
+      const confirmButtons = screen.getAllByText('Generar Cotizacion')
+      await user.click(confirmButtons[confirmButtons.length - 1])
 
       await waitFor(() => {
-        expect(mockToast.success).toHaveBeenCalledWith('Cotizacion creada exitosamente')
+        expect(mockToast.success).toHaveBeenCalledWith('Cotizacion generada')
+        expect(mockPush).toHaveBeenCalledWith('/dashboard/my-quotes/42')
+      })
+    })
+
+    it('should send the optional note entered in the modal', async () => {
+      mockIsAuthenticated.mockReturnValue(true)
+      const items = [createMockCartItem({ productId: '1', quantity: 2 })]
+      mockUseLocalCart.mockReturnValue(mockCartWithItems(items))
+      mockCartSync.syncLocalCartToAPI.mockResolvedValue({ id: '55' })
+      mockQuoteService.createFromCart.mockResolvedValue({
+        data: { id: '7' },
+        message: 'Cotizacion creada',
+      })
+
+      const user = userEvent.setup()
+
+      render(<LocalCartPage />)
+      await user.click(screen.getByText('Generar Cotizacion'))
+      await user.type(screen.getByLabelText(/nota/i), 'Entrega urgente')
+      const confirmButtons = screen.getAllByText('Generar Cotizacion')
+      await user.click(confirmButtons[confirmButtons.length - 1])
+
+      await waitFor(() => {
+        expect(mockQuoteService.createFromCart).toHaveBeenCalledWith({
+          shopping_cart_id: 55,
+          notes: 'Entrega urgente',
+        })
       })
     })
   })
@@ -501,7 +537,7 @@ describe('LocalCartPage', () => {
       const user = userEvent.setup()
 
       render(<LocalCartPage />)
-      const quoteButton = screen.getByText('Solicitar Cotizacion')
+      const quoteButton = screen.getByText('Generar Cotizacion')
       await user.click(quoteButton)
 
       expect(mockToast.error).toHaveBeenCalledWith('El carrito esta vacio')
@@ -542,7 +578,7 @@ describe('LocalCartPage', () => {
 
       render(<LocalCartPage />)
 
-      expect(screen.getByText(/Solicitar cotizacion:/i)).toBeInTheDocument()
+      expect(screen.getByText(/Generar cotizacion:/i)).toBeInTheDocument()
       expect(screen.getByText(/Te contactaremos con precios especiales/i)).toBeInTheDocument()
     })
   })

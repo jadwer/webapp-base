@@ -85,34 +85,58 @@ export default function Sidebar({ navigationConfig }: SidebarProps) {
     isOpen: boolean,
     toggle: () => void,
     links: NavigationItem[],
-    badge?: { text: string; color: string }
+    badge?: { text: string; color: string },
+    quickCreateHref?: string
   ) => (
     <li className={styles.navItem} key={key}>
-      <button
-        className={`${styles.groupButton} ${isOpen ? styles.groupActive : ''}`}
-        onClick={toggle}
-      >
-        <div className={styles.groupContent}>
-          <i className={`bi ${icon}`} aria-hidden="true"></i>
-          {label}
-          {badge && (
-            <span
-              className={styles.badge}
-              style={{
-                backgroundColor: badge.color,
-                marginLeft: '8px',
-                fontSize: '10px',
-                padding: '2px 6px',
-                borderRadius: '10px',
-                color: 'white'
-              }}
-            >
-              {badge.text}
-            </span>
-          )}
-        </div>
-        <i className={`bi bi-chevron-right ${styles.groupChevron} ${isOpen ? styles.expanded : ''}`}></i>
-      </button>
+      <div className={styles.groupButton} style={{ display: 'flex', alignItems: 'stretch', padding: 0 }}>
+        <button
+          className={`${styles.groupButton} ${isOpen ? styles.groupActive : ''}`}
+          style={{ flex: 1, border: 'none' }}
+          onClick={toggle}
+        >
+          <div className={styles.groupContent}>
+            <i className={`bi ${icon}`} aria-hidden="true"></i>
+            {label}
+            {badge && (
+              <span
+                className={styles.badge}
+                style={{
+                  backgroundColor: badge.color,
+                  marginLeft: '8px',
+                  fontSize: '10px',
+                  padding: '2px 6px',
+                  borderRadius: '10px',
+                  color: 'white'
+                }}
+              >
+                {badge.text}
+              </span>
+            )}
+          </div>
+          <i className={`bi bi-chevron-right ${styles.groupChevron} ${isOpen ? styles.expanded : ''}`}></i>
+        </button>
+
+        {quickCreateHref && (
+          <Link
+            href={quickCreateHref}
+            title={`Crear nuevo (${label})`}
+            aria-label={`Crear nuevo en ${label}`}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: '32px',
+              flexShrink: 0,
+              color: 'inherit',
+              textDecoration: 'none'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <i className="bi bi-plus-circle" aria-hidden="true"></i>
+          </Link>
+        )}
+      </div>
 
       <div className={`${styles.subMenu} ${isOpen ? styles.expanded : styles.collapsed}`}>
         <ul className={styles.subNavList}>
@@ -176,13 +200,33 @@ export default function Sidebar({ navigationConfig }: SidebarProps) {
           <ul className={styles.navList}>
             {/* Top links (Panel Principal, Mi perfil, Usuarios...) */}
             {topLinks.map((item) => (
-              <li className={styles.navItem} key={item.href}>
-                {renderItemLink(
-                  item,
-                  `${styles.navLink} ${
-                    (pathname === item.href || (item.href !== '/dashboard' && pathname?.startsWith(item.href))) ? styles.active : ''
-                  }`,
-                  styles.navIcon,
+              <li className={styles.navItem} key={item.href} style={{ display: 'flex', alignItems: 'stretch' }}>
+                <div style={{ flex: 1 }}>
+                  {renderItemLink(
+                    item,
+                    `${styles.navLink} ${
+                      (pathname === item.href || (item.href !== '/dashboard' && pathname?.startsWith(item.href))) ? styles.active : ''
+                    }`,
+                    styles.navIcon,
+                  )}
+                </div>
+                {item.quickCreateHref && (
+                  <Link
+                    href={item.quickCreateHref}
+                    title={`Crear nuevo (${item.label})`}
+                    aria-label={`Crear nuevo en ${item.label}`}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      width: '32px',
+                      flexShrink: 0,
+                      color: 'inherit',
+                      textDecoration: 'none'
+                    }}
+                  >
+                    <i className="bi bi-plus-circle" aria-hidden="true"></i>
+                  </Link>
                 )}
               </li>
             ))}
@@ -197,7 +241,8 @@ export default function Sidebar({ navigationConfig }: SidebarProps) {
                   openGroups[group.key] ?? false,
                   () => toggleGroup(group.key),
                   group.items,
-                  group.badge
+                  group.badge,
+                  group.quickCreateHref
                 ))}
 
                 {extraLinks.map((item) => (
@@ -218,7 +263,8 @@ export default function Sidebar({ navigationConfig }: SidebarProps) {
                   openGroups[group.key] ?? false,
                   () => toggleGroup(group.key),
                   group.items,
-                  group.badge
+                  group.badge,
+                  group.quickCreateHref
                 ))}
 
                 {/* Disabled modules separator */}

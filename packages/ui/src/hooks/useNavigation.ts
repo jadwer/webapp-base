@@ -25,6 +25,12 @@ export interface NavigationItem {
    * client-side routing.
    */
   external?: boolean
+  /**
+   * Optional quick-create link. When set, the Sidebar renders a small "+"
+   * icon next to the item label that navigates directly to this href
+   * (e.g. `/dashboard/users/create`).
+   */
+  quickCreateHref?: string
 }
 
 export interface NavigationGroup {
@@ -35,6 +41,12 @@ export interface NavigationGroup {
   items: NavigationItem[]
   permissions: string[]
   badge?: { text: string; color: string }
+  /**
+   * Optional quick-create link. When set, the Sidebar renders a small "+"
+   * icon next to the group label that navigates directly to this href
+   * (e.g. `/dashboard/quotes/create`), bypassing the group's expand/collapse.
+   */
+  quickCreateHref?: string
 }
 
 export interface DisabledModule {

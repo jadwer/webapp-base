@@ -10,7 +10,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Button } from '@lwm/ui'
+import { Button, Modal } from '@lwm/ui'
 import { useLocalCart } from '../hooks/useLocalCart'
 import type { LocalCartItem } from '../hooks/useLocalCart'
 import { useAuth } from '@lwm/auth'
@@ -34,6 +34,8 @@ export const LocalCartPage: React.FC<LocalCartPageProps> = ({
   const { isAuthenticated, isLoading: authLoading } = useAuth()
   const [isRequestingQuote, setIsRequestingQuote] = useState(false)
   const [isSyncingToCheckout, setIsSyncingToCheckout] = useState(false)
+  const [showQuoteModal, setShowQuoteModal] = useState(false)
+  const [quoteNote, setQuoteNote] = useState('')
   const hasProcessedPendingQuote = useRef(false)
   const hasProcessedCheckout = useRef(false)
 
@@ -71,7 +73,8 @@ export const LocalCartPage: React.FC<LocalCartPageProps> = ({
       hasProcessedPendingQuote.current = true
       // Small delay to ensure UI is ready
       const timer = setTimeout(() => {
-        handleRequestQuote()
+        // Reopen the quote modal so the user can still add a note
+        setShowQuoteModal(true)
         // Clean up URL params
         router.replace('/cart')
       }, 500)
@@ -80,56 +83,58 @@ export const LocalCartPage: React.FC<LocalCartPageProps> = ({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams, isAuthenticated, authLoading, isInitialized, items.length, isRequestingQuote])
 
-  // Handle quote request
+  // Open the "Generar cotizacion" modal (or redirect to login first)
+  const handleOpenQuoteModal = () => {
+    if (items.length === 0) {
+      toast.error('El carrito esta vacio')
+      return
+    }
+
+    if (!isAuthenticated) {
+      // Save cart items to sessionStorage for after login
+      sessionStorage.setItem('pendingQuoteCart', JSON.stringify(items))
+      // Redirect to login with return URL to cart
+      toast.info('Inicia sesión para generar una cotización')
+      router.push('/auth/login?redirect=' + encodeURIComponent('/cart?action=quote'))
+      return
+    }
+
+    setShowQuoteModal(true)
+  }
+
+  // Handle quote generation from cart (POST /quotes/from-cart)
   const handleRequestQuote = async () => {
     if (items.length === 0) {
       toast.error('El carrito esta vacio')
       return
     }
 
+    if (!isAuthenticated) {
+      sessionStorage.setItem('pendingQuoteCart', JSON.stringify(items))
+      toast.info('Inicia sesión para generar una cotización')
+      router.push('/auth/login?redirect=' + encodeURIComponent('/cart?action=quote'))
+      return
+    }
+
     setIsRequestingQuote(true)
 
     try {
-      if (!isAuthenticated) {
-        // Save cart items to sessionStorage for after login
-        sessionStorage.setItem('pendingQuoteCart', JSON.stringify(items))
-        // Redirect to login with return URL to cart
-        toast.info('Inicia sesión para solicitar una cotización')
-        router.push('/auth/login?redirect=' + encodeURIComponent('/cart?action=quote'))
-        return
-      }
+      // Sync local cart to API cart first - from-cart endpoint needs a real shopping_cart_id
+      const apiCart = await shoppingCartService.localSync.syncLocalCartToAPI(items)
 
-      // User is authenticated - use the direct quote request endpoint
-      const quoteItems = items
-        .filter(item => !isNaN(Number(item.productId)) && Number(item.productId) > 0)
-        .map(item => ({
-          product_id: Number(item.productId),
-          quantity: item.quantity
-        }))
-
-      if (quoteItems.length === 0) {
-        toast.error('No hay productos validos en el carrito')
-        setIsRequestingQuote(false)
-        return
-      }
-
-      const response = await quoteServiceModule.quotes.requestQuote({
-        items: quoteItems,
-        notes: undefined
+      const response = await quoteServiceModule.quotes.createFromCart({
+        shopping_cart_id: parseInt(apiCart.id),
+        // contact_id is resolved server-side from the authenticated user when omitted
+        notes: quoteNote.trim() || undefined
       })
 
-      if (response.success) {
-        // Clear the cart after successful quote request
-        clearCart()
+      // Clear the cart after successful quote generation
+      clearCart()
+      setShowQuoteModal(false)
+      setQuoteNote('')
 
-        // Show success message
-        toast.success(response.message)
-
-        // Optional: Show quote details in a more prominent way
-        toast.info(`Cotización #${response.data.quote_number} - Total: ${formatPrice(response.data.total_amount)}`)
-      } else {
-        toast.error('Error al solicitar la cotización')
-      }
+      toast.success('Cotizacion generada')
+      router.push(`/dashboard/my-quotes/${response.data.id}`)
     } catch (error) {
       console.error('Error requesting quote:', error)
       toast.error('Error al procesar la solicitud de cotización')
@@ -235,8 +240,8 @@ export const LocalCartPage: React.FC<LocalCartPageProps> = ({
               </p>
               <Link href={continueShoppingUrl}>
                 <Button variant="primary" size="large">
-                  <i className="bi bi-arrow-left me-2" />
-                  Ver Productos
+                  <i className="bi bi-plus-circle me-2" />
+                  Agregar mas productos
                 </Button>
               </Link>
             </div>
@@ -296,7 +301,7 @@ export const LocalCartPage: React.FC<LocalCartPageProps> = ({
               <small className="text-muted">/ {item.unitName}</small>
             )}
             <small className={item.iva ? 'text-success' : 'text-muted'}>
-              {item.iva ? 'IVA incluido' : 'Sin IVA'}
+              {item.iva ? '+ 16% IVA' : 'IVA 0%'}
             </small>
           </div>
 
@@ -390,9 +395,11 @@ export const LocalCartPage: React.FC<LocalCartPageProps> = ({
 
           {/* Actions */}
           <div className="d-flex justify-content-between align-items-center mt-4">
-            <Link href={continueShoppingUrl} className="text-decoration-none">
-              <i className="bi bi-arrow-left me-2" />
-              Seguir Comprando
+            <Link href={continueShoppingUrl}>
+              <Button variant="secondary" buttonStyle="outline" size="small">
+                <i className="bi bi-plus-circle me-2" />
+                Agregar mas productos
+              </Button>
             </Link>
             <button
               type="button"
@@ -435,12 +442,12 @@ export const LocalCartPage: React.FC<LocalCartPageProps> = ({
                 </span>
               </div>
 
-              {/* Quote Request Button */}
+              {/* Quote Generation Button */}
               <Button
                 variant="success"
                 size="large"
                 className="w-100 mb-3"
-                onClick={handleRequestQuote}
+                onClick={handleOpenQuoteModal}
                 disabled={isRequestingQuote || authLoading}
               >
                 {isRequestingQuote ? (
@@ -451,7 +458,7 @@ export const LocalCartPage: React.FC<LocalCartPageProps> = ({
                 ) : (
                   <>
                     <i className="bi bi-file-earmark-text me-2" />
-                    Solicitar Cotizacion
+                    Generar Cotizacion
                   </>
                 )}
               </Button>
@@ -486,7 +493,7 @@ export const LocalCartPage: React.FC<LocalCartPageProps> = ({
               {/* Info about quote */}
               <div className="alert alert-info mt-3 mb-0 small">
                 <i className="bi bi-info-circle me-2"></i>
-                <strong>Solicitar cotizacion:</strong> Te contactaremos con precios especiales y tiempos de entrega.
+                <strong>Generar cotizacion:</strong> Te contactaremos con precios especiales y tiempos de entrega.
               </div>
             </div>
           </div>
@@ -512,6 +519,59 @@ export const LocalCartPage: React.FC<LocalCartPageProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Generate Quote Modal */}
+      <Modal
+        show={showQuoteModal}
+        onHide={() => setShowQuoteModal(false)}
+        title="Generar Cotizacion"
+        closable={!isRequestingQuote}
+        closeButton={!isRequestingQuote}
+        footer={
+          <>
+            <button
+              type="button"
+              className="btn btn-outline-secondary"
+              onClick={() => setShowQuoteModal(false)}
+              disabled={isRequestingQuote}
+            >
+              Cancelar
+            </button>
+            <Button
+              variant="success"
+              onClick={handleRequestQuote}
+              disabled={isRequestingQuote}
+            >
+              {isRequestingQuote ? (
+                <>
+                  <span className="spinner-border spinner-border-sm me-2" />
+                  Generando...
+                </>
+              ) : (
+                <>
+                  <i className="bi bi-file-earmark-text me-2" />
+                  Generar Cotizacion
+                </>
+              )}
+            </Button>
+          </>
+        }
+      >
+        <p className="text-muted">
+          Se generara una cotizacion con los {totals.itemCount} {totals.itemCount === 1 ? 'producto' : 'productos'} de tu carrito.
+          Puedes agregar una nota opcional para el equipo de ventas.
+        </p>
+        <label htmlFor="quote-note" className="form-label">Nota (opcional)</label>
+        <textarea
+          id="quote-note"
+          className="form-control"
+          rows={4}
+          placeholder="Ej. Requiero entrega urgente, favor de contactarme por telefono..."
+          value={quoteNote}
+          onChange={(e) => setQuoteNote(e.target.value)}
+          disabled={isRequestingQuote}
+        />
+      </Modal>
     </div>
   )
 }

@@ -161,7 +161,8 @@ export interface UpdateQuoteRequest {
 
 export interface CreateQuoteFromCartRequest {
   shopping_cart_id: number
-  contact_id: number
+  /** Optional: backend resolves the contact from the authenticated user when omitted. */
+  contact_id?: number
   valid_until?: string
   notes?: string
   terms_and_conditions?: string

@@ -191,20 +191,35 @@ export const PublicCatalogFilters: React.FC<PublicCatalogFiltersProps> = ({
     )
   }, [filters])
 
+  // Categories/brands with zero active products should not clutter public
+  // navigation. `count` is only populated when the caller derived it from
+  // real product data (see PublicCatalogTemplate); options without a count
+  // (undefined) are left as-is since we can't tell if they're empty without
+  // a dedicated backend endpoint exposing product counts per facet.
+  const visibleCategories = useMemo(
+    () => categories.filter(cat => cat.count === undefined || cat.count > 0),
+    [categories]
+  )
+
+  const visibleBrands = useMemo(
+    () => brands.filter(brand => brand.count === undefined || brand.count > 0),
+    [brands]
+  )
+
   // Selected categories/brands for display
   const selectedCategories = useMemo(() => {
-    const categoryIds = Array.isArray(filters.categoryId) 
-      ? filters.categoryId 
+    const categoryIds = Array.isArray(filters.categoryId)
+      ? filters.categoryId
       : filters.categoryId ? [filters.categoryId] : []
-    return categories.filter(cat => categoryIds.includes(cat.value))
-  }, [filters.categoryId, categories])
+    return visibleCategories.filter(cat => categoryIds.includes(cat.value))
+  }, [filters.categoryId, visibleCategories])
 
   const selectedBrands = useMemo(() => {
     const brandIds = Array.isArray(filters.brandId)
       ? filters.brandId
       : filters.brandId ? [filters.brandId] : []
-    return brands.filter(brand => brandIds.includes(brand.value))
-  }, [filters.brandId, brands])
+    return visibleBrands.filter(brand => brandIds.includes(brand.value))
+  }, [filters.brandId, visibleBrands])
 
   const baseClasses = 'public-catalog-filters'
   const variantClasses = {
@@ -292,7 +307,7 @@ export const PublicCatalogFilters: React.FC<PublicCatalogFiltersProps> = ({
       )}
 
       {/* Category Filter */}
-      {showCategoryFilter && categories.length > 0 && (
+      {showCategoryFilter && visibleCategories.length > 0 && (
         <div className={variant === 'horizontal' ? 'col-12' : ''}>
           <h6 className="mb-2">
             <i className="bi bi-tag me-2" />
@@ -302,7 +317,7 @@ export const PublicCatalogFilters: React.FC<PublicCatalogFiltersProps> = ({
             )}
           </h6>
           <div className="d-flex flex-wrap gap-2" style={{ overflow: 'hidden' }}>
-            {categories.slice(0, variant === 'sidebar' ? 10 : 6).map(category => {
+            {visibleCategories.slice(0, variant === 'sidebar' ? 10 : 6).map(category => {
               const isSelected = selectedCategories.some(sel => sel.value === category.value)
               return (
                 <button
@@ -320,13 +335,13 @@ export const PublicCatalogFilters: React.FC<PublicCatalogFiltersProps> = ({
                 </button>
               )
             })}
-            {categories.length > (variant === 'sidebar' ? 10 : 6) && (
+            {visibleCategories.length > (variant === 'sidebar' ? 10 : 6) && (
               <button
                 type="button"
                 className="btn btn-sm btn-link text-decoration-none"
                 onClick={() => setShowCategoriesModal(true)}
               >
-                +{categories.length - (variant === 'sidebar' ? 10 : 6)} mas
+                +{visibleCategories.length - (variant === 'sidebar' ? 10 : 6)} mas
               </button>
             )}
           </div>
@@ -334,7 +349,7 @@ export const PublicCatalogFilters: React.FC<PublicCatalogFiltersProps> = ({
       )}
 
       {/* Brand Filter */}
-      {showBrandFilter && brands.length > 0 && (
+      {showBrandFilter && visibleBrands.length > 0 && (
         <div className={variant === 'horizontal' ? 'col-12' : ''}>
           <h6 className="mb-2">
             <i className="bi bi-award me-2" />
@@ -344,7 +359,7 @@ export const PublicCatalogFilters: React.FC<PublicCatalogFiltersProps> = ({
             )}
           </h6>
           <div className="d-flex flex-wrap gap-2" style={{ overflow: 'hidden' }}>
-            {brands.slice(0, variant === 'sidebar' ? 8 : 5).map(brand => {
+            {visibleBrands.slice(0, variant === 'sidebar' ? 8 : 5).map(brand => {
               const isSelected = selectedBrands.some(sel => sel.value === brand.value)
               return (
                 <button
@@ -362,13 +377,13 @@ export const PublicCatalogFilters: React.FC<PublicCatalogFiltersProps> = ({
                 </button>
               )
             })}
-            {brands.length > (variant === 'sidebar' ? 8 : 5) && (
+            {visibleBrands.length > (variant === 'sidebar' ? 8 : 5) && (
               <button
                 type="button"
                 className="btn btn-sm btn-link text-decoration-none"
                 onClick={() => setShowBrandsModal(true)}
               >
-                +{brands.length - (variant === 'sidebar' ? 8 : 5)} mas
+                +{visibleBrands.length - (variant === 'sidebar' ? 8 : 5)} mas
               </button>
             )}
           </div>
@@ -468,7 +483,7 @@ export const PublicCatalogFilters: React.FC<PublicCatalogFiltersProps> = ({
         size="large"
       >
         <div className="d-flex flex-wrap gap-2">
-          {categories.map(category => {
+          {visibleCategories.map(category => {
             const isSelected = selectedCategories.some(sel => sel.value === category.value)
             return (
               <button
@@ -495,7 +510,7 @@ export const PublicCatalogFilters: React.FC<PublicCatalogFiltersProps> = ({
         size="large"
       >
         <div className="d-flex flex-wrap gap-2">
-          {brands.map(brand => {
+          {visibleBrands.map(brand => {
             const isSelected = selectedBrands.some(sel => sel.value === brand.value)
             return (
               <button
