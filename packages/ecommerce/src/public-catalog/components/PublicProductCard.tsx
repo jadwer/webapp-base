@@ -167,8 +167,10 @@ export const PublicProductCard: React.FC<PublicProductCardProps> = ({
                 <small className="text-muted ms-1">
                   {product.displayCurrency}{showUnit && product.unit ? ` / ${product.displayUnit}` : ''}
                 </small>
-                <small className={`d-block ${product.attributes.iva ? 'text-success' : 'text-muted'}`}>
-                  {product.attributes.iva ? 'IVA incluido' : '+ 16% IVA'}
+                {/* Precios de catalogo son NETOS (decision de negocio 2026-07-11):
+                    el IVA se suma al cotizar/cobrar, nunca "incluido". */}
+                <small className={`d-block ${product.attributes.iva ? 'text-muted' : 'text-success'}`}>
+                  {product.attributes.iva ? '+ 16% IVA' : 'IVA 0%'}
                 </small>
               </>
             ) : (
