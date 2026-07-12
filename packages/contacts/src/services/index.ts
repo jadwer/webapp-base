@@ -77,6 +77,10 @@ const transformSingleJsonApiResponse = (response: unknown): ContactResponse => {
 // Campos comerciales/fiscales que son nullable en el backend: un `null`
 // explicito los limpia; `undefined` significa "no tocar" y se omite del PATCH.
 const NULLABLE_CONTACT_FIELDS = [
+  // FKs de usuario: null explicito permite DESASIGNAR (backend los valida como
+  // ['nullable', 'integer', exists:users], asi que null pasa sin chocar).
+  'defaultSalespersonId',
+  'collectionsAgentId',
   'commissionPctOverride',
   'creditMonths',
   'discountPct',

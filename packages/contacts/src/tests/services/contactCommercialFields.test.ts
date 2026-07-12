@@ -79,18 +79,28 @@ describe('buildContactAttributes (escritura de campos comerciales/fiscales)', ()
     expect(out).toHaveProperty('discountPct', null)
   })
 
+  it('conserva null en los FKs de usuario para poder DESASIGNAR vendedor/cobrador', () => {
+    const out = buildContactAttributes({
+      defaultSalespersonId: null,
+      collectionsAgentId: null,
+    })
+
+    // backend los valida como nullable -> null pasa y desasigna
+    expect(out).toHaveProperty('defaultSalespersonId', null)
+    expect(out).toHaveProperty('collectionsAgentId', null)
+  })
+
   it('descarta null en campos NO nullables (evita romper validacion)', () => {
     const out = buildContactAttributes({
       regimenFiscal: null,
       usoCfdi: null,
-      defaultSalespersonId: null,
+      name: null,
     })
 
-    // regimenFiscal/usoCfdi son strings no nullables -> se descartan
+    // regimenFiscal/usoCfdi/name son strings no nullables -> se descartan
     expect(out).not.toHaveProperty('regimenFiscal')
     expect(out).not.toHaveProperty('usoCfdi')
-    // defaultSalespersonId no esta en la lista de nullables -> se descarta
-    expect(out).not.toHaveProperty('defaultSalespersonId')
+    expect(out).not.toHaveProperty('name')
   })
 
   it('conserva el valor 0 (no lo confunde con vacio)', () => {
@@ -123,6 +133,19 @@ describe('contactsService.update (escritura via PATCH)', () => {
     expect(attrs).toHaveProperty('creditMonths', null)
     expect(attrs).toHaveProperty('discountPct', null)
     expect(attrs).toHaveProperty('defaultSalespersonId', 9)
+  })
+
+  it('envia null de los FKs para desasignar vendedor/cobrador via PATCH', async () => {
+    await contactsService.update('1', {
+      defaultSalespersonId: null,
+      collectionsAgentId: null,
+    })
+
+    const [, payload] = patchMock.mock.calls[0]
+    const attrs = (payload as { data: { attributes: Record<string, unknown> } }).data.attributes
+
+    expect(attrs).toHaveProperty('defaultSalespersonId', null)
+    expect(attrs).toHaveProperty('collectionsAgentId', null)
   })
 
   it('omite del PATCH los campos undefined (no modificados)', async () => {
