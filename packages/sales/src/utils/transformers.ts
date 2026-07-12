@@ -208,17 +208,19 @@ export function transformSalesOrderItemsResponse(response: Record<string, unknow
 
 // Utility function to transform form data to JSON:API format
 export function transformSalesOrderFormToJsonApi(data: SalesOrderFormData, type: string = 'sales-orders', id?: string): Record<string, unknown> {
+  // JSON:API attributes MUST be camelCase: el SalesOrderSchema del backend define
+  // los campos como contactId/orderNumber/orderDate/etc. Enviar snake_case produce 400.
   const payload: Record<string, unknown> = {
     data: {
       type,
       attributes: {
-        contact_id: data.contactId,
-        order_number: data.orderNumber,
+        contactId: data.contactId,
+        orderNumber: data.orderNumber,
         status: data.status,
-        order_date: data.orderDate,
-        approved_at: data.approvedAt || null,
-        delivered_at: data.deliveredAt || null,
-        invoicing_notes: data.invoicingNotes || null,
+        orderDate: data.orderDate,
+        approvedAt: data.approvedAt || null,
+        deliveredAt: data.deliveredAt || null,
+        invoicingNotes: data.invoicingNotes || null,
         notes: data.notes || ''
       },
       relationships: {

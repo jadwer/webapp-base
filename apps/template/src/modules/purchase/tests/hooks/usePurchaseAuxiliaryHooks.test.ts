@@ -5,6 +5,7 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { renderHook } from '@testing-library/react'
+import useSWR from 'swr'
 import {
   usePurchaseReports,
   usePurchaseSuppliers,
@@ -166,6 +167,32 @@ describe('Purchase Auxiliary Hooks', () => {
       renderHook(() => usePurchaseProducts(params))
 
       // Assert - Search parameters are passed
+    })
+
+    it('should default to filter[is_active]=1 and never send filter[status]', () => {
+      // Act
+      renderHook(() => usePurchaseProducts())
+
+      // Assert - inspect SWR key: ['/api/v1/products', queryParams]
+      const lastCall = vi.mocked(useSWR).mock.calls.at(-1)
+      expect(lastCall).toBeDefined()
+      const [url, queryParams] = lastCall![0] as [string, Record<string, string>]
+      expect(url).toBe('/api/v1/products')
+      // Backend ProductSchema only allows filter[is_active] (boolean)
+      expect(queryParams['filter[is_active]']).toBe('1')
+      expect(queryParams).not.toHaveProperty('filter[status]')
+    })
+
+    it('should keep filter[is_active] default when extra params are passed', () => {
+      // Act
+      renderHook(() => usePurchaseProducts({ 'filter[search]': 'acido' }))
+
+      // Assert
+      const lastCall = vi.mocked(useSWR).mock.calls.at(-1)
+      const [, queryParams] = lastCall![0] as [string, Record<string, string>]
+      expect(queryParams['filter[is_active]']).toBe('1')
+      expect(queryParams['filter[search]']).toBe('acido')
+      expect(queryParams).not.toHaveProperty('filter[status]')
     })
 
     it('should accept include parameters', () => {

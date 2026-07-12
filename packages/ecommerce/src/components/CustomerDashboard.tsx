@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useAuth } from '@lwm/auth'
 import { useNavigationProgress } from '@lwm/ui'
 import { useRecentlyViewed } from '../hooks/useProductViews'
-import { salesService } from '@lwm/sales'
+import { myOrdersService } from '@lwm/sales'
 import { quoteService } from '@lwm/sales'
 import { couponsService } from '../services/couponsService'
 import { shoppingCartService } from '../services/cartService'
@@ -92,11 +92,9 @@ export default function CustomerDashboard() {
     try {
       // Fetch in parallel
       const [ordersResult, quotesResult, couponsResult, cartResult] = await Promise.allSettled([
-        salesService.orders.getAll({
-          'filter[contact_email]': user.email,
-          sort: '-createdAt',
-          'page[size]': 5,
-        }),
+        // Endpoint de portal: /api/v1/my-orders resuelve el contacto del usuario
+        // autenticado en backend (el customer no tiene permiso sales-orders.index)
+        myOrdersService.getAll({ perPage: 5 }),
         quoteService.getAll(
           { contactEmail: user.email },
           { field: 'createdAt', direction: 'desc' },
@@ -106,18 +104,18 @@ export default function CustomerDashboard() {
         shoppingCartService.cart.getCurrent(),
       ])
 
-      // Process orders
+      // Process orders (respuesta Eloquent plana snake_case, NO JSON:API)
       if (ordersResult.status === 'fulfilled') {
         const ordersData = (ordersResult.value?.data || []).map(
-          (item: { id: string; attributes: Record<string, unknown>; relationships?: Record<string, { data?: Array<{ type: string; id: string }> | null }> }) => {
-            const itemsRel = item.relationships?.items?.data
+          (order: Record<string, unknown>) => {
+            const items = order.items
             return {
-              id: item.id,
-              orderNumber: item.attributes.orderNumber as string,
-              status: item.attributes.status as string,
-              totalAmount: item.attributes.totalAmount as number,
-              createdAt: item.attributes.createdAt as string,
-              itemCount: Array.isArray(itemsRel) ? itemsRel.length : undefined,
+              id: String(order.id),
+              orderNumber: order.order_number as string,
+              status: order.status as string,
+              totalAmount: order.total_amount as number,
+              createdAt: (order.created_at || order.order_date) as string,
+              itemCount: Array.isArray(items) ? items.length : undefined,
             }
           }
         )

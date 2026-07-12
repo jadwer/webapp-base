@@ -50,9 +50,10 @@ export const salesService = {
           type: 'sales-orders',
           id: id,
           attributes: {
-            total_amount: parseFloat(totals.totalAmount.toString()), // Ensure float
-            subtotal_amount: parseFloat((totals.subtotalAmount || totals.totalAmount).toString()), // Ensure float
-            tax_amount: parseFloat((totals.taxAmount || 0).toString()) // Ensure float
+            // camelCase: nombres de campo del SalesOrderSchema del backend
+            totalAmount: parseFloat(totals.totalAmount.toString()), // Ensure float
+            subtotalAmount: parseFloat((totals.subtotalAmount || totals.totalAmount).toString()), // Ensure float
+            taxAmount: parseFloat((totals.taxAmount || 0).toString()) // Ensure float
           }
         }
       }
@@ -342,15 +343,33 @@ export const orderTrackingService = {
 
 export const myOrdersService = {
   /**
-   * List customer's own orders
+   * List customer's own orders.
+   *
+   * Endpoint de portal (CustomerOrderController@index): NO es JSON:API.
+   * Regresa { data: SalesOrder[] (Eloquent snake_case, items.product y contact
+   * ya cargados), meta: { current_page, per_page, total, last_page } },
+   * ordenado por order_date desc. Query params planos: status, source,
+   * from_date, to_date, per_page (max 100), page.
    */
-  getAll: async () => {
-    const response = await axiosClient.get('/api/v1/my-orders')
+  getAll: async (params?: { status?: string; source?: string; fromDate?: string; toDate?: string; perPage?: number; page?: number }) => {
+    const queryParams = new URLSearchParams()
+    if (params?.status) queryParams.append('status', params.status)
+    if (params?.source) queryParams.append('source', params.source)
+    if (params?.fromDate) queryParams.append('from_date', params.fromDate)
+    if (params?.toDate) queryParams.append('to_date', params.toDate)
+    if (params?.perPage) queryParams.append('per_page', String(params.perPage))
+    if (params?.page) queryParams.append('page', String(params.page))
+    const queryString = queryParams.toString()
+    const url = queryString ? `/api/v1/my-orders?${queryString}` : '/api/v1/my-orders'
+    const response = await axiosClient.get(url)
     return response.data
   },
 
   /**
-   * Get customer's order details
+   * Get customer's order details.
+   *
+   * Regresa { data: { order (Eloquent snake_case con items.product y contact),
+   * status_history, can_cancel, available_actions } }.
    */
   getById: async (id: string) => {
     const response = await axiosClient.get(`/api/v1/my-orders/${id}`)

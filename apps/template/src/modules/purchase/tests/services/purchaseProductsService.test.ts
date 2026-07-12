@@ -151,7 +151,7 @@ describe('purchaseProductsService', () => {
 
       // Act
       const result = await purchaseProductsService.getAll({
-        'filter[status]': 'active',
+        'filter[is_active]': '1',
         'filter[search]': 'Active'
       })
 
@@ -159,7 +159,7 @@ describe('purchaseProductsService', () => {
       expect(axios.get).toHaveBeenCalled()
       const callUrl = vi.mocked(axios.get).mock.calls[0][0] as string
       const decodedUrl = decodeURIComponent(callUrl)
-      expect(decodedUrl).toContain('filter[status]=active')
+      expect(decodedUrl).toContain('filter[is_active]=1')
       expect(decodedUrl).toContain('filter[search]=Active')
       expect(result).toEqual(mockProducts)
     })

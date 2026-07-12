@@ -142,8 +142,9 @@ export const usePurchaseContacts = (params?: Record<string, string>) => {
 // Purchase Products Hook (for order items)
 export const usePurchaseProducts = (params?: Record<string, string>) => {
   // Filter active products by default unless explicitly overridden
+  // Backend ProductSchema only allows filter[is_active] (boolean), NOT filter[status]
   const queryParams = {
-    'filter[status]': 'active',
+    'filter[is_active]': '1',
     ...params
   }
   const key = ['/api/v1/products', queryParams]

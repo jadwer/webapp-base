@@ -135,15 +135,23 @@ describe('salesService', () => {
       const result = await salesService.orders.create(formData)
 
       // Assert
+      // Attributes camelCase: nombres de campo del SalesOrderSchema del backend
       expect(axios.post).toHaveBeenCalledWith('/api/v1/sales-orders', expect.objectContaining({
         data: expect.objectContaining({
           type: 'sales-orders',
           attributes: expect.objectContaining({
-            order_number: formData.orderNumber,
-            contact_id: formData.contactId,
+            orderNumber: formData.orderNumber,
+            contactId: formData.contactId,
+            orderDate: formData.orderDate,
+            status: formData.status,
           }),
         }),
       }))
+      // Regresion bug E2E: el payload NO debe llevar claves snake_case
+      const postPayload = vi.mocked(axios.post).mock.calls[0][1] as { data: { attributes: Record<string, unknown> } }
+      expect(postPayload.data.attributes).not.toHaveProperty('order_number')
+      expect(postPayload.data.attributes).not.toHaveProperty('contact_id')
+      expect(postPayload.data.attributes).not.toHaveProperty('order_date')
       expect(result).toEqual(createdOrder)
     })
 
@@ -179,8 +187,17 @@ describe('salesService', () => {
         data: expect.objectContaining({
           type: 'sales-orders',
           id: '1',
+          attributes: expect.objectContaining({
+            orderNumber: 'SO-UPDATED',
+            contactId: formData.contactId,
+          }),
         }),
       }))
+      // Regresion bug E2E: PATCH con snake_case producia 400 en el backend
+      const patchPayload = vi.mocked(axios.patch).mock.calls[0][1] as { data: { attributes: Record<string, unknown> } }
+      expect(patchPayload.data.attributes).not.toHaveProperty('order_number')
+      expect(patchPayload.data.attributes).not.toHaveProperty('contact_id')
+      expect(patchPayload.data.attributes).not.toHaveProperty('order_date')
       expect(result).toEqual(updatedOrder)
     })
 
@@ -221,9 +238,9 @@ describe('salesService', () => {
           type: 'sales-orders',
           id: '1',
           attributes: {
-            total_amount: 1500.00,
-            subtotal_amount: 1400.00,
-            tax_amount: 100.00,
+            totalAmount: 1500.00,
+            subtotalAmount: 1400.00,
+            taxAmount: 100.00,
           },
         },
       })
