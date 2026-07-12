@@ -24,8 +24,12 @@ export const usePurchaseOrders = (params?: PurchaseOrderFilters) => {
   if (params?.dateTo) {
     queryParams['filter[date_to]'] = params.dateTo
   }
+  // Nota cliente #11: compras por surtir (pendientes de recibir)
+  if (params?.pendingReceipt) {
+    queryParams['filter[pending_receipt]'] = '1'
+  }
 
-  const key = Object.keys(queryParams).length > 0 
+  const key = Object.keys(queryParams).length > 0
     ? ['/api/v1/purchase-orders', queryParams] 
     : '/api/v1/purchase-orders'
   

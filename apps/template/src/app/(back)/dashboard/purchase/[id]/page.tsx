@@ -96,14 +96,29 @@ export default function PurchaseOrderDetailPage({ params }: PageProps) {
               </p>
             </div>
             <div className="btn-group">
-              <button 
+              <button
                 className="btn btn-outline-secondary"
                 onClick={() => navigation.push('/dashboard/purchase')}
               >
                 <i className="bi bi-arrow-left me-2"></i>
                 Volver a Purchase
               </button>
-              <button 
+              {/* Nota cliente #11: accesos rapidos a las vistas por surtir */}
+              <button
+                className="btn btn-outline-info"
+                onClick={() => navigation.push('/dashboard/purchase/pending-receipt')}
+              >
+                <i className="bi bi-box-arrow-in-down me-2"></i>
+                Compras por surtir
+              </button>
+              <button
+                className="btn btn-outline-info"
+                onClick={() => navigation.push('/dashboard/sales/pending-fulfillment')}
+              >
+                <i className="bi bi-truck me-2"></i>
+                Pedidos por surtir
+              </button>
+              <button
                 className="btn btn-outline-primary"
                 onClick={() => navigation.push(`/dashboard/purchase/${resolvedParams.id}/edit`)}
               >

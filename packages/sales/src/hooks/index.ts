@@ -26,9 +26,13 @@ export const useSalesOrders = (params?: SalesOrderFilters) => {
   if (params?.dateTo) {
     queryParams['filter[date_to]'] = params.dateTo
   }
+  // Nota cliente #11: pedidos por surtir (pendientes de entregar)
+  if (params?.pendingFulfillment) {
+    queryParams['filter[pending_fulfillment]'] = '1'
+  }
 
-  const key = Object.keys(queryParams).length > 0 
-    ? ['/api/v1/sales-orders', queryParams] 
+  const key = Object.keys(queryParams).length > 0
+    ? ['/api/v1/sales-orders', queryParams]
     : '/api/v1/sales-orders'
   
   const { data, error, isLoading, mutate } = useSWR(

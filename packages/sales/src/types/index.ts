@@ -134,6 +134,8 @@ export interface SalesOrderFilters {
   contactId?: number
   dateFrom?: string
   dateTo?: string
+  // Nota cliente #11: pedidos por surtir (abiertos, no entregados ni cerrados)
+  pendingFulfillment?: boolean
 }
 
 export interface PaginationMeta {
