@@ -26,6 +26,9 @@ export interface Product {
   cost?: number
   iva: boolean
   isActive: boolean
+  // isPublic false = producto interno: cotizable y vendible pero oculto del
+  // catalogo publico. Default true en backend, opcional aqui por compatibilidad.
+  isPublic?: boolean
   imgPath?: string
   datasheetPath?: string
   imgUrl?: string
@@ -62,6 +65,7 @@ export interface CreateProductData {
   cost?: number
   iva?: boolean
   isActive?: boolean
+  isPublic?: boolean
   imgPath?: string
   datasheetPath?: string
   unitId: string
@@ -80,6 +84,7 @@ export interface ProductFilters {
   name?: string
   sku?: string
   isActive?: boolean
+  isPublic?: boolean
   unitId?: string
   categoryId?: string
   brandId?: string

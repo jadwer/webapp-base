@@ -99,6 +99,9 @@ export function transformJsonApiProduct(
     cost: resource.attributes.cost as number | undefined,
     iva: Boolean(resource.attributes.iva),
     isActive: Boolean(resource.attributes.isActive ?? true),
+    // isPublic default true: producto publico en catalogo si el backend no lo
+    // envia (compatibilidad con productos previos al flag).
+    isPublic: Boolean(resource.attributes.isPublic ?? true),
     imgPath: resource.attributes.imgPath as string | undefined,
     datasheetPath: resource.attributes.datasheetPath as string | undefined,
     imgUrl: resource.attributes.imgUrl as string | undefined,

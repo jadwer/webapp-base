@@ -89,6 +89,8 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     price: product?.price?.toString() || '',
     cost: product?.cost?.toString() || '',
     iva: product?.iva || false,
+    // isPublic default true (marcado). false = producto interno.
+    isPublic: product?.isPublic ?? true,
     imgPath: product?.imgPath || '',
     datasheetPath: product?.datasheetPath || '',
     unitId: product?.unitId || '',
@@ -164,6 +166,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         price: product.price?.toString() || '',
         cost: product.cost?.toString() || '',
         iva: product.iva || false,
+        isPublic: product.isPublic ?? true,
         imgPath: product.imgPath || '',
         datasheetPath: product.datasheetPath || '',
         unitId: product.unitId || '',
@@ -300,6 +303,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       ...(formData.price && { price: Number(formData.price) }),
       ...(formData.cost && { cost: Number(formData.cost) }),
       iva: formData.iva,
+      isPublic: formData.isPublic,
       // Only send imgPath if a new file was uploaded. Otherwise let the ProductImage
       // Observer manage it to stay in sync with the gallery.
       ...(newImgPath && { imgPath: newImgPath }),
@@ -475,6 +479,25 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               <label className="form-check-label" htmlFor="iva-checkbox">
                 IVA incluido
               </label>
+            </div>
+          </div>
+
+          <div className="mb-3">
+            <div className="form-check">
+              <input
+                className="form-check-input"
+                type="checkbox"
+                id="is-public-checkbox"
+                checked={formData.isPublic}
+                onChange={(e) => handleInputChange('isPublic', e.target.checked)}
+                disabled={isSubmitting}
+              />
+              <label className="form-check-label" htmlFor="is-public-checkbox">
+                Visible en catalogo publico
+              </label>
+              <div className="form-text">
+                Desactiva para productos internos: se pueden cotizar y vender pero no aparecen en la tienda publica.
+              </div>
             </div>
           </div>
 

@@ -118,6 +118,10 @@ export const productService = {
           ...(data.price !== undefined && { price: data.price }),
           ...(data.cost !== undefined && { cost: data.cost }),
           iva: data.iva ?? false,
+          // isPublic: false = producto interno (oculto del catalogo publico).
+          // Solo se envia si el formulario lo definio; si no, el backend aplica
+          // su default true.
+          ...(data.isPublic !== undefined && { isPublic: data.isPublic }),
           ...(data.imgPath && { imgPath: data.imgPath }),
           ...(data.datasheetPath && { datasheetPath: data.datasheetPath }),
           // Datos fiscales SAT. satClaveProdServ/satClaveUnidad usan cadena
@@ -167,6 +171,7 @@ export const productService = {
     if (data.price !== undefined) attributes.price = data.price
     if (data.cost !== undefined) attributes.cost = data.cost
     if (data.iva !== undefined) attributes.iva = data.iva
+    if (data.isPublic !== undefined) attributes.isPublic = data.isPublic
     if (data.imgPath !== undefined) attributes.imgPath = data.imgPath
     if (data.datasheetPath !== undefined) attributes.datasheetPath = data.datasheetPath
     if (data.satClaveProdServ !== undefined) attributes.satClaveProdServ = data.satClaveProdServ
