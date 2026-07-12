@@ -187,6 +187,14 @@ export function CFDIInvoicesAdminPage() {
     }).format(amount / 100) // Convert from cents
   }
 
+  const formatDate = (value: string | null | undefined): string => {
+    if (!value) return '-'
+    const parsed = new Date(value)
+    // Un valor no parseable (NaN) no debe mostrar "Invalid Date" al usuario.
+    if (Number.isNaN(parsed.getTime())) return '-'
+    return parsed.toLocaleDateString('es-MX')
+  }
+
   if (error) {
     return (
       <div className="container-fluid py-4">
@@ -381,7 +389,7 @@ export function CFDIInvoicesAdminPage() {
                         <strong>{formatCurrency(invoice.total)}</strong>
                       </td>
                       <td>
-                        <small>{new Date(invoice.fechaEmision).toLocaleDateString()}</small>
+                        <small>{formatDate(invoice.fechaEmision)}</small>
                       </td>
                       <td>
                         <span className={getStatusBadgeClass(invoice.status)}>
