@@ -74,6 +74,37 @@ const transformSingleJsonApiResponse = (response: unknown): ContactResponse => {
   }
 }
 
+// Campos comerciales/fiscales que son nullable en el backend: un `null`
+// explicito los limpia; `undefined` significa "no tocar" y se omite del PATCH.
+const NULLABLE_CONTACT_FIELDS = [
+  'commissionPctOverride',
+  'creditMonths',
+  'discountPct',
+] as const
+
+/**
+ * Construye los `attributes` para POST/PATCH de un contacto.
+ *
+ * - Descarta claves con valor `undefined` (no viajan al backend).
+ * - Preserva `null` explicito SOLO para los campos nullables (para poder
+ *   limpiar comision/credito/descuento pactado). Un `null` en un campo no
+ *   nullable tambien se descarta para no romper validaciones.
+ */
+export const buildContactAttributes = (
+  data: Record<string, unknown> | object
+): Record<string, unknown> => {
+  const out: Record<string, unknown> = {}
+  const nullable = new Set<string>(NULLABLE_CONTACT_FIELDS)
+
+  for (const [key, value] of Object.entries(data)) {
+    if (value === undefined) continue
+    if (value === null && !nullable.has(key)) continue
+    out[key] = value
+  }
+
+  return out
+}
+
 // Transform included data into separate arrays by type
 export const processIncludedData = (included: unknown[] = []) => {
   const addresses: ContactAddress[] = []
@@ -166,10 +197,10 @@ export const contactsService = {
     const payload = {
       data: {
         type: 'contacts',
-        attributes: data
+        attributes: buildContactAttributes(data)
       }
     }
-    
+
     const response = await axiosClient.post('/api/v1/contacts', payload)
     return transformSingleJsonApiResponse(response.data)
   },
@@ -182,10 +213,10 @@ export const contactsService = {
       data: {
         type: 'contacts',
         id,
-        attributes: data
+        attributes: buildContactAttributes(data)
       }
     }
-    
+
     const response = await axiosClient.patch(`/api/v1/contacts/${id}`, payload)
     return transformSingleJsonApiResponse(response.data)
   },

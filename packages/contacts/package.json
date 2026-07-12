@@ -41,6 +41,7 @@
   },
   "dependencies": {
     "@lwm/auth": "workspace:*",
+    "@lwm/permissions": "workspace:*",
     "@lwm/ui": "workspace:*",
     "swr": "^2.0.0"
   },

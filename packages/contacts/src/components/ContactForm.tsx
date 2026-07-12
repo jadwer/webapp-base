@@ -9,6 +9,7 @@
 import React, { useState } from 'react'
 import { Input } from '@lwm/ui'
 import { Button } from '@lwm/ui'
+import { ContactCommercialFields } from './ContactCommercialFields'
 import type { ContactFormData, ContactParsed } from '../types'
 
 interface ContactFormProps {
@@ -41,7 +42,18 @@ export const ContactForm: React.FC<ContactFormProps> = ({
     classification: contact?.classification || '',
     paymentTerms: contact?.paymentTerms || undefined,
     notes: contact?.notes || '',
-    metadata: contact?.metadata || {}
+    metadata: contact?.metadata || {},
+    // Datos comerciales y fiscales (nota cliente #10)
+    defaultSalespersonId: contact?.defaultSalespersonId ?? null,
+    collectionsAgentId: contact?.collectionsAgentId ?? null,
+    commissionPctOverride: contact?.commissionPctOverride ?? null,
+    regimenFiscal: contact?.regimenFiscal || '',
+    usoCfdi: contact?.usoCfdi || '',
+    creditMonths: contact?.creditMonths ?? null,
+    bankAccountNumber: contact?.bankAccountNumber || '',
+    referralSource: contact?.referralSource || '',
+    cuentaContable: contact?.cuentaContable || '',
+    discountPct: contact?.discountPct ?? null
   })
 
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -96,9 +108,16 @@ export const ContactForm: React.FC<ContactFormProps> = ({
       classification: formData.classification?.trim() || undefined,
       notes: formData.notes?.trim() || undefined,
       creditLimit: formData.creditLimit || undefined,
-      paymentTerms: formData.paymentTerms || undefined
+      paymentTerms: formData.paymentTerms || undefined,
+      // Comerciales/fiscales: strings vacios -> undefined; nullables se dejan tal cual
+      // (null viaja para limpiar; el servicio filtra undefined).
+      regimenFiscal: formData.regimenFiscal?.trim() || undefined,
+      usoCfdi: formData.usoCfdi?.trim() || undefined,
+      bankAccountNumber: formData.bankAccountNumber?.trim() || undefined,
+      referralSource: formData.referralSource?.trim() || undefined,
+      cuentaContable: formData.cuentaContable?.trim() || undefined
     }
-    
+
     onSubmit(cleanedData)
   }
 
@@ -363,6 +382,13 @@ export const ContactForm: React.FC<ContactFormProps> = ({
             />
           </div>
         )}
+
+        {/* Datos comerciales y fiscales */}
+        <ContactCommercialFields
+          formData={formData}
+          updateField={updateField}
+          isLoading={isLoading}
+        />
 
         {/* Notes */}
         <div className="col-12">

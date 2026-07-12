@@ -29,6 +29,17 @@ export interface Contact {
   paymentTerms?: number
   notes?: string
   metadata?: Record<string, unknown>
+  // ===== Datos comerciales y fiscales (nota cliente #10) =====
+  defaultSalespersonId?: number | null   // FK users - vendedor asignado (comisiones)
+  collectionsAgentId?: number | null     // FK users - agente de cobranza
+  commissionPctOverride?: number | null  // % comision especifico del cliente
+  regimenFiscal?: string                 // regimen fiscal SAT (c_RegimenFiscal)
+  usoCfdi?: string                       // uso CFDI SAT (c_UsoCFDI)
+  creditMonths?: number | null           // credito en MESES (distinto de paymentTerms en dias)
+  bankAccountNumber?: string             // No. de cuenta bancaria del cliente
+  referralSource?: string                // "¿Como se entero de nosotros?"
+  cuentaContable?: string                // cuenta contable
+  discountPct?: number | null            // descuento pactado %
   createdAt: string
   updatedAt: string
 }
@@ -141,6 +152,19 @@ export interface CreateContactData {
   paymentTerms?: number
   notes?: string
   metadata?: Record<string, unknown>
+  // ===== Datos comerciales y fiscales (nota cliente #10) =====
+  // Los nullables (creditMonths/discountPct/commissionPctOverride) admiten null
+  // explicito para limpiar el valor en el backend (PATCH).
+  defaultSalespersonId?: number | null
+  collectionsAgentId?: number | null
+  commissionPctOverride?: number | null
+  regimenFiscal?: string
+  usoCfdi?: string
+  creditMonths?: number | null
+  bankAccountNumber?: string
+  referralSource?: string
+  cuentaContable?: string
+  discountPct?: number | null
 }
 
 export type UpdateContactData = Partial<CreateContactData>

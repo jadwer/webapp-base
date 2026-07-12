@@ -9,6 +9,7 @@
 import React, { useState, useRef } from 'react'
 import { Button } from '@lwm/ui'
 import { ConfirmModal, type ConfirmModalHandle } from '@lwm/ui'
+import { useUsers } from '@lwm/permissions'
 import type { 
   ContactParsed,
   ContactAddress,
@@ -51,7 +52,17 @@ export const ContactViewTabs: React.FC<ContactViewTabsProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState<TabType>('basic')
   const confirmModalRef = useRef<ConfirmModalHandle>(null)
-  
+
+  // Resolver nombres de vendedor/cobrador a partir de sus ids (nota cliente #10)
+  const { users } = useUsers()
+  const resolveUserName = (id?: number | null): string | null => {
+    if (id === undefined || id === null) return null
+    const found = users.find((u) => String(u.id) === String(id))
+    return found ? found.name : `Usuario #${id}`
+  }
+  const salespersonName = resolveUserName(contact.defaultSalespersonId)
+  const collectionsAgentName = resolveUserName(contact.collectionsAgentId)
+
   // Data is now passed from parent component using includes
   const isLoading = false
 
@@ -230,10 +241,98 @@ export const ContactViewTabs: React.FC<ContactViewTabsProps> = ({
                   <div>${contact.creditLimit.toLocaleString()}</div>
                 </div>
               )}
+              {(contact.creditMonths !== undefined && contact.creditMonths !== null) && (
+                <div className="col-12">
+                  <strong>Crédito (meses):</strong>
+                  <div>{contact.creditMonths} {contact.creditMonths === 1 ? 'mes' : 'meses'}</div>
+                </div>
+              )}
+              <div className="col-12">
+                <strong>Vendedor asignado:</strong>
+                <div>
+                  {salespersonName ? (
+                    <span><i className="bi bi-person-badge me-1"></i>{salespersonName}</span>
+                  ) : (
+                    <span className="text-muted">Sin asignar</span>
+                  )}
+                </div>
+              </div>
+              <div className="col-12">
+                <strong>Agente de cobranza:</strong>
+                <div>
+                  {collectionsAgentName ? (
+                    <span><i className="bi bi-person-check me-1"></i>{collectionsAgentName}</span>
+                  ) : (
+                    <span className="text-muted">Sin asignar</span>
+                  )}
+                </div>
+              </div>
+              {(contact.discountPct !== undefined && contact.discountPct !== null) && (
+                <div className="col-12">
+                  <strong>Descuento pactado:</strong>
+                  <div>{contact.discountPct}%</div>
+                </div>
+              )}
             </div>
           </div>
         </div>
       </div>
+
+      {/* Fiscal Info */}
+      {(contact.regimenFiscal || contact.usoCfdi || contact.bankAccountNumber ||
+        contact.cuentaContable || contact.referralSource ||
+        (contact.commissionPctOverride !== undefined && contact.commissionPctOverride !== null)) && (
+        <div className="col-md-6">
+          <div className="card h-100">
+            <div className="card-header">
+              <h5 className="mb-0">
+                <i className="bi bi-receipt me-2"></i>
+                Información fiscal
+              </h5>
+            </div>
+            <div className="card-body">
+              <div className="row g-3">
+                {contact.regimenFiscal && (
+                  <div className="col-12">
+                    <strong>Régimen fiscal (SAT):</strong>
+                    <div>{contact.regimenFiscal}</div>
+                  </div>
+                )}
+                {contact.usoCfdi && (
+                  <div className="col-12">
+                    <strong>Uso CFDI (SAT):</strong>
+                    <div>{contact.usoCfdi}</div>
+                  </div>
+                )}
+                {(contact.commissionPctOverride !== undefined && contact.commissionPctOverride !== null) && (
+                  <div className="col-12">
+                    <strong>% comisión (override):</strong>
+                    <div>{contact.commissionPctOverride}%</div>
+                  </div>
+                )}
+                {contact.bankAccountNumber && (
+                  <div className="col-12">
+                    <strong>No. de cuenta bancaria:</strong>
+                    <div className="font-monospace">{contact.bankAccountNumber}</div>
+                  </div>
+                )}
+                {contact.cuentaContable && (
+                  <div className="col-12">
+                    <strong>Cuenta contable:</strong>
+                    <div className="font-monospace">{contact.cuentaContable}</div>
+                  </div>
+                )}
+                {contact.referralSource && (
+                  <div className="col-12">
+                    <strong>¿Cómo se enteró de nosotros?:</strong>
+                    <div>{contact.referralSource}</div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Notes */}
       {contact.notes && (

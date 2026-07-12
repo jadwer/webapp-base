@@ -10,6 +10,7 @@ export default definePackageConfig({
     alias: {
       '@lwm/ui': path.resolve(__dirname, '../ui/src'),
       '@lwm/auth': path.resolve(__dirname, '../auth/src'),
+      '@lwm/permissions': path.resolve(__dirname, '../permissions/src'),
     },
   },
 })
