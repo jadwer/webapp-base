@@ -67,3 +67,5 @@ export { BrandsViewModeSelector } from './BrandsViewModeSelector'
 export * from './BrandsAdminPagePro'
 export * from './BrandView'
 export * from './BrandFormWrapper'
+
+export * from './BulkAssignCategoryDialog'

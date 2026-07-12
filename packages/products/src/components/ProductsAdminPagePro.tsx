@@ -11,10 +11,11 @@ import { ProductsShowcase } from './ProductsShowcase'
 import { ProductsFiltersSimple } from './ProductsFiltersSimple'
 import { ViewModeSelector } from './ViewModeSelector'
 import { PaginationPro } from './PaginationPro'
-import { useProducts, useProductMutations } from '../hooks'
+import { useProducts, useProductMutations, useBrands, useCategories } from '../hooks'
 import { useProductsUIStore, useProductsFilters, useProductsSort, useProductsPage, useProductsViewMode } from '../store/productsUIStore'
 import { useNavigationProgress } from '@lwm/ui'
 import { toast } from '@lwm/ui'
+import { BulkAssignCategoryDialog } from './BulkAssignCategoryDialog'
 
 const ProductsStatsBar = React.memo<{ 
   total: number
@@ -76,6 +77,11 @@ ProductsStatsBar.displayName = 'ProductsStatsBar'
 export const ProductsAdminPagePro = React.memo(() => {
   const navigation = useNavigationProgress()
   const confirmModalRef = useRef<ConfirmModalHandle>(null)
+  const [showAssignCategoryDialog, setShowAssignCategoryDialog] = React.useState(false)
+
+  // Brands and categories for the bulk reassign dialog (load full lists).
+  const { brands } = useBrands({ page: { number: 1, size: 200 } })
+  const { categories } = useCategories({ page: { number: 1, size: 200 } })
 
   // Get UI state from Zustand store
   const filters = useProductsFilters()
@@ -196,6 +202,14 @@ export const ProductsAdminPagePro = React.memo(() => {
               Actualizar
             </Button>
             <Button
+              variant="secondary"
+              buttonStyle="outline"
+              onClick={() => setShowAssignCategoryDialog(true)}
+            >
+              <i className="bi bi-diagram-3 me-2" />
+              Reasignar categoria por marca
+            </Button>
+            <Button
               variant="primary"
               onClick={handleCreateNew}
             >
@@ -292,6 +306,18 @@ export const ProductsAdminPagePro = React.memo(() => {
         </div>
       </div>
       
+      {/* Bulk Assign Category by Brand Dialog */}
+      <BulkAssignCategoryDialog
+        show={showAssignCategoryDialog}
+        onHide={() => setShowAssignCategoryDialog(false)}
+        brands={brands}
+        categories={categories}
+        onSuccess={(affectedCount) => {
+          refresh()
+          toast.success(`${affectedCount} producto(s) reasignados exitosamente`)
+        }}
+      />
+
       {/* Confirm Modal */}
       <ConfirmModal ref={confirmModalRef} />
     </div>

@@ -321,6 +321,14 @@ export const productBulkService = {
       operation
     })
     return response.data
+  },
+
+  async bulkAssignCategoryByBrand(brandId: number, categoryId: number): Promise<BulkToggleResponse> {
+    const response = await axios.post('/api/v1/products/bulk-assign-category-by-brand', {
+      brand_id: brandId,
+      category_id: categoryId
+    })
+    return response.data
   }
 }
 
