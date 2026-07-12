@@ -2,7 +2,7 @@
 
 import { PublicHeader } from '@/ui/components/PublicHeader'
 import { PublicFooter } from '@/ui/components/PublicFooter'
-import { CustomerSidebar } from '@/modules/ecommerce'
+import { CustomerSidebar, ProductSearchBox } from '@/modules/ecommerce'
 
 /**
  * Public route group layout for the template.
@@ -17,7 +17,7 @@ export default function FrontLayout({
 }) {
   return (
     <>
-      <PublicHeader />
+      <PublicHeader search={<ProductSearchBox />} />
       <CustomerSidebar />
       <main>{children}</main>
       <PublicFooter />

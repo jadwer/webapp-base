@@ -69,6 +69,8 @@ export {
   useSaleProducts,
   useProductSuggestions,
   useProductsByPriceRange,
+  // Debounced typeahead search hook
+  useProductSearch,
   // LocalStorage cart hooks + legacy migration helpers
   useLocalCart,
   useLocalCartCount,
@@ -91,8 +93,16 @@ export {
   PublicCatalogTemplate,
   LocalCartPage,
   ProductDetailPage,
-  ProductQuickViewModal
+  ProductQuickViewModal,
+  ProductSearchBox
 } from './components'
+
+// Export search types
+export type {
+  ProductSearchResult,
+  UseProductSearchResult
+} from './hooks'
+export type { ProductSearchBoxProps } from './components'
 
 // Export utility functions if any are created later
 // export { } from './utils'

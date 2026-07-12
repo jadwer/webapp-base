@@ -17,6 +17,13 @@ export {
   useProductsByPriceRange
 } from './usePublicProducts'
 
+// Export debounced typeahead search hook
+export { useProductSearch } from './useProductSearch'
+export type {
+  ProductSearchResult,
+  UseProductSearchResult
+} from './useProductSearch'
+
 // Export localStorage cart hooks + legacy migration helpers
 export {
   useLocalCart,

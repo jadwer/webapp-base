@@ -25,6 +25,10 @@ export { default as ProductDetailPage } from './ProductDetailPage'
 // Export quick view modal
 export { ProductQuickViewModal } from './ProductQuickViewModal'
 
+// Export typeahead search box for the topbar
+export { ProductSearchBox } from './ProductSearchBox'
+export type { ProductSearchBoxProps } from './ProductSearchBox'
+
 // Re-export types needed for components
 export type {
   PublicProductFilters,
