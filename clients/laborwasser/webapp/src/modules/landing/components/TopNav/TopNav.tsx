@@ -4,6 +4,7 @@ import React from 'react'
 import Link from 'next/link'
 import { useAuth } from '@lwm/auth'
 import { useCategories } from '@lwm/products'
+import { ProductSearchBox } from '@lwm/ecommerce'
 
 export const TopNav: React.FC = () => {
   const { isAuthenticated } = useAuth()
@@ -32,6 +33,10 @@ export const TopNav: React.FC = () => {
           <i className="bi bi-list"></i>
         </button>
         <div className="collapse navbar-collapse" id="lwmTopNavContent">
+          {/* Nota cliente #4: buscador con autocompletado (typeahead) del catalogo publico */}
+          <div className="me-lg-auto my-2 my-lg-0" style={{ minWidth: 260 }}>
+            <ProductSearchBox />
+          </div>
           <ul className="navbar-nav ms-auto">
             {/* Productos dropdown */}
             <li className="nav-item dropdown">

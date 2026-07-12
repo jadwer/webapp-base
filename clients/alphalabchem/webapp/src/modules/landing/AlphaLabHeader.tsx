@@ -1,10 +1,9 @@
 'use client'
 
-import { useState, type FormEvent } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import { AuthStatus } from '@lwm/auth'
+import { ProductSearchBox } from '@lwm/ecommerce'
 
 /**
  * AlphaLab Chemicals — public-site header.
@@ -18,19 +17,6 @@ import { AuthStatus } from '@lwm/auth'
  * initial filter (see (front)/productos/page.tsx initialSearch).
  */
 export default function AlphaLabHeader() {
-  const router = useRouter()
-  const [query, setQuery] = useState('')
-
-  const onSubmit = (e: FormEvent) => {
-    e.preventDefault()
-    const q = query.trim()
-    if (q) {
-      router.push(`/productos?search=${encodeURIComponent(q)}`)
-    } else {
-      router.push('/productos')
-    }
-  }
-
   return (
     <header
       className="border-bottom py-3"
@@ -52,36 +38,11 @@ export default function AlphaLabHeader() {
           />
         </Link>
 
-        {/* Public search — same UX target as legacy LWM "Buscar" form. */}
-        <form
-          onSubmit={onSubmit}
-          role="search"
-          className="d-flex flex-grow-1 mx-lg-4"
-          style={{ maxWidth: 480 }}
-        >
-          <div className="input-group">
-            <input
-              type="search"
-              className="form-control"
-              placeholder="Buscar productos..."
-              aria-label="Buscar productos"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-            />
-            <button
-              type="submit"
-              className="btn"
-              style={{
-                background: 'var(--brand-primary, #1B3766)',
-                color: 'white',
-                borderColor: 'var(--brand-primary, #1B3766)',
-              }}
-              aria-label="Buscar"
-            >
-              <i className="bi bi-search" aria-hidden="true" />
-            </button>
-          </div>
-        </form>
+        {/* Nota cliente #4: buscador con autocompletado (typeahead) del catalogo publico.
+            Reemplaza el form de busqueda plano por el mismo slot y ancho. */}
+        <div className="flex-grow-1 mx-lg-4" style={{ maxWidth: 480 }}>
+          <ProductSearchBox />
+        </div>
 
         <nav>
           <ul className="nav align-items-center">

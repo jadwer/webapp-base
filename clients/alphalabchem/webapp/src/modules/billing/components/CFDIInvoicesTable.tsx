@@ -40,15 +40,9 @@ const TIPO_COMPROBANTE_LABELS: Record<TipoComprobante, string> = {
 
 const formatDate = (dateString: string | null | undefined): string => {
   if (!dateString) return '-'
-  try {
-    return new Date(dateString).toLocaleDateString('es-MX', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    })
-  } catch {
-    return dateString
-  }
+  const parsed = new Date(dateString)
+  if (Number.isNaN(parsed.getTime())) return '-'
+  return parsed.toLocaleDateString('es-MX', { year: 'numeric', month: 'short', day: 'numeric' })
 }
 
 const formatCurrency = (amountInCents: number | null | undefined): string => {

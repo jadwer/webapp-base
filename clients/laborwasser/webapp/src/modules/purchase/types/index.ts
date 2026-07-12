@@ -107,6 +107,8 @@ export interface PurchaseOrderFilters {
   contactId?: number
   dateFrom?: string
   dateTo?: string
+  // Nota cliente #11: compras por surtir (status pending+approved)
+  pendingReceipt?: boolean
 }
 
 export interface PaginationMeta {
