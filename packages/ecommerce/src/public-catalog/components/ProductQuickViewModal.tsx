@@ -150,7 +150,7 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
                     <strong>Precio:</strong> {displayProduct.displayPrice} {displayProduct.displayCurrency}
                     {' '}
                     <small className={displayProduct.attributes.iva ? 'text-success' : 'text-muted'}>
-                      ({displayProduct.attributes.iva ? 'IVA incluido' : '+ 16% IVA'})
+                      ({displayProduct.attributes.iva ? '+ 16% IVA' : 'IVA 0%'})
                     </small>
                   </li>
                 </ul>
