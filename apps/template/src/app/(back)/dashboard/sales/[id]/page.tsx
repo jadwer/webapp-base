@@ -1,7 +1,7 @@
 'use client'
 
 import { use, useState, useEffect, useCallback, useRef } from 'react'
-import { useSalesOrder, useSalesOrderItems } from '@/modules/sales'
+import { useSalesOrder, useSalesOrderItems, formatDateOnly } from '@/modules/sales'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
 import { formatCurrency, formatQuantity } from '@/lib/formatters'
 import { salesService, orderTrackingService, ORDER_TYPE_LABELS, exportSalesOrderItemsCsv } from '@/modules/sales'
@@ -265,10 +265,16 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
       mutateOrder()
     } catch (err) {
       const error = err as { response?: { data?: { message?: string; error?: string } } }
+      const backendMessage = error.response?.data?.message || error.response?.data?.error
+      // El backend responde 400 con un mensaje en ingles ("Cannot transition
+      // from 'pending' to 'delivered'"). Se traduce para que el usuario entienda
+      // que la orden debe avanzar por el flujo antes de surtirse.
+      const isTransitionError = backendMessage?.includes('Cannot transition')
+      const currentStatus = salesOrder?.status
       toast.error(
-        error.response?.data?.message ||
-          error.response?.data?.error ||
-          'Error al marcar la orden como surtida'
+        isTransitionError
+          ? `No se puede marcar como surtido${currentStatus ? ` (estado actual: "${currentStatus}")` : ''}: la orden debe confirmarse y procesarse antes de entregarse.`
+          : backendMessage || 'Error al marcar la orden como surtida'
       )
     } finally {
       setActionLoading(null)
@@ -468,7 +474,9 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
                       <tr>
                         <td><strong>Fecha de Orden:</strong></td>
                         <td>
-                          {salesOrder.orderDate ? new Date(salesOrder.orderDate).toLocaleDateString('es-ES', {
+                          {/* order_date es date-only: formatear en UTC para
+                              no retroceder un dia en zonas al oeste de UTC */}
+                          {salesOrder.orderDate ? formatDateOnly(salesOrder.orderDate, 'es-ES', {
                             day: '2-digit',
                             month: '2-digit',
                             year: 'numeric'

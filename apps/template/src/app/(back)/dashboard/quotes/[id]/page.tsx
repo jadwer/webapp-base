@@ -14,11 +14,13 @@ import {
   OperationsMenu,
   exportQuoteItemsCsv,
   QUOTE_STATUS_CONFIG,
-  canEditQuote
+  canEditQuote,
+  formatDateOnly
 } from '@/modules/quotes'
 import type { OperationsMenuItem, PaymentMethod } from '@/modules/quotes'
 import { quoteService } from '@/modules/quotes'
 import { useSalesOrderBillingMutations } from '@/modules/billing'
+import { useSuppliers } from '@/modules/contacts'
 import { toast } from '@/lib/toast'
 import { ConfirmModal, ConfirmModalHandle } from '@/ui/components/base'
 import { useAuth } from '@/modules/auth'
@@ -51,6 +53,13 @@ export default function QuoteDetailPage({ params }: PageProps) {
   const [actionLoading, setActionLoading] = useState<string | null>(null)
   // Fase A: modal de conversion abierto (venta directa vs pedido)
   const [convertModalType, setConvertModalType] = useState<'sale' | 'order' | null>(null)
+  // Generar Orden de Compra: el backend exige proveedor (supplier_id), asi que
+  // el modal pide seleccionar un proveedor antes de disparar la llamada.
+  const [poModalOpen, setPoModalOpen] = useState(false)
+  const [poSupplierId, setPoSupplierId] = useState('')
+  const [poError, setPoError] = useState('')
+  const [poSubmitting, setPoSubmitting] = useState(false)
+  const { contacts: suppliers = [], isLoading: suppliersLoading } = useSuppliers()
 
   const formatCurrency = (amount: number, currency: string = 'MXN') => {
     return new Intl.NumberFormat('es-MX', {
@@ -203,27 +212,34 @@ export default function QuoteDetailPage({ params }: PageProps) {
     toast.success('Partidas exportadas')
   }
 
+  const handleOpenPurchaseOrderModal = () => {
+    setPoSupplierId('')
+    setPoError('')
+    setPoModalOpen(true)
+  }
+
   const handleGeneratePurchaseOrder = async () => {
     if (!quote) return
-
-    const confirmed = await confirmModalRef.current?.confirm(
-      'Se creara una orden de compra para los productos de esta cotizacion que no estan en stock.',
-      {
-        title: 'Generar Orden de Compra',
-        confirmText: 'Generar OC',
-        cancelText: 'Cancelar',
-        confirmVariant: 'primary'
-      }
-    )
-
-    if (!confirmed) return
-
+    if (!poSupplierId) {
+      setPoError('Selecciona un proveedor')
+      return
+    }
+    setPoError('')
+    setPoSubmitting(true)
     try {
-      const result = await quoteService.generatePurchaseOrder(quote.id)
+      const result = await quoteService.generatePurchaseOrder(quote.id, poSupplierId)
       toast.success(result.message || 'Orden de compra generada')
+      setPoModalOpen(false)
       refetch()
-    } catch {
-      toast.error('Error al generar la orden de compra')
+    } catch (err) {
+      const error = err as { response?: { status?: number; data?: { message?: string; error?: string } } }
+      toast.error(
+        error.response?.data?.message ||
+          error.response?.data?.error ||
+          'Error al generar la orden de compra'
+      )
+    } finally {
+      setPoSubmitting(false)
     }
   }
 
@@ -410,7 +426,7 @@ export default function QuoteDetailPage({ params }: PageProps) {
                     <i className="bi bi-calendar text-muted me-3 fs-5"></i>
                     <div>
                       <small className="text-muted d-block">Fecha de Cotizacion</small>
-                      <strong>{formatDate(quote.quoteDate)}</strong>
+                      <strong>{formatDateOnly(quote.quoteDate, 'es-MX', { day: '2-digit', month: 'long', year: 'numeric' })}</strong>
                     </div>
                   </div>
                 </div>
@@ -420,7 +436,7 @@ export default function QuoteDetailPage({ params }: PageProps) {
                     <div>
                       <small className="text-muted d-block">Vigencia</small>
                       <strong className={isExpired && quote.status === 'sent' ? 'text-danger' : ''}>
-                        {formatDate(quote.validUntil)}
+                        {formatDateOnly(quote.validUntil, 'es-MX', { day: '2-digit', month: 'long', year: 'numeric' })}
                         {isExpired && quote.status === 'sent' && ' (Vencida)'}
                       </strong>
                     </div>
@@ -708,7 +724,7 @@ export default function QuoteDetailPage({ params }: PageProps) {
                 {quote.status === 'accepted' && !quote.purchaseOrderId && (
                   <button
                     className="btn btn-outline-warning"
-                    onClick={handleGeneratePurchaseOrder}
+                    onClick={handleOpenPurchaseOrderModal}
                   >
                     <i className="bi bi-box-seam me-2"></i>
                     Generar Orden de Compra
@@ -772,6 +788,90 @@ export default function QuoteDetailPage({ params }: PageProps) {
         onClose={() => setConvertModalType(null)}
         onConverted={handleConverted}
       />
+
+      {/* Modal Generar Orden de Compra: requiere seleccionar proveedor */}
+      {poModalOpen && (
+        <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }} role="dialog">
+          <div className="modal-dialog">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">
+                  <i className="bi bi-box-seam me-2"></i>
+                  Generar Orden de Compra
+                </h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => setPoModalOpen(false)}
+                  disabled={poSubmitting}
+                ></button>
+              </div>
+              <div className="modal-body">
+                <p className="text-muted small">
+                  Se creara una orden de compra para los productos de esta cotizacion.
+                  Selecciona el proveedor al que se solicitara el material.
+                </p>
+                <label className="form-label" htmlFor="po-supplier">
+                  Proveedor <span className="text-danger">*</span>
+                </label>
+                <select
+                  id="po-supplier"
+                  className={`form-select${poError ? ' is-invalid' : ''}`}
+                  value={poSupplierId}
+                  onChange={(e) => {
+                    setPoSupplierId(e.target.value)
+                    if (poError) setPoError('')
+                  }}
+                  disabled={poSubmitting || suppliersLoading}
+                >
+                  <option value="">
+                    {suppliersLoading ? 'Cargando proveedores...' : 'Selecciona un proveedor'}
+                  </option>
+                  {suppliers.map((supplier) => (
+                    <option key={supplier.id} value={supplier.id}>
+                      {supplier.displayName || supplier.name}
+                    </option>
+                  ))}
+                </select>
+                {poError && <div className="invalid-feedback d-block">{poError}</div>}
+                {!suppliersLoading && suppliers.length === 0 && (
+                  <div className="form-text text-warning">
+                    No hay proveedores registrados. Registra un contacto tipo proveedor primero.
+                  </div>
+                )}
+              </div>
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn btn-outline-secondary"
+                  onClick={() => setPoModalOpen(false)}
+                  disabled={poSubmitting}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={handleGeneratePurchaseOrder}
+                  disabled={poSubmitting || suppliersLoading || !poSupplierId}
+                >
+                  {poSubmitting ? (
+                    <>
+                      <span className="spinner-border spinner-border-sm me-2" role="status"></span>
+                      Generando...
+                    </>
+                  ) : (
+                    <>
+                      <i className="bi bi-box-seam me-2"></i>
+                      Generar OC
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <ConfirmModal ref={confirmModalRef} />
     </div>

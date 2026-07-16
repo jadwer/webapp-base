@@ -10,6 +10,7 @@
 import { axiosClient as axios } from '@lwm/auth'
 import type {
   Quote,
+  Contact,
   QuoteItem,
   CreateQuoteRequest,
   UpdateQuoteRequest,
@@ -73,13 +74,49 @@ function stripUndefined(data: Record<string, unknown>): Record<string, unknown> 
   return result
 }
 
-// Parse JSON:API quote response
-function parseQuote(resource: JsonApiResource): Quote {
-  const attributes = transformToCamelCase(resource.attributes)
+// Resolve the contact (Cliente) for a quote from the JSON:API `included` array.
+// El detalle y la tabla de cotizaciones piden include=contact, pero sin esto
+// nunca se resolvia el nombre real (se mostraba "Contact #2") ni el correo
+// (falso aviso "no tiene correo registrado" al enviar).
+function resolveQuoteContact(
+  resource: JsonApiResource,
+  includedMap: Map<string, JsonApiResource>
+): Contact | undefined {
+  const contactRel = resource.relationships?.contact as
+    | { data?: { type: string; id: string } | null }
+    | undefined
+  if (!contactRel?.data) return undefined
+
+  const contactResource = includedMap.get(`${contactRel.data.type}:${contactRel.data.id}`)
+  if (!contactResource) return undefined
+
+  const attrs = transformToCamelCase(contactResource.attributes)
   return {
+    id: contactResource.id,
+    name: (attrs.name as string) || '',
+    email: attrs.email as string | undefined,
+    phone: attrs.phone as string | undefined,
+    type: (attrs.type as 'person' | 'company') || 'person'
+  }
+}
+
+// Parse JSON:API quote response. When an includedMap is supplied, the contact
+// relationship is resolved from `included` so quote.contact carries name/email.
+function parseQuote(resource: JsonApiResource, includedMap?: Map<string, JsonApiResource>): Quote {
+  const attributes = transformToCamelCase(resource.attributes)
+  const quote = {
     id: resource.id,
     ...attributes
   } as Quote
+
+  if (includedMap) {
+    const contact = resolveQuoteContact(resource, includedMap)
+    if (contact) {
+      quote.contact = contact
+    }
+  }
+
+  return quote
 }
 
 // Parse JSON:API quote item response
@@ -216,7 +253,8 @@ export const quoteService = {
 
     const response = await axios.get<JsonApiResponse<JsonApiResource[]>>(QUOTES_BASE_URL, { params })
 
-    const quotes = response.data.data.map(parseQuote)
+    const includedMap = buildIncludedMap(response.data.included)
+    const quotes = response.data.data.map((resource) => parseQuote(resource, includedMap))
 
     return {
       data: quotes,
@@ -237,7 +275,8 @@ export const quoteService = {
 
     const response = await axios.get<JsonApiResponse<JsonApiResource>>(`${QUOTES_BASE_URL}/${id}`, { params })
 
-    return parseQuote(response.data.data)
+    const includedMap = buildIncludedMap(response.data.included)
+    return parseQuote(response.data.data, includedMap)
   },
 
   /**
@@ -437,7 +476,7 @@ export const quoteService = {
     })
 
     return {
-      data: response.data.data.map(parseQuote),
+      data: response.data.data.map((resource) => parseQuote(resource)),
       meta: response.data.meta
     }
   },
@@ -485,11 +524,25 @@ export const quoteService = {
   },
 
   /**
-   * Generate purchase order from quote (for out-of-stock items)
+   * Generate purchase order from quote (for out-of-stock items).
+   *
+   * El backend exige supplier_id (required|exists:contacts,id): sin el la
+   * llamada devolvia 422. Se envia el proveedor elegido por el usuario;
+   * warehouse_id y notes son opcionales (el backend usa el primer almacen
+   * activo si no se especifica).
    */
-  async generatePurchaseOrder(id: string): Promise<{ message: string; data: Record<string, unknown> }> {
+  async generatePurchaseOrder(
+    id: string,
+    supplierId: string | number,
+    options?: { warehouseId?: string | number; notes?: string }
+  ): Promise<{ message: string; data: Record<string, unknown> }> {
+    const body: Record<string, unknown> = { supplier_id: supplierId }
+    if (options?.warehouseId != null) body.warehouse_id = options.warehouseId
+    if (options?.notes) body.notes = options.notes
+
     const response = await axios.post<{ message: string; data: Record<string, unknown> }>(
-      `${QUOTES_BASE_URL}/${id}/generate-purchase-order`
+      `${QUOTES_BASE_URL}/${id}/generate-purchase-order`,
+      body
     )
     return response.data
   }
