@@ -388,32 +388,117 @@ interface LocalCartItem {
   unitName?: string | null;
 }
 
+/**
+ * Extract an HTTP status code from an axios-style error, if present.
+ */
+function getErrorStatus(error: unknown): number | undefined {
+  if (typeof error === 'object' && error !== null && 'response' in error) {
+    const response = (error as { response?: { status?: number } }).response;
+    return response?.status;
+  }
+  return undefined;
+}
+
+/**
+ * Thrown when syncing the local cart to the API fails because the session is
+ * no longer valid (401/403). Callers should prompt the user to log in again.
+ */
+export class CartSyncAuthError extends Error {
+  readonly isAuthError = true;
+
+  constructor(message = 'Tu sesion expiro. Inicia sesion de nuevo para continuar.') {
+    super(message);
+    this.name = 'CartSyncAuthError';
+  }
+}
+
+/**
+ * Thrown when syncing the local cart to the API fails for a non-auth reason
+ * (invalid product, network, server error). The local cart is preserved.
+ */
+export class CartSyncError extends Error {
+  readonly status?: number;
+
+  constructor(message: string, status?: number) {
+    super(message);
+    this.name = 'CartSyncError';
+    this.status = status;
+  }
+}
+
 const localCartSyncService = {
   /**
    * Sync local cart (localStorage) to API cart
    * Creates a new cart in the API and adds all items from localStorage
    * Returns the created cart ID for use in checkout
+   *
+   * Robustness: the server cart is only cleared AFTER the local items have
+   * been staged successfully. If an item fails to add, the previous server
+   * cart is left untouched so the user never ends up with an empty cart at
+   * checkout. Auth failures (401/403) are surfaced as CartSyncAuthError so the
+   * caller can prompt for re-login instead of showing a generic error.
    */
   async syncLocalCartToAPI(localItems: LocalCartItem[]): Promise<ShoppingCart> {
     // 1. Get or create cart in API
     const cart = await cartService.getOrCreate();
+    const cartId = parseInt(cart.id);
 
-    // 2. Clear existing items (in case there are any)
+    // 2. Add all local items FIRST. Do NOT clear the existing server cart yet:
+    // if any add fails (auth expired, invalid product, network), the previous
+    // cart state is preserved and checkout will not show an empty cart.
+    const addedItemIds: string[] = [];
     try {
-      await cartService.clear(cart.id);
-    } catch {
-      // Cart might be empty, ignore error
+      for (const item of localItems) {
+        const added = await cartItemsService.add(
+          cartId,
+          parseInt(item.productId),
+          item.quantity,
+          item.price,
+          item.taxRate ?? (item.iva === false ? 0 : 16)
+        );
+        if (added?.id) {
+          addedItemIds.push(String(added.id));
+        }
+      }
+    } catch (error) {
+      // Roll back the items we just added so we do not leave a half-synced
+      // cart mixed with the previous contents. Best-effort: ignore cleanup errors.
+      for (const itemId of addedItemIds) {
+        try {
+          await cartItemsService.remove(itemId);
+        } catch {
+          // ignore cleanup failures; the important part is not reporting success
+        }
+      }
+
+      const status = getErrorStatus(error);
+      if (status === 401 || status === 403) {
+        throw new CartSyncAuthError();
+      }
+      throw new CartSyncError(
+        'No se pudieron agregar todos los productos al carrito. Intenta de nuevo.',
+        status
+      );
     }
 
-    // 3. Add all local items to the API cart
-    for (const item of localItems) {
-      await cartItemsService.add(
-        parseInt(cart.id),
-        parseInt(item.productId),
-        item.quantity,
-        item.price,
-        item.taxRate ?? (item.iva === false ? 0 : 16)
+    // 3. Remove any pre-existing items from the server cart (a stale cart from a
+    // previous session). We identify the just-added items and delete the rest so
+    // the synced cart contains exactly the local items.
+    try {
+      const allItems = await cartItemsService.getAll(cartId);
+      const staleItems = allItems.filter(
+        (existing) => existing.id && !addedItemIds.includes(String(existing.id))
       );
+      for (const stale of staleItems) {
+        try {
+          await cartItemsService.remove(String(stale.id));
+        } catch {
+          // ignore individual cleanup failures; the freshly added items are intact
+        }
+      }
+    } catch {
+      // If we cannot enumerate/clean stale items, proceed anyway: the local
+      // items were added successfully, which is what checkout needs.
     }
 
     // 4. Get updated cart with items

@@ -39,14 +39,58 @@ export const CheckoutPage = React.memo<CheckoutPageProps>(({ cartId }) => {
   const effectiveCartId = cartId || ''
 
   // Get cart data by ID
-  const { cart, isLoading: isLoadingCart } = useShoppingCart(effectiveCartId)
-  const { cartItems, isLoading: isLoadingItems } = useShoppingCartItems(
+  const { cart, isLoading: isLoadingCart, mutate: mutateCart } = useShoppingCart(effectiveCartId)
+  const { cartItems, isLoading: isLoadingItems, mutate: mutateItems } = useShoppingCartItems(
     cart?.id ? parseInt(cart.id) : undefined
   )
   const cartMutations = useShoppingCartMutations()
 
   const isLoading = isLoadingCart || isLoadingItems
   const isCheckingOut = cartMutations.isCheckingOut
+
+  // Recovery for the "empty server cart but local cart has items" case.
+  // The guest localStorage cart ('app_cart') is the source of truth; the server
+  // cart is derived. If a previous sync failed halfway, the server cart may be
+  // empty while local items still exist. Instead of a dead-end, re-sync.
+  const [isResyncing, setIsResyncing] = useState(false)
+
+  const readLocalCartItems = useCallback((): Array<Record<string, unknown>> => {
+    if (typeof window === 'undefined') return []
+    try {
+      const raw = localStorage.getItem('app_cart')
+      if (!raw) return []
+      const parsed = JSON.parse(raw)
+      return Array.isArray(parsed) ? parsed : []
+    } catch {
+      return []
+    }
+  }, [])
+
+  const handleResyncCart = useCallback(async () => {
+    const localItems = readLocalCartItems()
+    if (localItems.length === 0) {
+      navigation.push('/cart')
+      return
+    }
+
+    setIsResyncing(true)
+    try {
+      const synced = await shoppingCartService.localSync.syncLocalCartToAPI(
+        localItems as never
+      )
+      shoppingCartService.localSync.saveCartIdForCheckout(synced.id)
+      await Promise.all([mutateCart(), mutateItems()])
+      toast.success('Carrito sincronizado')
+    } catch (error) {
+      const message =
+        error instanceof Error && error.message
+          ? error.message
+          : 'No se pudo sincronizar tu carrito. Intenta de nuevo.'
+      toast.error(message)
+    } finally {
+      setIsResyncing(false)
+    }
+  }, [readLocalCartItems, navigation, mutateCart, mutateItems])
 
   // Checkout function: creates the order (pending payment) BEFORE charging.
   // Local cart/localStorage is NOT cleared here; only after successful payment.
@@ -277,8 +321,53 @@ export const CheckoutPage = React.memo<CheckoutPageProps>(({ cartId }) => {
     )
   }
 
-  // Empty cart redirect
+  // Empty cart handling. The server cart may be empty because a previous sync
+  // failed halfway; if the local cart still has items, offer to re-sync instead
+  // of the dead-end "empty cart" message.
   if (!cart || cartItems.length === 0) {
+    const hasLocalItems = readLocalCartItems().length > 0
+
+    if (hasLocalItems) {
+      return (
+        <div className="container py-5">
+          <div className="alert alert-warning">
+            <h4 className="alert-heading">Hubo un problema sincronizando tu carrito</h4>
+            <p>
+              Tus productos siguen guardados, pero no se pudieron preparar para el pago.
+              Puedes reintentar la sincronizacion.
+            </p>
+            <div className="d-flex gap-2">
+              <Button
+                variant="primary"
+                onClick={handleResyncCart}
+                disabled={isResyncing}
+              >
+                {isResyncing ? (
+                  <>
+                    <span className="spinner-border spinner-border-sm me-2" />
+                    Sincronizando...
+                  </>
+                ) : (
+                  <>
+                    <i className="bi bi-arrow-repeat me-2" />
+                    Reintentar
+                  </>
+                )}
+              </Button>
+              <Button
+                variant="secondary"
+                buttonStyle="outline"
+                onClick={() => navigation.push('/cart')}
+                disabled={isResyncing}
+              >
+                Volver al carrito
+              </Button>
+            </div>
+          </div>
+        </div>
+      )
+    }
+
     return (
       <div className="container py-5">
         <div className="alert alert-warning">

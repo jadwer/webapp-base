@@ -5,7 +5,11 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { shoppingCartService } from '../../services/cartService';
+import {
+  shoppingCartService,
+  CartSyncAuthError,
+  CartSyncError,
+} from '../../services/cartService';
 import {
   createMockShoppingCart,
   createMockShoppingCartItem,
@@ -422,6 +426,137 @@ describe('shoppingCartService', () => {
 
       // Assert
       expect(mockAxios.delete).toHaveBeenCalledWith('/api/v1/cart-items/1');
+    });
+  });
+
+  // ============================================
+  // Local Cart Sync Tests (guest -> API cart)
+  // ============================================
+
+  describe('localSync.syncLocalCartToAPI', () => {
+    const localItems = [
+      { productId: '10', quantity: 2, price: 100, name: 'A', iva: true },
+      { productId: '20', quantity: 1, price: 50, name: 'B', iva: false },
+    ];
+
+    // Helper: POST is used both for get-or-create and for adding cart items.
+    const mockPost = (url: string) => {
+      if (url === '/api/v1/shopping-carts/get-or-create') {
+        return Promise.resolve({
+          data: createMockShoppingCartAPIResponse(createMockShoppingCart({ id: '5' })),
+        });
+      }
+      if (url === '/api/v1/cart-items') {
+        return Promise.resolve({
+          data: createMockShoppingCartItemAPIResponse(
+            createMockShoppingCartItem({ id: String(Date.now() + Math.random()) })
+          ),
+        });
+      }
+      return Promise.reject(new Error(`Unexpected POST ${url}`));
+    };
+
+    it('should add local items and return the synced cart', async () => {
+      // Arrange
+      mockAxios.post.mockImplementation((url: string) => mockPost(url));
+      // items.getAll returns only the freshly added items (no stale ones)
+      mockAxios.get.mockImplementation((url: string) => {
+        if (url === '/api/v1/cart-items') {
+          return Promise.resolve({ data: { data: [] } });
+        }
+        // getById
+        return Promise.resolve({
+          data: createMockShoppingCartAPIResponse(createMockShoppingCart({ id: '5' })),
+        });
+      });
+
+      // Act
+      const result = await shoppingCartService.localSync.syncLocalCartToAPI(localItems);
+
+      // Assert - one get-or-create + two adds
+      const addCalls = mockAxios.post.mock.calls.filter(
+        (c: unknown[]) => c[0] === '/api/v1/cart-items'
+      );
+      expect(addCalls).toHaveLength(2);
+      expect(result.id).toBe('5');
+    });
+
+    it('should throw CartSyncAuthError (not report success) when an add returns 401', async () => {
+      // Arrange - get-or-create OK, first add fails with 401
+      mockAxios.post.mockImplementation((url: string) => {
+        if (url === '/api/v1/shopping-carts/get-or-create') {
+          return Promise.resolve({
+            data: createMockShoppingCartAPIResponse(createMockShoppingCart({ id: '5' })),
+          });
+        }
+        const err = new Error('Unauthenticated') as Error & { response?: { status: number } };
+        err.response = { status: 401 };
+        return Promise.reject(err);
+      });
+      mockAxios.delete.mockResolvedValue({});
+
+      // Act & Assert
+      await expect(
+        shoppingCartService.localSync.syncLocalCartToAPI(localItems)
+      ).rejects.toBeInstanceOf(CartSyncAuthError);
+    });
+
+    it('should throw CartSyncError for non-auth failures and roll back added items', async () => {
+      // Arrange - first add succeeds, second add fails with 500
+      let addCount = 0;
+      mockAxios.post.mockImplementation((url: string) => {
+        if (url === '/api/v1/shopping-carts/get-or-create') {
+          return Promise.resolve({
+            data: createMockShoppingCartAPIResponse(createMockShoppingCart({ id: '5' })),
+          });
+        }
+        addCount += 1;
+        if (addCount === 1) {
+          return Promise.resolve({
+            data: createMockShoppingCartItemAPIResponse(
+              createMockShoppingCartItem({ id: '99' })
+            ),
+          });
+        }
+        const err = new Error('Server Error') as Error & { response?: { status: number } };
+        err.response = { status: 500 };
+        return Promise.reject(err);
+      });
+      mockAxios.delete.mockResolvedValue({});
+
+      // Act & Assert
+      await expect(
+        shoppingCartService.localSync.syncLocalCartToAPI(localItems)
+      ).rejects.toBeInstanceOf(CartSyncError);
+
+      // The one item that was added must be rolled back (not left half-synced)
+      expect(mockAxios.delete).toHaveBeenCalledWith('/api/v1/cart-items/99');
+    });
+
+    it('should NOT clear the server cart before items are added successfully', async () => {
+      // Arrange - add fails immediately, before any successful add
+      mockAxios.post.mockImplementation((url: string) => {
+        if (url === '/api/v1/shopping-carts/get-or-create') {
+          return Promise.resolve({
+            data: createMockShoppingCartAPIResponse(createMockShoppingCart({ id: '5' })),
+          });
+        }
+        const err = new Error('Boom') as Error & { response?: { status: number } };
+        err.response = { status: 500 };
+        return Promise.reject(err);
+      });
+      mockAxios.delete.mockResolvedValue({});
+
+      // Act
+      await expect(
+        shoppingCartService.localSync.syncLocalCartToAPI(localItems)
+      ).rejects.toBeInstanceOf(CartSyncError);
+
+      // Assert - the destructive "clear whole cart" endpoint must never be hit
+      const clearCalls = mockAxios.delete.mock.calls.filter((c: unknown[]) =>
+        String(c[0]).endsWith('/clear')
+      );
+      expect(clearCalls).toHaveLength(0);
     });
   });
 });

@@ -5,7 +5,7 @@
  */
 
 export { ecommerceService } from './ecommerceService';
-export { shoppingCartService } from './cartService';
+export { shoppingCartService, CartSyncAuthError, CartSyncError } from './cartService';
 export { paymentService } from './paymentService';
 export { checkoutSessionsService } from './checkoutSessionsService';
 export { wishlistService } from './wishlistService';

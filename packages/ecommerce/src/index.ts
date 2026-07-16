@@ -74,7 +74,7 @@ export type {
 // ============================================
 
 export { ecommerceService } from './services/ecommerceService';
-export { shoppingCartService } from './services/cartService';
+export { shoppingCartService, CartSyncAuthError, CartSyncError } from './services/cartService';
 export { paymentService } from './services/paymentService';
 export { productViewService } from './services/productViewService';
 export type { RecentProduct } from './services/productViewService';

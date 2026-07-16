@@ -16,7 +16,7 @@ import type { LocalCartItem } from '../hooks/useLocalCart'
 import { useAuth } from '@lwm/auth'
 import { toast } from '@lwm/ui'
 import { quoteServices as quoteServiceModule } from '@lwm/sales'
-import { shoppingCartService } from '@lwm/ecommerce'
+import { shoppingCartService, CartSyncAuthError } from '@lwm/ecommerce'
 import { usePublicSettings } from '@lwm/app-config'
 import { taxHintLabel } from '../../utils/taxHint'
 
@@ -181,7 +181,14 @@ export const LocalCartPage: React.FC<LocalCartPageProps> = ({
       } else {
         router.push(checkoutUrl)
       }
-    } catch {
+    } catch (error) {
+      // Distinguish an expired session so the user can re-authenticate and retry,
+      // instead of a generic error. The local cart is preserved in either case.
+      if (error instanceof CartSyncAuthError) {
+        toast.error('Tu sesion expiro. Inicia sesion de nuevo para continuar.')
+        router.push('/auth/login?redirect=' + encodeURIComponent('/cart?action=checkout'))
+        return
+      }
       toast.error('Error al preparar el carrito. Por favor intenta de nuevo.')
       setIsSyncingToCheckout(false)
     }
