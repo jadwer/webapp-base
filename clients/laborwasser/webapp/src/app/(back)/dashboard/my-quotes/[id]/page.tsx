@@ -14,6 +14,7 @@ import { usePublicSettings } from '@/modules/app-config'
 import { QuoteStatusBadge } from '@/modules/quotes'
 import { quoteService, quoteItemService } from '@/modules/quotes'
 import type { Quote, QuoteItem } from '@/modules/quotes'
+import { formatDateOnly } from '@/modules/quotes'
 import { toast } from '@/lib/toast'
 
 interface MyQuoteDetailPageProps {
@@ -306,7 +307,7 @@ export default function MyQuoteDetailPage({ params }: MyQuoteDetailPageProps) {
                   <>
                     <dt className="text-muted small">Vigencia hasta</dt>
                     <dd className={isExpired ? 'text-danger' : ''}>
-                      {formatDate(quote.validUntil)}
+                      {formatDateOnly(quote.validUntil)}
                       {isExpired && ' (Vencida)'}
                     </dd>
                   </>

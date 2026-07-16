@@ -13,6 +13,7 @@ import { useAuth } from '@/modules/auth'
 import { QuoteStatusBadge } from '@/modules/quotes'
 import { quoteService } from '@/modules/quotes'
 import type { Quote } from '@/modules/quotes'
+import { formatDateOnly } from '@/modules/quotes'
 
 export default function MyQuotesPage() {
   const { user, isLoading: authLoading } = useAuth()
@@ -141,7 +142,7 @@ export default function MyQuotesPage() {
                       </td>
                       <td>{formatDate(quote.createdAt)}</td>
                       <td>
-                        {quote.validUntil ? formatDate(quote.validUntil) : '-'}
+                        {quote.validUntil ? formatDateOnly(quote.validUntil) : '-'}
                       </td>
                       <td>
                         <span className="badge bg-secondary">

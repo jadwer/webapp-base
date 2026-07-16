@@ -9,7 +9,8 @@ import {
   useQuoteMutations,
   type QuoteStatus,
   type QuoteFilters,
-  type Quote
+  type Quote,
+  formatDateOnly
 } from '@/modules/quotes'
 import { formatCurrency } from '@/lib/formatters'
 import { toast } from '@/lib/toast'
@@ -102,14 +103,10 @@ export default function QuotesPage() {
     }
   }
 
-  const formatDate = (date: string | undefined) => {
-    if (!date) return '-'
-    return new Date(date).toLocaleDateString('es-MX', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    })
-  }
+  // quoteDate y validUntil son date-only: formatDateOnly evita el corrimiento
+  // al dia anterior en zonas horarias < UTC.
+  const formatDate = (date: string | undefined) =>
+    formatDateOnly(date, 'es-MX', { day: '2-digit', month: '2-digit', year: 'numeric' })
 
   const getContactName = (quote: Quote) => {
     if (quote.contact?.name) return quote.contact.name

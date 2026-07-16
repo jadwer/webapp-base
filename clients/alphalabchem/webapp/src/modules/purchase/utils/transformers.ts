@@ -206,12 +206,15 @@ export function transformPurchaseOrderFormToJsonApi(data: PurchaseOrderFormData,
     data: {
       type,
       attributes: {
-        contact_id: data.contactId, // Already a number
-        order_number: data.orderNumber, // Include order number
-        order_date: data.orderDate, // Use snake_case for API
+        // El Schema JSON:API del backend espera camelCase (contactId,
+        // orderDate, totalAmount); enviarlos en snake_case producia 400
+        // "not a supported attribute" y rompia toda creacion de OC.
+        contactId: data.contactId,
+        orderDate: data.orderDate,
         status: data.status,
         notes: data.notes || '',
-        total_amount: 0 // Calculate from items if needed
+        totalAmount: 0, // requerido por el Request; el backend recalcula desde items
+        // orderNumber lo genera el backend (folio OC-), no se envia.
       },
       relationships: {
         contact: {

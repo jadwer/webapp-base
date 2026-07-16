@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useSalesOrders } from '@/modules/sales'
+import { useSalesOrders, formatDateOnly } from '@/modules/sales'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
 import { formatCurrency } from '@/lib/formatters'
 
@@ -173,7 +173,9 @@ export default function SalesPage() {
                               )}
                             </td>
                             <td>
-                              {order.orderDate ? new Date(order.orderDate as string).toLocaleDateString('es-ES', {
+                              {/* order_date es date-only: formatear en UTC para
+                                  no retroceder un dia en zonas al oeste de UTC */}
+                              {order.orderDate ? formatDateOnly(order.orderDate as string, 'es-ES', {
                                 day: '2-digit',
                                 month: '2-digit',
                                 year: 'numeric'
