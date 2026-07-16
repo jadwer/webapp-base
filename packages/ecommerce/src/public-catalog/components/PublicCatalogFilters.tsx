@@ -191,35 +191,49 @@ export const PublicCatalogFilters: React.FC<PublicCatalogFiltersProps> = ({
     )
   }, [filters])
 
+  const selectedCategoryIds = useMemo(() => (
+    Array.isArray(filters.categoryId)
+      ? filters.categoryId
+      : filters.categoryId ? [filters.categoryId] : []
+  ), [filters.categoryId])
+
+  const selectedBrandIds = useMemo(() => (
+    Array.isArray(filters.brandId)
+      ? filters.brandId
+      : filters.brandId ? [filters.brandId] : []
+  ), [filters.brandId])
+
   // Categories/brands with zero active products should not clutter public
   // navigation. `count` is only populated when the caller derived it from
   // real product data (see PublicCatalogTemplate); options without a count
   // (undefined) are left as-is since we can't tell if they're empty without
   // a dedicated backend endpoint exposing product counts per facet.
+  // Selected options always stay visible (even at count 0) so the user can
+  // toggle them off and accumulate a multi-selection inside the group.
   const visibleCategories = useMemo(
-    () => categories.filter(cat => cat.count === undefined || cat.count > 0),
-    [categories]
+    () => categories.filter(cat =>
+      cat.count === undefined || cat.count > 0 || selectedCategoryIds.includes(cat.value)
+    ),
+    [categories, selectedCategoryIds]
   )
 
   const visibleBrands = useMemo(
-    () => brands.filter(brand => brand.count === undefined || brand.count > 0),
-    [brands]
+    () => brands.filter(brand =>
+      brand.count === undefined || brand.count > 0 || selectedBrandIds.includes(brand.value)
+    ),
+    [brands, selectedBrandIds]
   )
 
   // Selected categories/brands for display
-  const selectedCategories = useMemo(() => {
-    const categoryIds = Array.isArray(filters.categoryId)
-      ? filters.categoryId
-      : filters.categoryId ? [filters.categoryId] : []
-    return visibleCategories.filter(cat => categoryIds.includes(cat.value))
-  }, [filters.categoryId, visibleCategories])
+  const selectedCategories = useMemo(
+    () => visibleCategories.filter(cat => selectedCategoryIds.includes(cat.value)),
+    [selectedCategoryIds, visibleCategories]
+  )
 
-  const selectedBrands = useMemo(() => {
-    const brandIds = Array.isArray(filters.brandId)
-      ? filters.brandId
-      : filters.brandId ? [filters.brandId] : []
-    return visibleBrands.filter(brand => brandIds.includes(brand.value))
-  }, [filters.brandId, visibleBrands])
+  const selectedBrands = useMemo(
+    () => visibleBrands.filter(brand => selectedBrandIds.includes(brand.value)),
+    [selectedBrandIds, visibleBrands]
+  )
 
   const baseClasses = 'public-catalog-filters'
   const variantClasses = {
@@ -329,7 +343,7 @@ export const PublicCatalogFilters: React.FC<PublicCatalogFiltersProps> = ({
                   title={`${category.label}${category.count ? ` (${category.count})` : ''}`}
                 >
                   {category.label}
-                  {category.count && (
+                  {typeof category.count === 'number' && (
                     <span className="ms-1 small">({category.count})</span>
                   )}
                 </button>
@@ -371,7 +385,7 @@ export const PublicCatalogFilters: React.FC<PublicCatalogFiltersProps> = ({
                   title={`${brand.label}${brand.count ? ` (${brand.count})` : ''}`}
                 >
                   {brand.label}
-                  {brand.count && (
+                  {typeof brand.count === 'number' && (
                     <span className="ms-1 small">({brand.count})</span>
                   )}
                 </button>
@@ -412,7 +426,7 @@ export const PublicCatalogFilters: React.FC<PublicCatalogFiltersProps> = ({
                   onClick={() => handleUnitChange(unit.value)}
                 >
                   {unit.label}
-                  {unit.count && (
+                  {typeof unit.count === 'number' && (
                     <span className="ms-1 small">({unit.count})</span>
                   )}
                 </button>
@@ -493,7 +507,7 @@ export const PublicCatalogFilters: React.FC<PublicCatalogFiltersProps> = ({
                 onClick={() => handleCategoryChange(category.value)}
               >
                 {category.label}
-                {category.count && (
+                {typeof category.count === 'number' && (
                   <span className="ms-1 small">({category.count})</span>
                 )}
               </button>
@@ -520,7 +534,7 @@ export const PublicCatalogFilters: React.FC<PublicCatalogFiltersProps> = ({
                 onClick={() => handleBrandChange(brand.value)}
               >
                 {brand.label}
-                {brand.count && (
+                {typeof brand.count === 'number' && (
                   <span className="ms-1 small">({brand.count})</span>
                 )}
               </button>

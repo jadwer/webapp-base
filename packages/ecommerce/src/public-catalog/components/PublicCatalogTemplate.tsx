@@ -75,6 +75,37 @@ interface PublicCatalogTemplateProps {
   refreshInterval?: number
 }
 
+/** Normalizes a single-or-multi filter value into an id array. */
+function toIdList(value?: string | string[]): string[] {
+  return Array.isArray(value) ? value : value ? [value] : []
+}
+
+/** True when there is no selection in the group or the id is selected. */
+function matchesSelection(relationId: string | undefined, selectedIds: string[]): boolean {
+  return selectedIds.length === 0 || (!!relationId && selectedIds.includes(relationId))
+}
+
+/** Builds sorted FilterOption[] with counts from a product list. */
+function deriveOptions(
+  source: EnhancedPublicProduct[],
+  pick: (product: EnhancedPublicProduct) => { id: string; attributes: { name: string } } | undefined
+): FilterOption[] {
+  const map = new Map<string, { label: string; count: number }>()
+  for (const product of source) {
+    const related = pick(product)
+    if (!related?.id) continue
+    const existing = map.get(related.id)
+    if (existing) {
+      existing.count++
+    } else {
+      map.set(related.id, { label: related.attributes.name, count: 1 })
+    }
+  }
+  return Array.from(map.entries())
+    .map(([value, { label, count }]) => ({ value, label, count }))
+    .sort((a, b) => a.label.localeCompare(b.label))
+}
+
 export const PublicCatalogTemplate: React.FC<PublicCatalogTemplateProps> = ({
   initialFilters = {},
   initialSortField = 'name',
@@ -151,60 +182,66 @@ export const PublicCatalogTemplate: React.FC<PublicCatalogTemplateProps> = ({
     }
   )
 
-  // Auto-derive filter options from loaded products when not provided externally
+  // Baseline query for facet derivation. It keeps search and price (they
+  // constrain every group) but drops the category/brand/unit selections:
+  // deriving options from the already facet-filtered result made sibling
+  // options disappear after the first click, so multi-select was impossible.
+  // Each group below is cross-filtered client-side by the OTHER groups only
+  // (standard faceted navigation: a group never filters itself).
+  const facetFilters = useMemo(() => ({
+    search: filters.search,
+    priceMin: filters.priceMin,
+    priceMax: filters.priceMax
+  }), [filters.search, filters.priceMin, filters.priceMax])
+
+  // One page of up to 100 products covers the catalogs that derive facets
+  // client-side. Bigger catalogs should pass explicit categories/brands/units
+  // props (or a future backend facets endpoint with real counts).
+  const facetPagination = useMemo(() => ({ page: 1, size: 100 }), [])
+
+  const { products: facetProducts } = usePublicProducts(
+    facetFilters,
+    undefined,
+    facetPagination,
+    'unit,category,brand',
+    {
+      refreshInterval,
+      revalidateOnFocus: false,
+      revalidateOnReconnect: true
+    }
+  )
+
+  const selectedCategoryIds = useMemo(() => toIdList(filters.categoryId), [filters.categoryId])
+  const selectedBrandIds = useMemo(() => toIdList(filters.brandId), [filters.brandId])
+  const selectedUnitIds = useMemo(() => toIdList(filters.unitId), [filters.unitId])
+
+  // Auto-derive filter options when not provided externally
   const derivedCategories = useMemo(() => {
     if (categories.length > 0) return categories
-    const map = new Map<string, { label: string; count: number }>()
-    for (const p of products) {
-      if (p.category?.id) {
-        const existing = map.get(p.category.id)
-        if (existing) {
-          existing.count++
-        } else {
-          map.set(p.category.id, { label: p.category.attributes.name, count: 1 })
-        }
-      }
-    }
-    return Array.from(map.entries())
-      .map(([value, { label, count }]) => ({ value, label, count }))
-      .sort((a, b) => a.label.localeCompare(b.label))
-  }, [categories, products])
+    const source = facetProducts.filter(p =>
+      matchesSelection(p.brand?.id, selectedBrandIds) &&
+      matchesSelection(p.unit?.id, selectedUnitIds)
+    )
+    return deriveOptions(source, p => p.category)
+  }, [categories, facetProducts, selectedBrandIds, selectedUnitIds])
 
   const derivedBrands = useMemo(() => {
     if (brands.length > 0) return brands
-    const map = new Map<string, { label: string; count: number }>()
-    for (const p of products) {
-      if (p.brand?.id) {
-        const existing = map.get(p.brand.id)
-        if (existing) {
-          existing.count++
-        } else {
-          map.set(p.brand.id, { label: p.brand.attributes.name, count: 1 })
-        }
-      }
-    }
-    return Array.from(map.entries())
-      .map(([value, { label, count }]) => ({ value, label, count }))
-      .sort((a, b) => a.label.localeCompare(b.label))
-  }, [brands, products])
+    const source = facetProducts.filter(p =>
+      matchesSelection(p.category?.id, selectedCategoryIds) &&
+      matchesSelection(p.unit?.id, selectedUnitIds)
+    )
+    return deriveOptions(source, p => p.brand)
+  }, [brands, facetProducts, selectedCategoryIds, selectedUnitIds])
 
   const derivedUnits = useMemo(() => {
     if (units.length > 0) return units
-    const map = new Map<string, { label: string; count: number }>()
-    for (const p of products) {
-      if (p.unit?.id) {
-        const existing = map.get(p.unit.id)
-        if (existing) {
-          existing.count++
-        } else {
-          map.set(p.unit.id, { label: p.unit.attributes.name, count: 1 })
-        }
-      }
-    }
-    return Array.from(map.entries())
-      .map(([value, { label, count }]) => ({ value, label, count }))
-      .sort((a, b) => a.label.localeCompare(b.label))
-  }, [units, products])
+    const source = facetProducts.filter(p =>
+      matchesSelection(p.category?.id, selectedCategoryIds) &&
+      matchesSelection(p.brand?.id, selectedBrandIds)
+    )
+    return deriveOptions(source, p => p.unit)
+  }, [units, facetProducts, selectedCategoryIds, selectedBrandIds])
 
   // Event handlers
   const handleFiltersChange = useCallback((newFilters: PublicProductFilters) => {

@@ -33,7 +33,10 @@ export default function ProductDetailPage({
   backLabel = 'Volver al catalogo'
 }: ProductDetailPageProps) {
   const router = useRouter()
-  const { product, isLoading, error } = usePublicProduct(productId)
+  // Request the images relation explicitly: the hook default include omits it,
+  // so galleryImages never loaded and the thumbnail strip was dead code. The
+  // main image still falls back to attributes.imageUrl when the gallery is empty.
+  const { product, isLoading, error } = usePublicProduct(productId, 'unit,category,brand,images,currency')
   const { suggestions, isLoading: suggestionsLoading } = useProductSuggestions(productId, 4)
   const { addToCart, isInCart, getQuantity } = useLocalCart()
   const { pricesIncludeTax } = usePublicSettings()
