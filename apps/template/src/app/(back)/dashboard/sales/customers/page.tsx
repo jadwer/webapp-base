@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useSalesOrders } from '@/modules/sales'
+import { useSalesOrders, formatDateOnly } from '@/modules/sales'
 import { formatCurrency } from '@/lib/formatters'
 
 export default function SalesCustomersPage() {
@@ -202,8 +202,14 @@ export default function SalesCustomersPage() {
                         </td>
                         <td>
                           <small className="text-muted">
+                            {/* lastOrderDate proviene de order_date (date-only):
+                                formatear en UTC para no retroceder un dia */}
                             {((customer.lastOrderDate as string) || (customer.last_order_date as string) || (customer.latest_order as string) || (customer.last_order as string))
-                              ? new Date((customer.lastOrderDate as string) || (customer.last_order_date as string) || (customer.latest_order as string) || (customer.last_order as string)).toLocaleDateString('es-ES')
+                              ? formatDateOnly(
+                                  (customer.lastOrderDate as string) || (customer.last_order_date as string) || (customer.latest_order as string) || (customer.last_order as string),
+                                  'es-ES',
+                                  { day: 'numeric', month: 'numeric', year: 'numeric' }
+                                )
                               : 'N/A'}
                           </small>
                         </td>

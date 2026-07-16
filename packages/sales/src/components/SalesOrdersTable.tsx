@@ -5,6 +5,7 @@ import clsx from 'clsx'
 import { Button } from '@lwm/ui'
 import { ConfirmModal, type ConfirmModalHandle } from '@lwm/ui'
 import type { SalesOrder, OrderStatus } from '../types'
+import { formatDateOnly } from '../utils/dates'
 
 interface SalesOrdersTableProps {
   salesOrders: SalesOrder[]
@@ -147,7 +148,10 @@ export const SalesOrdersTable: React.FC<SalesOrdersTableProps> = ({
                     )}
                   </td>
                   <td>
-                    <div>{formatDate(order.orderDate)}</div>
+                    {/* orderDate is date-only (UTC midnight); formatDateOnly avoids
+                        the previous-day shift in timezones west of UTC. deliveredAt
+                        below is a full timestamp and keeps local formatting. */}
+                    <div>{formatDateOnly(order.orderDate)}</div>
                     {order.deliveredAt && (
                       <small className="text-success">
                         <i className="bi bi-check-circle me-1"></i>

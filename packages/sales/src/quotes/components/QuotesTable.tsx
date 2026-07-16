@@ -14,6 +14,7 @@ import { OperationsMenu, type OperationsMenuItem } from '../../components/Operat
 import { exportQuoteItemsCsv } from '../../utils/exportCsv'
 import { toast } from '@lwm/ui'
 import { ConfirmModal, ConfirmModalHandle } from '@lwm/ui'
+import { formatDateOnly } from '../../utils/dates'
 
 interface QuotesTableProps {
   quotes: Quote[]
@@ -36,14 +37,9 @@ export function QuotesTable({ quotes, isLoading, onQuoteUpdated }: QuotesTablePr
     }).format(amount)
   }
 
-  const formatDate = (dateString: string | null) => {
-    if (!dateString) return '-'
-    return new Date(dateString).toLocaleDateString('es-MX', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    })
-  }
+  // quoteDate y validUntil son fechas date-only (sin hora); formatDateOnly las
+  // fija a UTC para evitar el corrimiento al dia anterior en zonas < UTC.
+  const formatDate = (dateString: string | null) => formatDateOnly(dateString)
 
   const handleAction = async (
     action: 'send' | 'accept' | 'reject' | 'cancel' | 'duplicate',
