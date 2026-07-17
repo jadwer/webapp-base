@@ -364,7 +364,12 @@ export function CFDIInvoicesAdminPage() {
                       </td>
                       <td>
                         <div className="btn-group btn-group-sm">
-                          {invoice.status === 'draft' && (
+                          {/* Refactor ciclo: el backend crea el CFDI en 'draft' y NUNCA
+                              usa 'generated'. Antes el boton Timbrar solo aparecia para
+                              'generated' -> jamas se mostraba y el CFDI no se podia timbrar
+                              desde el dashboard. Ahora en 'draft' se ofrecen Generar XML,
+                              Generar PDF y Timbrar (stamp() genera el XML si hace falta). */}
+                          {(invoice.status === 'draft' || invoice.status === 'generated') && (
                             <>
                               <button
                                 className="btn btn-outline-primary"
@@ -373,10 +378,6 @@ export function CFDIInvoicesAdminPage() {
                               >
                                 <i className="bi bi-file-earmark-code" />
                               </button>
-                            </>
-                          )}
-                          {invoice.status === 'generated' && (
-                            <>
                               <button
                                 className="btn btn-outline-primary"
                                 onClick={() => handleGeneratePDF(invoice.id)}

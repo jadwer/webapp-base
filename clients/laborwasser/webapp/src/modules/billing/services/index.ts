@@ -189,9 +189,11 @@ export const cfdiInvoicesService = {
     id: string,
     cancelRequest: CFDICancelRequest
   ): Promise<CFDICancelResponse> => {
+    // Refactor ciclo (5a): el backend valida motivo_cancelacion (01-04) y
+    // uuid_sustitucion. Antes el FE mandaba motivo/uuid_reemplazo -> 422 siempre.
     const response = await axiosClient.post(`/api/v1/cfdi-invoices/${id}/cancel`, {
-      motivo: cancelRequest.motivo,
-      uuid_reemplazo: cancelRequest.uuidReemplazo || null,
+      motivo_cancelacion: cancelRequest.motivo,
+      uuid_sustitucion: cancelRequest.uuidReemplazo || null,
     })
     return {
       cfdiId: response.data.data.id,
