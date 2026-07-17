@@ -11,14 +11,26 @@ import type {
 
 const BASE_URL = '/api/v1/system-health'
 
+/**
+ * Los endpoints de system-health responden con envelope JSON:API
+ * ({ data: { type, id, attributes: {...} } }). Los consumidores esperan los
+ * campos planos (health.status, health.checks, health.environment), asi que
+ * devolver response.data crudo dejaba todo en undefined y la pantalla pintaba
+ * "unknown" / "No disponible" pese a que el backend responde 200 correcto.
+ */
+function unwrap<T>(payload: unknown): T {
+  const body = payload as { data?: { attributes?: T } } | undefined
+  return (body?.data?.attributes ?? payload) as T
+}
+
 export const systemHealthService = {
   /**
    * Public ping endpoint (no auth required)
    * Used for uptime monitoring services
    */
   async ping(): Promise<PingResponse> {
-    const response = await axiosClient.get<PingResponse>(`${BASE_URL}/ping`)
-    return response.data
+    const response = await axiosClient.get<unknown>(`${BASE_URL}/ping`)
+    return unwrap<PingResponse>(response.data)
   },
 
   /**
@@ -26,8 +38,8 @@ export const systemHealthService = {
    * Requires: system-health.index permission
    */
   async getFullStatus(): Promise<SystemHealthStatus> {
-    const response = await axiosClient.get<SystemHealthStatus>(BASE_URL)
-    return response.data
+    const response = await axiosClient.get<unknown>(BASE_URL)
+    return unwrap<SystemHealthStatus>(response.data)
   },
 
   /**
@@ -35,8 +47,8 @@ export const systemHealthService = {
    * Requires: system-health.database permission
    */
   async getDatabaseHealth(): Promise<DatabaseHealth> {
-    const response = await axiosClient.get<DatabaseHealth>(`${BASE_URL}/database`)
-    return response.data
+    const response = await axiosClient.get<unknown>(`${BASE_URL}/database`)
+    return unwrap<DatabaseHealth>(response.data)
   },
 
   /**
@@ -44,8 +56,8 @@ export const systemHealthService = {
    * Requires: system-health.storage permission
    */
   async getStorageHealth(): Promise<StorageCheck> {
-    const response = await axiosClient.get<StorageCheck>(`${BASE_URL}/storage`)
-    return response.data
+    const response = await axiosClient.get<unknown>(`${BASE_URL}/storage`)
+    return unwrap<StorageCheck>(response.data)
   },
 
   /**
@@ -53,8 +65,8 @@ export const systemHealthService = {
    * Requires: system-health.queue permission
    */
   async getQueueHealth(): Promise<QueueCheck> {
-    const response = await axiosClient.get<QueueCheck>(`${BASE_URL}/queue`)
-    return response.data
+    const response = await axiosClient.get<unknown>(`${BASE_URL}/queue`)
+    return unwrap<QueueCheck>(response.data)
   },
 
   /**
@@ -62,8 +74,8 @@ export const systemHealthService = {
    * Requires: system-health.errors permission
    */
   async getErrorLogs(): Promise<ErrorMetrics> {
-    const response = await axiosClient.get<ErrorMetrics>(`${BASE_URL}/errors`)
-    return response.data
+    const response = await axiosClient.get<unknown>(`${BASE_URL}/errors`)
+    return unwrap<ErrorMetrics>(response.data)
   },
 
   /**
@@ -71,8 +83,8 @@ export const systemHealthService = {
    * Requires: system-health.metrics permission
    */
   async getApplicationMetrics(): Promise<ApplicationMetrics> {
-    const response = await axiosClient.get<ApplicationMetrics>(`${BASE_URL}/metrics`)
-    return response.data
+    const response = await axiosClient.get<unknown>(`${BASE_URL}/metrics`)
+    return unwrap<ApplicationMetrics>(response.data)
   },
 }
 

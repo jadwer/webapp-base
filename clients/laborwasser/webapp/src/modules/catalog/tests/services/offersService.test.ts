@@ -45,7 +45,10 @@ describe('Offers Service', () => {
       expect(result.data).toHaveLength(2) // Only products where price > cost
       expect(result.data[0].name).toBe('Product 3') // Sorted by discount percent descending
       expect(result.data[1].name).toBe('Product 1')
+      // La consulta va PAGINADA: pedir el catalogo completo (39k+) tumbaba al
+      // backend con un 500 que el navegador reportaba como error de CORS.
       expect(productService.getProducts).toHaveBeenCalledWith({
+        page: { number: 1, size: 500 },
         include: ['unit', 'category', 'brand']
       })
     })
@@ -201,10 +204,12 @@ describe('Offers Service', () => {
       // Act
       await offersService.getProductsForOffer('Searched')
 
-      // Assert
+      // Assert: paginado y con el termino dentro de `filters` (antes se pasaba
+      // `name` suelto, que getProducts ignoraba, y sin paginar).
       expect(productService.getProducts).toHaveBeenCalledWith({
+        page: { number: 1, size: 500 },
         include: ['category', 'brand'],
-        name: 'Searched'
+        filters: { name: 'Searched' }
       })
     })
   })

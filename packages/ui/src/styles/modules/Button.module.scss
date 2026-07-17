@@ -177,21 +177,49 @@ $transition-normal: 250ms ease-in-out;
 .ghost {
   background-color: transparent;
   border-color: transparent;
-  
+
   &.primary {
     color: $color-primary;
-    
+
     &:hover:not(:disabled) {
       background-color: $primary-50;
     }
   }
-  
+
   &.secondary {
     color: $color-text-secondary;
-    
+
     &:hover:not(:disabled) {
       background-color: $neutral-100;
       color: $color-text-primary;
+    }
+  }
+
+  // Sin estas variantes, ghost heredaba el color blanco de las variantes
+  // solidas (pensado para fondo de color) y los botones quedaban invisibles
+  // sobre fondo claro: el icono solo "aparecia" al hover, cuando el fondo se
+  // pintaba. Mismo patron que .outline.
+  &.success {
+    color: $color-success;
+
+    &:hover:not(:disabled) {
+      background-color: $success-50;
+    }
+  }
+
+  &.warning {
+    color: $color-warning;
+
+    &:hover:not(:disabled) {
+      background-color: $warning-50;
+    }
+  }
+
+  &.danger {
+    color: $color-danger;
+
+    &:hover:not(:disabled) {
+      background-color: $danger-50;
     }
   }
 }

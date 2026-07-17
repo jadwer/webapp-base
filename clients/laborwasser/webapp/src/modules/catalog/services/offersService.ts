@@ -14,11 +14,22 @@ import type {
 import { productToOffer, productToProductForOffer } from '../types'
 
 /**
+ * Cuantos productos se revisan para derivar ofertas. La oferta se calcula en el
+ * cliente (precio > costo) porque el backend no expone ese filtro, asi que hay
+ * que acotar la consulta: pedir el catalogo completo (39k+ productos) hacia que
+ * PHP devolviera 500 y el navegador lo reportaba como un error de CORS
+ * enganoso. Si algun dia el backend expone filter[on_offer], esto se sustituye
+ * por una consulta filtrada y paginada de verdad.
+ */
+const OFFERS_SCAN_LIMIT = 500
+
+/**
  * Get all offers (products where price > cost)
  */
 async function getAll(filters?: OffersFilters): Promise<{ data: Offer[]; meta: { total: number } }> {
   try {
     const response = await productService.getProducts({
+      page: { number: 1, size: OFFERS_SCAN_LIMIT },
       include: ['unit', 'category', 'brand']
     })
 
@@ -93,13 +104,16 @@ async function getById(productId: string): Promise<{ data: Offer | null }> {
 }
 
 /**
- * Get products available for creating offers (all products)
+ * Get products available for creating offers.
+ * Paginado por la misma razon que getAll: pedir el catalogo entero tumba al
+ * backend. El buscador acota del lado del servidor cuando hay termino.
  */
 async function getProductsForOffer(search?: string): Promise<{ data: ProductForOffer[] }> {
   try {
     const response = await productService.getProducts({
+      page: { number: 1, size: OFFERS_SCAN_LIMIT },
       include: ['category', 'brand'],
-      ...(search && { name: search })
+      ...(search && { filters: { name: search } })
     })
 
     const products = response.data || []
