@@ -71,6 +71,8 @@ export {
   useProductsByPriceRange,
   // Debounced typeahead search hook
   useProductSearch,
+  // Public categories for guest navigation (footer/menu/facets)
+  usePublicCategories,
   // LocalStorage cart hooks + legacy migration helpers
   useLocalCart,
   useLocalCartCount,

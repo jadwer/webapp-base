@@ -7,6 +7,7 @@ import { useSaleProducts, useLocalCart, type EnhancedPublicProduct } from '@/mod
 import { useToast } from '@/ui/hooks/useToast'
 import { Button } from '@/ui/components/base'
 import { usePublicSettings } from '@/modules/app-config'
+import { curatedOffers } from '@/modules/landing/data/curatedOffers'
 
 export const OfertasPageClient: React.FC = () => {
   const { get } = usePublicSettings()
@@ -224,20 +225,37 @@ export const OfertasPageClient: React.FC = () => {
         </>
       )}
 
-      {/* Empty State */}
+      {/* Sin ofertas del catalogo: mostrar las ofertas curadas (paridad con el
+          bloque "Ofertas del Mes" del home; antes esta pagina quedaba vacia). */}
       {!isLoading && !error && products.length === 0 && (
-        <div className="text-center py-5">
-          <i className="bi bi-tag display-1 text-muted mb-4 d-block"></i>
-          <h3>No hay ofertas disponibles</h3>
-          <p className="text-muted mb-4">
-            Actualmente no tenemos ofertas activas. Visita nuestro catalogo completo.
-          </p>
-          <Link href="/productos">
-            <Button variant="primary" size="large">
-              <i className="bi bi-grid me-2"></i>
-              Ver Catalogo
-            </Button>
-          </Link>
+        <div className="row g-4">
+          {curatedOffers.map((oferta) => (
+            <div key={oferta.id} className="col-12 col-md-4">
+              <div className={`card h-100 text-center card-offer ${oferta.bgClass}`}>
+                <div className="card-body d-flex flex-column">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={oferta.image}
+                    className="img-fluid mx-auto mb-3"
+                    alt={oferta.description}
+                    style={{ maxHeight: 200, objectFit: 'contain' }}
+                    loading="lazy"
+                  />
+                  <p className="flex-grow-1">{oferta.description}</p>
+                  <p className="text-muted small">Modelo: {oferta.modelo}</p>
+                  <h4 className="mb-3">{oferta.precio}</h4>
+                  <a
+                    className="btn btn-primary mt-auto"
+                    href={oferta.whatsappLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Pidelo ahora
+                  </a>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       )}
 

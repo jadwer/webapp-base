@@ -2,7 +2,7 @@
 
 import React, { Suspense, useState, useEffect, useCallback } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
-import { PublicCatalogTemplate, useLocalCart } from '@/modules/public-catalog'
+import { PublicCatalogTemplate, useLocalCart, usePublicCategories } from '@/modules/public-catalog'
 import type { EnhancedPublicProduct } from '@/modules/public-catalog'
 import { useToast } from '@/ui/hooks/useToast'
 
@@ -35,6 +35,16 @@ function ProductosContent() {
   const searchParams = useSearchParams()
   const initialSearch = searchParams.get('search') || undefined
   const initialCategoryId = searchParams.get('categoryId') || undefined
+
+  // Categorias reales para las facetas (endpoint publico, sin auth). Antes se
+  // pasaba [] y el template las derivaba de la pagina de productos, mostrando
+  // solo un valor por grupo.
+  const { categories: publicCategories } = usePublicCategories({ limit: 100 })
+  const categoryOptions = publicCategories.map((c: { id: string; name: string; productsCount?: number }) => ({
+    value: String(c.id),
+    label: c.name,
+    count: c.productsCount,
+  }))
   // wishlistIds stored for future visual indicators (e.g., heart icon filled/empty)
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [wishlistIds, setWishlistIds] = useState<number[]>([])
@@ -105,7 +115,7 @@ function ProductosContent() {
         initialViewMode="grid"
         initialPageSize={24}
 
-        categories={[]}
+        categories={categoryOptions}
         brands={[]}
         units={[]}
         priceRange={priceRange}

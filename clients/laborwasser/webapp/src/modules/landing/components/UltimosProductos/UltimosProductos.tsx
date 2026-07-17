@@ -102,7 +102,26 @@ export const UltimosProductos: React.FC = () => {
                   </div>
 
                   <div className={styles.productImage}>
-                    <div className={styles.productImagePlaceholder}>
+                    {product.imageUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={product.imageUrl}
+                        alt={product.name}
+                        className={styles.productImagePhoto}
+                        loading="lazy"
+                        onError={(e) => {
+                          // Al fallar la imagen, mostrar el placeholder de caja.
+                          const el = e.currentTarget
+                          el.style.display = 'none'
+                          const ph = el.nextElementSibling as HTMLElement | null
+                          if (ph) ph.style.display = ''
+                        }}
+                      />
+                    ) : null}
+                    <div
+                      className={styles.productImagePlaceholder}
+                      style={product.imageUrl ? { display: 'none' } : undefined}
+                    >
                       <i className="bi bi-box-seam" />
                       <span>{product.category?.name || 'Producto'}</span>
                     </div>

@@ -19,6 +19,8 @@ export {
 
 // Export debounced typeahead search hook
 export { useProductSearch } from './useProductSearch'
+export { usePublicCategories } from './usePublicCategories'
+export type { PublicCategory } from './usePublicCategories'
 export type {
   ProductSearchResult,
   UseProductSearchResult

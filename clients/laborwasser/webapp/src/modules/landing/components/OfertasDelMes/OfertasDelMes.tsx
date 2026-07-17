@@ -5,40 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useSaleProducts, useLocalCart, type EnhancedPublicProduct } from '@lwm/ecommerce'
 import { useToast } from '@lwm/ui'
-
-// Fallback static offers (used when API is not available)
-const fallbackOfertas = [
-  {
-    id: 1,
-    image: '/images/laborwasser/labor-wasser-guantes-nitrilo.webp',
-    description:
-      'Guantes de nitrilo azul sin polvo Supreno, tallas chica, mediana y grande. Paquete c/100 piezas marca MICROFLEX',
-    modelo: 'SU-690',
-    precio: '$15USD+IVA',
-    whatsappLink: 'https://wa.link/a9t3qb',
-    bgClass: 'blue-1',
-  },
-  {
-    id: 2,
-    image: '/images/laborwasser/labor-wasser-mexico-viales-digestion-dqo.webp',
-    description:
-      'Viales de digestion para demanda quimica de oxigeno (DQO), rango alto (20 -1500 mg/L), paquete de 150 HACH',
-    modelo: '2125915',
-    precio: '$532.7USD+IVA',
-    whatsappLink: 'https://wa.link/a9t3qb',
-    bgClass: 'blue-2',
-  },
-  {
-    id: 3,
-    image: '/images/laborwasser/labor-wasser-kit-frascos-tampon.webp',
-    description:
-      'KIT Frascos de tampon de pH 4.01, 7, 10.01 (475 ml) Orion trazabilidad conforme a la NIST',
-    modelo: 'Incluye modelos: 910104, 910107, 910110',
-    precio: '$75USD+IVA',
-    whatsappLink: 'https://wa.link/a9t3qb',
-    bgClass: 'blue-1',
-  },
-]
+import { curatedOffers as fallbackOfertas } from '../../data/curatedOffers'
 
 export const OfertasDelMes: React.FC = () => {
   // Ofertas reales (is_on_sale), NO los primeros del catalogo. Si no hay ofertas

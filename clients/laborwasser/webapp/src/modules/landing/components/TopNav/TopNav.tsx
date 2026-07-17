@@ -2,20 +2,12 @@
 
 import React from 'react'
 import Link from 'next/link'
-import { useAuth } from '@lwm/auth'
-import { useCategories } from '@lwm/products'
+import { usePublicCategories } from '@lwm/ecommerce'
 
 export const TopNav: React.FC = () => {
-  const { isAuthenticated } = useAuth()
-  // Categories endpoint requires auth - only fetch when authenticated.
-  // filter[is_active]=1 keeps inactive categories out of public navigation
-  // (see commit bec2189 in the original monolith).
-  const { categories, isLoading } = useCategories({
-    page: { size: 50 },
-    filter: { isActive: true },
-    sort: { field: 'name', direction: 'asc' },
-    enabled: isAuthenticated,
-  })
+  // Navegacion publica: categorias activas via el endpoint publico (sin auth).
+  // El /api/v1/categories daba 401 a invitados, dejando el menu sin categorias.
+  const { categories, isLoading } = usePublicCategories({ limit: 50 })
 
   return (
     <nav className="navbar navbar-expand-lg lwm-topnav">

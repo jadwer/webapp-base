@@ -4,21 +4,14 @@ import React from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePublicSettings } from '@lwm/app-config'
-import { useAuth } from '@lwm/auth'
-import { useCategories } from '@lwm/products'
+import { usePublicCategories } from '@lwm/ecommerce'
 
 export const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear()
   const { get } = usePublicSettings()
-  const { isAuthenticated } = useAuth()
-  // filter[is_active]=1 keeps inactive categories out of public navigation
-  // (see commit bec2189 in the original monolith).
-  const { categories } = useCategories({
-    page: { size: 20 },
-    filter: { isActive: true },
-    sort: { field: 'name', direction: 'asc' },
-    enabled: isAuthenticated,
-  })
+  // Navegacion publica: categorias activas via el endpoint publico (sin auth).
+  // El /api/v1/categories daba 401 a invitados, dejando el footer sin categorias.
+  const { categories } = usePublicCategories({ limit: 20 })
 
   const phone = get('company.phone')
   const phoneSecondary = get('company.phone_secondary')
