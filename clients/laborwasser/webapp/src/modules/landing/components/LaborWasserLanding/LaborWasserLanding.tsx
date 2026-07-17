@@ -4,6 +4,7 @@ import React from 'react'
 import {
   Hero,
   OfertasDelMes,
+  UltimosProductos,
   PorQueComprar,
   NecesitasCotizacion,
   NuestrasMarcas,
@@ -29,6 +30,9 @@ export const LaborWasserLanding: React.FC<LaborWasserLandingProps> = ({
 
       {/* Monthly offers section */}
       <OfertasDelMes />
+
+      {/* Latest products section (la que vende: paridad con produccion legada) */}
+      <UltimosProductos />
 
       {/* Why buy with us section */}
       <PorQueComprar />
