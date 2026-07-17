@@ -102,6 +102,11 @@ export function transformJsonApiProduct(
     // isPublic default true: producto publico en catalogo si el backend no lo
     // envia (compatibilidad con productos previos al flag).
     isPublic: Boolean(resource.attributes.isPublic ?? true),
+    // Oferta (default false: sin marcar no es oferta).
+    isOnSale: Boolean(resource.attributes.isOnSale ?? false),
+    saleStartsAt: (resource.attributes.saleStartsAt ?? null) as string | null,
+    saleEndsAt: (resource.attributes.saleEndsAt ?? null) as string | null,
+    saleBadge: (resource.attributes.saleBadge ?? null) as string | null,
     imgPath: resource.attributes.imgPath as string | undefined,
     datasheetPath: resource.attributes.datasheetPath as string | undefined,
     imgUrl: resource.attributes.imgUrl as string | undefined,

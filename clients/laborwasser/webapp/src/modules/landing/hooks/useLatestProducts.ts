@@ -4,7 +4,8 @@
  * Integrado con @lwm/ecommerce (public-catalog) para mejor rendimiento
  */
 
-import { useFeaturedProducts as useEcommerceFeaturedProducts, type EnhancedPublicProduct } from '@lwm/ecommerce'
+import { useMemo } from 'react'
+import { usePublicProducts, type EnhancedPublicProduct } from '@lwm/ecommerce'
 
 export interface LatestProductsOptions {
   limit?: number
@@ -14,13 +15,23 @@ export interface LatestProductsOptions {
 export function useLatestProducts(options: LatestProductsOptions = {}) {
   const { limit = 6 } = options
 
-  // Usar el hook optimizado de @lwm/ecommerce (public-catalog)
+  // "Ultimos productos" = los ultimos AGREGADOS. Antes delegaba en
+  // useFeaturedProducts, que ordena por nombre ascendente: la seccion
+  // "ultimas incorporaciones" mostraba siempre los 6 primeros alfabeticamente
+  // del catalogo (los mismos para siempre, con 39k productos).
+  const filters = useMemo(() => ({}), [])
+  const sort = useMemo(() => ([{ field: 'createdAt' as const, direction: 'desc' as const }]), [])
+  const pagination = useMemo(() => ({ size: limit }), [limit])
+
   const {
     products,
     isLoading,
     error,
     mutate
-  } = useEcommerceFeaturedProducts(limit)
+  } = usePublicProducts(filters, sort, pagination, 'unit,category,brand,currency', {
+    refreshInterval: 600000,
+    revalidateOnFocus: false
+  })
 
   // Transform to legacy format for compatibility
   const transformedProducts = products.map((product: EnhancedPublicProduct) => ({
@@ -76,7 +87,16 @@ export function useLatestProducts(options: LatestProductsOptions = {}) {
 export function useLatestProductsEnhanced(options: LatestProductsOptions = {}) {
   const { limit = 6 } = options
 
-  const result = useEcommerceFeaturedProducts(limit)
+  // Mismo criterio que useLatestProducts: los ultimos AGREGADOS, no los
+  // primeros alfabeticamente.
+  const filters = useMemo(() => ({}), [])
+  const sort = useMemo(() => ([{ field: 'createdAt' as const, direction: 'desc' as const }]), [])
+  const pagination = useMemo(() => ({ size: limit }), [limit])
+
+  const result = usePublicProducts(filters, sort, pagination, 'unit,category,brand,currency', {
+    refreshInterval: 600000,
+    revalidateOnFocus: false
+  })
 
   return {
     ...result,

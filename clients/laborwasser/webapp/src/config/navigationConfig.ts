@@ -238,20 +238,14 @@ export const adminNavigation: NavigationSection = {
       ],
     },
 
-    // Catálogo Público
-    {
-      key: 'catalog',
-      label: 'Catálogo Público',
-      icon: 'bi-grid-3x3-gap',
-      activePathPrefixes: ['/dashboard/catalog'],
-      permissions: [],
-      items: [
-        { href: '/dashboard/catalog', label: 'Gestión', icon: 'bi-grid-3x3-gap', permissions: ['products.index'] },
-        { href: '/dashboard/catalog/featured', label: 'Productos Destacados', icon: 'bi-star', permissions: ['products.index'] },
-        { href: '/dashboard/catalog/offers', label: 'Ofertas', icon: 'bi-percent', permissions: ['products.index'] },
-        { href: '/dashboard/catalog/settings', label: 'Configuración', icon: 'bi-gear', permissions: ['products.index'] },
-      ],
-    },
+    // NOTA: la seccion "Catalogo Publico" se elimino (2026-07-16). No
+    // configuraba nada del catalogo publico: "Gestion" y "Productos Destacados"
+    // eran cascarones sin llamadas a la API, "Configuracion" un mock cuyo boton
+    // Guardar no tenia handler, y "Ofertas" derivaba las ofertas de precio>costo
+    // (margen, no oferta) y al "crear una oferta" SOBREESCRIBIA el precio y el
+    // costo reales del producto, corrompiendo el margen contable.
+    // Las ofertas ahora se marcan en la ficha del producto (campo "En oferta"
+    // con vigencia y etiqueta), que es lo que lee el sitio publico.
 
     // E-commerce
     {

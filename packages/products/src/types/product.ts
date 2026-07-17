@@ -29,6 +29,16 @@ export interface Product {
   // isPublic false = producto interno: cotizable y vendible pero oculto del
   // catalogo publico. Default true en backend, opcional aqui por compatibilidad.
   isPublic?: boolean
+
+  // Oferta. Alimenta la seccion "Ofertas del Mes" del sitio publico: el hook
+  // useSaleProducts filtra por isOnSale y el backend respeta la ventana de
+  // fechas (scope onSale). Sin fechas, la oferta corre mientras isOnSale este
+  // activo. saleBadge es la etiqueta que se muestra (ej. "-20%", "LIQUIDACION").
+  isOnSale?: boolean
+  saleStartsAt?: string | null
+  saleEndsAt?: string | null
+  saleBadge?: string | null
+
   imgPath?: string
   datasheetPath?: string
   imgUrl?: string
@@ -66,6 +76,10 @@ export interface CreateProductData {
   iva?: boolean
   isActive?: boolean
   isPublic?: boolean
+  isOnSale?: boolean
+  saleStartsAt?: string | null
+  saleEndsAt?: string | null
+  saleBadge?: string | null
   imgPath?: string
   datasheetPath?: string
   unitId: string
@@ -85,6 +99,7 @@ export interface ProductFilters {
   sku?: string
   isActive?: boolean
   isPublic?: boolean
+  isOnSale?: boolean
   unitId?: string
   categoryId?: string
   brandId?: string

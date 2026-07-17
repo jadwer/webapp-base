@@ -15,6 +15,13 @@
   --brand-primary-dark: #6FA004;
   --brand-primary-light: #A3E020;
 
+  // Lime green for TEXT and icons on light backgrounds. El lima de marca
+  // (#8AC905) tiene contraste 2.01 sobre blanco: sirve como fondo (con texto
+  // blanco encima) pero es ilegible como color de texto. Esta variante mantiene
+  // el mismo tono con contraste 4.54 (WCAG AA). NO usar para fondos: ahi va
+  // --brand-primary, que es el color de marca y no cambia.
+  --brand-primary-text: #5A8203;
+
   // Secondary deep navy — headings, footer bottom bar, dropdown active state.
   --brand-secondary: #012A94;
   --brand-secondary-dark: #011D67;

@@ -91,6 +91,11 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     iva: product?.iva || false,
     // isPublic default true (marcado). false = producto interno.
     isPublic: product?.isPublic ?? true,
+    // Oferta. Las fechas se manejan como YYYY-MM-DD para el input date.
+    isOnSale: product?.isOnSale ?? false,
+    saleStartsAt: product?.saleStartsAt?.slice(0, 10) || '',
+    saleEndsAt: product?.saleEndsAt?.slice(0, 10) || '',
+    saleBadge: product?.saleBadge || '',
     imgPath: product?.imgPath || '',
     datasheetPath: product?.datasheetPath || '',
     unitId: product?.unitId || '',
@@ -167,6 +172,10 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         cost: product.cost?.toString() || '',
         iva: product.iva || false,
         isPublic: product.isPublic ?? true,
+        isOnSale: product.isOnSale ?? false,
+        saleStartsAt: product.saleStartsAt?.slice(0, 10) || '',
+        saleEndsAt: product.saleEndsAt?.slice(0, 10) || '',
+        saleBadge: product.saleBadge || '',
         imgPath: product.imgPath || '',
         datasheetPath: product.datasheetPath || '',
         unitId: product.unitId || '',
@@ -304,6 +313,12 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       ...(formData.cost && { cost: Number(formData.cost) }),
       iva: formData.iva,
       isPublic: formData.isPublic,
+      // Oferta. Las fechas y el badge viajan como null cuando se limpian, para
+      // poder quitar una vigencia (undefined no llegaria al backend).
+      isOnSale: formData.isOnSale,
+      saleStartsAt: formData.saleStartsAt || null,
+      saleEndsAt: formData.saleEndsAt || null,
+      saleBadge: formData.saleBadge || null,
       // Only send imgPath if a new file was uploaded. Otherwise let the ProductImage
       // Observer manage it to stay in sync with the gallery.
       ...(newImgPath && { imgPath: newImgPath }),
@@ -500,6 +515,64 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               </div>
             </div>
           </div>
+
+          {/* Oferta: alimenta la seccion "Ofertas del Mes" del sitio publico. */}
+          <div className="mb-3">
+            <div className="form-check">
+              <input
+                className="form-check-input"
+                type="checkbox"
+                id="is-on-sale-checkbox"
+                checked={formData.isOnSale}
+                onChange={(e) => handleInputChange('isOnSale', e.target.checked)}
+                disabled={isSubmitting}
+              />
+              <label className="form-check-label" htmlFor="is-on-sale-checkbox">
+                En oferta
+              </label>
+              <div className="form-text">
+                El producto aparece en la seccion Ofertas del sitio publico.
+              </div>
+            </div>
+          </div>
+
+          {formData.isOnSale && (
+            <div className="mb-3 ps-4 border-start">
+              <div className="row g-2">
+                <div className="col-md-6">
+                  <Input
+                    label="Oferta desde"
+                    type="date"
+                    value={formData.saleStartsAt}
+                    onChange={(e) => handleInputChange('saleStartsAt', e.target.value)}
+                    disabled={isSubmitting}
+                  />
+                </div>
+                <div className="col-md-6">
+                  <Input
+                    label="Oferta hasta"
+                    type="date"
+                    value={formData.saleEndsAt}
+                    onChange={(e) => handleInputChange('saleEndsAt', e.target.value)}
+                    disabled={isSubmitting}
+                  />
+                </div>
+              </div>
+              <div className="mt-2">
+                <Input
+                  label="Etiqueta"
+                  type="text"
+                  value={formData.saleBadge}
+                  onChange={(e) => handleInputChange('saleBadge', e.target.value)}
+                  placeholder="Ej. -20%, LIQUIDACION"
+                  disabled={isSubmitting}
+                />
+              </div>
+              <div className="form-text">
+                Las fechas son opcionales: sin ellas la oferta corre mientras siga marcada.
+              </div>
+            </div>
+          )}
 
           <div className="mb-3">
             <Input

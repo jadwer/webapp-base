@@ -65,8 +65,10 @@ a {
 
 .btn-secondary {
   background-color: white;
+  // El borde conserva el lima de marca; el TEXTO usa la variante accesible
+  // (sobre blanco el lima daba 2.01:1).
   border: 2px solid #8AC905;
-  color: #8AC905;
+  color: var(--brand-primary-text, #5A8203);
 }
 
 .btn-primary:hover,
@@ -85,7 +87,7 @@ a {
     line-height: 0;
     font-weight: 600;
     margin-left: 25px;
-    color: #8AC905;
+    color: var(--brand-primary-text, #5A8203);
     background-color: #ffffff;
     border: none;
     width: auto;
@@ -164,9 +166,11 @@ img {
     font-size: 0.9em;
     font-weight: 500;
 
+    // El lima de marca sobre el gris del topnav da 1.91:1: el texto se lavaba
+    // justo al apuntarlo. Se usa la variante accesible del mismo tono.
     &:hover,
     &:focus {
-      color: #8AC905;
+      color: var(--brand-primary-text, #5A8203);
     }
   }
 
@@ -176,7 +180,7 @@ img {
 
     &:hover,
     &:focus {
-      color: #8AC905;
+      color: var(--brand-primary-text, #5A8203);
       background-color: #f8f9fa;
     }
   }
@@ -219,7 +223,9 @@ img {
 
   .social {
     i {
-      color: #8AC905;
+      // Variante accesible del lima: sobre el gris del footer el color de marca
+      // daba 1.73:1 y los iconos casi no se distinguian.
+      color: var(--brand-primary-text, #5A8203);
       font-size: 2em;
 
       &.bi-whatsapp::before {
@@ -268,7 +274,7 @@ img {
       list-style: none;
 
       a {
-        color: #8AC905;
+        color: var(--brand-primary-text, #5A8203);
         font-size: 1em;
         text-transform: uppercase;
         line-height: 2.5em;

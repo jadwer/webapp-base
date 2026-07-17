@@ -45,6 +45,10 @@ export const productService = {
       // Filtros múltiples
       if (params.filters.brands) queryParams['filter[brands]'] = params.filters.brands.join(',')
       if (params.filters.categories) queryParams['filter[categories]'] = params.filters.categories.join(',')
+      // Productos en oferta (alimenta la seccion Ofertas del sitio publico).
+      if (params.filters.isOnSale !== undefined) {
+        queryParams['filter[is_on_sale]'] = params.filters.isOnSale ? '1' : '0'
+      }
     }
     
     if (params?.sort) {
@@ -122,6 +126,13 @@ export const productService = {
           // Solo se envia si el formulario lo definio; si no, el backend aplica
           // su default true.
           ...(data.isPublic !== undefined && { isPublic: data.isPublic }),
+          // Oferta: alimenta "Ofertas del Mes" del sitio publico. Las fechas y
+          // el badge van como null explicito cuando se limpian (no undefined),
+          // para poder desactivar una vigencia.
+          ...(data.isOnSale !== undefined && { isOnSale: data.isOnSale }),
+          ...(data.saleStartsAt !== undefined && { saleStartsAt: data.saleStartsAt }),
+          ...(data.saleEndsAt !== undefined && { saleEndsAt: data.saleEndsAt }),
+          ...(data.saleBadge !== undefined && { saleBadge: data.saleBadge }),
           ...(data.imgPath && { imgPath: data.imgPath }),
           ...(data.datasheetPath && { datasheetPath: data.datasheetPath }),
           // Datos fiscales SAT. satClaveProdServ/satClaveUnidad usan cadena
@@ -172,6 +183,11 @@ export const productService = {
     if (data.cost !== undefined) attributes.cost = data.cost
     if (data.iva !== undefined) attributes.iva = data.iva
     if (data.isPublic !== undefined) attributes.isPublic = data.isPublic
+    // Oferta (ver create): null es valido para limpiar fechas/badge.
+    if (data.isOnSale !== undefined) attributes.isOnSale = data.isOnSale
+    if (data.saleStartsAt !== undefined) attributes.saleStartsAt = data.saleStartsAt
+    if (data.saleEndsAt !== undefined) attributes.saleEndsAt = data.saleEndsAt
+    if (data.saleBadge !== undefined) attributes.saleBadge = data.saleBadge
     if (data.imgPath !== undefined) attributes.imgPath = data.imgPath
     if (data.datasheetPath !== undefined) attributes.datasheetPath = data.datasheetPath
     if (data.satClaveProdServ !== undefined) attributes.satClaveProdServ = data.satClaveProdServ

@@ -18,3 +18,28 @@
 //    apply to all (front) pages, .laborwasser-landing rules are scoped to
 //    the home page only.
 @use '../modules/landing/styles/laborwasser.scss';
+
+// 4) Accesibilidad del lima de marca EN TEXTO.
+//    Bootstrap se compila con $primary: #8AC905, asi que .text-primary, los
+//    links y cualquier texto "primary" heredan el lima, que sobre fondo claro
+//    da contraste 2.01 (WCAG AA pide 4.5 en texto y 3.0 en iconos): titulos de
+//    modulos, cifras y links quedaban lavados.
+//    Aqui SOLO se corrige el color cuando el lima es TEXTO/icono. Los fondos
+//    (.bg-primary, .btn-primary con texto blanco encima) siguen usando el lima
+//    de marca sin cambios: la identidad visual no se toca.
+:root {
+  --bs-link-color: var(--brand-primary-text);
+  --bs-link-color-rgb: 90, 130, 3;
+  --bs-link-hover-color: var(--brand-primary-dark);
+}
+
+.text-primary {
+  color: var(--brand-primary-text) !important;
+}
+
+// Botones de texto/enlace: el fondo es transparente, asi que el lima de marca
+// seria ilegible. Los botones solidos (.btn-primary) NO entran aqui.
+.btn-link,
+.btn-outline-primary:not(:hover) {
+  color: var(--brand-primary-text);
+}
