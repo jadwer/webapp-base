@@ -3,7 +3,7 @@
 import React from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { useFeaturedProducts, useLocalCart, type EnhancedPublicProduct } from '@lwm/ecommerce'
+import { useSaleProducts, useLocalCart, type EnhancedPublicProduct } from '@lwm/ecommerce'
 import { useToast } from '@lwm/ui'
 
 // Fallback static offers (used when API is not available)
@@ -41,7 +41,9 @@ const fallbackOfertas = [
 ]
 
 export const OfertasDelMes: React.FC = () => {
-  const { products, isLoading, error } = useFeaturedProducts(3, 'unit,category,brand')
+  // Ofertas reales (is_on_sale), NO los primeros del catalogo. Si no hay ofertas
+  // cargadas, el render cae al fallback estatico (mejor que mostrar productos a $0.00).
+  const { products, isLoading, error } = useSaleProducts(3, 'unit,category,brand')
   const { addToCart } = useLocalCart()
   const toast = useToast()
 

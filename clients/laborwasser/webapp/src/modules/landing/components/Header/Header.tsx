@@ -3,16 +3,13 @@
 import React, { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { useRouter } from 'next/navigation'
-import { useLocalCartCount } from '@lwm/ecommerce'
+import { useLocalCartCount, ProductSearchBox } from '@lwm/ecommerce'
 import { useAuth } from '@lwm/auth'
 import { useIsClient } from '@/hooks/useIsClient'
 import { usePublicSettings } from '@lwm/app-config'
 import { ContactOffcanvas } from '../ContactOffcanvas/ContactOffcanvas'
 
 export const Header: React.FC = () => {
-  const router = useRouter()
-  const [searchQuery, setSearchQuery] = useState('')
   const cartItemCount = useLocalCartCount()
   const { user, isAuthenticated, isLoading, logout } = useAuth()
   const isClient = useIsClient()
@@ -44,15 +41,6 @@ export const Header: React.FC = () => {
   // Get user display name
   const displayName = user?.name || user?.email?.split('@')[0] || 'Usuario'
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (searchQuery.trim()) {
-      router.push(`/productos?search=${encodeURIComponent(searchQuery.trim())}`)
-    } else {
-      router.push('/productos')
-    }
-  }
-
   return (
     <>
       {/* Desktop Header */}
@@ -70,31 +58,11 @@ export const Header: React.FC = () => {
               </Link>
             </div>
             <div className="col-6 col-md-8 d-flex justify-content-end align-items-center">
-              <div className="input-group my-1">
-                <form id="homeSearch" className="d-block w-100" onSubmit={handleSearch}>
-                  <div className="row">
-                    <div className="col-8">
-                      <input
-                        type="text"
-                        id="searchNavProduct"
-                        className="form-control"
-                        placeholder="Introduzca el nombre del producto"
-                        name="homeSearch"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                      />
-                    </div>
-                    <div className="col-4">
-                      <button
-                        className="btn btn-primary w-100"
-                        type="submit"
-                        id="button-addon1"
-                      >
-                        Buscar
-                      </button>
-                    </div>
-                  </div>
-                </form>
+              {/* Typeahead con autocompletado (nota cliente #4), unico buscador
+                  del sitio y siempre visible en el header. Reemplaza el input
+                  simple + el typeahead duplicado que vivia en el TopNav. */}
+              <div className="my-1 flex-grow-1 me-3" style={{ maxWidth: 480 }}>
+                <ProductSearchBox />
               </div>
 
               {/* Cart Icon */}
@@ -274,31 +242,10 @@ export const Header: React.FC = () => {
           </div>
         </div>
 
+        {/* Typeahead tambien en el header movil: siempre visible, sin depender
+            del navbar colapsable. */}
         <div className="my-1 px-2">
-          <form id="homeSearchMobile" onSubmit={handleSearch}>
-            <div className="row">
-              <div className="col-8">
-                <input
-                  type="text"
-                  id="searchNavProductMobile"
-                  className="form-control"
-                  placeholder="Introduzca el nombre del producto"
-                  name="homeSearch"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </div>
-              <div className="col-4">
-                <button
-                  className="btn btn-primary w-100"
-                  type="submit"
-                  id="button-addon1-mobile"
-                >
-                  Buscar
-                </button>
-              </div>
-            </div>
-          </form>
+          <ProductSearchBox />
         </div>
       </header>
 

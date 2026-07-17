@@ -3,7 +3,7 @@
 import React, { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { useFeaturedProducts, useLocalCart, type EnhancedPublicProduct } from '@/modules/public-catalog'
+import { useSaleProducts, useLocalCart, type EnhancedPublicProduct } from '@/modules/public-catalog'
 import { useToast } from '@/ui/hooks/useToast'
 import { Button } from '@/ui/components/base'
 import { usePublicSettings } from '@/modules/app-config'
@@ -11,7 +11,8 @@ import { usePublicSettings } from '@/modules/app-config'
 export const OfertasPageClient: React.FC = () => {
   const { get } = usePublicSettings()
   const [limit, setLimit] = useState(12)
-  const { products, isLoading, error, mutate } = useFeaturedProducts(limit, 'unit,category,brand')
+  // Ofertas reales (is_on_sale), no los primeros del catalogo a $0.00.
+  const { products, isLoading, error, mutate } = useSaleProducts(limit, 'unit,category,brand')
   const { addToCart } = useLocalCart()
   const toast = useToast()
 

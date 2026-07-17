@@ -82,6 +82,12 @@ export const ProductSearchBox: React.FC<ProductSearchBoxProps> = ({
     [router]
   )
 
+  const goToAllResults = useCallback(() => {
+    if (!trimmed) return
+    setOpen(false)
+    router.push(`/productos?search=${encodeURIComponent(trimmed)}`)
+  }, [router, trimmed])
+
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (!showDropdown || results.length === 0) {
       if (event.key === 'Escape') setOpen(false)
@@ -98,9 +104,12 @@ export const ProductSearchBox: React.FC<ProductSearchBoxProps> = ({
         setActiveIndex((prev) => (prev <= 0 ? results.length - 1 : prev - 1))
         break
       case 'Enter':
+        event.preventDefault()
         if (activeIndex >= 0 && activeIndex < results.length) {
-          event.preventDefault()
           goToProduct(results[activeIndex].id)
+        } else {
+          // Sin sugerencia resaltada: ir al listado completo de la busqueda.
+          goToAllResults()
         }
         break
       case 'Escape':
@@ -181,6 +190,17 @@ export const ProductSearchBox: React.FC<ProductSearchBoxProps> = ({
               </span>
             </button>
           ))}
+
+          {!loading && results.length > 0 && (
+            <button
+              type="button"
+              className="d-flex align-items-center justify-content-center gap-2 w-100 text-center border-0 border-top px-3 py-2 bg-white text-primary fw-semibold"
+              onClick={goToAllResults}
+            >
+              <i className="bi bi-search" />
+              <span>Ver todos los resultados</span>
+            </button>
+          )}
         </div>
       )}
     </div>
