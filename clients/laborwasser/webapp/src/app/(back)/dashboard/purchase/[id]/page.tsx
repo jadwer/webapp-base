@@ -1,9 +1,12 @@
 'use client'
 
-import { use, useState } from 'react'
+import { use, useState, useRef } from 'react'
 import { usePurchaseOrder, usePurchaseOrderItems } from '@/modules/purchase'
+import { purchaseService } from '@/modules/purchase/services'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
 import { formatCurrency, formatQuantity } from '@/lib/formatters'
+import { toast } from '@/lib/toast'
+import ConfirmModal, { ConfirmModalHandle } from '@/ui/components/base/ConfirmModal'
 import AddItemModal from '@/modules/purchase/components/AddItemModal'
 
 interface PageProps {
@@ -20,9 +23,77 @@ export default function PurchaseOrderDetailPage({ params }: PageProps) {
   const resolvedParams = use(params)
   const navigation = useNavigationProgress()
   const [showAddModal, setShowAddModal] = useState(false)
+  const [actionLoading, setActionLoading] = useState<string | null>(null)
+  const confirmModalRef = useRef<ConfirmModalHandle>(null)
 
-  const { purchaseOrder, isLoading: orderLoading, error: orderError } = usePurchaseOrder(resolvedParams.id)
+  const { purchaseOrder, isLoading: orderLoading, error: orderError, mutate: mutateOrder } = usePurchaseOrder(resolvedParams.id)
   const { purchaseOrderItems, isLoading: itemsLoading, error: itemsError, mutate: mutateItems } = usePurchaseOrderItems(resolvedParams.id)
+
+  // Bloque FE del ciclo: estos handlers cablean los endpoints reales del backend.
+  // Antes los botones de accion eran <button> decorativos SIN onClick (hallazgo H1
+  // de la auditoria): la OC solo se podia operar por API.
+  const handleApprove = async () => {
+    const confirmed = await confirmModalRef.current?.confirm('Aprobar esta orden de compra?', {
+      title: 'Aprobar orden', confirmVariant: 'success'
+    })
+    if (!confirmed) return
+    setActionLoading('approve')
+    try {
+      await purchaseService.orders.approve(resolvedParams.id)
+      toast.success('Orden aprobada')
+      await mutateOrder()
+    } catch (err) {
+      const e = err as { response?: { data?: { errors?: Array<{ detail?: string }> } } }
+      toast.error(e.response?.data?.errors?.[0]?.detail || 'No se pudo aprobar la orden')
+    } finally {
+      setActionLoading(null)
+    }
+  }
+
+  const handleReceive = async () => {
+    const confirmed = await confirmModalRef.current?.confirm(
+      'Recibir TODOS los items pendientes de esta orden? Esto sube el stock al almacen y, al completar el total, genera la factura por pagar del proveedor.',
+      { title: 'Recibir mercancia', confirmVariant: 'primary' }
+    )
+    if (!confirmed) return
+    setActionLoading('receive')
+    try {
+      // Sin items explicitos el backend recibe todo lo pendiente de cada linea.
+      await purchaseService.orders.receive(resolvedParams.id, {
+        items: [],
+        receivedDate: new Date().toISOString().slice(0, 10),
+      })
+      toast.success('Mercancia recibida: el stock fue actualizado')
+      await Promise.all([mutateOrder(), mutateItems()])
+    } catch (err) {
+      const e = err as { response?: { data?: { errors?: Array<{ detail?: string }> } } }
+      toast.error(e.response?.data?.errors?.[0]?.detail || 'No se pudo recibir la orden')
+    } finally {
+      setActionLoading(null)
+    }
+  }
+
+  const handleCancel = async () => {
+    const wasReceived = purchaseOrder?.status === 'received'
+    const confirmed = await confirmModalRef.current?.confirm(
+      wasReceived
+        ? 'Cancelar esta orden RECIBIDA? Se revertira la entrada de stock y se anulara la factura del proveedor.'
+        : 'Cancelar esta orden de compra?',
+      { title: 'Cancelar orden', confirmVariant: 'danger' }
+    )
+    if (!confirmed) return
+    setActionLoading('cancel')
+    try {
+      await purchaseService.orders.cancel(resolvedParams.id)
+      toast.success('Orden cancelada')
+      await mutateOrder()
+    } catch (err) {
+      const e = err as { response?: { data?: { errors?: Array<{ detail?: string }> } } }
+      toast.error(e.response?.data?.errors?.[0]?.detail || 'No se pudo cancelar la orden')
+    } finally {
+      setActionLoading(null)
+    }
+  }
 
   const getStatusBadgeClass = (status: string) => {
     switch (status) {
@@ -309,33 +380,64 @@ export default function PurchaseOrderDetailPage({ params }: PageProps) {
               </h5>
             </div>
             <div className="card-body">
+              {/* Bloque FE del ciclo: botones CABLEADOS a los endpoints reales, con
+                  render condicional por status. Se RETIRARON "Imprimir Orden" y
+                  "Enviar a Proveedor": no existe backend para ellos (eran decorativos);
+                  se agregan cuando exista el endpoint de PDF/email de OC. */}
               <div className="d-grid gap-2">
-                <button className="btn btn-outline-primary">
-                  <i className="bi bi-printer me-2"></i>
-                  Imprimir Orden
-                </button>
-                <button className="btn btn-outline-info">
-                  <i className="bi bi-envelope me-2"></i>
-                  Enviar a Proveedor
-                </button>
-                <button className="btn btn-outline-success">
-                  <i className="bi bi-check-circle me-2"></i>
-                  Marcar como Recibida
-                </button>
-                <button className="btn btn-outline-warning">
-                  <i className="bi bi-clock me-2"></i>
-                  Aprobar Orden
-                </button>
-                <button className="btn btn-outline-danger">
-                  <i className="bi bi-x-circle me-2"></i>
-                  Cancelar Orden
-                </button>
+                {purchaseOrder.status === 'pending' && (
+                  <button
+                    className="btn btn-outline-warning"
+                    onClick={handleApprove}
+                    disabled={actionLoading !== null}
+                  >
+                    {actionLoading === 'approve' ? (
+                      <span className="spinner-border spinner-border-sm me-2" />
+                    ) : (
+                      <i className="bi bi-clock me-2"></i>
+                    )}
+                    Aprobar Orden
+                  </button>
+                )}
+                {(purchaseOrder.status === 'pending' || purchaseOrder.status === 'approved') && (
+                  <button
+                    className="btn btn-outline-success"
+                    onClick={handleReceive}
+                    disabled={actionLoading !== null}
+                  >
+                    {actionLoading === 'receive' ? (
+                      <span className="spinner-border spinner-border-sm me-2" />
+                    ) : (
+                      <i className="bi bi-check-circle me-2"></i>
+                    )}
+                    Marcar como Recibida
+                  </button>
+                )}
+                {purchaseOrder.status !== 'cancelled' && (
+                  <button
+                    className="btn btn-outline-danger"
+                    onClick={handleCancel}
+                    disabled={actionLoading !== null}
+                  >
+                    {actionLoading === 'cancel' ? (
+                      <span className="spinner-border spinner-border-sm me-2" />
+                    ) : (
+                      <i className="bi bi-x-circle me-2"></i>
+                    )}
+                    Cancelar Orden
+                  </button>
+                )}
+                {purchaseOrder.status === 'cancelled' && (
+                  <p className="text-muted mb-0">Orden cancelada: sin acciones disponibles.</p>
+                )}
               </div>
             </div>
           </div>
         </div>
       </div>
-      
+
+      <ConfirmModal ref={confirmModalRef} />
+
       {/* Add Item Modal */}
       <AddItemModal
         purchaseOrderId={resolvedParams.id}

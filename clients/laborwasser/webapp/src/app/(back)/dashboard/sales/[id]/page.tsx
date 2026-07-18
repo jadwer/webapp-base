@@ -9,6 +9,7 @@ import { remissionService, REMISSION_STATUS_LABELS } from '@/modules/sales'
 import type { Remission } from '@/modules/sales'
 import { toast } from '@/lib/toast'
 import axiosClient from '@/lib/axiosClient'
+import { cfdiInvoicesService } from '@/modules/billing/services'
 import { AddItemModal } from '@/modules/sales'
 import { StockAvailabilityPanel } from '@/modules/sales'
 import ConfirmModal, { ConfirmModalHandle } from '@/ui/components/base/ConfirmModal'
@@ -26,7 +27,7 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
   const [actionLoading, setActionLoading] = useState<string | null>(null)
   const confirmModalRef = useRef<ConfirmModalHandle>(null)
 
-  const { salesOrder, isLoading: orderLoading, error: orderError } = useSalesOrder(resolvedParams.id)
+  const { salesOrder, isLoading: orderLoading, error: orderError, mutate } = useSalesOrder(resolvedParams.id)
   const { salesOrderItems, isLoading: itemsLoading, error: itemsError, mutate: mutateItems } = useSalesOrderItems(resolvedParams.id)
 
   const loadRemissions = useCallback(async () => {
@@ -45,22 +46,37 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
     loadRemissions()
   }, [loadRemissions])
 
+  // Bloque FE del ciclo: mapas con los status REALES de la maquina de estados del
+  // backend (antes solo cubrian completed/approved/pending/cancelled; 'approved' ni
+  // existe en SalesOrder y delivered/shipped/etc. caian al default sin traducir).
   const getStatusBadgeClass = (status: string) => {
     switch (status) {
-      case 'completed': return 'bg-success'
-      case 'approved': return 'bg-primary'
+      case 'draft': return 'bg-secondary'
       case 'pending': return 'bg-warning'
+      case 'confirmed': return 'bg-primary'
+      case 'processing': return 'bg-primary'
+      case 'shipped': return 'bg-info'
+      case 'delivered': return 'bg-success'
+      case 'completed': return 'bg-success'
       case 'cancelled': return 'bg-danger'
+      case 'returned': return 'bg-danger'
+      case 'refunded': return 'bg-dark'
       default: return 'bg-secondary'
     }
   }
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case 'completed': return 'Completada'
-      case 'approved': return 'Aprobada'
+      case 'draft': return 'Borrador'
       case 'pending': return 'Pendiente'
+      case 'confirmed': return 'Confirmada'
+      case 'processing': return 'En proceso'
+      case 'shipped': return 'Enviada'
+      case 'delivered': return 'Entregada'
+      case 'completed': return 'Completada'
       case 'cancelled': return 'Cancelada'
+      case 'returned': return 'Devuelta'
+      case 'refunded': return 'Reembolsada'
       default: return status
     }
   }
@@ -178,6 +194,46 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
     }
   }
 
+  // Bloque FE del ciclo: factura real desde la orden (POST /sales-orders/{id}/facturar).
+  // Crea la ARInvoice (si no existe) y el CFDI en borrador; el timbrado es manual
+  // desde Facturas CFDI (decision D-a: sin timbrado automatico).
+  const handleGenerateInvoice = async () => {
+    const confirmed = await confirmModalRef.current?.confirm(
+      'Generar la factura de esta orden? Se crea la cuenta por cobrar y el CFDI en borrador (el timbrado se hace despues, desde Facturas CFDI).',
+      { title: 'Generar factura', confirmVariant: 'primary' }
+    )
+    if (!confirmed) return
+    setActionLoading('invoice')
+    try {
+      const res = await cfdiInvoicesService.createFromOrder(resolvedParams.id)
+      toast.success(`Factura generada: ${res?.data?.series ?? ''}-${res?.data?.folio ?? ''} (borrador)`)
+      await mutate()
+      navigation.push('/dashboard/billing/invoices')
+    } catch (err) {
+      const e = err as { response?: { data?: { error?: string; message?: string } } }
+      toast.error(e.response?.data?.error || e.response?.data?.message || 'No se pudo generar la factura')
+    } finally {
+      setActionLoading(null)
+    }
+  }
+
+  // Prefactura: vista previa PDF sin efectos fiscales (GET .../prefactura).
+  const handlePrefactura = async () => {
+    setActionLoading('prefactura')
+    try {
+      const response = await axiosClient.get(`/api/v1/sales-orders/${resolvedParams.id}/prefactura`, {
+        responseType: 'blob',
+      })
+      const blob = new Blob([response.data], { type: 'application/pdf' })
+      const url = window.URL.createObjectURL(blob)
+      window.open(url, '_blank')
+    } catch {
+      toast.error('Error al generar la prefactura')
+    } finally {
+      setActionLoading(null)
+    }
+  }
+
   if (orderLoading) {
     return (
       <div className="container-fluid py-4">
@@ -281,6 +337,21 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
                           <span className={`badge ${getStatusBadgeClass(salesOrder.status)}`}>
                             {getStatusText(salesOrder.status)}
                           </span>
+                          {/* Bloque FE del ciclo: segundo eje de estado (financiero).
+                              El QA visual detecto que una orden con factura anulada
+                              se pintaba solo como "Entregada" sin ninguna señal. */}
+                          {salesOrder.financialStatus === 'cancelled' && (
+                            <span className="badge bg-danger ms-2">
+                              <i className="bi bi-x-octagon me-1"></i>
+                              Cancelada financieramente
+                            </span>
+                          )}
+                          {salesOrder.financialStatus !== 'cancelled' && salesOrder.arInvoiceId && (
+                            <span className="badge bg-success ms-2">
+                              <i className="bi bi-receipt me-1"></i>
+                              Facturada
+                            </span>
+                          )}
                         </td>
                       </tr>
                       <tr>
@@ -567,20 +638,47 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
                   )}
                   Generar Remision
                 </button>
-                <button
-                  className="btn btn-outline-primary"
-                  onClick={() => navigation.push('/dashboard/billing/invoices/create')}
-                  disabled={!isActive}
-                >
-                  <i className="bi bi-receipt me-2"></i>
-                  Generar Factura
-                </button>
+                {/* Bloque FE del ciclo: antes ambos botones navegaban a un formulario
+                    generico SIN el id de la orden (cascarones, hallazgo C1 del QA).
+                    Ahora llaman a los endpoints reales: facturar exige orden entregada
+                    (regla del backend) y crea ARInvoice + CFDI draft. */}
+                {salesOrder.financialStatus !== 'cancelled' && !salesOrder.arInvoiceId && (
+                  <button
+                    className="btn btn-outline-primary"
+                    onClick={handleGenerateInvoice}
+                    disabled={actionLoading === 'invoice' || !['delivered', 'completed'].includes(salesOrder.status)}
+                    title={!['delivered', 'completed'].includes(salesOrder.status)
+                      ? 'La orden debe estar entregada para facturar'
+                      : 'Genera la factura AR y el CFDI en borrador'}
+                  >
+                    {actionLoading === 'invoice' ? (
+                      <span className="spinner-border spinner-border-sm me-2" />
+                    ) : (
+                      <i className="bi bi-receipt me-2"></i>
+                    )}
+                    Generar Factura
+                  </button>
+                )}
+                {salesOrder.arInvoiceId && salesOrder.financialStatus !== 'cancelled' && (
+                  <button
+                    className="btn btn-outline-secondary"
+                    onClick={() => navigation.push('/dashboard/billing/invoices')}
+                  >
+                    <i className="bi bi-receipt me-2"></i>
+                    Ver factura (ya facturada)
+                  </button>
+                )}
                 <button
                   className="btn btn-outline-info"
-                  onClick={() => navigation.push('/dashboard/billing/invoices/create')}
-                  disabled={!isActive}
+                  onClick={handlePrefactura}
+                  disabled={actionLoading === 'prefactura'}
+                  title="Vista previa en PDF sin efectos fiscales"
                 >
-                  <i className="bi bi-file-earmark-medical me-2"></i>
+                  {actionLoading === 'prefactura' ? (
+                    <span className="spinner-border spinner-border-sm me-2" />
+                  ) : (
+                    <i className="bi bi-file-earmark-medical me-2"></i>
+                  )}
                   Generar Prefactura
                 </button>
               </div>

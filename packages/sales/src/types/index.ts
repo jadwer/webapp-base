@@ -14,7 +14,10 @@ export type OrderStatus =
   | 'pending'
 
 export type InvoicingStatus = 'pending' | 'partial' | 'invoiced' | 'not_required'
-export type FinancialStatus = 'pending' | 'partial' | 'paid' | 'overdue'
+// Bloque FE del ciclo: alineado a los valores REALES que escribe el backend
+// (not_invoiced default, invoiced al facturar, cancelled al anular). Se conservan
+// los valores viejos por si algun dato historico los usa.
+export type FinancialStatus = 'not_invoiced' | 'invoiced' | 'cancelled' | 'pending' | 'partial' | 'paid' | 'overdue'
 
 // Fase A - Venta directa vs Pedido
 // Metodo de pago SAT: PUE (pago en una exhibicion) | PPD (pago en parcialidades o diferido)
