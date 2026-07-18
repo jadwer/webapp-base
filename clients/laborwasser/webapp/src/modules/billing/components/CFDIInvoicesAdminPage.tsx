@@ -52,11 +52,34 @@ export function CFDIInvoicesAdminPage() {
   }
 
   const handleCancel = async (id: string) => {
-    const motivo = prompt('Motivo de cancelación (01-04):')
+    // QA post-commit (A3): el backend valida motivo_cancelacion in:01,02,03,04 y para
+    // el motivo 01 exige uuid_sustitucion. Antes el prompt aceptaba texto libre y nunca
+    // pedia el UUID: la cancelacion daba 422 en el caso comun. Se valida aqui.
+    const motivo = prompt(
+      'Motivo de cancelación SAT:\n' +
+      '01 - Comprobante emitido con errores CON relación (requiere UUID sustituto)\n' +
+      '02 - Comprobante emitido con errores SIN relación\n' +
+      '03 - No se llevó a cabo la operación\n' +
+      '04 - Operación nominativa relacionada en factura global\n\n' +
+      'Escribe 01, 02, 03 o 04:'
+    )?.trim()
     if (!motivo) return
+    if (!['01', '02', '03', '04'].includes(motivo)) {
+      toast.error('Motivo inválido. Debe ser 01, 02, 03 o 04.')
+      return
+    }
+
+    let uuidReemplazo: string | undefined
+    if (motivo === '01') {
+      uuidReemplazo = prompt('UUID del comprobante que SUSTITUYE a este (obligatorio para motivo 01):')?.trim() || undefined
+      if (!uuidReemplazo) {
+        toast.error('El motivo 01 requiere el UUID del comprobante sustituto.')
+        return
+      }
+    }
 
     try {
-      await cancelInvoice(id, { motivo })
+      await cancelInvoice(id, { motivo, uuidReemplazo })
       mutate()
       toast.success('Factura cancelada correctamente')
     } catch {

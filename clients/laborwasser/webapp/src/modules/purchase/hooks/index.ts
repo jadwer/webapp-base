@@ -145,9 +145,12 @@ export const usePurchaseContacts = (params?: Record<string, string>) => {
 
 // Purchase Products Hook (for order items)
 export const usePurchaseProducts = (params?: Record<string, string>) => {
-  // Filter active products by default unless explicitly overridden
+  // Filter active products by default unless explicitly overridden.
+  // QA post-commit: el ProductSchema NO acepta filter[status] (respondia 400 con 6
+  // reintentos y el selector de productos nunca cargaba). El filtro real es is_active,
+  // igual que usa el modulo sales.
   const queryParams = {
-    'filter[status]': 'active',
+    'filter[is_active]': '1',
     ...params
   }
   const key = ['/api/v1/products', queryParams]
