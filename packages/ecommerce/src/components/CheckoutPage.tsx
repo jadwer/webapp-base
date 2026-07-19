@@ -181,6 +181,30 @@ export const CheckoutPage = React.memo<CheckoutPageProps>(({ cartId }) => {
     return null
   }
 
+  // DESIGN_ECOMMERCE_PAGO_STOCK (H-A): el backend responde 422 con
+  // insufficient_items + quote_cta cuando el disponible (fisico menos
+  // comprometido en ordenes pagadas) no alcanza. En vez de un toast generico,
+  // se ofrece el camino de cotizacion (/cart?action=quote reabre el modal).
+  interface StockShortageItem {
+    product_id: number
+    product_name?: string | null
+    requested: number
+    available: number
+  }
+  const [stockShortage, setStockShortage] = useState<StockShortageItem[] | null>(null)
+
+  const getStockShortage = (error: unknown): StockShortageItem[] | null => {
+    if (typeof error === 'object' && error !== null && 'response' in error) {
+      const data = (error as {
+        response?: { data?: { insufficient_items?: StockShortageItem[]; quote_cta?: boolean } }
+      }).response?.data
+      if (data?.quote_cta && Array.isArray(data.insufficient_items) && data.insufficient_items.length > 0) {
+        return data.insufficient_items
+      }
+    }
+    return null
+  }
+
   // Initialize payment intent when moving to payment step.
   // The order already exists at this point; link the PaymentIntent to it via metadata.
   const initializePayment = useCallback(async () => {
@@ -246,12 +270,19 @@ export const CheckoutPage = React.memo<CheckoutPageProps>(({ cartId }) => {
         }),
       }
 
+      setStockShortage(null)
       const order = await checkoutCart(orderData)
       const orderResponse = order.data as { id: string }
       setOrderId(orderResponse.id)
       setCurrentStep('payment')
     } catch (error) {
       console.error('Error creating order:', error)
+      const shortage = getStockShortage(error)
+      if (shortage) {
+        setStockShortage(shortage)
+        toast.error('No hay existencia suficiente para completar la compra.')
+        return
+      }
       toast.error(getApiErrorMessage(error) || 'No se pudo crear la orden. Verifica tus datos e intenta de nuevo.')
     }
   }, [
@@ -445,6 +476,34 @@ export const CheckoutPage = React.memo<CheckoutPageProps>(({ cartId }) => {
         <div className="col-lg-7">
           {currentStep === 'info' && (
             <>
+              {stockShortage && (
+                <div className="alert alert-warning border-0 shadow-sm mb-4" role="alert">
+                  <h6 className="alert-heading">
+                    <i className="bi bi-box-seam me-2" />
+                    Se ha terminado este producto
+                  </h6>
+                  <ul className="mb-2">
+                    {stockShortage.map((item) => (
+                      <li key={item.product_id}>
+                        {item.product_name || `Producto ${item.product_id}`}: solicitaste{' '}
+                        {item.requested}, disponibles {item.available}
+                      </li>
+                    ))}
+                  </ul>
+                  <p className="mb-2">
+                    ¿Quieres realizar una cotizacion ahora para saber el tiempo de entrega?
+                  </p>
+                  <Button
+                    variant="primary"
+                    size="small"
+                    onClick={() => navigation.push('/cart?action=quote')}
+                  >
+                    <i className="bi bi-file-earmark-text me-2" />
+                    Solicitar cotizacion
+                  </Button>
+                </div>
+              )}
+
               {/* Customer Information */}
               <div className="card border-0 shadow-sm mb-4">
                 <div className="card-body">

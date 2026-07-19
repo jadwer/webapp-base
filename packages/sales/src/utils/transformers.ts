@@ -35,6 +35,8 @@ export function transformJsonApiSalesOrder(resource: JsonApiResource): SalesOrde
     // Bloque FE del ciclo: el detalle pinta el estado financiero (cancelled tras
     // anular la factura); el Schema del backend ya lo expone readOnly.
     financialStatus: (attributes.financial_status || attributes.financialStatus || undefined) as SalesOrder['financialStatus'],
+    paymentStatus: (attributes.payment_status || attributes.paymentStatus || undefined) as SalesOrder['paymentStatus'],
+    paidAt: (attributes.paid_at || attributes.paidAt || null) as SalesOrder['paidAt'],
     invoicingNotes: (attributes.invoicing_notes ?? attributes.invoicingNotes ?? null) as string | null,
     // Amounts
     discountTotal: (attributes.discount_total || attributes.discountTotal || 0) as number,

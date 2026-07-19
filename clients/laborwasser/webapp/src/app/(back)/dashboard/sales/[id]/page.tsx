@@ -352,6 +352,20 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
                               Facturada
                             </span>
                           )}
+                          {/* DESIGN_ECOMMERCE_PAGO_STOCK: tercer eje, el pago.
+                              Lo escribe el webhook de Stripe via listeners. */}
+                          {salesOrder.paymentStatus === 'paid' && (
+                            <span className="badge bg-info text-dark ms-2" title={salesOrder.paidAt ? `Pagada el ${new Date(salesOrder.paidAt).toLocaleString('es-MX')}` : undefined}>
+                              <i className="bi bi-credit-card me-1"></i>
+                              Pagada
+                            </span>
+                          )}
+                          {salesOrder.paymentStatus === 'refunded' && (
+                            <span className="badge bg-warning text-dark ms-2">
+                              <i className="bi bi-arrow-counterclockwise me-1"></i>
+                              Reembolsada
+                            </span>
+                          )}
                         </td>
                       </tr>
                       <tr>

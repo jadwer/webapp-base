@@ -19,6 +19,10 @@ export type InvoicingStatus = 'pending' | 'partial' | 'invoiced' | 'not_required
 // los valores viejos por si algun dato historico los usa.
 export type FinancialStatus = 'not_invoiced' | 'invoiced' | 'cancelled' | 'pending' | 'partial' | 'paid' | 'overdue'
 
+// DESIGN_ECOMMERCE_PAGO_STOCK: dimension propia del pago (webhook Stripe la
+// escribe via listeners; readOnly por API), separada de la facturacion.
+export type PaymentStatus = 'unpaid' | 'paid' | 'refunded'
+
 // Fase A - Venta directa vs Pedido
 // Metodo de pago SAT: PUE (pago en una exhibicion) | PPD (pago en parcialidades o diferido)
 export type PaymentMethod = 'PPD' | 'PUE'
@@ -50,6 +54,8 @@ export interface SalesOrder {
   arInvoiceId: number | null
   invoicingStatus: InvoicingStatus
   financialStatus?: FinancialStatus
+  paymentStatus?: PaymentStatus
+  paidAt?: string | null
   invoicingNotes: string | null
   // Amounts
   discountTotal: number
