@@ -3,6 +3,7 @@
 import React from 'react'
 import Link from 'next/link'
 import { Button } from '@lwm/ui'
+import { usePublicSettings } from '@lwm/app-config'
 import { useLatestProducts } from '../../hooks'
 // Define transformed product type that matches the hook return
 interface TransformedProduct {
@@ -41,7 +42,10 @@ interface TransformedProduct {
 import styles from './UltimosProductos.module.scss'
 
 export const UltimosProductos: React.FC = () => {
-  const { products, total, isLoading, error } = useLatestProducts({ limit: 6 })
+  // Fase 3 (landing.*): cantidad configurable en app-config; fallback al 6 historico.
+  const { get } = usePublicSettings()
+  const latestCount = Number(get('landing.latest_products_count')) || 6
+  const { products, total, isLoading, error } = useLatestProducts({ limit: latestCount })
 
   if (error) {
     return (

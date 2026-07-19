@@ -5,12 +5,18 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useSaleProducts, useLocalCart, type EnhancedPublicProduct } from '@lwm/ecommerce'
 import { useToast } from '@lwm/ui'
+import { usePublicSettings } from '@lwm/app-config'
 import { curatedOffers as fallbackOfertas } from '../../data/curatedOffers'
 
 export const OfertasDelMes: React.FC = () => {
+  // Fase 3 (landing.*): cuantas ofertas muestra el home se configura en
+  // app-config (landing.offers_count); fallback al 3 historico.
+  const { get } = usePublicSettings()
+  const offersCount = Number(get('landing.offers_count')) || 3
+
   // Ofertas reales (is_on_sale), NO los primeros del catalogo. Si no hay ofertas
   // cargadas, el render cae al fallback estatico (mejor que mostrar productos a $0.00).
-  const { products, isLoading, error } = useSaleProducts(3, 'unit,category,brand')
+  const { products, isLoading, error } = useSaleProducts(offersCount, 'unit,category,brand')
   const { addToCart } = useLocalCart()
   const toast = useToast()
 

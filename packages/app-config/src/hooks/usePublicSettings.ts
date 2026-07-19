@@ -8,6 +8,8 @@ export interface PublicSettings {
   branding: Record<string, AppSettingValue>
   social: Record<string, AppSettingValue>
   pricing: Record<string, AppSettingValue>
+  // Fase 3: textos/cantidades del home (landing.*)
+  landing?: Record<string, AppSettingValue>
 }
 
 // Module-level cache - shared across all hook instances, survives re-renders
