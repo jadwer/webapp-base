@@ -27,9 +27,10 @@ export const metadata: Metadata = {
     locale: 'es_MX',
     type: 'website',
   },
-  icons: {
-    icon: '/images/laborwasser/labor-wasser-mexico-logo2.webp',
-  },
+  // Favicon: Next 15 sirve automaticamente src/app/icon.png (cuadrado 256,
+  // recortado y centrado del logo). El favicon anterior era el logo
+  // RECTANGULAR 2250x1319 en WebP: el navegador lo aplastaba y varios ni
+  // aceptan WebP como icono, por eso se veia mal.
 }
 
 export default function RootLayout({
