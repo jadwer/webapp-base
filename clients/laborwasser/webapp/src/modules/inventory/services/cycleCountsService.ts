@@ -245,32 +245,35 @@ function buildQueryParams(
       params['filter[status]'] = filters.status.join(',')
     }
 
+    // Paquete A (auditoria 10 pasos): en laravel-json-api la clave del filtro
+    // es el PRIMER argumento de make(), y CycleCountSchema las declara en
+    // camelCase. Las claves snake_case anteriores no existian y daban 400.
     if (filters.abcClass && filters.abcClass.length > 0) {
-      params['filter[abc_class]'] = filters.abcClass.join(',')
+      params['filter[abcClass]'] = filters.abcClass.join(',')
     }
 
     if (filters.warehouseId) {
-      params['filter[warehouse_id]'] = filters.warehouseId
+      params['filter[warehouseId]'] = filters.warehouseId
     }
 
     if (filters.productId) {
-      params['filter[product_id]'] = filters.productId
+      params['filter[productId]'] = filters.productId
     }
 
     if (filters.assignedTo) {
-      params['filter[assigned_to]'] = filters.assignedTo
+      params['filter[assignedTo]'] = filters.assignedTo
     }
 
     if (filters.scheduledAfter) {
-      params['filter[scheduled_after]'] = filters.scheduledAfter
+      params['filter[scheduledAfter]'] = filters.scheduledAfter
     }
 
     if (filters.scheduledBefore) {
-      params['filter[scheduled_before]'] = filters.scheduledBefore
+      params['filter[scheduledBefore]'] = filters.scheduledBefore
     }
 
     if (filters.hasVariance !== undefined) {
-      params['filter[has_variance]'] = filters.hasVariance.toString()
+      params['filter[hasVariance]'] = filters.hasVariance.toString()
     }
 
     if (filters.overdue) {

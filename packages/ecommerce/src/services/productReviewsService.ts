@@ -54,7 +54,9 @@ export const productReviewsService = {
     };
 
     if (approvedOnly) {
-      params['filter[is_approved]'] = true;
+      // Paquete A: el Schema no tiene filtro is_approved (el modelo usa
+      // status='approved'); el filtro anterior daba 400 en toda carga de resenas.
+      params['filter[status]'] = 'approved';
     }
 
     const response = await axiosClient.get('/api/v1/product-reviews', { params });

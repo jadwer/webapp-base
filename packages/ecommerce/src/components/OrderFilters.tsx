@@ -16,8 +16,12 @@ interface OrderFiltersProps {
   onStatusChange: (value: string) => void
   paymentStatusFilter: string
   onPaymentStatusChange: (value: string) => void
-  shippingStatusFilter: string
-  onShippingStatusChange: (value: string) => void
+  // Paquete A: el filtro de envio se retiro; no existe columna shipping_status
+  // en sales_orders (el eje de envio vive en el status de la orden:
+  // shipped/delivered, ya cubierto por el select de estado). Props opcionales
+  // conservadas para compatibilidad, ignoradas.
+  shippingStatusFilter?: string
+  onShippingStatusChange?: (value: string) => void
 }
 
 export const OrderFilters = React.memo<OrderFiltersProps>(({
@@ -27,8 +31,6 @@ export const OrderFilters = React.memo<OrderFiltersProps>(({
   onStatusChange,
   paymentStatusFilter,
   onPaymentStatusChange,
-  shippingStatusFilter,
-  onShippingStatusChange,
 }) => {
   return (
     <div className="card border-0 shadow-sm mb-4">
@@ -65,7 +67,10 @@ export const OrderFilters = React.memo<OrderFiltersProps>(({
             </select>
           </div>
 
-          {/* Payment Status Filter */}
+          {/* Payment Status Filter. Paquete A: opciones alineadas a los valores
+              REALES de sales_orders.payment_status (los escriben los listeners
+              del webhook Stripe); los valores anteriores (completed/failed/...)
+              no existian en la columna y el filtro nunca matcheaba. */}
           <div className="col-md-3">
             <label className="form-label small text-muted">Estado de Pago</label>
             <select
@@ -74,35 +79,15 @@ export const OrderFilters = React.memo<OrderFiltersProps>(({
               onChange={(e) => onPaymentStatusChange(e.target.value)}
             >
               <option value="">Todos los pagos</option>
-              <option value="pending">Pendiente</option>
-              <option value="processing">Procesando</option>
-              <option value="completed">Completado</option>
-              <option value="failed">Fallido</option>
-              <option value="refunded">Reembolsado</option>
-            </select>
-          </div>
-
-          {/* Shipping Status Filter */}
-          <div className="col-md-2">
-            <label className="form-label small text-muted">Estado de Envío</label>
-            <select
-              className="form-select"
-              value={shippingStatusFilter}
-              onChange={(e) => onShippingStatusChange(e.target.value)}
-            >
-              <option value="">Todos los envíos</option>
-              <option value="pending">Pendiente</option>
-              <option value="processing">Procesando</option>
-              <option value="shipped">Enviado</option>
-              <option value="in_transit">En Tránsito</option>
-              <option value="delivered">Entregado</option>
-              <option value="returned">Devuelto</option>
+              <option value="unpaid">Sin pagar</option>
+              <option value="paid">Pagada</option>
+              <option value="refunded">Reembolsada</option>
             </select>
           </div>
         </div>
 
         {/* Active Filters Summary */}
-        {(searchTerm || statusFilter || paymentStatusFilter || shippingStatusFilter) && (
+        {(searchTerm || statusFilter || paymentStatusFilter) && (
           <div className="mt-3 pt-3 border-top">
             <div className="d-flex align-items-center gap-2 flex-wrap">
               <small className="text-muted">Filtros activos:</small>
@@ -119,11 +104,6 @@ export const OrderFilters = React.memo<OrderFiltersProps>(({
               {paymentStatusFilter && (
                 <span className="badge bg-success">
                   Pago: {paymentStatusFilter}
-                </span>
-              )}
-              {shippingStatusFilter && (
-                <span className="badge bg-warning text-dark">
-                  Envío: {shippingStatusFilter}
                 </span>
               )}
             </div>

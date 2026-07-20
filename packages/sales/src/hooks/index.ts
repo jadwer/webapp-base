@@ -18,13 +18,15 @@ export const useSalesOrders = (params?: SalesOrderFilters) => {
     queryParams['filter[status]'] = params.status
   }
   if (params?.contactId) {
-    queryParams['filter[contact_id]'] = params.contactId
+    // Paquete A: la clave del filtro backend es 'contact' (Where::make('contact',
+    // 'contact_id')); mandar contact_id daba 400 por filtro no declarado.
+    queryParams['filter[contact]'] = params.contactId
   }
   if (params?.dateFrom) {
-    queryParams['filter[date_from]'] = params.dateFrom
-  }
-  if (params?.dateTo) {
-    queryParams['filter[date_to]'] = params.dateTo
+    // Paquete A: el backend filtra order_date por igualdad exacta; no existen
+    // rangos date_from/date_to (mandarlos daba 400). Se filtra por fecha exacta
+    // usando dateFrom; el rango real queda para cuando el Schema lo soporte.
+    queryParams['filter[order_date]'] = params.dateFrom
   }
   // Nota cliente #11: pedidos por surtir (pendientes de entregar)
   if (params?.pendingFulfillment) {

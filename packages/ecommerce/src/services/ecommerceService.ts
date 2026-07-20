@@ -46,19 +46,17 @@ const ordersService = {
       params['filter[status]'] = filters.status;
     }
     if (filters?.paymentStatus) {
+      // Paquete A: filter[payment_status] ya existe en el SalesOrderSchema
+      // (columna real escrita por los listeners del webhook Stripe).
       params['filter[payment_status]'] = filters.paymentStatus;
     }
-    if (filters?.shippingStatus) {
-      params['filter[shipping_status]'] = filters.shippingStatus;
-    }
+    // Paquete A: se retiran shipping_status (no existe la columna; el eje de
+    // envio vive en el status de la orden), y start_date/end_date (el backend
+    // no declara rangos de fecha). Mandarlos daba 400 en el listado.
     if (filters?.customerId) {
-      params['filter[customer_id]'] = filters.customerId;
-    }
-    if (filters?.startDate) {
-      params['filter[start_date]'] = filters.startDate;
-    }
-    if (filters?.endDate) {
-      params['filter[end_date]'] = filters.endDate;
+      // La clave declarada por el backend es 'contact' (Where::make('contact',
+      // 'contact_id')); customer_id no existia y daba 400.
+      params['filter[contact]'] = filters.customerId;
     }
 
     const response = await axiosClient.get<EcommerceOrdersResponse>(

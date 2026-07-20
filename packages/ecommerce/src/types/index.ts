@@ -19,12 +19,17 @@ export type OrderStatus =
   | 'refunded';
 
 export type PaymentStatus =
+  // Paquete A: valores REALES de sales_orders.payment_status (los escriben los
+  // listeners del webhook Stripe). Los demas son legacy de cuando el campo no
+  // existia; se conservan para datos historicos en badges, no usarlos en filtros.
+  | 'unpaid'
+  | 'paid'
   | 'pending'
   | 'processing'
   | 'completed'
   | 'failed'
   | 'refunded'
-  | 'cancelled'; // Added from backend
+  | 'cancelled';
 
 export type ShippingStatus =
   | 'pending'

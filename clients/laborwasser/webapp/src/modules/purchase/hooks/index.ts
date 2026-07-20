@@ -16,14 +16,13 @@ export const usePurchaseOrders = (params?: PurchaseOrderFilters) => {
     queryParams['filter[status]'] = params.status
   }
   if (params?.contactId) {
-    queryParams['filter[contact_id]'] = String(params.contactId)
+    // Paquete A: la clave del filtro backend es 'contact' (no contact_id);
+    // mandar contact_id daba 400 por filtro no declarado.
+    queryParams['filter[contact]'] = String(params.contactId)
   }
-  if (params?.dateFrom) {
-    queryParams['filter[date_from]'] = params.dateFrom
-  }
-  if (params?.dateTo) {
-    queryParams['filter[date_to]'] = params.dateTo
-  }
+  // Paquete A: se retiran date_from/date_to; el PurchaseOrderSchema no declara
+  // filtros de fecha y mandarlos daba 400. Reintroducir cuando el backend los
+  // soporte como rango.
   // Nota cliente #11: compras por surtir (pendientes de recibir)
   if (params?.pendingReceipt) {
     queryParams['filter[pending_receipt]'] = '1'

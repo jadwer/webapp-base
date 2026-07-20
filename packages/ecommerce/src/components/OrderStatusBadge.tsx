@@ -26,6 +26,8 @@ const orderStatusColors: Record<OrderStatus, string> = {
 }
 
 const paymentStatusColors: Record<PaymentStatus, string> = {
+  unpaid: 'bg-warning text-dark',
+  paid: 'bg-success text-white',
   pending: 'bg-warning text-dark',
   processing: 'bg-info text-white',
   completed: 'bg-success text-white',
@@ -55,6 +57,8 @@ const orderStatusIcons: Record<OrderStatus, string> = {
 }
 
 const paymentStatusIcons: Record<PaymentStatus, string> = {
+  unpaid: 'bi-clock',
+  paid: 'bi-check-circle-fill',
   pending: 'bi-clock',
   processing: 'bi-credit-card',
   completed: 'bi-check-circle-fill',
@@ -86,6 +90,8 @@ const statusLabels: Record<string, string> = {
   in_transit: 'En Tránsito',
   returned: 'Devuelto',
   // Payment statuses
+  unpaid: 'Sin pagar',
+  paid: 'Pagada',
   completed: 'Completado',
   failed: 'Fallido',
 }
