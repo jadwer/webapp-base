@@ -28,6 +28,10 @@ export const usePurchaseOrders = (params?: PurchaseOrderFilters) => {
     queryParams['filter[pending_receipt]'] = '1'
   }
 
+  // Default: lo mas reciente primero (pedido de Gabino 2026-07-19). Sin sort
+  // el backend devuelve id ascendente y el listado abria en lo mas viejo.
+  queryParams['sort'] = '-createdAt'
+
   const key = Object.keys(queryParams).length > 0
     ? ['/api/v1/purchase-orders', queryParams] 
     : '/api/v1/purchase-orders'

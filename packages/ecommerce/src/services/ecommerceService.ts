@@ -59,6 +59,10 @@ const ordersService = {
       params['filter[contact]'] = filters.customerId;
     }
 
+    // Default: lo mas reciente primero (pedido de Gabino 2026-07-19). Sin sort
+    // el backend devuelve id ascendente y el listado abria en lo mas viejo.
+    params['sort'] = '-createdAt';
+
     const response = await axiosClient.get<EcommerceOrdersResponse>(
       '/api/v1/sales-orders',
       { params }

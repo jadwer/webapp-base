@@ -33,6 +33,10 @@ export const useSalesOrders = (params?: SalesOrderFilters) => {
     queryParams['filter[pending_fulfillment]'] = '1'
   }
 
+  // Default: lo mas reciente primero (pedido de Gabino 2026-07-19). Sin sort
+  // el backend devuelve id ascendente y el listado abria en lo mas viejo.
+  queryParams['sort'] = '-createdAt'
+
   const key = Object.keys(queryParams).length > 0
     ? ['/api/v1/sales-orders', queryParams]
     : '/api/v1/sales-orders'

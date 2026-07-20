@@ -195,6 +195,10 @@ function buildQueryParams(
     // JSON:API sort uses camelCase field names (matching schema attribute names)
     const sortField = sort.field
     params.sort = sort.direction === 'desc' ? `-${sortField}` : sortField
+  } else {
+    // Default: lo mas reciente primero (pedido de Gabino 2026-07-19). Sin sort
+    // el backend devuelve id ascendente y el listado abria en lo mas viejo.
+    params.sort = '-createdAt'
   }
 
   // Filters

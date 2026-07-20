@@ -29,36 +29,39 @@ export const inventoryMovementsService = {
     
     const queryParams: Record<string, string | number> = {}
     
-    // Filtros con nombres exactos de columnas de base de datos
+    // Paquete A (auditoria 10 pasos): la clave del filtro es el PRIMER
+    // argumento de make() en el Schema, y InventoryMovementSchema las declara
+    // en camelCase (movementType, product, warehouse, user...). Las claves
+    // snake_case anteriores no existian y daban 400 al filtrar.
     if (filters.search) {
       queryParams['filter[search]'] = filters.search
     }
     if (filters.movementType) {
-      queryParams['filter[movement_type]'] = filters.movementType
+      queryParams['filter[movementType]'] = filters.movementType
     }
     if (filters.referenceType) {
-      queryParams['filter[reference_type]'] = filters.referenceType
+      queryParams['filter[referenceType]'] = filters.referenceType
     }
     if (filters.referenceId) {
-      queryParams['filter[reference_id]'] = filters.referenceId
+      queryParams['filter[referenceId]'] = filters.referenceId
     }
     if (filters.status) {
       queryParams['filter[status]'] = filters.status
     }
     if (filters.productId) {
-      queryParams['filter[product_id]'] = filters.productId
+      queryParams['filter[product]'] = filters.productId
     }
     if (filters.warehouseId) {
-      queryParams['filter[warehouse_id]'] = filters.warehouseId
+      queryParams['filter[warehouse]'] = filters.warehouseId
     }
     if (filters.destinationWarehouseId) {
-      queryParams['filter[destination_warehouse_id]'] = filters.destinationWarehouseId
+      queryParams['filter[destinationWarehouse]'] = filters.destinationWarehouseId
     }
     if (filters.userId) {
-      queryParams['filter[user_id]'] = filters.userId
+      queryParams['filter[user]'] = filters.userId
     }
     if (filters.movementDate) {
-      queryParams['filter[movement_date]'] = filters.movementDate
+      queryParams['filter[movementDate]'] = filters.movementDate
     }
     if (filters.dateFrom) {
       queryParams['filter[dateFrom]'] = filters.dateFrom
