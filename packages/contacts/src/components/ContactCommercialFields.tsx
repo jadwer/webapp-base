@@ -12,6 +12,7 @@ import React from 'react'
 import { Input } from '@lwm/ui'
 import { useUsers } from '@lwm/permissions'
 import type { ContactFormData } from '../types'
+import { REGIMENES_FISCALES, USOS_CFDI, type SatCatalogEntry } from '../utils/satCatalogs'
 
 // Roles considerados "vendibles" para el select de vendedor/cobrador.
 // Si un usuario no tiene rol o su rol no esta aqui, igual se muestra en la
@@ -54,6 +55,26 @@ export const ContactCommercialFields: React.FC<ContactCommercialFieldsProps> = (
   // Helpers para inputs numericos nullable: '' -> null explicito (limpiar).
   const numberOrNull = (raw: string): number | null =>
     raw.trim() === '' ? null : Number(raw)
+
+  // Opciones de un catalogo SAT. Si el contacto trae guardado un valor que
+  // ya no esta en el catalogo (texto libre de antes del fix), se agrega como
+  // opcion extra para no perderlo silenciosamente al editar.
+  const satOptions = (catalog: SatCatalogEntry[], current?: string | null) => {
+    const known = catalog.some((entry) => entry.code === current)
+    return (
+      <>
+        <option value="">Sin especificar</option>
+        {current && !known && (
+          <option value={current}>{current} (valor guardado, revisar)</option>
+        )}
+        {catalog.map((entry) => (
+          <option key={entry.code} value={entry.code}>
+            {entry.code} - {entry.label}
+          </option>
+        ))}
+      </>
+    )
+  }
 
   return (
     <>
@@ -139,37 +160,39 @@ export const ContactCommercialFields: React.FC<ContactCommercialFieldsProps> = (
         />
       </div>
 
-      {/* Regimen fiscal SAT */}
-      {/* TODO: conectar catalogo SAT c_RegimenFiscal cuando exista endpoint
-          publico (hoy solo hay clave-prod-serv / clave-unidad). Por ahora texto. */}
+      {/* Regimen fiscal SAT. Select con el catalogo espejo del backend: como
+          texto libre, el usuario (y el autofill del navegador) escribia
+          "601 - General de Ley..." y el backend (Rule::in de codigos) lo
+          rechazaba con 422 (bug 2026-07-30). Se envia SOLO el codigo. */}
       <div className="col-md-6">
         <label htmlFor="regimenFiscal" className="form-label">
           Regimen fiscal (SAT)
         </label>
-        <Input
+        <select
           id="regimenFiscal"
-          type="text"
+          className="form-select"
           value={formData.regimenFiscal ?? ''}
-          onChange={(e) => updateField('regimenFiscal', e.target.value)}
+          onChange={(e) => updateField('regimenFiscal', e.target.value || null)}
           disabled={isLoading}
-          placeholder="Ej. 601 - General de Ley Personas Morales"
-        />
+        >
+          {satOptions(REGIMENES_FISCALES, formData.regimenFiscal)}
+        </select>
       </div>
 
-      {/* Uso CFDI SAT */}
-      {/* TODO: conectar catalogo SAT c_UsoCFDI cuando exista endpoint publico. */}
+      {/* Uso CFDI SAT (mismo tratamiento que regimen fiscal). */}
       <div className="col-md-6">
         <label htmlFor="usoCfdi" className="form-label">
           Uso CFDI (SAT)
         </label>
-        <Input
+        <select
           id="usoCfdi"
-          type="text"
+          className="form-select"
           value={formData.usoCfdi ?? ''}
-          onChange={(e) => updateField('usoCfdi', e.target.value)}
+          onChange={(e) => updateField('usoCfdi', e.target.value || null)}
           disabled={isLoading}
-          placeholder="Ej. G03 - Gastos en general"
-        />
+        >
+          {satOptions(USOS_CFDI, formData.usoCfdi)}
+        </select>
       </div>
 
       {/* Credito (meses) */}

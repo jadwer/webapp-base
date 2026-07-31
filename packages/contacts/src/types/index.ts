@@ -158,8 +158,8 @@ export interface CreateContactData {
   defaultSalespersonId?: number | null
   collectionsAgentId?: number | null
   commissionPctOverride?: number | null
-  regimenFiscal?: string
-  usoCfdi?: string
+  regimenFiscal?: string | null
+  usoCfdi?: string | null
   creditMonths?: number | null
   bankAccountNumber?: string
   referralSource?: string
