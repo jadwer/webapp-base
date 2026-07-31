@@ -176,21 +176,19 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
     }
   }
 
-  // Basic contact data validation and submission
-  const handleBasicDataSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    
-    // Basic validation
+  // Validacion de datos basicos, compartida entre "Validar datos basicos"
+  // y el submit final (el usuario puede editar DESPUES de validar).
+  const validateBasicData = (): Record<string, string> => {
     const newErrors: Record<string, string> = {}
-    
+
     if (!formData.name.trim()) {
       newErrors.name = 'El nombre es obligatorio'
     }
-    
+
     if (formData.email && !/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = 'El email no es válido'
     }
-    
+
     // RFC/Tax ID validation
     if (formData.taxId && formData.taxId.trim()) {
       const taxId = formData.taxId.trim().toUpperCase()
@@ -200,12 +198,26 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
         newErrors.taxId = 'Formato de RFC inválido (ej. ABC123456XYZ o ABCD123456XYZ)'
       }
     }
-    
+
+    // Telefono: el backend rechaza mas de 20 caracteres (bug 2026-07-29:
+    // ese 422 llegaba mudo al usuario). Avisar aqui antes de enviar.
+    if (formData.phone && formData.phone.trim().length > 20) {
+      newErrors.phone = 'El teléfono no puede tener más de 20 caracteres'
+    }
+
+    return newErrors
+  }
+
+  // Basic contact data validation and submission
+  const handleBasicDataSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+
+    const newErrors = validateBasicData()
     if (Object.keys(newErrors).length > 0) {
       setFormErrors(newErrors)
       return
     }
-    
+
     setFormErrors({})
   }
 
@@ -215,7 +227,16 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
       setActiveTab('basic')
       return
     }
-    
+
+    // Revalidar: el formulario pudo cambiar despues de "Validar datos basicos".
+    const validationErrors = validateBasicData()
+    if (Object.keys(validationErrors).length > 0) {
+      setFormErrors(validationErrors)
+      setActiveTab('basic')
+      toast.warning('Hay datos inválidos en el formulario. Revisa los campos marcados.')
+      return
+    }
+
     // Clean up form data - convert empty strings to null for optional fields
     const cleanedData = {
       ...formData,
@@ -223,7 +244,14 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
       taxId: formData.taxId?.trim() ? formData.taxId.trim().toUpperCase() : undefined,
       email: formData.email?.trim() || undefined,
       phone: formData.phone?.trim() || undefined,
-      website: formData.website?.trim() || undefined,
+      // El backend valida website con regla 'url' (exige esquema). Los
+      // usuarios escriben "www.empresa.com": anteponer https:// en vez de
+      // dejar que truene con un 422 (causa probable del bug 2026-07-29).
+      website: (() => {
+        const raw = formData.website?.trim()
+        if (!raw) return undefined
+        return /^https?:\/\//i.test(raw) ? raw : `https://${raw}`
+      })(),
       classification: formData.classification?.trim() || undefined,
       notes: formData.notes?.trim() || undefined,
       creditLimit: formData.creditLimit || undefined,

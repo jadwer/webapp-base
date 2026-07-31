@@ -52,6 +52,9 @@ export {
   ContactPeople
 } from './components'
 
+// Utils
+export { getValidationErrorMessages } from './utils/jsonApiErrors'
+
 // Components to be added in future phases
 // export { ContactView } from './components/ContactView'
 // export { ContactFormWrapper } from './components/ContactFormWrapper'
