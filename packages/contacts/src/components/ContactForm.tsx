@@ -10,6 +10,7 @@ import React, { useState } from 'react'
 import { Input } from '@lwm/ui'
 import { Button } from '@lwm/ui'
 import { ContactCommercialFields } from './ContactCommercialFields'
+import { useContactCatalogs } from '../hooks/useContactCatalogs'
 import type { ContactFormData, ContactParsed } from '../types'
 
 interface ContactFormProps {
@@ -57,6 +58,8 @@ export const ContactForm: React.FC<ContactFormProps> = ({
   })
 
   const [errors, setErrors] = useState<Record<string, string>>({})
+  // Clasificacion desde el catalogo del backend (fuente unica, regla 7).
+  const { classifications } = useContactCatalogs()
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -341,9 +344,9 @@ export const ContactForm: React.FC<ContactFormProps> = ({
             disabled={isLoading}
           >
             <option value="">Sin clasificación</option>
-            <option value="basic">Básico</option>
-            <option value="standard">Estándar</option>
-            <option value="premium">Premium</option>
+            {classifications.map((entry) => (
+              <option key={entry.code} value={entry.code}>{entry.label}</option>
+            ))}
           </select>
         </div>
 

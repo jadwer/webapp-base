@@ -54,6 +54,7 @@ export {
 
 // Utils
 export { getValidationErrorMessages } from './utils/jsonApiErrors'
+export { useContactCatalogs } from './hooks/useContactCatalogs'
 
 // Components to be added in future phases
 // export { ContactView } from './components/ContactView'

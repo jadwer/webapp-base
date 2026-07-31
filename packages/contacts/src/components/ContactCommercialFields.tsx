@@ -12,7 +12,8 @@ import React from 'react'
 import { Input } from '@lwm/ui'
 import { useUsers } from '@lwm/permissions'
 import type { ContactFormData } from '../types'
-import { REGIMENES_FISCALES, USOS_CFDI, type SatCatalogEntry } from '../utils/satCatalogs'
+import type { SatCatalogEntry } from '../utils/satCatalogs'
+import { useContactCatalogs } from '../hooks/useContactCatalogs'
 
 // Roles considerados "vendibles" para el select de vendedor/cobrador.
 // Si un usuario no tiene rol o su rol no esta aqui, igual se muestra en la
@@ -31,6 +32,9 @@ export const ContactCommercialFields: React.FC<ContactCommercialFieldsProps> = (
   isLoading = false,
 }) => {
   const { users, loading: usersLoading } = useUsers()
+  // Catalogos desde el backend (misma fuente que valida ContactRequest);
+  // el estatico local solo entra como fallback si el endpoint falla.
+  const { regimenesFiscales, usosCfdi } = useContactCatalogs()
 
   // Priorizar usuarios con rol vendible; si ninguno matchea, usar todos.
   const sellableUsers = React.useMemo(() => {
@@ -175,7 +179,7 @@ export const ContactCommercialFields: React.FC<ContactCommercialFieldsProps> = (
           onChange={(e) => updateField('regimenFiscal', e.target.value || null)}
           disabled={isLoading}
         >
-          {satOptions(REGIMENES_FISCALES, formData.regimenFiscal)}
+          {satOptions(regimenesFiscales, formData.regimenFiscal)}
         </select>
       </div>
 
@@ -191,7 +195,7 @@ export const ContactCommercialFields: React.FC<ContactCommercialFieldsProps> = (
           onChange={(e) => updateField('usoCfdi', e.target.value || null)}
           disabled={isLoading}
         >
-          {satOptions(USOS_CFDI, formData.usoCfdi)}
+          {satOptions(usosCfdi, formData.usoCfdi)}
         </select>
       </div>
 

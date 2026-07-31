@@ -14,6 +14,7 @@ import { ContactCommercialFields } from './ContactCommercialFields'
 import { Button } from '@lwm/ui'
 import { Input } from '@lwm/ui'
 import { useContactAddresses, useContactDocuments, useContactPeople } from '../hooks'
+import { useContactCatalogs } from '../hooks/useContactCatalogs'
 import { contactAddressesService, contactPeopleService, contactDocumentsService } from '../services'
 import { useAuth } from '@lwm/auth'
 import { toast } from '@lwm/ui'
@@ -117,7 +118,10 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
   const [formErrors, setFormErrors] = useState<Record<string, string>>({})
   
   // Cargar entidades relacionadas desde la API (solo en modo edit)
-  const { 
+  // Clasificacion desde el catalogo del backend (fuente unica, regla 7).
+  const { classifications } = useContactCatalogs()
+
+  const {
     addresses: apiAddresses
   } = useContactAddresses(contact?.id)
   
@@ -757,9 +761,9 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
                     disabled={isLoading}
                   >
                     <option value="">Sin clasificación</option>
-                    <option value="basic">Básico</option>
-                    <option value="standard">Estándar</option>
-                    <option value="premium">Premium</option>
+                    {classifications.map((entry) => (
+                      <option key={entry.code} value={entry.code}>{entry.label}</option>
+                    ))}
                   </select>
                 </div>
 
