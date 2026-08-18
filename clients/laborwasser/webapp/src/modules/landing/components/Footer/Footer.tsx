@@ -1,17 +1,23 @@
 'use client'
 
+/**
+ * FOOTER (rediseno 2026-08)
+ *
+ * Fondo celeste (--lw-surface-tint), 4 columnas: logo + redes en azul |
+ * Recursos | Legal (con la direccion) | Contacto (telefonos en 2 columnas,
+ * WhatsApp, email). Franja inferior sobre el mismo fondo con texto azul.
+ * Sale la columna "Productos" (14 categorias): el catalogo se navega desde
+ * el header. Todo el contenido sigue viniendo de app-config.
+ */
+
 import React from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
 import { usePublicSettings } from '@lwm/app-config'
-import { usePublicCategories } from '@lwm/ecommerce'
+import styles from './Footer.module.scss'
 
 export const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear()
   const { get } = usePublicSettings()
-  // Navegacion publica: categorias activas via el endpoint publico (sin auth).
-  // El /api/v1/categories daba 401 a invitados, dejando el footer sin categorias.
-  const { categories } = usePublicCategories({ limit: 20 })
 
   const phone = get('company.phone')
   const phoneSecondary = get('company.phone_secondary')
@@ -21,147 +27,90 @@ export const Footer: React.FC = () => {
   const email = get('company.email')
   const address = get('company.address')
   const companyName = get('company.name')
-  const logoFooter = get('company.logo_path_footer') || '/images/laborwasser/labor-wasser-mexico-logo-1.png'
+  const logoFooter = get('company.logo_path_alt') || get('company.logo_path_footer') || '/images/laborwasser/labor-wasser-mexico-logo2.webp'
   const facebookUrl = get('social.facebook')
   const instagramUrl = get('social.instagram')
   const linkedinUrl = get('social.linkedin')
 
+  const phones = [phone, phoneSecondary, phoneTertiary].filter(Boolean) as string[]
+
   return (
-    <footer>
-      <div className="container-fluid">
-        <div className="row footer">
-          <div className="col-12 col-md-3">
-            <div className="row align-items-md-center d-flex">
-              <div className="col social">
-                <Image
-                  src={logoFooter}
-                  className="img-fluid logo-footer d-block mx-auto"
-                  alt={companyName || 'Logo'}
-                  width={200}
-                  height={80}
-                />
-                <div className="d-flex justify-content-around mt-4">
-                  <a href={facebookUrl || '#'} aria-label="Facebook">
-                    <i className="bi bi-facebook"></i>
-                  </a>
-                  <a href={instagramUrl || '#'} aria-label="Instagram">
-                    <i className="bi bi-instagram"></i>
-                  </a>
-                  <a href={linkedinUrl || '#'} aria-label="LinkedIn">
-                    <i className="bi bi-linkedin"></i>
-                  </a>
-                </div>
-              </div>
+    <footer className={styles.footer}>
+      <div className={`container ${styles.inner}`}>
+        <div className={styles.grid}>
+          {/* Logo + redes */}
+          <div className={styles.brand}>
+            <Link href="/" aria-label={companyName || 'Inicio'}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={logoFooter} alt={companyName || 'Logo'} className={styles.logo} loading="lazy" />
+            </Link>
+            <div className={styles.social}>
+              {linkedinUrl && <a href={linkedinUrl} aria-label="LinkedIn" target="_blank" rel="noopener noreferrer"><i className="bi bi-linkedin" /></a>}
+              {instagramUrl && <a href={instagramUrl} aria-label="Instagram" target="_blank" rel="noopener noreferrer"><i className="bi bi-instagram" /></a>}
+              {facebookUrl && <a href={facebookUrl} aria-label="Facebook" target="_blank" rel="noopener noreferrer"><i className="bi bi-facebook" /></a>}
             </div>
           </div>
-          <div className="col-12 col-md-3">
-            <h4>Productos</h4>
-            <ul>
-              <li>
-                <Link className="dropdown-item" href="/productos">
-                  Todos los productos
-                </Link>
-              </li>
-              {categories.map((category) => (
-                <li key={category.id}>
-                  <Link className="dropdown-item" href={`/productos?categoryId=${category.id}`}>
-                    {category.name}
-                  </Link>
+
+          {/* Recursos */}
+          <div className={styles.col}>
+            <h4 className={styles.heading}>Recursos</h4>
+            <ul className={styles.links}>
+              <li><Link href="/catalogos">Catalogos PDF</Link></li>
+              <li><Link href="/certificados">Certificaciones</Link></li>
+              <li><Link href="/productos">Catalogos en linea</Link></li>
+            </ul>
+          </div>
+
+          {/* Legal */}
+          <div className={styles.col}>
+            <h4 className={styles.heading}>Legal</h4>
+            <ul className={styles.links}>
+              <li><Link href="/aviso-privacidad">Aviso de privacidad</Link></li>
+              <li><Link href="/derechos-reservados">Terminos y condiciones</Link></li>
+              {address && (
+                <li className={styles.iconLine}>
+                  <i className="bi bi-geo-alt-fill" aria-hidden="true" />
+                  <span>{address}</span>
+                </li>
+              )}
+            </ul>
+          </div>
+
+          {/* Contacto */}
+          <div className={styles.col}>
+            <h4 className={styles.heading}>Contacto</h4>
+            <ul className={`${styles.links} ${styles.contact}`}>
+              {phones.map((p) => (
+                <li key={p} className={styles.iconLine}>
+                  <i className="bi bi-telephone-fill" aria-hidden="true" />
+                  <a href={`tel:${p.replace(/\s/g, '')}`}>{p}</a>
                 </li>
               ))}
+              {whatsappNumber && (
+                <li className={styles.iconLine}>
+                  <i className="bi bi-whatsapp" aria-hidden="true" />
+                  <a href={`https://wa.me/${whatsappNumber}`} target="_blank" rel="noopener noreferrer">{whatsappDisplay || whatsappNumber}</a>
+                </li>
+              )}
+              {email && (
+                <li className={`${styles.iconLine} ${styles.wide}`}>
+                  <i className="bi bi-envelope-fill" aria-hidden="true" />
+                  <a href={`mailto:${email}`}>{email}</a>
+                </li>
+              )}
             </ul>
-          </div>
-          <div className="col-12 col-md-3">
-            <h4>Recursos</h4>
-            <ul>
-              <li>
-                <Link className="dropdown-item" href="/catalogos">
-                  Catalogos PDF
-                </Link>
-              </li>
-              <li>
-                <Link className="dropdown-item" href="/certificados">
-                  Certificaciones
-                </Link>
-              </li>
-              <li>
-                <Link className="dropdown-item" href="/productos">
-                  Catalogo en linea
-                </Link>
-              </li>
-            </ul>
-            <h4 className="mt-4">Legal</h4>
-            <ul>
-              <li>
-                <Link className="dropdown-item" href="/aviso-privacidad">
-                  Aviso de privacidad
-                </Link>
-              </li>
-              <li>
-                <Link className="dropdown-item" href="/derechos-reservados">
-                  Terminos y condiciones
-                </Link>
-              </li>
-            </ul>
-          </div>
-          <div className="col-12 col-md-3 login-contact">
-            <h4>Contacto</h4>
-            {phone && (
-              <div className="d-block d-md-flex mb-2">
-                <i className="bi bi-telephone-fill"></i>
-                <a href={`tel:${phone.replace(/\s/g, '')}`}>{phone}</a>
-              </div>
-            )}
-            {phoneSecondary && (
-              <div className="d-block d-md-flex mb-2">
-                <i className="bi bi-telephone-fill"></i>
-                <a href={`tel:${phoneSecondary.replace(/\s/g, '')}`}>{phoneSecondary}</a>
-              </div>
-            )}
-            {phoneTertiary && (
-              <div className="d-block d-md-flex mb-2">
-                <i className="bi bi-telephone-fill"></i>
-                <a href={`tel:${phoneTertiary.replace(/\s/g, '')}`}>{phoneTertiary}</a>
-              </div>
-            )}
-            {whatsappNumber && (
-              <div className="d-block d-md-flex mb-2">
-                <i className="bi bi-whatsapp"></i>
-                <a href={`https://wa.me/${whatsappNumber}`}>{whatsappDisplay || whatsappNumber}</a>
-              </div>
-            )}
-            {email && (
-              <div className="d-block d-md-flex mb-2">
-                <i className="bi bi-envelope"></i>
-                <a href={`mailto:${email}`}>
-                  {email}
-                </a>
-              </div>
-            )}
-            {address && (
-              <div className="d-block d-md-flex mb-2">
-                <i className="bi bi-geo-alt"></i>
-                <span>{address}</span>
-              </div>
-            )}
           </div>
         </div>
-        <div className="row text-muted">
-          <p className="text-center">
+      </div>
+
+      <div className={styles.bottom}>
+        <div className="container">
+          <p className={styles.bottomText}>
             {currentYear}. {companyName || 'Empresa'}. Todos los Derechos Reservados.
-            &nbsp;|&nbsp;
-            <Link href="/aviso-privacidad">
-              Aviso de privacidad
-            </Link>
-            &nbsp;|&nbsp;
-            <Link href="/derechos-reservados">
-              Terminos de uso
-            </Link>
-            &nbsp;|&nbsp;
-            Designed and developed by{' '}
-            <a href="https://atomosoluciones.com" target="_blank" rel="noopener noreferrer">
-              AtomoSoluciones.com
-            </a>
+            &nbsp;|&nbsp;<Link href="/aviso-privacidad">Aviso de privacidad</Link>
+            &nbsp;|&nbsp;<Link href="/derechos-reservados">Terminos de uso</Link>
+            &nbsp;|&nbsp;Designed and developed by{' '}
+            <a href="https://atomosoluciones.com" target="_blank" rel="noopener noreferrer">AtomoSoluciones.com</a>
           </p>
         </div>
       </div>

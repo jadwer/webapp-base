@@ -1,172 +1,129 @@
-// FOOTER COMPONENT STYLES
-// Labor Wasser de Mexico - Footer matching original site
+// Footer — rediseno 2026-08. Medidas del Figma (frame 1440):
+//   bloque 1440x282 (y=3679): zona de columnas de 168 alto sobre fondo
+//   celeste; logo ~110 + redes azules; columnas Recursos (x=383), Legal
+//   (x=675), Contacto (x=1047) con titulos 20px y links 16px/36; franja
+//   inferior con texto azul 16px centrado.
 
 .footer {
-  background: #1a1a2e;
-  color: #adb5bd;
-  padding: 50px 0 0;
+  background-color: var(--lw-surface-tint);
+  font-family: var(--lw-font);
+  color: var(--lw-text-soft);
 }
 
-.footerSection {
-  margin-bottom: 30px;
+.inner {
+  padding-top: 2.5rem;    // Figma: 40
+  padding-bottom: 2rem;
 }
 
-// Logo section
-.footerLogo {
-  display: inline-block;
-  margin-bottom: 20px;
-}
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.3fr) minmax(0, 1.5fr);
+  column-gap: 2rem;
+  align-items: start;
 
-.logoImage {
-  max-width: 100%;
-  height: auto;
-}
-
-// Social media
-.socialMedia {
-  display: flex;
-  gap: 12px;
-  margin-top: 16px;
-}
-
-.socialIcon {
-  width: 40px;
-  height: 40px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  text-decoration: none;
-  transition: all 0.3s ease;
-
-  &:hover {
-    background: #0d6efd;
-    transform: translateY(-2px);
+  @media (max-width: 991.98px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    row-gap: 2rem;
   }
 
-  i {
-    font-size: 1rem;
+  @media (max-width: 575.98px) {
+    grid-template-columns: 1fr;
   }
 }
 
-// Section titles
-.sectionTitle {
-  font-size: 1rem;
-  font-weight: 600;
-  color: white;
-  margin-bottom: 16px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-// Links lists
-.linksList {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.linksList li {
-  margin-bottom: 8px;
-}
-
-.footerLink {
-  color: #adb5bd;
-  text-decoration: none;
-  font-size: 0.9rem;
-  transition: color 0.3s ease;
-
-  &:hover {
-    color: #0d6efd;
-  }
-}
-
-// Contact info
-.contactInfo {
+.brand {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 1.5rem;
 }
 
-.contactItem {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  font-size: 0.9rem;
-  line-height: 1.5;
+.logo {
+  height: 3.75rem; // Figma: ~60
+  width: auto;
+}
 
-  i {
-    color: #0d6efd;
-    font-size: 1rem;
-    flex-shrink: 0;
-    margin-top: 2px;
-  }
+.social {
+  display: flex;
+  gap: 1.5rem; // Figma: 40 de centro a centro
+  font-size: 1.5rem;
 
   a {
-    color: #adb5bd;
-    text-decoration: none;
-    transition: color 0.3s ease;
+    color: var(--brand-accent);
+    line-height: 1;
+    transition: color .15s ease;
 
-    &:hover {
-      color: #0d6efd;
-    }
-  }
-
-  span {
-    color: #adb5bd;
+    &:hover,
+    &:focus-visible { color: var(--brand-accent-dark); }
   }
 }
 
-.whatsappBtn {
-  background: none;
-  border: none;
-  color: #adb5bd;
-  cursor: pointer;
-  padding: 0;
-  font-size: 0.9rem;
-  transition: color 0.3s ease;
-
-  &:hover {
-    color: #25d366;
-  }
+.heading {
+  font-family: var(--lw-font);
+  font-size: 1.25rem;  // Figma: 20
+  font-weight: 500;
+  color: var(--lw-text);
+  margin: 0 0 .75rem;
+  text-transform: none;
 }
 
-// Footer bottom
-.footerBottom {
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 20px 0;
-  margin-top: 30px;
-  text-align: center;
-}
-
-.copyright {
+.links {
+  list-style: none;
   margin: 0;
-  font-size: 0.85rem;
-  color: #6c757d;
+  padding: 0;
+  font-size: 1rem;     // Figma: 16
+  line-height: 2.25;   // Figma: 36 entre lineas
+
+  a {
+    color: var(--lw-text-soft);
+    text-decoration: none;
+
+    &:hover,
+    &:focus-visible { color: var(--brand-accent); }
+  }
 }
 
-// Responsive adjustments
-@media (max-width: 767px) {
-  .footer {
-    padding: 40px 0 0;
-  }
+.iconLine {
+  display: flex;
+  align-items: center;
+  gap: .625rem;
 
-  .footerSection {
-    text-align: center;
+  .bi {
+    color: var(--brand-accent);
+    font-size: 1rem;
+    flex: 0 0 auto;
   }
+}
 
-  .socialMedia {
-    justify-content: center;
-  }
+// Contacto: telefonos en 2 columnas como el Figma; el correo va ancho
+.contact {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, auto));
+  column-gap: 1.5rem;
 
-  .contactInfo {
-    align-items: center;
-  }
+  @media (max-width: 575.98px) { grid-template-columns: 1fr; }
+}
 
-  .contactItem {
-    justify-content: center;
-    text-align: left;
+.wide {
+  grid-column: 1 / -1;
+}
+
+.bottom {
+  border-top: 1px solid rgba(0, 148, 255, .15);
+  padding: 1.25rem 0; // Figma: franja de ~60 con texto centrado
+}
+
+.bottomText {
+  margin: 0;
+  text-align: center;
+  font-family: var(--lw-font);
+  font-size: 1rem;
+  color: var(--brand-accent);
+
+  a {
+    color: var(--brand-accent);
+    text-decoration: none;
+
+    &:hover,
+    &:focus-visible { text-decoration: underline; }
   }
 }

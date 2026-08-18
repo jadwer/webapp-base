@@ -6,8 +6,7 @@ import {
   OfertasDelMes,
   UltimosProductos,
   PorQueComprar,
-  NecesitasCotizacion,
-  NuestrasMarcas,
+  PreguntasFrecuentes,
 } from '../'
 
 export interface LaborWasserLandingProps {
@@ -34,14 +33,13 @@ export const LaborWasserLanding: React.FC<LaborWasserLandingProps> = ({
       {/* Latest products section (la que vende: paridad con produccion legada) */}
       <UltimosProductos />
 
-      {/* Why buy with us section */}
+      {/* Why buy with us section (absorbe el CTA de cotizacion) */}
       <PorQueComprar />
 
-      {/* Quote request section */}
-      <NecesitasCotizacion />
-
-      {/* Our brands section */}
-      <NuestrasMarcas />
+      {/* FAQ (rediseno 2026-08). NecesitasCotizacion y NuestrasMarcas salen
+          del home por decision de diseno; los componentes siguen disponibles
+          para otras paginas. */}
+      <PreguntasFrecuentes />
     </div>
   )
 }

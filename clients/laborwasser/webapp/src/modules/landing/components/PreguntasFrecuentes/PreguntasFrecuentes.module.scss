@@ -1,0 +1,138 @@
+// PreguntasFrecuentes — rediseno 2026-08. Medidas del Figma (frame 1440):
+//   bloque 1440x735 (y=2944..3679) con foto + overlay azul; titulo 48px y
+//   bajada 24/36 alineados a la derecha (x hasta 1352); 5 tarjetas de
+//   pregunta 697x50 (x=657..1354) separadas 35px, chevron azul a la derecha.
+
+.section {
+  position: relative;
+  padding: 3.75rem 0 4.5rem; // Figma: titulo en y+60
+  font-family: var(--lw-font);
+  color: #fff;
+  overflow: hidden;
+}
+
+.media {
+  position: absolute;
+  inset: 0;
+}
+
+.photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: left center; // la cientifica queda a la izquierda
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  // Figma: la foto se ve tenida de azul, mas denso hacia la derecha donde
+  // van las tarjetas (para contraste del texto blanco).
+  background: linear-gradient(90deg, rgba(0, 148, 255, .22) 0%, rgba(0, 148, 255, .38) 45%, rgba(0, 120, 220, .62) 100%);
+}
+
+.content {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 43.5625rem); // 697
+  column-gap: 2rem;
+  align-items: start;
+
+  @media (max-width: 991.98px) {
+    grid-template-columns: 1fr;
+    row-gap: 1.5rem;
+  }
+}
+
+.copy {
+  grid-column: 2;
+  text-align: right;
+  margin-bottom: 1.5rem;
+
+  @media (max-width: 991.98px) {
+    grid-column: 1;
+    text-align: left;
+    margin-bottom: 0;
+  }
+}
+
+.title {
+  font-family: var(--lw-font);
+  font-weight: 600;
+  font-size: clamp(2rem, 1.5rem + 1.7vw, 3rem); // Figma: 48
+  line-height: 1.2;
+  color: #fff;
+  margin: 0 0 .5rem;
+  text-transform: none;
+}
+
+.lead {
+  font-family: var(--lw-font);
+  font-weight: 600;
+  font-size: clamp(1.125rem, 1rem + .6vw, 1.5rem); // Figma: 24
+  line-height: 1.5;                                  // Figma: 36
+  color: #fff;
+  margin: 0;
+}
+
+.list {
+  grid-column: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 2.1875rem; // Figma: 35
+
+  @media (max-width: 991.98px) { grid-column: 1; gap: 1rem; }
+}
+
+.item {
+  overflow: hidden;
+  border-color: transparent;
+  box-shadow: var(--lw-shadow-card);
+  color: var(--lw-text);
+}
+
+.question {
+  margin: 0;
+  font-size: 1.125rem; // Figma: 18
+}
+
+.trigger {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: .875rem 1rem; // Figma: tarjeta de 50px de alto
+  min-height: 3.125rem;
+  background: transparent;
+  border: 0;
+  text-align: left;
+  font: inherit;
+  font-weight: 600;
+  color: var(--lw-text);
+  cursor: pointer;
+
+  &:hover,
+  &:focus-visible { color: var(--brand-accent); }
+}
+
+.chevron {
+  color: var(--brand-accent);
+  font-size: 1.125rem;
+  flex: 0 0 auto;
+  transition: transform .2s ease;
+
+  .itemOpen & { transform: rotate(180deg); }
+}
+
+.panel {
+  padding: 0 1rem 1rem;
+}
+
+.answer {
+  margin: 0;
+  font-family: var(--lw-font);
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--lw-text-soft);
+}
