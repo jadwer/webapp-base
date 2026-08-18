@@ -1,267 +1,255 @@
 'use client'
 
+/**
+ * HEADER (rediseno 2026-08)
+ *
+ * Un solo bloque blanco con esquinas inferiores redondeadas sobre el hero:
+ *   fila 1: logo | buscador pill | Iniciar sesion (outline) | Necesitas ayuda?
+ *           (solido, abre el offcanvas de contacto) | carrito
+ *   fila 2: nav centrado: Inicio | Productos v | Nosotros | Certificados/SDS
+ *           (item activo con subrayado azul)
+ * En movil: logo + iconos + hamburguesa; el buscador queda visible debajo y
+ * el nav se despliega en lista.
+ *
+ * Absorbe al TopNav legado (que solo tenia el nav) para que el bloque sea uno.
+ * Se conservan: sesion (dropdown de usuario), contador del carrito, widget de
+ * WhatsApp (decision de Gabino: se queda) y el ContactOffcanvas.
+ */
+
 import React, { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
-import { useLocalCartCount, ProductSearchBox } from '@lwm/ecommerce'
+import { usePathname } from 'next/navigation'
+import { useLocalCartCount, ProductSearchBox, usePublicCategories } from '@lwm/ecommerce'
 import { useAuth } from '@lwm/auth'
 import { useIsClient } from '@/hooks/useIsClient'
 import { usePublicSettings } from '@lwm/app-config'
 import { ContactOffcanvas } from '../ContactOffcanvas/ContactOffcanvas'
+import styles from './Header.module.scss'
 
 export const Header: React.FC = () => {
   const cartItemCount = useLocalCartCount()
   const { user, isAuthenticated, isLoading, logout } = useAuth()
   const isClient = useIsClient()
   const { get } = usePublicSettings()
+  const pathname = usePathname()
+  const { categories, isLoading: categoriesLoading } = usePublicCategories({ limit: 50 })
 
   const logoSrc = get('company.logo_path_alt') || '/images/laborwasser/labor-wasser-mexico-logo2.webp'
-  const companyName = get('company.name') || 'Logo'
-  const contactIcon = get('company.contact_icon') || '/images/laborwasser/labor-wasser-contacto.svg'
+  const companyName = get('company.name') || 'Labor Wasser de Mexico'
   const whatsappNumber = get('company.whatsapp_number')
-  const [dropdownOpen, setDropdownOpen] = useState(false)
-  const dropdownRef = useRef<HTMLDivElement>(null)
 
-  // Close dropdown when clicking outside
+  const [userOpen, setUserOpen] = useState(false)
+  const [mobileOpen, setMobileOpen] = useState(false)
+  const userRef = useRef<HTMLDivElement>(null)
+
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setDropdownOpen(false)
-      }
+    const onDown = (e: MouseEvent) => {
+      if (userRef.current && !userRef.current.contains(e.target as Node)) setUserOpen(false)
     }
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
+    document.addEventListener('mousedown', onDown)
+    return () => document.removeEventListener('mousedown', onDown)
   }, [])
 
+  // Cerrar el menu movil al navegar
+  useEffect(() => { setMobileOpen(false) }, [pathname])
+
   const handleLogout = async () => {
-    setDropdownOpen(false)
+    setUserOpen(false)
     await logout()
   }
 
-  // Get user display name
   const displayName = user?.name || user?.email?.split('@')[0] || 'Usuario'
+  const isActive = (href: string) => (href === '/' ? pathname === '/' : pathname?.startsWith(href))
+
+  const userMenu = (
+    <ul className={`dropdown-menu dropdown-menu-end${userOpen ? ' show' : ''}`}>
+      <li><span className="dropdown-header text-muted small">{displayName}</span></li>
+      <li><hr className="dropdown-divider" /></li>
+      <li>
+        <Link href="/dashboard" className="dropdown-item" onClick={() => setUserOpen(false)}>
+          <i className="bi bi-speedometer2 me-2" />Dashboard
+        </Link>
+      </li>
+      <li>
+        <Link href="/dashboard/profile" className="dropdown-item" onClick={() => setUserOpen(false)}>
+          <i className="bi bi-person me-2" />Mi perfil
+        </Link>
+      </li>
+      <li><hr className="dropdown-divider" /></li>
+      <li>
+        <button type="button" className="dropdown-item text-danger" onClick={handleLogout}>
+          <i className="bi bi-box-arrow-right me-2" />Cerrar sesion
+        </button>
+      </li>
+    </ul>
+  )
+
+  const sessionControl = (compact: boolean) => {
+    if (!isClient || isLoading) {
+      return (
+        <span className={`btn lw-btn lw-btn-accent-outline ${styles.sessionBtn}`} aria-busy="true">
+          <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true" />
+        </span>
+      )
+    }
+    if (isAuthenticated) {
+      return (
+        <div className="dropdown" ref={compact ? undefined : userRef}>
+          <button
+            type="button"
+            className={compact ? `btn ${styles.iconBtn}` : `btn lw-btn lw-btn-accent-outline dropdown-toggle ${styles.sessionBtn}`}
+            onClick={() => setUserOpen((v) => !v)}
+            aria-expanded={userOpen}
+            aria-label={compact ? 'Mi cuenta' : undefined}
+          >
+            <i className={`bi bi-person-circle${compact ? '' : ' me-1'}`} aria-hidden="true" />
+            {!compact && displayName}
+          </button>
+          {userMenu}
+        </div>
+      )
+    }
+    return compact ? (
+      <Link href="/auth/login" className={`btn ${styles.iconBtn}`} aria-label="Iniciar sesion">
+        <i className="bi bi-person" aria-hidden="true" />
+      </Link>
+    ) : (
+      <Link href="/auth/login" className={`btn lw-btn lw-btn-accent-outline ${styles.sessionBtn}`}>
+        Iniciar sesion
+      </Link>
+    )
+  }
+
+  const cartLink = (
+    <Link href="/cart" className={`btn ${styles.iconBtn} ${styles.cart}`} aria-label={`Carrito, ${cartItemCount} articulos`}>
+      <i className="bi bi-cart3" aria-hidden="true" />
+      {cartItemCount > 0 && <span className={styles.cartBadge}>{cartItemCount}</span>}
+    </Link>
+  )
+
+  const navItems = (
+    <>
+      <li className={styles.navItem}>
+        <Link href="/" className={`${styles.navLink} ${isActive('/') ? styles.navActive : ''}`}>Inicio</Link>
+      </li>
+      <li className={`${styles.navItem} dropdown`}>
+        <a
+          href="#"
+          className={`${styles.navLink} dropdown-toggle ${isActive('/productos') ? styles.navActive : ''}`}
+          role="button"
+          data-bs-toggle="dropdown"
+          aria-expanded="false"
+        >
+          Productos
+        </a>
+        <ul className={`dropdown-menu ${styles.dropdown}`}>
+          <li><Link className="dropdown-item" href="/productos">Todos los productos</Link></li>
+          {categoriesLoading ? (
+            <li><span className="dropdown-item text-muted">Cargando...</span></li>
+          ) : (
+            categories.map((c) => (
+              <li key={c.id}>
+                <Link className="dropdown-item" href={`/productos?categoryId=${c.id}`}>{c.name}</Link>
+              </li>
+            ))
+          )}
+        </ul>
+      </li>
+      <li className={styles.navItem}>
+        <Link href="/nosotros" className={`${styles.navLink} ${isActive('/nosotros') ? styles.navActive : ''}`}>Nosotros</Link>
+      </li>
+      <li className={styles.navItem}>
+        <Link href="/certificados" className={`${styles.navLink} ${isActive('/certificados') ? styles.navActive : ''}`}>Certificados/SDS</Link>
+      </li>
+    </>
+  )
 
   return (
     <>
-      {/* Desktop Header */}
-      <header className="d-none d-lg-block">
-        <div className="container py-3">
-          <div className="row d-flex align-items-center">
-            <div className="col-6 col-md-4 d-flex">
-              <Link href="/">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  className="img-fluid logo"
-                  alt={companyName}
-                  src={logoSrc}
-                />
-              </Link>
+      <header className={styles.header}>
+        <div className={`container ${styles.inner}`}>
+          {/* Fila 1 */}
+          <div className={styles.top}>
+            <Link href="/" className={styles.logoLink} aria-label={companyName}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={logoSrc} alt={companyName} className={styles.logo} />
+            </Link>
+
+            <div className={`${styles.search} d-none d-lg-block`}>
+              <ProductSearchBox placeholder="Buscar producto..." className={styles.searchBox} />
             </div>
-            <div className="col-6 col-md-8 d-flex justify-content-end align-items-center">
-              {/* Typeahead con autocompletado (nota cliente #4), unico buscador
-                  del sitio y siempre visible en el header. Reemplaza el input
-                  simple + el typeahead duplicado que vivia en el TopNav. */}
-              <div className="my-1 flex-grow-1 me-3" style={{ maxWidth: 480 }}>
-                <ProductSearchBox />
-              </div>
 
-              {/* Cart Icon */}
-              <Link href="/cart" className="btn btn-link position-relative mx-2 header-icon">
-                <i className="bi bi-cart3" style={{ fontSize: '1.5rem' }}></i>
-                {cartItemCount > 0 && (
-                  <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                    {cartItemCount}
-                  </span>
-                )}
-              </Link>
-
-              {/* User Menu / Login Button */}
-              {!isClient || isLoading ? (
-                <div className="btn btn-outline-primary d-flex align-items-center me-2" style={{ whiteSpace: 'nowrap' }}>
-                  <span className="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
-                </div>
-              ) : isAuthenticated ? (
-                <div className="dropdown me-2" ref={dropdownRef}>
-                  <button
-                    className="btn btn-outline-primary d-flex align-items-center dropdown-toggle"
-                    type="button"
-                    onClick={() => setDropdownOpen(!dropdownOpen)}
-                    aria-expanded={dropdownOpen}
-                    style={{ whiteSpace: 'nowrap' }}
-                  >
-                    <i className="bi bi-person-circle me-1"></i>
-                    {displayName}
-                  </button>
-                  <ul className={`dropdown-menu dropdown-menu-end${dropdownOpen ? ' show' : ''}`}>
-                    <li>
-                      <Link
-                        href="/dashboard"
-                        className="dropdown-item"
-                        onClick={() => setDropdownOpen(false)}
-                      >
-                        <i className="bi bi-speedometer2 me-2"></i>
-                        Dashboard
-                      </Link>
-                    </li>
-                    <li>
-                      <Link
-                        href="/dashboard/profile"
-                        className="dropdown-item"
-                        onClick={() => setDropdownOpen(false)}
-                      >
-                        <i className="bi bi-person me-2"></i>
-                        Mi Perfil
-                      </Link>
-                    </li>
-                    <li><hr className="dropdown-divider" /></li>
-                    <li>
-                      <button
-                        className="dropdown-item text-danger"
-                        onClick={handleLogout}
-                      >
-                        <i className="bi bi-box-arrow-right me-2"></i>
-                        Cerrar Sesión
-                      </button>
-                    </li>
-                  </ul>
-                </div>
-              ) : (
-                <Link
-                  href="/auth/login"
-                  className="btn btn-outline-primary d-flex align-items-center me-2"
-                  style={{ whiteSpace: 'nowrap' }}
-                >
-                  <i className="bi bi-person me-1"></i>
-                  Iniciar Sesión
-                </Link>
-              )}
-
+            <div className={`${styles.actions} d-none d-lg-flex`}>
+              {sessionControl(false)}
               <button
                 type="button"
-                className="burger btn btn-primary me-3"
+                className={`btn lw-btn lw-btn-accent ${styles.helpBtn}`}
                 data-bs-toggle="offcanvas"
                 data-bs-target="#navMenu"
               >
-                <Image
-                  src={contactIcon}
-                  className="contact-head"
-                  alt={`${companyName} - Contacto`}
-                  width={30}
-                  height={30}
-                />
+                ¿Necesitas ayuda?
               </button>
+              {cartLink}
             </div>
-          </div>
-        </div>
-      </header>
 
-      {/* Mobile Header */}
-      <header className="d-block d-lg-none">
-        <div className="container-fluid py-3 border-bottom">
-          <div className="row d-flex align-items-center">
-            <div className="col-8 d-flex">
-              <Link href="/">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  className="img-fluid logo"
-                  alt={companyName}
-                  src={logoSrc}
-                />
-              </Link>
-            </div>
-            <div className="col-4 d-flex justify-content-end align-items-center">
-              {/* User Menu / Login Icon Mobile */}
-              {!isClient || isLoading ? (
-                <span className="btn btn-link header-icon">
-                  <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                </span>
-              ) : isAuthenticated ? (
-                <div className="dropdown">
-                  <button
-                    className="btn btn-link dropdown-toggle p-1 header-icon"
-                    type="button"
-                    data-bs-toggle="dropdown"
-                    aria-expanded="false"
-                  >
-                    <i className="bi bi-person-circle" style={{ fontSize: '1.3rem' }}></i>
-                  </button>
-                  <ul className="dropdown-menu dropdown-menu-end">
-                    <li className="dropdown-header text-muted small">{displayName}</li>
-                    <li><hr className="dropdown-divider" /></li>
-                    <li>
-                      <Link href="/dashboard" className="dropdown-item">
-                        <i className="bi bi-speedometer2 me-2"></i>
-                        Dashboard
-                      </Link>
-                    </li>
-                    <li>
-                      <Link href="/dashboard/profile" className="dropdown-item">
-                        <i className="bi bi-person me-2"></i>
-                        Mi Perfil
-                      </Link>
-                    </li>
-                    <li><hr className="dropdown-divider" /></li>
-                    <li>
-                      <button className="dropdown-item text-danger" onClick={handleLogout}>
-                        <i className="bi bi-box-arrow-right me-2"></i>
-                        Cerrar Sesión
-                      </button>
-                    </li>
-                  </ul>
-                </div>
-              ) : (
-                <Link href="/auth/login" className="btn btn-link header-icon">
-                  <i className="bi bi-person" style={{ fontSize: '1.3rem' }}></i>
-                </Link>
-              )}
-
-              {/* Cart Icon Mobile */}
-              <Link href="/cart" className="btn btn-link position-relative header-icon">
-                <i className="bi bi-cart3" style={{ fontSize: '1.3rem' }}></i>
-                {cartItemCount > 0 && (
-                  <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style={{ fontSize: '0.6rem' }}>
-                    {cartItemCount}
-                  </span>
-                )}
-              </Link>
+            {/* Movil: iconos + hamburguesa */}
+            <div className={`${styles.actionsMobile} d-flex d-lg-none`}>
+              {sessionControl(true)}
+              {cartLink}
               <button
                 type="button"
-                className="burger btn btn-primary me-3"
+                className={`btn ${styles.iconBtn}`}
                 data-bs-toggle="offcanvas"
                 data-bs-target="#navMenu"
+                aria-label="Contacto"
               >
-                <Image
-                  src={contactIcon}
-                  className="contact-head"
-                  alt={`${companyName} - Contacto`}
-                  width={30}
-                  height={30}
-                />
+                <i className="bi bi-headset" aria-hidden="true" />
+              </button>
+              <button
+                type="button"
+                className={`btn ${styles.iconBtn}`}
+                onClick={() => setMobileOpen((v) => !v)}
+                aria-expanded={mobileOpen}
+                aria-controls="lwmMobileNav"
+                aria-label="Menu"
+              >
+                <i className={`bi ${mobileOpen ? 'bi-x-lg' : 'bi-list'}`} aria-hidden="true" />
               </button>
             </div>
           </div>
-        </div>
 
-        {/* Typeahead tambien en el header movil: siempre visible, sin depender
-            del navbar colapsable. */}
-        <div className="my-1 px-2">
-          <ProductSearchBox />
+          {/* Buscador movil, siempre visible */}
+          <div className={`${styles.searchMobile} d-lg-none`}>
+            <ProductSearchBox placeholder="Buscar producto..." className={styles.searchBox} />
+          </div>
+
+          {/* Fila 2: nav */}
+          <nav className={`${styles.nav} d-none d-lg-block`} aria-label="Principal">
+            <ul className={styles.navList}>{navItems}</ul>
+          </nav>
+          <nav
+            id="lwmMobileNav"
+            className={`${styles.navMobile} d-lg-none ${mobileOpen ? styles.navMobileOpen : ''}`}
+            aria-label="Principal"
+          >
+            <ul className={styles.navListMobile}>{navItems}</ul>
+          </nav>
         </div>
       </header>
 
-      {/* WhatsApp Widget */}
+      {/* WhatsApp: se conserva (decision 2026-08-18) */}
       {whatsappNumber && (
-      <a
-        href={`https://wa.me/${whatsappNumber}?text=Hola!%20%C2%BFC%C3%B3mo%20%20podemos%20ayudarte%3F`}
-        className="whatsapp"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        <i className="bi bi-whatsapp"></i>
-      </a>
+        <a
+          href={`https://wa.me/${whatsappNumber}?text=Hola!%20%C2%BFC%C3%B3mo%20%20podemos%20ayudarte%3F`}
+          className="whatsapp"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="WhatsApp"
+        >
+          <i className="bi bi-whatsapp" />
+        </a>
       )}
 
-      {/* Contact Offcanvas */}
       <ContactOffcanvas />
     </>
   )

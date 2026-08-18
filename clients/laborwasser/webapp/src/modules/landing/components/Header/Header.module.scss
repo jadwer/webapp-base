@@ -1,258 +1,263 @@
-// HEADER COMPONENT STYLES
-// Labor Wasser de Mexico - Header styles matching the original site
+// Header — rediseno 2026-08. Medidas del Figma (frame 1440):
+//   bloque blanco 1440x171 con esquinas inferiores redondeadas sobre el hero;
+//   fila 1 (y=20, h=70): logo | buscador 530x56 pill | Iniciar sesion outline
+//   | Necesitas ayuda? solido | carrito; fila 2 (y=116, h=35): nav centrado.
 
 .header {
-  background: white;
-  position: sticky;
-  top: 0;
-  z-index: 1000;
+  position: relative;
+  z-index: 20; // por encima del hero (foto + gradiente)
+  background-color: #fff;
+  border-radius: 0 0 var(--lw-radius-card) var(--lw-radius-card);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, .06);
+  font-family: var(--lw-font);
+  // El solapamiento con la foto del hero (Figma: la foto empieza en y=90 y
+  // el header termina en y=171) lo resuelve el Hero con margen negativo:
+  // el header es global y otras paginas no llevan hero.
+
+  @media (max-width: 991.98px) {
+    border-radius: 0;
+  }
 }
 
-// Desktop Header
-.desktopHeader {
-  background: white;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+.inner {
+  padding-top: 1.25rem;   // Figma: 20
+  padding-bottom: 1.25rem;
+}
+
+// --- Fila 1 ---------------------------------------------------------------
+.top {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  min-height: 4.375rem; // Figma: 70
+
+  @media (max-width: 991.98px) { gap: .75rem; }
+}
+
+.logoLink {
+  // Puede encoger en movil (min-width:0 evita que la fila se desborde)
+  flex: 0 1 auto;
+  min-width: 0;
+  display: inline-flex;
 }
 
 .logo {
-  display: inline-block;
-  text-decoration: none;
-}
-
-.logoImage {
+  height: 3.75rem; // Figma: logo ~110x60
+  width: auto;
   max-width: 100%;
-  height: auto;
+  object-fit: contain;
+
+  @media (max-width: 575.98px) { height: 2.5rem; }
 }
 
-.searchForm {
-  .input-group {
-    border-radius: 50px;
+.search {
+  flex: 1 1 auto;
+  max-width: 33.125rem; // Figma: 530
+}
+
+// El buscador viene de @lwm/ecommerce (input-group de Bootstrap). Se le da
+// forma pill de 56px desde aqui, sin tocar el package.
+.searchBox {
+  :global(.input-group) {
+    height: 3.5rem;
+    border: 1px solid var(--lw-border);
+    border-radius: var(--lw-radius-pill);
     overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  }
+    background: #fff;
+    transition: border-color .15s ease, box-shadow .15s ease;
 
-  .form-control {
-    border: 1px solid #e9ecef;
-    border-right: none;
-    padding: 12px 20px;
-    font-size: 14px;
-
-    &:focus {
-      border-color: #0d6efd;
-      box-shadow: none;
+    &:focus-within {
+      border-color: var(--brand-accent);
+      box-shadow: 0 0 0 .2rem rgba(0, 148, 255, .15);
     }
   }
 
-  .btn {
-    padding: 12px 20px;
-    border-radius: 0;
+  :global(.input-group-text),
+  :global(.form-control) {
+    border: 0 !important;
+    box-shadow: none !important;
+    background: transparent;
+    height: 100%;
+    font-family: var(--lw-font);
+  }
 
-    i {
-      font-size: 16px;
-    }
+  :global(.input-group-text) { padding-left: 1.25rem; }
+  :global(.form-control) { font-size: 1rem; }
+  :global(.form-control::placeholder) { color: var(--lw-text-faint); }
+}
+
+.actions {
+  margin-left: auto;
+  align-items: center;
+  gap: 1.25rem; // Figma: 20 entre controles
+}
+
+.actionsMobile {
+  margin-left: auto;
+  align-items: center;
+  gap: 0;
+  flex: 0 0 auto;
+
+  // Iconos mas compactos en pantallas chicas: 4 controles de 40px caben
+  // en 375 junto al logo encogido
+  .iconBtn {
+    width: 2.5rem;
+    height: 2.5rem;
+    font-size: 1.375rem;
   }
 }
 
-// Cart Button
-.cartButton {
-  position: relative;
+.sessionBtn,
+.helpBtn {
+  min-height: 2.875rem; // Figma: 46
+  white-space: nowrap;
+  font-size: 1.125rem;   // Figma: 18
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.iconBtn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
-  background: #f8f9fa;
-  color: #212529;
-  border: 1px solid #e9ecef;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  border: 0;
   border-radius: 50%;
-  text-decoration: none;
-  transition: all 0.3s ease;
+  color: var(--lw-text);
+  font-size: 1.5rem;
+  line-height: 1;
+  background: transparent;
 
-  &:hover {
-    background: #0d6efd;
-    color: white;
-    border-color: #0d6efd;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
-  }
-
-  i {
-    font-size: 20px;
+  &:hover,
+  &:focus-visible {
+    color: var(--brand-accent);
+    background: var(--lw-surface-tint);
   }
 }
+
+.cart { position: relative; }
 
 .cartBadge {
   position: absolute;
-  top: -4px;
-  right: -4px;
-  min-width: 20px;
-  height: 20px;
-  padding: 0 6px;
-  background: #dc3545;
-  color: white;
-  font-size: 11px;
+  top: .125rem;
+  right: .125rem;
+  min-width: 1.125rem;
+  height: 1.125rem;
+  padding: 0 .3rem;
+  border-radius: var(--lw-radius-pill);
+  background: var(--brand-accent);
+  color: #fff;
+  font-size: .6875rem;
   font-weight: 600;
-  border-radius: 10px;
+  line-height: 1.125rem;
+  text-align: center;
+}
+
+// --- Buscador movil -----------------------------------------------------
+.searchMobile {
+  padding-top: .75rem;
+
+  .searchBox :global(.input-group) { height: 3rem; }
+}
+
+// --- Fila 2: nav desktop --------------------------------------------------
+.nav {
+  margin-top: 1rem; // Figma: fila 2 arranca en y=116 (20+70+26)
+}
+
+.navList {
   display: flex;
-  align-items: center;
   justify-content: center;
-  line-height: 1;
-}
-
-.contactBtn {
-  display: inline-flex;
   align-items: center;
-  padding: 12px 24px;
-  background: #25d366;
-  color: white;
-  border: none;
-  border-radius: 50px;
-  font-weight: 600;
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-
-  &:hover {
-    background: #128c7e;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(37, 211, 102, 0.4);
-  }
-
-  i {
-    font-size: 18px;
-  }
+  gap: 2.5rem; // Figma: ~40 entre items
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }
 
-// Mobile Header
-.mobileHeader {
-  background: white;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+.navItem {
+  position: relative;
 }
 
-.menuToggle {
-  background: none;
-  border: none;
-  padding: 8px;
-  cursor: pointer;
+.navLink {
+  display: inline-block;
+  padding: .25rem 0 .5rem;
+  font-size: 1.25rem; // Figma: 20
+  font-weight: 400;
+  color: var(--lw-text-soft);
+  text-decoration: none !important;
+  border-bottom: 2px solid transparent;
+  transition: color .15s ease, border-color .15s ease;
 
-  i {
-    font-size: 24px;
-    color: #212529;
+  &:hover,
+  &:focus-visible {
+    color: var(--brand-accent);
+  }
+
+  // Bootstrap pinta el caret del dropdown-toggle; lo dejamos, solo color
+  &:global(.dropdown-toggle)::after {
+    margin-left: .5rem;
+    vertical-align: .15em;
   }
 }
 
-.mobileMenu {
-  padding: 16px 0;
-  border-top: 1px solid #e9ecef;
+.navActive {
+  color: var(--brand-accent);
+  border-bottom-color: var(--brand-accent);
 }
 
-.mobileSearchForm {
-  margin-bottom: 16px;
+.dropdown {
+  border-radius: var(--lw-radius-input);
+  border-color: var(--lw-border);
+  box-shadow: var(--lw-shadow-card-hover);
+  max-height: 70vh;
+  overflow-y: auto;
 
-  .form-control {
-    border-radius: 50px 0 0 50px;
-    padding: 10px 16px;
-  }
+  :global(.dropdown-item) {
+    font-family: var(--lw-font);
+    padding: .5rem 1.25rem;
 
-  .btn {
-    border-radius: 0 50px 50px 0;
-    padding: 10px 16px;
-  }
-}
-
-.mobileNav {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-bottom: 16px;
-}
-
-.mobileNavLink {
-  display: flex;
-  align-items: center;
-  padding: 12px 16px;
-  color: #212529;
-  text-decoration: none;
-  font-weight: 500;
-  border-radius: 8px;
-  transition: background 0.2s ease;
-
-  &:hover {
-    background: #f8f9fa;
-    color: #0d6efd;
+    &:hover,
+    &:focus { background: var(--lw-surface-tint); color: var(--brand-accent); }
   }
 }
 
-.mobileCartBadge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 20px;
-  height: 20px;
-  padding: 0 6px;
-  margin-left: 8px;
-  background: #dc3545;
-  color: white;
-  font-size: 11px;
-  font-weight: 600;
-  border-radius: 10px;
-  line-height: 1;
+// --- Nav movil ------------------------------------------------------------
+.navMobile {
+  display: none;
+  padding-top: .75rem;
 }
 
-.mobileWhatsApp {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 12px;
-  background: #25d366;
-  color: white;
-  border: none;
-  border-radius: 50px;
-  font-weight: 600;
-  cursor: pointer;
+.navMobileOpen { display: block; }
 
-  &:hover {
-    background: #128c7e;
-  }
-}
+.navListMobile {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--lw-border);
 
-// Floating WhatsApp Button
-.floatingWhatsApp {
-  position: fixed;
-  bottom: 24px;
-  right: 24px;
-  width: 60px;
-  height: 60px;
-  background: #25d366;
-  color: white;
-  border: none;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  box-shadow: 0 4px 16px rgba(37, 211, 102, 0.4);
-  z-index: 999;
-  transition: all 0.3s ease;
+  .navItem + .navItem { border-top: 1px solid var(--lw-border); }
 
-  &:hover {
-    transform: scale(1.1);
-    box-shadow: 0 6px 20px rgba(37, 211, 102, 0.5);
+  .navLink {
+    display: block;
+    padding: .875rem .25rem;
+    font-size: 1.0625rem;
+    border-bottom: 0;
   }
 
-  i {
-    font-size: 28px;
+  .navActive {
+    color: var(--brand-accent);
+    font-weight: 500;
   }
 
-  @media (max-width: 767px) {
-    width: 50px;
-    height: 50px;
-    bottom: 16px;
-    right: 16px;
-
-    i {
-      font-size: 24px;
-    }
+  // El dropdown de Bootstrap dentro del nav movil se muestra estatico
+  :global(.dropdown-menu) {
+    position: static !important;
+    transform: none !important;
+    border: 0;
+    box-shadow: none;
+    padding-left: 1rem;
   }
 }

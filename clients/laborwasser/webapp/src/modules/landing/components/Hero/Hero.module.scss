@@ -10,8 +10,14 @@
   // colapse con el del hero (sin esto la foto se estira hasta el fondo de
   // las cards en vez de que ellas cuelguen).
   display: flow-root;
+  // Figma: la foto arranca en y=90 pero el header blanco llega a y=171 (con
+  // esquinas redondeadas): el hero se mete 81px bajo el header (z-index 20,
+  // fondo blanco, queda encima). En movil/tablet no hay solapamiento.
+  margin-top: -5.0625rem;
   font-family: var(--lw-font);
   color: #fff;
+
+  @media (max-width: 991.98px) { margin-top: 0; }
   // Las quick-cards cuelgan 75px por debajo de la foto (Figma: 150 de alto,
   // mitad dentro / mitad fuera); el margen evita que pisen la siguiente seccion.
   // Figma: 80px entre el fondo de las cards y el titulo de Ofertas; Ofertas
@@ -48,8 +54,14 @@
   // y=736-90=646, y la foto mide 809: ~160px de aire abajo para las cards.
   // Figma: la foto mide 809 y las quick-cards empiezan en 734 (relativo):
   // el contenido termina ~90px antes del borde de la foto.
-  padding-top: clamp(4rem, 8vw, 12.25rem);
+  // +81px por el solapamiento con el header
+  padding-top: clamp(9rem, 8vw + 5rem, 17.3rem);
   padding-bottom: clamp(5.5rem, 9vw, 5.75rem);
+
+  @media (max-width: 991.98px) {
+    // Sin solapamiento con el header
+    padding-top: 4rem;
+  }
 
   @media (max-width: 767.98px) {
     // En movil las quick-cards son mas altas (3 filas): mas aire abajo
