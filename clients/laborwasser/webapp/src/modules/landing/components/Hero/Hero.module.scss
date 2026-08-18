@@ -1,201 +1,172 @@
-// HERO COMPONENT STYLES
-// Main banner section - Labor Wasser de Mexico
-// Colors: Primary blue #0d6efd, Secondary blue #0b5ed7
+// Hero — rediseno 2026-08. Medidas del Figma (frame 1440):
+//   foto 1440x809 desde y=90; titulo Poppins Bold 64/64 (774x192, 2 lineas)
+//   en y=286; parrafo 20/38 (809x152) en y=498; botones 46 alto en y=690;
+//   quick-cards 1015x150 centradas, cruzando el borde inferior (y=824..974).
+// Colores: gradiente #068aea -> transparente de izquierda a derecha.
 
 .hero {
   position: relative;
-  background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 50%, #084298 100%);
-  color: white;
-  padding: 100px 0 80px;
+  // flow-root: evita que el margen negativo inferior de las quick-cards se
+  // colapse con el del hero (sin esto la foto se estira hasta el fondo de
+  // las cards en vez de que ellas cuelguen).
+  display: flow-root;
+  font-family: var(--lw-font);
+  color: #fff;
+  // Las quick-cards cuelgan 75px por debajo de la foto (Figma: 150 de alto,
+  // mitad dentro / mitad fuera); el margen evita que pisen la siguiente seccion.
+  // Figma: 80px entre el fondo de las cards y el titulo de Ofertas; Ofertas
+  // ya trae 64px de padding-top, y las cards cuelgan 75px: 75 + 80 - 64 = 91.
+  margin-bottom: 5.6875rem;
+}
+
+.media {
+  position: absolute;
+  inset: 0;
+  // El bloque de quick-cards vive fuera de la foto (posicion relativa +
+  // margen negativo), asi que la foto termina donde termina .content.
   overflow: hidden;
-  min-height: 450px;
-  display: flex;
-  align-items: center;
+  border-radius: 0 0 var(--lw-radius-card) var(--lw-radius-card);
 }
 
-.heroContent {
+.photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  // Figma: linear-gradient a la izquierda desde #068aea hasta transparente
+  background: linear-gradient(90deg, #068aea 0%, rgba(6, 138, 234, .85) 35%, rgba(217, 217, 217, 0) 100%);
+}
+
+.content {
   position: relative;
-  z-index: 2;
-}
+  // Figma: titulo arriba en y=196 relativo a la foto, botones terminan en
+  // y=736-90=646, y la foto mide 809: ~160px de aire abajo para las cards.
+  // Figma: la foto mide 809 y las quick-cards empiezan en 734 (relativo):
+  // el contenido termina ~90px antes del borde de la foto.
+  padding-top: clamp(4rem, 8vw, 12.25rem);
+  padding-bottom: clamp(5.5rem, 9vw, 5.75rem);
 
-.heroTitle {
-  font-size: 3.2rem;
-  font-weight: 800;
-  line-height: 1.15;
-  margin-bottom: 32px;
-  text-transform: uppercase;
-  letter-spacing: -0.5px;
-
-  @media (max-width: 991px) {
-    font-size: 2.5rem;
+  @media (max-width: 767.98px) {
+    // En movil las quick-cards son mas altas (3 filas): mas aire abajo
+    padding-bottom: 8rem;
   }
-
-  @media (max-width: 767px) {
-    font-size: 1.8rem;
-    text-align: center;
-  }
+  min-height: clamp(30rem, 50vw, 45.5rem);
 }
 
-.heroTitleHighlight {
-  color: white;
-  background: linear-gradient(90deg, #198754, #20c997);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+.copy {
+  max-width: 52rem; // Figma: parrafo 809px
 }
 
-.heroActions {
+.title {
+  font-family: var(--lw-font);
+  font-weight: 700;
+  // Figma: 64px/64px; escala hacia abajo en pantallas chicas
+  font-size: clamp(2.25rem, 1.5rem + 3.2vw, 4rem);
+  line-height: 1;
+  color: #fff;
+  margin: 0 0 1.25rem;
+  text-transform: none;
+  text-align: left !important; // vence al center global de movil del legado
+  max-width: 48.5rem; // Figma: 774px
+}
+
+.subtitle {
+  font-family: var(--lw-font);
+  font-weight: 600;
+  // Figma: 20px/38px, 4 lineas
+  font-size: clamp(1rem, .9rem + .5vw, 1.25rem);
+  line-height: 1.9;
+  color: #fff;
+  margin: 0 0 2.5rem;
+}
+
+.actions {
   display: flex;
-  gap: 16px;
   flex-wrap: wrap;
+  gap: 1.875rem; // Figma: 30px entre botones
 
-  @media (max-width: 767px) {
-    justify-content: center;
-  }
+  // Figma: botones de 46px de alto
+  > * { min-height: 2.875rem; padding-left: 1rem; padding-right: 1rem; }
 }
 
-.heroCta {
-  display: inline-flex;
-  align-items: center;
-  padding: 14px 36px;
-  font-weight: 600;
-  font-size: 1rem;
-  border-radius: 50px;
-  background: #198754;
-  color: white;
-  text-decoration: none;
-  transition: all 0.3s ease;
-  border: none;
-
-  &:hover {
-    background: #157347;
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(25, 135, 84, 0.4);
-    color: white;
-  }
-
-  i {
-    transition: transform 0.3s ease;
-  }
-
-  &:hover i {
-    transform: translateX(4px);
-  }
-}
-
-.heroSecondary {
-  display: inline-flex;
-  align-items: center;
-  padding: 14px 36px;
-  font-weight: 600;
-  font-size: 1rem;
-  border-radius: 50px;
-  background: transparent;
-  color: white;
-  text-decoration: none;
-  border: 2px solid rgba(255, 255, 255, 0.9);
-  transition: all 0.3s ease;
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.15);
-    border-color: white;
-    transform: translateY(-2px);
-    color: white;
-  }
-}
-
-// Hero image section
-.heroImage {
+// --- Quick-cards ---------------------------------------------------------
+.quickWrap {
   position: relative;
-  z-index: 2;
+  // Cruzan el borde inferior de la foto: mitad dentro (75px), mitad fuera.
+  margin-top: -4.6875rem;
+  margin-bottom: -4.6875rem;
+  display: flex;
+  justify-content: center;
+}
+
+.quick {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  width: 100%;
+  max-width: 63.4375rem; // Figma: 1015px
+  min-height: 9.375rem;  // Figma: 150px
+  padding: .9375rem 1.25rem; // Figma: 15/20
+  box-shadow: var(--lw-shadow-float);
+  border-color: transparent;
+
+  @media (max-width: 767.98px) {
+    grid-template-columns: 1fr;
+    min-height: 0;
+  }
+}
+
+.quickItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: .625rem; // Figma: icono 40 + 10 + texto
+  padding: .3125rem 1.25rem;
   text-align: center;
-}
+  color: var(--lw-text);
+  text-decoration: none;
+  transition: color .15s ease;
 
-.heroImageMain {
-  max-width: 100%;
-  height: auto;
-  filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.2));
-}
-
-// Background decorative shapes
-.heroBackground {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  overflow: hidden;
-  z-index: 1;
-}
-
-.heroShape1 {
-  position: absolute;
-  width: 400px;
-  height: 400px;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 50%;
-  top: -200px;
-  right: -100px;
-  animation: float 6s ease-in-out infinite;
-}
-
-.heroShape2 {
-  position: absolute;
-  width: 300px;
-  height: 300px;
-  background: rgba(40, 167, 69, 0.1);
-  border-radius: 50%;
-  bottom: -150px;
-  left: -100px;
-  animation: float 8s ease-in-out infinite reverse;
-}
-
-// Animations
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0px);
+  // Separadores verticales (Figma: lineas de 120px entre columnas)
+  & + & {
+    border-left: 1px solid var(--lw-border);
   }
-  50% {
-    transform: translateY(-20px);
-  }
-}
 
-// Responsive adjustments
-@media (max-width: 767px) {
-  .hero {
-    padding: 60px 0;
-    text-align: center;
+  &:hover,
+  &:focus-visible {
+    color: var(--brand-accent);
   }
-  
-  .heroActions {
-    flex-direction: column;
-    align-items: center;
-    
-    .heroCta,
-    .heroSecondary {
-      width: 100%;
-      max-width: 280px;
-    }
-  }
-  
-  .heroImagePlaceholder {
-    height: 240px;
-  }
-  
-  .heroImageContent {
-    i {
-      font-size: 3rem;
-    }
-    
-    span {
-      font-size: 1rem;
+
+  @media (max-width: 767.98px) {
+    flex-direction: row;
+    justify-content: flex-start;
+    text-align: left;
+    padding: .875rem .5rem;
+
+    & + & {
+      border-left: 0;
+      border-top: 1px solid var(--lw-border);
     }
   }
 }
 
-// Dark mode compatibility
-@media (prefers-color-scheme: dark) {
-  .hero {
-    background: linear-gradient(135deg, #1a365d 0%, #2c5282 100%);
-  }
+.quickIcon {
+  font-size: 2.5rem; // Figma: 40px
+  line-height: 1;
+
+  @media (max-width: 767.98px) { font-size: 1.75rem; }
+}
+
+.quickLabel {
+  font-size: 1.25rem; // Figma: 20px/30px, 2 lineas
+  line-height: 1.5;
+  font-weight: 500;
+  max-width: 14rem;
+
+  @media (max-width: 767.98px) { font-size: 1rem; max-width: none; }
 }
