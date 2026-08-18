@@ -1,92 +1,101 @@
-// POR QUE COMPRAR COMPONENT STYLES
-// Stats and about section - Labor Wasser de Mexico
+// PorQueComprar — rediseno 2026-08. Medidas del Figma (frame 1440):
+//   bloque visual 550x623 en x=94: tres capas redondeadas de ~505x555
+//   escalonadas 22px a la derecha y 32px abajo (marco azul atras, foto,
+//   marco verde delante); texto en x=720..1339: titulo 32px, parrafo 20/30
+//   (619x330), botones pill 46 alto en y=2755 con 40 de separacion.
 
-.porQueComprar {
-  padding: 60px 0;
-  background: white;
+.section {
+  padding: 5rem 0 5.5rem; // Figma: 81px tras las quick-cards / 80 antes del FAQ
+  background-color: var(--brand-bg);
+  font-family: var(--lw-font);
 }
 
-// Stats section - prominente como en el sitio original
-.statItem {
-  text-align: center;
-  padding: 30px 20px;
-  background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
-  border-radius: 12px;
-  transition: all 0.3s ease;
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 550fr) minmax(0, 620fr);
+  column-gap: clamp(2rem, 6vw, 5.5rem); // Figma: 720 - 645 = 75
+  align-items: center;
 
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 30px rgba(13, 110, 253, 0.3);
+  @media (max-width: 991.98px) {
+    grid-template-columns: 1fr;
+    row-gap: 3rem;
   }
 }
 
-.statNumber {
-  font-size: 3rem;
-  font-weight: 800;
-  color: white;
-  margin-bottom: 8px;
-  line-height: 1;
+// --- Visual (foto + marcos) --------------------------------------------
+.visual {
+  position: relative;
+  // Reserva el espacio total: capa 505x555 + desfases (2 x 22, 2 x 32)
+  aspect-ratio: 550 / 623;
+  max-width: 34.375rem; // 550
+  width: 100%;
 
-  @media (max-width: 767px) {
-    font-size: 2.5rem;
+  @media (max-width: 991.98px) {
+    margin: 0 auto;
+    max-width: 28rem;
   }
 }
 
-.statLabel {
-  font-size: 1rem;
-  color: rgba(255, 255, 255, 0.9);
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 1px;
+.frame,
+.photo {
+  position: absolute;
+  width: calc(100% - 2 * 4%);   // 505/550 ~ 92%
+  height: calc(100% - 2 * 5.1%); // 555/623 ~ 89%
+  border-radius: var(--lw-radius-card);
 }
 
-// Section header
-.sectionHeader {
-  text-align: center;
-  max-width: 900px;
-  margin-left: auto;
-  margin-right: auto;
+.frame {
+  border: 3px solid transparent;
+  background: transparent;
 }
 
-.sectionTitle {
-  font-size: 1.8rem;
-  font-weight: 700;
-  color: #212529;
-  margin-bottom: 24px;
-
-  @media (max-width: 767px) {
-    font-size: 1.5rem;
-  }
+.frameBlue {
+  top: 0;
+  left: 0;
+  border-color: var(--lw-frame-blue);
+  z-index: 0;
 }
 
-.sectionDescription {
-  font-size: 1rem;
-  line-height: 1.8;
-  color: #6c757d;
-  text-align: center;
+.photo {
+  top: 5.1%;
+  left: 4%;
+  object-fit: cover;
+  z-index: 1;
+  box-shadow: var(--lw-shadow-card);
 }
 
-// Responsive adjustments
-@media (max-width: 991px) {
-  .porQueComprar {
-    padding: 50px 0;
-  }
+.frameGreen {
+  top: 10.2%;
+  left: 8%;
+  border-color: var(--lw-frame-green);
+  z-index: 2;
+  pointer-events: none;
 }
 
-@media (max-width: 767px) {
-  .porQueComprar {
-    padding: 40px 0;
-  }
+// --- Texto ---------------------------------------------------------------
+.copy {
+  max-width: 40rem; // Figma: 639
+}
 
-  .statItem {
-    padding: 24px 16px;
-  }
+.title {
+  font-size: clamp(1.625rem, 1.2rem + 1.4vw, 2rem); // Figma: 32
+  line-height: 1.5;
+  margin: 0 0 1.5rem;
+}
 
-  .statNumber {
-    font-size: 2rem;
-  }
+.text {
+  font-family: var(--lw-font);
+  font-size: clamp(1rem, .9rem + .5vw, 1.25rem); // Figma: 20
+  line-height: 1.5;                               // Figma: 30
+  color: var(--lw-text);
+  margin: 0 0 1.5rem;
+}
 
-  .statLabel {
-    font-size: 0.9rem;
-  }
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2.5rem; // Figma: 40
+  margin-top: 2.5rem;
+
+  > * { min-height: 2.875rem; } // Figma: 46
 }
