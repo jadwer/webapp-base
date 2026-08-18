@@ -13,6 +13,8 @@ export { NecesitasCotizacion } from './NecesitasCotizacion'
 export { NuestrasMarcas } from './NuestrasMarcas'
 export { Footer } from './Footer'
 export { ContactOffcanvas } from './ContactOffcanvas'
+export { LandingProductCard, LandingProductCardSkeleton, formatLandingPrice } from './LandingProductCard'
+export type { LandingProductCardProps, LandingProductCardVariant } from './LandingProductCard'
 
 // Main landing page component
 export { LaborWasserLanding } from './LaborWasserLanding'

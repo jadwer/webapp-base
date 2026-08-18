@@ -1,0 +1,202 @@
+// Labor Wasser de Mexico — Utilidades del rediseno 2026-08.
+//
+// Clases GLOBALES y reutilizables (prefijo .lw-) que traducen el sistema
+// visual del Figma del disenador a piezas que cualquier pagina del sitio
+// puede usar: botones pill, titulos con palabra resaltada, badges, links
+// "Ver mas", encabezados de seccion. Consumen los tokens --lw-* y --brand-*
+// de branding.scss; NO llevan hexadecimales propios.
+//
+// Los estilos ESPECIFICOS de cada seccion viven en su *.module.scss.
+
+// ---------------------------------------------------------------
+// Tipografia del rediseno
+// ---------------------------------------------------------------
+// Las secciones redisenadas usan Poppins tambien en los titulos (el sitio
+// legado usa Anek Bangla en h1-h6). Se aplica por clase para no romper las
+// paginas que aun no se redisenan.
+.lw-heading {
+  font-family: var(--lw-font);
+  font-weight: 600;
+  color: var(--lw-text);
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+// Palabra resaltada dentro de un titulo: "Conoce nuestras <ofertas> del mes"
+.lw-highlight {
+  color: var(--brand-primary);
+}
+
+// ---------------------------------------------------------------
+// Encabezado de seccion: titulo a la izquierda, link "Ver mas" a la derecha
+// ---------------------------------------------------------------
+.lw-section-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+
+  .lw-section-title {
+    @extend .lw-heading;
+    font-size: clamp(1.5rem, 1.1rem + 1.4vw, 2rem);
+    line-height: 1.2;
+    margin: 0;
+  }
+
+  @media (max-width: 575.98px) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: .25rem;
+  }
+}
+
+.lw-link-more {
+  font-family: var(--lw-font);
+  font-weight: 600;
+  font-size: clamp(1rem, .9rem + .5vw, 1.25rem);
+  color: var(--brand-accent);
+  white-space: nowrap;
+  text-decoration: none;
+
+  &:hover,
+  &:focus-visible {
+    color: var(--brand-accent-dark);
+    text-decoration: underline;
+  }
+}
+
+// ---------------------------------------------------------------
+// Botones pill (los del Figma). Se montan SOBRE .btn de Bootstrap para
+// heredar focus, disabled y tamanos; solo cambian forma y color.
+//   <a class="btn lw-btn lw-btn-accent">Comprar ahora</a>
+//   <a class="btn lw-btn lw-btn-accent-outline">Ver detalles</a>
+//   <a class="btn lw-btn lw-btn-brand">Cotiza con nosotros!</a>
+//   <a class="btn lw-btn lw-btn-brand-outline">Ver nuestros productos</a>
+// ---------------------------------------------------------------
+.lw-btn {
+  font-family: var(--lw-font);
+  font-weight: 500;
+  // Figma: 40px de alto (texto 24 + 8/8), 15-16px de padding lateral
+  font-size: 1rem;
+  line-height: 1.5;
+  padding: .375rem 1rem;
+  border-radius: var(--lw-radius-pill) !important; // vence al border-radius:0 legado
+  border-width: 2px;
+  text-transform: none;
+  transition: background-color .15s ease, color .15s ease, border-color .15s ease, box-shadow .15s ease;
+
+  &.lw-btn-sm {
+    font-size: .9375rem;
+    padding: .375rem 1rem;
+  }
+
+  // El legado fuerza display:block/width:100% en .btn-primary/.btn-secondary
+  // en movil; los pill del rediseno se mantienen inline por defecto.
+  @media (max-width: 575.98px) {
+    display: inline-block;
+    width: auto;
+  }
+}
+
+.lw-btn-accent {
+  background-color: var(--brand-accent);
+  border-color: var(--brand-accent);
+  color: #fff;
+
+  &:hover,
+  &:focus-visible {
+    background-color: var(--brand-accent-dark);
+    border-color: var(--brand-accent-dark);
+    color: #fff;
+  }
+}
+
+.lw-btn-accent-outline {
+  background-color: #fff;
+  border-color: var(--brand-accent);
+  color: var(--brand-accent);
+
+  &:hover,
+  &:focus-visible {
+    background-color: var(--brand-accent);
+    border-color: var(--brand-accent);
+    color: #fff;
+  }
+}
+
+.lw-btn-brand {
+  background-color: var(--brand-primary);
+  border-color: var(--brand-primary);
+  color: #fff;
+
+  &:hover,
+  &:focus-visible {
+    background-color: var(--brand-primary-dark);
+    border-color: var(--brand-primary-dark);
+    color: #fff;
+  }
+}
+
+.lw-btn-brand-outline {
+  background-color: #fff;
+  border-color: var(--brand-primary);
+  // Texto lima sobre blanco: variante accesible (ver main.scss).
+  color: var(--brand-primary-text);
+
+  &:hover,
+  &:focus-visible {
+    background-color: var(--brand-primary);
+    border-color: var(--brand-primary);
+    color: #fff;
+  }
+}
+
+// Variante "sobre foto" (hero): el outline va blanco translucido.
+.lw-btn-brand-outline.lw-on-photo {
+  background-color: rgba(255, 255, 255, .92);
+  color: var(--brand-primary-text);
+}
+
+// ---------------------------------------------------------------
+// Badge pill (Oferta / Nuevo) para esquinas de tarjetas
+// ---------------------------------------------------------------
+.lw-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: .375rem;
+  font-family: var(--lw-font);
+  font-size: .8125rem;
+  font-weight: 500;
+  line-height: 1;
+  padding: .5rem .875rem;
+  border-radius: var(--lw-radius-pill);
+  background-color: var(--brand-primary);
+  color: #fff;
+
+  .bi { font-size: .875em; }
+}
+
+// ---------------------------------------------------------------
+// Tarjeta base (contenedor): las tarjetas de producto, quick-cards y FAQ
+// comparten radio, borde y sombra.
+// ---------------------------------------------------------------
+.lw-card {
+  background-color: var(--lw-surface-card);
+  border: 1px solid var(--lw-border);
+  border-radius: var(--lw-radius-card);
+  box-shadow: var(--lw-shadow-card);
+  transition: box-shadow .2s ease, transform .2s ease;
+  font-family: var(--lw-font);
+
+  // El legado pone Anek Bangla en h1-h6 globalmente; dentro de una tarjeta
+  // del rediseno todo va en Poppins.
+  h1, h2, h3, h4, h5, h6, p {
+    font-family: var(--lw-font);
+  }
+
+  &.lw-card-hover:hover {
+    box-shadow: var(--lw-shadow-card-hover);
+    transform: translateY(-2px);
+  }
+}

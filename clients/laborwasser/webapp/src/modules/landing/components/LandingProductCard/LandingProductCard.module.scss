@@ -1,0 +1,192 @@
+// LandingProductCard — geometria de la tarjeta de producto del rediseno.
+// Colores/radios/sombras vienen de los tokens --lw-* (branding.scss) y del
+// contenedor .lw-card (redesign.scss); aqui solo layout y tipografia local.
+
+.card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  font-family: var(--lw-font);
+}
+
+// --- Imagen -----------------------------------------------------------
+.media {
+  position: relative;
+  display: block;
+  // Figma: area de imagen 365x209 (aspect 1.75)
+  aspect-ratio: 365 / 209;
+  background-color: var(--lw-surface-image);
+  border-bottom: 1px solid var(--lw-border);
+  overflow: hidden;
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  // Figma: la foto ocupa 260x166 dentro de 365x209 (~1.7rem de aire)
+  padding: 1.5rem 3rem;
+  // La mayoria de las fotos de producto vienen sobre blanco; el mix las
+  // integra al gris suave del area de imagen sin recortarlas.
+  mix-blend-mode: multiply;
+}
+
+.placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--lw-text-faint);
+  font-size: 3rem;
+}
+
+.badge {
+  position: absolute;
+  // Figma: badge de 31px de alto a 16px del borde superior y ~17px del derecho
+  top: 1rem;
+  right: 1rem;
+}
+
+// --- Cuerpo -----------------------------------------------------------
+.body {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  // Figma: padding 15px lateral, 19px arriba, 23px abajo
+  padding: 1.1875rem .9375rem 1.4375rem;
+  gap: .625rem;
+}
+
+.meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: .5rem;
+  font-size: .75rem;
+  line-height: 1.2;
+}
+
+.brand {
+  color: var(--brand-accent);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.category {
+  color: var(--lw-text-faint);
+  text-align: right;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.name {
+  margin: 0;
+  // Figma: 15px/21px, 3 lineas = 63px de alto
+  font-size: .9375rem;
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--lw-text);
+  // 3 lineas maximo, como en el Figma
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+
+  a {
+    color: inherit;
+    text-decoration: none;
+
+    &:hover { color: var(--brand-accent); }
+  }
+}
+
+.subtitle {
+  margin: 0;
+  font-size: .75rem;
+  line-height: 1.4;
+  color: var(--lw-text-soft);
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.facts {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: .75rem;
+  margin-top: auto; // empuja Modelo/precio y botones al fondo: alturas parejas
+  padding-top: .625rem;
+  border-top: 1px solid var(--lw-border);
+  font-size: .875rem;
+}
+
+// En la variante "offer" (sin subtitulo) el Figma NO lleva la linea divisoria
+.card:not(:has(.subtitle)) .facts {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.model {
+  color: var(--lw-text);
+  font-weight: 500;
+}
+
+.price {
+  color: var(--brand-primary-text);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.actions {
+  display: flex;
+  gap: 2.5rem; // Figma: 41px entre "Ver detalles" y "Cotizar"
+  align-items: center;
+  justify-content: space-between;
+  padding-top: .25rem;
+
+  // Figma: botones de 150x40
+  > * { flex: 1 1 0; min-height: 2.5rem; }
+}
+
+.actionsCenter {
+  justify-content: center;
+
+  > * { flex: 0 0 auto; }
+}
+
+// --- Skeleton -----------------------------------------------------------
+@keyframes lwPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .5; }
+}
+
+.skeletonMedia,
+.skeletonLine,
+.skeletonButton {
+  background-color: var(--lw-surface-image);
+  animation: lwPulse 1.4s ease-in-out infinite;
+}
+
+.skeletonLine {
+  height: .875rem;
+  border-radius: 4px;
+  width: 100%;
+}
+.skeletonMedium { width: 70%; }
+.skeletonShort { width: 40%; }
+
+.skeletonButton {
+  height: 2.5rem;
+  border-radius: var(--lw-radius-pill);
+  width: 100%;
+  max-width: 10rem;
+}

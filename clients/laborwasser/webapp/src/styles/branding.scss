@@ -42,4 +42,35 @@
   // Footer banner background (dark navy bottom bar).
   --brand-banner-bg: #012A94;
   --brand-banner-text: #FFFFFF;
+
+  // ---------------------------------------------------------------
+  // Rediseno 2026-08 (Figma "Labor wasser", pantalla principal).
+  // Tokens medidos del PDF del disenador; los usan las clases .lw-* de
+  // src/styles/redesign.scss y los componentes del landing. Cualquier
+  // pantalla nueva debe consumir ESTOS tokens, no hexadecimales sueltos.
+  // ---------------------------------------------------------------
+  // Superficies
+  --lw-surface-tint: #EAF6FF;      // fondo del footer y bloques suaves
+  --lw-surface-card: #FFFFFF;
+  --lw-surface-image: #F3F4F6;     // area de imagen dentro de las tarjetas
+  --lw-frame-blue: #B2DEFF;        // marco decorativo azul (Por que comprar)
+  --lw-frame-green: #DBEEB3;       // marco decorativo verde
+  --lw-hero-overlay: rgba(0, 148, 255, 0.72); // gradiente sobre la foto del hero
+
+  // Texto
+  --lw-text: #212529;
+  --lw-text-soft: #6C757D;
+  --lw-text-faint: #B5BAC3;        // categoria en tarjetas, metadatos
+
+  // Bordes, radios, sombras
+  --lw-border: #DCDCDC;
+  --lw-radius-card: 16px;
+  --lw-radius-pill: 999px;
+  --lw-radius-input: 12px;
+  --lw-shadow-card: 0 4px 16px rgba(33, 37, 41, 0.08);
+  --lw-shadow-card-hover: 0 10px 28px rgba(33, 37, 41, 0.14);
+  --lw-shadow-float: 0 12px 32px rgba(0, 0, 0, 0.12);
+
+  // Tipografia del rediseno: Poppins para todo (titulos incluidos).
+  --lw-font: "Poppins", system-ui, -apple-system, sans-serif;
 }

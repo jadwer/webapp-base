@@ -1,183 +1,84 @@
-// OFERTAS DEL MES COMPONENT STYLES
-// Featured products section - Labor Wasser de Mexico
-// Color scheme: blue-1 (#0d6efd), blue-2 (#0b5ed7)
+// OfertasDelMes — rediseno 2026-08. Fondo blanco, sin bloques azules.
+// La tarjeta vive en LandingProductCard; aqui solo el ritmo de la seccion y
+// el fallback estatico (misma geometria).
 
-.ofertas {
-  padding: 60px 0;
-  background: #f8f9fa;
+.section {
+  padding: 4rem 0 3rem;
+  background-color: var(--brand-bg);
+  font-family: var(--lw-font);
 }
 
-.sectionHeader {
-  text-align: center;
-  margin-bottom: 40px;
+.grid {
+  // Las columnas estiran las tarjetas a la misma altura
+  > [class*='col-'] { display: flex; }
+  > [class*='col-'] > * { width: 100%; }
 }
 
-.sectionTitle {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #212529;
-  margin-bottom: 0;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-
-  @media (max-width: 767px) {
-    font-size: 1.5rem;
-  }
-}
-
-// Product card link
-.productCardLink {
-  text-decoration: none;
-  display: block;
+// --- Fallback curado (espejo de LandingProductCard) --------------------
+.fallbackCard {
+  display: flex;
+  flex-direction: column;
   height: 100%;
-}
-
-// Product card styles
-.productCard {
-  border-radius: 16px;
-  transition: all 0.3s ease;
   overflow: hidden;
-  height: 100%;
+}
+
+.fallbackMedia {
   position: relative;
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-
-  &:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.2);
-  }
+  aspect-ratio: 16 / 10;
+  background-color: var(--lw-surface-image);
+  border-bottom: 1px solid var(--lw-border);
 }
 
-// Color variants based on the original site
-.blue1 {
-  background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
-  color: white;
-
-  .productName,
-  .productDescription,
-  .precioLabel,
-  .precio,
-  .iva {
-    color: white;
-  }
-}
-
-.blue2 {
-  background: linear-gradient(135deg, #084298 0%, #052c65 100%);
-  color: white;
-
-  .productName,
-  .productDescription,
-  .precioLabel,
-  .precio,
-  .iva {
-    color: white;
-  }
-}
-
-.blue3 {
-  background: linear-gradient(135deg, #6610f2 0%, #520dc2 100%);
-  color: white;
-
-  .productName,
-  .productDescription,
-  .precioLabel,
-  .precio,
-  .iva {
-    color: white;
-  }
-}
-
-.productImage {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 20px;
-  padding: 16px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-}
-
-.productImg {
-  max-width: 100%;
-  height: auto;
+.fallbackImage {
   object-fit: contain;
-  border-radius: 8px;
+  padding: 1rem;
+  mix-blend-mode: multiply;
 }
 
-.productContent {
-  flex: 1;
+.fallbackBadge {
+  position: absolute;
+  top: .875rem;
+  right: .875rem;
+}
+
+.fallbackBody {
   display: flex;
   flex-direction: column;
+  flex: 1 1 auto;
+  gap: .625rem;
+  padding: 1rem 1rem 1.25rem;
 }
 
-.productName {
-  font-size: 1.1rem;
-  font-weight: 600;
-  margin-bottom: 12px;
-  line-height: 1.3;
+.fallbackName {
+  margin: 0;
+  font-size: .9375rem;
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--lw-text);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
-.productDescription {
-  font-size: 0.9rem;
-  margin-bottom: 20px;
-  line-height: 1.5;
-  opacity: 0.9;
-  flex: 1;
-}
-
-.productPricing {
+.fallbackFacts {
   display: flex;
+  justify-content: space-between;
   align-items: baseline;
-  gap: 8px;
+  gap: .75rem;
   margin-top: auto;
+  font-size: .875rem;
+  font-weight: 500;
+  color: var(--lw-text);
 }
 
-.precioLabel {
-  font-size: 0.85rem;
-  opacity: 0.8;
+.fallbackPrice {
+  color: var(--brand-primary-text);
+  white-space: nowrap;
 }
 
-.precio {
-  font-size: 1.5rem;
-  font-weight: 700;
-}
-
-.iva {
-  font-size: 0.85rem;
-  opacity: 0.8;
-}
-
-// Responsive adjustments
-@media (max-width: 991px) {
-  .ofertas {
-    padding: 50px 0;
-  }
-
-  .productCard {
-    padding: 20px;
-  }
-}
-
-@media (max-width: 767px) {
-  .ofertas {
-    padding: 40px 0;
-  }
-
-  .sectionHeader {
-    margin-bottom: 30px;
-  }
-
-  .productName {
-    font-size: 1rem;
-  }
-
-  .productDescription {
-    font-size: 0.85rem;
-  }
-
-  .precio {
-    font-size: 1.3rem;
-  }
+.fallbackActions {
+  display: flex;
+  justify-content: center;
+  padding-top: .25rem;
 }

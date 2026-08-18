@@ -1,236 +1,86 @@
 'use client'
 
-import React from 'react'
+/**
+ * NUESTROS NUEVOS PRODUCTOS (rediseno 2026-08; antes "Ultimos productos")
+ *
+ * Encabezado "Nuestros <nuevos> productos" + "Ver todos", y una fila de
+ * LandingProductCard variante new. Datos: los ultimos AGREGADOS (createdAt
+ * desc) con cantidad configurable en app-config (landing.latest_products_count;
+ * el rediseno muestra 3). El boton "Cotizar" usa el mismo flujo que el
+ * catalogo: agrega al carrito local y abre /cart?action=quote (antes no
+ * hacia nada). Se elimino la lectura de `cost` (patron de la fuga de costo).
+ */
+
+import React, { useCallback } from 'react'
 import Link from 'next/link'
-import { Button } from '@lwm/ui'
+import { useRouter } from 'next/navigation'
+import { useLocalCart, type EnhancedPublicProduct } from '@lwm/ecommerce'
+import { useToast } from '@lwm/ui'
 import { usePublicSettings } from '@lwm/app-config'
-import { useLatestProducts } from '../../hooks'
-// Define transformed product type that matches the hook return
-interface TransformedProduct {
-  id: string
-  name: string
-  description: string | null
-  price: number | null
-  sku: string | null
-  imageUrl: string | null
-  createdAt: string
-  updatedAt: string
-  unit: {
-    id: string
-    name: string
-    abbreviation: string | null
-    description: string | null
-  } | null
-  category: {
-    id: string
-    name: string
-    description: string | null
-    slug: string | null
-    imageUrl: string | null
-  } | null
-  brand: {
-    id: string
-    name: string
-    description: string | null
-    slug: string | null
-    logoUrl: string | null
-    websiteUrl: string | null
-  } | null
-  iva: boolean
-  cost: number | null
-}
+import { useLatestProductsEnhanced } from '../../hooks'
+import { LandingProductCard, LandingProductCardSkeleton } from '../LandingProductCard'
 import styles from './UltimosProductos.module.scss'
 
 export const UltimosProductos: React.FC = () => {
-  // Fase 3 (landing.*): cantidad configurable en app-config; fallback al 6 historico.
   const { get } = usePublicSettings()
-  const latestCount = Number(get('landing.latest_products_count')) || 6
-  const { products, total, isLoading, error } = useLatestProducts({ limit: latestCount })
+  const latestCount = Number(get('landing.latest_products_count')) || 3
+  const { products, isLoading, error } = useLatestProductsEnhanced({ limit: latestCount })
+  const { addToCart } = useLocalCart()
+  const toast = useToast()
+  const router = useRouter()
 
-  if (error) {
-    return (
-      <section className={styles.ultimosProductos}>
-        <div className="container">
-          <div className="alert alert-warning">
-            No se pudieron cargar los productos. Intenta nuevamente más tarde.
-          </div>
-        </div>
-      </section>
-    )
-  }
+  const handleRequestQuote = useCallback((product: EnhancedPublicProduct) => {
+    addToCart(product, 1)
+    toast.info(`${product.displayName} agregado. Redirigiendo a cotizacion...`)
+    // Dejar que React/localStorage persistan el carrito antes de navegar
+    setTimeout(() => router.push('/cart?action=quote'), 50)
+  }, [addToCart, toast, router])
 
   return (
-    <section className={styles.ultimosProductos}>
+    <section className={styles.section} aria-labelledby="nuevos-title">
       <div className="container">
-        <div className="row">
-          <div className="col-12">
-            <div className={styles.sectionHeader}>
-              <h2 className={styles.sectionTitle}>ÚLTIMOS PRODUCTOS</h2>
-              <p className={styles.sectionSubtitle}>
-                Descubre nuestras últimas incorporaciones al catálogo de productos
-              </p>
-              {total > 0 && (
-                <p className={styles.totalProducts}>
-                  <i className="bi bi-box-seam" />
-                  {total.toLocaleString('es-MX')} productos disponibles
-                </p>
-              )}
-            </div>
-          </div>
+        <div className="lw-section-header">
+          <h2 id="nuevos-title" className="lw-section-title">
+            Nuestros <span className="lw-highlight">nuevos</span> productos
+          </h2>
+          <Link href="/productos" className="lw-link-more">Ver todos</Link>
         </div>
 
-        <div className="row">
-          {isLoading ? (
-            // Loading skeleton
-            Array.from({ length: 6 }).map((_, index) => (
-              <div key={index} className="col-lg-4 col-md-6 mb-4">
-                <div className={styles.productCard}>
-                  <div className={styles.productImageSkeleton}></div>
-                  <div className={styles.productContent}>
-                    <div className={styles.textSkeleton}></div>
-                    <div className={styles.textSkeleton}></div>
-                    <div className={styles.priceSkeleton}></div>
-                    <div className={styles.buttonSkeleton}></div>
-                  </div>
-                </div>
+        {error && !isLoading && (
+          <div className="alert alert-warning" role="alert">
+            No se pudieron cargar los productos. Intenta nuevamente mas tarde.
+          </div>
+        )}
+
+        <div className={`row g-4 ${styles.grid}`}>
+          {isLoading &&
+            Array.from({ length: latestCount }).map((_, i) => (
+              <div key={i} className="col-12 col-md-6 col-lg-4">
+                <LandingProductCardSkeleton variant="new" />
               </div>
-            ))
-          ) : products.length > 0 ? (
-            // Actual products
-            products.map((product: TransformedProduct) => (
-              <div key={product.id} className="col-lg-4 col-md-6 mb-4">
-                <div className={styles.productCard}>
-                  {/* New badge for recently added products */}
-                  <div className={styles.newBadge}>
-                    <span className={styles.badge}>NUEVO</span>
-                  </div>
+            ))}
 
-                  <div className={styles.productImage}>
-                    {product.imageUrl ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={product.imageUrl}
-                        alt={product.name}
-                        className={styles.productImagePhoto}
-                        loading="lazy"
-                        onError={(e) => {
-                          // Al fallar la imagen, mostrar el placeholder de caja.
-                          const el = e.currentTarget
-                          el.style.display = 'none'
-                          const ph = el.nextElementSibling as HTMLElement | null
-                          if (ph) ph.style.display = ''
-                        }}
-                      />
-                    ) : null}
-                    <div
-                      className={styles.productImagePlaceholder}
-                      style={product.imageUrl ? { display: 'none' } : undefined}
-                    >
-                      <i className="bi bi-box-seam" />
-                      <span>{product.category?.name || 'Producto'}</span>
-                    </div>
-                  </div>
-
-                  <div className={styles.productContent}>
-                    <div className={styles.productMeta}>
-                      <span className={styles.productBrand}>
-                        {product.brand?.name || 'Labor Wasser'}
-                      </span>
-                      <span className={styles.productCategory}>
-                        {product.category?.name || 'General'}
-                      </span>
-                    </div>
-
-                    <h3 className={styles.productName}>
-                      {product.name}
-                    </h3>
-
-                    <p className={styles.productDescription}>
-                      {product.description || 'Producto de alta calidad para laboratorio profesional.'}
-                    </p>
-
-                    <div className={styles.productDetails}>
-                      {product.sku && (
-                        <div className={styles.productSku}>
-                          <i className="bi bi-upc" />
-                          <span>SKU: {product.sku}</span>
-                        </div>
-                      )}
-                      {product.unit?.name && (
-                        <div className={styles.productUnit}>
-                          <i className="bi bi-rulers" />
-                          <span>Unidad: {product.unit.name}</span>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className={styles.productPricing}>
-                      {product.price && (
-                        <span className={styles.productPrice}>
-                          ${product.price.toLocaleString('es-MX')}
-                          {product.iva && <span className={styles.ivaText}>+ IVA</span>}
-                        </span>
-                      )}
-                      {product.cost && product.cost !== product.price && (
-                        <span className={styles.productCost}>
-                          Costo: ${product.cost.toLocaleString('es-MX')}
-                        </span>
-                      )}
-                    </div>
-
-                    <div className={styles.productActions}>
-                      <Link href={`/productos/${product.id}`}>
-                        <Button
-                          variant="primary"
-                          buttonStyle="outline"
-                          size="small"
-                          className={styles.viewButton}
-                        >
-                          <i className="bi bi-eye" />
-                          Ver Detalles
-                        </Button>
-                      </Link>
-                      <Button
-                        variant="success"
-                        size="small"
-                        className={styles.quoteButton}
-                      >
-                        <i className="bi bi-calculator" />
-                        Cotizar
-                      </Button>
-                    </div>
-                  </div>
-                </div>
+          {!isLoading && !error &&
+            products.map((product) => (
+              <div key={product.id} className="col-12 col-md-6 col-lg-4">
+                <LandingProductCard
+                  product={product}
+                  variant="new"
+                  onRequestQuote={handleRequestQuote}
+                />
               </div>
-            ))
-          ) : (
-            // No products fallback
+            ))}
+
+          {!isLoading && !error && products.length === 0 && (
             <div className="col-12">
-              <div className={styles.noProducts}>
-                <i className="bi bi-box" />
-                <h3>Próximamente nuevos productos</h3>
-                <p>Estamos trabajando en agregar más productos a nuestro catálogo. ¡Vuelve pronto!</p>
+              <div className={styles.empty}>
+                <i className="bi bi-box" aria-hidden="true" />
+                <h3>Proximamente nuevos productos</h3>
+                <p>Estamos agregando mas productos a nuestro catalogo. Vuelve pronto.</p>
               </div>
             </div>
           )}
         </div>
-
-        {products.length > 0 && (
-          <div className="row">
-            <div className="col-12 text-center">
-              <Link href="/productos">
-                <Button
-                  variant="primary"
-                  size="large"
-                  className={styles.viewAllButton}
-                >
-                  Ver Todos los Productos
-                  <i className="bi bi-arrow-right ms-2" />
-                </Button>
-              </Link>
-            </div>
-          </div>
-        )}
       </div>
     </section>
   )

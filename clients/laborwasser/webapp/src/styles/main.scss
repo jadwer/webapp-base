@@ -19,6 +19,11 @@
 //    the home page only.
 @use '../modules/landing/styles/laborwasser.scss';
 
+// 3b) Utilidades del rediseno 2026-08 (.lw-*): botones pill, titulos con
+//     resaltado, badges, encabezados de seccion. Van DESPUES del legado para
+//     poder vencer sus reglas (border-radius:0, uppercase, display:block).
+@use './redesign.scss';
+
 // 4) Accesibilidad del lima de marca EN TEXTO.
 //    Bootstrap se compila con $primary: #8AC905, asi que .text-primary, los
 //    links y cualquier texto "primary" heredan el lima, que sobre fondo claro
