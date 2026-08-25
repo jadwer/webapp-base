@@ -6,17 +6,12 @@
 
 'use client'
 
-import React, { useState, useEffect, useRef } from 'react'
+import React from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useRouter, useSearchParams } from 'next/navigation'
 import { Button, Modal } from '@lwm/ui'
-import { useLocalCart } from '../hooks/useLocalCart'
 import type { LocalCartItem } from '../hooks/useLocalCart'
-import { useAuth } from '@lwm/auth'
-import { toast } from '@lwm/ui'
-import { quoteServices as quoteServiceModule } from '@lwm/sales'
-import { shoppingCartService, CartSyncAuthError } from '@lwm/ecommerce'
+import { useLocalCartPageController } from '../hooks/useLocalCartPageController'
 import { usePublicSettings } from '@lwm/app-config'
 import { taxHintLabel } from '../../utils/taxHint'
 
@@ -31,17 +26,10 @@ export const LocalCartPage: React.FC<LocalCartPageProps> = ({
   checkoutUrl = '/checkout',
   continueShoppingUrl = '/productos'
 }) => {
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const { isAuthenticated, isLoading: authLoading } = useAuth()
   const { pricesIncludeTax } = usePublicSettings()
-  const [isRequestingQuote, setIsRequestingQuote] = useState(false)
-  const [isSyncingToCheckout, setIsSyncingToCheckout] = useState(false)
-  const [showQuoteModal, setShowQuoteModal] = useState(false)
-  const [quoteNote, setQuoteNote] = useState('')
-  const hasProcessedPendingQuote = useRef(false)
-  const hasProcessedCheckout = useRef(false)
 
+  // Motor headless compartido (misma logica de siempre); las pieles por
+  // tenant consumen este mismo hook. Ver useLocalCartPageController.
   const {
     items,
     totals,
@@ -51,169 +39,18 @@ export const LocalCartPage: React.FC<LocalCartPageProps> = ({
     updateQuantity,
     incrementQuantity,
     decrementQuantity,
-    clearCart
-  } = useLocalCart()
-
-  // Auto-process pending quote request after login
-  useEffect(() => {
-    const action = searchParams.get('action')
-
-    // Only process if:
-    // 1. User just returned with action=quote
-    // 2. User is authenticated
-    // 3. Cart is initialized
-    // 4. Haven't processed yet this session
-    // 5. Not currently requesting
-    if (
-      action === 'quote' &&
-      isAuthenticated &&
-      !authLoading &&
-      isInitialized &&
-      items.length > 0 &&
-      !hasProcessedPendingQuote.current &&
-      !isRequestingQuote
-    ) {
-      hasProcessedPendingQuote.current = true
-      // Small delay to ensure UI is ready
-      const timer = setTimeout(() => {
-        // Reopen the quote modal so the user can still add a note
-        setShowQuoteModal(true)
-        // Clean up URL params
-        router.replace('/cart')
-      }, 500)
-      return () => clearTimeout(timer)
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams, isAuthenticated, authLoading, isInitialized, items.length, isRequestingQuote])
-
-  // Open the "Generar cotizacion" modal (or redirect to login first)
-  const handleOpenQuoteModal = () => {
-    if (items.length === 0) {
-      toast.error('El carrito esta vacio')
-      return
-    }
-
-    if (!isAuthenticated) {
-      // Save cart items to sessionStorage for after login
-      sessionStorage.setItem('pendingQuoteCart', JSON.stringify(items))
-      // Redirect to login with return URL to cart
-      toast.info('Inicia sesión para generar una cotización')
-      router.push('/auth/login?redirect=' + encodeURIComponent('/cart?action=quote'))
-      return
-    }
-
-    setShowQuoteModal(true)
-  }
-
-  // Handle quote generation from cart (POST /quotes/from-cart)
-  const handleRequestQuote = async () => {
-    if (items.length === 0) {
-      toast.error('El carrito esta vacio')
-      return
-    }
-
-    if (!isAuthenticated) {
-      sessionStorage.setItem('pendingQuoteCart', JSON.stringify(items))
-      toast.info('Inicia sesión para generar una cotización')
-      router.push('/auth/login?redirect=' + encodeURIComponent('/cart?action=quote'))
-      return
-    }
-
-    setIsRequestingQuote(true)
-
-    try {
-      // Sync local cart to API cart first - from-cart endpoint needs a real shopping_cart_id
-      const apiCart = await shoppingCartService.localSync.syncLocalCartToAPI(items)
-
-      const response = await quoteServiceModule.quotes.createFromCart({
-        shopping_cart_id: parseInt(apiCart.id),
-        // contact_id is resolved server-side from the authenticated user when omitted
-        notes: quoteNote.trim() || undefined
-      })
-
-      // Clear the cart after successful quote generation
-      clearCart()
-      setShowQuoteModal(false)
-      setQuoteNote('')
-
-      toast.success('Cotizacion generada')
-      router.push(`/dashboard/my-quotes/${response.data.id}`)
-    } catch (error) {
-      console.error('Error requesting quote:', error)
-      toast.error('Error al procesar la solicitud de cotización')
-    } finally {
-      setIsRequestingQuote(false)
-    }
-  }
-
-  // Handle proceed to checkout - sync local cart to API first
-  const handleProceedToCheckout = async () => {
-    if (items.length === 0) {
-      toast.error('El carrito esta vacio')
-      return
-    }
-
-    setIsSyncingToCheckout(true)
-
-    try {
-      // Check if user is authenticated
-      if (!isAuthenticated) {
-        // Save intent to checkout after login
-        toast.info('Inicia sesion para proceder al pago')
-        router.push('/auth/login?redirect=' + encodeURIComponent('/cart?action=checkout'))
-        return
-      }
-
-      // Sync local cart to API
-      toast.info('Preparando tu carrito...')
-
-      const apiCart = await shoppingCartService.localSync.syncLocalCartToAPI(items)
-
-      // Save cart ID for checkout page
-      shoppingCartService.localSync.saveCartIdForCheckout(apiCart.id)
-
-      toast.success('Carrito listo!')
-
-      // Navigate to checkout - do NOT clear local cart here.
-      // Cart is cleared after the order is successfully placed in CheckoutPage.
-      if (onCheckout) {
-        onCheckout()
-      } else {
-        router.push(checkoutUrl)
-      }
-    } catch (error) {
-      // Distinguish an expired session so the user can re-authenticate and retry,
-      // instead of a generic error. The local cart is preserved in either case.
-      if (error instanceof CartSyncAuthError) {
-        toast.error('Tu sesion expiro. Inicia sesion de nuevo para continuar.')
-        router.push('/auth/login?redirect=' + encodeURIComponent('/cart?action=checkout'))
-        return
-      }
-      toast.error('Error al preparar el carrito. Por favor intenta de nuevo.')
-      setIsSyncingToCheckout(false)
-    }
-  }
-
-  // Auto-process checkout after login (when action=checkout)
-  useEffect(() => {
-    const action = searchParams.get('action')
-
-    if (
-      action === 'checkout' &&
-      isAuthenticated &&
-      !authLoading &&
-      isInitialized &&
-      items.length > 0 &&
-      !hasProcessedCheckout.current &&
-      !isSyncingToCheckout
-    ) {
-      hasProcessedCheckout.current = true
-      // Clean up URL and process checkout
-      router.replace('/cart')
-      handleProceedToCheckout()
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams, isAuthenticated, authLoading, isInitialized, items.length])
+    isRequestingQuote,
+    isSyncingToCheckout,
+    showQuoteModal,
+    setShowQuoteModal,
+    quoteNote,
+    setQuoteNote,
+    clearCart,
+    authLoading,
+    handleOpenQuoteModal,
+    handleRequestQuote,
+    handleProceedToCheckout,
+  } = useLocalCartPageController({ checkoutUrl, onCheckout })
 
   // Format price
   const formatPrice = (price: number): string => {

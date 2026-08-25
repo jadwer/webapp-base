@@ -76,6 +76,8 @@ export {
   // Motor headless del catalogo (rediseno 2026-08): estado + facetas +
   // handlers; las pieles por tenant lo consumen sin duplicar logica
   usePublicCatalogController,
+  // Motor headless de la pagina de carrito (rediseno 2026-08)
+  useLocalCartPageController,
   // LocalStorage cart hooks + legacy migration helpers
   useLocalCart,
   useLocalCartCount,
@@ -89,7 +91,9 @@ export type {
   LocalCart,
   CartTotals,
   PublicCatalogController,
-  PublicCatalogControllerOptions
+  PublicCatalogControllerOptions,
+  LocalCartPageController,
+  LocalCartPageControllerOptions
 } from './hooks'
 
 // Export components

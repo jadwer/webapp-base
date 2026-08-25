@@ -54,3 +54,5 @@ export type {
 
 export { usePublicCatalogController } from './usePublicCatalogController'
 export type { PublicCatalogController, PublicCatalogControllerOptions } from './usePublicCatalogController'
+export { useLocalCartPageController } from './useLocalCartPageController'
+export type { LocalCartPageController, LocalCartPageControllerOptions } from './useLocalCartPageController'
