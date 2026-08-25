@@ -1,0 +1,32 @@
+// CatalogHero — Figma: banda de ~440px, gradiente #cce9ff -> blanco,
+// badge verde pill, titulo 40 bold navy #012a94, subtitulo 20 semibold navy.
+
+.hero {
+  background: linear-gradient(180deg, #cce9ff 0%, rgba(204, 233, 255, .35) 65%, #fff 100%);
+  padding: 4rem 0 3.5rem;
+  font-family: var(--lw-font);
+}
+
+.badge {
+  font-size: 1rem;
+  padding: .5rem 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+.title {
+  font-family: var(--lw-font);
+  font-weight: 700;
+  font-size: clamp(1.75rem, 1.2rem + 2vw, 2.5rem);
+  color: var(--brand-secondary);
+  margin: 0 0 .75rem;
+  text-transform: none;
+  text-align: center !important;
+}
+
+.subtitle {
+  font-family: var(--lw-font);
+  font-weight: 600;
+  font-size: clamp(1rem, .9rem + .5vw, 1.25rem);
+  color: var(--brand-secondary);
+  margin: 0;
+}

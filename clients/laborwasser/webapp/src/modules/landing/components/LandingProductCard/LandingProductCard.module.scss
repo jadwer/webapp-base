@@ -190,3 +190,52 @@
   width: 100%;
   max-width: 10rem;
 }
+
+// --- Variante catalog (rediseno del catalogo) ---------------------------
+.catalog {
+  .price {
+    // En el catalogo el precio va en azul (PDF: #0094ff); en el home, verde
+    color: var(--brand-accent);
+  }
+}
+
+// --- Orientacion horizontal (vista lista del catalogo) -------------------
+.horizontal {
+  flex-direction: row;
+
+  .media {
+    flex: 0 0 13.75rem; // Figma: imagen ~220 de ancho por fila
+    aspect-ratio: auto;
+    min-height: 100%;
+    border-bottom: 0;
+    border-right: 1px solid var(--lw-border);
+  }
+
+  .body {
+    padding: 1rem 1.25rem;
+  }
+
+  .badge {
+    top: .75rem;
+    left: .75rem;
+    right: auto;
+  }
+
+  .actions {
+    justify-content: flex-end;
+    padding-top: .5rem;
+
+    > * { flex: 0 1 12rem; }
+  }
+
+  @media (max-width: 575.98px) {
+    flex-direction: column;
+
+    .media {
+      flex: none;
+      aspect-ratio: 365 / 209;
+      border-right: 0;
+      border-bottom: 1px solid var(--lw-border);
+    }
+  }
+}

@@ -1,0 +1,164 @@
+// CatalogSidebar — Figma: panel de 280px, titulos 16 #212529, checkboxes
+// azules, counts #6c757d, links azules, separadores entre grupos.
+
+.sidebar {
+  font-family: var(--lw-font);
+  font-size: .9375rem;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+  margin-bottom: 1rem;
+}
+
+.headerTitle {
+  font-weight: 500;
+  color: var(--lw-text);
+}
+
+.clearBtn {
+  font-size: .8125rem;
+  padding: .25rem .875rem;
+  min-height: 0;
+}
+
+// --- Chips de filtros activos --------------------------------------------
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+  margin-bottom: 1rem;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: .375rem;
+  padding: .25rem .75rem;
+  border: 1px solid var(--brand-accent);
+  border-radius: var(--lw-radius-pill);
+  background: #fff;
+  color: var(--lw-text);
+  font-family: var(--lw-font);
+  font-size: .8125rem;
+  cursor: pointer;
+  transition: background .15s ease, color .15s ease;
+
+  :global(.bi) { color: var(--brand-accent); }
+
+  &:hover,
+  &:focus-visible {
+    background: var(--lw-surface-tint);
+  }
+}
+
+// --- Grupos ----------------------------------------------------------------
+.group {
+  border-top: 1px solid var(--lw-border);
+  padding: .875rem 0;
+}
+
+.groupHeader {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: .5rem;
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  font-weight: 500;
+  color: var(--lw-text);
+  cursor: pointer;
+
+  :global(.bi) { color: var(--lw-text-soft); font-size: .8125rem; }
+
+  &:hover,
+  &:focus-visible { color: var(--brand-accent); }
+}
+
+.groupBody {
+  padding-top: .75rem;
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+}
+
+// --- Opciones --------------------------------------------------------------
+.option {
+  display: flex;
+  align-items: flex-start;
+  gap: .625rem;
+  cursor: pointer;
+  margin: 0;
+
+  :global(.form-check-input) {
+    margin-top: .2rem;
+    flex: 0 0 auto;
+    border-color: var(--lw-border);
+    cursor: pointer;
+
+    &:checked {
+      background-color: var(--brand-accent);
+      border-color: var(--brand-accent);
+    }
+
+    &:focus {
+      border-color: var(--brand-accent);
+      box-shadow: 0 0 0 .2rem rgba(0, 148, 255, .15);
+    }
+  }
+}
+
+.optionLabel {
+  color: var(--lw-text);
+  line-height: 1.35;
+}
+
+.optionCount {
+  color: var(--lw-text-soft);
+  white-space: nowrap;
+}
+
+.showMore {
+  background: none;
+  border: 0;
+  padding: 0;
+  text-align: left;
+  font: inherit;
+  font-weight: 500;
+  color: var(--brand-accent);
+  cursor: pointer;
+
+  &:hover,
+  &:focus-visible { text-decoration: underline; }
+}
+
+// --- Min / Max -------------------------------------------------------------
+.priceInputs {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  margin-top: .5rem;
+
+  :global(.form-control) {
+    font-family: var(--lw-font);
+    border-color: var(--lw-border);
+    border-radius: .5rem;
+
+    &:focus {
+      border-color: var(--brand-accent);
+      box-shadow: 0 0 0 .2rem rgba(0, 148, 255, .15);
+    }
+  }
+}
+
+.priceDash {
+  flex: 0 0 .875rem;
+  height: 1px;
+  background: var(--lw-text-soft);
+}

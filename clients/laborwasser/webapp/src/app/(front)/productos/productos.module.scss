@@ -1,0 +1,40 @@
+// /productos — layout del catalogo del rediseno: sidebar 280 + contenido.
+
+.layout {
+  display: grid;
+  grid-template-columns: 17.5rem minmax(0, 1fr); // Figma: sidebar 280
+  column-gap: 2rem;
+  padding-top: 1.5rem;
+  padding-bottom: 2rem;
+  font-family: var(--lw-font);
+
+  @media (max-width: 991.98px) {
+    grid-template-columns: 1fr;
+    row-gap: 1.5rem;
+  }
+}
+
+.main {
+  min-width: 0;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem; // Figma: 20 entre filas
+}
+
+.grid {
+  > [class*='col-'] { display: flex; }
+  > [class*='col-'] > * { width: 100%; }
+}
+
+.empty {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--lw-text-soft);
+
+  :global(.bi) { font-size: 3rem; color: var(--lw-text-faint); }
+  h3 { font-family: var(--lw-font); font-size: 1.25rem; margin: .75rem 0 .25rem; color: var(--lw-text); }
+  p { margin: 0; }
+}

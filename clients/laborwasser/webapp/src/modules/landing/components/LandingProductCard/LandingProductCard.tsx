@@ -19,15 +19,17 @@ import Link from 'next/link'
 import type { EnhancedPublicProduct } from '@lwm/ecommerce'
 import styles from './LandingProductCard.module.scss'
 
-export type LandingProductCardVariant = 'offer' | 'new'
+export type LandingProductCardVariant = 'offer' | 'new' | 'catalog'
 
 export interface LandingProductCardProps {
   product: EnhancedPublicProduct
   variant: LandingProductCardVariant
-  /** "Comprar ahora" (variant offer) */
+  /** "Comprar ahora" (offer) / "Agregar" (catalog) */
   onAddToCart?: (product: EnhancedPublicProduct) => void
-  /** "Cotizar" (variant new) */
+  /** "Cotizar" (new/catalog) */
   onRequestQuote?: (product: EnhancedPublicProduct) => void
+  /** horizontal = vista lista del catalogo (imagen izquierda) */
+  orientation?: 'vertical' | 'horizontal'
   className?: string
 }
 
@@ -56,6 +58,7 @@ export const LandingProductCard: React.FC<LandingProductCardProps> = ({
   variant,
   onAddToCart,
   onRequestQuote,
+  orientation = 'vertical',
   className,
 }) => {
   const detailHref = `/productos/${product.id}`
@@ -63,9 +66,17 @@ export const LandingProductCard: React.FC<LandingProductCardProps> = ({
   const sku = product.attributes.sku
   const imageUrl = product.attributes.imageUrl
   const isOffer = variant === 'offer'
+  const isCatalog = variant === 'catalog'
+  // Catalogo: badge solo cuando el producto ESTA en oferta; home siempre
+  const showBadge = !isCatalog || product.attributes.isOnSale
+  // Regla de acciones del catalogo: comprable (tiene precio) = Cotizar
+  // outline + Agregar solido; sin precio = Ver detalles + Cotizar
+  const purchasable = product.attributes.price !== null && product.attributes.price !== undefined
 
   return (
-    <article className={`lw-card lw-card-hover ${styles.card} ${className || ''}`}>
+    <article
+      className={`lw-card lw-card-hover ${styles.card} ${orientation === 'horizontal' ? styles.horizontal : ''} ${isCatalog ? styles.catalog : ''} ${className || ''}`}
+    >
       {/* Imagen + badge */}
       <Link href={detailHref} className={styles.media} aria-label={product.displayName}>
         {imageUrl ? (
@@ -86,14 +97,16 @@ export const LandingProductCard: React.FC<LandingProductCardProps> = ({
         <div className={styles.placeholder} style={imageUrl ? { display: 'none' } : undefined}>
           <i className="bi bi-box-seam" aria-hidden="true" />
         </div>
-        <span className={`lw-badge ${styles.badge}`}>
-          {isOffer && <i className="bi bi-tag" aria-hidden="true" />}
-          {isOffer ? 'Oferta' : 'Nuevo'}
-        </span>
+        {showBadge && (
+          <span className={`lw-badge ${styles.badge}`}>
+            {(isOffer || isCatalog) && <i className="bi bi-tag" aria-hidden="true" />}
+            {isOffer || isCatalog ? 'Oferta' : 'Nuevo'}
+          </span>
+        )}
       </Link>
 
       <div className={styles.body}>
-        {!isOffer && (
+        {(variant === 'new' || isCatalog) && (
           <div className={styles.meta}>
             <span className={styles.brand}>{product.displayBrand || product.brand?.attributes.name || 'Labor Wasser'}</span>
             <span className={styles.category}>{product.displayCategory || product.category?.attributes.name || 'General'}</span>
@@ -104,7 +117,7 @@ export const LandingProductCard: React.FC<LandingProductCardProps> = ({
           <Link href={detailHref}>{product.displayName}</Link>
         </h3>
 
-        {!isOffer && product.attributes.description && (
+        {(variant === 'new' || isCatalog) && product.attributes.description && (
           <p className={styles.subtitle}>{product.attributes.description}</p>
         )}
 
@@ -116,7 +129,43 @@ export const LandingProductCard: React.FC<LandingProductCardProps> = ({
         </div>
 
         <div className={`${styles.actions} ${isOffer ? styles.actionsCenter : ''}`}>
-          {isOffer ? (
+          {isCatalog ? (
+            purchasable ? (
+              <>
+                <button
+                  type="button"
+                  className="btn lw-btn lw-btn-sm lw-btn-accent-outline"
+                  onClick={() => onRequestQuote?.(product)}
+                  disabled={!onRequestQuote}
+                >
+                  Cotizar
+                </button>
+                <button
+                  type="button"
+                  className="btn lw-btn lw-btn-sm lw-btn-accent"
+                  onClick={() => onAddToCart?.(product)}
+                  disabled={!onAddToCart}
+                >
+                  <i className="bi bi-cart3 me-2" aria-hidden="true" />
+                  Agregar
+                </button>
+              </>
+            ) : (
+              <>
+                <Link href={detailHref} className="btn lw-btn lw-btn-sm lw-btn-accent-outline">
+                  Ver detalles
+                </Link>
+                <button
+                  type="button"
+                  className="btn lw-btn lw-btn-sm lw-btn-accent"
+                  onClick={() => onRequestQuote?.(product)}
+                  disabled={!onRequestQuote}
+                >
+                  Cotizar
+                </button>
+              </>
+            )
+          ) : isOffer ? (
             <button
               type="button"
               className="btn lw-btn lw-btn-accent"
