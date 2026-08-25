@@ -1,0 +1,304 @@
+// CartPage — Figma "Carrito de compras": banda celeste con titulo (compras
+// en azul) y pestanas en tarjeta; filas de producto con checkbox, cantidad,
+// precio verde y bote; resumen a la derecha con total verde; relacionados.
+
+.band {
+  background: linear-gradient(180deg, #cce9ff 0%, rgba(204, 233, 255, .25) 100%);
+  padding: 2.5rem 0 0;
+  font-family: var(--lw-font);
+}
+
+.title {
+  font-family: var(--lw-font);
+  font-weight: 700;
+  font-size: clamp(1.75rem, 1.3rem + 1.6vw, 2.25rem);
+  color: var(--brand-secondary);
+  text-align: center !important;
+  text-transform: none;
+  margin: 0 0 1.5rem;
+}
+
+.titleAccent { color: var(--brand-accent); }
+
+.tabs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  max-width: 45rem;
+  margin: 0 auto;
+  transform: translateY(50%);
+  border-color: transparent;
+  box-shadow: var(--lw-shadow-float);
+  overflow: hidden;
+}
+
+.tab {
+  padding: 1rem;
+  background: #fff;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  font-family: var(--lw-font);
+  font-weight: 600;
+  font-size: 1.0625rem;
+  color: var(--lw-text-faint);
+  cursor: pointer;
+
+  &:hover,
+  &:focus-visible { color: var(--brand-accent); }
+}
+
+.tabActive {
+  color: var(--brand-accent);
+  border-bottom-color: var(--brand-accent);
+}
+
+.wrap {
+  padding: 5rem 0 3rem; // aire por las pestanas colgantes
+  font-family: var(--lw-font);
+}
+
+// --- Layout carrito -------------------------------------------------------
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 20rem;
+  gap: 1.5rem;
+  align-items: start;
+
+  @media (max-width: 991.98px) { grid-template-columns: 1fr; }
+}
+
+.itemsCol {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.selectAll {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  padding: .875rem 1.25rem;
+  margin: 0;
+  cursor: pointer;
+  font-weight: 500;
+  color: var(--lw-text);
+
+  :global(.form-check-input) {
+    margin: 0;
+
+    &:checked { background-color: var(--brand-accent); border-color: var(--brand-accent); }
+  }
+}
+
+// --- Fila de producto -----------------------------------------------------
+.itemRow {
+  display: grid;
+  grid-template-columns: auto 7.5rem minmax(0, 1fr) auto;
+  gap: 1rem;
+  align-items: center;
+  padding: 1rem 1.25rem;
+}
+
+.itemCheck {
+  margin: 0;
+
+  &:global(.form-check-input:checked) { background-color: var(--brand-accent); border-color: var(--brand-accent); }
+}
+
+.itemMedia {
+  width: 7.5rem;
+  height: 6rem;
+  border-radius: .5rem;
+  background: var(--lw-surface-image);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  color: var(--lw-text-faint);
+  font-size: 2rem;
+
+  img { width: 100%; height: 100%; object-fit: contain; padding: .375rem; mix-blend-mode: multiply; }
+}
+
+.itemInfo { min-width: 0; }
+
+.itemName {
+  font-family: var(--lw-font);
+  font-size: .9375rem;
+  font-weight: 600;
+  margin: 0 0 .25rem;
+  text-transform: none;
+
+  a { color: var(--lw-text); text-decoration: none; &:hover { color: var(--brand-accent); } }
+}
+
+.itemMeta {
+  display: flex;
+  flex-direction: column;
+  gap: .125rem;
+  font-size: .75rem;
+  color: var(--lw-text-faint);
+  margin: 0 0 .5rem;
+}
+
+.itemQty {
+  margin: 0;
+
+  select {
+    min-height: 2.25rem;
+    padding: .25rem .75rem;
+    border: 1px solid var(--lw-border);
+    border-radius: .5rem;
+    font-family: var(--lw-font);
+    font-size: .875rem;
+    background: #fff;
+
+    &:focus { outline: 0; border-color: var(--brand-accent); box-shadow: 0 0 0 .2rem rgba(0,148,255,.15); }
+  }
+}
+
+.itemPriceCol {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: .25rem;
+}
+
+.itemPrice {
+  font-weight: 700;
+  font-size: 1.125rem;
+  color: var(--brand-primary-text);
+}
+
+.itemPriceMeta {
+  font-size: .75rem;
+  color: var(--lw-text-faint);
+}
+
+.itemRemove {
+  border: 0;
+  background: none;
+  color: var(--brand-accent);
+  font-size: 1.125rem;
+  cursor: pointer;
+  padding: .25rem;
+
+  &:hover,
+  &:focus-visible { color: #dc3545; }
+}
+
+// --- Resumen ---------------------------------------------------------------
+.summary {
+  padding: 1.25rem;
+  position: sticky;
+  top: 1rem;
+}
+
+.summaryTitle {
+  font-family: var(--lw-font);
+  font-weight: 700;
+  font-size: 1.0625rem;
+  margin: 0 0 1rem;
+  text-transform: none;
+  color: var(--lw-text);
+}
+
+.summaryList {
+  margin: 0 0 1rem;
+
+  > div {
+    display: flex;
+    justify-content: space-between;
+    gap: .75rem;
+    font-size: .875rem;
+    color: var(--lw-text-soft);
+    padding: .25rem 0;
+
+    dt { font-weight: 400; }
+    dd { margin: 0; color: var(--lw-text); }
+  }
+}
+
+.summaryTotal {
+  border-top: 1px solid var(--lw-border);
+  margin-top: .5rem;
+  padding-top: .625rem !important;
+
+  dt { font-weight: 700 !important; color: var(--lw-text); }
+  dd { font-weight: 700; color: var(--brand-primary-text) !important; font-size: 1.0625rem; }
+}
+
+.summaryNote {
+  display: flex;
+  gap: .5rem;
+  align-items: flex-start;
+  background: var(--lw-surface-tint);
+  border-radius: .5rem;
+  padding: .625rem .75rem;
+  font-size: .75rem;
+  color: var(--lw-text-soft);
+  margin: 0 0 1rem;
+
+  :global(.bi) { color: var(--brand-accent); }
+}
+
+// --- Estados vacios / cotizaciones ----------------------------------------
+.emptyTab {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--lw-text-soft);
+
+  :global(.bi) { font-size: 3rem; color: var(--lw-text-faint); display: block; margin-bottom: .75rem; }
+  p { margin: 0 0 1rem; }
+}
+
+.quotesList {
+  display: flex;
+  flex-direction: column;
+  gap: .75rem;
+  max-width: 50rem;
+  margin: 0 auto;
+}
+
+.quoteRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  flex-wrap: wrap;
+}
+
+.quoteNumber { display: block; color: var(--lw-text); }
+.quoteDate { font-size: .8125rem; color: var(--lw-text-faint); }
+
+.quoteRight {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+}
+
+// --- Relacionados -----------------------------------------------------------
+.related { margin-top: 3rem; }
+
+.relatedTitle {
+  font-size: clamp(1.5rem, 1.2rem + 1.2vw, 2rem);
+  margin: 0 0 1.5rem;
+}
+
+.relatedRow {
+  display: flex;
+  gap: 1.25rem;
+  overflow-x: auto;
+  padding-bottom: 1rem;
+  scrollbar-width: thin;
+  scrollbar-color: var(--lw-border) transparent;
+}
+
+.relatedItem {
+  flex: 0 0 20.5rem;
+  display: flex;
+
+  > * { width: 100%; }
+
+  @media (max-width: 575.98px) { flex-basis: 17rem; }
+}

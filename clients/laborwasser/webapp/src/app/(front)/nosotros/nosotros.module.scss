@@ -1,0 +1,191 @@
+// /nosotros — rediseno 2026-08. Hero con overlay azul y tarjetas
+// Mision/Vision colgando (patron quick-cards del home); Valores en grid 2
+// columnas con foto de doble marco (patron PorQueComprar invertido).
+
+.hero {
+  position: relative;
+  display: flow-root;
+  margin-top: -5.0625rem; // se mete bajo el header como el hero del home
+  font-family: var(--lw-font);
+  color: #fff;
+  margin-bottom: 4rem;
+
+  @media (max-width: 991.98px) { margin-top: 0; }
+}
+
+.heroMedia {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: 0 0 var(--lw-radius-card) var(--lw-radius-card);
+}
+
+.heroPhoto {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.heroOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, #068aea 0%, rgba(6, 138, 234, .8) 40%, rgba(217, 217, 217, .1) 100%);
+}
+
+.heroContent {
+  position: relative;
+  padding-top: clamp(9rem, 8vw + 5rem, 12rem);
+  padding-bottom: clamp(8rem, 10vw, 10rem);
+
+  @media (max-width: 991.98px) { padding-top: 4rem; }
+}
+
+.heroTitle {
+  font-family: var(--lw-font);
+  font-weight: 700;
+  font-size: clamp(2.25rem, 1.5rem + 3vw, 4rem);
+  color: #fff;
+  margin: 0 0 1.25rem;
+  text-transform: none;
+  text-align: left !important;
+}
+
+.heroText {
+  font-family: var(--lw-font);
+  font-weight: 600;
+  font-size: clamp(1rem, .9rem + .5vw, 1.25rem);
+  line-height: 1.9;
+  max-width: 50rem;
+  margin: 0;
+}
+
+// --- Mision / Vision -------------------------------------------------------
+.mvWrap {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 2rem;
+  margin-top: -4.5rem;
+  margin-bottom: -4.5rem;
+
+  @media (max-width: 767.98px) { grid-template-columns: 1fr; }
+}
+
+.mvCard {
+  padding: 1.75rem 2rem;
+  border-color: transparent;
+  box-shadow: var(--lw-shadow-float);
+  color: var(--lw-text);
+}
+
+.mvTitle {
+  font-family: var(--lw-font);
+  font-weight: 700;
+  font-size: 1.25rem;
+  text-align: center;
+  color: var(--lw-text);
+  margin: 0 0 .75rem;
+  text-transform: none;
+}
+
+.mvText {
+  font-family: var(--lw-font);
+  font-size: .9375rem;
+  line-height: 1.7;
+  color: var(--lw-text-soft);
+  margin: 0;
+  text-align: center;
+}
+
+// --- Valores ---------------------------------------------------------------
+.valores {
+  display: grid;
+  grid-template-columns: minmax(0, 55fr) minmax(0, 45fr);
+  gap: clamp(2rem, 5vw, 4rem);
+  align-items: center;
+  padding-top: 8rem; // aire por las tarjetas MV colgantes
+  padding-bottom: 3rem;
+  font-family: var(--lw-font);
+
+  @media (max-width: 991.98px) {
+    grid-template-columns: 1fr;
+    padding-top: 7rem;
+  }
+}
+
+.valoresTitle {
+  font-size: clamp(1.5rem, 1.2rem + 1.2vw, 2rem);
+  margin: 0 0 1.5rem;
+}
+
+.valoresGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem;
+
+  @media (max-width: 575.98px) { grid-template-columns: 1fr; }
+}
+
+.valorCard {
+  padding: 1.25rem;
+  text-align: center;
+}
+
+.valorIcon {
+  font-size: 1.75rem;
+  color: var(--brand-primary);
+  line-height: 1;
+}
+
+.valorTitle {
+  font-family: var(--lw-font);
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--lw-text);
+  margin: .5rem 0 .375rem;
+  text-transform: none;
+}
+
+.valorText {
+  font-size: .875rem;
+  line-height: 1.5;
+  color: var(--lw-text-soft);
+  margin: 0;
+}
+
+// --- Foto con doble marco (patron PorQueComprar) ---------------------------
+.valoresVisual {
+  position: relative;
+  aspect-ratio: 550 / 623;
+  max-width: 34.375rem;
+  width: 100%;
+
+  @media (max-width: 991.98px) { margin: 0 auto; max-width: 28rem; }
+}
+
+.frame,
+.valoresPhoto {
+  position: absolute;
+  width: calc(100% - 2 * 4%);
+  height: calc(100% - 2 * 5.1%);
+  border-radius: var(--lw-radius-card);
+}
+
+.frame { border: 3px solid transparent; }
+.frameBlue { top: 0; left: 0; border-color: var(--lw-frame-blue); z-index: 0; }
+
+.valoresPhoto {
+  top: 5.1%;
+  left: 4%;
+  object-fit: cover;
+  z-index: 1;
+  box-shadow: var(--lw-shadow-card);
+}
+
+.frameGreen {
+  top: 10.2%;
+  left: 8%;
+  border-color: var(--lw-frame-green);
+  z-index: 2;
+  pointer-events: none;
+}
