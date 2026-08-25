@@ -51,3 +51,6 @@ export type {
   PublicProductInclude,
   EnhancedPublicProduct
 } from '../types/publicProduct'
+
+export { usePublicCatalogController } from './usePublicCatalogController'
+export type { PublicCatalogController, PublicCatalogControllerOptions } from './usePublicCatalogController'

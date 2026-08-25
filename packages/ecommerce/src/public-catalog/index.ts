@@ -73,6 +73,9 @@ export {
   useProductSearch,
   // Public categories for guest navigation (footer/menu/facets)
   usePublicCategories,
+  // Motor headless del catalogo (rediseno 2026-08): estado + facetas +
+  // handlers; las pieles por tenant lo consumen sin duplicar logica
+  usePublicCatalogController,
   // LocalStorage cart hooks + legacy migration helpers
   useLocalCart,
   useLocalCartCount,
@@ -84,7 +87,9 @@ export {
 export type {
   LocalCartItem,
   LocalCart,
-  CartTotals
+  CartTotals,
+  PublicCatalogController,
+  PublicCatalogControllerOptions
 } from './hooks'
 
 // Export components
