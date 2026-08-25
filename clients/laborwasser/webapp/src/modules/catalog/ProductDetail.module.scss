@@ -1,0 +1,283 @@
+// ProductDetail — ficha del rediseno. Figma (1440x2910): banda celeste con
+// breadcrumb, tarjeta blanca grande redondeada (imagen 800 | contenido),
+// precio verde 40, botones pill, relacionados en fila horizontal.
+
+.band {
+  background: linear-gradient(180deg, #cce9ff 0%, rgba(204, 233, 255, .3) 100%);
+  padding: 1.75rem 0 4.5rem;
+  font-family: var(--lw-font);
+}
+
+.breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+  font-size: 1rem;
+  color: var(--lw-text-soft);
+
+  a {
+    color: var(--brand-accent);
+    font-weight: 500;
+    text-decoration: none;
+
+    &:hover,
+    &:focus-visible { text-decoration: underline; }
+  }
+}
+
+.breadcrumbCurrent {
+  color: var(--lw-text-soft);
+}
+
+.wrap {
+  font-family: var(--lw-font);
+  // La tarjeta monta sobre la banda celeste
+  margin-top: -3.5rem;
+  padding-bottom: 3rem;
+}
+
+.card {
+  display: grid;
+  grid-template-columns: minmax(0, 45fr) minmax(0, 55fr);
+  gap: 2rem;
+  padding: 1.75rem;
+  border-color: transparent;
+  box-shadow: var(--lw-shadow-float);
+
+  @media (max-width: 991.98px) {
+    grid-template-columns: 1fr;
+    padding: 1.25rem;
+  }
+}
+
+// --- Imagen ---------------------------------------------------------------
+.mediaCol {
+  display: flex;
+  flex-direction: column;
+  gap: .75rem;
+}
+
+.media {
+  position: relative;
+  border-radius: var(--lw-radius-card);
+  background: var(--lw-surface-image);
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+}
+
+.badge {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 1;
+  font-size: 1rem;
+  padding: .5rem 1rem;
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 2rem;
+  mix-blend-mode: multiply;
+}
+
+.placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 4rem;
+  color: var(--lw-text-faint);
+}
+
+.thumbs {
+  display: flex;
+  gap: .5rem;
+  flex-wrap: wrap;
+}
+
+.thumb {
+  width: 4rem;
+  height: 4rem;
+  border: 1px solid var(--lw-border);
+  border-radius: .5rem;
+  background: var(--lw-surface-image);
+  padding: .25rem;
+  cursor: pointer;
+  overflow: hidden;
+
+  img { width: 100%; height: 100%; object-fit: contain; mix-blend-mode: multiply; }
+
+  &:hover,
+  &:focus-visible { border-color: var(--brand-accent); }
+}
+
+.thumbActive {
+  border-color: var(--brand-accent);
+  box-shadow: 0 0 0 .15rem rgba(0, 148, 255, .2);
+}
+
+// --- Contenido ------------------------------------------------------------
+.content {
+  min-width: 0;
+}
+
+.title {
+  font-family: var(--lw-font);
+  font-weight: 700;
+  font-size: clamp(1.375rem, 1.1rem + 1vw, 1.75rem); // Figma: 28
+  line-height: 1.35;
+  color: var(--lw-text);
+  margin: 0 0 1.25rem;
+  text-transform: none;
+  text-align: left !important;
+}
+
+.priceRow {
+  display: flex;
+  align-items: baseline;
+  gap: .75rem;
+  flex-wrap: wrap;
+  margin: 0 0 1.25rem;
+}
+
+.price {
+  // Figma: 40px verde de marca (texto grande: el lima pasa contraste a
+  // este tamano, y es el color de la identidad en precios de la ficha)
+  font-size: clamp(1.75rem, 1.4rem + 1.4vw, 2.5rem);
+  font-weight: 700;
+  color: var(--brand-primary);
+}
+
+.priceMeta {
+  color: var(--lw-text-soft);
+  font-size: 1rem;
+}
+
+// --- Cantidad ---------------------------------------------------------------
+.qty {
+  margin-bottom: 1.5rem;
+}
+
+.qtyLabel {
+  display: block;
+  font-weight: 600;
+  color: var(--lw-text);
+  margin-bottom: .5rem;
+  font-size: 1.125rem;
+}
+
+.qtySelectWrap { display: block; max-width: 25rem; margin: 0; }
+
+.qtySelect {
+  width: 100%;
+  min-height: 3.25rem;
+  padding: .5rem 1rem;
+  border: 1px solid var(--lw-border);
+  border-radius: .75rem;
+  font-family: var(--lw-font);
+  font-size: 1rem;
+  color: var(--lw-text);
+  background-color: #fff;
+
+  &:focus {
+    outline: 0;
+    border-color: var(--brand-accent);
+    box-shadow: 0 0 0 .2rem rgba(0, 148, 255, .15);
+  }
+}
+
+// --- Detalles ---------------------------------------------------------------
+.detailsTitle {
+  font-family: var(--lw-font);
+  font-weight: 700;
+  font-size: 1.25rem; // Figma: 20
+  color: var(--lw-text);
+  margin: 0 0 .75rem;
+  text-transform: none;
+}
+
+.details {
+  margin: 0 0 1.25rem;
+
+  > div {
+    display: flex;
+    gap: .375rem;
+    margin-bottom: .25rem;
+    line-height: 1.6;
+    flex-wrap: wrap;
+  }
+
+  dt {
+    font-weight: 700;
+    color: var(--lw-text);
+    white-space: nowrap;
+  }
+
+  dd {
+    margin: 0;
+    color: var(--lw-text-soft);
+
+    a {
+      color: var(--brand-accent);
+      font-weight: 500;
+      text-decoration: none;
+
+      &:hover,
+      &:focus-visible { text-decoration: underline; }
+    }
+  }
+}
+
+.longDescription {
+  color: var(--lw-text-soft);
+  line-height: 1.7;
+  margin: 0 0 1.75rem;
+  white-space: pre-line; // conserva los saltos de la descripcion larga
+}
+
+.actions {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+
+  > * {
+    flex: 1 1 12rem;
+    max-width: 23rem;
+    min-height: 3.25rem;
+  }
+}
+
+// --- Relacionados -----------------------------------------------------------
+.related {
+  margin-top: 3.5rem;
+}
+
+.relatedTitle {
+  font-size: clamp(1.5rem, 1.2rem + 1.2vw, 2rem);
+  margin: 0 0 1.5rem;
+}
+
+.relatedRow {
+  display: flex;
+  gap: 1.25rem;
+  overflow-x: auto;
+  padding-bottom: 1rem;
+  scroll-snap-type: x proximity;
+
+  // Scrollbar discreta
+  scrollbar-width: thin;
+  scrollbar-color: var(--lw-border) transparent;
+}
+
+.relatedItem {
+  flex: 0 0 20.5rem; // ~4 visibles en 1440 (Figma)
+  scroll-snap-align: start;
+  display: flex;
+
+  > * { width: 100%; }
+
+  @media (max-width: 575.98px) { flex-basis: 17rem; }
+}
