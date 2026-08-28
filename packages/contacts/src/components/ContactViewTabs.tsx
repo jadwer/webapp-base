@@ -370,10 +370,9 @@ export const ContactViewTabs: React.FC<ContactViewTabsProps> = ({
                     <div>
                       <h6 className="mb-0">
                         <i className="bi bi-geo-alt me-2"></i>
-                        {address.addressType ? 
-                          address.addressType.charAt(0).toUpperCase() + address.addressType.slice(1) :
-                          'Dirección'
-                        }
+                        {address.addressType === 'fiscal' ? 'Dirección fiscal' :
+                          address.addressType === 'shipping' ? 'Dirección de entrega' :
+                          address.addressType === 'billing' ? 'Facturación' : 'Dirección'}
                       </h6>
                       {address.isDefault && (
                         <span className="badge bg-primary ms-2">Principal</span>
@@ -382,10 +381,22 @@ export const ContactViewTabs: React.FC<ContactViewTabsProps> = ({
                   </div>
                   <div className="card-body">
                     <div className="small text-muted">
-                      {address.addressLine1}<br />
-                      {address.addressLine2 && <>{address.addressLine2}<br /></>}
-                      {address.city}, {address.state} {address.postalCode}<br />
-                      {address.country}
+                      {address.street ? (
+                        <>
+                          {[address.street, address.exteriorNumber, address.interiorNumber ? `Int. ${address.interiorNumber}` : ''].filter(Boolean).join(' ')}<br />
+                          {[address.neighborhood ? `Col. ${address.neighborhood}` : '', address.municipality || address.city, address.state].filter(Boolean).join(', ')}<br />
+                        </>
+                      ) : (
+                        <>
+                          {address.addressLine1}<br />
+                          {address.addressLine2 && <>{address.addressLine2}<br /></>}
+                          {[address.city, address.state].filter(Boolean).join(', ')}<br />
+                        </>
+                      )}
+                      {[address.country === 'MX' ? 'México' : address.country, address.postalCode ? `CP ${address.postalCode}` : ''].filter(Boolean).join(' - ')}
+                      {address.reference && (
+                        <><br /><i className="bi bi-signpost me-1"></i>{address.reference}</>
+                      )}
                     </div>
                   </div>
                 </div>

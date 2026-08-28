@@ -37,6 +37,8 @@ export {
   contactDocumentsService,
   contactPeopleService
 } from './services'
+export { addressCatalogsService } from './services/addressCatalogs'
+export type { PostalCodeInfo, AddressColonia, AddressEstado } from './services/addressCatalogs'
 
 // Components
 export {

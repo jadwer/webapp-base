@@ -51,6 +51,14 @@ export interface ContactAddress {
   addressType: AddressType
   addressLine1: string
   addressLine2?: string
+  // Campos SAT (nodo Domicilio CFDI); las direcciones legadas solo traen
+  // addressLine1/2 y se muestran tal cual hasta editarse
+  street?: string
+  exteriorNumber?: string
+  interiorNumber?: string
+  neighborhood?: string
+  municipality?: string
+  reference?: string
   city: string
   state: string
   country: string
