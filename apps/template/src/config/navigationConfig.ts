@@ -319,8 +319,7 @@ export const adminNavigation: NavigationSection = {
       permissions: [],
       items: [
         { href: '/dashboard/settings/app-config', label: 'Configuracion General', icon: 'bi-gear', permissions: [] },
-        { href: '/dashboard/settings/folios', label: 'Folios y Consecutivos', icon: 'bi-123', permissions: ['folio-sequences.index'] },
-        { href: '/dashboard/settings/invoice-series', label: 'Series de Facturación', icon: 'bi-collection', permissions: ['invoice-series.index'] },
+        { href: '/dashboard/settings/documents', label: 'Configuracion de Documentos', icon: 'bi-file-earmark-text', permissions: ['folio-sequences.index'] },
       ],
     },
 
