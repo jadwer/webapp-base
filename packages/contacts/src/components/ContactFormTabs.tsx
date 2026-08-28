@@ -16,6 +16,7 @@ import { Input } from '@lwm/ui'
 import { useContactAddresses, useContactDocuments, useContactPeople } from '../hooks'
 import { useContactCatalogs } from '../hooks/useContactCatalogs'
 import { contactAddressesService, contactPeopleService, contactDocumentsService } from '../services'
+import { getValidationErrorMessages } from '../utils/jsonApiErrors'
 import { useAuth } from '@lwm/auth'
 import { toast } from '@lwm/ui'
 import type { 
@@ -276,22 +277,36 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
     try {
       setIsSubmitting(true)
 
-      // First create the contact
+      // First create/update the contact
       const result = await onSubmit(contactData)
 
-      // If we have a contact ID, create related entities
-      if (result?.id) {
-        const createdContact = result
+      // En EDICION el onSubmit de la pagina puede no devolver el contacto
+      // (updateContact sin return): usar el id que ya tenemos. Si no hay id
+      // y quedan pendientes, se AVISA en vez de perderlos en silencio
+      // (bug historico: las direcciones agregadas al editar se descartaban).
+      const relatedContactId = result?.id ?? contact?.id
 
-        // Create addresses
+      if (!relatedContactId && (localAddresses.length > 0 || localPeople.length > 0 || localDocuments.length > 0)) {
+        toast.error('El contacto se guardo pero no se pudieron guardar direcciones/personas/documentos (sin id del contacto)', { duration: 0 })
+      }
+
+      if (relatedContactId) {
+
+        // Create addresses (incluye los campos SAT del domicilio)
         if (localAddresses.length > 0) {
           for (const address of localAddresses) {
             try {
               const addressData = {
-                contactId: parseInt(createdContact.id),
+                contactId: parseInt(relatedContactId),
                 addressType: address.addressType,
                 addressLine1: address.addressLine1,
                 addressLine2: address.addressLine2,
+                street: address.street,
+                exteriorNumber: address.exteriorNumber,
+                interiorNumber: address.interiorNumber,
+                neighborhood: address.neighborhood,
+                municipality: address.municipality,
+                reference: address.reference,
                 city: address.city,
                 state: address.state,
                 country: address.country,
@@ -299,8 +314,15 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
                 isDefault: address.isDefault
               }
               await contactAddressesService.create(addressData)
-            } catch {
-              // error handled silently
+            } catch (error) {
+              // Un 422 SIEMPRE se muestra con detalle (regla del proyecto)
+              const details = getValidationErrorMessages(error)
+              toast.error(
+                details.length > 0
+                  ? `Direccion no guardada: ${details.join(' ')}`
+                  : 'Una direccion no se pudo guardar',
+                { duration: 0 }
+              )
             }
           }
         }
@@ -310,7 +332,7 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
           for (const person of localPeople) {
             try {
               const personData = {
-                contactId: parseInt(createdContact.id),
+                contactId: parseInt(relatedContactId),
                 name: person.name,
                 position: person.position,
                 department: person.department,
@@ -320,8 +342,14 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
                 isPrimary: person.isPrimary
               }
               await contactPeopleService.create(personData)
-            } catch {
-              // error handled silently
+            } catch (error) {
+              const details = getValidationErrorMessages(error)
+              toast.error(
+                details.length > 0
+                  ? `Persona no guardada: ${details.join(' ')}`
+                  : 'Una persona de contacto no se pudo guardar',
+                { duration: 0 }
+              )
             }
           }
         }
@@ -333,7 +361,7 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
               if (document.file) {
                 await contactDocumentsService.upload(
                   document.file,
-                  createdContact.id,
+                  relatedContactId,
                   document.documentType,
                   document.notes
                 )
@@ -352,10 +380,10 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
         const { mutate } = await import('swr')
 
         // Invalidate the specific contact with includes
-        mutate(['contact', createdContact.id, ['contactAddresses', 'contactDocuments', 'contactPeople']])
+        mutate(['contact', relatedContactId, ['contactAddresses', 'contactDocuments', 'contactPeople']])
 
         // Also invalidate general contact cache
-        mutate(key => Array.isArray(key) && key[0] === 'contact' && key[1] === createdContact.id)
+        mutate(key => Array.isArray(key) && key[0] === 'contact' && key[1] === relatedContactId)
       }
 
     } catch (error) {
