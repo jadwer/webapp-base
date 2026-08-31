@@ -7,7 +7,7 @@
 
 import React from 'react'
 import { ContactFormTabs } from '@/modules/contacts'
-import { useContact, useContactMutations } from '@/modules/contacts'
+import { useContact, useContactMutations, getValidationErrorMessages } from '@/modules/contacts'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
 import { Alert } from '@/ui/components/base/Alert'
 import { toast } from '@/lib/toast'
@@ -35,8 +35,17 @@ export default function EditContactPage({ params }: EditContactPageProps) {
       // Navigate back to the contact's detail page
       navigation.push(`/dashboard/contacts/${contact.id}`)
       
-    } catch {
-      toast.error('Error al actualizar el contacto. Por favor intenta de nuevo.')
+    } catch (error) {
+      // Mismo criterio que en create: un 422 SIEMPRE se muestra con detalle.
+      const details = getValidationErrorMessages(error)
+      if (details.length > 0) {
+        toast.error('No se pudo actualizar el contacto. Corrige lo siguiente:', {
+          description: details.join(' | '),
+          duration: 0,
+        })
+      } else {
+        toast.error('Error al actualizar el contacto. Por favor intenta de nuevo.')
+      }
     } finally {
       setIsLoading(false)
     }

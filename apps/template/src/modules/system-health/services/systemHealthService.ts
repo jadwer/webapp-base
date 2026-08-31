@@ -11,14 +11,47 @@ import type {
 
 const BASE_URL = '/api/v1/system-health'
 
+/**
+ * Los endpoints de system-health responden con envelope JSON:API
+ * ({ data: { type, id, attributes: {...} } }). Los consumidores esperan los
+ * campos planos (health.status, health.checks, health.environment), asi que
+ * devolver response.data crudo dejaba todo en undefined y la pantalla pintaba
+ * "unknown" / "No disponible" pese a que el backend responde 200 correcto.
+ */
+function unwrap<T>(payload: unknown): T {
+  const body = payload as { data?: { attributes?: T } } | undefined
+  return (body?.data?.attributes ?? payload) as T
+}
+
+/**
+ * Los endpoints de health devuelven 503 A PROPOSITO cuando algun check esta
+ * en critical (asi los monitores externos detectan el problema), pero el
+ * body trae el reporte COMPLETO. Un 503 con reporte es un resultado valido
+ * que la pantalla debe pintar (estado critico en rojo), no un error de red.
+ * Antes axios lo trataba como excepcion y la pagina solo mostraba
+ * "Request failed with status code 503" ocultando el diagnostico
+ * (visto en prod 2026-08-04: disco al 95% y la pantalla sin decirlo).
+ * Sin body valido (Passenger caido, gateway), si se propaga como error.
+ */
+async function getHealth<T>(url: string): Promise<T> {
+  const response = await axiosClient.get<unknown>(url, {
+    validateStatus: (status) => (status >= 200 && status < 300) || status === 503,
+  })
+  const body = response.data as { data?: { attributes?: unknown } } | undefined
+  if (response.status === 503 && !body?.data?.attributes) {
+    throw new Error('Service unavailable (503 sin reporte de health)')
+  }
+  return unwrap<T>(response.data)
+}
+
 export const systemHealthService = {
   /**
    * Public ping endpoint (no auth required)
    * Used for uptime monitoring services
    */
   async ping(): Promise<PingResponse> {
-    const response = await axiosClient.get<PingResponse>(`${BASE_URL}/ping`)
-    return response.data
+    const response = await axiosClient.get<unknown>(`${BASE_URL}/ping`)
+    return unwrap<PingResponse>(response.data)
   },
 
   /**
@@ -26,8 +59,7 @@ export const systemHealthService = {
    * Requires: system-health.index permission
    */
   async getFullStatus(): Promise<SystemHealthStatus> {
-    const response = await axiosClient.get<SystemHealthStatus>(BASE_URL)
-    return response.data
+    return getHealth<SystemHealthStatus>(BASE_URL)
   },
 
   /**
@@ -35,8 +67,7 @@ export const systemHealthService = {
    * Requires: system-health.database permission
    */
   async getDatabaseHealth(): Promise<DatabaseHealth> {
-    const response = await axiosClient.get<DatabaseHealth>(`${BASE_URL}/database`)
-    return response.data
+    return getHealth<DatabaseHealth>(`${BASE_URL}/database`)
   },
 
   /**
@@ -44,8 +75,7 @@ export const systemHealthService = {
    * Requires: system-health.storage permission
    */
   async getStorageHealth(): Promise<StorageCheck> {
-    const response = await axiosClient.get<StorageCheck>(`${BASE_URL}/storage`)
-    return response.data
+    return getHealth<StorageCheck>(`${BASE_URL}/storage`)
   },
 
   /**
@@ -53,8 +83,7 @@ export const systemHealthService = {
    * Requires: system-health.queue permission
    */
   async getQueueHealth(): Promise<QueueCheck> {
-    const response = await axiosClient.get<QueueCheck>(`${BASE_URL}/queue`)
-    return response.data
+    return getHealth<QueueCheck>(`${BASE_URL}/queue`)
   },
 
   /**
@@ -62,8 +91,7 @@ export const systemHealthService = {
    * Requires: system-health.errors permission
    */
   async getErrorLogs(): Promise<ErrorMetrics> {
-    const response = await axiosClient.get<ErrorMetrics>(`${BASE_URL}/errors`)
-    return response.data
+    return getHealth<ErrorMetrics>(`${BASE_URL}/errors`)
   },
 
   /**
@@ -71,8 +99,7 @@ export const systemHealthService = {
    * Requires: system-health.metrics permission
    */
   async getApplicationMetrics(): Promise<ApplicationMetrics> {
-    const response = await axiosClient.get<ApplicationMetrics>(`${BASE_URL}/metrics`)
-    return response.data
+    return getHealth<ApplicationMetrics>(`${BASE_URL}/metrics`)
   },
 }
 
