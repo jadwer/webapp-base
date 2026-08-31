@@ -10,7 +10,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useAuth } from '@/modules/auth'
-import { salesService } from '@/modules/sales'
+import { myOrdersService } from '@/modules/sales'
 
 interface SalesOrder {
   id: string
@@ -45,36 +45,23 @@ export default function MyOrdersPage() {
       setError(null)
 
       try {
-        // Fetch orders filtered by user email (through contact) - uses backend scope filter
-        const result = await salesService.orders.getAll({
-          'filter[contact_email]': user.email,
-          sort: '-createdAt',
-          'page[size]': 50
-        })
+        // Endpoint de portal: /api/v1/my-orders resuelve el contacto del usuario
+        // autenticado en el backend (no requiere permiso sales-orders.index)
+        const result = await myOrdersService.getAll({ perPage: 50 })
 
-        // Transform JSON:API response to simple array
-        // Count items from included relationships
-        const included = result.included || []
-        const ordersData = result.data?.map((item: { id: string; attributes: Record<string, unknown>; relationships?: Record<string, { data?: Array<{ type: string; id: string }> | null }> }) => {
-          // Count items from the relationships data
-          const itemsRel = item.relationships?.items?.data
-          const itemCount = Array.isArray(itemsRel) ? itemsRel.length : (
-            // Fallback: count from included array by matching order ID
-            included.filter((inc: { type: string; attributes?: Record<string, unknown> }) =>
-              inc.type === 'sales-order-items' &&
-              inc.attributes?.salesOrderId === parseInt(item.id)
-            ).length
-          )
+        // El controller regresa modelos Eloquent planos (snake_case), NO JSON:API
+        const ordersData = (result.data || []).map((order: Record<string, unknown>) => {
+          const items = order.items
           return {
-            id: item.id,
-            orderNumber: item.attributes.orderNumber as string,
-            status: item.attributes.status as string,
-            totalAmount: item.attributes.totalAmount as number,
-            createdAt: item.attributes.createdAt as string,
-            expectedDeliveryDate: item.attributes.expectedDeliveryDate as string | undefined,
-            itemCount
+            id: String(order.id),
+            orderNumber: order.order_number as string,
+            status: order.status as string,
+            totalAmount: order.total_amount as number,
+            createdAt: (order.created_at || order.order_date) as string,
+            expectedDeliveryDate: undefined,
+            itemCount: Array.isArray(items) ? items.length : 0
           }
-        }) || []
+        })
 
         setOrders(ordersData)
       } catch {

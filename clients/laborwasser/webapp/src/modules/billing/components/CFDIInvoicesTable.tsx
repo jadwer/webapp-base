@@ -41,8 +41,13 @@ const TIPO_COMPROBANTE_LABELS: Record<TipoComprobante, string> = {
 const formatDate = (dateString: string | null | undefined): string => {
   if (!dateString) return '-'
   const parsed = new Date(dateString)
+  // Un valor no parseable (NaN) no debe mostrar "Invalid Date" al usuario.
   if (Number.isNaN(parsed.getTime())) return '-'
-  return parsed.toLocaleDateString('es-MX', { year: 'numeric', month: 'short', day: 'numeric' })
+  return parsed.toLocaleDateString('es-MX', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric'
+  })
 }
 
 const formatCurrency = (amountInCents: number | null | undefined): string => {

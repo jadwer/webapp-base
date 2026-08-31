@@ -16,6 +16,7 @@ import {
   useActiveCompanySetting,
   useCompanySettingsMutations,
   useCFDIWorkflow,
+  useSalesOrderBillingMutations,
 } from '../../hooks';
 
 // Mock the services
@@ -34,6 +35,13 @@ vi.mock('../../services', () => ({
     downloadXML: vi.fn(),
     downloadPDF: vi.fn(),
     sendEmail: vi.fn(),
+    validateSAT: vi.fn(),
+    getCancellationStatus: vi.fn(),
+    prefactura: vi.fn(),
+    prefacturaDownload: vi.fn(),
+    prefacturaPreview: vi.fn(),
+    prefacturaFromOrder: vi.fn(),
+    createFromOrder: vi.fn(),
   },
   cfdiItemsService: {
     getAll: vi.fn(),
@@ -152,6 +160,17 @@ describe('Billing Module Hooks', () => {
       expect(typeof result.current.createInvoiceWithItems).toBe('function');
       expect(typeof result.current.updateInvoice).toBe('function');
       expect(typeof result.current.deleteInvoice).toBe('function');
+    });
+
+    it('should expose SAT validation, cancellation status and prefactura helpers', () => {
+      // Act
+      const { result } = renderHook(() => useCFDIInvoicesMutations());
+
+      // Assert
+      expect(typeof result.current.validateSAT).toBe('function');
+      expect(typeof result.current.getCancellationStatus).toBe('function');
+      expect(typeof result.current.downloadPrefactura).toBe('function');
+      expect(typeof result.current.previewPrefactura).toBe('function');
     });
   });
 
@@ -308,6 +327,46 @@ describe('Billing Module Hooks', () => {
       expect(typeof result.current.generatePDF).toBe('function');
       expect(typeof result.current.stampInvoice).toBe('function');
       expect(typeof result.current.cancelInvoice).toBe('function');
+    });
+  });
+
+  // ==========================================================================
+  // SALES ORDER BILLING HOOKS
+  // ==========================================================================
+
+  describe('useSalesOrderBillingMutations', () => {
+    it('should return prefacturaFromOrder and facturar functions', () => {
+      // Act
+      const { result } = renderHook(() => useSalesOrderBillingMutations());
+
+      // Assert
+      expect(result.current).toHaveProperty('prefacturaFromOrder');
+      expect(result.current).toHaveProperty('facturar');
+      expect(typeof result.current.prefacturaFromOrder).toBe('function');
+      expect(typeof result.current.facturar).toBe('function');
+    });
+
+    it('should call cfdiInvoicesService.prefacturaFromOrder with orderId and options', async () => {
+      const { cfdiInvoicesService } = await import('../../services');
+      vi.mocked(cfdiInvoicesService.prefacturaFromOrder).mockResolvedValue(new Blob());
+
+      const { result } = renderHook(() => useSalesOrderBillingMutations());
+      await result.current.prefacturaFromOrder('5', { receptorRfc: 'XAXX010101000' });
+
+      expect(cfdiInvoicesService.prefacturaFromOrder).toHaveBeenCalledWith('5', {
+        receptorRfc: 'XAXX010101000',
+      });
+    });
+
+    it('should call cfdiInvoicesService.createFromOrder for facturar', async () => {
+      const { cfdiInvoicesService } = await import('../../services');
+      vi.mocked(cfdiInvoicesService.createFromOrder).mockResolvedValue({ data: { id: '10' } });
+
+      const { result } = renderHook(() => useSalesOrderBillingMutations());
+      const response = await result.current.facturar('5');
+
+      expect(cfdiInvoicesService.createFromOrder).toHaveBeenCalledWith('5');
+      expect(response).toEqual({ data: { id: '10' } });
     });
   });
 });

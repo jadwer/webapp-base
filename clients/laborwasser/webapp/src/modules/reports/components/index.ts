@@ -10,6 +10,10 @@ export { ManagementReportsPage } from './ManagementReportsPage'
 // Phase 13: Advanced Sales Reports
 export { SalesAdvancedReportsPage } from './SalesAdvancedReportsPage'
 
+// Sales History (Historico de Ventas)
+export { SalesHistoryPage } from './SalesHistoryPage'
+export { PaginationSimple } from './PaginationSimple'
+
 // Shared components
 export { KPICard } from './KPICard'
 export { ReportExportButton } from './ReportExportButton'

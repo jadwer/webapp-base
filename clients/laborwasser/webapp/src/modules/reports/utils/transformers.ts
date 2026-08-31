@@ -17,6 +17,10 @@ import type {
   PurchaseBySupplier,
   PurchaseByProduct,
   ReportResponse,
+  SalesHistoryRow,
+  SalesHistoryTotals,
+  SalesHistoryGroupRow,
+  SalesHistoryReport,
   ReportPeriod,
   EmployeeSales,
   SalesByEmployee,
@@ -496,7 +500,7 @@ export function transformPurchaseByProductResponse(response: Record<string, unkn
 }
 
 // ============================================================================
-// PHASE 13: ADVANCED SALES REPORTS (snake_case backend -> camelCase frontend)
+// SALES HISTORY (Historico de Ventas)
 // ============================================================================
 
 function toNumber(value: unknown): number {
@@ -504,6 +508,69 @@ function toNumber(value: unknown): number {
   return Number.isFinite(n) ? n : 0
 }
 
+function transformSalesHistoryRow(raw: Record<string, unknown>): SalesHistoryRow {
+  return {
+    orderId: toNumber(raw.order_id ?? raw.orderId),
+    orderNumber: (raw.order_number ?? raw.orderNumber ?? '') as string,
+    date: (raw.date ?? '') as string,
+    customerName: (raw.customer_name ?? raw.customerName ?? '') as string,
+    salespersonName: (raw.salesperson_name ?? raw.salespersonName ?? null) as string | null,
+    cost: toNumber(raw.cost),
+    profit: toNumber(raw.profit),
+    subtotal: toNumber(raw.subtotal),
+    discount: toNumber(raw.discount),
+    iva: toNumber(raw.iva),
+    total: toNumber(raw.total),
+    status: (raw.status ?? '') as string,
+  }
+}
+
+function transformSalesHistoryTotals(raw?: Record<string, unknown>): SalesHistoryTotals {
+  return {
+    cost: toNumber(raw?.cost),
+    profit: toNumber(raw?.profit),
+    subtotal: toNumber(raw?.subtotal),
+    discount: toNumber(raw?.discount),
+    iva: toNumber(raw?.iva),
+    total: toNumber(raw?.total),
+    count: toNumber(raw?.count),
+  }
+}
+
+function transformSalesHistoryGroupRow(raw: Record<string, unknown>): SalesHistoryGroupRow {
+  return {
+    groupKey: String(raw.group_key ?? raw.groupKey ?? ''),
+    groupLabel: (raw.group_label ?? raw.groupLabel ?? '') as string,
+    cost: toNumber(raw.cost),
+    profit: toNumber(raw.profit),
+    subtotal: toNumber(raw.subtotal),
+    discount: toNumber(raw.discount),
+    iva: toNumber(raw.iva),
+    total: toNumber(raw.total),
+    count: toNumber(raw.count),
+  }
+}
+
+export function transformSalesHistoryResponse(response: Record<string, unknown>): SalesHistoryReport {
+  const rows = Array.isArray(response?.data)
+    ? (response.data as Record<string, unknown>[]).map(transformSalesHistoryRow)
+    : []
+
+  const grouped = Array.isArray(response?.grouped)
+    ? (response.grouped as Record<string, unknown>[]).map(transformSalesHistoryGroupRow)
+    : undefined
+
+  return {
+    rows,
+    totals: transformSalesHistoryTotals(response?.totals as Record<string, unknown> | undefined),
+    ...(grouped ? { grouped } : {}),
+    meta: response?.meta as Record<string, unknown> | undefined,
+  }
+}
+
+// ============================================================================
+// PHASE 13: ADVANCED SALES REPORTS (snake_case backend -> camelCase frontend)
+// ============================================================================
 
 type RawRecord = Record<string, unknown>
 

@@ -35,7 +35,7 @@ const createApiCycleCount = (overrides: Record<string, unknown> = {}) => ({
     product: { data: { type: 'products', id: '1' } },
     warehouse: { data: { type: 'warehouses', id: '1' } },
     warehouseLocation: { data: { type: 'warehouse-locations', id: '1' } },
-    assignedTo: { data: { type: 'users', id: '1' } },
+    assignedUser: { data: { type: 'users', id: '1' } },
     countedBy: null
   }
 })
@@ -86,7 +86,7 @@ describe('cycleCountsService', () => {
       // Assert
       expect(axios.get).toHaveBeenCalledWith('/api/v1/cycle-counts', {
         params: expect.objectContaining({
-          include: 'product,warehouse,warehouseLocation,assignedTo,countedBy',
+          include: 'product,warehouse,warehouseLocation,assignedUser,countedByUser',
           'page[size]': '20'
         })
       })
@@ -150,7 +150,7 @@ describe('cycleCountsService', () => {
       // Assert
       expect(axios.get).toHaveBeenCalledWith('/api/v1/cycle-counts', {
         params: expect.objectContaining({
-          'filter[abc_class]': 'A,B'
+          'filter[abcClass]': 'A,B'
         })
       })
     })
@@ -190,7 +190,7 @@ describe('cycleCountsService', () => {
       // Assert
       expect(axios.get).toHaveBeenCalledWith('/api/v1/cycle-counts', {
         params: expect.objectContaining({
-          'filter[warehouse_id]': '5'
+          'filter[warehouseId]': '5'
         })
       })
     })
@@ -210,7 +210,7 @@ describe('cycleCountsService', () => {
       // Assert
       expect(axios.get).toHaveBeenCalledWith('/api/v1/cycle-counts', {
         params: expect.objectContaining({
-          'filter[product_id]': '10'
+          'filter[productId]': '10'
         })
       })
     })
@@ -250,7 +250,7 @@ describe('cycleCountsService', () => {
       // Assert
       expect(axios.get).toHaveBeenCalledWith('/api/v1/cycle-counts', {
         params: expect.objectContaining({
-          'filter[has_variance]': 'true'
+          'filter[hasVariance]': 'true'
         })
       })
     })
@@ -273,7 +273,7 @@ describe('cycleCountsService', () => {
       // Assert
       expect(axios.get).toHaveBeenCalledWith('/api/v1/cycle-counts', {
         params: expect.objectContaining({
-          sort: '-scheduled_date'
+          sort: '-scheduledDate'
         })
       })
     })
@@ -366,7 +366,7 @@ describe('cycleCountsService', () => {
 
       // Assert
       expect(axios.get).toHaveBeenCalledWith('/api/v1/cycle-counts/5', {
-        params: { include: 'product,warehouse,warehouseLocation,assignedTo,countedBy' }
+        params: { include: 'product,warehouse,warehouseLocation,assignedUser,countedByUser' }
       })
       expect(result.id).toBe('5')
       expect(result.countNumber).toBe('CC-2025-0001')
@@ -737,9 +737,9 @@ describe('cycleCountsService', () => {
       expect(axios.get).toHaveBeenCalledWith('/api/v1/cycle-counts', {
         params: expect.objectContaining({
           'filter[status]': 'scheduled',
-          'filter[scheduled_before]': today,
-          'filter[scheduled_after]': today,
-          sort: 'scheduled_date'
+          'filter[scheduledBefore]': today,
+          'filter[scheduledAfter]': today,
+          sort: 'scheduledDate'
         })
       })
     })
@@ -759,7 +759,7 @@ describe('cycleCountsService', () => {
       // Assert
       expect(axios.get).toHaveBeenCalledWith('/api/v1/cycle-counts', {
         params: expect.objectContaining({
-          'filter[warehouse_id]': '5'
+          'filter[warehouseId]': '5'
         })
       })
     })
@@ -783,7 +783,7 @@ describe('cycleCountsService', () => {
         params: expect.objectContaining({
           'filter[status]': 'scheduled',
           'filter[overdue]': 'true',
-          sort: 'scheduled_date'
+          sort: 'scheduledDate'
         })
       })
     })
@@ -803,7 +803,7 @@ describe('cycleCountsService', () => {
       // Assert
       expect(axios.get).toHaveBeenCalledWith('/api/v1/cycle-counts', {
         params: expect.objectContaining({
-          'filter[warehouse_id]': '3'
+          'filter[warehouseId]': '3'
         })
       })
     })
@@ -831,8 +831,8 @@ describe('cycleCountsService', () => {
       expect(axios.get).toHaveBeenCalledWith('/api/v1/cycle-counts', {
         params: expect.objectContaining({
           'filter[status]': 'completed',
-          'filter[has_variance]': 'true',
-          sort: '-variance_quantity'
+          'filter[hasVariance]': 'true',
+          sort: '-varianceQuantity'
         })
       })
     })
@@ -852,7 +852,7 @@ describe('cycleCountsService', () => {
       // Assert
       expect(axios.get).toHaveBeenCalledWith('/api/v1/cycle-counts', {
         params: expect.objectContaining({
-          'filter[warehouse_id]': '7'
+          'filter[warehouseId]': '7'
         })
       })
     })

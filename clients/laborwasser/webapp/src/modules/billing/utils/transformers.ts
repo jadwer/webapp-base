@@ -77,6 +77,12 @@ export function transformJsonApiCFDIInvoice(
     formaPago: String(attributes.forma_pago || '01'),
     metodoPago: (attributes.metodo_pago as CFDIInvoice['metodoPago']) || 'PUE',
     condicionesPago: (attributes.condiciones_pago as string | undefined) || undefined,
+    // REP (Complemento de Pagos) fields - only present on tipo P records when the
+    // backend schema exposes them; otherwise they resolve to undefined.
+    arPaymentId: (attributes.ar_payment_id as number | undefined) ?? undefined,
+    fechaPago: (attributes.fecha_pago as string | undefined) || undefined,
+    montoPago: (attributes.monto_pago as number | undefined) ?? undefined,
+    formaPagoP: (attributes.forma_pago_p as string | undefined) || undefined,
     cfdiRelacionadoTipo: (attributes.cfdi_relacionado_tipo as string | undefined) || undefined,
     cfdiRelacionadoUuids: (attributes.cfdi_relacionado_uuids as string[] | undefined) || undefined,
     status: (attributes.status as CFDIInvoice['status']) || 'draft',

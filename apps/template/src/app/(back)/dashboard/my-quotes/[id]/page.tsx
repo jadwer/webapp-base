@@ -76,10 +76,12 @@ export default function MyQuoteDetailPage({ params }: MyQuoteDetailPageProps) {
     if (!quote) return
 
     try {
-      // Open PDF download in new tab
-      const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL || ''
-      window.open(`${baseUrl}/api/v1/quotes/${quote.id}/pdf/download`, '_blank')
-      toast.success('Descargando PDF...')
+      // Fix "Unauthenticated": window.open a la URL del API iba SIN el header Bearer
+      // (el token vive en localStorage, no en cookie) y el backend respondia 401 sin
+      // importar el rol. Se usa el servicio autenticado con blob, igual que la vista
+      // admin de cotizaciones.
+      await quoteService.downloadPdf(quote.id)
+      toast.success('PDF descargado')
     } catch {
       toast.error('Error al descargar el PDF')
     }

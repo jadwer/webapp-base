@@ -71,7 +71,7 @@ describe('inventoryMovementsService', () => {
 
       // Assert
       expect(axios.get).toHaveBeenCalledWith('/api/v1/inventory-movements', {
-        params: { 'filter[movement_type]': 'entry', sort: '-movementDate' }
+        params: { 'filter[movementType]': 'entry', sort: '-movementDate' }
       })
       expect(result).toEqual(apiResponse)
     })
@@ -107,7 +107,7 @@ describe('inventoryMovementsService', () => {
 
       // Assert
       expect(axios.get).toHaveBeenCalledWith('/api/v1/inventory-movements', {
-        params: { 'filter[product_id]': '5', sort: '-movementDate' }
+        params: { 'filter[product]': '5', sort: '-movementDate' }
       })
       expect(result).toEqual(apiResponse)
     })
@@ -125,7 +125,7 @@ describe('inventoryMovementsService', () => {
 
       // Assert
       expect(axios.get).toHaveBeenCalledWith('/api/v1/inventory-movements', {
-        params: { 'filter[warehouse_id]': '3', sort: '-movementDate' }
+        params: { 'filter[warehouse]': '3', sort: '-movementDate' }
       })
       expect(result).toEqual(apiResponse)
     })
@@ -349,7 +349,7 @@ describe('inventoryMovementsService', () => {
 
       // Assert
       expect(axios.get).toHaveBeenCalledWith('/api/v1/inventory-movements', {
-        params: { 'filter[product_id]': '7', sort: '-movementDate' }
+        params: { 'filter[product]': '7', sort: '-movementDate' }
       })
       expect(result).toEqual(apiResponse)
     })
@@ -370,7 +370,7 @@ describe('inventoryMovementsService', () => {
 
       // Assert
       expect(axios.get).toHaveBeenCalledWith('/api/v1/inventory-movements', {
-        params: { 'filter[warehouse_id]': '3', sort: '-movementDate' }
+        params: { 'filter[warehouse]': '3', sort: '-movementDate' }
       })
       expect(result).toEqual(apiResponse)
     })
@@ -391,7 +391,7 @@ describe('inventoryMovementsService', () => {
 
       // Assert
       expect(axios.get).toHaveBeenCalledWith('/api/v1/inventory-movements', {
-        params: { 'filter[movement_type]': 'entry', sort: '-movementDate' }
+        params: { 'filter[movementType]': 'entry', sort: '-movementDate' }
       })
       expect(result).toEqual(apiResponse)
     })
@@ -412,7 +412,7 @@ describe('inventoryMovementsService', () => {
 
       // Assert
       expect(axios.get).toHaveBeenCalledWith('/api/v1/inventory-movements', {
-        params: { 'filter[movement_type]': 'exit', sort: '-movementDate' }
+        params: { 'filter[movementType]': 'exit', sort: '-movementDate' }
       })
       expect(result).toEqual(apiResponse)
     })

@@ -11,7 +11,7 @@ import { useContactMutations } from '@/modules/contacts'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
 import { useSearchParams } from 'next/navigation'
 import type { ContactFormData } from '@/modules/contacts'
-import { parseContact } from '@/modules/contacts'
+import { parseContact, getValidationErrorMessages } from '@/modules/contacts'
 import { toast } from '@/lib/toast'
 
 export default function CreateContactPage() {
@@ -47,8 +47,20 @@ export default function CreateContactPage() {
       // Return the parsed contact data for ContactFormTabs to use
       return parseContact(result.data)
       
-    } catch {
-      toast.error('Error al crear el contacto. Por favor intenta de nuevo.')
+    } catch (error) {
+      // Un 422 trae el detalle de que campo fallo: mostrarlo SIEMPRE.
+      // (Bug 2026-07-29: el toast generico dejo al cliente sin saber que
+      // su formulario tenia un campo invalido; reporto "no puedo crear
+      // clientes". duration: 0 = persistente hasta que el usuario lo cierre.)
+      const details = getValidationErrorMessages(error)
+      if (details.length > 0) {
+        toast.error('No se pudo crear el contacto. Corrige lo siguiente:', {
+          description: details.join(' | '),
+          duration: 0,
+        })
+      } else {
+        toast.error('Error al crear el contacto. Por favor intenta de nuevo.')
+      }
     } finally {
       setIsLoading(false)
     }

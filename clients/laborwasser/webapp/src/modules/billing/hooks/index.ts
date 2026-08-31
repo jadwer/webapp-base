@@ -138,6 +138,29 @@ export function useCFDIInvoicesMutations() {
     await cfdiInvoicesService.sendEmail(id, email)
   }, [])
 
+  const validateSAT = useCallback(async (id: string) => {
+    return await cfdiInvoicesService.validateSAT(id)
+  }, [])
+
+  const getCancellationStatus = useCallback(async (id: string) => {
+    return await cfdiInvoicesService.getCancellationStatus(id)
+  }, [])
+
+  const downloadPrefactura = useCallback(async (id: string) => {
+    return await cfdiInvoicesService.prefacturaDownload(id)
+  }, [])
+
+  const previewPrefactura = useCallback((id: string) => {
+    return cfdiInvoicesService.prefacturaPreview(id)
+  }, [])
+
+  const emitPaymentComplement = useCallback(
+    async (arInvoiceId: number, paymentId?: number) => {
+      return await cfdiInvoicesService.emitPaymentComplement(arInvoiceId, paymentId)
+    },
+    []
+  )
+
   return {
     createInvoice,
     createInvoiceWithItems,
@@ -150,6 +173,39 @@ export function useCFDIInvoicesMutations() {
     downloadXML,
     downloadPDF,
     sendEmail,
+    validateSAT,
+    getCancellationStatus,
+    downloadPrefactura,
+    previewPrefactura,
+    emitPaymentComplement,
+  }
+}
+
+// ============================================================================
+// PAYMENT COMPLEMENT (REP) HOOKS
+// ============================================================================
+
+/**
+ * Hook to fetch the Complementos de Pago (REP, tipo P) emitted for a PPD invoice.
+ * Pass the parent invoice's arInvoiceId; null/undefined disables the request.
+ */
+export function usePaymentComplements(arInvoiceId: number | null | undefined) {
+  const { data, error, isLoading, mutate } = useSWR(
+    arInvoiceId ? ['payment-complements', arInvoiceId] : null,
+    () => cfdiInvoicesService.getPaymentComplements(arInvoiceId as number),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: true,
+    }
+  )
+
+  return {
+    complements: (data?.data as CFDIInvoice[]) || [],
+    meta: data?.meta,
+    links: data?.links,
+    isLoading,
+    error,
+    mutate,
   }
 }
 
@@ -391,5 +447,35 @@ export function useCFDIWorkflow() {
     generatePDF,
     stampInvoice,
     cancelInvoice,
+  }
+}
+
+// ============================================================================
+// SALES ORDER BILLING HOOKS (Prefactura / Facturar directly from SalesOrder)
+// ============================================================================
+
+/**
+ * Hook for billing actions triggered from a SalesOrder
+ * - prefacturaFromOrder: preview PDF of prefactura without creating a CFDI record
+ * - facturar: creates the CFDI invoice from the sales order (GAP 5 automation)
+ */
+export function useSalesOrderBillingMutations() {
+  const prefacturaFromOrder = useCallback(
+    async (
+      orderId: string,
+      options?: Parameters<typeof cfdiInvoicesService.prefacturaFromOrder>[1]
+    ) => {
+      return await cfdiInvoicesService.prefacturaFromOrder(orderId, options)
+    },
+    []
+  )
+
+  const facturar = useCallback(async (orderId: string) => {
+    return await cfdiInvoicesService.createFromOrder(orderId)
+  }, [])
+
+  return {
+    prefacturaFromOrder,
+    facturar,
   }
 }

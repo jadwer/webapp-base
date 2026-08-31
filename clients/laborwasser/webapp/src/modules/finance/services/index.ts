@@ -50,6 +50,9 @@ import type {
   UpdateBankTransactionRequest,
   BankTransactionFilters,
   BankTransactionSortOptions,
+  RegisterARPaymentForm,
+  RegisterARPaymentResponse,
+  SatFormaPago,
 } from '../types';
 
 // AP Invoices Service
@@ -198,6 +201,26 @@ export const arInvoicesService = {
 
   async post(id: string): Promise<{ data: ARInvoice }> {
     const response = await axiosClient.post(`/api/v1/ar-invoices/${id}/post`);
+    return response.data;
+  },
+
+  async registerPayment(id: string, data: RegisterARPaymentForm): Promise<RegisterARPaymentResponse> {
+    const payload = {
+      payment_date: data.paymentDate,
+      amount: data.amount,
+      forma_pago: data.formaPago,
+      ...(data.reference ? { reference: data.reference } : {}),
+      ...(data.comments ? { comments: data.comments } : {}),
+    };
+    const response = await axiosClient.post(`/api/v1/ar-invoices/${id}/register-payment`, payload);
+    return response.data;
+  },
+};
+
+// SAT Catalogs Service (used for payment method select in RegisterPaymentModal)
+export const satCatalogsService = {
+  async getFormaPago(): Promise<{ data: SatFormaPago[] }> {
+    const response = await axiosClient.get('/api/v1/sat/forma-pago');
     return response.data;
   },
 };

@@ -105,8 +105,8 @@ type JsonApiRelationships = {
   product?: { data: JsonApiRelationshipData }
   warehouse?: { data: JsonApiRelationshipData }
   warehouseLocation?: { data: JsonApiRelationshipData }
-  assignedTo?: { data: JsonApiRelationshipData }
-  countedBy?: { data: JsonApiRelationshipData }
+  assignedUser?: { data: JsonApiRelationshipData }
+  countedByUser?: { data: JsonApiRelationshipData }
 }
 
 // Parse JSON:API response to UI-friendly format
@@ -165,9 +165,9 @@ function parseCycleCount(
     }
 
     // Parse assignedTo (user) relationship
-    if (data.relationships.assignedTo?.data) {
+    if (data.relationships.assignedUser?.data) {
       const userData = included?.find(
-        (item: JsonApiItem) => item.type === 'users' && item.id === data.relationships?.assignedTo?.data.id
+        (item: JsonApiItem) => item.type === 'users' && item.id === data.relationships?.assignedUser?.data.id
       )
       if (userData) {
         parsed.assignedTo = {
@@ -181,9 +181,9 @@ function parseCycleCount(
     }
 
     // Parse countedBy (user) relationship
-    if (data.relationships.countedBy?.data) {
+    if (data.relationships.countedByUser?.data) {
       const userData = included?.find(
-        (item: JsonApiItem) => item.type === 'users' && item.id === data.relationships?.countedBy?.data.id
+        (item: JsonApiItem) => item.type === 'users' && item.id === data.relationships?.countedByUser?.data.id
       )
       if (userData) {
         parsed.countedBy = {
@@ -210,7 +210,7 @@ function buildQueryParams(
   const params: Record<string, string> = {}
 
   // Include relationships
-  params.include = 'product,warehouse,warehouseLocation,assignedTo,countedBy'
+  params.include = 'product,warehouse,warehouseLocation,assignedUser,countedByUser'
 
   // Pagination
   if (page && page > 0) {
@@ -220,19 +220,14 @@ function buildQueryParams(
     params['page[size]'] = pageSize.toString()
   }
 
-  // Sorting - convert camelCase to snake_case for backend
+  // Sorting. Paquete A: los sortables JSON:API usan el NOMBRE del field del
+  // Schema (camelCase), no la columna; el mapeo a snake_case anterior producia
+  // claves de sort invalidas (400).
   if (sort?.field) {
-    const fieldMap: Record<string, string> = {
-      countNumber: 'count_number',
-      scheduledDate: 'scheduled_date',
-      completedDate: 'completed_date',
-      systemQuantity: 'system_quantity',
-      varianceQuantity: 'variance_quantity',
-      abcClass: 'abc_class',
-      createdAt: 'created_at'
-    }
-    const sortField = fieldMap[sort.field] || sort.field
-    params.sort = sort.direction === 'desc' ? `-${sortField}` : sortField
+    params.sort = sort.direction === 'desc' ? `-${sort.field}` : sort.field
+  } else {
+    // Default: lo mas reciente primero (pedido de Gabino 2026-07-19).
+    params.sort = '-createdAt'
   }
 
   // Filters
@@ -245,32 +240,35 @@ function buildQueryParams(
       params['filter[status]'] = filters.status.join(',')
     }
 
+    // Paquete A (auditoria 10 pasos): en laravel-json-api la clave del filtro
+    // es el PRIMER argumento de make(), y CycleCountSchema las declara en
+    // camelCase. Las claves snake_case anteriores no existian y daban 400.
     if (filters.abcClass && filters.abcClass.length > 0) {
-      params['filter[abc_class]'] = filters.abcClass.join(',')
+      params['filter[abcClass]'] = filters.abcClass.join(',')
     }
 
     if (filters.warehouseId) {
-      params['filter[warehouse_id]'] = filters.warehouseId
+      params['filter[warehouseId]'] = filters.warehouseId
     }
 
     if (filters.productId) {
-      params['filter[product_id]'] = filters.productId
+      params['filter[productId]'] = filters.productId
     }
 
     if (filters.assignedTo) {
-      params['filter[assigned_to]'] = filters.assignedTo
+      params['filter[assignedTo]'] = filters.assignedTo
     }
 
     if (filters.scheduledAfter) {
-      params['filter[scheduled_after]'] = filters.scheduledAfter
+      params['filter[scheduledAfter]'] = filters.scheduledAfter
     }
 
     if (filters.scheduledBefore) {
-      params['filter[scheduled_before]'] = filters.scheduledBefore
+      params['filter[scheduledBefore]'] = filters.scheduledBefore
     }
 
     if (filters.hasVariance !== undefined) {
-      params['filter[has_variance]'] = filters.hasVariance.toString()
+      params['filter[hasVariance]'] = filters.hasVariance.toString()
     }
 
     if (filters.overdue) {
@@ -310,7 +308,7 @@ export const cycleCountsService = {
    * Get single cycle count by ID
    */
   async getById(id: string) {
-    const params = { include: 'product,warehouse,warehouseLocation,assignedTo,countedBy' }
+    const params = { include: 'product,warehouse,warehouseLocation,assignedUser,countedByUser' }
 
     const response = await axios.get<JsonApiResponse<CycleCount>>(`${BASE_URL}/${id}`, { params })
 

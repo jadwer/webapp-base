@@ -123,12 +123,17 @@ describe('purchaseService', () => {
       const result = await purchaseService.orders.create(formData)
 
       // Assert
+      // Contrato post-refactor: atributos camelCase (Schema JSON:API) y el
+      // contacto viaja ademas como relationship; order_number lo genera el
+      // backend y ya no se envia.
       expect(axios.post).toHaveBeenCalledWith('/api/v1/purchase-orders', expect.objectContaining({
         data: expect.objectContaining({
           type: 'purchase-orders',
           attributes: expect.objectContaining({
-            order_number: formData.orderNumber,
-            contact_id: formData.contactId,
+            contactId: formData.contactId,
+          }),
+          relationships: expect.objectContaining({
+            contact: { data: { type: 'contacts', id: String(formData.contactId) } },
           }),
         }),
       }))

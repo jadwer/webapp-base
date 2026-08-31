@@ -19,6 +19,12 @@ interface ReportExportButtonProps {
   label?: string
   size?: 'sm' | 'md' | 'lg'
   variant?: 'primary' | 'secondary' | 'outline-primary' | 'outline-secondary'
+  /**
+   * Optional override for the `format` query param value sent to the backend
+   * (e.g. { xlsx: 'excel' } for endpoints expecting format=excel).
+   * The file extension keeps using the display format (xlsx).
+   */
+  formatParamMap?: Partial<Record<ExportFormat, string>>
 }
 
 const FORMAT_INFO: Record<ExportFormat, { icon: string; label: string }> = {
@@ -35,6 +41,7 @@ export function ReportExportButton({
   label = 'Exportar',
   size = 'md',
   variant = 'outline-secondary',
+  formatParamMap,
 }: ReportExportButtonProps) {
   const { exportReport, isExporting, error } = useReportExport()
   const [selectedFormat, setSelectedFormat] = useState<ExportFormat | null>(null)
@@ -42,8 +49,9 @@ export function ReportExportButton({
   const handleExport = async (format: ExportFormat) => {
     setSelectedFormat(format)
     const fullFilename = `${filename}.${format}`
+    const apiFormat = (formatParamMap?.[format] ?? format) as ExportFormat
     try {
-      await exportReport(reportType, params, format, fullFilename)
+      await exportReport(reportType, params, apiFormat, fullFilename)
     } finally {
       setSelectedFormat(null)
     }

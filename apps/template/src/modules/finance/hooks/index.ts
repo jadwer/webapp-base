@@ -51,6 +51,11 @@ export function useAPInvoices(params: Record<string, unknown> = {}) {
       formattedParams.sort = sort.join(',');
     }
   }
+  if (!formattedParams.sort) {
+    // Default: lo mas reciente primero (pedido de Gabino 2026-07-19). Sin sort
+    // el backend devuelve id ascendente y el listado abria en lo mas viejo.
+    formattedParams.sort = '-createdAt';
+  }
 
   const key = ['/api/v1/a-p-invoices', formattedParams];
   const { data, error, isLoading, mutate } = useSWR(
@@ -147,6 +152,11 @@ export function useAPPayments(params: Record<string, unknown> = {}) {
     if (sort.length > 0) {
       formattedParams.sort = sort.join(',');
     }
+  }
+  if (!formattedParams.sort) {
+    // Default: lo mas reciente primero (pedido de Gabino 2026-07-19). Sin sort
+    // el backend devuelve id ascendente y el listado abria en lo mas viejo.
+    formattedParams.sort = '-createdAt';
   }
 
   const key = ['/api/v1/payments', 'ap', formattedParams];
@@ -247,6 +257,11 @@ export function useARInvoices(params: Record<string, unknown> = {}) {
     if (sort.length > 0) {
       formattedParams.sort = sort.join(',');
     }
+  }
+  if (!formattedParams.sort) {
+    // Default: lo mas reciente primero (pedido de Gabino 2026-07-19). Sin sort
+    // el backend devuelve id ascendente y el listado abria en lo mas viejo.
+    formattedParams.sort = '-createdAt';
   }
 
   const key = ['/api/v1/a-r-invoices', formattedParams];
@@ -370,6 +385,11 @@ export function useARReceipts(params: Record<string, unknown> = {}) {
     if (sort.length > 0) {
       formattedParams.sort = sort.join(',');
     }
+  }
+  if (!formattedParams.sort) {
+    // Default: lo mas reciente primero (pedido de Gabino 2026-07-19). Sin sort
+    // el backend devuelve id ascendente y el listado abria en lo mas viejo.
+    formattedParams.sort = '-createdAt';
   }
 
   const key = ['/api/v1/payments', 'ar', formattedParams];

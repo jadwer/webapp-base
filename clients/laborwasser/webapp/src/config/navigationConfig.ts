@@ -136,15 +136,29 @@ export const adminNavigation: NavigationSection = {
       key: 'sales',
       label: 'Ventas',
       icon: 'bi-cart-check',
-      activePathPrefixes: ['/dashboard/sales', '/dashboard/contacts/customers', '/dashboard/contacts/prospects'],
+      activePathPrefixes: ['/dashboard/sales', '/dashboard/remissions', '/dashboard/contacts/customers', '/dashboard/contacts/prospects'],
       permissions: [],
       items: [
         { href: '/dashboard/sales', label: 'Órdenes de Venta', icon: 'bi-cart-check', permissions: ['sales-orders.index'] },
         { href: '/dashboard/sales/create', label: 'Nueva Orden', icon: 'bi-plus-circle', permissions: ['sales-orders.store'] },
+        { href: '/dashboard/remissions', label: 'Remisiones', icon: 'bi-truck', permissions: ['remissions.index'] },
         { href: '/dashboard/contacts/customers', label: 'Clientes', icon: 'bi-person-check', permissions: ['contacts.index'], quickCreateHref: '/dashboard/contacts/create?type=customer' },
         { href: '/dashboard/contacts/prospects', label: 'Prospectos', icon: 'bi-person-dash', permissions: ['contacts.index'], quickCreateHref: '/dashboard/contacts/create?type=prospect' },
         { href: '/dashboard/sales/reports', label: 'Reportes', icon: 'bi-graph-up', permissions: ['sales-orders.index'] },
         { href: '/dashboard/sales/customers', label: 'Estadísticas de clientes', icon: 'bi-person-heart', permissions: ['sales-orders.index'] },
+      ],
+    },
+
+    // Comisiones
+    {
+      key: 'commissions',
+      label: 'Comisiones',
+      icon: 'bi-percent',
+      activePathPrefixes: ['/dashboard/commissions'],
+      permissions: ['commissions.index'],
+      items: [
+        { href: '/dashboard/commissions', label: 'Comisiones', icon: 'bi-percent', permissions: ['commissions.index'] },
+        { href: '/dashboard/commissions/by-employee', label: 'Reporte por Vendedor', icon: 'bi-bar-chart', permissions: ['commissions.index'] },
       ],
     },
 
@@ -203,6 +217,7 @@ export const adminNavigation: NavigationSection = {
       permissions: [],
       items: [
         { href: '/dashboard/reports', label: 'Dashboard Reportes', icon: 'bi-speedometer2', permissions: ['reports.balance-sheets.index'] },
+        { href: '/dashboard/reports/sales-history', label: 'Histórico de Ventas', icon: 'bi-receipt', permissions: ['reports.balance-sheets.index'] },
         { href: '/dashboard/reports/financial-statements', label: 'Estados Financieros', icon: 'bi-file-earmark-text', permissions: ['reports.balance-sheets.index'] },
         { href: '/dashboard/reports/aging-reports', label: 'Antigüedad AR/AP', icon: 'bi-clock-history', permissions: ['reports.aging.index'] },
         { href: '/dashboard/reports/management-reports', label: 'Reportes Gerenciales', icon: 'bi-graph-up', permissions: ['reports.balance-sheets.index'] },

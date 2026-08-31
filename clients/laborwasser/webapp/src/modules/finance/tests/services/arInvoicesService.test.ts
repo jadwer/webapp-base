@@ -188,4 +188,87 @@ describe('AR Invoices Service', () => {
       expect(result.data).toBeDefined()
     })
   })
+
+  describe('registerPayment', () => {
+    it('should send the payload with snake_case fields to the register-payment endpoint', async () => {
+      // Arrange
+      const mockResponse = {
+        message: 'Payment registered successfully',
+        invoice: {
+          id: '1',
+          totalAmount: 2320,
+          paidAmount: 1000,
+          balance: 1320,
+          status: 'partial',
+        },
+      }
+      mockAxios.post.mockResolvedValue({ data: mockResponse })
+
+      // Act
+      const result = await arInvoicesService.registerPayment('1', {
+        paymentDate: '2026-07-10',
+        amount: 500,
+        formaPago: '03',
+        reference: 'REF-123',
+        comments: 'Pago parcial',
+      })
+
+      // Assert
+      expect(mockAxios.post).toHaveBeenCalledWith('/api/v1/ar-invoices/1/register-payment', {
+        payment_date: '2026-07-10',
+        amount: 500,
+        forma_pago: '03',
+        reference: 'REF-123',
+        comments: 'Pago parcial',
+      })
+      expect(result).toEqual(mockResponse)
+    })
+
+    it('should omit optional reference and comments when not provided', async () => {
+      // Arrange
+      mockAxios.post.mockResolvedValue({
+        data: {
+          message: 'ok',
+          invoice: { id: '1', totalAmount: 100, paidAmount: 100, balance: 0, status: 'paid' },
+        },
+      })
+
+      // Act
+      await arInvoicesService.registerPayment('1', {
+        paymentDate: '2026-07-10',
+        amount: 100,
+        formaPago: '01',
+      })
+
+      // Assert
+      expect(mockAxios.post).toHaveBeenCalledWith('/api/v1/ar-invoices/1/register-payment', {
+        payment_date: '2026-07-10',
+        amount: 100,
+        forma_pago: '01',
+      })
+    })
+
+    it('should propagate 422 errors from overpayment or invalid forma de pago', async () => {
+      // Arrange
+      const axiosError = {
+        response: {
+          status: 422,
+          data: {
+            message: 'El monto excede el saldo pendiente de la factura.',
+            errors: [{ title: 'Unprocessable Entity', detail: 'El monto excede el saldo pendiente de la factura.' }],
+          },
+        },
+      }
+      mockAxios.post.mockRejectedValue(axiosError)
+
+      // Act & Assert
+      await expect(
+        arInvoicesService.registerPayment('1', {
+          paymentDate: '2026-07-10',
+          amount: 999999,
+          formaPago: '03',
+        })
+      ).rejects.toEqual(axiosError)
+    })
+  })
 })

@@ -10,11 +10,8 @@ export function CFDIInvoicesAdminPage() {
   const [filters, setFilters] = useState<CFDIInvoicesFilters>({})
   const confirmModalRef = useRef<ConfirmModalHandle>(null)
   const { invoices, isLoading, error, mutate } = useCFDIInvoices(filters)
-  const { deleteInvoice, downloadXML, downloadPDF, validateSAT, getCancellationStatus } =
-    useCFDIInvoicesMutations()
+  const { deleteInvoice, downloadXML, downloadPDF } = useCFDIInvoicesMutations()
   const { generateXML, generatePDF, stampInvoice, cancelInvoice } = useCFDIWorkflow()
-  const [validatingId, setValidatingId] = useState<string | null>(null)
-  const [checkingCancelId, setCheckingCancelId] = useState<string | null>(null)
 
   // Calculate metrics
   const totalInvoices = invoices.length
@@ -55,11 +52,34 @@ export function CFDIInvoicesAdminPage() {
   }
 
   const handleCancel = async (id: string) => {
-    const motivo = prompt('Motivo de cancelación (01-04):')
+    // QA post-commit (A3): el backend valida motivo_cancelacion in:01,02,03,04 y para
+    // el motivo 01 exige uuid_sustitucion. Antes el prompt aceptaba texto libre y nunca
+    // pedia el UUID: la cancelacion daba 422 en el caso comun. Se valida aqui.
+    const motivo = prompt(
+      'Motivo de cancelación SAT:\n' +
+      '01 - Comprobante emitido con errores CON relación (requiere UUID sustituto)\n' +
+      '02 - Comprobante emitido con errores SIN relación\n' +
+      '03 - No se llevó a cabo la operación\n' +
+      '04 - Operación nominativa relacionada en factura global\n\n' +
+      'Escribe 01, 02, 03 o 04:'
+    )?.trim()
     if (!motivo) return
+    if (!['01', '02', '03', '04'].includes(motivo)) {
+      toast.error('Motivo inválido. Debe ser 01, 02, 03 o 04.')
+      return
+    }
+
+    let uuidReemplazo: string | undefined
+    if (motivo === '01') {
+      uuidReemplazo = prompt('UUID del comprobante que SUSTITUYE a este (obligatorio para motivo 01):')?.trim() || undefined
+      if (!uuidReemplazo) {
+        toast.error('El motivo 01 requiere el UUID del comprobante sustituto.')
+        return
+      }
+    }
 
     try {
-      await cancelInvoice(id, { motivo })
+      await cancelInvoice(id, { motivo, uuidReemplazo })
       mutate()
       toast.success('Factura cancelada correctamente')
     } catch {
@@ -96,36 +116,6 @@ export function CFDIInvoicesAdminPage() {
       document.body.removeChild(a)
     } catch {
       toast.error('Error al descargar PDF')
-    }
-  }
-
-  const handleValidateSAT = async (id: string) => {
-    setValidatingId(id)
-    try {
-      const result = await validateSAT(id)
-      toast.success(
-        result.valid ? `CFDI vigente ante el SAT (${result.status})` : `CFDI ${result.status} ante el SAT`
-      )
-    } catch {
-      toast.error('Error al validar el CFDI con el SAT')
-    } finally {
-      setValidatingId(null)
-    }
-  }
-
-  const handleCheckCancellationStatus = async (id: string) => {
-    setCheckingCancelId(id)
-    try {
-      const result = await getCancellationStatus(id)
-      toast.success(
-        result.status === 'cancelled'
-          ? 'Cancelacion confirmada ante el SAT'
-          : 'Cancelacion en proceso ante el SAT'
-      )
-    } catch {
-      toast.error('Error al consultar el estatus de cancelacion')
-    } finally {
-      setCheckingCancelId(null)
     }
   }
 
@@ -187,12 +177,11 @@ export function CFDIInvoicesAdminPage() {
     }).format(amount / 100) // Convert from cents
   }
 
-  const formatDate = (value: string | null | undefined): string => {
-    if (!value) return '-'
-    const parsed = new Date(value)
-    // Un valor no parseable (NaN) no debe mostrar "Invalid Date" al usuario.
+  const formatDate = (dateString: string | null | undefined): string => {
+    if (!dateString) return '-'
+    const parsed = new Date(dateString)
     if (Number.isNaN(parsed.getTime())) return '-'
-    return parsed.toLocaleDateString('es-MX')
+    return parsed.toLocaleDateString('es-MX', { year: 'numeric', month: 'short', day: 'numeric' })
   }
 
   if (error) {
@@ -398,7 +387,12 @@ export function CFDIInvoicesAdminPage() {
                       </td>
                       <td>
                         <div className="btn-group btn-group-sm">
-                          {invoice.status === 'draft' && (
+                          {/* Refactor ciclo: el backend crea el CFDI en 'draft' y NUNCA
+                              usa 'generated'. Antes el boton Timbrar solo aparecia para
+                              'generated' -> jamas se mostraba y el CFDI no se podia timbrar
+                              desde el dashboard. Ahora en 'draft' se ofrecen Generar XML,
+                              Generar PDF y Timbrar (stamp() genera el XML si hace falta). */}
+                          {(invoice.status === 'draft' || invoice.status === 'generated') && (
                             <>
                               <button
                                 className="btn btn-outline-primary"
@@ -407,10 +401,6 @@ export function CFDIInvoicesAdminPage() {
                               >
                                 <i className="bi bi-file-earmark-code" />
                               </button>
-                            </>
-                          )}
-                          {invoice.status === 'generated' && (
-                            <>
                               <button
                                 className="btn btn-outline-primary"
                                 onClick={() => handleGeneratePDF(invoice.id)}
@@ -444,18 +434,6 @@ export function CFDIInvoicesAdminPage() {
                                 <i className="bi bi-download" /> PDF
                               </button>
                               <button
-                                className="btn btn-outline-info"
-                                onClick={() => handleValidateSAT(invoice.id)}
-                                disabled={validatingId === invoice.id}
-                                title="Validar en SAT"
-                              >
-                                {validatingId === invoice.id ? (
-                                  <span className="spinner-border spinner-border-sm" />
-                                ) : (
-                                  <i className="bi bi-patch-check" />
-                                )}
-                              </button>
-                              <button
                                 className="btn btn-outline-danger"
                                 onClick={() => handleCancel(invoice.id)}
                                 title="Cancelar"
@@ -463,20 +441,6 @@ export function CFDIInvoicesAdminPage() {
                                 <i className="bi bi-x-circle" />
                               </button>
                             </>
-                          )}
-                          {invoice.status === 'cancelled' && (
-                            <button
-                              className="btn btn-outline-info"
-                              onClick={() => handleCheckCancellationStatus(invoice.id)}
-                              disabled={checkingCancelId === invoice.id}
-                              title="Estatus de cancelacion"
-                            >
-                              {checkingCancelId === invoice.id ? (
-                                <span className="spinner-border spinner-border-sm" />
-                              ) : (
-                                <i className="bi bi-hourglass-split" />
-                              )}
-                            </button>
                           )}
                           <button
                             className="btn btn-outline-danger"

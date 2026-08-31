@@ -243,6 +243,57 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
             </div>
           </Card>
 
+          {/* Datos fiscales SAT */}
+          <Card className="mb-4">
+            <div className="card-header">
+              <h6 className="mb-0">
+                <i className="bi bi-receipt me-2" />
+                Datos fiscales (SAT)
+              </h6>
+            </div>
+            <div className="card-body">
+              <div className="mb-3">
+                <label className="form-label fw-bold small">Clave Prod/Serv:</label>
+                <div>
+                  {product.satClaveProdServ ? (
+                    <code>{product.satClaveProdServ}</code>
+                  ) : (
+                    <span className="text-muted">Sin definir</span>
+                  )}
+                </div>
+              </div>
+              <div className="mb-3">
+                <label className="form-label fw-bold small">Clave Unidad:</label>
+                <div>
+                  {product.satClaveUnidad ? (
+                    <code>{product.satClaveUnidad}</code>
+                  ) : (
+                    <span className="text-muted">Sin definir</span>
+                  )}
+                </div>
+              </div>
+              <div className="mb-3">
+                <label className="form-label fw-bold small">Tipo de producto:</label>
+                <div>
+                  {product.productType === 'finished' && <span className="badge bg-info text-dark">Terminado</span>}
+                  {product.productType === 'raw_material' && <span className="badge bg-info text-dark">Materia prima</span>}
+                  {product.productType === 'both' && <span className="badge bg-info text-dark">Ambos</span>}
+                  {!product.productType && <span className="text-muted">Sin definir</span>}
+                </div>
+              </div>
+              <div>
+                <label className="form-label fw-bold small">IVA:</label>
+                <div>
+                  {product.taxRate === null || product.taxRate === undefined ? (
+                    <span className="badge bg-secondary">Exento</span>
+                  ) : (
+                    <span className="badge bg-success">{product.taxRate}%</span>
+                  )}
+                </div>
+              </div>
+            </div>
+          </Card>
+
           {/* Files */}
           {product.datasheetUrl && (
             <Card className="mb-4">

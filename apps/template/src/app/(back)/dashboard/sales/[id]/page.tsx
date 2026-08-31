@@ -1,19 +1,17 @@
 'use client'
 
 import { use, useState, useEffect, useCallback, useRef } from 'react'
-import { useSalesOrder, useSalesOrderItems, formatDateOnly } from '@/modules/sales'
+import { useSalesOrder, useSalesOrderItems } from '@/modules/sales'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
 import { formatCurrency, formatQuantity } from '@/lib/formatters'
-import { salesService, orderTrackingService, ORDER_TYPE_LABELS, exportSalesOrderItemsCsv } from '@/modules/sales'
+import { salesService } from '@/modules/sales'
 import { remissionService, REMISSION_STATUS_LABELS } from '@/modules/sales'
 import type { Remission } from '@/modules/sales'
-import { OperationsMenu } from '@/modules/sales'
-import type { OperationsMenuItem } from '@/modules/sales'
 import { toast } from '@/lib/toast'
 import axiosClient from '@/lib/axiosClient'
+import { cfdiInvoicesService } from '@/modules/billing/services'
 import { AddItemModal } from '@/modules/sales'
 import { StockAvailabilityPanel } from '@/modules/sales'
-import { useSalesOrderBillingMutations } from '@/modules/billing'
 import ConfirmModal, { ConfirmModalHandle } from '@/ui/components/base/ConfirmModal'
 
 interface PageProps {
@@ -28,9 +26,8 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
   const [remissionsLoading, setRemissionsLoading] = useState(true)
   const [actionLoading, setActionLoading] = useState<string | null>(null)
   const confirmModalRef = useRef<ConfirmModalHandle>(null)
-  const { prefacturaFromOrder, facturar } = useSalesOrderBillingMutations()
 
-  const { salesOrder, isLoading: orderLoading, error: orderError, mutate: mutateOrder } = useSalesOrder(resolvedParams.id)
+  const { salesOrder, isLoading: orderLoading, error: orderError, mutate } = useSalesOrder(resolvedParams.id)
   const { salesOrderItems, isLoading: itemsLoading, error: itemsError, mutate: mutateItems } = useSalesOrderItems(resolvedParams.id)
 
   const loadRemissions = useCallback(async () => {
@@ -49,22 +46,37 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
     loadRemissions()
   }, [loadRemissions])
 
+  // Bloque FE del ciclo: mapas con los status REALES de la maquina de estados del
+  // backend (antes solo cubrian completed/approved/pending/cancelled; 'approved' ni
+  // existe en SalesOrder y delivered/shipped/etc. caian al default sin traducir).
   const getStatusBadgeClass = (status: string) => {
     switch (status) {
-      case 'completed': return 'bg-success'
-      case 'approved': return 'bg-primary'
+      case 'draft': return 'bg-secondary'
       case 'pending': return 'bg-warning'
+      case 'confirmed': return 'bg-primary'
+      case 'processing': return 'bg-primary'
+      case 'shipped': return 'bg-info'
+      case 'delivered': return 'bg-success'
+      case 'completed': return 'bg-success'
       case 'cancelled': return 'bg-danger'
+      case 'returned': return 'bg-danger'
+      case 'refunded': return 'bg-dark'
       default: return 'bg-secondary'
     }
   }
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case 'completed': return 'Completada'
-      case 'approved': return 'Aprobada'
+      case 'draft': return 'Borrador'
       case 'pending': return 'Pendiente'
+      case 'confirmed': return 'Confirmada'
+      case 'processing': return 'En proceso'
+      case 'shipped': return 'Enviada'
+      case 'delivered': return 'Entregada'
+      case 'completed': return 'Completada'
       case 'cancelled': return 'Cancelada'
+      case 'returned': return 'Devuelta'
+      case 'refunded': return 'Reembolsada'
       default: return status
     }
   }
@@ -169,70 +181,6 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
     }
   }
 
-  const handlePrefactura = async () => {
-    setActionLoading('prefactura')
-    try {
-      const blob = await prefacturaFromOrder(resolvedParams.id)
-      const url = window.URL.createObjectURL(blob)
-      window.open(url, '_blank')
-    } catch {
-      toast.error('Error al generar la prefactura')
-    } finally {
-      setActionLoading(null)
-    }
-  }
-
-  const handleFacturar = async () => {
-    const confirmed = await confirmModalRef.current?.confirm(
-      'Se generara el CFDI (factura fiscal) a partir de esta orden de venta. Esta accion no se puede deshacer.',
-      {
-        title: 'Facturar orden de venta',
-        confirmText: 'Facturar',
-        cancelText: 'Cancelar',
-        confirmVariant: 'primary'
-      }
-    )
-    if (!confirmed) return
-
-    setActionLoading('facturar')
-    try {
-      const result = await facturar(resolvedParams.id)
-      const invoiceData = (result as { data?: { id?: string; attributes?: Record<string, unknown> } })?.data
-      const folio = invoiceData?.attributes
-        ? `${invoiceData.attributes.series ?? ''}-${invoiceData.attributes.folio ?? ''}`
-        : ''
-      const invoiceId = invoiceData?.id
-
-      toast.success(
-        folio && folio !== '-' ? `Factura ${folio} generada correctamente` : 'Factura generada correctamente'
-      )
-
-      if (invoiceId) {
-        navigation.push(`/dashboard/billing/invoices/${invoiceId}`)
-      } else {
-        mutateOrder()
-      }
-    } catch (err) {
-      const error = err as { response?: { status?: number; data?: { message?: string; error?: string } } }
-      if (error.response?.status === 422) {
-        toast.error(
-          error.response.data?.message ||
-            error.response.data?.error ||
-            'La orden no se encuentra en un estado valido para facturar'
-        )
-      } else if (error.response?.status === 500) {
-        toast.error(
-          error.response.data?.message ||
-            'Error interno al generar la factura. Verifique la configuracion fiscal (CSD, PAC).'
-        )
-      } else {
-        toast.error('Error al facturar la orden de venta')
-      }
-    } finally {
-      setActionLoading(null)
-    }
-  }
-
   const handlePrintOrder = async () => {
     try {
       const response = await axiosClient.get(`/api/v1/sales-orders/${resolvedParams.id}/pdf/stream`, {
@@ -246,60 +194,41 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
     }
   }
 
-  // Fase A: "Marcar como surtido" = transicion a delivered (workflow existente)
-  const handleMarkDelivered = async () => {
+  // Bloque FE del ciclo: factura real desde la orden (POST /sales-orders/{id}/facturar).
+  // Crea la ARInvoice (si no existe) y el CFDI en borrador; el timbrado es manual
+  // desde Facturas CFDI (decision D-a: sin timbrado automatico).
+  const handleGenerateInvoice = async () => {
     const confirmed = await confirmModalRef.current?.confirm(
-      'Marcar la orden como surtida (entregada)? Esto habilita la facturacion.',
-      {
-        title: 'Marcar como surtido',
-        confirmText: 'Marcar surtido',
-        cancelText: 'Cancelar',
-        confirmVariant: 'primary'
-      }
+      'Generar la factura de esta orden? Se crea la cuenta por cobrar y el CFDI en borrador (el timbrado se hace despues, desde Facturas CFDI).',
+      { title: 'Generar factura', confirmVariant: 'primary' }
     )
     if (!confirmed) return
-    setActionLoading('deliver-order')
+    setActionLoading('invoice')
     try {
-      await orderTrackingService.updateStatus(resolvedParams.id, { status: 'delivered' })
-      toast.success('Orden marcada como surtida')
-      mutateOrder()
+      const res = await cfdiInvoicesService.createFromOrder(resolvedParams.id)
+      toast.success(`Factura generada: ${res?.data?.series ?? ''}-${res?.data?.folio ?? ''} (borrador)`)
+      await mutate()
+      navigation.push('/dashboard/billing/invoices')
     } catch (err) {
-      const error = err as { response?: { data?: { message?: string; error?: string } } }
-      const backendMessage = error.response?.data?.message || error.response?.data?.error
-      // El backend responde 400 con un mensaje en ingles ("Cannot transition
-      // from 'pending' to 'delivered'"). Se traduce para que el usuario entienda
-      // que la orden debe avanzar por el flujo antes de surtirse.
-      const isTransitionError = backendMessage?.includes('Cannot transition')
-      const currentStatus = salesOrder?.status
-      toast.error(
-        isTransitionError
-          ? `No se puede marcar como surtido${currentStatus ? ` (estado actual: "${currentStatus}")` : ''}: la orden debe confirmarse y procesarse antes de entregarse.`
-          : backendMessage || 'Error al marcar la orden como surtida'
-      )
+      const e = err as { response?: { data?: { error?: string; message?: string } } }
+      toast.error(e.response?.data?.error || e.response?.data?.message || 'No se pudo generar la factura')
     } finally {
       setActionLoading(null)
     }
   }
 
-  // Exportar partidas CSV (client-side, desde los items ya cargados)
-  const handleExportCsv = () => {
-    if (!salesOrder) return
-    if (!salesOrderItems || salesOrderItems.length === 0) {
-      toast.error('La orden no tiene partidas para exportar')
-      return
-    }
-    exportSalesOrderItemsCsv(salesOrder.orderNumber, salesOrderItems)
-    toast.success('Partidas exportadas')
-  }
-
-  // Descarga del PDF de la OC del cliente (pedidos)
-  const handleDownloadCustomerPo = async () => {
-    if (!salesOrder) return
-    setActionLoading('download-po')
+  // Prefactura: vista previa PDF sin efectos fiscales (GET .../prefactura).
+  const handlePrefactura = async () => {
+    setActionLoading('prefactura')
     try {
-      await salesService.orders.downloadCustomerPo(resolvedParams.id, salesOrder.orderNumber)
+      const response = await axiosClient.get(`/api/v1/sales-orders/${resolvedParams.id}/prefactura`, {
+        responseType: 'blob',
+      })
+      const blob = new Blob([response.data], { type: 'application/pdf' })
+      const url = window.URL.createObjectURL(blob)
+      window.open(url, '_blank')
     } catch {
-      toast.error('Error al descargar el PDF de la OC del cliente')
+      toast.error('Error al generar la prefactura')
     } finally {
       setActionLoading(null)
     }
@@ -340,63 +269,6 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
   }
 
   const isActive = salesOrder.status !== 'cancelled' && salesOrder.status !== 'completed'
-  const canInvoice = salesOrder.status === 'delivered' || salesOrder.status === 'completed'
-  const canMarkDelivered = !['delivered', 'completed', 'cancelled'].includes(salesOrder.status)
-
-  // Menu Operaciones (Fase A): agrupa facturacion, surtido, cancelacion y exports
-  const operationsItems: OperationsMenuItem[] = [
-    {
-      key: 'facturar',
-      label: 'Facturar',
-      icon: 'bi-receipt',
-      onClick: handleFacturar,
-      disabled: actionLoading === 'facturar' || !canInvoice,
-      title: canInvoice
-        ? 'Generar CFDI a partir de esta orden'
-        : 'La orden debe estar entregada o completada para facturar'
-    },
-    {
-      key: 'prefactura',
-      label: 'Prefactura',
-      icon: 'bi-file-earmark-medical',
-      onClick: handlePrefactura,
-      disabled: actionLoading === 'prefactura',
-      title: 'Vista previa de la prefactura (no crea la factura)'
-    },
-    {
-      key: 'mark-delivered',
-      label: 'Marcar como surtido',
-      icon: 'bi-box-seam',
-      onClick: handleMarkDelivered,
-      disabled: actionLoading === 'deliver-order' || !canMarkDelivered,
-      title: canMarkDelivered
-        ? 'Transicion de la orden a entregada'
-        : 'La orden ya esta surtida, completada o cancelada'
-    },
-    { type: 'divider', key: 'div-docs' },
-    {
-      key: 'export-csv',
-      label: 'Exportar partidas CSV',
-      icon: 'bi-filetype-csv',
-      onClick: handleExportCsv
-    },
-    {
-      key: 'pdf',
-      label: 'PDF de la orden',
-      icon: 'bi-file-earmark-pdf',
-      onClick: handlePrintOrder
-    },
-    { type: 'divider', key: 'div-danger' },
-    {
-      key: 'cancel',
-      label: 'Cancelar orden',
-      icon: 'bi-x-circle',
-      variant: 'danger',
-      onClick: handleCancelOrder,
-      disabled: !isActive || actionLoading === 'cancel-order',
-      title: isActive ? undefined : 'La orden ya esta cancelada o completada'
-    }
-  ]
 
   return (
     <div className="container-fluid py-4">
@@ -413,7 +285,7 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
                 Detalles completos de la orden de venta
               </p>
             </div>
-            <div className="d-flex gap-2 flex-wrap">
+            <div className="btn-group">
               <button
                 className="btn btn-outline-secondary"
                 onClick={() => navigation.push('/dashboard/sales')}
@@ -429,16 +301,12 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
                 Editar
               </button>
               <button
-                className="btn btn-outline-primary"
+                className="btn btn-primary"
                 onClick={() => navigation.push(`/dashboard/sales/${resolvedParams.id}/items`)}
               >
                 <i className="bi bi-box-seam me-2"></i>
                 Ver Items ({salesOrderItems?.length || 0})
               </button>
-              <OperationsMenu
-                items={operationsItems}
-                loading={['facturar', 'prefactura', 'deliver-order', 'cancel-order'].includes(actionLoading || '')}
-              />
             </div>
           </div>
         </div>
@@ -469,14 +337,41 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
                           <span className={`badge ${getStatusBadgeClass(salesOrder.status)}`}>
                             {getStatusText(salesOrder.status)}
                           </span>
+                          {/* Bloque FE del ciclo: segundo eje de estado (financiero).
+                              El QA visual detecto que una orden con factura anulada
+                              se pintaba solo como "Entregada" sin ninguna señal. */}
+                          {salesOrder.financialStatus === 'cancelled' && (
+                            <span className="badge bg-danger ms-2">
+                              <i className="bi bi-x-octagon me-1"></i>
+                              Cancelada financieramente
+                            </span>
+                          )}
+                          {salesOrder.financialStatus !== 'cancelled' && salesOrder.arInvoiceId && (
+                            <span className="badge bg-success ms-2">
+                              <i className="bi bi-receipt me-1"></i>
+                              Facturada
+                            </span>
+                          )}
+                          {/* DESIGN_ECOMMERCE_PAGO_STOCK: tercer eje, el pago.
+                              Lo escribe el webhook de Stripe via listeners. */}
+                          {salesOrder.paymentStatus === 'paid' && (
+                            <span className="badge bg-info text-dark ms-2" title={salesOrder.paidAt ? `Pagada el ${new Date(salesOrder.paidAt).toLocaleString('es-MX')}` : undefined}>
+                              <i className="bi bi-credit-card me-1"></i>
+                              Pagada
+                            </span>
+                          )}
+                          {salesOrder.paymentStatus === 'refunded' && (
+                            <span className="badge bg-warning text-dark ms-2">
+                              <i className="bi bi-arrow-counterclockwise me-1"></i>
+                              Reembolsada
+                            </span>
+                          )}
                         </td>
                       </tr>
                       <tr>
                         <td><strong>Fecha de Orden:</strong></td>
                         <td>
-                          {/* order_date es date-only: formatear en UTC para
-                              no retroceder un dia en zonas al oeste de UTC */}
-                          {salesOrder.orderDate ? formatDateOnly(salesOrder.orderDate, 'es-ES', {
+                          {salesOrder.orderDate ? new Date(salesOrder.orderDate).toLocaleDateString('es-ES', {
                             day: '2-digit',
                             month: '2-digit',
                             year: 'numeric'
@@ -491,33 +386,6 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
                           </strong>
                         </td>
                       </tr>
-                      <tr>
-                        <td><strong>Tipo:</strong></td>
-                        <td>
-                          <span className={`badge ${salesOrder.orderType === 'direct_sale' ? 'bg-success' : 'bg-info'}`}>
-                            {ORDER_TYPE_LABELS[salesOrder.orderType || 'order']}
-                          </span>
-                        </td>
-                      </tr>
-                      {salesOrder.customerPoNumber && (
-                        <tr>
-                          <td><strong>OC Cliente:</strong></td>
-                          <td>
-                            {salesOrder.customerPoNumber}
-                            {salesOrder.customerPoPath && (
-                              <button
-                                className="btn btn-sm btn-link p-0 ms-2"
-                                onClick={handleDownloadCustomerPo}
-                                disabled={actionLoading === 'download-po'}
-                                title="Descargar PDF de la OC del cliente"
-                              >
-                                <i className="bi bi-file-earmark-pdf me-1"></i>
-                                PDF
-                              </button>
-                            )}
-                          </td>
-                        </tr>
-                      )}
                     </tbody>
                   </table>
                 </div>
@@ -560,20 +428,6 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
                         <td><strong>Actualizada:</strong></td>
                         <td>
                           {salesOrder.updatedAt ? new Date(salesOrder.updatedAt).toLocaleDateString('es-ES') : 'N/A'}
-                        </td>
-                      </tr>
-                      <tr>
-                        <td><strong>Metodo de pago:</strong></td>
-                        <td>
-                          {salesOrder.paymentMethod || <span className="text-muted">No especificado</span>}
-                        </td>
-                      </tr>
-                      <tr>
-                        <td><strong>Dias de credito:</strong></td>
-                        <td>
-                          {salesOrder.creditDays != null
-                            ? `${salesOrder.creditDays} dias`
-                            : <span className="text-muted">No especificado</span>}
                         </td>
                       </tr>
                     </tbody>
@@ -783,8 +637,7 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
             </div>
             <div className="card-body">
               <p className="text-muted" style={{ fontSize: '13px' }}>
-                Genera documentos a partir de esta orden de venta. Facturar, prefactura,
-                surtido, cancelacion y exports viven en el menu Operaciones.
+                Genera documentos a partir de esta orden de venta.
               </p>
               <div className="d-grid gap-2">
                 <button
@@ -798,6 +651,82 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
                     <i className="bi bi-truck me-2"></i>
                   )}
                   Generar Remision
+                </button>
+                {/* Bloque FE del ciclo: antes ambos botones navegaban a un formulario
+                    generico SIN el id de la orden (cascarones, hallazgo C1 del QA).
+                    Ahora llaman a los endpoints reales: facturar exige orden entregada
+                    (regla del backend) y crea ARInvoice + CFDI draft. */}
+                {salesOrder.financialStatus !== 'cancelled' && !salesOrder.arInvoiceId && (
+                  <button
+                    className="btn btn-outline-primary"
+                    onClick={handleGenerateInvoice}
+                    disabled={actionLoading === 'invoice' || !['delivered', 'completed'].includes(salesOrder.status)}
+                    title={!['delivered', 'completed'].includes(salesOrder.status)
+                      ? 'La orden debe estar entregada para facturar'
+                      : 'Genera la factura AR y el CFDI en borrador'}
+                  >
+                    {actionLoading === 'invoice' ? (
+                      <span className="spinner-border spinner-border-sm me-2" />
+                    ) : (
+                      <i className="bi bi-receipt me-2"></i>
+                    )}
+                    Generar Factura
+                  </button>
+                )}
+                {salesOrder.arInvoiceId && salesOrder.financialStatus !== 'cancelled' && (
+                  <button
+                    className="btn btn-outline-secondary"
+                    onClick={() => navigation.push('/dashboard/billing/invoices')}
+                  >
+                    <i className="bi bi-receipt me-2"></i>
+                    Ver factura (ya facturada)
+                  </button>
+                )}
+                <button
+                  className="btn btn-outline-info"
+                  onClick={handlePrefactura}
+                  disabled={actionLoading === 'prefactura'}
+                  title="Vista previa en PDF sin efectos fiscales"
+                >
+                  {actionLoading === 'prefactura' ? (
+                    <span className="spinner-border spinner-border-sm me-2" />
+                  ) : (
+                    <i className="bi bi-file-earmark-medical me-2"></i>
+                  )}
+                  Generar Prefactura
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Acciones rapidas */}
+          <div className="card mt-3">
+            <div className="card-header">
+              <h5 className="card-title mb-0">
+                <i className="bi bi-lightning me-2"></i>
+                Acciones
+              </h5>
+            </div>
+            <div className="card-body">
+              <div className="d-grid gap-2">
+                <button
+                  className="btn btn-outline-primary"
+                  onClick={handlePrintOrder}
+                >
+                  <i className="bi bi-printer me-2"></i>
+                  Imprimir Orden
+                </button>
+                <button
+                  className="btn btn-outline-danger"
+                  onClick={handleCancelOrder}
+                  disabled={!isActive || actionLoading === 'cancel-order'}
+                >
+                  {actionLoading === 'cancel-order' ? (
+                    <span className="spinner-border spinner-border-sm me-2" />
+                  ) : (
+                    <i className="bi bi-x-circle me-2"></i>
+                  )}
+                  Cancelar Orden
                 </button>
               </div>
             </div>

@@ -9,6 +9,7 @@ import {
   arInvoicesService,
   arReceiptsService,
   bankAccountsService,
+  satCatalogsService,
 } from '../services';
 import type {
   BankAccount,
@@ -16,6 +17,7 @@ import type {
   APPaymentForm,
   ARInvoiceForm,
   ARReceiptForm,
+  RegisterARPaymentForm,
 } from '../types';
 
 // AP Invoices Hooks
@@ -324,6 +326,32 @@ export function useARInvoiceMutations() {
     updateARInvoice,
     deleteARInvoice,
     postARInvoice,
+  };
+}
+
+export function useRegisterARPayment() {
+  // Note: refreshing the invoices list after a successful payment is the
+  // caller's responsibility (call the `mutate` returned by `useARInvoices`),
+  // since the SWR cache key for that hook is a composite array that this
+  // hook cannot reliably reconstruct.
+  const registerPayment = async (invoiceId: string, data: RegisterARPaymentForm) => {
+    return arInvoicesService.registerPayment(invoiceId, data);
+  };
+
+  return { registerPayment };
+}
+
+// SAT Forma de Pago catalog (used by RegisterPaymentModal)
+export function useFormaPagoOptions() {
+  const { data, error, isLoading } = useSWR(
+    '/api/v1/sat/forma-pago',
+    () => satCatalogsService.getFormaPago()
+  );
+
+  return {
+    formaPagoOptions: data?.data || [],
+    isLoading,
+    error,
   };
 }
 

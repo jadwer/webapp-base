@@ -16,18 +16,21 @@ export const usePurchaseOrders = (params?: PurchaseOrderFilters) => {
     queryParams['filter[status]'] = params.status
   }
   if (params?.contactId) {
-    queryParams['filter[contact_id]'] = String(params.contactId)
+    // Paquete A: la clave del filtro backend es 'contact' (no contact_id);
+    // mandar contact_id daba 400 por filtro no declarado.
+    queryParams['filter[contact]'] = String(params.contactId)
   }
-  if (params?.dateFrom) {
-    queryParams['filter[date_from]'] = params.dateFrom
-  }
-  if (params?.dateTo) {
-    queryParams['filter[date_to]'] = params.dateTo
-  }
+  // Paquete A: se retiran date_from/date_to; el PurchaseOrderSchema no declara
+  // filtros de fecha y mandarlos daba 400. Reintroducir cuando el backend los
+  // soporte como rango.
   // Nota cliente #11: compras por surtir (pendientes de recibir)
   if (params?.pendingReceipt) {
     queryParams['filter[pending_receipt]'] = '1'
   }
+
+  // Default: lo mas reciente primero (pedido de Gabino 2026-07-19). Sin sort
+  // el backend devuelve id ascendente y el listado abria en lo mas viejo.
+  queryParams['sort'] = '-createdAt'
 
   const key = Object.keys(queryParams).length > 0
     ? ['/api/v1/purchase-orders', queryParams] 
@@ -145,8 +148,10 @@ export const usePurchaseContacts = (params?: Record<string, string>) => {
 
 // Purchase Products Hook (for order items)
 export const usePurchaseProducts = (params?: Record<string, string>) => {
-  // Filter active products by default unless explicitly overridden
-  // Backend ProductSchema only allows filter[is_active] (boolean), NOT filter[status]
+  // Filter active products by default unless explicitly overridden.
+  // QA post-commit: el ProductSchema NO acepta filter[status] (respondia 400 con 6
+  // reintentos y el selector de productos nunca cargaba). El filtro real es is_active,
+  // igual que usa el modulo sales.
   const queryParams = {
     'filter[is_active]': '1',
     ...params

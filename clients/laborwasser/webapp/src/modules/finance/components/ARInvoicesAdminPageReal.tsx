@@ -6,33 +6,55 @@
 
 'use client'
 
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { useARInvoices } from '../hooks'
 import { ARInvoicesTableSimple } from './ARInvoicesTableSimple'
+import { RegisterPaymentModal } from './RegisterPaymentModal'
 import { FilterBar } from './FilterBar'
 import { PaginationSimple } from './PaginationSimple'
 import { Button } from '@/ui/components/base/Button'
 import { Alert } from '@/ui/components/base/Alert'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
+import { toast } from '@/lib/toast'
+import type { ARInvoice } from '../types'
 
 export const ARInvoicesAdminPageReal = () => {
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
+  const [dateFrom, setDateFrom] = useState('')
+  const [dateTo, setDateTo] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
+  const [paymentInvoice, setPaymentInvoice] = useState<ARInvoice | null>(null)
   const pageSize = 20
   const navigation = useNavigationProgress()
 
   // Build filters object
   const filters: Record<string, unknown> = {}
-  if (searchTerm) filters.search = searchTerm
   if (statusFilter) filters.status = statusFilter
 
   // Hooks with real backend pagination
-  const { arInvoices, isLoading, error } = useARInvoices({
+  const { arInvoices: rawInvoices, isLoading, error, mutate } = useARInvoices({
     filters: Object.keys(filters).length > 0 ? filters : undefined,
     pagination: { page: currentPage, size: pageSize },
     include: ['contact']
   })
+
+  // Client-side filters: the backend schema does not expose a date-range
+  // or free-text search filter for ar-invoices, so period and customer
+  // search are applied on the already-fetched page.
+  const arInvoices = useMemo(() => {
+    return rawInvoices.filter((invoice) => {
+      if (searchTerm) {
+        const term = searchTerm.toLowerCase()
+        const matchesNumber = invoice.invoiceNumber?.toLowerCase().includes(term)
+        const matchesContact = invoice.contactName?.toLowerCase().includes(term)
+        if (!matchesNumber && !matchesContact) return false
+      }
+      if (dateFrom && invoice.invoiceDate < dateFrom) return false
+      if (dateTo && invoice.invoiceDate > dateTo) return false
+      return true
+    })
+  }, [rawInvoices, searchTerm, dateFrom, dateTo])
 
   // Reset to page 1 when search changes
   const handleSearchChange = (newSearchTerm: string) => {
@@ -59,6 +81,16 @@ export const ARInvoicesAdminPageReal = () => {
 
   const handleEditClick = (id: string) => {
     navigation.push(`/dashboard/finance/ar-invoices/${id}/edit`)
+  }
+
+  const handleRegisterPaymentClick = (invoice: ARInvoice) => {
+    setPaymentInvoice(invoice)
+  }
+
+  const handlePaymentSuccess = () => {
+    setPaymentInvoice(null)
+    toast.success('Pago registrado exitosamente')
+    mutate()
   }
 
   if (error) {
@@ -103,6 +135,55 @@ export const ARInvoicesAdminPageReal = () => {
         placeholder="Buscar por número de factura, cliente..."
       />
 
+      {/* Period filter */}
+      <div className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <label htmlFor="dateFrom" className="block text-sm text-gray-600 mb-1">
+            Periodo desde
+          </label>
+          <input
+            id="dateFrom"
+            type="date"
+            className="form-control"
+            value={dateFrom}
+            onChange={(e) => {
+              setDateFrom(e.target.value)
+              setCurrentPage(1)
+            }}
+          />
+        </div>
+        <div>
+          <label htmlFor="dateTo" className="block text-sm text-gray-600 mb-1">
+            Periodo hasta
+          </label>
+          <input
+            id="dateTo"
+            type="date"
+            className="form-control"
+            value={dateTo}
+            onChange={(e) => {
+              setDateTo(e.target.value)
+              setCurrentPage(1)
+            }}
+          />
+        </div>
+        {(dateFrom || dateTo) && (
+          <div className="flex items-end">
+            <button
+              type="button"
+              className="btn btn-outline-secondary"
+              onClick={() => {
+                setDateFrom('')
+                setDateTo('')
+              }}
+            >
+              <i className="bi bi-arrow-clockwise me-1"></i>
+              Limpiar periodo
+            </button>
+          </div>
+        )}
+      </div>
+
       {/* Stats Summary */}
       <div className="mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
         <div className="bg-white p-4 rounded-lg border">
@@ -141,7 +222,9 @@ export const ARInvoicesAdminPageReal = () => {
               currency: 'MXN'
             }).format(
               arInvoices?.reduce((sum, inv) =>
-                inv.status === 'sent' ? sum + (inv.totalAmount - inv.paidAmount) : sum, 0
+                (inv.status !== 'paid' && inv.status !== 'cancelled' && inv.status !== 'void')
+                  ? sum + (inv.totalAmount - inv.paidAmount)
+                  : sum, 0
               ) || 0
             )}
           </div>
@@ -177,6 +260,7 @@ export const ARInvoicesAdminPageReal = () => {
           isLoading={isLoading}
           onView={handleViewClick}
           onEdit={handleEditClick}
+          onRegisterPayment={handleRegisterPaymentClick}
         />
       </div>
 
@@ -190,6 +274,14 @@ export const ARInvoicesAdminPageReal = () => {
           />
         </div>
       )}
+
+      {/* Register Payment Modal */}
+      <RegisterPaymentModal
+        isOpen={paymentInvoice !== null}
+        arInvoice={paymentInvoice}
+        onClose={() => setPaymentInvoice(null)}
+        onSuccess={handlePaymentSuccess}
+      />
     </div>
   )
 }

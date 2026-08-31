@@ -14,13 +14,15 @@ interface ARInvoicesTableSimpleProps {
   isLoading?: boolean
   onView?: (id: string) => void
   onEdit?: (id: string) => void
+  onRegisterPayment?: (invoice: ARInvoice) => void
 }
 
 export const ARInvoicesTableSimple = ({
   arInvoices = [],
   isLoading = false,
   onView,
-  onEdit
+  onEdit,
+  onRegisterPayment
 }: ARInvoicesTableSimpleProps) => {
   const formatDate = (dateString?: string) => {
     if (!dateString) return '-'
@@ -41,16 +43,34 @@ export const ARInvoicesTableSimple = ({
     }).format(numAmount)
   }
 
-  const getStatusBadge = (status: string) => {
+  const isOverdue = (dueDate: string, status: string) => {
+    if (status === 'paid' || status === 'cancelled' || status === 'void') return false
+    const due = new Date(dueDate)
+    const today = new Date()
+    return due.getTime() < today.getTime()
+  }
+
+  const getStatusBadge = (invoice: ARInvoice) => {
+    const { status, dueDate } = invoice
+
+    if (status !== 'paid' && status !== 'cancelled' && status !== 'void' && isOverdue(dueDate, status)) {
+      return <span className="badge bg-danger">Vencida</span>
+    }
+
     const statusConfig = {
       draft: { class: 'badge bg-secondary', text: 'Borrador' },
+      pending: { class: 'badge bg-info text-dark', text: 'Pendiente' },
       sent: { class: 'badge bg-primary', text: 'Enviada' },
-      paid: { class: 'badge bg-success', text: 'Cobrada' }
+      partial: { class: 'badge bg-warning text-dark', text: 'Parcial' },
+      paid: { class: 'badge bg-success', text: 'Cobrada' },
+      overdue: { class: 'badge bg-danger', text: 'Vencida' },
+      cancelled: { class: 'badge bg-light text-dark', text: 'Cancelada' },
+      void: { class: 'badge bg-light text-dark', text: 'Anulada' },
     }
-    
-    const config = statusConfig[status as keyof typeof statusConfig] || 
+
+    const config = statusConfig[status as keyof typeof statusConfig] ||
                    { class: 'badge bg-light text-dark', text: status }
-    
+
     return (
       <span className={config.class}>
         {config.text}
@@ -59,12 +79,12 @@ export const ARInvoicesTableSimple = ({
   }
 
   const getPriorityBadge = (dueDate: string, status: string) => {
-    if (status === 'paid') return null
-    
+    if (status === 'paid' || status === 'cancelled' || status === 'void') return null
+
     const due = new Date(dueDate)
     const today = new Date()
     const diffDays = Math.ceil((due.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
-    
+
     if (diffDays < 0) {
       return <span className="badge bg-danger ms-1">Vencida</span>
     }
@@ -166,7 +186,7 @@ export const ARInvoicesTableSimple = ({
                   )}
                 </td>
                 <td>
-                  {getStatusBadge(invoice.status)}
+                  {getStatusBadge(invoice)}
                 </td>
                 <td className="text-end">
                   <div className="btn-group btn-group-sm">
@@ -190,12 +210,16 @@ export const ARInvoicesTableSimple = ({
                         <i className="bi bi-pencil"></i>
                       </button>
                     )}
-                    {invoice.status === 'sent' && (invoice.totalAmount - invoice.paidAmount) > 0 && (
+                    {onRegisterPayment &&
+                      invoice.status !== 'draft' &&
+                      invoice.status !== 'cancelled' &&
+                      invoice.status !== 'void' &&
+                      (invoice.totalAmount - invoice.paidAmount) > 0 && (
                       <button
                         type="button"
                         className="btn btn-outline-success"
-                        onClick={() => onView?.(invoice.id)}
-                        title="Cobrar factura"
+                        onClick={() => onRegisterPayment(invoice)}
+                        title="Registrar pago"
                       >
                         <i className="bi bi-wallet2"></i>
                       </button>

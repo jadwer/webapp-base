@@ -513,3 +513,33 @@ export const useSalesTrend = (filters: SalesTrendFilters) => {
     mutate,
   }
 }
+
+// ============================================================================
+// SALES HISTORY (Historico de Ventas)
+// ============================================================================
+
+import { salesHistoryService } from '../services'
+import type { SalesHistoryFilters, SalesHistoryReport } from '../types'
+
+export const useSalesHistory = (filters: SalesHistoryFilters) => {
+  const key = ['sales-history', filters]
+
+  const { data, error, isLoading, mutate } = useSWR<SalesHistoryReport>(
+    key,
+    () => salesHistoryService.getReport(filters),
+    {
+      keepPreviousData: true,
+      revalidateOnFocus: false,
+    }
+  )
+
+  return {
+    rows: data?.rows ?? [],
+    totals: data?.totals,
+    grouped: data?.grouped,
+    meta: data?.meta,
+    isLoading,
+    error,
+    mutate,
+  }
+}

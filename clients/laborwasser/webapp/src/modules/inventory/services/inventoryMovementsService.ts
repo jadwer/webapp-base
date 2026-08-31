@@ -210,7 +210,7 @@ export const inventoryMovementsService = {
     include?: string[]
   ): Promise<JsonApiResponse<InventoryMovement[]>> => {
     const queryParams: Record<string, string | number> = {
-      'filter[product_id]': productId,
+      'filter[product]': productId,
       sort: '-movementDate'
     }
     
@@ -230,7 +230,7 @@ export const inventoryMovementsService = {
     include?: string[]
   ): Promise<JsonApiResponse<InventoryMovement[]>> => {
     const queryParams: Record<string, string | number> = {
-      'filter[warehouse_id]': warehouseId,
+      'filter[warehouse]': warehouseId,
       sort: '-movementDate'
     }
     
@@ -247,7 +247,7 @@ export const inventoryMovementsService = {
    */
   getEntries: async (include?: string[]): Promise<JsonApiResponse<InventoryMovement[]>> => {
     const queryParams: Record<string, string | number> = {
-      'filter[movement_type]': 'entry',
+      'filter[movementType]': 'entry',
       sort: '-movementDate'
     }
     
@@ -264,7 +264,7 @@ export const inventoryMovementsService = {
    */
   getExits: async (include?: string[]): Promise<JsonApiResponse<InventoryMovement[]>> => {
     const queryParams: Record<string, string | number> = {
-      'filter[movement_type]': 'exit',
+      'filter[movementType]': 'exit',
       sort: '-movementDate'
     }
     

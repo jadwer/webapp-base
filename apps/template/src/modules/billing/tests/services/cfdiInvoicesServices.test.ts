@@ -383,8 +383,8 @@ describe('CFDI Invoices Services', () => {
       expect(axiosClient.post).toHaveBeenCalledWith(
         '/api/v1/cfdi-invoices/1/cancel',
         expect.objectContaining({
-          motivo: '01',
-          uuid_reemplazo: null,
+          motivo_cancelacion: '01',
+          uuid_sustitucion: null,
         })
       );
       expect(result).toEqual(mockResponse);

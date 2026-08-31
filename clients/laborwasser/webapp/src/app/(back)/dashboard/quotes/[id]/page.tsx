@@ -8,11 +8,18 @@ import {
   useQuoteMutations,
   QuoteStatusBadge,
   QuoteItemsTable,
+  QuoteSendButton,
+  GenerateSaleModal,
+  GenerateOrderModal,
+  OperationsMenu,
+  exportQuoteItemsCsv,
   QUOTE_STATUS_CONFIG,
   canEditQuote,
   formatDateOnly
 } from '@/modules/quotes'
+import type { OperationsMenuItem, PaymentMethod } from '@/modules/quotes'
 import { quoteService } from '@/modules/quotes'
+import { useSalesOrderBillingMutations } from '@/modules/billing'
 import { useSuppliers } from '@/modules/contacts'
 import { toast } from '@/lib/toast'
 import { ConfirmModal, ConfirmModalHandle } from '@/ui/components/base'
@@ -28,6 +35,7 @@ export default function QuoteDetailPage({ params }: PageProps) {
   const router = useRouter()
   const mutations = useQuoteMutations()
   const confirmModalRef = useRef<ConfirmModalHandle>(null)
+  const { prefacturaFromOrder } = useSalesOrderBillingMutations()
 
   const { user } = useAuth()
   const userIsAdmin = isAdmin(user ?? null)
@@ -39,8 +47,12 @@ export default function QuoteDetailPage({ params }: PageProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [editingEta, setEditingEta] = useState('')
   const [editingNotes, setEditingNotes] = useState('')
+  const [editingPaymentMethod, setEditingPaymentMethod] = useState<'' | PaymentMethod>('')
+  const [editingCreditDays, setEditingCreditDays] = useState('')
   const [pdfLoading, setPdfLoading] = useState<'download' | 'preview' | null>(null)
-
+  const [actionLoading, setActionLoading] = useState<string | null>(null)
+  // Fase A: modal de conversion abierto (venta directa vs pedido)
+  const [convertModalType, setConvertModalType] = useState<'sale' | 'order' | null>(null)
   // Generar Orden de Compra: el backend exige proveedor (supplier_id), asi que
   // el modal pide seleccionar un proveedor antes de disparar la llamada.
   const [poModalOpen, setPoModalOpen] = useState(false)
@@ -65,15 +77,11 @@ export default function QuoteDetailPage({ params }: PageProps) {
     })
   }
 
-  const handleAction = async (action: 'send' | 'accept' | 'cancel' | 'duplicate') => {
+  const handleAction = async (action: 'accept' | 'cancel' | 'duplicate') => {
     if (!quote) return
 
     try {
       switch (action) {
-        case 'send':
-          await mutations.send.mutateAsync(quote.id)
-          toast.success('Cotizacion enviada al cliente')
-          break
         case 'accept':
           await mutations.accept.mutateAsync(quote.id)
           toast.success('Cotizacion marcada como aceptada')
@@ -94,34 +102,9 @@ export default function QuoteDetailPage({ params }: PageProps) {
     }
   }
 
-  const handleConvert = async () => {
-    if (!quote) return
-
-    const confirmed = await confirmModalRef.current?.confirm(
-      'Esta accion creara una nueva orden de venta con los productos y precios de esta cotizacion. La cotizacion quedara marcada como "Convertida".',
-      {
-        title: 'Convertir a Orden de Venta',
-        confirmText: 'Convertir',
-        cancelText: 'Cancelar',
-        confirmVariant: 'primary'
-      }
-    )
-
-    if (!confirmed) return
-
-    try {
-      const result = await mutations.convert.mutateAsync({ id: quote.id })
-      const orderNumber = result.data.salesOrder?.attributes?.orderNumber || result.data.salesOrder?.attributes?.order_number || ''
-      const salesOrderId = result.data.salesOrder?.id
-      toast.success(`Orden de venta ${orderNumber} creada`)
-      if (salesOrderId) {
-        router.push(`/dashboard/sales/${salesOrderId}`)
-      } else {
-        refetch()
-      }
-    } catch {
-      toast.error('Error al convertir la cotizacion')
-    }
+  const handleConverted = (salesOrderId: string) => {
+    setConvertModalType(null)
+    router.push(`/dashboard/sales/${salesOrderId}`)
   }
 
   const handleReject = async () => {
@@ -144,18 +127,30 @@ export default function QuoteDetailPage({ params }: PageProps) {
     if (!quote) return
     setEditingEta(quote.estimatedEta ?? '')
     setEditingNotes(quote.notes ?? '')
+    setEditingPaymentMethod(quote.paymentMethod ?? '')
+    setEditingCreditDays(quote.creditDays != null ? String(quote.creditDays) : '')
     setIsEditing(true)
   }
 
   const handleSaveEdit = async () => {
     if (!quote) return
 
+    if (editingCreditDays !== '') {
+      const days = Number(editingCreditDays)
+      if (!Number.isFinite(days) || days < 0) {
+        toast.error('Dias de credito invalidos')
+        return
+      }
+    }
+
     try {
       await mutations.update.mutateAsync({
         id: quote.id,
         data: {
           estimatedEta: editingEta || undefined,
-          notes: editingNotes || undefined
+          notes: editingNotes || undefined,
+          paymentMethod: editingPaymentMethod === '' ? null : editingPaymentMethod,
+          creditDays: editingCreditDays === '' ? null : Number(editingCreditDays)
         }
       })
       toast.success('Cotizacion actualizada')
@@ -189,6 +184,32 @@ export default function QuoteDetailPage({ params }: PageProps) {
     } finally {
       setPdfLoading(null)
     }
+  }
+
+  // Prefactura de la orden generada (disponible tras convertir la cotizacion)
+  const handlePrefactura = async () => {
+    if (!quote?.salesOrderId) return
+    setActionLoading('prefactura')
+    try {
+      const blob = await prefacturaFromOrder(String(quote.salesOrderId))
+      const url = window.URL.createObjectURL(blob)
+      window.open(url, '_blank')
+    } catch {
+      toast.error('Error al generar la prefactura')
+    } finally {
+      setActionLoading(null)
+    }
+  }
+
+  // Exportar partidas CSV (client-side, desde los items ya cargados)
+  const handleExportCsv = () => {
+    if (!quote) return
+    if (items.length === 0) {
+      toast.error('La cotizacion no tiene partidas para exportar')
+      return
+    }
+    exportQuoteItemsCsv(quote.quoteNumber, items)
+    toast.success('Partidas exportadas')
   }
 
   const handleOpenPurchaseOrderModal = () => {
@@ -258,6 +279,65 @@ export default function QuoteDetailPage({ params }: PageProps) {
   const statusConfig = QUOTE_STATUS_CONFIG[quote.status]
   const isExpired = quote.validUntil && new Date(quote.validUntil) < new Date()
 
+  // Menu Operaciones (Fase A): agrupa las acciones de documento
+  const operationsItems: OperationsMenuItem[] = [
+    {
+      key: 'generate-sale',
+      label: 'Generar venta',
+      icon: 'bi-cash-coin',
+      onClick: () => setConvertModalType('sale'),
+      disabled: !statusConfig.canConvert,
+      title: statusConfig.canConvert
+        ? 'Venta directa (requiere stock, nace confirmada)'
+        : 'Solo cotizaciones aceptadas'
+    },
+    {
+      key: 'generate-order',
+      label: 'Generar pedido',
+      icon: 'bi-clipboard-check',
+      onClick: () => setConvertModalType('order'),
+      disabled: !statusConfig.canConvert,
+      title: statusConfig.canConvert
+        ? 'Pedido con OC del cliente (no bloquea por stock)'
+        : 'Solo cotizaciones aceptadas'
+    },
+    {
+      key: 'prefactura',
+      label: 'Prefactura',
+      icon: 'bi-file-earmark-medical',
+      onClick: handlePrefactura,
+      disabled: !quote.salesOrderId || actionLoading === 'prefactura',
+      title: quote.salesOrderId
+        ? 'Vista previa de la prefactura de la orden generada'
+        : 'Disponible cuando la cotizacion tenga una orden generada'
+    },
+    {
+      type: 'custom',
+      key: 'send',
+      node: <QuoteSendButton quote={quote} onSent={refetch} asMenuItem />
+    },
+    { type: 'divider', key: 'div-1' },
+    {
+      key: 'duplicate',
+      label: 'Duplicar',
+      icon: 'bi-copy',
+      onClick: () => handleAction('duplicate')
+    },
+    {
+      key: 'export-csv',
+      label: 'Exportar partidas CSV',
+      icon: 'bi-filetype-csv',
+      onClick: handleExportCsv
+    },
+    {
+      key: 'download-pdf',
+      label: 'Descargar PDF',
+      icon: 'bi-file-earmark-pdf',
+      onClick: handleDownloadPdf,
+      disabled: pdfLoading === 'download'
+    }
+  ]
+
   return (
     <div className="container-fluid py-4">
       {/* Header */}
@@ -275,7 +355,7 @@ export default function QuoteDetailPage({ params }: PageProps) {
             <small className="text-muted ms-2">Creada el {formatDate(quote.createdAt)}</small>
           </div>
         </div>
-        <div className="btn-group flex-wrap">
+        <div className="d-flex gap-2 flex-wrap">
           {statusConfig.canAccept && (
             <button
               className="btn btn-outline-success"
@@ -296,13 +376,6 @@ export default function QuoteDetailPage({ params }: PageProps) {
               Rechazar
             </button>
           )}
-          <button
-            className="btn btn-outline-secondary"
-            onClick={() => handleAction('duplicate')}
-          >
-            <i className="bi bi-copy me-1"></i>
-            Duplicar
-          </button>
           {statusConfig.canCancel && (
             <button
               className="btn btn-outline-warning"
@@ -313,6 +386,7 @@ export default function QuoteDetailPage({ params }: PageProps) {
               Cancelar
             </button>
           )}
+          <OperationsMenu items={operationsItems} loading={actionLoading === 'prefactura'} />
         </div>
       </div>
 
@@ -383,6 +457,57 @@ export default function QuoteDetailPage({ params }: PageProps) {
                         />
                       ) : (
                         <strong>{quote.estimatedEta || 'No especificado'}</strong>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                {/* Fase A: condiciones de pago (viajan a la orden al convertir) */}
+                <div className="col-md-6 mb-3">
+                  <div className="d-flex align-items-start">
+                    <i className="bi bi-credit-card text-muted me-3 fs-5"></i>
+                    <div>
+                      <small className="text-muted d-block">Metodo de pago</small>
+                      {isEditing ? (
+                        <select
+                          className="form-select form-select-sm"
+                          aria-label="Metodo de pago"
+                          value={editingPaymentMethod}
+                          onChange={(e) => setEditingPaymentMethod(e.target.value as '' | PaymentMethod)}
+                        >
+                          <option value="">Sin especificar</option>
+                          <option value="PUE">PUE - Pago en una exhibicion</option>
+                          <option value="PPD">PPD - Pago en parcialidades o diferido</option>
+                        </select>
+                      ) : (
+                        <strong>
+                          {quote.paymentMethod === 'PUE' && 'PUE - Pago en una exhibicion'}
+                          {quote.paymentMethod === 'PPD' && 'PPD - Pago en parcialidades o diferido'}
+                          {!quote.paymentMethod && 'No especificado'}
+                        </strong>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                <div className="col-md-6 mb-3">
+                  <div className="d-flex align-items-start">
+                    <i className="bi bi-calendar-week text-muted me-3 fs-5"></i>
+                    <div>
+                      <small className="text-muted d-block">Dias de credito</small>
+                      {isEditing ? (
+                        <input
+                          type="number"
+                          className="form-control form-control-sm"
+                          aria-label="Dias de credito"
+                          min={0}
+                          step={1}
+                          value={editingCreditDays}
+                          onChange={(e) => setEditingCreditDays(e.target.value)}
+                          placeholder="30"
+                        />
+                      ) : (
+                        <strong>
+                          {quote.creditDays != null ? `${quote.creditDays} dias` : 'No especificado (default 30)'}
+                        </strong>
                       )}
                     </div>
                   </div>
@@ -568,14 +693,6 @@ export default function QuoteDetailPage({ params }: PageProps) {
                 <i className="bi bi-download me-2"></i>
                 {pdfLoading === 'download' ? 'Descargando...' : 'Descargar PDF'}
               </button>
-              <button
-                className="btn btn-outline-secondary"
-                onClick={() => handleAction('send')}
-                disabled={mutations.send.isPending || !['draft', 'sent'].includes(quote.status)}
-              >
-                <i className="bi bi-envelope me-2"></i>
-                {mutations.send.isPending ? 'Enviando...' : 'Enviar por correo'}
-              </button>
             </div>
           </div>
 
@@ -587,14 +704,22 @@ export default function QuoteDetailPage({ params }: PageProps) {
               </div>
               <div className="card-body d-grid gap-2">
                 {statusConfig.canConvert && (
-                  <button
-                    className="btn btn-success btn-lg"
-                    onClick={handleConvert}
-                    disabled={mutations.convert.isPending}
-                  >
-                    <i className="bi bi-cart-check me-2"></i>
-                    {mutations.convert.isPending ? 'Generando...' : 'Generar Pedido'}
-                  </button>
+                  <>
+                    <button
+                      className="btn btn-success btn-lg"
+                      onClick={() => setConvertModalType('sale')}
+                    >
+                      <i className="bi bi-cash-coin me-2"></i>
+                      Generar venta
+                    </button>
+                    <button
+                      className="btn btn-outline-primary"
+                      onClick={() => setConvertModalType('order')}
+                    >
+                      <i className="bi bi-clipboard-check me-2"></i>
+                      Generar pedido
+                    </button>
+                  </>
                 )}
                 {quote.status === 'accepted' && !quote.purchaseOrderId && (
                   <button
@@ -649,6 +774,20 @@ export default function QuoteDetailPage({ params }: PageProps) {
           </div>
         </div>
       </div>
+
+      {/* Modales de conversion (Fase A: venta directa vs pedido) */}
+      <GenerateSaleModal
+        quote={quote}
+        isOpen={convertModalType === 'sale'}
+        onClose={() => setConvertModalType(null)}
+        onConverted={handleConverted}
+      />
+      <GenerateOrderModal
+        quote={quote}
+        isOpen={convertModalType === 'order'}
+        onClose={() => setConvertModalType(null)}
+        onConverted={handleConverted}
+      />
 
       {/* Modal Generar Orden de Compra: requiere seleccionar proveedor */}
       {poModalOpen && (

@@ -11,6 +11,7 @@
 
 import axiosClient from '@/lib/axiosClient'
 import type {
+  PaymentComplementResponse,
   CFDIInvoiceFormData,
   CFDIInvoicesFilters,
   CFDIItemFormData,
@@ -22,7 +23,6 @@ import type {
   CFDICancelResponse,
   CFDIGenerateResponse,
   CreateCFDIInvoiceData,
-  PaymentComplementResponse,
 } from '../types'
 import {
   transformJsonApiCFDIInvoice,
@@ -56,11 +56,12 @@ export const cfdiInvoicesService = {
     if (filters?.tipoComprobante) {
       queryParams.append('filter[tipoComprobante]', filters.tipoComprobante)
     }
+
+    if (filters?.arInvoiceId) {
+      queryParams.append('filter[arInvoiceId]', filters.arInvoiceId.toString())
+    }
     if (filters?.receptorRfc) {
       queryParams.append('filter[receptorRfc]', filters.receptorRfc)
-    }
-    if (filters?.arInvoiceId !== undefined) {
-      queryParams.append('filter[arInvoiceId]', filters.arInvoiceId.toString())
     }
     if (filters?.dateFrom) {
       queryParams.append('filter[dateFrom]', filters.dateFrom)
@@ -71,6 +72,10 @@ export const cfdiInvoicesService = {
 
     // Include relationships
     queryParams.append('include', 'companySetting,contact,items')
+
+    // Default: lo mas reciente primero (pedido de Gabino 2026-07-19). Sin sort
+    // el backend devuelve id ascendente y el listado abria en lo mas viejo.
+    queryParams.append('sort', '-createdAt')
 
     const query = queryParams.toString()
     const url = query ? `/api/v1/cfdi-invoices?${query}` : '/api/v1/cfdi-invoices'
@@ -193,9 +198,11 @@ export const cfdiInvoicesService = {
     id: string,
     cancelRequest: CFDICancelRequest
   ): Promise<CFDICancelResponse> => {
+    // Refactor ciclo (5a): el backend valida motivo_cancelacion (01-04) y
+    // uuid_sustitucion. Antes el FE mandaba motivo/uuid_reemplazo -> 422 siempre.
     const response = await axiosClient.post(`/api/v1/cfdi-invoices/${id}/cancel`, {
-      motivo: cancelRequest.motivo,
-      uuid_reemplazo: cancelRequest.uuidReemplazo || null,
+      motivo_cancelacion: cancelRequest.motivo,
+      uuid_sustitucion: cancelRequest.uuidReemplazo || null,
     })
     return {
       cfdiId: response.data.data.id,
@@ -324,9 +331,7 @@ export const cfdiInvoicesService = {
   createFromOrder: async (orderId: string) => {
     const response = await axiosClient.post(`/api/v1/sales-orders/${orderId}/facturar`)
     return response.data
-  },
-
-  // ============================================================================
+  },  // ============================================================================
   // COMPLEMENTO DE PAGOS 2.0 (REP)
   // ============================================================================
 

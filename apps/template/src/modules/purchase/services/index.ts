@@ -125,6 +125,16 @@ export const purchaseService = {
     },
 
     /**
+     * Cancel a purchase order.
+     * Bloque FE del ciclo: endpoint nuevo del refactor. Si la OC estaba recibida,
+     * el backend revierte la entrada de stock y anula la APInvoice (listeners de
+     * PurchaseOrderCancelled).
+     */
+    cancel: async (id: string, reason?: string): Promise<void> => {
+      await axiosClient.post(`/api/v1/purchase-orders/${id}/cancel`, { reason })
+    },
+
+    /**
      * Get approval status for a purchase order
      */
     getApprovalStatus: async (id: string): Promise<{

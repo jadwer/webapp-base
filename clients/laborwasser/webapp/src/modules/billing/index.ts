@@ -32,6 +32,8 @@ export type {
   CFDIGenerateResponse,
   CFDIDownloadInfo,
   CreateCFDIInvoiceData,
+  // Payment complement (REP)
+  PaymentComplementResponse,
 } from './types'
 
 // ============================================================================
@@ -64,6 +66,10 @@ export {
   useCompanySettingsMutations,
   // Workflow hooks
   useCFDIWorkflow,
+  // SalesOrder billing hooks (prefactura / facturar)
+  useSalesOrderBillingMutations,
+  // Payment complement (REP) hooks
+  usePaymentComplements,
 } from './hooks'
 
 // ============================================================================
@@ -93,3 +99,4 @@ export { CFDIInvoicesAdminPage } from './components/CFDIInvoicesAdminPage'
 export { BillingIndexPage } from './components/BillingIndexPage'
 export { default as CFDIInvoiceForm } from './components/CFDIInvoiceForm'
 export { default as CFDIInvoicesTable } from './components/CFDIInvoicesTable'
+export { PaymentComplementsSection } from './components/PaymentComplementsSection'
