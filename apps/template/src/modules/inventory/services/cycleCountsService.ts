@@ -332,7 +332,14 @@ export const cycleCountsService = {
     const requestData = {
       data: {
         type: RESOURCE_TYPE,
-        attributes: attributes,
+        attributes: {
+          ...attributes,
+          // El backend define assignedTo como ATRIBUTO (la relacion
+          // assignedUser es readOnly, solo para include). Mandarlo como
+          // relationship se IGNORABA en silencio y la asignacion de
+          // conteos nunca se guardaba (deuda T2, fix Paquete B).
+          ...(assignedTo && { assignedTo: Number(assignedTo) })
+        },
         relationships: {
           warehouse: {
             data: { type: 'warehouses', id: warehouseId }
@@ -343,11 +350,6 @@ export const cycleCountsService = {
           ...(warehouseLocationId && {
             warehouseLocation: {
               data: { type: 'warehouse-locations', id: warehouseLocationId }
-            }
-          }),
-          ...(assignedTo && {
-            assignedTo: {
-              data: { type: 'users', id: assignedTo }
             }
           })
         }

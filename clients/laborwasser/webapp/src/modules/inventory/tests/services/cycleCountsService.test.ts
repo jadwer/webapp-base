@@ -474,8 +474,10 @@ describe('cycleCountsService', () => {
       // Assert
       expect(axios.post).toHaveBeenCalledWith('/api/v1/cycle-counts', {
         data: expect.objectContaining({
-          relationships: expect.objectContaining({
-            assignedTo: { data: { type: 'users', id: '5' } }
+          // Fix Paquete B: assignedTo es ATRIBUTO del backend; como
+          // relationship se ignoraba en silencio y la asignacion se perdia.
+          attributes: expect.objectContaining({
+            assignedTo: 5
           })
         })
       })
