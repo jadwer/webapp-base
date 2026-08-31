@@ -4,6 +4,7 @@ import { useState, useEffect, use } from 'react'
 import { usePurchaseOrder, usePurchaseOrderMutations, usePurchaseContacts } from '@/modules/purchase'
 import type { PurchaseOrderStatus } from '@/modules/purchase/types'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
+import { getValidationErrorMessages } from '@/modules/contacts'
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -75,9 +76,16 @@ export default function EditPurchaseOrderPage({ params }: PageProps) {
       navigation.push(`/dashboard/purchase/${resolvedParams.id}`)
       
     } catch (err) {
-      console.error('❌ Error updating purchase order:', err)
+      console.error('Error updating purchase order:', err)
+      // Un 422 SIEMPRE se muestra con detalle (patron r260730, P0.3);
+      // antes solo se leia data.message y los errores JSON:API quedaban mudos
+      const details = getValidationErrorMessages(err)
       const error = err as { response?: { data?: { message?: string } }; message?: string }
-      setSubmitError(error.response?.data?.message || error.message || 'Error al actualizar la orden de compra')
+      setSubmitError(
+        details.length > 0
+          ? details.join(' ')
+          : (error.response?.data?.message || error.message || 'Error al actualizar la orden de compra')
+      )
     } finally {
       setIsSubmitting(false)
     }

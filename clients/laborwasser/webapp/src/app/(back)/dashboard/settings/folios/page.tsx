@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { folioSequenceService, DOCUMENT_TYPE_LABELS } from '@/modules/sales'
 import type { FolioSequence, UpdateFolioSequenceRequest } from '@/modules/sales'
 import { toast } from '@/lib/toast'
+import { getValidationErrorMessages } from '@/modules/contacts'
 
 export default function FoliosSettingsPage() {
   const [sequences, setSequences] = useState<FolioSequence[]>([])
@@ -60,8 +61,13 @@ export default function FoliosSettingsPage() {
       setEditingType(null)
       setEditForm({})
       await loadSequences()
-    } catch {
-      toast.error('Error al actualizar la secuencia')
+    } catch (error) {
+      // Un 422 SIEMPRE se muestra con detalle (patron r260730, P0.3)
+      const details = getValidationErrorMessages(error)
+      toast.error(
+        details.length > 0 ? `No se pudo actualizar la secuencia: ${details.join(' ')}` : 'Error al actualizar la secuencia',
+        details.length > 0 ? { duration: 0 } : undefined
+      )
     } finally {
       setSaving(false)
     }

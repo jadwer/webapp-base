@@ -6,6 +6,7 @@ import type { InvoiceSeries, CreateInvoiceSeriesRequest, UpdateInvoiceSeriesRequ
 import { companySettingsService } from '@/modules/billing/services'
 import type { CompanySetting } from '@/modules/billing/types'
 import { toast } from '@/lib/toast'
+import { getValidationErrorMessages } from '@/modules/contacts'
 import ConfirmModal, { ConfirmModalHandle } from '@/ui/components/base/ConfirmModal'
 
 export default function InvoiceSeriesSettingsPage() {
@@ -59,8 +60,12 @@ export default function InvoiceSeriesSettingsPage() {
       const result = await invoiceSeriesService.initializeDefaults(companySetting.id)
       toast.success(result.message || 'Series inicializadas correctamente')
       await loadData()
-    } catch {
-      toast.error('Error al inicializar series')
+    } catch (error) {
+      const details = getValidationErrorMessages(error)
+      toast.error(
+        details.length > 0 ? `No se pudo inicializar las series: ${details.join(' ')}` : 'Error al inicializar series',
+        details.length > 0 ? { duration: 0 } : undefined
+      )
     } finally {
       setInitializing(false)
     }
@@ -85,8 +90,12 @@ export default function InvoiceSeriesSettingsPage() {
       setShowCreate(false)
       setCreateForm({ cfdiType: 'I', folioPadding: 6, includeYear: false, separator: '-', isActive: true, resetYearly: false })
       await loadData()
-    } catch {
-      toast.error('Error al crear la serie')
+    } catch (error) {
+      const details = getValidationErrorMessages(error)
+      toast.error(
+        details.length > 0 ? `No se pudo crear la serie: ${details.join(' ')}` : 'Error al crear la serie',
+        details.length > 0 ? { duration: 0 } : undefined
+      )
     } finally {
       setSaving(false)
     }
@@ -122,8 +131,12 @@ export default function InvoiceSeriesSettingsPage() {
       setEditingId(null)
       setEditForm({})
       await loadData()
-    } catch {
-      toast.error('Error al actualizar la serie')
+    } catch (error) {
+      const details = getValidationErrorMessages(error)
+      toast.error(
+        details.length > 0 ? `No se pudo actualizar la serie: ${details.join(' ')}` : 'Error al actualizar la serie',
+        details.length > 0 ? { duration: 0 } : undefined
+      )
     } finally {
       setSaving(false)
     }
@@ -134,8 +147,12 @@ export default function InvoiceSeriesSettingsPage() {
       await invoiceSeriesService.setAsDefault(id)
       toast.success('Serie marcada como predeterminada')
       await loadData()
-    } catch {
-      toast.error('Error al marcar como predeterminada')
+    } catch (error) {
+      const details = getValidationErrorMessages(error)
+      toast.error(
+        details.length > 0 ? `No se pudo marcar como predeterminada: ${details.join(' ')}` : 'Error al marcar como predeterminada',
+        details.length > 0 ? { duration: 0 } : undefined
+      )
     }
   }
 
@@ -149,8 +166,12 @@ export default function InvoiceSeriesSettingsPage() {
       await invoiceSeriesService.delete(id)
       toast.success('Serie eliminada')
       await loadData()
-    } catch {
-      toast.error('Error al eliminar la serie')
+    } catch (error) {
+      const details = getValidationErrorMessages(error)
+      toast.error(
+        details.length > 0 ? `No se pudo eliminar la serie: ${details.join(' ')}` : 'Error al eliminar la serie',
+        details.length > 0 ? { duration: 0 } : undefined
+      )
     }
   }
 

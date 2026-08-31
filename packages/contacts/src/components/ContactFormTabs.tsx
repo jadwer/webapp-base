@@ -214,6 +214,18 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
       }
     }
 
+    // Bounds numericos (P0.3): mismos limites que el backend, para que el
+    // usuario vea el error en el campo y no hasta el 422.
+    if (formData.creditLimit !== undefined && formData.creditLimit !== null && formData.creditLimit > 999999.99) {
+      newErrors.creditLimit = 'El límite de crédito no puede exceder 999,999.99'
+    }
+    if (formData.creditLimit !== undefined && formData.creditLimit !== null && formData.creditLimit < 0) {
+      newErrors.creditLimit = 'El límite de crédito no puede ser negativo'
+    }
+    if (formData.paymentTerms !== undefined && formData.paymentTerms !== null && (formData.paymentTerms > 365 || formData.paymentTerms < 0)) {
+      newErrors.paymentTerms = 'Los términos de pago deben estar entre 0 y 365 días'
+    }
+
     // Telefono: el backend rechaza mas de 20 caracteres (bug 2026-07-29:
     // ese 422 llegaba mudo al usuario). Avisar aqui antes de enviar.
     if (formData.phone && formData.phone.trim().length > 20) {
@@ -889,10 +901,12 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
                     id="paymentTerms"
                     type="number"
                     min="0"
+                    max="365"
                     value={formData.paymentTerms?.toString() || ''}
                     onChange={(e) => updateField('paymentTerms', e.target.value ? parseInt(e.target.value) : undefined)}
                     disabled={isLoading}
                     placeholder="30"
+                    errorText={formErrors.paymentTerms}
                   />
                 </div>
 
@@ -906,12 +920,14 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
                       id="creditLimit"
                       type="number"
                       min="0"
+                      max="999999.99"
                       step="0.01"
                       value={formData.creditLimit?.toString() || ''}
                       onChange={(e) => updateField('creditLimit', e.target.value ? parseFloat(e.target.value) : undefined)}
                       disabled={isLoading}
                       placeholder="0.00"
                       leftIcon="bi-currency-dollar"
+                      errorText={formErrors.creditLimit}
                     />
                   </div>
                 )}

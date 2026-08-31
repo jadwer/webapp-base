@@ -14,6 +14,7 @@ import {
 } from '@/modules/quotes'
 import { formatCurrency } from '@/lib/formatters'
 import { toast } from '@/lib/toast'
+import { getValidationErrorMessages } from '@/modules/contacts'
 
 const STATUS_CONFIG: Record<QuoteStatus, { label: string; badgeClass: string }> = {
   draft: { label: 'Borrador', badgeClass: 'bg-secondary' },
@@ -98,7 +99,13 @@ export default function QuotesPage() {
       }
       refetch()
     } catch (error) {
-      toast.error(`Error al ${action === 'send' ? 'enviar' : action === 'delete' ? 'eliminar' : action} la cotización`)
+      // Un 422 SIEMPRE se muestra con detalle (patron r260730, P0.3)
+      const details = getValidationErrorMessages(error)
+      const base = `Error al ${action === 'send' ? 'enviar' : action === 'delete' ? 'eliminar' : action} la cotización`
+      toast.error(
+        details.length > 0 ? `${base}: ${details.join(' ')}` : base,
+        details.length > 0 ? { duration: 0 } : undefined
+      )
       console.error(error)
     }
   }
