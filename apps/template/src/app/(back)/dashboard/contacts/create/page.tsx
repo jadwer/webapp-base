@@ -86,6 +86,11 @@ export default function CreateContactPage() {
                 onSubmit={handleSubmit}
                 onCancel={handleCancel}
                 isLoading={isLoading}
+                roleContext={
+                  suggestedType === 'customer' || suggestedType === 'supplier' || suggestedType === 'prospect'
+                    ? suggestedType
+                    : undefined
+                }
               />
             </div>
           </div>

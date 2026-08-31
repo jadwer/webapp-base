@@ -45,6 +45,21 @@ export const parseContact = (rawContact: unknown): ContactParsed => {
     paymentTerms: c.paymentTerms as number | undefined,
     notes: c.notes as string | undefined,
     metadata: c.metadata as Record<string, unknown> | undefined,
+    // WS5/WS7 comerciales y fiscales: el parser los omitia y la edicion
+    // siempre los mostraba vacios (mismo patron que el Resource manual del
+    // backend; barrido 2026-08-31).
+    defaultSalespersonId: c.defaultSalespersonId as number | null | undefined,
+    collectionsAgentId: c.collectionsAgentId as number | null | undefined,
+    commissionPctOverride: c.commissionPctOverride as number | null | undefined,
+    regimenFiscal: c.regimenFiscal as string | undefined,
+    usoCfdi: c.usoCfdi as string | undefined,
+    creditMonths: c.creditMonths as number | null | undefined,
+    bankAccountNumber: c.bankAccountNumber as string | undefined,
+    referralSource: c.referralSource as string | undefined,
+    cuentaContable: c.cuentaContable as string | undefined,
+    discountPct: c.discountPct as number | null | undefined,
+    phoneExtension: c.phoneExtension as string | undefined,
+    hasPortalUser: c.hasPortalUser as boolean | undefined,
     createdAt: (c.createdAt as string) || '',
     updatedAt: (c.updatedAt as string) || '',
   }

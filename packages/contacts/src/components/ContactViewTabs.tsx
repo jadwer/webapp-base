@@ -170,6 +170,7 @@ export const ContactViewTabs: React.FC<ContactViewTabsProps> = ({
                     <a href={`tel:${contact.phone}`} className="text-decoration-none">
                       <i className="bi bi-telephone me-1"></i>
                       {contact.phone}
+                      {contact.phoneExtension && <span className="text-muted"> ext. {contact.phoneExtension}</span>}
                     </a>
                   ) : (
                     <span className="text-muted">No registrado</span>
@@ -186,6 +187,22 @@ export const ContactViewTabs: React.FC<ContactViewTabsProps> = ({
                     </a>
                   ) : (
                     <span className="text-muted">No registrado</span>
+                  )}
+                </div>
+              </div>
+              <div className="col-12">
+                <strong>Acceso al portal:</strong>
+                <div>
+                  {contact.hasPortalUser ? (
+                    <span className="badge bg-success">
+                      <i className="bi bi-person-badge me-1"></i>
+                      Tiene usuario del portal
+                    </span>
+                  ) : (
+                    <span className="text-muted">
+                      <i className="bi bi-person-x me-1"></i>
+                      Sin usuario del portal{contact.email ? '' : ' (sin email registrado)'}
+                    </span>
                   )}
                 </div>
               </div>
@@ -215,7 +232,7 @@ export const ContactViewTabs: React.FC<ContactViewTabsProps> = ({
                     <span className="badge bg-success me-2">Proveedor</span>
                   )}
                   {!contact.isCustomer && !contact.isSupplier && (
-                    <span className="badge bg-secondary">Solo contacto</span>
+                    <span className="badge bg-secondary">Prospecto</span>
                   )}
                 </div>
               </div>

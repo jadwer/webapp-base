@@ -40,6 +40,8 @@ export interface Contact {
   referralSource?: string                // "¿Como se entero de nosotros?"
   cuentaContable?: string                // cuenta contable
   discountPct?: number | null            // descuento pactado %
+  phoneExtension?: string                // extension telefonica (conmutador)
+  hasPortalUser?: boolean                // computed backend: hay User con este email
   createdAt: string
   updatedAt: string
 }
@@ -173,6 +175,7 @@ export interface CreateContactData {
   referralSource?: string
   cuentaContable?: string
   discountPct?: number | null
+  phoneExtension?: string
 }
 
 export type UpdateContactData = Partial<CreateContactData>

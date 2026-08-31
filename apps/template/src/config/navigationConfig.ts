@@ -104,11 +104,10 @@ export const adminNavigation: NavigationSection = {
       permissions: [],
       quickCreateHref: '/dashboard/contacts/create',
       items: [
-        { href: '/dashboard/contacts', label: 'Gestión', icon: 'bi-person-lines-fill', permissions: ['contacts.index'] },
-        { href: '/dashboard/contacts/customers', label: 'Clientes', icon: 'bi-person-check', permissions: ['contacts.index'] },
-        { href: '/dashboard/contacts/suppliers', label: 'Proveedores', icon: 'bi-building', permissions: ['contacts.index'] },
-        { href: '/dashboard/contacts/prospects', label: 'Prospectos', icon: 'bi-person-dash', permissions: ['contacts.index'] },
-        { href: '/dashboard/contacts/create', label: 'Crear Contacto', icon: 'bi-person-plus', permissions: ['contacts.store'] },
+        // Los terceros se gestionan en su modulo dueno (Ventas: clientes y
+        // prospectos; Compras: proveedores). Aqui queda solo el directorio
+        // completo como herramienta de administracion.
+        { href: '/dashboard/contacts', label: 'Directorio completo', icon: 'bi-person-lines-fill', permissions: ['contacts.index'], quickCreateHref: '/dashboard/contacts/create' },
       ],
     },
 
@@ -131,15 +130,17 @@ export const adminNavigation: NavigationSection = {
       key: 'sales',
       label: 'Ventas',
       icon: 'bi-cart-check',
-      activePathPrefixes: ['/dashboard/sales', '/dashboard/remissions'],
+      activePathPrefixes: ['/dashboard/sales', '/dashboard/remissions', '/dashboard/contacts/customers', '/dashboard/contacts/prospects'],
       permissions: [],
       quickCreateHref: '/dashboard/sales/create',
       items: [
         { href: '/dashboard/sales', label: 'Órdenes de Venta', icon: 'bi-cart-check', permissions: ['sales-orders.index'] },
         { href: '/dashboard/sales/create', label: 'Nueva Orden', icon: 'bi-plus-circle', permissions: ['sales-orders.store'] },
         { href: '/dashboard/remissions', label: 'Remisiones', icon: 'bi-truck', permissions: ['remissions.index'] },
+        { href: '/dashboard/contacts/customers', label: 'Clientes', icon: 'bi-person-check', permissions: ['contacts.index'], quickCreateHref: '/dashboard/contacts/create?type=customer' },
+        { href: '/dashboard/contacts/prospects', label: 'Prospectos', icon: 'bi-person-dash', permissions: ['contacts.index'], quickCreateHref: '/dashboard/contacts/create?type=prospect' },
         { href: '/dashboard/sales/reports', label: 'Reportes', icon: 'bi-graph-up', permissions: ['sales-orders.index'] },
-        { href: '/dashboard/sales/customers', label: 'Clientes', icon: 'bi-person-heart', permissions: ['sales-orders.index'] },
+        { href: '/dashboard/sales/customers', label: 'Estadísticas de clientes', icon: 'bi-person-heart', permissions: ['sales-orders.index'] },
       ],
     },
 
@@ -161,14 +162,15 @@ export const adminNavigation: NavigationSection = {
       key: 'purchase',
       label: 'Compras',
       icon: 'bi-cart-plus',
-      activePathPrefixes: ['/dashboard/purchase'],
+      activePathPrefixes: ['/dashboard/purchase', '/dashboard/contacts/suppliers'],
       permissions: [],
       quickCreateHref: '/dashboard/purchase/create',
       items: [
         { href: '/dashboard/purchase', label: 'Órdenes de Compra', icon: 'bi-cart-plus', permissions: ['purchase-orders.index'] },
         { href: '/dashboard/purchase/create', label: 'Nueva Orden', icon: 'bi-plus-circle', permissions: ['purchase-orders.store'] },
+        { href: '/dashboard/contacts/suppliers', label: 'Proveedores', icon: 'bi-building', permissions: ['contacts.index'], quickCreateHref: '/dashboard/contacts/create?type=supplier' },
         { href: '/dashboard/purchase/reports', label: 'Reportes', icon: 'bi-graph-up', permissions: ['purchase-orders.index'] },
-        { href: '/dashboard/purchase/suppliers', label: 'Proveedores', icon: 'bi-building', permissions: ['purchase-orders.index'] },
+        { href: '/dashboard/purchase/suppliers', label: 'Estadísticas de proveedores', icon: 'bi-graph-up-arrow', permissions: ['purchase-orders.index'] },
       ],
     },
 

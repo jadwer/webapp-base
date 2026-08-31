@@ -33,6 +33,13 @@ interface ContactFormTabsProps {
   onCancel: () => void
   isLoading?: boolean
   className?: string
+  /**
+   * Alta dirigida (party model = plomeria): el rol lo aporta el punto de
+   * entrada (Ventas -> customer/prospect, Compras -> supplier) y el form
+   * no muestra checkboxes de roles. Sin roleContext (Directorio) se
+   * muestran los checkboxes clasicos.
+   */
+  roleContext?: 'customer' | 'supplier' | 'prospect'
 }
 
 type TabType = 'basic' | 'addresses' | 'documents' | 'people'
@@ -47,7 +54,8 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
   onSubmit,
   onCancel,
   isLoading = false,
-  className = ''
+  className = '',
+  roleContext
 }) => {
   const [activeTab, setActiveTab] = useState<TabType>('basic')
   const { user } = useAuth()
@@ -60,10 +68,11 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
     taxId: contact?.taxId || '',
     email: contact?.email || '',
     phone: contact?.phone || '',
+    phoneExtension: contact?.phoneExtension || '',
     website: contact?.website || '',
     status: contact?.status || 'active',
-    isCustomer: contact?.isCustomer || false,
-    isSupplier: contact?.isSupplier || false,
+    isCustomer: contact?.isCustomer ?? (roleContext === 'customer'),
+    isSupplier: contact?.isSupplier ?? (roleContext === 'supplier'),
     creditLimit: contact?.creditLimit || undefined,
     classification: contact?.classification || '',
     paymentTerms: contact?.paymentTerms || undefined,
@@ -92,6 +101,7 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
         taxId: contact.taxId || '',
         email: contact.email || '',
         phone: contact.phone || '',
+        phoneExtension: contact.phoneExtension || '',
         website: contact.website || '',
         status: contact.status || 'active',
         isCustomer: contact.isCustomer || false,
@@ -249,6 +259,7 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
       taxId: formData.taxId?.trim() ? formData.taxId.trim().toUpperCase() : undefined,
       email: formData.email?.trim() || undefined,
       phone: formData.phone?.trim() || undefined,
+      phoneExtension: formData.phoneExtension?.trim() || undefined,
       // El backend valida website con regla 'url' (exige esquema). Los
       // usuarios escriben "www.empresa.com": anteponer https:// en vez de
       // dejar que truene con un 422 (causa probable del bug 2026-07-29).
@@ -689,8 +700,8 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
                   />
                 </div>
 
-                {/* Phone */}
-                <div className="col-md-6">
+                {/* Phone + extension (feedback cliente: conmutadores) */}
+                <div className="col-md-4">
                   <label htmlFor="phone" className="form-label">
                     Teléfono
                   </label>
@@ -702,6 +713,19 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
                     disabled={isLoading}
                     placeholder="+52 55 1234 5678"
                     leftIcon="bi-telephone"
+                  />
+                </div>
+                <div className="col-md-2">
+                  <label htmlFor="phoneExtension" className="form-label">
+                    Ext.
+                  </label>
+                  <Input
+                    id="phoneExtension"
+                    type="text"
+                    value={formData.phoneExtension || ''}
+                    onChange={(e) => updateField('phoneExtension', e.target.value.slice(0, 10))}
+                    disabled={isLoading}
+                    placeholder="104"
                   />
                 </div>
 
@@ -729,49 +753,110 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
                   </h5>
                 </div>
 
-                {/* Is Customer/Supplier */}
+                {/* Roles del contacto (party model = plomeria: nunca checkboxes
+                    crudos en flujos dirigidos; ver feedback 2026-08-31) */}
                 <div className="col-12">
-                  <div className="row g-3">
-                    <div className="col-md-4">
-                      <div className="form-check">
-                        <input
-                          className="form-check-input"
-                          type="checkbox"
-                          id="isCustomer"
-                          checked={formData.isCustomer}
-                          onChange={(e) => updateField('isCustomer', e.target.checked)}
-                          disabled={isLoading}
-                        />
-                        <label className="form-check-label" htmlFor="isCustomer">
-                          <i className="bi bi-person-check me-1"></i>
-                          Es cliente
-                        </label>
-                      </div>
+                  {roleContext && !contact ? (
+                    // Alta dirigida: el rol lo aporta el punto de entrada
+                    <div className="alert alert-info d-flex align-items-center mb-0 py-2">
+                      <i className={`bi ${roleContext === 'customer' ? 'bi-person-check' : roleContext === 'supplier' ? 'bi-building' : 'bi-person-dash'} me-2`}></i>
+                      <span>
+                        Se creará como{' '}
+                        <strong>
+                          {roleContext === 'customer' ? 'Cliente' : roleContext === 'supplier' ? 'Proveedor' : 'Prospecto'}
+                        </strong>
+                      </span>
                     </div>
-                    <div className="col-md-4">
-                      <div className="form-check">
-                        <input
-                          className="form-check-input"
-                          type="checkbox"
-                          id="isSupplier"
-                          checked={formData.isSupplier}
-                          onChange={(e) => updateField('isSupplier', e.target.checked)}
-                          disabled={isLoading}
-                        />
-                        <label className="form-check-label" htmlFor="isSupplier">
-                          <i className="bi bi-building me-1"></i>
-                          Es proveedor
-                        </label>
+                  ) : contact ? (
+                    // Edicion: badges + acciones explicitas
+                    <div>
+                      <div className="d-flex align-items-center flex-wrap gap-2">
+                        {formData.isCustomer && (
+                          <span className="badge bg-success"><i className="bi bi-person-check me-1"></i>Cliente</span>
+                        )}
+                        {formData.isSupplier && (
+                          <span className="badge bg-info"><i className="bi bi-building me-1"></i>Proveedor</span>
+                        )}
+                        {!formData.isCustomer && !formData.isSupplier && (
+                          <span className="badge bg-secondary"><i className="bi bi-person-dash me-1"></i>Prospecto</span>
+                        )}
+                        <span className="vr mx-1 d-none d-md-inline-block"></span>
+                        {!formData.isCustomer ? (
+                          <button type="button" className="btn btn-sm btn-outline-success" disabled={isLoading}
+                            onClick={() => updateField('isCustomer', true)}>
+                            Convertir en cliente
+                          </button>
+                        ) : (
+                          <button type="button" className="btn btn-sm btn-outline-secondary" disabled={isLoading}
+                            onClick={() => updateField('isCustomer', false)}>
+                            Quitar rol de cliente
+                          </button>
+                        )}
+                        {!formData.isSupplier ? (
+                          <button type="button" className="btn btn-sm btn-outline-info" disabled={isLoading}
+                            onClick={() => updateField('isSupplier', true)}>
+                            También es proveedor
+                          </button>
+                        ) : (
+                          <button type="button" className="btn btn-sm btn-outline-secondary" disabled={isLoading}
+                            onClick={() => updateField('isSupplier', false)}>
+                            Quitar rol de proveedor
+                          </button>
+                        )}
                       </div>
+                      {(formData.isCustomer !== contact.isCustomer || formData.isSupplier !== contact.isSupplier) && (
+                        <div className="text-warning small mt-1">
+                          <i className="bi bi-info-circle me-1"></i>
+                          El cambio de rol se aplica al guardar el contacto
+                        </div>
+                      )}
                     </div>
-                  </div>
-                  {formErrors.type && (
-                    <div className="text-danger small mt-1">{formErrors.type}</div>
-                  )}
-                  {!formData.isCustomer && !formData.isSupplier && !formErrors.type && (
-                    <div className="text-warning small mt-1">
-                      <i className="bi bi-info-circle me-1"></i>
-                      Este contacto se guardara como Prospecto
+                  ) : (
+                    // Alta generica (Directorio): seleccion manual de roles
+                    <div>
+                      <div className="row g-3">
+                        <div className="col-md-4">
+                          <div className="form-check">
+                            <input
+                              className="form-check-input"
+                              type="checkbox"
+                              id="isCustomer"
+                              checked={formData.isCustomer}
+                              onChange={(e) => updateField('isCustomer', e.target.checked)}
+                              disabled={isLoading}
+                            />
+                            <label className="form-check-label" htmlFor="isCustomer">
+                              <i className="bi bi-person-check me-1"></i>
+                              Es cliente
+                            </label>
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-check">
+                            <input
+                              className="form-check-input"
+                              type="checkbox"
+                              id="isSupplier"
+                              checked={formData.isSupplier}
+                              onChange={(e) => updateField('isSupplier', e.target.checked)}
+                              disabled={isLoading}
+                            />
+                            <label className="form-check-label" htmlFor="isSupplier">
+                              <i className="bi bi-building me-1"></i>
+                              Es proveedor
+                            </label>
+                          </div>
+                        </div>
+                      </div>
+                      {formErrors.type && (
+                        <div className="text-danger small mt-1">{formErrors.type}</div>
+                      )}
+                      {!formData.isCustomer && !formData.isSupplier && !formErrors.type && (
+                        <div className="text-warning small mt-1">
+                          <i className="bi bi-info-circle me-1"></i>
+                          Este contacto se guardara como Prospecto
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
@@ -900,7 +985,7 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
                 disabled={isLoading}
               >
                 <i className="bi bi-check-lg me-1"></i>
-                Crear Contacto Completo
+                {contact ? 'Actualizar contacto' : 'Crear contacto'}
               </Button>
             </div>
           )}
