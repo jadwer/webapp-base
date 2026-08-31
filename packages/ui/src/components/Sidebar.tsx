@@ -141,11 +141,32 @@ export default function Sidebar({ navigationConfig }: SidebarProps) {
       <div className={`${styles.subMenu} ${isOpen ? styles.expanded : styles.collapsed}`}>
         <ul className={styles.subNavList}>
           {links.map((item) => (
-            <li key={item.href}>
-              {renderItemLink(
-                item,
-                `${styles.subNavLink} ${pathname === item.href ? styles.active : ''}`,
-                styles.subNavIcon,
+            <li key={item.href} style={{ display: 'flex', alignItems: 'stretch' }}>
+              <div style={{ flex: 1 }}>
+                {renderItemLink(
+                  item,
+                  `${styles.subNavLink} ${pathname === item.href ? styles.active : ''}`,
+                  styles.subNavIcon,
+                )}
+              </div>
+              {/* "+" de alta directa por item (mismo patron que topLinks) */}
+              {item.quickCreateHref && (
+                <Link
+                  href={item.quickCreateHref}
+                  title={`Crear nuevo (${item.label})`}
+                  aria-label={`Crear nuevo en ${item.label}`}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: '32px',
+                    flexShrink: 0,
+                    color: 'inherit',
+                    textDecoration: 'none'
+                  }}
+                >
+                  <i className="bi bi-plus-circle" aria-hidden="true"></i>
+                </Link>
               )}
             </li>
           ))}
