@@ -94,7 +94,7 @@ describe('productReviewsService', () => {
         params: {
           'filter[product_id]': 100,
           sort: '-createdAt',
-          'filter[is_approved]': true,
+          'filter[status]': 'approved',
         },
       });
       expect(result).toHaveLength(1);

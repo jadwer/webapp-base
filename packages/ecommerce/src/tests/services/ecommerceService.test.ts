@@ -53,7 +53,7 @@ describe('ecommerceService', () => {
 
       // Assert
       expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/sales-orders', {
-        params: {},
+        params: { sort: '-createdAt' },
       });
       expect(result).toHaveLength(2);
     });
@@ -79,7 +79,8 @@ describe('ecommerceService', () => {
           'filter[search]': 'ECO-2025',
           'filter[status]': 'pending',
           'filter[payment_status]': 'pending',
-          'filter[customer_id]': 1,
+          'filter[contact]': 1,
+          sort: '-createdAt',
         },
       });
     });
