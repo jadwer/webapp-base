@@ -16,12 +16,12 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import {
   documentLegendsService,
   LEGEND_DOCUMENT_TYPE_LABELS,
-} from '@/modules/billing/services/documentLegendsService'
+} from '@/modules/billing'
 import type {
   DocumentLegend,
   DocumentLegendPlaceholder,
   LegendDocumentType,
-} from '@/modules/billing/services/documentLegendsService'
+} from '@/modules/billing'
 import { toast } from '@/lib/toast'
 import ConfirmModal, { ConfirmModalHandle } from '@/ui/components/base/ConfirmModal'
 import FoliosSettingsPage from '../folios/page'

@@ -30,8 +30,10 @@
     "test:e2e:debug": "playwright test --debug"
   },
   "dependencies": {
+    "@hookform/resolvers": "^5.1.1",
     "@lwm/app-config": "workspace:*",
     "@lwm/auth": "workspace:*",
+    "@lwm/billing": "workspace:*",
     "@lwm/contacts": "workspace:*",
     "@lwm/ecommerce": "workspace:*",
     "@lwm/mailer-manager": "workspace:*",
@@ -40,7 +42,6 @@
     "@lwm/products": "workspace:*",
     "@lwm/sales": "workspace:*",
     "@lwm/ui": "workspace:*",
-    "@hookform/resolvers": "^5.1.1",
     "@stripe/react-stripe-js": "^3.1.1",
     "@stripe/stripe-js": "^5.5.0",
     "@tanstack/react-virtual": "^3.13.12",

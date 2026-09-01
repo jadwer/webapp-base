@@ -2,9 +2,9 @@
 
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import CFDIInvoiceForm from '@/modules/billing/components/CFDIInvoiceForm'
+import { CFDIInvoiceForm } from '@/modules/billing'
 import { useCFDIInvoice, useCFDIInvoicesMutations } from '@/modules/billing'
-import type { CFDIInvoiceFormData } from '@/modules/billing/types'
+import type { CFDIInvoiceFormData } from '@/modules/billing'
 
 interface EditInvoicePageProps {
   params: Promise<{

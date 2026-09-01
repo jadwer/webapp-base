@@ -12,7 +12,7 @@ import {
   useSalesReports,
   usePurchaseReports
 } from '@/modules/accounting'
-import { useCFDIInvoices } from '@/modules/billing/hooks'
+import { useCFDIInvoices } from '@/modules/billing'
 import { useLeads, useOpportunities, useCampaigns } from '@/modules/crm/hooks'
 import { useEcommerceOrders } from '@/modules/ecommerce'
 import { useEmployees } from '@/modules/hr/hooks'

@@ -65,7 +65,7 @@ const nextConfig: NextConfig = {
   // Every @lwm/* package that ships .module.scss imports must be listed here.
   // Tenants in clients/<name>/webapp/ MUST mirror this list in their own
   // next.config.ts; otherwise CSS Modules from these packages render unstyled.
-  transpilePackages: ['@lwm/primitives', '@lwm/ui', '@lwm/auth', '@lwm/app-config', '@lwm/products', '@lwm/contacts', '@lwm/sales', '@lwm/ecommerce', '@lwm/page-builder', '@lwm/mailer-manager', '@lwm/permissions'],
+  transpilePackages: ['@lwm/primitives', '@lwm/ui', '@lwm/auth', '@lwm/app-config', '@lwm/billing', '@lwm/products', '@lwm/contacts', '@lwm/sales', '@lwm/ecommerce', '@lwm/page-builder', '@lwm/mailer-manager', '@lwm/permissions'],
   // Single source of truth for SCSS design tokens lives in @lwm/primitives
   // (moved there in 2026-05-12 to break the @lwm/auth ↔ @lwm/ui cycle —
   // deuda B5). Every *.module.scss across the workspace can

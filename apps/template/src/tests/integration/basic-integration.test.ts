@@ -28,7 +28,8 @@ describe('Integration Tests - Basic Concepts', () => {
     const crmServices = await import('@/modules/crm/services');
     const reportsServices = await import('@/modules/reports/services');
     const hrServices = await import('@/modules/hr/services');
-    const billingServices = await import('@/modules/billing/services');
+    // billing ya vive en @lwm/billing (T2.2); el stub re-exporta todo
+    const billingServices = await import('@/modules/billing');
 
     expect(crmServices).toBeDefined();
     expect(reportsServices).toBeDefined();

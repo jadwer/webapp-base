@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { useRouter } from 'next/navigation'
-import CFDIInvoiceForm from '@/modules/billing/components/CFDIInvoiceForm'
+import { CFDIInvoiceForm } from '@/modules/billing'
 
 export default function CreateInvoicePage() {
   const router = useRouter()

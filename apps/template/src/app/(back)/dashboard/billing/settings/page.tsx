@@ -6,8 +6,8 @@ import {
   useCompanySettings,
   useActiveCompanySetting,
   useCompanySettingsMutations,
-} from '@/modules/billing/hooks'
-import type { CompanySetting, CompanySettingFormData } from '@/modules/billing/types'
+} from '@/modules/billing'
+import type { CompanySetting, CompanySettingFormData } from '@/modules/billing'
 import { toast } from '@/lib/toast'
 import ConfirmModal, { ConfirmModalHandle } from '@/ui/components/base/ConfirmModal'
 
