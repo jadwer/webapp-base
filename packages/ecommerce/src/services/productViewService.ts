@@ -26,6 +26,9 @@ export const productViewService = {
    * Track a product view (fire-and-forget, never blocks UX)
    */
   async trackView(productId: string, sessionId?: string): Promise<void> {
+    // El backend solo acepta ids numericos (whereNumber); URLs basura de
+    // bots (/productos/catalogos) no ameritan ni el request.
+    if (!/^\d+$/.test(productId)) return
     try {
       await axiosClient.post(`/api/v1/products/${productId}/track-view`, {
         session_id: sessionId,
