@@ -37,6 +37,10 @@ export const Header: React.FC = () => {
   const logoSrc = get('company.logo_path_alt') || '/images/laborwasser/labor-wasser-mexico-logo2.webp'
   const companyName = get('company.name') || 'Labor Wasser de Mexico'
   const whatsappNumber = get('company.whatsapp_number')
+  // Editable por tenant sin deploy; el texto default es el pedido por el
+  // cliente en la junta del 2026-09-01.
+  const whatsappMessage =
+    get('company.whatsapp_message') || 'Hola, me interesa recibir más información sobre sus productos'
 
   const [userOpen, setUserOpen] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -240,7 +244,7 @@ export const Header: React.FC = () => {
       {/* WhatsApp: se conserva (decision 2026-08-18) */}
       {whatsappNumber && (
         <a
-          href={`https://wa.me/${whatsappNumber}?text=Hola!%20%C2%BFC%C3%B3mo%20%20podemos%20ayudarte%3F`}
+          href={`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`}
           className="whatsapp"
           target="_blank"
           rel="noopener noreferrer"

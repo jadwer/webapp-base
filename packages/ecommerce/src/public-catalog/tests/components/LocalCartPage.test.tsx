@@ -96,6 +96,9 @@ vi.mock('@lwm/ecommerce', async () => {
         saveCartIdForCheckout: vi.fn(),
       },
     },
+    cartQuotePdfService: {
+      downloadInformativePdf: vi.fn(),
+    },
   }
 })
 
@@ -103,6 +106,7 @@ vi.mock('@lwm/ecommerce', async () => {
 import { LocalCartPage } from '../../components/LocalCartPage'
 import { toast } from '@lwm/ui'
 import { quoteServices as quoteServiceModule } from '@lwm/sales'
+import { cartQuotePdfService } from '@lwm/ecommerce'
 import { shoppingCartService } from '@lwm/ecommerce'
 
 const mockToast = toast as unknown as {
@@ -405,10 +409,31 @@ describe('LocalCartPage', () => {
   })
 
   describe('Request Quote - Not Authenticated', () => {
-    it('should redirect to login when requesting quote without auth', async () => {
+    // Cambio 2026-09 (junta cliente): el anonimo ya NO va a login; el boton
+    // descarga directo el PDF informativo (precios del backend).
+    it('should download the informative PDF without redirecting to login', async () => {
+      mockIsAuthenticated.mockReturnValue(false)
+      const items = [createMockCartItem({ productId: '1', quantity: 2 })]
+      mockUseLocalCart.mockReturnValue(mockCartWithItems(items))
+      vi.mocked(cartQuotePdfService.downloadInformativePdf).mockResolvedValue(undefined)
+
+      const user = userEvent.setup()
+
+      render(<LocalCartPage />)
+      const quoteButton = screen.getByText('Generar Cotizacion')
+      await user.click(quoteButton)
+
+      await waitFor(() => {
+        expect(cartQuotePdfService.downloadInformativePdf).toHaveBeenCalledWith(items)
+      })
+      expect(mockPush).not.toHaveBeenCalled()
+    })
+
+    it('should show an error toast when the informative PDF fails', async () => {
       mockIsAuthenticated.mockReturnValue(false)
       const items = [createMockCartItem()]
       mockUseLocalCart.mockReturnValue(mockCartWithItems(items))
+      vi.mocked(cartQuotePdfService.downloadInformativePdf).mockRejectedValue(new Error('500'))
 
       const user = userEvent.setup()
 
@@ -416,25 +441,10 @@ describe('LocalCartPage', () => {
       const quoteButton = screen.getByText('Generar Cotizacion')
       await user.click(quoteButton)
 
-      expect(mockPush).toHaveBeenCalledWith('/auth/login?redirect=' + encodeURIComponent('/cart?action=quote'))
-    })
-
-    it('should save cart to sessionStorage when redirecting to login', async () => {
-      mockIsAuthenticated.mockReturnValue(false)
-      const items = [createMockCartItem({ productId: '1', name: 'Test', price: 100, quantity: 2 })]
-      mockUseLocalCart.mockReturnValue(mockCartWithItems(items))
-
-      const user = userEvent.setup()
-
-      render(<LocalCartPage />)
-      const quoteButton = screen.getByText('Generar Cotizacion')
-      await user.click(quoteButton)
-
-      const savedCart = sessionStorage.getItem('pendingQuoteCart')
-      expect(savedCart).not.toBeNull()
-      const parsedCart = JSON.parse(savedCart!)
-      expect(parsedCart).toHaveLength(1)
-      expect(parsedCart[0].productId).toBe('1')
+      await waitFor(() => {
+        expect(toast.error).toHaveBeenCalledWith('No se pudo generar el PDF de la cotización')
+      })
+      expect(mockPush).not.toHaveBeenCalled()
     })
   })
 

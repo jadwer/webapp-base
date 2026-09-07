@@ -54,7 +54,8 @@ export type {
 // Export services
 export {
   publicProductsService,
-  PublicProductsService
+  PublicProductsService,
+  cartQuotePdfService
 } from './services'
 
 // Export hooks

@@ -165,18 +165,20 @@ export const ProductDetail: React.FC<{ productId: string }> = ({ productId }) =>
 
             {purchasable && (
               <div className={styles.qty}>
-                <span className={styles.qtyLabel}>Disponible:</span>
+                <span className={styles.qtyLabel}>Cantidad:</span>
                 <label className={styles.qtySelectWrap}>
                   <span className="visually-hidden">Cantidad</span>
-                  <select
+                  {/* Cantidad libre (pedido cliente 2026-09): el stock se
+                      valida al comprar, no al capturar. */}
+                  <input
+                    type="number"
+                    inputMode="numeric"
+                    min={1}
+                    step={1}
                     className={styles.qtySelect}
                     value={quantity}
-                    onChange={(e) => setQuantity(Number(e.target.value))}
-                  >
-                    {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => (
-                      <option key={n} value={n}>Cantidad: {n}</option>
-                    ))}
-                  </select>
+                    onChange={(e) => setQuantity(Math.max(1, Math.floor(Number(e.target.value)) || 1))}
+                  />
                 </label>
               </div>
             )}

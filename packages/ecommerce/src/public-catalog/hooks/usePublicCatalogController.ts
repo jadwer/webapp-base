@@ -13,7 +13,7 @@
  * presentacion sobre este hook sin duplicar logica.
  */
 
-import { useState, useCallback, useMemo } from 'react'
+import { useState, useCallback, useMemo, useEffect, useRef } from 'react'
 import { usePublicProducts } from './usePublicProducts'
 import type {
   PublicProductFilters,
@@ -84,11 +84,27 @@ export function usePublicCatalogController({
     isActive: true,
     ...initialFilters
   })
+
   const [sortField, setSortField] = useState<PublicProductSortField>(initialSortField)
   const [sortDirection, setSortDirection] = useState<SortDirection>(initialSortDirection)
   const [viewMode, setViewMode] = useState<ProductViewMode>(initialViewMode)
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(initialPageSize)
+
+  // Navegar /productos -> /productos?categoryId=X NO desmonta la pagina
+  // (mismo segmento de ruta), asi que el useState de filters ignora el
+  // initialFilters nuevo y el catalogo no re-filtra (el fix historico
+  // 11aea79 forzaba remount con una key en la page; el rediseno lo perdio).
+  // Cuando initialFilters cambia tras el montaje se replica la semantica
+  // del remount: reset completo de filtros y regreso a la pagina 1.
+  const serializedInitialFilters = JSON.stringify(initialFilters)
+  const appliedInitialFiltersRef = useRef(serializedInitialFilters)
+  useEffect(() => {
+    if (appliedInitialFiltersRef.current === serializedInitialFilters) return
+    appliedInitialFiltersRef.current = serializedInitialFilters
+    setFilters({ isActive: true, ...JSON.parse(serializedInitialFilters) })
+    setCurrentPage(1)
+  }, [serializedInitialFilters])
 
   // Prepare API parameters
   const sortParams = useMemo(() => [

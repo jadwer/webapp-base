@@ -23,7 +23,7 @@ import { toast } from '@lwm/ui'
 import { quoteServices as quoteServiceModule } from '@lwm/sales'
 // Auto-import del package (mismo patron que el LocalCartPage original):
 // permite a los tests mockear '@lwm/ecommerce' completo.
-import { shoppingCartService, CartSyncAuthError } from '@lwm/ecommerce'
+import { shoppingCartService, CartSyncAuthError, cartQuotePdfService } from '@lwm/ecommerce'
 
 export interface LocalCartPageControllerOptions {
   checkoutUrl?: string
@@ -47,12 +47,13 @@ export function useLocalCartPageController({
   const cart = useLocalCart()
   const { items, isInitialized, clearCart } = cart
 
-  // Reabrir el modal de cotizacion al volver del login (action=quote)
+  // action=quote: autenticado reabre el modal (retorno del login o boton
+  // Cotizar de la ficha); anonimo descarga directo el PDF informativo
+  // (cambio 2026-09, el carrito publico no requiere registro).
   useEffect(() => {
     const action = searchParams.get('action')
     if (
       action === 'quote' &&
-      isAuthenticated &&
       !authLoading &&
       isInitialized &&
       items.length > 0 &&
@@ -61,7 +62,11 @@ export function useLocalCartPageController({
     ) {
       hasProcessedPendingQuote.current = true
       const timer = setTimeout(() => {
-        setShowQuoteModal(true)
+        if (isAuthenticated) {
+          setShowQuoteModal(true)
+        } else {
+          handleOpenQuoteModal()
+        }
         router.replace('/cart')
       }, 500)
       return () => clearTimeout(timer)
@@ -69,19 +74,31 @@ export function useLocalCartPageController({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams, isAuthenticated, authLoading, isInitialized, items.length, isRequestingQuote])
 
-  const handleOpenQuoteModal = useCallback(() => {
+  const handleOpenQuoteModal = useCallback(async () => {
     if (items.length === 0) {
       toast.error('El carrito esta vacio')
       return
     }
     if (!isAuthenticated) {
-      sessionStorage.setItem('pendingQuoteCart', JSON.stringify(items))
-      toast.info('Inicia sesión para generar una cotización')
-      router.push('/auth/login?redirect=' + encodeURIComponent('/cart?action=quote'))
+      // Cambio 2026-09 (junta cliente): el carrito publico es anonimo, asi
+      // que Cotizar descarga directo un PDF INFORMATIVO (precios del
+      // backend, sin folio, no se persiste). La cotizacion formal sigue
+      // requiriendo registro; el toast conserva el embudo.
+      setIsRequestingQuote(true)
+      try {
+        await cartQuotePdfService.downloadInformativePdf(items)
+        toast.success('Cotizacion descargada')
+        toast.info('Registrate para obtener una cotizacion formal con folio y vigencia')
+      } catch (error) {
+        console.error('Error downloading informative quote PDF:', error)
+        toast.error('No se pudo generar el PDF de la cotización')
+      } finally {
+        setIsRequestingQuote(false)
+      }
       return
     }
     setShowQuoteModal(true)
-  }, [items, isAuthenticated, router])
+  }, [items, isAuthenticated])
 
   // POST /quotes/from-cart (sync previo del carrito local a la API)
   const handleRequestQuote = useCallback(async () => {
@@ -107,6 +124,14 @@ export function useLocalCartPageController({
       setShowQuoteModal(false)
       setQuoteNote('')
       toast.success('Cotizacion generada')
+      // Pedido cliente 2026-09: el PDF se descarga de inmediato; si la
+      // descarga falla, la cotizacion ya existe y queda en my-quotes.
+      try {
+        await quoteServiceModule.quotes.downloadPdf(String(response.data.id))
+      } catch (pdfError) {
+        console.error('Quote created but PDF download failed:', pdfError)
+        toast.info('La cotizacion se creo; descarga el PDF desde Mis cotizaciones')
+      }
       router.push(`/dashboard/my-quotes/${response.data.id}`)
     } catch (error) {
       console.error('Error requesting quote:', error)

@@ -96,8 +96,9 @@ function ProductosContent() {
     <div className="container-fluid py-4">
       <h1 className="text-primary mb-4">Todos los productos</h1>
 
+      {/* El remount por key ya no hace falta: usePublicCatalogController
+          sincroniza initialFilters cuando cambian los searchParams. */}
       <PublicCatalogTemplate
-        key={`catalog-${initialCategoryId || 'all'}-${initialSearch || ''}`}
         initialFilters={{ search: initialSearch, categoryId: initialCategoryId }}
         initialSortField="name"
         initialSortDirection="asc"
