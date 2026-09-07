@@ -406,7 +406,7 @@ function getErrorStatus(error: unknown): number | undefined {
 export class CartSyncAuthError extends Error {
   readonly isAuthError = true;
 
-  constructor(message = 'Tu sesion expiro. Inicia sesion de nuevo para continuar.') {
+  constructor(message = 'Tu sesión expiró. Inicia sesión de nuevo para continuar.') {
     super(message);
     this.name = 'CartSyncAuthError';
   }

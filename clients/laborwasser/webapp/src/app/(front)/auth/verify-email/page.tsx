@@ -18,7 +18,7 @@ function VerifyEmailContent() {
   useEffect(() => {
     if (!id || !hash) {
       setStatus('error')
-      setMessage('Enlace de verificacion invalido.')
+      setMessage('Enlace de verificación inválido.')
       return
     }
 
@@ -29,7 +29,7 @@ function VerifyEmailContent() {
       })
       .catch((err) => {
         setStatus('error')
-        setMessage(err.response?.data?.message || 'Enlace de verificacion invalido o expirado.')
+        setMessage(err.response?.data?.message || 'Enlace de verificación inválido o expirado.')
       })
   }, [id, hash])
 
@@ -45,7 +45,7 @@ function VerifyEmailContent() {
           <h1 className={styles.authTitle}>
             {status === 'loading' && 'Verificando...'}
             {status === 'success' && 'Correo verificado'}
-            {status === 'error' && 'Error de verificacion'}
+            {status === 'error' && 'Error de verificación'}
           </h1>
           <p className={styles.authSubtitle}>{message}</p>
         </div>
@@ -62,7 +62,7 @@ function VerifyEmailContent() {
           {status === 'success' && (
             <p>
               <Link href="/auth/login">
-                Iniciar sesion
+                Iniciar sesión
               </Link>
             </p>
           )}

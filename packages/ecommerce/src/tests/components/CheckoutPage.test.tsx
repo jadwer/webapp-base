@@ -106,10 +106,10 @@ const clearCartIdMock = vi.mocked(shoppingCartService.localSync.clearCartIdForCh
 function fillInfoForm() {
   fireEvent.change(screen.getByLabelText('Nombre Completo'), { target: { value: 'Juan Perez' } })
   fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'juan@example.com' } })
-  fireEvent.change(screen.getByLabelText('Direccion Linea 1'), { target: { value: 'Calle 1 #23' } })
+  fireEvent.change(screen.getByLabelText('Dirección Línea 1'), { target: { value: 'Calle 1 #23' } })
   fireEvent.change(screen.getByLabelText('Ciudad'), { target: { value: 'CDMX' } })
   fireEvent.change(screen.getByLabelText('Estado'), { target: { value: 'CDMX' } })
-  fireEvent.change(screen.getByLabelText('Codigo Postal'), { target: { value: '01000' } })
+  fireEvent.change(screen.getByLabelText('Código Postal'), { target: { value: '01000' } })
 }
 
 async function continueToPayment() {

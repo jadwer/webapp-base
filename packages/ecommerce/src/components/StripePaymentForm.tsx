@@ -73,7 +73,7 @@ function PaymentForm({
 
       if (error) {
         // Show error to customer
-        const message = error.message || 'Ocurrio un error al procesar el pago'
+        const message = error.message || 'Ocurrió un error al procesar el pago'
         setErrorMessage(message)
         onPaymentError(message)
       } else if (paymentIntent) {
@@ -86,14 +86,14 @@ function PaymentForm({
             await stripe.handleNextAction({ clientSecret: paymentIntent.client_secret! })
 
           if (actionError) {
-            const msg = actionError.message || 'Error en la verificacion adicional'
+            const msg = actionError.message || 'Error en la verificación adicional'
             setErrorMessage(msg)
             onPaymentError(msg)
           } else if (updatedIntent?.status === 'succeeded') {
             onPaymentSuccess(updatedIntent.id)
           } else {
-            setErrorMessage('La verificacion adicional no se completo')
-            onPaymentError('La verificacion adicional no se completo')
+            setErrorMessage('La verificación adicional no se completó')
+            onPaymentError('La verificación adicional no se completó')
           }
         } else {
           setErrorMessage(`Estado del pago: ${paymentIntent.status}`)
@@ -172,7 +172,7 @@ export function StripePaymentForm({
     // Check if Stripe key is configured
     if (!process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY) {
       console.warn('Stripe publishable key not configured')
-      onPaymentError('Configuracion de pago no disponible')
+      onPaymentError('Configuración de pago no disponible')
     } else {
       setStripeLoaded(true)
     }

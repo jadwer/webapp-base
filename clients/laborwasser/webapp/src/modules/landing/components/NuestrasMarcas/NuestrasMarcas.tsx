@@ -50,7 +50,7 @@ export const NuestrasMarcas: React.FC = () => {
               <Image
                 src={brand.logo}
                 className="card-img-top"
-                alt="Labor Wasser Mexico"
+                alt="Labor Wasser México"
                 width={200}
                 height={100}
               />

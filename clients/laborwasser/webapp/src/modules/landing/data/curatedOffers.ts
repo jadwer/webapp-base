@@ -32,7 +32,7 @@ export const curatedOffers: CuratedOffer[] = [
     id: 2,
     image: '/images/laborwasser/labor-wasser-mexico-viales-digestion-dqo.webp',
     description:
-      'Viales de digestion para demanda quimica de oxigeno (DQO), rango alto (20 -1500 mg/L), paquete de 150 HACH',
+      'Viales de digestión para demanda química de oxígeno (DQO), rango alto (20 -1500 mg/L), paquete de 150 HACH',
     modelo: '2125915',
     precio: '$532.7USD+IVA',
     whatsappLink: 'https://wa.link/a9t3qb',
@@ -42,7 +42,7 @@ export const curatedOffers: CuratedOffer[] = [
     id: 3,
     image: '/images/laborwasser/labor-wasser-kit-frascos-tampon.webp',
     description:
-      'KIT Frascos de tampon de pH 4.01, 7, 10.01 (475 ml) Orion trazabilidad conforme a la NIST',
+      'KIT Frascos de tampón de pH 4.01, 7, 10.01 (475 ml) Orion trazabilidad conforme a la NIST',
     modelo: 'Incluye modelos: 910104, 910107, 910110',
     precio: '$75USD+IVA',
     whatsappLink: 'https://wa.link/a9t3qb',

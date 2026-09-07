@@ -15,10 +15,10 @@ interface CheckoutStepperProps {
 }
 
 const STEPS: { key: CheckoutStep; label: string; icon: string }[] = [
-  { key: 'shipping', label: 'Envio', icon: 'bi-truck' },
+  { key: 'shipping', label: 'Envío', icon: 'bi-truck' },
   { key: 'payment', label: 'Pago', icon: 'bi-credit-card' },
   { key: 'review', label: 'Revisar', icon: 'bi-clipboard-check' },
-  { key: 'confirmation', label: 'Confirmacion', icon: 'bi-check-circle' },
+  { key: 'confirmation', label: 'Confirmación', icon: 'bi-check-circle' },
 ]
 
 export function CheckoutStepper({

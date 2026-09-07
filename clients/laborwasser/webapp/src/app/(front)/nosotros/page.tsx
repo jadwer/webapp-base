@@ -14,7 +14,7 @@ import styles from './nosotros.module.scss'
 
 const VALORES = [
   { icon: 'bi-hand-thumbs-up', title: 'Honestidad', text: 'Transparencia y veracidad en nuestras relaciones.' },
-  { icon: 'bi-heart', title: 'Pasion', text: 'Entusiasmo y compromiso en cada accion.' },
+  { icon: 'bi-heart', title: 'Pasión', text: 'Entusiasmo y compromiso en cada acción.' },
   { icon: 'bi-shield-check', title: 'Responsabilidad', text: 'Cumplimos con lealtad y gratitud nuestros compromisos.' },
   { icon: 'bi-star', title: 'Calidad', text: 'Excelencia constante para superar expectativas.' },
   { icon: 'bi-graph-up-arrow', title: 'Competitividad', text: 'Innovamos y mejoramos para mantener el liderazgo.' },
@@ -33,31 +33,31 @@ export default function NosotrosPage() {
         <div className={`container ${styles.heroContent}`}>
           <h1 id="nosotros-title" className={styles.heroTitle}>Somos Labor Wasser</h1>
           <p className={styles.heroText}>
-            un equipo comprometido con el progreso cientifico y el bienestar de nuestros
-            clientes. Durante mas de 20 anos hemos acompanado a profesionales y estudiantes
-            en su busqueda de precision y excelencia. Creemos en la colaboracion, la calidad
-            y la innovacion como pilares para construir un futuro mas confiable y sostenible
-            en el ambito de laboratorio.
+            un equipo comprometido con el progreso científico y el bienestar de nuestros
+            clientes. Durante más de 20 años hemos acompañado a profesionales y estudiantes
+            en su búsqueda de precisión y excelencia. Creemos en la colaboración, la calidad
+            y la innovación como pilares para construir un futuro más confiable y sostenible
+            en el ámbito de laboratorio.
           </p>
         </div>
 
         {/* Mision / Vision montadas sobre el borde inferior */}
         <div className={`container ${styles.mvWrap}`}>
           <div className={`lw-card ${styles.mvCard}`}>
-            <h2 className={styles.mvTitle}>Mision</h2>
+            <h2 className={styles.mvTitle}>Misión</h2>
             <p className={styles.mvText}>
               LWM es un factor clave para el desarrollo de la industria y el laboratorio, ya
-              que ofrecemos soluciones e ingenierias innovadoras para todos nuestros usuarios
-              tanto en la parte operativa como en la parte cientifica. Ponemos nuestra
-              experiencia en tus manos y no solo es un producto, damos una solucion a la
-              problematica del dia a dia.
+              que ofrecemos soluciones e ingenierías innovadoras para todos nuestros usuarios
+              tanto en la parte operativa como en la parte científica. Ponemos nuestra
+              experiencia en tus manos y no solo es un producto, damos una solución a la
+              problemática del día a día.
             </p>
           </div>
           <div className={`lw-card ${styles.mvCard}`}>
-            <h2 className={styles.mvTitle}>Vision</h2>
+            <h2 className={styles.mvTitle}>Visión</h2>
             <p className={styles.mvText}>
               Consolidarnos como una de las mejores empresas en el suministro de materiales,
-              equipos y servicios de la industria nacional, asegurando la satisfaccion de
+              equipos y servicios de la industria nacional, asegurando la satisfacción de
               cada uno de nuestros clientes y socios comerciales, logrando esto solo con
               nuestra respuesta inmediata y la amplia experiencia.
             </p>

@@ -81,14 +81,14 @@ export const LocalCartPage: React.FC<LocalCartPageProps> = ({
           <div className="col-lg-6 text-center">
             <div className="py-5">
               <i className="bi bi-cart-x display-1 text-muted mb-4 d-block" />
-              <h2 className="h4 mb-3">Tu carrito esta vacio</h2>
+              <h2 className="h4 mb-3">Tu carrito está vacío</h2>
               <p className="text-muted mb-4">
                 Agrega productos a tu carrito para continuar con tu compra.
               </p>
               <Link href={continueShoppingUrl}>
                 <Button variant="primary" size="large">
                   <i className="bi bi-plus-circle me-2" />
-                  Agregar mas productos
+                  Agregar más productos
                 </Button>
               </Link>
             </div>
@@ -245,7 +245,7 @@ export const LocalCartPage: React.FC<LocalCartPageProps> = ({
             <Link href={continueShoppingUrl}>
               <Button variant="secondary" buttonStyle="outline" size="small">
                 <i className="bi bi-plus-circle me-2" />
-                Agregar mas productos
+                Agregar más productos
               </Button>
             </Link>
             <button
@@ -276,7 +276,7 @@ export const LocalCartPage: React.FC<LocalCartPageProps> = ({
               </div>
 
               <div className="d-flex justify-content-between mb-2 text-muted">
-                <span>Envio</span>
+                <span>Envío</span>
                 <span>Por calcular</span>
               </div>
 
@@ -305,7 +305,7 @@ export const LocalCartPage: React.FC<LocalCartPageProps> = ({
                 ) : (
                   <>
                     <i className="bi bi-file-earmark-text me-2" />
-                    Generar Cotizacion
+                    Generar Cotización
                   </>
                 )}
               </Button>
@@ -340,7 +340,7 @@ export const LocalCartPage: React.FC<LocalCartPageProps> = ({
               {/* Info about quote */}
               <div className="alert alert-info mt-3 mb-0 small">
                 <i className="bi bi-info-circle me-2"></i>
-                <strong>Generar cotizacion:</strong> Te contactaremos con precios especiales y tiempos de entrega.
+                <strong>Generar cotización:</strong> Te contactaremos con precios especiales y tiempos de entrega.
               </div>
             </div>
           </div>
@@ -351,7 +351,7 @@ export const LocalCartPage: React.FC<LocalCartPageProps> = ({
               <div className="row g-3">
                 <div className="col-4">
                   <i className="bi bi-truck text-primary fs-4 d-block mb-1" />
-                  <small className="text-muted">Envio Seguro</small>
+                  <small className="text-muted">Envío Seguro</small>
                 </div>
                 <div className="col-4">
                   <i className="bi bi-arrow-repeat text-primary fs-4 d-block mb-1" />
@@ -371,7 +371,7 @@ export const LocalCartPage: React.FC<LocalCartPageProps> = ({
       <Modal
         show={showQuoteModal}
         onHide={() => setShowQuoteModal(false)}
-        title="Generar Cotizacion"
+        title="Generar Cotización"
         closable={!isRequestingQuote}
         closeButton={!isRequestingQuote}
         footer={
@@ -397,7 +397,7 @@ export const LocalCartPage: React.FC<LocalCartPageProps> = ({
               ) : (
                 <>
                   <i className="bi bi-file-earmark-text me-2" />
-                  Generar Cotizacion
+                  Generar Cotización
                 </>
               )}
             </Button>
@@ -405,7 +405,7 @@ export const LocalCartPage: React.FC<LocalCartPageProps> = ({
         }
       >
         <p className="text-muted">
-          Se generara una cotizacion con los {totals.itemCount} {totals.itemCount === 1 ? 'producto' : 'productos'} de tu carrito.
+          Se generará una cotización con los {totals.itemCount} {totals.itemCount === 1 ? 'producto' : 'productos'} de tu carrito.
           Puedes agregar una nota opcional para el equipo de ventas.
         </p>
         <label htmlFor="quote-note" className="form-label">Nota (opcional)</label>
@@ -413,7 +413,7 @@ export const LocalCartPage: React.FC<LocalCartPageProps> = ({
           id="quote-note"
           className="form-control"
           rows={4}
-          placeholder="Ej. Requiero entrega urgente, favor de contactarme por telefono..."
+          placeholder="Ej. Requiero entrega urgente, favor de contactarme por teléfono..."
           value={quoteNote}
           onChange={(e) => setQuoteNote(e.target.value)}
           disabled={isRequestingQuote}

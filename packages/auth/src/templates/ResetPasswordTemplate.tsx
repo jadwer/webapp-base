@@ -17,8 +17,8 @@ export default function ResetPasswordTemplate({ token, email }: Props) {
           <div className={styles.brandIcon}>
             <i className="bi bi-shield-lock" aria-hidden="true"></i>
           </div>
-          <h1 className={styles.authTitle}>Nueva contrasena</h1>
-          <p className={styles.authSubtitle}>Ingresa tu nueva contrasena</p>
+          <h1 className={styles.authTitle}>Nueva contraseña</h1>
+          <p className={styles.authSubtitle}>Ingresa tu nueva contraseña</p>
         </div>
 
         <div className={styles.authForm}>

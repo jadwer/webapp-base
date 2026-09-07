@@ -66,12 +66,12 @@ export function ResetPasswordForm({ token, email }: Props) {
       })
 
       if (success) {
-        setStatus('Tu contrasena ha sido restablecida. Redirigiendo al login...')
+        setStatus('Tu contraseña ha sido restablecida. Redirigiendo al login...')
         setStatusType('success')
         setTimeout(() => router.replace('/auth/login?reset=true'), 3000)
       }
     } catch {
-      setStatus('Ocurrio un error inesperado.')
+      setStatus('Ocurrió un error inesperado.')
       setStatusType('danger')
     } finally {
       setIsSubmitting(false)
@@ -88,7 +88,7 @@ export function ResetPasswordForm({ token, email }: Props) {
         <Input
           id="email"
           type="email"
-          label="Correo electronico"
+          label="Correo electrónico"
           leftIcon="bi-envelope"
           errorText={errors.email?.message}
           disabled
@@ -101,8 +101,8 @@ export function ResetPasswordForm({ token, email }: Props) {
           <Input
             id="password"
             type={showPassword ? 'text' : 'password'}
-            label="Nueva contrasena"
-            placeholder="Tu nueva contrasena"
+            label="Nueva contraseña"
+            placeholder="Tu nueva contraseña"
             leftIcon="bi-lock"
             errorText={errors.password?.message}
             autoFocus
@@ -112,7 +112,7 @@ export function ResetPasswordForm({ token, email }: Props) {
             type="button"
             onClick={() => setShowPassword(!showPassword)}
             className={styles.passwordToggle}
-            aria-label={showPassword ? 'Ocultar contrasena' : 'Mostrar contrasena'}
+            aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
           >
             <i className={`bi ${showPassword ? 'bi-eye-slash' : 'bi-eye'}`}></i>
           </button>
@@ -124,8 +124,8 @@ export function ResetPasswordForm({ token, email }: Props) {
           <Input
             id="password_confirmation"
             type={showPasswordConfirmation ? 'text' : 'password'}
-            label="Confirmar contrasena"
-            placeholder="Confirma tu nueva contrasena"
+            label="Confirmar contraseña"
+            placeholder="Confirma tu nueva contraseña"
             leftIcon="bi-lock-fill"
             errorText={errors.password_confirmation?.message}
             {...register('password_confirmation')}
@@ -134,7 +134,7 @@ export function ResetPasswordForm({ token, email }: Props) {
             type="button"
             onClick={() => setShowPasswordConfirmation(!showPasswordConfirmation)}
             className={styles.passwordToggle}
-            aria-label={showPasswordConfirmation ? 'Ocultar contrasena' : 'Mostrar contrasena'}
+            aria-label={showPasswordConfirmation ? 'Ocultar contraseña' : 'Mostrar contraseña'}
           >
             <i className={`bi ${showPasswordConfirmation ? 'bi-eye-slash' : 'bi-eye'}`}></i>
           </button>
@@ -149,7 +149,7 @@ export function ResetPasswordForm({ token, email }: Props) {
               Restableciendo...
             </>
           ) : (
-            'Restablecer contrasena'
+            'Restablecer contraseña'
           )}
         </button>
       </div>

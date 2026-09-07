@@ -31,7 +31,7 @@ export const UltimosProductos: React.FC = () => {
 
   const handleRequestQuote = useCallback((product: EnhancedPublicProduct) => {
     addToCart(product, 1)
-    toast.info(`${product.displayName} agregado. Redirigiendo a cotizacion...`)
+    toast.info(`${product.displayName} agregado. Redirigiendo a cotización...`)
     // Dejar que React/localStorage persistan el carrito antes de navegar
     setTimeout(() => router.push('/cart?action=quote'), 50)
   }, [addToCart, toast, router])
@@ -48,7 +48,7 @@ export const UltimosProductos: React.FC = () => {
 
         {error && !isLoading && (
           <div className="alert alert-warning" role="alert">
-            No se pudieron cargar los productos. Intenta nuevamente mas tarde.
+            No se pudieron cargar los productos. Intenta nuevamente más tarde.
           </div>
         )}
 
@@ -75,8 +75,8 @@ export const UltimosProductos: React.FC = () => {
             <div className="col-12">
               <div className={styles.empty}>
                 <i className="bi bi-box" aria-hidden="true" />
-                <h3>Proximamente nuevos productos</h3>
-                <p>Estamos agregando mas productos a nuestro catalogo. Vuelve pronto.</p>
+                <h3>Próximamente nuevos productos</h3>
+                <p>Estamos agregando más productos a nuestro catálogo. Vuelve pronto.</p>
               </div>
             </div>
           )}

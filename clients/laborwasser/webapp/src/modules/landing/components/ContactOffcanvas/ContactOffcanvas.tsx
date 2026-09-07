@@ -46,7 +46,7 @@ export const ContactOffcanvas: React.FC = () => {
         `*Solicitud de Contacto - ${companyName}*\n\n` +
         `*Nombre:* ${nombre}\n` +
         `*Email:* ${mail}\n` +
-        `*Telefono:* ${tel}\n` +
+        `*Teléfono:* ${tel}\n` +
         `*Mensaje:*\n${mensaje}`
       )
 
@@ -73,7 +73,7 @@ export const ContactOffcanvas: React.FC = () => {
     const body = encodeURIComponent(
       `Nombre: ${nombre}\n` +
       `Email: ${mail}\n` +
-      `Telefono: ${tel}\n\n` +
+      `Teléfono: ${tel}\n\n` +
       `Mensaje:\n${mensaje}`
     )
     window.open(`mailto:${companyEmail}?subject=${subject}&body=${body}`, '_blank')
@@ -100,7 +100,7 @@ export const ContactOffcanvas: React.FC = () => {
         <div>
           <h6>
             Ponte en contacto con nosotros y uno de nuestros representantes se
-            pondran en contacto contigo.
+            pondrá en contacto contigo.
           </h6>
           <form onSubmit={submitContact}>
             <label htmlFor="nombre" className="form-label">
@@ -117,7 +117,7 @@ export const ContactOffcanvas: React.FC = () => {
             />
 
             <label htmlFor="mail" className="form-label">
-              Correo electronico
+              Correo electrónico
             </label>
             <input
               id="mail"
@@ -126,11 +126,11 @@ export const ContactOffcanvas: React.FC = () => {
               value={mail}
               onChange={(event) => setMail(event.target.value)}
               required
-              placeholder="Email valido"
+              placeholder="Email válido"
             />
 
             <label htmlFor="tel" className="form-label">
-              Telefono
+              Teléfono
             </label>
             <input
               id="tel"
@@ -139,7 +139,7 @@ export const ContactOffcanvas: React.FC = () => {
               value={tel}
               onChange={(event) => setTel(event.target.value)}
               required
-              placeholder="Telefono con lada"
+              placeholder="Teléfono con lada"
             />
 
             <label htmlFor="mensaje" className="form-label">
@@ -178,7 +178,7 @@ export const ContactOffcanvas: React.FC = () => {
           {status === 'success' && (
             <div className="alert alert-success mt-3">
               <i className="bi bi-check-circle me-2"></i>
-              Se abrio WhatsApp con tu mensaje. Nos comunicaremos contigo a la brevedad.
+              Se abrió WhatsApp con tu mensaje. Nos comunicaremos contigo a la brevedad.
             </div>
           )}
 

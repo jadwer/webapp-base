@@ -76,7 +76,7 @@ export function useLocalCartPageController({
 
   const handleOpenQuoteModal = useCallback(async () => {
     if (items.length === 0) {
-      toast.error('El carrito esta vacio')
+      toast.error('El carrito está vacío')
       return
     }
     if (!isAuthenticated) {
@@ -87,8 +87,8 @@ export function useLocalCartPageController({
       setIsRequestingQuote(true)
       try {
         await cartQuotePdfService.downloadInformativePdf(items)
-        toast.success('Cotizacion descargada')
-        toast.info('Registrate para obtener una cotizacion formal con folio y vigencia')
+        toast.success('Cotización descargada')
+        toast.info('Regístrate para obtener una cotización formal con folio y vigencia')
       } catch (error) {
         console.error('Error downloading informative quote PDF:', error)
         toast.error('No se pudo generar el PDF de la cotización')
@@ -103,7 +103,7 @@ export function useLocalCartPageController({
   // POST /quotes/from-cart (sync previo del carrito local a la API)
   const handleRequestQuote = useCallback(async () => {
     if (items.length === 0) {
-      toast.error('El carrito esta vacio')
+      toast.error('El carrito está vacío')
       return
     }
     if (!isAuthenticated) {
@@ -123,14 +123,14 @@ export function useLocalCartPageController({
       clearCart()
       setShowQuoteModal(false)
       setQuoteNote('')
-      toast.success('Cotizacion generada')
+      toast.success('Cotización generada')
       // Pedido cliente 2026-09: el PDF se descarga de inmediato; si la
       // descarga falla, la cotizacion ya existe y queda en my-quotes.
       try {
         await quoteServiceModule.quotes.downloadPdf(String(response.data.id))
       } catch (pdfError) {
         console.error('Quote created but PDF download failed:', pdfError)
-        toast.info('La cotizacion se creo; descarga el PDF desde Mis cotizaciones')
+        toast.info('La cotización se creó; descarga el PDF desde Mis cotizaciones')
       }
       router.push(`/dashboard/my-quotes/${response.data.id}`)
     } catch (error) {
@@ -143,26 +143,26 @@ export function useLocalCartPageController({
 
   const handleProceedToCheckout = useCallback(async () => {
     if (items.length === 0) {
-      toast.error('El carrito esta vacio')
+      toast.error('El carrito está vacío')
       return
     }
     setIsSyncingToCheckout(true)
     try {
       if (!isAuthenticated) {
-        toast.info('Inicia sesion para proceder al pago')
+        toast.info('Inicia sesión para proceder al pago')
         router.push('/auth/login?redirect=' + encodeURIComponent('/cart?action=checkout'))
         return
       }
       toast.info('Preparando tu carrito...')
       const apiCart = await shoppingCartService.localSync.syncLocalCartToAPI(items)
       shoppingCartService.localSync.saveCartIdForCheckout(apiCart.id)
-      toast.success('Carrito listo!')
+      toast.success('¡Carrito listo!')
       // NO limpiar el carrito local aqui: se limpia al confirmar la orden.
       if (onCheckout) onCheckout()
       else router.push(checkoutUrl)
     } catch (error) {
       if (error instanceof CartSyncAuthError) {
-        toast.error('Tu sesion expiro. Inicia sesion de nuevo para continuar.')
+        toast.error('Tu sesión expiró. Inicia sesión de nuevo para continuar.')
         router.push('/auth/login?redirect=' + encodeURIComponent('/cart?action=checkout'))
         return
       }

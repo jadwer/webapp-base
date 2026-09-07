@@ -217,8 +217,8 @@ describe('LocalCartPage', () => {
 
       render(<LocalCartPage />)
 
-      expect(screen.getByText('Tu carrito esta vacio')).toBeInTheDocument()
-      expect(screen.getByText('Agregar mas productos')).toBeInTheDocument()
+      expect(screen.getByText('Tu carrito está vacío')).toBeInTheDocument()
+      expect(screen.getByText('Agregar más productos')).toBeInTheDocument()
     })
 
     it('should link to products page when empty', () => {
@@ -236,7 +236,7 @@ describe('LocalCartPage', () => {
 
       render(<LocalCartPage />)
 
-      const link = screen.getByRole('link', { name: /agregar mas productos/i })
+      const link = screen.getByRole('link', { name: /agregar más productos/i })
       expect(link).toHaveAttribute('href', '/productos')
     })
 
@@ -255,7 +255,7 @@ describe('LocalCartPage', () => {
 
       render(<LocalCartPage continueShoppingUrl="/catalog" />)
 
-      const link = screen.getByRole('link', { name: /agregar mas productos/i })
+      const link = screen.getByRole('link', { name: /agregar más productos/i })
       expect(link).toHaveAttribute('href', '/catalog')
     })
   })
@@ -420,7 +420,7 @@ describe('LocalCartPage', () => {
       const user = userEvent.setup()
 
       render(<LocalCartPage />)
-      const quoteButton = screen.getByText('Generar Cotizacion')
+      const quoteButton = screen.getByText('Generar Cotización')
       await user.click(quoteButton)
 
       await waitFor(() => {
@@ -438,7 +438,7 @@ describe('LocalCartPage', () => {
       const user = userEvent.setup()
 
       render(<LocalCartPage />)
-      const quoteButton = screen.getByText('Generar Cotizacion')
+      const quoteButton = screen.getByText('Generar Cotización')
       await user.click(quoteButton)
 
       await waitFor(() => {
@@ -463,11 +463,11 @@ describe('LocalCartPage', () => {
 
       render(<LocalCartPage />)
       // Opens the modal (does not call the API yet)
-      await user.click(screen.getByText('Generar Cotizacion'))
+      await user.click(screen.getByText('Generar Cotización'))
       expect(mockQuoteService.createFromCart).not.toHaveBeenCalled()
 
       // Confirm inside the modal
-      const confirmButtons = screen.getAllByText('Generar Cotizacion')
+      const confirmButtons = screen.getAllByText('Generar Cotización')
       await user.click(confirmButtons[confirmButtons.length - 1])
 
       await waitFor(() => {
@@ -492,12 +492,12 @@ describe('LocalCartPage', () => {
       const user = userEvent.setup()
 
       render(<LocalCartPage />)
-      await user.click(screen.getByText('Generar Cotizacion'))
-      const confirmButtons = screen.getAllByText('Generar Cotizacion')
+      await user.click(screen.getByText('Generar Cotización'))
+      const confirmButtons = screen.getAllByText('Generar Cotización')
       await user.click(confirmButtons[confirmButtons.length - 1])
 
       await waitFor(() => {
-        expect(mockToast.success).toHaveBeenCalledWith('Cotizacion generada')
+        expect(mockToast.success).toHaveBeenCalledWith('Cotización generada')
         expect(mockPush).toHaveBeenCalledWith('/dashboard/my-quotes/42')
       })
     })
@@ -515,9 +515,9 @@ describe('LocalCartPage', () => {
       const user = userEvent.setup()
 
       render(<LocalCartPage />)
-      await user.click(screen.getByText('Generar Cotizacion'))
+      await user.click(screen.getByText('Generar Cotización'))
       await user.type(screen.getByLabelText(/nota/i), 'Entrega urgente')
-      const confirmButtons = screen.getAllByText('Generar Cotizacion')
+      const confirmButtons = screen.getAllByText('Generar Cotización')
       await user.click(confirmButtons[confirmButtons.length - 1])
 
       await waitFor(() => {
@@ -547,10 +547,10 @@ describe('LocalCartPage', () => {
       const user = userEvent.setup()
 
       render(<LocalCartPage />)
-      const quoteButton = screen.getByText('Generar Cotizacion')
+      const quoteButton = screen.getByText('Generar Cotización')
       await user.click(quoteButton)
 
-      expect(mockToast.error).toHaveBeenCalledWith('El carrito esta vacio')
+      expect(mockToast.error).toHaveBeenCalledWith('El carrito está vacío')
       expect(mockPush).not.toHaveBeenCalled()
     })
   })
@@ -588,7 +588,7 @@ describe('LocalCartPage', () => {
 
       render(<LocalCartPage />)
 
-      expect(screen.getByText(/Generar cotizacion:/i)).toBeInTheDocument()
+      expect(screen.getByText(/Generar cotización:/i)).toBeInTheDocument()
       expect(screen.getByText(/Te contactaremos con precios especiales/i)).toBeInTheDocument()
     })
   })
@@ -664,7 +664,7 @@ describe('LocalCartPage', () => {
 
       render(<LocalCartPage />)
 
-      expect(screen.getByText('Envio Seguro')).toBeInTheDocument()
+      expect(screen.getByText('Envío Seguro')).toBeInTheDocument()
       expect(screen.getByText('Devoluciones')).toBeInTheDocument()
       expect(screen.getByText('Soporte')).toBeInTheDocument()
     })

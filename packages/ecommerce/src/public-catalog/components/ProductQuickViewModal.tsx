@@ -143,7 +143,7 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
               <div className="col-md-6">
                 <h6>Detalles del Producto</h6>
                 <ul className="list-unstyled">
-                  <li><strong>Categoria:</strong> {displayProduct.displayCategory}</li>
+                  <li><strong>Categoría:</strong> {displayProduct.displayCategory}</li>
                   <li><strong>Marca:</strong> {displayProduct.displayBrand}</li>
                   <li><strong>Unidad:</strong> {displayProduct.displayUnit}</li>
                   {displayProduct.attributes.sku && (
@@ -159,7 +159,7 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
                 </ul>
                 {displayProduct.attributes.description && (
                   <>
-                    <h6>Descripcion</h6>
+                    <h6>Descripción</h6>
                     <p className="text-muted">{displayProduct.attributes.description}</p>
                   </>
                 )}

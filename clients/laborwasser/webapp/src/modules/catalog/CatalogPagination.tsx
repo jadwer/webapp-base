@@ -29,13 +29,13 @@ export const CatalogPagination: React.FC<{ controller: PublicCatalogController }
   if (!meta.lastPage || meta.lastPage <= 1) return null
 
   return (
-    <nav className={styles.pagination} aria-label="Paginacion del catalogo">
+    <nav className={styles.pagination} aria-label="Paginación del catálogo">
       <button
         type="button"
         className={styles.arrow}
         disabled={currentPage <= 1}
         onClick={() => handlePageChange(currentPage - 1)}
-        aria-label="Pagina anterior"
+        aria-label="Página anterior"
       >
         <i className="bi bi-chevron-left" aria-hidden="true" />
       </button>
@@ -59,7 +59,7 @@ export const CatalogPagination: React.FC<{ controller: PublicCatalogController }
         className={styles.arrow}
         disabled={currentPage >= meta.lastPage}
         onClick={() => handlePageChange(currentPage + 1)}
-        aria-label="Pagina siguiente"
+        aria-label="Página siguiente"
       >
         <i className="bi bi-chevron-right" aria-hidden="true" />
       </button>

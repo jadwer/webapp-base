@@ -191,7 +191,7 @@ const isLoading = shouldFetch && !user && !error;
         }
         return false;
       }
-      setStatus("Ocurrio un error inesperado.");
+      setStatus("Ocurrió un error inesperado.");
       return false;
     }
   };
@@ -230,7 +230,7 @@ const isLoading = shouldFetch && !user && !error;
         if (msg) setStatus(msg);
         return false;
       }
-      setStatus("Ocurrio un error inesperado.");
+      setStatus("Ocurrió un error inesperado.");
       return false;
     }
   };

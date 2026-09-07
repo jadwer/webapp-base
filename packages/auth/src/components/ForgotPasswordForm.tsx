@@ -52,7 +52,7 @@ export function ForgotPasswordForm() {
         setStatusType('danger')
       }
     } catch {
-      setStatus('Ocurrio un error inesperado.')
+      setStatus('Ocurrió un error inesperado.')
       setStatusType('danger')
     } finally {
       setIsSubmitting(false)
@@ -67,7 +67,7 @@ export function ForgotPasswordForm() {
         <Input
           id="email"
           type="email"
-          label="Correo electronico"
+          label="Correo electrónico"
           placeholder="tu@email.com"
           leftIcon="bi-envelope"
           errorText={errors.email?.message}
@@ -84,7 +84,7 @@ export function ForgotPasswordForm() {
               Enviando...
             </>
           ) : (
-            'Enviar enlace de recuperacion'
+            'Enviar enlace de recuperación'
           )}
         </button>
       </div>

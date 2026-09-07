@@ -83,7 +83,7 @@ function ProductosContent() {
   const handleRequestQuote = useCallback(
     (product: EnhancedPublicProduct) => {
       addToCart(product, 1)
-      toast.info(`${product.displayName} agregado. Redirigiendo a cotizacion...`)
+      toast.info(`${product.displayName} agregado. Redirigiendo a cotización...`)
       // Dejar que React/localStorage persistan el carrito antes de navegar
       setTimeout(() => router.push('/cart?action=quote'), 50)
     },
@@ -155,7 +155,7 @@ function ProductosContent() {
                 <div className={styles.empty}>
                   <i className="bi bi-search" aria-hidden="true" />
                   <h3>No se encontraron productos</h3>
-                  <p>Ajusta los filtros o intenta con otra busqueda.</p>
+                  <p>Ajusta los filtros o intenta con otra búsqueda.</p>
                 </div>
               )}
             </div>

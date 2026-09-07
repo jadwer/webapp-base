@@ -154,7 +154,7 @@ export const CheckoutPage = React.memo<CheckoutPageProps>(({ cartId }) => {
       return false
     }
     if (!shippingAddressLine1.trim()) {
-      toast.error('Por favor ingresa tu direccion de envio')
+      toast.error('Por favor ingresa tu dirección de envío')
       return false
     }
     if (!shippingCity.trim()) {
@@ -166,7 +166,7 @@ export const CheckoutPage = React.memo<CheckoutPageProps>(({ cartId }) => {
       return false
     }
     if (!shippingPostalCode.trim()) {
-      toast.error('Por favor ingresa tu codigo postal')
+      toast.error('Por favor ingresa tu código postal')
       return false
     }
     return true
@@ -316,7 +316,7 @@ export const CheckoutPage = React.memo<CheckoutPageProps>(({ cartId }) => {
         shoppingCartService.localSync.clearCartIdForCheckout()
         shoppingCartService.localSync.clearLocalCart()
         setCurrentStep('success')
-        toast.success('Pago completado exitosamente!')
+        toast.success('¡Pago completado exitosamente!')
 
         // Redirect to confirmation after short delay
         redirectTimerRef.current = setTimeout(() => {
@@ -324,12 +324,12 @@ export const CheckoutPage = React.memo<CheckoutPageProps>(({ cartId }) => {
         }, 2000)
       } else {
         // Order stays pending; the customer can retry the payment
-        toast.error(verification.error || 'El pago no se pudo completar. Tu orden quedo pendiente de pago, puedes intentar de nuevo.')
+        toast.error(verification.error || 'El pago no se pudo completar. Tu orden quedó pendiente de pago, puedes intentar de nuevo.')
         setCurrentStep('payment')
       }
     } catch (error) {
       console.error('Error verifying payment:', error)
-      toast.error('No se pudo verificar el pago. Tu orden quedo pendiente de pago, puedes intentar de nuevo.')
+      toast.error('No se pudo verificar el pago. Tu orden quedó pendiente de pago, puedes intentar de nuevo.')
       setCurrentStep('payment')
     }
   }, [orderId, navigation])
@@ -365,7 +365,7 @@ export const CheckoutPage = React.memo<CheckoutPageProps>(({ cartId }) => {
             <h4 className="alert-heading">Hubo un problema sincronizando tu carrito</h4>
             <p>
               Tus productos siguen guardados, pero no se pudieron preparar para el pago.
-              Puedes reintentar la sincronizacion.
+              Puedes reintentar la sincronización.
             </p>
             <div className="d-flex gap-2">
               <Button
@@ -402,7 +402,7 @@ export const CheckoutPage = React.memo<CheckoutPageProps>(({ cartId }) => {
     return (
       <div className="container py-5">
         <div className="alert alert-warning">
-          <h4 className="alert-heading">Carrito Vacio</h4>
+          <h4 className="alert-heading">Carrito Vacío</h4>
           <p>No tienes productos en tu carrito para proceder al checkout.</p>
           <Button variant="primary" onClick={() => navigation.push('/products')}>
             Ir a la tienda
@@ -420,9 +420,9 @@ export const CheckoutPage = React.memo<CheckoutPageProps>(({ cartId }) => {
           <div className="mb-4">
             <i className="bi bi-check-circle-fill text-success" style={{ fontSize: '5rem' }} />
           </div>
-          <h2 className="mb-3">Pago Completado!</h2>
+          <h2 className="mb-3">¡Pago Completado!</h2>
           <p className="text-muted mb-4">
-            Tu orden ha sido procesada exitosamente. Redirigiendo a la confirmacion...
+            Tu orden ha sido procesada exitosamente. Redirigiendo a la confirmación...
           </p>
           <div className="spinner-border text-primary" role="status">
             <span className="visually-hidden">Redirigiendo...</span>
@@ -460,7 +460,7 @@ export const CheckoutPage = React.memo<CheckoutPageProps>(({ cartId }) => {
           <div className={`rounded-circle d-flex align-items-center justify-content-center ${currentStep === 'info' ? 'bg-primary text-white' : 'bg-success text-white'}`} style={{ width: '40px', height: '40px' }}>
             {currentStep === 'info' ? '1' : <i className="bi bi-check" />}
           </div>
-          <span className={`ms-2 me-4 ${currentStep === 'info' ? 'fw-bold' : ''}`}>Informacion</span>
+          <span className={`ms-2 me-4 ${currentStep === 'info' ? 'fw-bold' : ''}`}>Información</span>
 
           <div className="border-top" style={{ width: '50px' }} />
 
@@ -491,7 +491,7 @@ export const CheckoutPage = React.memo<CheckoutPageProps>(({ cartId }) => {
                     ))}
                   </ul>
                   <p className="mb-2">
-                    ¿Quieres realizar una cotizacion ahora para saber el tiempo de entrega?
+                    ¿Quieres realizar una cotización ahora para saber el tiempo de entrega?
                   </p>
                   <Button
                     variant="primary"
@@ -499,7 +499,7 @@ export const CheckoutPage = React.memo<CheckoutPageProps>(({ cartId }) => {
                     onClick={() => navigation.push('/cart?action=quote')}
                   >
                     <i className="bi bi-file-earmark-text me-2" />
-                    Solicitar cotizacion
+                    Solicitar cotización
                   </Button>
                 </div>
               )}
@@ -507,13 +507,13 @@ export const CheckoutPage = React.memo<CheckoutPageProps>(({ cartId }) => {
               {/* Customer Information */}
               <div className="card border-0 shadow-sm mb-4">
                 <div className="card-body">
-                  <h5 className="card-title mb-4">Informacion de Contacto</h5>
+                  <h5 className="card-title mb-4">Información de Contacto</h5>
                   <div className="row g-3">
                     <div className="col-md-6">
                       <Input
                         type="text"
                         label="Nombre Completo"
-                        placeholder="Juan Perez"
+                        placeholder="Juan Pérez"
                         value={customerName}
                         onChange={(e) => setCustomerName(e.target.value)}
                         required
@@ -534,7 +534,7 @@ export const CheckoutPage = React.memo<CheckoutPageProps>(({ cartId }) => {
                     <div className="col-md-6">
                       <Input
                         type="tel"
-                        label="Telefono"
+                        label="Teléfono"
                         placeholder="55 1234 5678"
                         value={customerPhone}
                         onChange={(e) => setCustomerPhone(e.target.value)}
@@ -548,13 +548,13 @@ export const CheckoutPage = React.memo<CheckoutPageProps>(({ cartId }) => {
               {/* Shipping Address */}
               <div className="card border-0 shadow-sm mb-4">
                 <div className="card-body">
-                  <h5 className="card-title mb-4">Direccion de Envio</h5>
+                  <h5 className="card-title mb-4">Dirección de Envío</h5>
                   <div className="row g-3">
                     <div className="col-12">
                       <Input
                         type="text"
-                        label="Direccion Linea 1"
-                        placeholder="Calle y numero"
+                        label="Dirección Línea 1"
+                        placeholder="Calle y número"
                         value={shippingAddressLine1}
                         onChange={(e) => setShippingAddressLine1(e.target.value)}
                         required
@@ -564,7 +564,7 @@ export const CheckoutPage = React.memo<CheckoutPageProps>(({ cartId }) => {
                     <div className="col-12">
                       <Input
                         type="text"
-                        label="Direccion Linea 2 (opcional)"
+                        label="Dirección Línea 2 (opcional)"
                         placeholder="Colonia, referencias"
                         value={shippingAddressLine2}
                         onChange={(e) => setShippingAddressLine2(e.target.value)}
@@ -574,7 +574,7 @@ export const CheckoutPage = React.memo<CheckoutPageProps>(({ cartId }) => {
                       <Input
                         type="text"
                         label="Ciudad"
-                        placeholder="Ciudad de Mexico"
+                        placeholder="Ciudad de México"
                         value={shippingCity}
                         onChange={(e) => setShippingCity(e.target.value)}
                         required
@@ -594,7 +594,7 @@ export const CheckoutPage = React.memo<CheckoutPageProps>(({ cartId }) => {
                     <div className="col-md-6">
                       <Input
                         type="text"
-                        label="Codigo Postal"
+                        label="Código Postal"
                         placeholder="01000"
                         value={shippingPostalCode}
                         onChange={(e) => setShippingPostalCode(e.target.value)}
@@ -604,7 +604,7 @@ export const CheckoutPage = React.memo<CheckoutPageProps>(({ cartId }) => {
                     <div className="col-md-6">
                       <Input
                         type="text"
-                        label="Pais"
+                        label="País"
                         value={shippingCountry}
                         onChange={(e) => setShippingCountry(e.target.value)}
                         required
@@ -626,18 +626,18 @@ export const CheckoutPage = React.memo<CheckoutPageProps>(({ cartId }) => {
                       onChange={(e) => setSameBillingAddress(e.target.checked)}
                     />
                     <label className="form-check-label" htmlFor="sameBillingAddress">
-                      La direccion de facturacion es la misma que la de envio
+                      La dirección de facturación es la misma que la de envío
                     </label>
                   </div>
 
                   {!sameBillingAddress && (
                     <>
-                      <h5 className="card-title mb-4">Direccion de Facturacion</h5>
+                      <h5 className="card-title mb-4">Dirección de Facturación</h5>
                       <div className="row g-3">
                         <div className="col-12">
                           <Input
                             type="text"
-                            label="Direccion Linea 1"
+                            label="Dirección Línea 1"
                             value={billingAddressLine1}
                             onChange={(e) => setBillingAddressLine1(e.target.value)}
                           />
@@ -645,7 +645,7 @@ export const CheckoutPage = React.memo<CheckoutPageProps>(({ cartId }) => {
                         <div className="col-12">
                           <Input
                             type="text"
-                            label="Direccion Linea 2 (opcional)"
+                            label="Dirección Línea 2 (opcional)"
                             value={billingAddressLine2}
                             onChange={(e) => setBillingAddressLine2(e.target.value)}
                           />
@@ -669,7 +669,7 @@ export const CheckoutPage = React.memo<CheckoutPageProps>(({ cartId }) => {
                         <div className="col-md-6">
                           <Input
                             type="text"
-                            label="Codigo Postal"
+                            label="Código Postal"
                             value={billingPostalCode}
                             onChange={(e) => setBillingPostalCode(e.target.value)}
                           />
@@ -677,7 +677,7 @@ export const CheckoutPage = React.memo<CheckoutPageProps>(({ cartId }) => {
                         <div className="col-md-6">
                           <Input
                             type="text"
-                            label="Pais"
+                            label="País"
                             value={billingCountry}
                             onChange={(e) => setBillingCountry(e.target.value)}
                           />
@@ -707,7 +707,7 @@ export const CheckoutPage = React.memo<CheckoutPageProps>(({ cartId }) => {
               <div className="card-body">
                 <h5 className="card-title mb-4">
                   <i className="bi bi-credit-card me-2" />
-                  Informacion de Pago
+                  Información de Pago
                 </h5>
 
                 {isInitializingPayment || !clientSecret ? (
@@ -734,7 +734,7 @@ export const CheckoutPage = React.memo<CheckoutPageProps>(({ cartId }) => {
                   disabled={isCheckingOut}
                 >
                   <i className="bi bi-arrow-left me-2" />
-                  Volver a Informacion
+                  Volver a Información
                 </Button>
               </div>
             </div>

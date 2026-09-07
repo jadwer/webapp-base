@@ -10,8 +10,8 @@ import { NewsletterPageClient } from './NewsletterPageClient'
 
 export const metadata: Metadata = {
   title: 'Newsletter',
-  description: 'Suscribete a nuestro newsletter y recibe las ultimas noticias, ofertas y novedades.',
-  keywords: 'newsletter, suscripcion, ofertas',
+  description: 'Suscríbete a nuestro newsletter y recibe las últimas noticias, ofertas y novedades.',
+  keywords: 'newsletter, suscripción, ofertas',
 }
 
 export default function NewsletterPage() {

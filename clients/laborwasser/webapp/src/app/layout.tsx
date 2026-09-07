@@ -5,8 +5,8 @@ import '@/styles/main.scss'
 
 export const metadata: Metadata = {
   title: {
-    default: 'Labor Wasser de Mexico',
-    template: '%s | Labor Wasser de Mexico',
+    default: 'Labor Wasser de México',
+    template: '%s | Labor Wasser de México',
   },
   description:
     'Distribuidora especializada en reactivos y material de laboratorio con más de 20 años de experiencia. Productos certificados, envío rápido y asesoría especializada.',
@@ -19,11 +19,11 @@ export const metadata: Metadata = {
     canonical: '/',
   },
   openGraph: {
-    title: 'Labor Wasser de Mexico',
+    title: 'Labor Wasser de México',
     description:
       'Distribuidora especializada en reactivos y material de laboratorio con más de 20 años de experiencia.',
     url: 'https://laborwasserdemexico.com',
-    siteName: 'Labor Wasser de Mexico',
+    siteName: 'Labor Wasser de México',
     locale: 'es_MX',
     type: 'website',
   },

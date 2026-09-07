@@ -41,7 +41,7 @@ export const OfertasDelMes: React.FC = () => {
           <h2 id="ofertas-title" className="lw-section-title">
             Conoce nuestras <span className="lw-highlight">ofertas</span> del mes
           </h2>
-          <Link href="/ofertas" className="lw-link-more">Ver mas</Link>
+          <Link href="/ofertas" className="lw-link-more">Ver más</Link>
         </div>
 
         <div className={`row g-4 ${styles.grid}`}>

@@ -45,7 +45,7 @@ export function CouponInput({
     setSuccess(null)
 
     if (!code.trim()) {
-      setError('Ingresa un codigo de cupon')
+      setError('Ingresa un código de cupón')
       return
     }
 
@@ -54,20 +54,20 @@ export function CouponInput({
       const validation = await validateCoupon(code.trim().toUpperCase(), cartTotal)
 
       if (!validation.valid) {
-        setError(validation.error || 'Cupon no valido')
+        setError(validation.error || 'Cupón no válido')
         return
       }
 
       // Then apply
       const result = await applyCoupon(code.trim().toUpperCase())
-      setSuccess(`Cupon aplicado: -$${result.discountAmount?.toFixed(2)}`)
+      setSuccess(`Cupón aplicado: -$${result.discountAmount?.toFixed(2)}`)
       setCode('')
       onCouponApplied?.({
         code: code.trim().toUpperCase(),
         discountAmount: result.discountAmount || 0,
       })
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al aplicar cupon')
+      setError(err instanceof Error ? err.message : 'Error al aplicar cupón')
     }
   }
 
@@ -79,7 +79,7 @@ export function CouponInput({
       await removeCoupon()
       onCouponRemoved?.()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al remover cupon')
+      setError(err instanceof Error ? err.message : 'Error al remover cupón')
     }
   }
 
@@ -115,12 +115,12 @@ export function CouponInput({
   return (
     <div className="card">
       <div className="card-body py-2">
-        <label className="form-label small mb-1">Cupon de descuento</label>
+        <label className="form-label small mb-1">Cupón de descuento</label>
         <div className="input-group">
           <input
             type="text"
             className={`form-control ${error ? 'is-invalid' : ''}`}
-            placeholder="Ingresa tu codigo"
+            placeholder="Ingresa tu código"
             value={code}
             onChange={e => setCode(e.target.value.toUpperCase())}
             disabled={isApplying}

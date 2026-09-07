@@ -76,7 +76,7 @@ const OptionList: React.FC<OptionListProps> = ({ options, selected, onToggle }) 
       ))}
       {options.length > VISIBLE_OPTIONS && (
         <button type="button" className={styles.showMore} onClick={() => setExpanded((v) => !v)}>
-          {expanded ? 'Mostrar menos' : 'Mostrar mas'}
+          {expanded ? 'Mostrar menos' : 'Mostrar más'}
         </button>
       )}
     </>
@@ -137,7 +137,7 @@ export const CatalogSidebar: React.FC<{ controller: PublicCatalogController }> =
   }, [filters, categories, brands, units])
 
   return (
-    <aside className={styles.sidebar} aria-label="Filtros del catalogo">
+    <aside className={styles.sidebar} aria-label="Filtros del catálogo">
       <div className={styles.header}>
         <span className={styles.headerTitle}>Filtros</span>
         <button type="button" className={`btn lw-btn lw-btn-sm lw-btn-accent ${styles.clearBtn}`} onClick={handleClearFilters}>
@@ -156,7 +156,7 @@ export const CatalogSidebar: React.FC<{ controller: PublicCatalogController }> =
         </div>
       )}
 
-      <Group title="Categorias">
+      <Group title="Categorías">
         <OptionList options={categories} selected={selCats} onToggle={toggle('categoryId', selCats)} />
       </Group>
 
@@ -201,7 +201,7 @@ export const CatalogSidebar: React.FC<{ controller: PublicCatalogController }> =
             min={0}
             value={filters.priceMin ?? ''}
             onChange={(e) => handleFiltersChange({ ...filters, priceMin: e.target.value === '' ? undefined : Number(e.target.value) })}
-            aria-label="Precio minimo"
+            aria-label="Precio mínimo"
           />
           <span className={styles.priceDash} aria-hidden="true" />
           <input
@@ -211,7 +211,7 @@ export const CatalogSidebar: React.FC<{ controller: PublicCatalogController }> =
             min={0}
             value={filters.priceMax ?? ''}
             onChange={(e) => handleFiltersChange({ ...filters, priceMax: e.target.value === '' ? undefined : Number(e.target.value) })}
-            aria-label="Precio maximo"
+            aria-label="Precio máximo"
           />
         </div>
       </Group>

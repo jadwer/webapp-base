@@ -57,7 +57,7 @@ export const ProductDetail: React.FC<{ productId: string }> = ({ productId }) =>
   const handleQuote = useCallback(() => {
     if (!product) return
     addToCart(product, quantity)
-    toast.info(`${product.displayName} agregado. Redirigiendo a cotizacion...`)
+    toast.info(`${product.displayName} agregado. Redirigiendo a cotización...`)
     setTimeout(() => router.push('/cart?action=quote'), 50)
   }, [product, quantity, addToCart, toast, router])
 
@@ -81,7 +81,7 @@ export const ProductDetail: React.FC<{ productId: string }> = ({ productId }) =>
       <div className="container py-5">
         <div className="alert alert-warning" role="alert">
           No se pudo cargar el producto.
-          <Link href="/productos" className="alert-link ms-2">Volver al catalogo</Link>
+          <Link href="/productos" className="alert-link ms-2">Volver al catálogo</Link>
         </div>
       </div>
     )
@@ -99,7 +99,7 @@ export const ProductDetail: React.FC<{ productId: string }> = ({ productId }) =>
     <>
       <div className={styles.band}>
         <div className="container">
-          <nav className={styles.breadcrumb} aria-label="Ruta de navegacion">
+          <nav className={styles.breadcrumb} aria-label="Ruta de navegación">
             <Link href="/">Inicio</Link>
             <span aria-hidden="true">/</span>
             <Link href="/productos">Productos</Link>
@@ -133,7 +133,7 @@ export const ProductDetail: React.FC<{ productId: string }> = ({ productId }) =>
               )}
             </div>
             {gallery.length > 1 && (
-              <div className={styles.thumbs} role="group" aria-label="Imagenes del producto">
+              <div className={styles.thumbs} role="group" aria-label="Imágenes del producto">
                 {gallery.map((img, i) => (
                   <button
                     key={img.id}
@@ -183,29 +183,29 @@ export const ProductDetail: React.FC<{ productId: string }> = ({ productId }) =>
               </div>
             )}
 
-            <h2 className={styles.detailsTitle}>Detalles Tecnicos</h2>
+            <h2 className={styles.detailsTitle}>Detalles Técnicos</h2>
             <dl className={styles.details}>
               {product.attributes.sku && (
                 <div><dt>SKU:</dt><dd>{product.attributes.sku}</dd></div>
               )}
               {category && (
                 <div>
-                  <dt>Categoria:</dt>
+                  <dt>Categoría:</dt>
                   <dd><Link href={`/productos?categoryId=${category.id}`}>{category.attributes.name}</Link></dd>
                 </div>
               )}
               {product.attributes.description && (
-                <div><dt>Descripcion:</dt><dd>{product.attributes.description}</dd></div>
+                <div><dt>Descripción:</dt><dd>{product.attributes.description}</dd></div>
               )}
               {product.brand && (
                 <div><dt>Marca:</dt><dd>{product.brand.attributes.name}</dd></div>
               )}
               {product.attributes.datasheetUrl && (
                 <div>
-                  <dt>Ficha tecnica:</dt>
+                  <dt>Ficha técnica:</dt>
                   <dd>
                     <a href={`${BACKEND}/api/v1/products/${product.id}/datasheet`} target="_blank" rel="noopener noreferrer">
-                      Descargar ficha tecnica
+                      Descargar ficha técnica
                     </a>
                   </dd>
                 </div>

@@ -54,8 +54,8 @@ export const PreguntasFrecuentes: React.FC = () => {
         <div className={styles.copy}>
           <h2 id="faq-title" className={styles.title}>Preguntas Frecuentes</h2>
           <p className={styles.lead}>
-            Resolvemos las dudas mas comunes sobre nuestros productos, cotizaciones,
-            envios y servicios.
+            Resolvemos las dudas más comunes sobre nuestros productos, cotizaciones,
+            envíos y servicios.
           </p>
         </div>
 

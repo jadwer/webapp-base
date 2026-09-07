@@ -114,9 +114,9 @@ const MyQuotesTab: React.FC = () => {
     return (
       <div className={styles.emptyTab}>
         <i className="bi bi-file-earmark-text" aria-hidden="true" />
-        <p>Inicia sesion para ver tus cotizaciones.</p>
+        <p>Inicia sesión para ver tus cotizaciones.</p>
         <Link href={`/auth/login?redirect=${encodeURIComponent('/cart')}`} className="btn lw-btn lw-btn-accent">
-          Iniciar sesion
+          Iniciar sesión
         </Link>
       </div>
     )
@@ -134,7 +134,7 @@ const MyQuotesTab: React.FC = () => {
     return (
       <div className={styles.emptyTab}>
         <i className="bi bi-file-earmark-text" aria-hidden="true" />
-        <p>Aun no tienes cotizaciones. Genera una desde tu carrito.</p>
+        <p>Aún no tienes cotizaciones. Genera una desde tu carrito.</p>
       </div>
     )
   }
@@ -264,7 +264,7 @@ const CartContent: React.FC = () => {
         ) : isEmpty ? (
           <div className={styles.emptyTab}>
             <i className="bi bi-cart3" aria-hidden="true" />
-            <p>Tu carrito esta vacio.</p>
+            <p>Tu carrito está vacío.</p>
             <Link href="/productos" className="btn lw-btn lw-btn-accent">Ver productos</Link>
           </div>
         ) : (
@@ -292,12 +292,12 @@ const CartContent: React.FC = () => {
               <dl className={styles.summaryList}>
                 <div><dt>Subtotal ({summary.count} productos)</dt><dd>{formatMoney(summary.subtotal)}</dd></div>
                 <div><dt>IVA (16%)</dt><dd>{formatMoney(summary.tax)}</dd></div>
-                <div><dt>Envio</dt><dd>Por calcular</dd></div>
+                <div><dt>Envío</dt><dd>Por calcular</dd></div>
                 <div className={styles.summaryTotal}><dt>Total</dt><dd>{formatMoney(summary.total)}</dd></div>
               </dl>
               <p className={styles.summaryNote}>
                 <i className="bi bi-info-circle" aria-hidden="true" />
-                Al generar tu cotizacion te contactaremos con precios especiales y tiempos de entrega.
+                Al generar tu cotización te contactaremos con precios especiales y tiempos de entrega.
               </p>
               <button
                 type="button"
@@ -305,7 +305,7 @@ const CartContent: React.FC = () => {
                 onClick={guardPartial(handleOpenQuoteModal)}
                 disabled={isRequestingQuote}
               >
-                Generar cotizacion
+                Generar cotización
               </button>
               <button
                 type="button"
@@ -336,8 +336,8 @@ const CartContent: React.FC = () => {
       </div>
 
       {/* Modal de cotizacion (misma logica del motor) */}
-      <Modal show={showQuoteModal} onHide={() => setShowQuoteModal(false)} title="Generar cotizacion">
-        <p className="mb-2">Agrega una nota para tu cotizacion (opcional):</p>
+      <Modal show={showQuoteModal} onHide={() => setShowQuoteModal(false)} title="Generar cotización">
+        <p className="mb-2">Agrega una nota para tu cotización (opcional):</p>
         <textarea
           className="form-control mb-3"
           rows={3}
@@ -350,7 +350,7 @@ const CartContent: React.FC = () => {
             Cancelar
           </button>
           <button type="button" className="btn lw-btn lw-btn-accent" onClick={handleRequestQuote} disabled={isRequestingQuote}>
-            {isRequestingQuote ? 'Generando...' : 'Generar cotizacion'}
+            {isRequestingQuote ? 'Generando...' : 'Generar cotización'}
           </button>
         </div>
       </Modal>

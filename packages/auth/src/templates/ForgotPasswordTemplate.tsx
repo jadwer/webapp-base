@@ -12,8 +12,8 @@ export default function ForgotPasswordTemplate() {
           <div className={styles.brandIcon}>
             <i className="bi bi-key" aria-hidden="true"></i>
           </div>
-          <h1 className={styles.authTitle}>Recuperar contrasena</h1>
-          <p className={styles.authSubtitle}>Te enviaremos un enlace para restablecer tu contrasena</p>
+          <h1 className={styles.authTitle}>Recuperar contraseña</h1>
+          <p className={styles.authSubtitle}>Te enviaremos un enlace para restablecer tu contraseña</p>
         </div>
 
         <div className={styles.authForm}>
@@ -22,9 +22,9 @@ export default function ForgotPasswordTemplate() {
 
         <div className={styles.authFooter}>
           <p>
-            ¿Recordaste tu contrasena?{' '}
+            ¿Recordaste tu contraseña?{' '}
             <Link href="/auth/login">
-              Inicia sesion
+              Inicia sesión
             </Link>
           </p>
         </div>

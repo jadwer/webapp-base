@@ -11,7 +11,7 @@ export const NecesitasCotizacion: React.FC = () => {
           <h1>¿NECESITAS UNA COTIZACIÓN?</h1>
           <h6>
             Ponte en contacto con nosotros y uno de nuestros representantes se
-            pondrán en contacto contigo.
+            pondrá en contacto contigo.
           </h6>
 
           <button

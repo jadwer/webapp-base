@@ -34,7 +34,7 @@ function LoginContent() {
 
   // Mostrar loading hasta saber si mostrar login o redirigir (misma logica
   // de siempre: servidor y cliente renderizan lo mismo al inicio)
-  if (!shouldShowLogin) return <AuthLoading label="Verificando sesion..." />
+  if (!shouldShowLogin) return <AuthLoading label="Verificando sesión..." />
 
   return (
     <AuthSplitLayout

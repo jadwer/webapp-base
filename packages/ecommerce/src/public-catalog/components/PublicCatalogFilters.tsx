@@ -355,7 +355,7 @@ export const PublicCatalogFilters: React.FC<PublicCatalogFiltersProps> = ({
                 className="btn btn-sm btn-link text-decoration-none"
                 onClick={() => setShowCategoriesModal(true)}
               >
-                +{visibleCategories.length - (variant === 'sidebar' ? 10 : 6)} mas
+                +{visibleCategories.length - (variant === 'sidebar' ? 10 : 6)} más
               </button>
             )}
           </div>
@@ -397,7 +397,7 @@ export const PublicCatalogFilters: React.FC<PublicCatalogFiltersProps> = ({
                 className="btn btn-sm btn-link text-decoration-none"
                 onClick={() => setShowBrandsModal(true)}
               >
-                +{visibleBrands.length - (variant === 'sidebar' ? 8 : 5)} mas
+                +{visibleBrands.length - (variant === 'sidebar' ? 8 : 5)} más
               </button>
             )}
           </div>
@@ -493,7 +493,7 @@ export const PublicCatalogFilters: React.FC<PublicCatalogFiltersProps> = ({
       <Modal
         show={showCategoriesModal}
         onHide={() => setShowCategoriesModal(false)}
-        title="Todas las Categorias"
+        title="Todas las Categorías"
         size="large"
       >
         <div className="d-flex flex-wrap gap-2">

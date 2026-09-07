@@ -55,9 +55,9 @@ export const Footer: React.FC = () => {
           <div className={styles.col}>
             <h4 className={styles.heading}>Recursos</h4>
             <ul className={styles.links}>
-              <li><Link href="/catalogos">Catalogos PDF</Link></li>
+              <li><Link href="/catalogos">Catálogos PDF</Link></li>
               <li><Link href="/certificados">Certificaciones</Link></li>
-              <li><Link href="/productos">Catalogos en linea</Link></li>
+              <li><Link href="/productos">Catálogos en línea</Link></li>
             </ul>
           </div>
 
@@ -66,7 +66,7 @@ export const Footer: React.FC = () => {
             <h4 className={styles.heading}>Legal</h4>
             <ul className={styles.links}>
               <li><Link href="/aviso-privacidad">Aviso de privacidad</Link></li>
-              <li><Link href="/derechos-reservados">Terminos y condiciones</Link></li>
+              <li><Link href="/derechos-reservados">Términos y condiciones</Link></li>
               {address && (
                 <li className={styles.iconLine}>
                   <i className="bi bi-geo-alt-fill" aria-hidden="true" />
@@ -108,7 +108,7 @@ export const Footer: React.FC = () => {
           <p className={styles.bottomText}>
             {currentYear}. {companyName || 'Empresa'}. Todos los Derechos Reservados.
             &nbsp;|&nbsp;<Link href="/aviso-privacidad">Aviso de privacidad</Link>
-            &nbsp;|&nbsp;<Link href="/derechos-reservados">Terminos de uso</Link>
+            &nbsp;|&nbsp;<Link href="/derechos-reservados">Términos de uso</Link>
             &nbsp;|&nbsp;Designed and developed by{' '}
             <a href="https://atomosoluciones.com" target="_blank" rel="noopener noreferrer">AtomoSoluciones.com</a>
           </p>

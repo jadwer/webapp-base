@@ -16,7 +16,7 @@ const SORT_OPTIONS: { value: string; label: string; field: PublicProductSortFiel
   { value: 'name-desc', label: 'Nombre (Z-A)', field: 'name', direction: 'desc' },
   { value: 'price-asc', label: 'Precio: menor a mayor', field: 'price', direction: 'asc' },
   { value: 'price-desc', label: 'Precio: mayor a menor', field: 'price', direction: 'desc' },
-  { value: 'createdAt-desc', label: 'Mas recientes', field: 'createdAt', direction: 'desc' },
+  { value: 'createdAt-desc', label: 'Más recientes', field: 'createdAt', direction: 'desc' },
 ]
 
 export const CatalogToolbar: React.FC<{ controller: PublicCatalogController }> = ({ controller }) => {
@@ -51,7 +51,7 @@ export const CatalogToolbar: React.FC<{ controller: PublicCatalogController }> =
             placeholder="Buscar producto..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            aria-label="Buscar producto en el catalogo"
+            aria-label="Buscar producto en el catálogo"
           />
         </div>
         <label className={styles.sort}>

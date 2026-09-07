@@ -37,10 +37,10 @@ export function LoginForm({ redirect, onLoginSuccess }: Props) {
 
   useEffect(() => {
     if (registered) {
-      setStatus('Tu cuenta fue creada correctamente. Inicia sesion para continuar.')
+      setStatus('Tu cuenta fue creada correctamente. Inicia sesión para continuar.')
       setStatusType('success')
     } else if (passwordReset) {
-      setStatus('Tu contrasena ha sido restablecida. Inicia sesion con tu nueva contrasena.')
+      setStatus('Tu contraseña ha sido restablecida. Inicia sesión con tu nueva contraseña.')
       setStatusType('success')
     }
   }, [registered, passwordReset])

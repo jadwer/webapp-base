@@ -35,7 +35,7 @@ export const Header: React.FC = () => {
   const { categories, isLoading: categoriesLoading } = usePublicCategories({ limit: 50 })
 
   const logoSrc = get('company.logo_path_alt') || '/images/laborwasser/labor-wasser-mexico-logo2.webp'
-  const companyName = get('company.name') || 'Labor Wasser de Mexico'
+  const companyName = get('company.name') || 'Labor Wasser de México'
   const whatsappNumber = get('company.whatsapp_number')
   // Editable por tenant sin deploy; el texto default es el pedido por el
   // cliente en la junta del 2026-09-01.
@@ -82,7 +82,7 @@ export const Header: React.FC = () => {
       <li><hr className="dropdown-divider" /></li>
       <li>
         <button type="button" className="dropdown-item text-danger" onClick={handleLogout}>
-          <i className="bi bi-box-arrow-right me-2" />Cerrar sesion
+          <i className="bi bi-box-arrow-right me-2" />Cerrar sesión
         </button>
       </li>
     </ul>
@@ -114,18 +114,18 @@ export const Header: React.FC = () => {
       )
     }
     return compact ? (
-      <Link href="/auth/login" className={`btn ${styles.iconBtn}`} aria-label="Iniciar sesion">
+      <Link href="/auth/login" className={`btn ${styles.iconBtn}`} aria-label="Iniciar sesión">
         <i className="bi bi-person" aria-hidden="true" />
       </Link>
     ) : (
       <Link href="/auth/login" className={`btn lw-btn lw-btn-accent-outline ${styles.sessionBtn}`}>
-        Iniciar sesion
+        Iniciar sesión
       </Link>
     )
   }
 
   const cartLink = (
-    <Link href="/cart" className={`btn ${styles.iconBtn} ${styles.cart}`} aria-label={`Carrito, ${cartItemCount} articulos`}>
+    <Link href="/cart" className={`btn ${styles.iconBtn} ${styles.cart}`} aria-label={`Carrito, ${cartItemCount} artículos`}>
       <i className="bi bi-cart3" aria-hidden="true" />
       {cartItemCount > 0 && <span className={styles.cartBadge}>{cartItemCount}</span>}
     </Link>
@@ -215,7 +215,7 @@ export const Header: React.FC = () => {
                 onClick={() => setMobileOpen((v) => !v)}
                 aria-expanded={mobileOpen}
                 aria-controls="lwmMobileNav"
-                aria-label="Menu"
+                aria-label="Menú"
               >
                 <i className={`bi ${mobileOpen ? 'bi-x-lg' : 'bi-list'}`} aria-hidden="true" />
               </button>

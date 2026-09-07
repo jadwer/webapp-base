@@ -43,7 +43,7 @@ export function WishlistButton({
     e.stopPropagation()
 
     if (!isAuthenticated) {
-      toast.info('Inicia sesion para agregar a tu lista de deseos')
+      toast.info('Inicia sesión para agregar a tu lista de deseos')
       return
     }
 

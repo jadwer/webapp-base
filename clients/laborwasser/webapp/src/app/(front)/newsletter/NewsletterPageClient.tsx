@@ -14,7 +14,7 @@ export const NewsletterPageClient: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const interestOptions = [
-    { value: 'reactivos', label: 'Reactivos quimicos' },
+    { value: 'reactivos', label: 'Reactivos químicos' },
     { value: 'equipos', label: 'Equipos de laboratorio' },
     { value: 'consumibles', label: 'Consumibles y material' },
     { value: 'ofertas', label: 'Ofertas y promociones' },
@@ -50,7 +50,7 @@ export const NewsletterPageClient: React.FC = () => {
       ).join(', ')
 
       const whatsappMessage = encodeURIComponent(
-        `*Nueva suscripcion a Newsletter - ${get('company.name') || 'Empresa'}*\n\n` +
+        `*Nueva suscripción a Newsletter - ${get('company.name') || 'Empresa'}*\n\n` +
         `*Nombre:* ${name}\n` +
         `*Email:* ${email}\n` +
         `*Intereses:* ${interestLabels || 'No especificados'}`
@@ -113,14 +113,14 @@ export const NewsletterPageClient: React.FC = () => {
                 <i className="bi bi-box-seam text-success fs-2"></i>
               </div>
               <h5>Nuevos Productos</h5>
-              <p className="text-muted small">Se el primero en conocer nuestras novedades</p>
+              <p className="text-muted small">Sé el primero en conocer nuestras novedades</p>
             </div>
             <div className="col-md-4 text-center">
               <div className="bg-info bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style={{ width: '80px', height: '80px' }}>
                 <i className="bi bi-journal-text text-info fs-2"></i>
               </div>
-              <h5>Contenido Util</h5>
-              <p className="text-muted small">Tips y articulos sobre el mundo del laboratorio</p>
+              <h5>Contenido Útil</h5>
+              <p className="text-muted small">Tips y artículos sobre el mundo del laboratorio</p>
             </div>
           </div>
 
@@ -132,8 +132,8 @@ export const NewsletterPageClient: React.FC = () => {
                   <i className="bi bi-check-circle-fill text-success display-1 mb-4 d-block"></i>
                   <h3 className="text-success mb-3">Gracias por suscribirte</h3>
                   <p className="text-muted mb-4">
-                    Te hemos enviado un mensaje por WhatsApp para confirmar tu suscripcion.
-                    Pronto recibiras nuestras novedades.
+                    Te hemos enviado un mensaje por WhatsApp para confirmar tu suscripción.
+                    Pronto recibirás nuestras novedades.
                   </p>
                   <div className="d-flex gap-3 justify-content-center">
                     <Link href="/productos">
@@ -152,7 +152,7 @@ export const NewsletterPageClient: React.FC = () => {
                 </div>
               ) : (
                 <form onSubmit={handleSubmit}>
-                  <h4 className="mb-4 text-center">Suscribete a nuestro Newsletter</h4>
+                  <h4 className="mb-4 text-center">Suscríbete a nuestro Newsletter</h4>
 
                   <div className="mb-3">
                     <label htmlFor="name" className="form-label">Nombre</label>
@@ -168,7 +168,7 @@ export const NewsletterPageClient: React.FC = () => {
                   </div>
 
                   <div className="mb-3">
-                    <label htmlFor="email" className="form-label">Correo electronico</label>
+                    <label htmlFor="email" className="form-label">Correo electrónico</label>
                     <input
                       type="email"
                       className="form-control form-control-lg"
@@ -181,7 +181,7 @@ export const NewsletterPageClient: React.FC = () => {
                   </div>
 
                   <div className="mb-4">
-                    <label className="form-label">Que te interesa? (opcional)</label>
+                    <label className="form-label">¿Qué te interesa? (opcional)</label>
                     <div className="row g-2">
                       {interestOptions.map((option) => (
                         <div key={option.value} className="col-6 col-md-4">
@@ -232,7 +232,7 @@ export const NewsletterPageClient: React.FC = () => {
 
                   <p className="text-muted small text-center mt-3 mb-0">
                     <i className="bi bi-shield-check me-1"></i>
-                    No compartimos tu informacion. Puedes cancelar en cualquier momento.
+                    No compartimos tu información. Puedes cancelar en cualquier momento.
                   </p>
                 </form>
               )}
@@ -242,7 +242,7 @@ export const NewsletterPageClient: React.FC = () => {
           {/* Contact Alternative */}
           <div className="text-center mt-5">
             <p className="text-muted mb-3">
-              Prefieres contactarnos directamente?
+              ¿Prefieres contactarnos directamente?
             </p>
             <div className="d-flex gap-3 justify-content-center flex-wrap">
               <a

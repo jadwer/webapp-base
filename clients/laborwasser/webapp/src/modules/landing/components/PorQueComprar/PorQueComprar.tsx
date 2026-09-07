@@ -35,23 +35,23 @@ export const PorQueComprar: React.FC = () => {
 
           <div className={styles.copy}>
             <h2 id="porque-title" className={`lw-heading ${styles.title}`}>
-              ¿Por que <span className="lw-highlight">comprar</span> con nosotros?
+              ¿Por qué <span className="lw-highlight">comprar</span> con nosotros?
             </h2>
             <p className={styles.text}>
-              Combinamos experiencia tecnica, tecnologia de vanguardia y un servicio
+              Combinamos experiencia técnica, tecnología de vanguardia y un servicio
               personalizado para ofrecer soluciones confiables en laboratorio, industria
-              y tratamiento de agua. Ademas, trabajamos con marcas lideres a nivel
+              y tratamiento de agua. Además, trabajamos con marcas líderes a nivel
               nacional e internacional, brindando productos de alta calidad que
-              garantizan precision, confiabilidad y desempeno.
+              garantizan precisión, confiabilidad y desempeño.
             </p>
             <p className={styles.text}>
-              Nuestro equipo esta listo para brindarte asesoria especializada y ayudarte
-              a encontrar la mejor opcion para tu laboratorio o industria. Contactanos
-              para conocer mas sobre nosotros o solicitar una cotizacion personalizada.
+              Nuestro equipo está listo para brindarte asesoría especializada y ayudarte
+              a encontrar la mejor opción para tu laboratorio o industria. Contáctanos
+              para conocer más sobre nosotros o solicitar una cotización personalizada.
             </p>
             <div className={styles.actions}>
               <Link href="/nosotros" className="btn lw-btn lw-btn-brand-outline">
-                Conocer mas de nosotros
+                Conocer más de nosotros
               </Link>
               <button
                 type="button"

@@ -30,7 +30,7 @@ export default function ProductDetailPage({
   onAddToCart,
   onRequestQuote,
   backUrl = '/productos',
-  backLabel = 'Volver al catalogo'
+  backLabel = 'Volver al catálogo'
 }: ProductDetailPageProps) {
   const router = useRouter()
   // Request the images relation explicitly: the hook default include omits it,
@@ -120,7 +120,7 @@ export default function ProductDetailPage({
             <div className="py-5">
               <i className="bi bi-box-seam display-1 text-muted"></i>
               <h2 className="mt-4">Producto no encontrado</h2>
-              <p className="text-muted">El producto que buscas no existe o ya no esta disponible.</p>
+              <p className="text-muted">El producto que buscas no existe o ya no está disponible.</p>
               <Link href={backUrl} className="btn btn-primary mt-3">
                 <i className="bi bi-arrow-left me-2"></i>
                 {backLabel}
@@ -284,7 +284,7 @@ export default function ProductDetailPage({
               {/* Category */}
               {product.category && (
                 <div className="mb-4">
-                  <span className="text-muted me-2">Categoria:</span>
+                  <span className="text-muted me-2">Categoría:</span>
                   <Link
                     href={`${backUrl}?categoryId=${product.category.id}`}
                     className="text-decoration-none"
@@ -297,7 +297,7 @@ export default function ProductDetailPage({
               {/* Description */}
               {product.attributes.description && (
                 <div className="mb-4">
-                  <h5>Descripcion</h5>
+                  <h5>Descripción</h5>
                   <p className="text-muted">{product.attributes.description}</p>
                 </div>
               )}
@@ -379,7 +379,7 @@ export default function ProductDetailPage({
                   onClick={handleRequestQuote}
                 >
                   <i className="bi bi-file-earmark-text me-2"></i>
-                  Solicitar Cotizacion
+                  Solicitar Cotización
                 </button>
 
                 {/* View Cart Link */}

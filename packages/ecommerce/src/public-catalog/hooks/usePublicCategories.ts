@@ -65,7 +65,7 @@ export function usePublicCategories(options: UsePublicCategoriesOptions = {}) {
         setError(null)
       } catch (err) {
         if (!active) return
-        setError(err instanceof Error ? err : new Error('Error al cargar categorias'))
+        setError(err instanceof Error ? err : new Error('Error al cargar categorías'))
       } finally {
         if (active) setIsLoading(false)
       }

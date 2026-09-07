@@ -10,7 +10,7 @@ export default function FrontNotFound() {
         <div className="container">
           <div className="row align-items-center">
             <div className="col">
-              <h1>PAGINA NO ENCONTRADA</h1>
+              <h1>PÁGINA NO ENCONTRADA</h1>
             </div>
           </div>
         </div>
@@ -23,11 +23,11 @@ export default function FrontNotFound() {
               404
             </div>
             <h2 className="mb-3" style={{ color: "#333" }}>
-              La pagina que buscas no existe o fue movida
+              La página que buscas no existe o fue movida
             </h2>
             <p className="text-muted mb-4">
-              Es posible que el enlace este roto o que la pagina haya sido
-              eliminada. Intenta navegar desde el menu principal.
+              Es posible que el enlace esté roto o que la página haya sido
+              eliminada. Intenta navegar desde el menú principal.
             </p>
             <div className="d-flex justify-content-center gap-3">
               <Link href="/" className="btn btn-success btn-lg">

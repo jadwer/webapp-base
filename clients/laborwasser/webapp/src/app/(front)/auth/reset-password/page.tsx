@@ -19,9 +19,9 @@ function ResetPasswordContent() {
             <div className={styles.brandIcon}>
               <i className="bi bi-exclamation-triangle" aria-hidden="true"></i>
             </div>
-            <h1 className={styles.authTitle}>Enlace invalido</h1>
+            <h1 className={styles.authTitle}>Enlace inválido</h1>
             <p className={styles.authSubtitle}>
-              El enlace para restablecer tu contrasena es invalido o ha expirado.
+              El enlace para restablecer tu contraseña es inválido o ha expirado.
             </p>
           </div>
           <div className={styles.authFooter}>

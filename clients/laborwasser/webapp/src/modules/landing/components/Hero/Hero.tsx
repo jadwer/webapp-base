@@ -19,16 +19,16 @@ import { usePublicSettings } from '@lwm/app-config'
 import styles from './Hero.module.scss'
 
 const QUICK_LINKS = [
-  { href: '/nosotros', icon: 'bi-people', label: 'Conoce mas de nosotros' },
+  { href: '/nosotros', icon: 'bi-people', label: 'Conoce más de nosotros' },
   { href: '/productos', icon: 'bi-book', label: 'Conoce nuestros productos' },
   { href: '/certificados', icon: 'bi-shield-check', label: 'Conoce nuestros Certificados' },
 ] as const
 
 export const Hero: React.FC = () => {
   const { get } = usePublicSettings()
-  const title = (get('landing.hero_title') as string) || 'Innovacion y confianza para tu laboratorio'
+  const title = (get('landing.hero_title') as string) || 'Innovación y confianza para tu laboratorio'
   const subtitle = (get('landing.hero_subtitle') as string) ||
-    'Encuentra productos de excelencia, marcas reconocidas y una atencion especializada que hacen de Labor Wasser el aliado ideal para tu laboratorio. Te invitamos a descubrir nuestros servicios y transformar tu experiencia.'
+    'Encuentra productos de excelencia, marcas reconocidas y una atención especializada que hacen de Labor Wasser el aliado ideal para tu laboratorio. Te invitamos a descubrir nuestros servicios y transformar tu experiencia.'
 
   return (
     <section className={styles.hero} aria-labelledby="hero-title">
@@ -57,8 +57,8 @@ export const Hero: React.FC = () => {
               data-bs-toggle="offcanvas"
               data-bs-target="#navMenu"
             >
-              Cotiza con nosotros!
-            </button>
+              ¡Cotiza con nosotros!
+</button>
             <Link href="/productos" className="btn lw-btn lw-btn-brand-outline lw-on-photo">
               Ver nuestros productos
             </Link>
@@ -68,7 +68,7 @@ export const Hero: React.FC = () => {
 
       {/* Quick-cards: flotan sobre el borde inferior del hero */}
       <div className={`container ${styles.quickWrap}`}>
-        <nav className={`lw-card ${styles.quick}`} aria-label="Accesos rapidos">
+        <nav className={`lw-card ${styles.quick}`} aria-label="Accesos rápidos">
           {QUICK_LINKS.map((q) => (
             <Link key={q.href} href={q.href} className={styles.quickItem}>
               <i className={`bi ${q.icon} ${styles.quickIcon}`} aria-hidden="true" />
