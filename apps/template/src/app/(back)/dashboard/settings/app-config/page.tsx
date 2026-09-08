@@ -37,6 +37,11 @@ const GROUP_CONFIG: Record<string, { label: string; icon: string; description: s
     icon: 'bi-envelope',
     description: 'Configuracion del correo electronico del sistema (SMTP).',
   },
+  search: {
+    label: 'Buscador',
+    icon: 'bi-search',
+    description: 'Comportamiento del buscador del sitio publico (tolerancia a typos y numero de sugerencias).',
+  },
   landing: {
     label: 'Landing',
     icon: 'bi-house-door',
@@ -44,7 +49,7 @@ const GROUP_CONFIG: Record<string, { label: string; icon: string; description: s
   },
 }
 
-const GROUP_ORDER = ['company', 'branding', 'social', 'auth', 'mail', 'landing']
+const GROUP_ORDER = ['company', 'branding', 'social', 'auth', 'mail', 'landing', 'search']
 
 // Settings que se editan en un textarea (parrafos) en vez de input de una linea
 const MULTILINE_KEYS = ['landing.hero_subtitle']
