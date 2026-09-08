@@ -60,7 +60,7 @@ export const CommissionsPage: React.FC = () => {
     ...(singleStatusFilter ? { status: singleStatusFilter } : {}),
   })
 
-  const { users } = useUsers()
+  const { users } = useUsers({}, 1, 200)
 
   const { markPaid, payBatch, isLoading: isMutating } = useCommissionMutations()
 

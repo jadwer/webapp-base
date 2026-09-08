@@ -54,7 +54,7 @@ export const ContactViewTabs: React.FC<ContactViewTabsProps> = ({
   const confirmModalRef = useRef<ConfirmModalHandle>(null)
 
   // Resolver nombres de vendedor/cobrador a partir de sus ids (nota cliente #10)
-  const { users } = useUsers()
+  const { users } = useUsers({}, 1, 200)
   const resolveUserName = (id?: number | null): string | null => {
     if (id === undefined || id === null) return null
     const found = users.find((u) => String(u.id) === String(id))

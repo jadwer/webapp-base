@@ -31,7 +31,9 @@ export const ContactCommercialFields: React.FC<ContactCommercialFieldsProps> = (
   updateField,
   isLoading = false,
 }) => {
-  const { users, loading: usersLoading } = useUsers()
+  // Catalogo de usuarios internos para los selects de vendedor/cobrador
+  // (page size amplio: el hook v2 de @lwm/permissions pagina server-side).
+  const { users, isLoading: usersLoading } = useUsers({}, 1, 200)
   // Catalogos desde el backend (misma fuente que valida ContactRequest);
   // el estatico local solo entra como fallback si el endpoint falla.
   const { regimenesFiscales, usosCfdi } = useContactCatalogs()
@@ -39,8 +41,7 @@ export const ContactCommercialFields: React.FC<ContactCommercialFieldsProps> = (
   // Priorizar usuarios con rol vendible; si ninguno matchea, usar todos.
   const sellableUsers = React.useMemo(() => {
     const matches = users.filter((u) =>
-      (u.roles || []).some((r) => SALES_ROLES.includes(r.name)) ||
-      (u.role ? SALES_ROLES.includes(u.role) : false)
+      u.roles.some((r) => SALES_ROLES.includes(r.name))
     )
     return matches.length > 0 ? matches : users
   }, [users])

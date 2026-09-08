@@ -132,7 +132,7 @@ export const SalesHistoryPage = () => {
     },
     pagination: { page: 1, size: 50 },
   })
-  const { users } = useUsers()
+  const { users } = useUsers({}, 1, 200)
   const { products } = useProducts({
     page: { number: 1, size: 20 },
     ...(debouncedProductSearch ? { filters: { name: debouncedProductSearch } } : {}),

@@ -1,29 +1,34 @@
 /**
- * Users Module
- * User management system with role assignment
+ * Users sub-module (v2, patron contacts).
+ * SWR + paginacion server-side + multi-rol via relationship escribible.
  */
 
 // Components
-export { default as UserForm } from './components/UserForm'
-export { default as UserTable } from './components/UserTable'
-
-// Templates
-export { default as UsersCrudTemplate } from './templates/UsersCrudTemplate'
+export { UsersAdminPage } from './components/UsersAdminPage'
+export { UsersTable } from './components/UsersTable'
+export { UsersPagination } from './components/UsersPagination'
+export { UserForm, generateSecurePassword } from './components/UserForm'
+export { UserViewPage } from './components/UserViewPage'
 
 // Hooks
-export { useUsers } from './hooks/useUsers'
-export { useRoles } from './hooks/useRoles'
-export { useUserForm } from './hooks/useUserForm'
+export { useUsers, useUser, useUserMutations } from './hooks/useUsers'
+export { useRoleOptions } from './hooks/useRoleOptions'
 
 // Services
-export {
-  getAllUsers,
-  getUser,
-  createUser,
-  updateUser,
-  deleteUser
-} from './services/usersService'
-export { getAllRoles } from './services/rolesService'
+export { usersService, DEFAULT_PAGE_SIZE } from './services/usersService'
+export { getRoleOptions } from './services/rolesService'
+
+// Utils
+export { getUserValidationErrorMessages } from './utils/jsonApiErrors'
 
 // Types
-export type { User, Role } from './types/user'
+export type {
+  User,
+  UserRole,
+  UserStatus,
+  UserFilters,
+  UserFormData,
+  UsersMeta,
+  UsersPageMeta,
+  UsersListResult,
+} from './types/user'
