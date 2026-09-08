@@ -14,6 +14,7 @@
  */
 
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { usePublicSettings } from '@lwm/app-config'
 import { publicProductsService } from '../services/publicProductsService'
 import type { EnhancedPublicProduct } from '../types/publicProduct'
 
@@ -59,7 +60,15 @@ export function useProductSearch(
   options?: { debounceMs?: number; limit?: number }
 ): UseProductSearchResult {
   const debounceMs = options?.debounceMs ?? DEFAULT_DEBOUNCE_MS
-  const limit = options?.limit ?? RESULT_LIMIT
+
+  // P1 buscador: el limite de sugerencias es configurable por tenant
+  // (search.results_limit en AppSettings). Prioridad: opcion explicita
+  // del caller > setting del tenant > default del producto.
+  const { get } = usePublicSettings()
+  const settingLimit = Number(get('search.results_limit'))
+  const limit =
+    options?.limit ??
+    (Number.isFinite(settingLimit) && settingLimit > 0 ? settingLimit : RESULT_LIMIT)
 
   const [debounced, setDebounced] = useState('')
   const [results, setResults] = useState<ProductSearchResult[]>([])

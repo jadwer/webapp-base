@@ -14,6 +14,17 @@ vi.mock('../../services/publicProductsService', () => ({
   },
 }))
 
+// P1 buscador: limite de sugerencias por tenant via AppSettings.
+const mockSettingGet = vi.fn((key: string) => (key === 'search.results_limit' ? mockLimitSetting : ''))
+let mockLimitSetting = ''
+vi.mock('@lwm/app-config', async () => {
+  const actual = await vi.importActual<typeof import('@lwm/app-config')>('@lwm/app-config')
+  return {
+    ...actual,
+    usePublicSettings: () => ({ get: mockSettingGet }),
+  }
+})
+
 import { publicProductsService } from '../../services/publicProductsService'
 
 const mockSearch = publicProductsService.searchProducts as unknown as ReturnType<typeof vi.fn>
@@ -117,5 +128,43 @@ describe('useProductSearch', () => {
       imageUrl: 'https://example.com/image1.jpg',
     })
     expect(result.current.loading).toBe(false)
+  })
+
+  it('uses the tenant setting search.results_limit when no explicit limit', async () => {
+    mockLimitSetting = '5'
+    mockSearch.mockResolvedValue({ products: [] })
+
+    renderHook(() => useProductSearch('vaso'))
+    await act(async () => {
+      vi.advanceTimersByTime(300)
+    })
+
+    expect(mockSearch).toHaveBeenCalledWith('vaso', { size: 5 })
+    mockLimitSetting = ''
+  })
+
+  it('explicit limit option overrides the tenant setting', async () => {
+    mockLimitSetting = '5'
+    mockSearch.mockResolvedValue({ products: [] })
+
+    renderHook(() => useProductSearch('vaso', { limit: 3 }))
+    await act(async () => {
+      vi.advanceTimersByTime(300)
+    })
+
+    expect(mockSearch).toHaveBeenCalledWith('vaso', { size: 3 })
+    mockLimitSetting = ''
+  })
+
+  it('falls back to 8 when the setting is absent', async () => {
+    mockLimitSetting = ''
+    mockSearch.mockResolvedValue({ products: [] })
+
+    renderHook(() => useProductSearch('vaso'))
+    await act(async () => {
+      vi.advanceTimersByTime(300)
+    })
+
+    expect(mockSearch).toHaveBeenCalledWith('vaso', { size: 8 })
   })
 })

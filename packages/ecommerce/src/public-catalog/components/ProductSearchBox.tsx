@@ -38,7 +38,9 @@ export interface ProductSearchBoxProps {
 export const ProductSearchBox: React.FC<ProductSearchBoxProps> = ({
   placeholder = 'Buscar productos...',
   debounceMs = 300,
-  limit = 8,
+  // Sin default: el hook resuelve opcion explicita > setting del tenant
+  // (search.results_limit) > 8.
+  limit,
   className = '',
   ariaLabel = 'Buscar productos'
 }) => {
