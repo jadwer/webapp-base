@@ -35,6 +35,7 @@
     "@lwm/audit": "workspace:*",
     "@lwm/auth": "workspace:*",
     "@lwm/billing": "workspace:*",
+    "@lwm/commissions": "workspace:*",
     "@lwm/contacts": "workspace:*",
     "@lwm/ecommerce": "workspace:*",
     "@lwm/mailer-manager": "workspace:*",

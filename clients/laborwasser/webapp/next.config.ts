@@ -73,6 +73,7 @@ const nextConfig: NextConfig = {
     '@lwm/billing',
     '@lwm/system-health',
     '@lwm/audit',
+    '@lwm/commissions',
     '@lwm/products',
     '@lwm/contacts',
     '@lwm/sales',

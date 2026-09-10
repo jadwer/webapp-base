@@ -41,6 +41,7 @@ export * from './hooks/useToast'
 export * from './hooks/useNavigationProgress'
 export { toast } from './utils/toast'
 export { formatCurrency, formatQuantity, getCurrentCurrency, getCurrentLocale } from './utils/formatters'
+export { DATE_PRESETS, getPresetDates } from './utils/datePresets'
 
 // ============================================
 // Layout primitives (require @lwm/auth as peer)

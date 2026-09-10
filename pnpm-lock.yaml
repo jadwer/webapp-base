@@ -35,6 +35,9 @@ importers:
       '@lwm/billing':
         specifier: workspace:*
         version: link:../../packages/billing
+      '@lwm/commissions':
+        specifier: workspace:*
+        version: link:../../packages/commissions
       '@lwm/contacts':
         specifier: workspace:*
         version: link:../../packages/contacts
@@ -355,6 +358,9 @@ importers:
       '@lwm/billing':
         specifier: workspace:*
         version: link:../../../packages/billing
+      '@lwm/commissions':
+        specifier: workspace:*
+        version: link:../../../packages/commissions
       '@lwm/contacts':
         specifier: workspace:*
         version: link:../../../packages/contacts
@@ -626,6 +632,58 @@ importers:
       clsx:
         specifier: ^2.1.0
         version: 2.1.1
+      next:
+        specifier: ^15.0.0
+        version: 15.5.16(@babel/core@7.29.0)(@playwright/test@1.59.1)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(sass@1.89.2)
+      react:
+        specifier: ^19.0.0
+        version: 19.1.0
+      react-dom:
+        specifier: ^19.0.0
+        version: 19.1.0(react@19.1.0)
+      swr:
+        specifier: ^2.0.0
+        version: 2.3.3(react@19.1.0)
+    devDependencies:
+      '@testing-library/jest-dom':
+        specifier: ^6.7.0
+        version: 6.9.1
+      '@testing-library/react':
+        specifier: ^16.3.0
+        version: 16.3.2(@testing-library/dom@10.4.1)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@types/react':
+        specifier: ^19.0.0
+        version: 19.2.14
+      '@vitejs/plugin-react':
+        specifier: ^5.0.0
+        version: 5.2.0(vite@7.3.2(@types/node@20.19.39)(sass@1.89.2))
+      happy-dom:
+        specifier: ^18.0.1
+        version: 18.0.1
+      tsup:
+        specifier: ^8.3.5
+        version: 8.5.1(postcss@8.5.14)(typescript@5.9.3)
+      typescript:
+        specifier: ^5.7.2
+        version: 5.9.3
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.4(@types/node@20.19.39)(@vitest/ui@3.2.4)(happy-dom@18.0.1)(jsdom@26.1.0)(msw@2.14.3(@types/node@20.19.39)(typescript@5.9.3))(sass@1.89.2)
+
+  packages/commissions:
+    dependencies:
+      '@lwm/app-config':
+        specifier: workspace:*
+        version: link:../app-config
+      '@lwm/auth':
+        specifier: workspace:*
+        version: link:../auth
+      '@lwm/permissions':
+        specifier: workspace:*
+        version: link:../permissions
+      '@lwm/ui':
+        specifier: workspace:*
+        version: link:../ui
       next:
         specifier: ^15.0.0
         version: 15.5.16(@babel/core@7.29.0)(@playwright/test@1.59.1)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(sass@1.89.2)

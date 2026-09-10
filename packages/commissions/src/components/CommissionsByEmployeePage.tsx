@@ -8,9 +8,8 @@
 
 import React, { useMemo, useState } from 'react'
 import Link from 'next/link'
-import { formatCurrency } from '@/lib/formatters'
+import { formatCurrency, DATE_PRESETS, getPresetDates } from '@lwm/ui'
 import { useCommissionsByEmployee } from '../hooks'
-import { DATE_PRESETS, getPresetDates } from '@/modules/reports/utils/datePresets'
 
 export const CommissionsByEmployeePage: React.FC = () => {
   const [datePreset, setDatePreset] = useState('thisMonth')
