@@ -35,7 +35,8 @@
     "build": "tsup",
     "dev": "tsup --watch",
     "typecheck": "tsc --noEmit",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
     "@lwm/app-config": "workspace:*",
@@ -46,11 +47,16 @@
     "zustand": "^5.0.6"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.7.0",
+    "@testing-library/react": "^16.3.0",
     "@types/nprogress": "^0.2.3",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^5.0.0",
+    "happy-dom": "^18.0.1",
     "tsup": "^8.3.5",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "vitest": "^3.2.4"
   },
   "peerDependencies": {
     "@lwm/auth": "workspace:*",

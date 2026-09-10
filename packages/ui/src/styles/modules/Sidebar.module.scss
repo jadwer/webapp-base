@@ -268,9 +268,18 @@ $transition-normal: 250ms ease-in-out;
     top: 0;
     left: 0;
     z-index: 1000;
+    // El min-height: 100vh base deja crecer el drawer al alto de su
+    // contenido y el overflow-y nunca actua: las opciones del fondo
+    // quedan inalcanzables. Acotar el alto al viewport fuerza el
+    // scroll interno (100dvh evita el recorte tras la barra de
+    // direcciones movil).
+    min-height: 0;
+    height: 100vh;
+    height: 100dvh;
+    overscroll-behavior: contain;
     transform: translateX(-100%);
     box-shadow: none;
-    
+
     &.open {
       transform: translateX(0);
       box-shadow: 4px 0 24px rgba($neutral-900, 0.15);

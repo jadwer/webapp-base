@@ -23,21 +23,35 @@ export default function Sidebar({ navigationConfig }: SidebarProps) {
   const { topLinks, groups, disabledModules, extraLinks, isCustomer, isUserAdmin, title } = useNavigation(navigationConfig)
   const [open, setOpen] = useState(false)
 
-  // Dynamic collapse state: one Record instead of 18+ useState hooks
+  // Cerrar el drawer movil al navegar; si no, queda abierto tapando la
+  // pagina destino.
+  useEffect(() => { setOpen(false) }, [pathname])
+
+  // Acordeon: a lo mas UN grupo abierto a la vez (abrir uno cierra el
+  // anterior). El Record se conserva por compatibilidad de forma, pero
+  // solo lleva una llave en true.
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({})
 
-  // Initialize auto-expand based on current pathname (only on mount)
+  // Auto-expand inicial: el grupo cuyo prefijo activo sea el MAS
+  // especifico para el pathname actual (varios prefijos pueden matchear,
+  // p.ej. /dashboard/contacts/customers matchea Contactos y Ventas).
   useEffect(() => {
-    const initial: Record<string, boolean> = {}
+    let bestKey: string | null = null
+    let bestLen = -1
     groups.forEach(group => {
-      initial[group.key] = group.activePathPrefixes.some(prefix => pathname?.startsWith(prefix))
+      group.activePathPrefixes.forEach(prefix => {
+        if (pathname?.startsWith(prefix) && prefix.length > bestLen) {
+          bestLen = prefix.length
+          bestKey = group.key
+        }
+      })
     })
-    setOpenGroups(initial)
+    setOpenGroups(bestKey ? { [bestKey]: true } : {})
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [groups])
 
   const toggleGroup = (key: string) => {
-    setOpenGroups(prev => ({ ...prev, [key]: !prev[key] }))
+    setOpenGroups(prev => (prev[key] ? {} : { [key]: true }))
   }
 
   // Helper: render an anchor or Next Link based on the item's `external`
@@ -94,6 +108,7 @@ export default function Sidebar({ navigationConfig }: SidebarProps) {
           className={`${styles.groupButton} ${isOpen ? styles.groupActive : ''}`}
           style={{ flex: 1, border: 'none' }}
           onClick={toggle}
+          aria-expanded={isOpen}
         >
           <div className={styles.groupContent}>
             <i className={`bi ${icon}`} aria-hidden="true"></i>

@@ -44,18 +44,26 @@ export const Header: React.FC = () => {
 
   const [userOpen, setUserOpen] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
+  // El control de sesion se renderiza DOS veces (desktop y compact
+  // movil); cada instancia necesita su ref o el listener de
+  // click-afuera cierra el dropdown en el mousedown del propio item y
+  // el click del Link nunca navega.
   const userRef = useRef<HTMLDivElement>(null)
+  const userMobileRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const onDown = (e: MouseEvent) => {
-      if (userRef.current && !userRef.current.contains(e.target as Node)) setUserOpen(false)
+      const target = e.target as Node
+      if (userRef.current?.contains(target)) return
+      if (userMobileRef.current?.contains(target)) return
+      setUserOpen(false)
     }
     document.addEventListener('mousedown', onDown)
     return () => document.removeEventListener('mousedown', onDown)
   }, [])
 
-  // Cerrar el menu movil al navegar
-  useEffect(() => { setMobileOpen(false) }, [pathname])
+  // Cerrar el menu movil y el dropdown de usuario al navegar
+  useEffect(() => { setMobileOpen(false); setUserOpen(false) }, [pathname])
 
   const handleLogout = async () => {
     setUserOpen(false)
@@ -98,7 +106,7 @@ export const Header: React.FC = () => {
     }
     if (isAuthenticated) {
       return (
-        <div className="dropdown" ref={compact ? undefined : userRef}>
+        <div className="dropdown" ref={compact ? userMobileRef : userRef}>
           <button
             type="button"
             className={compact ? `btn ${styles.iconBtn}` : `btn lw-btn lw-btn-accent-outline dropdown-toggle ${styles.sessionBtn}`}
