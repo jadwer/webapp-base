@@ -58,6 +58,11 @@ export const mockSalesOrder = (overrides?: Partial<SalesOrder>): SalesOrder => (
   arInvoiceId: null,
   invoicingStatus: 'pending',
   invoicingNotes: null,
+  // Paquete B (r260831): el transformer expone estos campos; sin ellos
+  // el toEqual de los hooks falla (paidAt null no equivale a ausente).
+  financialStatus: undefined,
+  paymentStatus: undefined,
+  paidAt: null,
   discountTotal: 0,
   totalAmount: 1000.00,
   notes: null,

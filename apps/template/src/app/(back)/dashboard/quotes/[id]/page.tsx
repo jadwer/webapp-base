@@ -361,9 +361,10 @@ export default function QuoteDetailPage({ params }: PageProps) {
               className="btn btn-outline-success"
               onClick={() => handleAction('accept')}
               disabled={mutations.accept.isPending}
+              title="Registra la aceptación del cliente (por teléfono o en mostrador) y habilita Generar pedido"
             >
               <i className="bi bi-check-lg me-1"></i>
-              Aceptar
+              Marcar aceptada
             </button>
           )}
           {statusConfig.canReject && (

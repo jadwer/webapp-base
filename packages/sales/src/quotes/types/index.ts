@@ -306,7 +306,10 @@ export const QUOTE_STATUS_CONFIG: Record<QuoteStatus, QuoteStatusConfig> = {
     description: 'Cotización en preparación',
     canEdit: true,
     canSend: true,
-    canAccept: false,
+    // El vendedor registra aceptaciones telefonicas/mostrador sin
+    // enviar por correo (decision 2026-09-10); el portal del cliente
+    // calcula su propio canAccept (solo enviadas) y no usa este config.
+    canAccept: true,
     canReject: false,
     canConvert: false,
     canCancel: true
