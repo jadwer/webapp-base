@@ -11,7 +11,8 @@ import { useUsers, useUserMutations } from '../hooks/useUsers'
 import { useRoleOptions } from '../hooks/useRoleOptions'
 import { UsersTable } from './UsersTable'
 import { UsersPagination } from './UsersPagination'
-import { DEFAULT_PAGE_SIZE } from '../services/usersService'
+// Opciones del selector "por pagina" (peticion Gabino 2026-09-10).
+export const PAGE_SIZE_OPTIONS = [5, 10, 50, 100]
 import type { User, UserStatus } from '../types/user'
 import {
   Alert,
@@ -35,6 +36,7 @@ export const UsersAdminPage = () => {
   const [statusFilter, setStatusFilter] = useState('')
   const [showTrashed, setShowTrashed] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
+  const [pageSize, setPageSize] = useState(10)
 
   // Debounce 300 ms: la busqueda viaja al backend via filter[search].
   useEffect(() => {
@@ -53,7 +55,7 @@ export const UsersAdminPage = () => {
       trashed: showTrashed ? 'with' : undefined,
     },
     currentPage,
-    DEFAULT_PAGE_SIZE
+    pageSize
   )
 
   const paginationInfo = meta?.page
@@ -73,6 +75,11 @@ export const UsersAdminPage = () => {
 
   const handleTrashedChange = (value: boolean) => {
     setShowTrashed(value)
+    setCurrentPage(1)
+  }
+
+  const handlePageSizeChange = (value: string) => {
+    setPageSize(Number(value))
     setCurrentPage(1)
   }
 
@@ -128,7 +135,7 @@ export const UsersAdminPage = () => {
       <div className="card mb-4">
         <div className="card-body">
           <div className="row g-3 align-items-center">
-            <div className="col-md-4">
+            <div className="col-md-3">
               <div className="input-group">
                 <span className="input-group-text">
                   <i className="bi bi-search"></i>
@@ -143,7 +150,7 @@ export const UsersAdminPage = () => {
                 />
               </div>
             </div>
-            <div className="col-md-3">
+            <div className="col-md-2">
               <select
                 className="form-select"
                 value={roleFilter}
@@ -158,7 +165,7 @@ export const UsersAdminPage = () => {
                 ))}
               </select>
             </div>
-            <div className="col-md-3">
+            <div className="col-md-2">
               <select
                 className="form-select"
                 value={statusFilter}
@@ -169,6 +176,20 @@ export const UsersAdminPage = () => {
                 <option value="active">Activo</option>
                 <option value="inactive">Inactivo</option>
                 <option value="banned">Bloqueado</option>
+              </select>
+            </div>
+            <div className="col-md-2">
+              <select
+                className="form-select"
+                value={pageSize}
+                onChange={(e) => handlePageSizeChange(e.target.value)}
+                aria-label="Usuarios por página"
+              >
+                {PAGE_SIZE_OPTIONS.map((size) => (
+                  <option key={size} value={size}>
+                    {size} por página
+                  </option>
+                ))}
               </select>
             </div>
             <div className="col-md-2">
@@ -209,7 +230,7 @@ export const UsersAdminPage = () => {
               onPageChange={setCurrentPage}
               isLoading={isLoading}
               totalItems={totalItems}
-              pageSize={paginationInfo?.perPage || DEFAULT_PAGE_SIZE}
+              pageSize={paginationInfo?.perPage || pageSize}
             />
           )}
         </div>
