@@ -5,6 +5,9 @@ export const registerSchema = z.object({
   email: z.string().email({ message: 'Correo inválido' }),
   password: z.string().min(8, { message: 'La contraseña debe tener al menos 8 caracteres' }),
   passwordConfirmation: z.string().min(8, { message: 'La confirmación es obligatoria' }),
+  // Honeypot anti-bots: campo invisible que un humano jamas llena; el
+  // backend descarta en silencio los registros que lo traigan con valor.
+  website: z.string().optional(),
 }).refine((data) => data.password === data.passwordConfirmation, {
   message: 'Las contraseñas no coinciden',
   path: ['passwordConfirmation'],

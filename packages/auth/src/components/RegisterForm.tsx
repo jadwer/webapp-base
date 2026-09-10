@@ -64,9 +64,11 @@ export function RegisterForm() {
       });
 
       if (success) {
-        setStatus("Registro exitoso. Redirigiendo al login...");
+        // El backend crea la cuenta inactiva: verificar el correo la
+        // activa (hardening 2026-09).
+        setStatus("Registro exitoso. Revisa tu correo para activar tu cuenta.");
         setStatusType("success");
-        setTimeout(() => router.replace("/auth/login?registered=true"), 3000);
+        setTimeout(() => router.replace("/auth/login?registered=true"), 4000);
         return; // Don't re-enable form after success
       }
     } catch (error) {
@@ -97,6 +99,22 @@ export function RegisterForm() {
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate>
       <StatusMessage message={status} type={statusType} />
+
+      {/* Honeypot anti-bots: invisible para humanos (fuera de pantalla,
+          sin tab); si llega con valor, el backend descarta en silencio. */}
+      <div
+        aria-hidden="true"
+        style={{ position: 'absolute', left: '-5000px', top: 0, height: 0, overflow: 'hidden' }}
+      >
+        <label htmlFor="website">No llenar este campo</label>
+        <input
+          id="website"
+          type="text"
+          tabIndex={-1}
+          autoComplete="off"
+          {...register("website")}
+        />
+      </div>
 
       <div className="mb-3">
         <Input

@@ -79,7 +79,7 @@ describe('LoginForm', () => {
     render(<LoginForm redirect="/dashboard" />)
 
     expect(
-      screen.getByText(/tu cuenta fue creada correctamente/i)
+      screen.getByText(/revisa tu correo y da clic en el enlace de activaci/i)
     ).toBeInTheDocument()
   })
 
