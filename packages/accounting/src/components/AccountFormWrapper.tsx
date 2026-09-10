@@ -4,8 +4,7 @@ import React from 'react'
 import { useRouter } from 'next/navigation'
 import { AccountForm } from './AccountForm'
 import { useAccount, useAccountMutations } from '../hooks'
-import { toast } from '@/lib/toast'
-import { Alert } from '@/ui/components/base'
+import { toast, Alert } from '@lwm/ui'
 import type { AccountFormData } from '../types'
 
 interface AccountFormWrapperProps {

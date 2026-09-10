@@ -1,7 +1,7 @@
 // Accounting Reports Service - APIs ya funcionando
 // Conecta con los 7 reportes ejecutivos disponibles
 
-import axiosClient from '@/lib/axiosClient';
+import axiosClient from '../lib/axiosClient';
 
 export interface BalanceGeneralAccount {
   account_id: number;

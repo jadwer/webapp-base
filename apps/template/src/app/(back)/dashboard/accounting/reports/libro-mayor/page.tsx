@@ -1,6 +1,6 @@
 'use client'
 
-import { LibroMayorReport } from '@/modules/accounting/components/LibroMayorReport'
+import { LibroMayorReport } from '@/modules/accounting'
 
 export default function LibroMayorPage() {
   return <LibroMayorReport />

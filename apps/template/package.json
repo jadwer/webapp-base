@@ -31,6 +31,7 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^5.1.1",
+    "@lwm/accounting": "workspace:*",
     "@lwm/app-config": "workspace:*",
     "@lwm/audit": "workspace:*",
     "@lwm/auth": "workspace:*",
@@ -42,6 +43,7 @@
     "@lwm/page-builder": "workspace:*",
     "@lwm/permissions": "workspace:*",
     "@lwm/products": "workspace:*",
+    "@lwm/reports": "workspace:*",
     "@lwm/sales": "workspace:*",
     "@lwm/system-health": "workspace:*",
     "@lwm/ui": "workspace:*",

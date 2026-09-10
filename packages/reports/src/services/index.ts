@@ -7,7 +7,7 @@
  * IMPORTANT: All endpoints are under /api/v1/reports/ prefix
  */
 
-import axiosClient from '@/lib/axiosClient'
+import axiosClient from '../lib/axiosClient'
 import type {
   BalanceSheetFilters,
   PeriodReportFilters,

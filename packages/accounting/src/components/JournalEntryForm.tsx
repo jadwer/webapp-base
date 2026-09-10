@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { Button, Input } from '@/ui/components/base'
+import { Button, Input } from '@lwm/ui'
 import type { JournalEntry, JournalEntryWithLines, JournalLineForm } from '../types'
 import { usePostableAccounts } from '../hooks'
 

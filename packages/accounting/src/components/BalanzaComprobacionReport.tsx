@@ -8,7 +8,7 @@
 
 import React, { useState } from 'react'
 import { useBalanzaComprobacion } from '../hooks/useReports'
-import { Button } from '@/ui/components/base/Button'
+import { Button } from '@lwm/ui'
 
 export const BalanzaComprobacionReport = () => {
   const [endDate, setEndDate] = useState<string>('')

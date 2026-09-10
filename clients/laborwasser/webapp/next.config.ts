@@ -81,6 +81,8 @@ const nextConfig: NextConfig = {
     '@lwm/page-builder',
     '@lwm/mailer-manager',
     '@lwm/permissions',
+    '@lwm/accounting',
+    '@lwm/reports',
   ],
   sassOptions: {
     includePaths: [

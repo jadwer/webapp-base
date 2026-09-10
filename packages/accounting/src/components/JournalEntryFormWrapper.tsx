@@ -4,8 +4,7 @@ import React from 'react'
 import { useRouter } from 'next/navigation'
 import { JournalEntryForm } from './JournalEntryForm'
 import { useJournalEntry, useJournalEntryMutations } from '../hooks'
-import { toast } from '@/lib/toast'
-import { Alert } from '@/ui/components/base'
+import { toast, Alert } from '@lwm/ui'
 import type { JournalEntryWithLines } from '../types'
 
 interface JournalEntryFormWrapperProps {

@@ -6,12 +6,12 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { journalLinesService } from '../../services'
-import axiosClient from '@/lib/axiosClient'
+import axiosClient from '../../lib/axiosClient'
 import { createMockJournalLine, createMockAPIResponse } from '../utils/test-utils'
 import type { JournalLineForm } from '../../types'
 
 // Mock axios client
-vi.mock('@/lib/axiosClient', () => ({
+vi.mock('../../lib/axiosClient', () => ({
   default: {
     get: vi.fn(),
     post: vi.fn(),

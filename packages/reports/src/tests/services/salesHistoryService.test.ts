@@ -3,12 +3,12 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import axiosClient from '@/lib/axiosClient';
+import axiosClient from '../../lib/axiosClient';
 import { salesHistoryService } from '../../services';
 import { createMockAxiosError } from '../utils/test-utils';
 
 // Mock axios client
-vi.mock('@/lib/axiosClient');
+vi.mock('../../lib/axiosClient');
 
 const mockBackendResponse = {
   data: [

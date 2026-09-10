@@ -1,7 +1,7 @@
 // Accounting Services - Phase 1
 // Simple CRUD operations for Chart of Accounts and Journal Entries
 
-import axiosClient from '@/lib/axiosClient';
+import axiosClient from '../lib/axiosClient';
 import {
   transformAccountsFromAPI,
   transformAccountFromAPI,

@@ -3,7 +3,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import axiosClient from '@/lib/axiosClient';
+import axiosClient from '../../lib/axiosClient';
 import {
   balanceSheetService,
   incomeStatementService,
@@ -20,7 +20,7 @@ import {
 } from '../utils/test-utils';
 
 // Mock axios client
-vi.mock('@/lib/axiosClient');
+vi.mock('../../lib/axiosClient');
 
 describe('Financial Statements Services', () => {
   beforeEach(() => {

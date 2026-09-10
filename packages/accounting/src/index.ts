@@ -1,18 +1,12 @@
-// Accounting Module - Phase 1 Exports + REPORTES EJECUTIVOS ✅
-// Focus: Basic Chart of Accounts + Journal Entries + 7 Reports APIs
+/**
+ * Accounting Module - Public API
+ * Chart of Accounts + Journal Entries + reportes ejecutivos (balance,
+ * estado de resultados, balanza, libros, ventas y compras).
+ */
 
-// Components
+// Components (incluye SalesReports/PurchaseReports que consumen las
+// paginas sales/reports y purchase/reports de las apps)
 export * from './components';
-
-// Reports Components - APIs ya funcionando ✅
-export * from './components/BalanceGeneralReport';
-export * from './components/EstadoResultadosReport';
-export * from './components/BalanzaComprobacionReport';
-export * from './components/SalesReports';
-export * from './components/PurchaseReports';
-export * from './components/LibroDiarioReport';
-export * from './components/LibroMayorReport';
-export * from './components/ExecutiveDashboard';
 
 // Hooks
 export * from './hooks';

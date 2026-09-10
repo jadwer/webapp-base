@@ -8,7 +8,7 @@
 
 import React, { useState } from 'react'
 import { useEstadoResultados } from '../hooks/useReports'
-import { Button } from '@/ui/components/base/Button'
+import { Button } from '@lwm/ui'
 import type { EstadoResultadosAccount } from '../services/reportsService'
 
 export const EstadoResultadosReport = () => {

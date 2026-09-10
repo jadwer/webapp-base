@@ -11,9 +11,7 @@ import { useJournalEntries } from '../hooks'
 import { JournalEntriesTableSimple } from './JournalEntriesTableSimple'
 import { FilterBar } from './FilterBar'
 import { PaginationSimple } from './PaginationSimple'
-import { Button } from '@/ui/components/base/Button'
-import { Alert } from '@/ui/components/base/Alert'
-import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
+import { Button, Alert, useNavigationProgress } from '@lwm/ui'
 
 export const JournalEntriesAdminPageReal = () => {
   const [searchTerm, setSearchTerm] = useState('')

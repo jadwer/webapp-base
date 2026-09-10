@@ -10,9 +10,7 @@ import React, { useState } from 'react'
 import { useAccounts } from '../hooks'
 import { AccountsTableSimple } from './AccountsTableSimple'
 import { PaginationSimple } from './PaginationSimple'
-import { Button } from '@/ui/components/base/Button'
-import { Alert } from '@/ui/components/base/Alert'
-import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
+import { Button, Alert, useNavigationProgress } from '@lwm/ui'
 
 export const AccountsAdminPageReal = () => {
   const [searchTerm, setSearchTerm] = useState('')
