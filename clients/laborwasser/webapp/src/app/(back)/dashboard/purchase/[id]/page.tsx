@@ -2,12 +2,12 @@
 
 import { use, useState, useRef } from 'react'
 import { usePurchaseOrder, usePurchaseOrderItems } from '@/modules/purchase'
-import { purchaseService } from '@/modules/purchase/services'
+import { purchaseService } from '@/modules/purchase'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
 import { formatCurrency, formatQuantity } from '@/lib/formatters'
 import { toast } from '@/lib/toast'
 import ConfirmModal, { ConfirmModalHandle } from '@/ui/components/base/ConfirmModal'
-import AddItemModal from '@/modules/purchase/components/AddItemModal'
+import { AddItemModal } from '@/modules/purchase'
 
 interface PageProps {
   params: Promise<{ id: string }>

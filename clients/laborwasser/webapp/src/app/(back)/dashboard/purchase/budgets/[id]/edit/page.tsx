@@ -5,7 +5,7 @@
 
 import { Suspense } from 'react'
 import type { Metadata } from 'next'
-import { EditBudgetWrapper } from '@/modules/purchase/components'
+import { EditBudgetWrapper } from '@/modules/purchase'
 
 export const metadata: Metadata = {
   title: 'Editar Presupuesto - Purchase',

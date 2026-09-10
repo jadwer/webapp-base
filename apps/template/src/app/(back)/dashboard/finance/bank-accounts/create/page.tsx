@@ -6,7 +6,7 @@ import React, { useState } from 'react'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
 import { useBankAccountMutations } from '@/modules/finance'
 import { Button } from '@/ui/components/base/Button'
-import type { BankAccountForm } from '@/modules/finance/types'
+import type { BankAccountForm } from '@/modules/finance'
 
 export default function CreateBankAccountPage() {
   const navigation = useNavigationProgress()

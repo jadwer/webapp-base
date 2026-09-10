@@ -7,7 +7,7 @@ import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
 import { useAPPaymentMutations, useBankAccounts } from '@/modules/finance'
 import { useContacts } from '@/modules/contacts'
 import { Button } from '@/ui/components/base/Button'
-import type { APPaymentForm } from '@/modules/finance/types'
+import type { APPaymentForm } from '@/modules/finance'
 
 export default function CreateAPPaymentPage() {
   const navigation = useNavigationProgress()

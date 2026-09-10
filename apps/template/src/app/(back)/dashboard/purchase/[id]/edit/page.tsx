@@ -2,7 +2,7 @@
 
 import { useState, useEffect, use } from 'react'
 import { usePurchaseOrder, usePurchaseOrderMutations, usePurchaseContacts } from '@/modules/purchase'
-import type { PurchaseOrderStatus } from '@/modules/purchase/types'
+import type { PurchaseOrderStatus } from '@/modules/purchase'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
 import { getValidationErrorMessages } from '@/modules/contacts'
 

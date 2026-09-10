@@ -3,7 +3,7 @@
 import React, { useState } from 'react'
 import { usePurchaseOrderMutations, usePurchaseContacts, usePurchaseOrderItemMutations } from '@/modules/purchase'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
-import ItemsManager from '@/modules/purchase/components/ItemsManager'
+import { ItemsManager } from '@/modules/purchase'
 import { formatCurrency } from '@/lib/formatters'
 
 interface Contact {

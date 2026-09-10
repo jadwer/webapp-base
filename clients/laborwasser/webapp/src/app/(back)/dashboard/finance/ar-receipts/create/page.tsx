@@ -7,7 +7,7 @@ import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
 import { useARReceiptMutations, useBankAccounts } from '@/modules/finance'
 import { useContacts } from '@/modules/contacts'
 import { Button } from '@/ui/components/base/Button'
-import type { ARReceiptForm } from '@/modules/finance/types'
+import type { ARReceiptForm } from '@/modules/finance'
 
 export default function CreateARReceiptPage() {
   const navigation = useNavigationProgress()
