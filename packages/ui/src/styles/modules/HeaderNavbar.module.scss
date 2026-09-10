@@ -24,6 +24,13 @@ $transition-fast: 150ms ease-in-out;
   justify-content: space-between;
   padding: $spacing-3 $spacing-4;
   max-width: none;
+
+  // El boton hamburguesa del Sidebar es fixed en la esquina superior
+  // izquierda (z-index 1001, sobre este header): sin este espacio el
+  // logo queda tapado en movil.
+  @media (max-width: 991px) {
+    padding-left: 72px;
+  }
 }
 
 .brand {
