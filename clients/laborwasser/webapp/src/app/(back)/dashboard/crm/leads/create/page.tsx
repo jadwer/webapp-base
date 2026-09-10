@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { useRouter } from 'next/navigation'
-import { LeadForm } from '@/modules/crm/components'
+import { LeadForm } from '@/modules/crm'
 
 export default function CreateLeadPage() {
   const router = useRouter()

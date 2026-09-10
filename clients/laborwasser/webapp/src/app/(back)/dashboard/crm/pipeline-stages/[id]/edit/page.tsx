@@ -2,8 +2,7 @@
 
 import React from 'react'
 import { useRouter } from 'next/navigation'
-import { PipelineStageForm } from '@/modules/crm/components'
-import { usePipelineStage } from '@/modules/crm'
+import { PipelineStageForm, usePipelineStage } from '@/modules/crm'
 
 interface EditPipelineStagePageProps {
   params: Promise<{

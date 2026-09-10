@@ -25,10 +25,12 @@ describe('Integration Tests - Basic Concepts', () => {
 
   it('should verify module services can be imported', async () => {
     // Verify we can import services from all modules
-    const crmServices = await import('@/modules/crm/services');
+    // crm ya vive en @lwm/crm (T2.2); el stub re-exporta todo
+    const crmServices = await import('@/modules/crm');
     // reports ya vive en @lwm/reports (T2.2); el stub re-exporta todo
     const reportsServices = await import('@/modules/reports');
-    const hrServices = await import('@/modules/hr/services');
+    // hr ya vive en @lwm/hr (T2.2); el stub re-exporta todo
+    const hrServices = await import('@/modules/hr');
     // billing ya vive en @lwm/billing (T2.2); el stub re-exporta todo
     const billingServices = await import('@/modules/billing');
 

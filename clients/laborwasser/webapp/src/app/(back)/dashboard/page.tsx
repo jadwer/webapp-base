@@ -13,9 +13,9 @@ import {
   usePurchaseReports
 } from '@/modules/accounting'
 import { useCFDIInvoices } from '@/modules/billing'
-import { useLeads, useOpportunities, useCampaigns } from '@/modules/crm/hooks'
+import { useLeads, useOpportunities, useCampaigns } from '@/modules/crm'
 import { useEcommerceOrders } from '@/modules/ecommerce'
-import { useEmployees } from '@/modules/hr/hooks'
+import { useEmployees } from '@/modules/hr'
 import { useSystemHealth } from '@/modules/system-health'
 
 class DashboardErrorBoundary extends Component<

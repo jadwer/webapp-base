@@ -83,6 +83,8 @@ const nextConfig: NextConfig = {
     '@lwm/permissions',
     '@lwm/accounting',
     '@lwm/reports',
+    '@lwm/hr',
+    '@lwm/crm',
   ],
   sassOptions: {
     includePaths: [

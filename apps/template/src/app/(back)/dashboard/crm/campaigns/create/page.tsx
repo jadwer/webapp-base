@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { useRouter } from 'next/navigation'
-import { CampaignForm } from '@/modules/crm/components'
+import { CampaignForm } from '@/modules/crm'
 
 export default function CreateCampaignPage() {
   const router = useRouter()

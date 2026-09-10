@@ -2,8 +2,7 @@
 
 import React from 'react'
 import { useRouter } from 'next/navigation'
-import { CampaignForm } from '@/modules/crm/components'
-import { useCampaign } from '@/modules/crm'
+import { CampaignForm, useCampaign } from '@/modules/crm'
 
 interface EditCampaignPageProps {
   params: Promise<{

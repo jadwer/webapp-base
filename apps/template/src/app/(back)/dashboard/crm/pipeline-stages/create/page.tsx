@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { useRouter } from 'next/navigation'
-import { PipelineStageForm } from '@/modules/crm/components'
+import { PipelineStageForm } from '@/modules/crm'
 
 export default function CreatePipelineStagePage() {
   const router = useRouter()

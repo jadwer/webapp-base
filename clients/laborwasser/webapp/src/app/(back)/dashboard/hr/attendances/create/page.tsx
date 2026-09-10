@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { useRouter } from 'next/navigation'
-import { AttendanceForm } from '@/modules/hr/components'
+import { AttendanceForm } from '@/modules/hr'
 
 export default function CreateAttendancePage() {
   const router = useRouter()

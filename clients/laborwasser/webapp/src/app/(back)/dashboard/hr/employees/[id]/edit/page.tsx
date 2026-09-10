@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { useRouter } from 'next/navigation'
-import { EmployeeForm } from '@/modules/hr/components'
+import { EmployeeForm } from '@/modules/hr'
 
 interface EditEmployeePageProps {
   params: Promise<{

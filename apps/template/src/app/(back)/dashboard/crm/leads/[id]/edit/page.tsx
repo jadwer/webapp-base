@@ -2,8 +2,7 @@
 
 import React from 'react'
 import { useRouter } from 'next/navigation'
-import { LeadForm } from '@/modules/crm/components'
-import { useLead } from '@/modules/crm'
+import { LeadForm, useLead } from '@/modules/crm'
 
 interface EditLeadPageProps {
   params: Promise<{
