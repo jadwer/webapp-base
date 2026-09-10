@@ -137,6 +137,19 @@ export function RolesTable({ onRoleSelect, selectedRole }: RolesTableProps) {
                       </td>
                       <td>
                         <div className="btn-group btn-group-sm">
+                          {onRoleSelect && (
+                            <button
+                              className="btn btn-outline-secondary"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                onRoleSelect(role)
+                              }}
+                              title="Editar permisos del rol"
+                              aria-label={`Editar permisos del rol ${role.name}`}
+                            >
+                              <i className="bi bi-toggles"></i>
+                            </button>
+                          )}
                           <button
                             className="btn btn-outline-primary"
                             onClick={(e) => {
