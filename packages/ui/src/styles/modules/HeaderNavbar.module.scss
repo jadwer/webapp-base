@@ -152,7 +152,10 @@ $transition-fast: 150ms ease-in-out;
 // Responsive
 @media (max-width: 768px) {
   .container {
+    // OJO: el shorthand pisaba el padding-left de la media query de
+    // 991px y el hamburguesa fijo volvia a tapar el logo en telefono.
     padding: $spacing-3;
+    padding-left: 72px;
   }
 
   .brandLogo {
