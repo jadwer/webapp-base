@@ -87,6 +87,7 @@ const nextConfig: NextConfig = {
     '@lwm/crm',
     '@lwm/finance',
     '@lwm/purchase',
+    '@lwm/inventory',
   ],
   sassOptions: {
     includePaths: [

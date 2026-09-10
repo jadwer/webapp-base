@@ -10,14 +10,14 @@ import React from 'react'
 import Link from 'next/link'
 import { Button } from '@/ui/components/base/Button'
 import { useInventoryDashboard, useStockAlerts, useRecentActivity, useProductBatches } from '@/modules/inventory'
-import { useExpiringProductBatches } from '@/modules/inventory/hooks/useExpiringProductBatches'
+import { useExpiringProductBatchesStats } from '@/modules/inventory'
 
 export default function InventoryDashboardPage() {
   const { metrics, isLoading } = useInventoryDashboard()
   const { alerts, totalAlerts } = useStockAlerts()
   const { recentMovements } = useRecentActivity(5)
   const { meta: batchMeta, isLoading: isBatchLoading } = useProductBatches({ enabled: true })
-  const expiringBatchData = useExpiringProductBatches({ days: 30 })
+  const expiringBatchData = useExpiringProductBatchesStats({ days: 30 })
   const { stats: expiringStats, totalExpiring, isLoading: isExpiringLoading } = expiringBatchData
   return (
     <div className="container-fluid py-4">
