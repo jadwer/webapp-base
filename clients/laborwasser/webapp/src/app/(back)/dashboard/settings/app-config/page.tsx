@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { appSettingsService, type AppSettingValue, type AppSettingsGrouped } from '@/modules/app-config'
-import { FaqSettingEditor, type FaqEntry } from '@/modules/app-config/components/FaqSettingEditor'
+import { FaqSettingEditor, type FaqEntry } from '@/modules/app-config'
 import axiosClient from '@/lib/axiosClient'
 import { toast } from '@/lib/toast'
 
