@@ -29,24 +29,11 @@ export const adminNavigation: NavigationSection = {
 
   topLinks: [
     { href: '/dashboard', label: 'Panel Principal', icon: 'bi-house', permissions: [] },
-    { href: '/dashboard/profile', label: 'Mi perfil', icon: 'bi-person-circle', permissions: [] },
+    // Mi perfil vive en el header (avatar), fuera del sidebar (poda UX 2026-09).
     { href: '/dashboard/users', label: 'Usuarios', icon: 'bi-people', permissions: ['users.index'], quickCreateHref: '/dashboard/users/create' },
   ],
 
   groups: [
-    // Page Builder
-    {
-      key: 'pageBuilder',
-      label: 'Page Builder',
-      icon: 'bi-brush',
-      activePathPrefixes: ['/dashboard/pages', '/dashboard/page-builder'],
-      permissions: [],
-      items: [
-        { href: '/dashboard/pages', label: 'Gestión de Páginas', icon: 'bi-file-earmark-text', permissions: ['page.index'] },
-        { href: '/dashboard/pages/templates', label: 'Galería de Templates', icon: 'bi-layout-text-window-reverse', permissions: ['page.index'] },
-      ],
-    },
-
     // Roles y Permisos
     {
       key: 'rcrud',
@@ -130,7 +117,7 @@ export const adminNavigation: NavigationSection = {
       key: 'sales',
       label: 'Ventas',
       icon: 'bi-cart-check',
-      activePathPrefixes: ['/dashboard/sales', '/dashboard/remissions', '/dashboard/contacts/customers', '/dashboard/contacts/prospects'],
+      activePathPrefixes: ['/dashboard/sales', '/dashboard/remissions', '/dashboard/contacts/customers', '/dashboard/contacts/prospects', '/dashboard/commissions'],
       permissions: [],
       quickCreateHref: '/dashboard/sales/create',
       items: [
@@ -140,20 +127,10 @@ export const adminNavigation: NavigationSection = {
         { href: '/dashboard/contacts/customers', label: 'Clientes', icon: 'bi-person-check', permissions: ['contacts.index'], quickCreateHref: '/dashboard/contacts/create?type=customer' },
         { href: '/dashboard/contacts/prospects', label: 'Prospectos', icon: 'bi-person-dash', permissions: ['contacts.index'], quickCreateHref: '/dashboard/contacts/create?type=prospect' },
         { href: '/dashboard/sales/reports', label: 'Reportes', icon: 'bi-graph-up', permissions: ['sales-orders.index'] },
-        { href: '/dashboard/sales/customers', label: 'Estadísticas de clientes', icon: 'bi-person-heart', permissions: ['sales-orders.index'] },
-      ],
-    },
-
-    // Comisiones
-    {
-      key: 'commissions',
-      label: 'Comisiones',
-      icon: 'bi-percent',
-      activePathPrefixes: ['/dashboard/commissions'],
-      permissions: [],
-      items: [
+        // Comisiones: submodulo de Ventas (nace de la orden, se reporta por
+        // vendedor); NO va en RRHH: cero relacion en el modelo de datos.
         { href: '/dashboard/commissions', label: 'Comisiones', icon: 'bi-percent', permissions: ['commissions.index'] },
-        { href: '/dashboard/commissions/by-employee', label: 'Reporte por Vendedor', icon: 'bi-bar-chart', permissions: ['commissions.index'] },
+        { href: '/dashboard/commissions/by-employee', label: 'Comisiones por Vendedor', icon: 'bi-bar-chart', permissions: ['commissions.index'] },
       ],
     },
 
@@ -170,7 +147,6 @@ export const adminNavigation: NavigationSection = {
         { href: '/dashboard/purchase/create', label: 'Nueva Orden', icon: 'bi-plus-circle', permissions: ['purchase-orders.store'] },
         { href: '/dashboard/contacts/suppliers', label: 'Proveedores', icon: 'bi-building', permissions: ['contacts.index'], quickCreateHref: '/dashboard/contacts/create?type=supplier' },
         { href: '/dashboard/purchase/reports', label: 'Reportes', icon: 'bi-graph-up', permissions: ['purchase-orders.index'] },
-        { href: '/dashboard/purchase/suppliers', label: 'Estadísticas de proveedores', icon: 'bi-graph-up-arrow', permissions: ['purchase-orders.index'] },
       ],
     },
 
@@ -299,29 +275,21 @@ export const adminNavigation: NavigationSection = {
       ],
     },
 
-    // Correos
-    {
-      key: 'mailer-manager',
-      label: 'Correos',
-      icon: 'bi-envelope',
-      activePathPrefixes: ['/dashboard/mailer-manager'],
-      permissions: [],
-      items: [
-        { href: '/dashboard/mailer-manager', label: 'Plantillas', icon: 'bi-palette', permissions: ['email-templates.index'] },
-        { href: '/dashboard/mailer-manager/system-emails', label: 'Emails del Sistema', icon: 'bi-gear', permissions: ['system-emails.index'] },
-      ],
-    },
-
-    // Configuración
+    // Configuración (absorbe Page Builder y Correos: personalizacion e
+    // infraestructura, no operacion; poda UX 2026-09)
     {
       key: 'settings',
       label: 'Configuración',
       icon: 'bi-sliders',
-      activePathPrefixes: ['/dashboard/settings'],
+      activePathPrefixes: ['/dashboard/settings', '/dashboard/pages', '/dashboard/page-builder', '/dashboard/mailer-manager'],
       permissions: [],
       items: [
         { href: '/dashboard/settings/app-config', label: 'Configuracion General', icon: 'bi-gear', permissions: [] },
         { href: '/dashboard/settings/documents', label: 'Configuracion de Documentos', icon: 'bi-file-earmark-text', permissions: ['folio-sequences.index'] },
+        { href: '/dashboard/pages', label: 'Gestión de Páginas', icon: 'bi-brush', permissions: ['page.index'] },
+        { href: '/dashboard/pages/templates', label: 'Galería de Templates', icon: 'bi-layout-text-window-reverse', permissions: ['page.index'] },
+        { href: '/dashboard/mailer-manager', label: 'Plantillas de Correo', icon: 'bi-envelope', permissions: ['email-templates.index'] },
+        { href: '/dashboard/mailer-manager/system-emails', label: 'Emails del Sistema', icon: 'bi-envelope-gear', permissions: ['system-emails.index'] },
       ],
     },
 

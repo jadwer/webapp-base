@@ -11,12 +11,12 @@ describe('navigationConfig', () => {
       expect(adminNavigation.audience).toBe('admin')
     })
 
-    it('has 3 top links', () => {
-      expect(adminNavigation.topLinks).toHaveLength(3)
+    it('has 2 top links (Mi perfil vive en el header desde la poda UX 2026-09)', () => {
+      expect(adminNavigation.topLinks).toHaveLength(2)
     })
 
-    it('has 20 groups', () => {
-      expect(adminNavigation.groups).toHaveLength(20)
+    it('has 17 groups (poda UX 2026-09: comisiones en Ventas; Page Builder y Correos en Configuracion)', () => {
+      expect(adminNavigation.groups).toHaveLength(17)
     })
 
     it('has 6 disabled modules', () => {
@@ -95,8 +95,11 @@ describe('navigationConfig', () => {
       expect(keys).toContain('hr')
       expect(keys).toContain('settings')
       expect(keys).toContain('system')
-      expect(keys).toContain('pageBuilder')
       expect(keys).toContain('rcrud')
+      // Poda UX 2026-09: estos grupos se disolvieron en Ventas y Configuracion.
+      expect(keys).not.toContain('pageBuilder')
+      expect(keys).not.toContain('commissions')
+      expect(keys).not.toContain('mailer-manager')
     })
 
     it('disabled modules have key, label, icon and tooltip', () => {
