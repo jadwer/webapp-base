@@ -2,6 +2,7 @@
 export { RolesTable } from './components/RolesTable'
 export { RoleForm } from './components/RoleForm'
 export { PermissionMatrix } from './components/PermissionMatrix'
+export { RolePermissionsEditor } from './components/RolePermissionsEditor'
 
 // Hooks
 export { useRoles, useRole, useRoleActions, useRoleStats } from './hooks/useRoles'

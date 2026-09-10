@@ -85,6 +85,12 @@ export class JsonApiTransformer {
       id: parseInt(id),
       name: attributes.name as string,
       guard_name: attributes.guard_name as string,
+      label: (attributes.label as string) ?? null,
+      description: (attributes.description as string) ?? null,
+      module: (attributes.module as string) ?? null,
+      moduleLabel: (attributes.moduleLabel as string) ?? null,
+      resource: (attributes.resource as string) ?? null,
+      resourceLabel: (attributes.resourceLabel as string) ?? null,
       created_at: attributes.createdAt as string,
       updated_at: attributes.updatedAt as string
     }

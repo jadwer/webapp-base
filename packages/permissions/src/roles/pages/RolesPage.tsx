@@ -5,7 +5,6 @@ import { Role } from '../types/role'
 import { RolesTable } from '../components/RolesTable'
 import { RoleForm } from '../components/RoleForm'
 import { useRoleStats } from '../hooks/useRoles'
-import { ApiTestComponent } from '../components/ApiTestComponent'
 
 export default function RolesPage() {
   const [showCreateForm, setShowCreateForm] = useState(false)
@@ -42,13 +41,6 @@ export default function RolesPage() {
               Nuevo Rol
             </button>
           </div>
-        </div>
-      </div>
-
-      {/* Componente de prueba API */}
-      <div className="row mb-4">
-        <div className="col-12">
-          <ApiTestComponent />
         </div>
       </div>
 

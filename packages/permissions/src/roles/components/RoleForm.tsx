@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { Role, RoleFormData } from '../types/role'
 import { useRoleActions } from '../hooks/useRoles'
-import { usePermissions } from '../hooks/usePermissions'
 import { Button } from '@lwm/ui'
 import { Input } from '@lwm/ui'
 import { ToastNotifier, type ToastNotifierHandle } from '@lwm/ui'
@@ -14,21 +13,23 @@ interface RoleFormProps {
   onCancel?: () => void
 }
 
+/**
+ * Form de DATOS del rol (nombre, guard, descripcion). La asignacion de
+ * permisos vive en RolePermissionsEditor; este form no la toca (el
+ * PATCH sin relationships no pisa los permisos existentes).
+ */
 export function RoleForm({ role, onSuccess, onCancel }: RoleFormProps) {
   const { createRole, updateRole } = useRoleActions()
-  const { permissions, isLoading: loadingPermissions } = usePermissions()
   const toastRef = useRef<ToastNotifierHandle>(null)
-  
+
   const [formData, setFormData] = useState<RoleFormData>({
     name: role?.name || '',
     description: role?.description || '',
     guard_name: role?.guard_name || 'web',
-    permissions: role?.permissions?.map(p => p.id) || []
   })
-  
+
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [searchTerm, setSearchTerm] = useState('')
 
   useEffect(() => {
     if (role) {
@@ -36,14 +37,9 @@ export function RoleForm({ role, onSuccess, onCancel }: RoleFormProps) {
         name: role.name,
         description: role.description || '',
         guard_name: role.guard_name,
-        permissions: role.permissions?.map(p => p.id) || []
       })
     }
   }, [role])
-
-  const filteredPermissions = permissions.filter(permission =>
-    permission.name.toLowerCase().includes(searchTerm.toLowerCase())
-  )
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -66,15 +62,6 @@ export function RoleForm({ role, onSuccess, onCancel }: RoleFormProps) {
     } finally {
       setIsSubmitting(false)
     }
-  }
-
-  const handlePermissionToggle = (permissionId: number) => {
-    setFormData(prev => ({
-      ...prev,
-      permissions: prev.permissions?.includes(permissionId)
-        ? prev.permissions.filter(id => id !== permissionId)
-        : [...(prev.permissions || []), permissionId]
-    }))
   }
 
   return (
@@ -132,59 +119,6 @@ export function RoleForm({ role, onSuccess, onCancel }: RoleFormProps) {
           rows={3}
           placeholder="Descripción opcional del rol"
         />
-      </div>
-
-      <div className="mb-3">
-        <label className="form-label">Permisos</label>
-        
-        <div className="mb-2">
-          <Input
-            type="text"
-            placeholder="Buscar permisos..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </div>
-
-        {loadingPermissions ? (
-          <div className="text-center py-3">
-            <div className="spinner-border spinner-border-sm" role="status">
-              <span className="visually-hidden">Cargando...</span>
-            </div>
-          </div>
-        ) : (
-          <div className="border rounded p-3" style={{ maxHeight: '300px', overflowY: 'auto' }}>
-            {filteredPermissions.length === 0 ? (
-              <p className="text-muted mb-0">No se encontraron permisos</p>
-            ) : (
-              <div className="row">
-                {filteredPermissions.map((permission) => (
-                  <div key={permission.id} className="col-md-6 mb-2">
-                    <div className="form-check">
-                      <input
-                        className="form-check-input"
-                        type="checkbox"
-                        id={`permission-${permission.id}`}
-                        checked={formData.permissions?.includes(permission.id) || false}
-                        onChange={() => handlePermissionToggle(permission.id)}
-                      />
-                      <label 
-                        className="form-check-label" 
-                        htmlFor={`permission-${permission.id}`}
-                      >
-                        {permission.name}
-                      </label>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-        
-        <small className="form-text text-muted">
-          {formData.permissions?.length || 0} permisos seleccionados
-        </small>
       </div>
 
       <div className="d-flex gap-2">

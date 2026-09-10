@@ -20,34 +20,37 @@ export const permissionsService = {
     return JsonApiTransformer.transformPermission(response.data.data)
   },
 
-  // Obtener permisos agrupados por módulo/categoría
+  // Obtener permisos agrupados por modulo de negocio (campo `module`
+  // del catalogo backend; fallback al primer segmento del name para
+  // permisos fuera de catalogo).
   async getGrouped(): Promise<Record<string, Permission[]>> {
     const permissions = await this.getAll()
-    
+
     return permissions.reduce((groups, permission) => {
-      // Extraer el módulo del nombre del permiso (ej: "users.create" -> "users")
-      const moduleName = permission.name.split('.')[0] || 'general'
-      
+      const moduleName = permission.module || permission.name.split('.')[0] || 'general'
+
       if (!groups[moduleName]) {
         groups[moduleName] = []
       }
-      
+
       groups[moduleName].push(permission)
       return groups
     }, {} as Record<string, Permission[]>)
   },
 
-  // Buscar permisos
+  // Buscar permisos por label legible, descripcion o nombre tecnico.
   async search(query: string): Promise<Permission[]> {
     const permissions = await this.getAll()
-    
+
     if (!query.trim()) {
       return permissions
     }
-    
+
     const searchTerm = query.toLowerCase()
-    return permissions.filter(permission => 
-      permission.name.toLowerCase().includes(searchTerm)
+    return permissions.filter(permission =>
+      permission.name.toLowerCase().includes(searchTerm) ||
+      (permission.label ?? '').toLowerCase().includes(searchTerm) ||
+      (permission.description ?? '').toLowerCase().includes(searchTerm)
     )
   }
 }
