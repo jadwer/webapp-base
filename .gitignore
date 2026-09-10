@@ -55,3 +55,4 @@ _env_local
 
 # pnpm
 .pnpm-store/
+.claude/worktrees/
