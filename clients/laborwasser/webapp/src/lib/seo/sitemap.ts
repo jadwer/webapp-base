@@ -75,6 +75,7 @@ export async function fetchProductTotal(backendUrl: string, fetchImpl: FetchLike
 
 export interface ProductRef {
   id: string
+  slug?: string | null
   updatedAt?: string
 }
 
@@ -84,9 +85,9 @@ export async function fetchProductChunk(
   fetchImpl: FetchLike,
   chunkSize = PRODUCT_CHUNK_SIZE,
 ): Promise<ProductRef[]> {
-  const url = `${backendUrl}/api/public/v1/public-products?fields[public-products]=sku,updatedAt&page[size]=${chunkSize}&page[number]=${page}`
-  const body = await fetchJsonApi<{ sku: string; updatedAt?: string }>(url, fetchImpl)
-  return body.data.map((item) => ({ id: item.id, updatedAt: item.attributes.updatedAt }))
+  const url = `${backendUrl}/api/public/v1/public-products?fields[public-products]=sku,slug,updatedAt&page[size]=${chunkSize}&page[number]=${page}`
+  const body = await fetchJsonApi<{ sku: string; slug?: string | null; updatedAt?: string }>(url, fetchImpl)
+  return body.data.map((item) => ({ id: item.id, slug: item.attributes.slug ?? null, updatedAt: item.attributes.updatedAt }))
 }
 
 export interface PublishedPageRef {
@@ -141,8 +142,10 @@ export function pageEntries(host: string, pages: PublishedPageRef[]): SitemapEnt
 }
 
 export function productEntries(host: string, products: ProductRef[]): SitemapEntry[] {
+  // Slug cuando existe (SEO Bloque 1b); id para los que aun no lo tienen
+  // (la ruta [slug] los resuelve y redirige 301 al slug en cuanto lo tengan).
   return products.map((product) => ({
-    url: absoluteUrl(host, `/productos/${product.id}`),
+    url: absoluteUrl(host, `/productos/${product.slug && product.slug.trim() !== '' ? product.slug : product.id}`),
     lastModified: product.updatedAt,
     changeFrequency: 'weekly',
     priority: 0.7,

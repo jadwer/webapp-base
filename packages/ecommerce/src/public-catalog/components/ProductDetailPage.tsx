@@ -15,6 +15,7 @@ import { useLocalCart } from '../hooks/useLocalCart'
 import { useTrackProductView } from '@lwm/ecommerce'
 import { usePublicSettings } from '@lwm/app-config'
 import { taxHintLabel } from '../../utils/taxHint'
+import { productPath } from '../utils/productPath'
 import type { EnhancedPublicProduct } from '../types/publicProduct'
 
 interface ProductDetailPageProps {
@@ -419,7 +420,7 @@ export default function ProductDetailPage({
               {suggestions.map((suggestedProduct) => (
                 <div key={suggestedProduct.id} className="col-6 col-md-3">
                   <Link
-                    href={`/productos/${suggestedProduct.id}`}
+                    href={productPath(suggestedProduct)}
                     className="card h-100 border-0 shadow-sm text-decoration-none"
                   >
                     <div className="card-body text-center">

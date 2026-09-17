@@ -76,10 +76,10 @@ export const ProductSearchBox: React.FC<ProductSearchBoxProps> = ({
   }, [showDropdown])
 
   const goToProduct = useCallback(
-    (id: string) => {
+    (path: string) => {
       setOpen(false)
       setQuery('')
-      router.push(`/productos/${id}`)
+      router.push(path)
     },
     [router]
   )
@@ -108,7 +108,7 @@ export const ProductSearchBox: React.FC<ProductSearchBoxProps> = ({
       case 'Enter':
         event.preventDefault()
         if (activeIndex >= 0 && activeIndex < results.length) {
-          goToProduct(results[activeIndex].id)
+          goToProduct(results[activeIndex].path)
         } else {
           // Sin sugerencia resaltada: ir al listado completo de la busqueda.
           goToAllResults()
@@ -183,7 +183,7 @@ export const ProductSearchBox: React.FC<ProductSearchBoxProps> = ({
                 index === activeIndex ? 'bg-light' : 'bg-white'
               }`}
               onMouseEnter={() => setActiveIndex(index)}
-              onClick={() => goToProduct(result.id)}
+              onClick={() => goToProduct(result.path)}
             >
               <ProductThumbnail imageUrl={result.imageUrl} alt={result.name} />
               <span className="flex-grow-1 text-truncate">

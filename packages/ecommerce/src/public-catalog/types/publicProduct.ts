@@ -11,6 +11,8 @@ export interface PublicProduct {
   attributes: {
     name: string
     sku: string | null
+    /** URL legible /productos/<slug> (SEO Bloque 1b); null en productos aun sin backfill. */
+    slug?: string | null
     description: string | null
     fullDescription: string | null
     price: number | null

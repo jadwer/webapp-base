@@ -3,7 +3,7 @@
 import React, { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { useSaleProducts, useLocalCart, type EnhancedPublicProduct } from '@/modules/public-catalog'
+import { useSaleProducts, useLocalCart, productPath, type EnhancedPublicProduct } from '@/modules/public-catalog'
 import { useToast } from '@/ui/hooks/useToast'
 import { Button } from '@/ui/components/base'
 import { usePublicSettings } from '@/modules/app-config'
@@ -112,7 +112,7 @@ export const OfertasPageClient: React.FC = () => {
               <div key={product.id} className="col">
                 <div className="card h-100 shadow-sm hover-shadow">
                   {/* Product Image */}
-                  <Link href={`/productos/${product.id}`}>
+                  <Link href={productPath(product)}>
                     <div className="position-relative" style={{ height: '200px' }}>
                       {product.attributes.imageUrl ? (
                         <Image
@@ -152,7 +152,7 @@ export const OfertasPageClient: React.FC = () => {
 
                     {/* Product Name */}
                     <h5 className="card-title">
-                      <Link href={`/productos/${product.id}`} className="text-decoration-none text-dark">
+                      <Link href={productPath(product)} className="text-decoration-none text-dark">
                         {product.displayName}
                       </Link>
                     </h5>
@@ -185,7 +185,7 @@ export const OfertasPageClient: React.FC = () => {
                           Agregar al carrito
                         </button>
                         <Link
-                          href={`/productos/${product.id}`}
+                          href={productPath(product)}
                           className="btn btn-outline-secondary"
                         >
                           Ver detalles

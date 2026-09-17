@@ -132,5 +132,6 @@ export type {
 } from './hooks'
 export type { ProductSearchBoxProps } from './components'
 
-// Export utility functions if any are created later
-// export { } from './utils'
+// Utilidades (SEO Bloque 1b): ruta de ficha con slug o id
+export { productPath, isNumericProductSegment } from './utils/productPath'
+export type { ProductPathSource } from './utils/productPath'

@@ -16,10 +16,13 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { usePublicSettings } from '@lwm/app-config'
 import { publicProductsService } from '../services/publicProductsService'
+import { productPath } from '../utils/productPath'
 import type { EnhancedPublicProduct } from '../types/publicProduct'
 
 export interface ProductSearchResult {
   id: string
+  /** Ruta de la ficha (/productos/<slug> o /productos/<id>). */
+  path: string
   name: string
   /** Formatted price string, e.g. "$100.00" (falls back to raw when needed). */
   displayPrice: string
@@ -38,6 +41,7 @@ export interface UseProductSearchResult {
 function toSearchResult(product: EnhancedPublicProduct): ProductSearchResult {
   return {
     id: product.id,
+    path: productPath(product),
     name: product.attributes.name,
     displayPrice: product.displayPrice,
     currency: product.displayCurrency,

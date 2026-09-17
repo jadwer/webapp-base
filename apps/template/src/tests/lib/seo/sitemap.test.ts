@@ -26,9 +26,13 @@ function jsonResponse(body: unknown, status = 200): Response {
   } as unknown as Response
 }
 
-function productsPayload(ids: string[], total: number) {
+function productsPayload(ids: string[], total: number, withSlug = false) {
   return {
-    data: ids.map((id) => ({ type: 'public-products', id, attributes: { sku: `SKU-${id}`, updatedAt: '2026-09-01T00:00:00.000000Z' } })),
+    data: ids.map((id) => ({
+      type: 'public-products',
+      id,
+      attributes: { sku: `SKU-${id}`, slug: withSlug ? `producto-${id}` : null, updatedAt: '2026-09-01T00:00:00.000000Z' },
+    })),
     meta: { page: { total, lastPage: Math.ceil(total / PRODUCT_CHUNK_SIZE) } },
   }
 }
@@ -104,11 +108,24 @@ describe('fetchers', () => {
     const fetchImpl = vi.fn<FetchLike>().mockResolvedValue(jsonResponse(productsPayload(['1', '2'], 2)))
     const products = await fetchProductChunk('https://api.test', 3, fetchImpl)
     expect(fetchImpl.mock.calls[0][0]).toBe(
-      'https://api.test/api/public/v1/public-products?fields[public-products]=sku,updatedAt&page[size]=5000&page[number]=3',
+      'https://api.test/api/public/v1/public-products?fields[public-products]=sku,slug,updatedAt&page[size]=5000&page[number]=3',
     )
     expect(products).toEqual([
-      { id: '1', updatedAt: '2026-09-01T00:00:00.000000Z' },
-      { id: '2', updatedAt: '2026-09-01T00:00:00.000000Z' },
+      { id: '1', slug: null, updatedAt: '2026-09-01T00:00:00.000000Z' },
+      { id: '2', slug: null, updatedAt: '2026-09-01T00:00:00.000000Z' },
+    ])
+  })
+
+  it('productEntries usa el slug cuando existe y el id cuando no (Bloque 1b)', () => {
+    const entries = productEntries('https://x.com', [
+      { id: '604', slug: 'jumper-hach-ha-001215' },
+      { id: '605', slug: null },
+      { id: '606', slug: '  ' },
+    ])
+    expect(entries.map((e) => e.url)).toEqual([
+      'https://x.com/productos/jumper-hach-ha-001215',
+      'https://x.com/productos/605',
+      'https://x.com/productos/606',
     ])
   })
 

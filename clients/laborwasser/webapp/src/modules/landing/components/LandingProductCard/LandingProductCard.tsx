@@ -16,7 +16,7 @@
 
 import React from 'react'
 import Link from 'next/link'
-import type { EnhancedPublicProduct } from '@lwm/ecommerce'
+import { productPath, type EnhancedPublicProduct } from '@lwm/ecommerce'
 import styles from './LandingProductCard.module.scss'
 
 export type LandingProductCardVariant = 'offer' | 'new' | 'catalog'
@@ -61,7 +61,7 @@ export const LandingProductCard: React.FC<LandingProductCardProps> = ({
   orientation = 'vertical',
   className,
 }) => {
-  const detailHref = `/productos/${product.id}`
+  const detailHref = productPath(product)
   const price = formatLandingPrice(product)
   const sku = product.attributes.sku
   const imageUrl = product.attributes.imageUrl

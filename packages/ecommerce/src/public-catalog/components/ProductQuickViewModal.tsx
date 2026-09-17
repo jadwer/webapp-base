@@ -12,6 +12,7 @@ import Link from 'next/link'
 import { usePublicProduct } from '../hooks/usePublicProducts'
 import { usePublicSettings } from '@lwm/app-config'
 import { taxHintLabel } from '../../utils/taxHint'
+import { productPath } from '../utils/productPath'
 import type { EnhancedPublicProduct } from '../types/publicProduct'
 
 interface ProductQuickViewModalProps {
@@ -184,7 +185,7 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
             </button>
             {showDetailsLink && (
               <Link
-                href={`/productos/${displayProduct.id}`}
+                href={productPath(displayProduct)}
                 className="btn btn-primary"
               >
                 <i className="bi bi-eye me-1"></i>

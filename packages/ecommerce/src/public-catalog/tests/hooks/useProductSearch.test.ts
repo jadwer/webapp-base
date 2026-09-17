@@ -122,6 +122,7 @@ describe('useProductSearch', () => {
     expect(result.current.results).toHaveLength(2)
     expect(result.current.results[0]).toEqual({
       id: '1',
+      path: '/productos/1',
       name: 'Product 1',
       displayPrice: '$100.00',
       currency: 'MXN',

@@ -34,7 +34,8 @@ import type {
   SinglePublicProductResponse
 } from './types/publicProduct'
 
-export type { PublicProductsPage, PublicCategorySummary }
+export type { PublicProductsPage, PublicCategorySummary, EnhancedPublicProduct }
+export { productPath, isNumericProductSegment } from './utils/productPath'
 // La consulta inicial del catalogo se importa desde aqui en server
 // components (el index del package arrastra modulos 'use client').
 export { catalogInitialQuery, CATALOG_PRODUCTS_INCLUDE } from './services/catalogQuery'
@@ -104,6 +105,25 @@ export async function fetchPublicProductServer(
   if (status === 404) return null
   if (!body) throw new PublicCatalogServerError(status, url)
   return enhancePublicProductResponse(body)
+}
+
+/**
+ * Ficha publica por slug (SEO Bloque 1b): filter[slug] sobre el indice
+ * publico (respeta activo/publico/marca/categoria activas). null si no hay.
+ */
+export async function fetchPublicProductBySlugServer(
+  slug: string,
+  include: PublicProductInclude = 'unit,category,brand,images,currency',
+  options: PublicCatalogServerOptions = {}
+): Promise<EnhancedPublicProduct | null> {
+  const clean = slug.trim()
+  if (!clean || clean.length > 191 || !/^[a-z0-9-]+$/.test(clean)) return null
+  const qs = buildPublicProductsQueryString({ sku: undefined }, undefined, { page: 1, size: 1 }, include)
+  const url = `${resolveBackendUrl(options.backendUrl)}${PUBLIC_PRODUCTS_PATH}?filter%5Bslug%5D=${encodeURIComponent(clean)}&${qs}`
+  const { status, body } = await getJson<PublicProductsResponse>(url, { revalidate: 3600, ...options })
+  if (!body) throw new PublicCatalogServerError(status, url)
+  const page = enhancePublicProductsResponse(body)
+  return page.products[0] ?? null
 }
 
 /** Categorias activas ordenadas por nombre, mismo shape que usePublicCategories. */
