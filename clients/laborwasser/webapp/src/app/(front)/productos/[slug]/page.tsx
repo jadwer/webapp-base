@@ -20,8 +20,11 @@ import {
   type EnhancedPublicProduct,
 } from '@lwm/ecommerce/server'
 import { ProductDetail } from '@/modules/catalog'
+import { JsonLd, breadcrumbJsonLd, productJsonLd } from '@/lib/seo/jsonLd'
 
 export const revalidate = 3600
+
+const HOST = (process.env.NEXT_PUBLIC_CANONICAL_HOST || 'https://laborwasserdemexico.com').replace(/\/+$/, '')
 
 interface ProductRouteProps {
   params: Promise<{ slug: string }>
@@ -99,5 +102,33 @@ export default async function ProductRoute({ params }: ProductRouteProps) {
     permanentRedirect(canonicalPath(product))
   }
 
-  return <ProductDetail productId={String(product.id)} initialProduct={product} />
+  // SEO Bloque 2: Product + BreadcrumbList (mismo breadcrumb que muestra la piel)
+  const url = `${HOST}${canonicalPath(product)}`
+  const category = product.category
+  const image = product.galleryImages?.[0]?.attributes.imageUrl || product.attributes.imageUrl || null
+  const productLd = productJsonLd({
+    name: product.attributes.name,
+    url,
+    sku: product.attributes.sku,
+    description: cleanText(product.attributes.fullDescription, 500) ?? cleanText(product.attributes.description, 500),
+    image,
+    brand: product.brand?.attributes.name,
+    category: category?.attributes.name,
+    price: product.attributes.price,
+    currency: product.currency?.attributes.code ?? 'MXN',
+  })
+  const breadcrumbLd = breadcrumbJsonLd([
+    { name: 'Inicio', url: `${HOST}/` },
+    { name: 'Productos', url: `${HOST}/productos` },
+    ...(category ? [{ name: category.attributes.name, url: `${HOST}/productos?categoryId=${category.id}` }] : []),
+    { name: product.attributes.name, url },
+  ])
+
+  return (
+    <>
+      <JsonLd data={productLd} />
+      <JsonLd data={breadcrumbLd} />
+      <ProductDetail productId={String(product.id)} initialProduct={product} />
+    </>
+  )
 }

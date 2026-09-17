@@ -30,6 +30,12 @@ export const metadata: Metadata = {
     siteName: 'Labor Wasser de México',
     locale: 'es_MX',
     type: 'website',
+    // Imagen por defecto para cualquier pagina sin og:image propia (SEO Bloque 2)
+    images: [{ url: '/images/laborwasser/labor-wasser-mexico-hero-1.webp', alt: 'Labor Wasser de México' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    images: ['/images/laborwasser/labor-wasser-mexico-hero-1.webp'],
   },
   // Favicon: Next 15 sirve automaticamente src/app/icon.png (cuadrado 256,
   // recortado y centrado del logo). El favicon anterior era el logo

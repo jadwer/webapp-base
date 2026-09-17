@@ -27,6 +27,8 @@ import ProductosClient from './ProductosClient'
 type SearchParams = Promise<Record<string, string | string[] | undefined>>
 
 const PAGE_SIZE = 24
+// Al definir openGraph en la pagina se pisa el del layout: repetir la imagen.
+const OG_IMAGE = { url: '/images/laborwasser/labor-wasser-mexico-hero-1.webp', alt: 'Labor Wasser de México' }
 const CATALOG_DESCRIPTION =
   'Catálogo de reactivos, material y equipo de laboratorio de Labor Wasser de México: más de 37,000 productos certificados con envío a todo el país.'
 
@@ -77,7 +79,7 @@ export async function generateMetadata({ searchParams }: { searchParams: SearchP
         title,
         description,
         alternates: { canonical: `/productos?categoryId=${category.id}` },
-        openGraph: { title, description, type: 'website' },
+        openGraph: { title, description, type: 'website', images: [OG_IMAGE] },
       }
     }
   }
@@ -86,7 +88,7 @@ export async function generateMetadata({ searchParams }: { searchParams: SearchP
     title: 'Catálogo de productos',
     description: CATALOG_DESCRIPTION,
     alternates: { canonical: '/productos' },
-    openGraph: { title: 'Catálogo de productos', description: CATALOG_DESCRIPTION, type: 'website' },
+    openGraph: { title: 'Catálogo de productos', description: CATALOG_DESCRIPTION, type: 'website', images: [OG_IMAGE] },
   }
 }
 
