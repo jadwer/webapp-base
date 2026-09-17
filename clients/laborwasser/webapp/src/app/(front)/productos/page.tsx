@@ -1,171 +1,97 @@
-'use client'
-
 /**
- * /productos (rediseno 2026-08): catalogo con motor/piel.
+ * /productos: server component (SEO Bloque 1, 2026-09).
  *
- * Motor: usePublicCatalogController de @lwm/ecommerce (estado de filtros,
- * orden, vista, paginacion, fetch y facetas; el mismo que usa el template
- * clasico de otros tenants). Piel: modulos del tenant (CatalogHero,
- * CatalogSidebar, CatalogToolbar, CatalogPagination) + LandingProductCard
- * variante catalog. Cierra con la seccion "Por que comprar" del home.
+ * Trae en servidor la primera pagina del catalogo (misma consulta inicial del
+ * motor: catalogInitialQuery) y las categorias, y se las pasa a
+ * ProductosClient. Asi el HTML ya contiene los 24 productos y el menu de
+ * categorias para el robot; la interaccion (filtros, orden, paginacion)
+ * sigue en cliente sin cambios.
  *
- * Comportamiento conservado: ?search= y ?categoryId= de la URL, agregar al
- * carrito local con toast, y Cotizar = carrito + /cart?action=quote.
+ * Si la API falla en servidor NO se rompe la pagina: se renderiza sin datos
+ * iniciales y el cliente carga como siempre (degradacion, no error).
+ *
+ * La ruta es dinamica (lee searchParams); los datos se cachean con
+ * `next.revalidate` (5 min productos, 1 h categorias).
  */
 
-import React, { Suspense, useCallback, useMemo } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import type { Metadata } from 'next'
 import {
-  usePublicCatalogController,
-  usePublicCategories,
-  useLocalCart,
-  type EnhancedPublicProduct,
-} from '@/modules/public-catalog'
-import { useToast } from '@/ui/hooks/useToast'
-import { LandingProductCard, LandingProductCardSkeleton, PorQueComprar } from '@/modules/landing'
-import { CatalogHero, CatalogSidebar, CatalogToolbar, CatalogPagination } from '@/modules/catalog'
-import styles from './productos.module.scss'
+  catalogInitialQuery,
+  fetchPublicCatalogServer,
+  fetchPublicCategoriesServer,
+  type PublicCategorySummary,
+  type PublicProductsPage,
+} from '@lwm/ecommerce/server'
+import ProductosClient from './ProductosClient'
 
-export default function ProductosPage() {
-  return (
-    <Suspense
-      fallback={
-        <div className="container-fluid py-4 text-center">
-          <div className="spinner-border text-primary" role="status">
-            <span className="visually-hidden">Cargando...</span>
-          </div>
-        </div>
-      }
-    >
-      <ProductosContent />
-    </Suspense>
-  )
+type SearchParams = Promise<Record<string, string | string[] | undefined>>
+
+const PAGE_SIZE = 24
+const CATALOG_DESCRIPTION =
+  'Catálogo de reactivos, material y equipo de laboratorio de Labor Wasser de México: más de 37,000 productos certificados con envío a todo el país.'
+
+function firstParam(value: string | string[] | undefined): string | undefined {
+  const v = Array.isArray(value) ? value[0] : value
+  const trimmed = v?.trim()
+  return trimmed ? trimmed : undefined
 }
 
-function ProductosContent() {
-  const toast = useToast()
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const initialSearch = searchParams.get('search') || undefined
-  const initialCategoryId = searchParams.get('categoryId') || undefined
-
-  // Categorias con counts reales del backend (productsCount)
-  const { categories: publicCategories } = usePublicCategories({ limit: 100 })
-  const categoryOptions = useMemo(
-    () =>
-      publicCategories.map((c: { id: string; name: string; productsCount?: number }) => ({
-        value: String(c.id),
-        label: c.name,
-        count: c.productsCount,
-      })),
-    [publicCategories]
-  )
-
-  const controller = usePublicCatalogController({
-    initialFilters: { search: initialSearch, categoryId: initialCategoryId },
+async function loadInitial(search?: string, categoryId?: string) {
+  const query = catalogInitialQuery({
+    initialFilters: { search, categoryId },
     initialSortField: 'name',
     initialSortDirection: 'asc',
-    initialViewMode: 'list',
-    initialPageSize: 24,
-    categories: categoryOptions,
+    initialPageSize: PAGE_SIZE,
   })
+  const [catalog, categories] = await Promise.all([
+    fetchPublicCatalogServer(query, { revalidate: 300 }).catch((): PublicProductsPage | undefined => undefined),
+    fetchPublicCategoriesServer(100, { revalidate: 3600 }).catch((): PublicCategorySummary[] | undefined => undefined),
+  ])
+  return { catalog, categories }
+}
 
-  const { addToCart } = useLocalCart()
+export async function generateMetadata({ searchParams }: { searchParams: SearchParams }): Promise<Metadata> {
+  const sp = await searchParams
+  const search = firstParam(sp.search)
+  const categoryId = firstParam(sp.categoryId)
 
-  const handleAddToCart = useCallback(
-    (product: EnhancedPublicProduct) => {
-      addToCart(product, 1)
-      toast.success(`${product.displayName} agregado al carrito`)
-    },
-    [addToCart, toast]
-  )
+  // Resultados de busqueda: no indexar (contenido duplicado); canonical al catalogo.
+  if (search) {
+    return {
+      title: `Resultados para "${search}"`,
+      description: CATALOG_DESCRIPTION,
+      robots: { index: false, follow: true },
+      alternates: { canonical: '/productos' },
+    }
+  }
 
-  const handleRequestQuote = useCallback(
-    (product: EnhancedPublicProduct) => {
-      addToCart(product, 1)
-      toast.info(`${product.displayName} agregado. Redirigiendo a cotización...`)
-      // Dejar que React/localStorage persistan el carrito antes de navegar
-      setTimeout(() => router.push('/cart?action=quote'), 50)
-    },
-    [addToCart, toast, router]
-  )
+  if (categoryId) {
+    const categories = await fetchPublicCategoriesServer(100, { revalidate: 3600 }).catch(() => [] as PublicCategorySummary[])
+    const category = categories.find((c) => c.id === categoryId)
+    if (category) {
+      const title = `${category.name}: productos de laboratorio`
+      const description = category.description
+        ? `${category.name}. ${category.description}`.slice(0, 160)
+        : `${category.name} en Labor Wasser de México: ${category.productsCount ?? ''} productos certificados con envío a todo el país.`.replace(':  ', ': ')
+      return {
+        title,
+        description,
+        alternates: { canonical: `/productos?categoryId=${category.id}` },
+        openGraph: { title, description, type: 'website' },
+      }
+    }
+  }
 
-  const { products, isLoading, error, viewMode, handleRefresh } = controller
-  const isList = viewMode === 'list'
+  return {
+    title: 'Catálogo de productos',
+    description: CATALOG_DESCRIPTION,
+    alternates: { canonical: '/productos' },
+    openGraph: { title: 'Catálogo de productos', description: CATALOG_DESCRIPTION, type: 'website' },
+  }
+}
 
-  return (
-    <>
-      <CatalogHero />
-
-      <div className={`container ${styles.layout}`}>
-        <CatalogSidebar controller={controller} />
-
-        <div className={styles.main}>
-          <CatalogToolbar controller={controller} />
-
-          {error && (
-            <div className="alert alert-danger d-flex align-items-center" role="alert">
-              <i className="bi bi-exclamation-triangle me-2" aria-hidden="true" />
-              <div>
-                Error al cargar productos.
-                <button type="button" className="btn btn-sm btn-outline-danger ms-3" onClick={handleRefresh}>
-                  Reintentar
-                </button>
-              </div>
-            </div>
-          )}
-
-          {!error && (
-            <div className={isList ? styles.list : `row g-4 ${styles.grid}`}>
-              {isLoading &&
-                Array.from({ length: 6 }).map((_, i) =>
-                  isList ? (
-                    <LandingProductCardSkeleton key={i} variant="new" />
-                  ) : (
-                    <div key={i} className="col-12 col-md-6 col-xl-4">
-                      <LandingProductCardSkeleton variant="new" />
-                    </div>
-                  )
-                )}
-
-              {!isLoading &&
-                products.map((product) =>
-                  isList ? (
-                    <LandingProductCard
-                      key={product.id}
-                      product={product}
-                      variant="catalog"
-                      orientation="horizontal"
-                      onAddToCart={handleAddToCart}
-                      onRequestQuote={handleRequestQuote}
-                    />
-                  ) : (
-                    <div key={product.id} className="col-12 col-md-6 col-xl-4">
-                      <LandingProductCard
-                        product={product}
-                        variant="catalog"
-                        onAddToCart={handleAddToCart}
-                        onRequestQuote={handleRequestQuote}
-                      />
-                    </div>
-                  )
-                )}
-
-              {!isLoading && products.length === 0 && (
-                <div className={styles.empty}>
-                  <i className="bi bi-search" aria-hidden="true" />
-                  <h3>No se encontraron productos</h3>
-                  <p>Ajusta los filtros o intenta con otra búsqueda.</p>
-                </div>
-              )}
-            </div>
-          )}
-
-          <CatalogPagination controller={controller} />
-        </div>
-      </div>
-
-      <PorQueComprar />
-    </>
-  )
+export default async function ProductosPage({ searchParams }: { searchParams: SearchParams }) {
+  const sp = await searchParams
+  const { catalog, categories } = await loadInitial(firstParam(sp.search), firstParam(sp.categoryId))
+  return <ProductosClient initialCatalog={catalog} initialCategories={categories} />
 }

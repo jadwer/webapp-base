@@ -19,10 +19,13 @@ import type {
   EnhancedPublicProduct,
   FilterOption
 } from '../types/publicProduct'
+import type { PublicProductsPage } from '../services/publicProductsTransform'
 
 interface PublicCatalogTemplateProps {
   // Initial state
   initialFilters?: Partial<PublicProductFilters>
+  /** Pagina inicial prerenderizada en servidor (SEO Bloque 1); ver usePublicCatalogController */
+  initialData?: PublicProductsPage
   initialSortField?: PublicProductSortField
   initialSortDirection?: SortDirection
   initialViewMode?: ProductViewMode
@@ -77,6 +80,7 @@ interface PublicCatalogTemplateProps {
 
 export const PublicCatalogTemplate: React.FC<PublicCatalogTemplateProps> = ({
   initialFilters = {},
+  initialData,
   initialSortField = 'name',
   initialSortDirection = 'asc',
   initialViewMode = 'grid',
@@ -134,6 +138,7 @@ export const PublicCatalogTemplate: React.FC<PublicCatalogTemplateProps> = ({
     handleRefresh
   } = usePublicCatalogController({
     initialFilters,
+    initialData,
     initialSortField,
     initialSortDirection,
     initialViewMode,

@@ -20,7 +20,7 @@ export {
 // Export debounced typeahead search hook
 export { useProductSearch } from './useProductSearch'
 export { usePublicCategories } from './usePublicCategories'
-export type { PublicCategory } from './usePublicCategories'
+export type { PublicCategory, PublicCategorySummary } from './usePublicCategories'
 export type {
   ProductSearchResult,
   UseProductSearchResult
@@ -54,5 +54,8 @@ export type {
 
 export { usePublicCatalogController } from './usePublicCatalogController'
 export type { PublicCatalogController, PublicCatalogControllerOptions } from './usePublicCatalogController'
+export { catalogInitialQuery, CATALOG_PRODUCTS_INCLUDE } from '../services/catalogQuery'
+export type { CatalogInitialQueryOptions, CatalogQuery } from '../services/catalogQuery'
+export { createProductsKey, createProductKey } from './usePublicProducts'
 export { useLocalCartPageController } from './useLocalCartPageController'
 export type { LocalCartPageController, LocalCartPageControllerOptions } from './useLocalCartPageController'

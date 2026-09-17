@@ -36,8 +36,16 @@ function formatDetailPrice(product: EnhancedPublicProduct): string | null {
   return `$${price.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
 }
 
-export const ProductDetail: React.FC<{ productId: string }> = ({ productId }) => {
-  const { product, isLoading, error } = usePublicProduct(productId, 'unit,category,brand,images,currency')
+export interface ProductDetailProps {
+  productId: string
+  /** Ficha prerenderizada en servidor (SEO Bloque 1): el HTML ya trae el producto. */
+  initialProduct?: EnhancedPublicProduct | null
+}
+
+export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, initialProduct }) => {
+  const { product, isLoading, error } = usePublicProduct(productId, 'unit,category,brand,images,currency', {
+    fallbackData: initialProduct ?? undefined,
+  })
   const { suggestions } = useProductSuggestions(productId, 8)
   const { addToCart } = useLocalCart()
   const toast = useToast()

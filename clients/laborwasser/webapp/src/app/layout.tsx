@@ -3,6 +3,10 @@ import Script from 'next/script'
 import { NavigationProgress } from '@lwm/ui'
 import '@/styles/main.scss'
 
+// Solo IDs de GA4 con forma valida; cualquier otra cosa se ignora (nunca se
+// interpola texto arbitrario dentro del script).
+const GA_ID = /^G-[A-Z0-9]{4,}$/.test(process.env.NEXT_PUBLIC_GA_ID ?? '') ? process.env.NEXT_PUBLIC_GA_ID : undefined
+
 export const metadata: Metadata = {
   title: {
     default: 'Labor Wasser de México',
@@ -54,6 +58,21 @@ export default function RootLayout({
           src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
           strategy="afterInteractive"
         />
+        {/* Google Analytics 4 (gtag). El sitio legado (rama master) llevaba
+            G-BG4P3QWZW3 hardcodeado y se perdio en el cutover de julio 2026;
+            desde SEO Bloque 1 se inyecta por NEXT_PUBLIC_GA_ID (solo en el
+            build de prod; dev y demo no lo definen y no envian hits). */}
+        {GA_ID && (
+          <>
+            <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`} strategy="afterInteractive" />
+            <Script id="google-analytics" strategy="afterInteractive">
+              {`window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', '${GA_ID}');`}
+            </Script>
+          </>
+        )}
       </body>
     </html>
   )

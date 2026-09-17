@@ -2,7 +2,9 @@ import { describe, it, expect, vi } from 'vitest'
 import {
   absoluteUrl,
   buildSitemap,
+  categoryEntries,
   dedupeEntries,
+  fetchPublicCategoryRefs,
   fetchProductChunk,
   fetchPublishedPages,
   listSitemapIds,
@@ -130,14 +132,41 @@ describe('listSitemapIds', () => {
   })
 })
 
+const categoriesPayload = {
+  data: [
+    { type: 'public-categories', id: '1', attributes: { name: 'Reactivos', slug: 'x', updatedAt: '2025-08-02T23:34:41.000000Z' } },
+    { type: 'public-categories', id: '4', attributes: { name: 'Refacciones', slug: 'y' } },
+  ],
+}
+
+function fetchByUrl(): FetchLike {
+  return vi.fn<FetchLike>().mockImplementation(async (url) => {
+    if (url.includes('/api/v1/pages')) return jsonResponse(pagesPayload)
+    if (url.includes('public-categories')) return jsonResponse(categoriesPayload)
+    return jsonResponse({}, 404)
+  })
+}
+
+describe('categorias', () => {
+  it('fetchPublicCategoryRefs pide activas por nombre y categoryEntries apunta al filtro canonico', async () => {
+    const fetchImpl = fetchByUrl()
+    const refs = await fetchPublicCategoryRefs('https://api.test', fetchImpl)
+    expect((fetchImpl as ReturnType<typeof vi.fn>).mock.calls[0][0]).toBe('https://api.test/api/public/v1/public-categories?page[size]=100&sort=name')
+    expect(refs).toEqual([{ id: '1', updatedAt: '2025-08-02T23:34:41.000000Z' }, { id: '4', updatedAt: undefined }])
+    expect(categoryEntries('https://x.com', refs)[0]).toMatchObject({ url: 'https://x.com/productos?categoryId=1', priority: 0.7 })
+  })
+})
+
 describe('buildSitemap', () => {
-  it('id 0 = estaticas + paginas publicadas, sin duplicar una ruta estatica que tambien es pagina', async () => {
-    const fetchImpl = vi.fn<FetchLike>().mockResolvedValue(jsonResponse(pagesPayload))
+  it('id 0 = estaticas + categorias + paginas publicadas, sin duplicar una ruta estatica que tambien es pagina', async () => {
+    const fetchImpl = fetchByUrl()
     const entries = await buildSitemap(0, source, fetchImpl)
     expect(entries.map((e) => e.url)).toEqual([
       'https://tenant.test/',
       'https://tenant.test/productos',
       'https://tenant.test/nosotros',
+      'https://tenant.test/productos?categoryId=1',
+      'https://tenant.test/productos?categoryId=4',
       'https://tenant.test/aviso-privacidad',
     ])
     expect(entries[2].priority).toBe(0.8)

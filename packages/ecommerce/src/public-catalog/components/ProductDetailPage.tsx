@@ -19,6 +19,8 @@ import type { EnhancedPublicProduct } from '../types/publicProduct'
 
 interface ProductDetailPageProps {
   productId: string
+  /** Ficha prerenderizada en servidor (SEO Bloque 1): sin spinner ni doble fetch */
+  initialProduct?: EnhancedPublicProduct | null
   onAddToCart?: (product: EnhancedPublicProduct) => void
   onRequestQuote?: (product: EnhancedPublicProduct) => void
   backUrl?: string
@@ -27,6 +29,7 @@ interface ProductDetailPageProps {
 
 export default function ProductDetailPage({
   productId,
+  initialProduct,
   onAddToCart,
   onRequestQuote,
   backUrl = '/productos',
@@ -36,7 +39,9 @@ export default function ProductDetailPage({
   // Request the images relation explicitly: the hook default include omits it,
   // so galleryImages never loaded and the thumbnail strip was dead code. The
   // main image still falls back to attributes.imageUrl when the gallery is empty.
-  const { product, isLoading, error } = usePublicProduct(productId, 'unit,category,brand,images,currency')
+  const { product, isLoading, error } = usePublicProduct(productId, 'unit,category,brand,images,currency', {
+    fallbackData: initialProduct ?? undefined
+  })
   const { suggestions, isLoading: suggestionsLoading } = useProductSuggestions(productId, 4)
   const { addToCart, isInCart, getQuantity } = useLocalCart()
   const { pricesIncludeTax } = usePublicSettings()

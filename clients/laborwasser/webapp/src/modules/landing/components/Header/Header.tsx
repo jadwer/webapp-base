@@ -19,20 +19,25 @@
 import React, { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useLocalCartCount, ProductSearchBox, usePublicCategories } from '@lwm/ecommerce'
+import { useLocalCartCount, ProductSearchBox, usePublicCategories, type PublicCategorySummary } from '@lwm/ecommerce'
 import { useAuth } from '@lwm/auth'
 import { useIsClient } from '@/hooks/useIsClient'
 import { usePublicSettings } from '@lwm/app-config'
 import { ContactOffcanvas } from '../ContactOffcanvas/ContactOffcanvas'
 import styles from './Header.module.scss'
 
-export const Header: React.FC = () => {
+export interface HeaderProps {
+  /** Categorias traidas en servidor por el layout (SEO Bloque 1); sin ellas se cargan en cliente. */
+  initialCategories?: PublicCategorySummary[]
+}
+
+export const Header: React.FC<HeaderProps> = ({ initialCategories }) => {
   const cartItemCount = useLocalCartCount()
   const { user, isAuthenticated, isLoading, logout } = useAuth()
   const isClient = useIsClient()
   const { get } = usePublicSettings()
   const pathname = usePathname()
-  const { categories, isLoading: categoriesLoading } = usePublicCategories({ limit: 50 })
+  const { categories, isLoading: categoriesLoading } = usePublicCategories({ limit: 50, initialData: initialCategories })
 
   const logoSrc = get('company.logo_path_alt') || '/images/laborwasser/labor-wasser-mexico-logo2.webp'
   const companyName = get('company.name') || 'Labor Wasser de México'

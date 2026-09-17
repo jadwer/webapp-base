@@ -8,6 +8,7 @@
 import useSWR from 'swr/immutable'
 import { useMemo } from 'react'
 import { publicProductsService } from '../services/publicProductsService'
+import type { PublicProductsPage } from '../services/publicProductsTransform'
 import type {
   PublicProductFilters,
   PublicProductSort,
@@ -19,9 +20,11 @@ import type {
 } from '../types/publicProduct'
 
 /**
- * Generate SWR cache key for products list
+ * Generate SWR cache key for products list.
+ * Exportada (SEO Bloque 1) para que el controller compare la consulta actual
+ * con la que el servidor prerenderizo y solo entonces use el fallback.
  */
-function createProductsKey(
+export function createProductsKey(
   filters?: PublicProductFilters,
   sort?: PublicProductSort[],
   pagination?: PublicProductPagination,
@@ -51,7 +54,7 @@ function createProductsKey(
 /**
  * Generate SWR cache key for single product
  */
-function createProductKey(id: string, include?: PublicProductInclude): string {
+export function createProductKey(id: string, include?: PublicProductInclude): string {
   const keyParts = ['public-product', id]
   
   if (include) {
@@ -73,10 +76,18 @@ export function usePublicProducts(
     refreshInterval?: number
     revalidateOnFocus?: boolean
     revalidateOnReconnect?: boolean
+    /**
+     * Datos prerenderizados en servidor (SEO Bloque 1). Con fallbackData SWR
+     * NO revalida al montar, asi que el HTML del servidor y el primer render
+     * del cliente coinciden y no se duplica la peticion. OJO: aplica a
+     * cualquier clave de este hook mientras data sea undefined; pasarlo solo
+     * cuando la consulta actual es la misma que se prerenderizo.
+     */
+    fallbackData?: PublicProductsPage
   }
 ): UsePublicProductsResult {
   const cacheKey = createProductsKey(filters, sort, pagination, include)
-  
+
   const {
     data,
     error,
@@ -92,7 +103,8 @@ export function usePublicProducts(
       // Keep previous data while revalidating for better UX
       keepPreviousData: true,
       // Dedupe requests within 5 seconds
-      dedupingInterval: 5000
+      dedupingInterval: 5000,
+      ...(options?.fallbackData ? { fallbackData: options.fallbackData } : {})
     }
   )
 
@@ -143,10 +155,12 @@ export function usePublicProduct(
   options?: {
     refreshInterval?: number
     revalidateOnFocus?: boolean
+    /** Ficha prerenderizada en servidor (SEO Bloque 1); evita spinner y doble fetch. */
+    fallbackData?: EnhancedPublicProduct | null
   }
 ): UsePublicProductResult {
   const cacheKey = id ? createProductKey(id, include) : null
-  
+
   const {
     data,
     error,
@@ -160,7 +174,8 @@ export function usePublicProduct(
       revalidateOnFocus: options?.revalidateOnFocus ?? false,
       revalidateOnReconnect: true,
       // Keep data fresh for single products
-      keepPreviousData: true
+      keepPreviousData: true,
+      ...(options?.fallbackData ? { fallbackData: options.fallbackData } : {})
     }
   )
 

@@ -14,7 +14,13 @@
  */
 
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react'
-import { usePublicProducts } from './usePublicProducts'
+import { usePublicProducts, createProductsKey } from './usePublicProducts'
+import type { PublicProductsPage } from '../services/publicProductsTransform'
+import {
+  catalogInitialQuery,
+  CATALOG_PRODUCTS_INCLUDE,
+  type CatalogInitialQueryOptions
+} from '../services/catalogQuery'
 import type {
   PublicProductFilters,
   PublicProductSortField,
@@ -24,17 +30,23 @@ import type {
   FilterOption
 } from '../types/publicProduct'
 
-export interface PublicCatalogControllerOptions {
-  initialFilters?: Partial<PublicProductFilters>
-  initialSortField?: PublicProductSortField
-  initialSortDirection?: SortDirection
+// catalogInitialQuery vive en services/catalogQuery.ts (modulo puro) porque
+// los server components tambien la usan; aqui solo se consume.
+
+export interface PublicCatalogControllerOptions extends CatalogInitialQueryOptions {
   initialViewMode?: ProductViewMode
-  initialPageSize?: number
   /** Opciones externas; si vienen vacias se derivan de los productos */
   categories?: FilterOption[]
   brands?: FilterOption[]
   units?: FilterOption[]
   refreshInterval?: number
+  /**
+   * Pagina inicial prerenderizada en servidor (SEO Bloque 1), obtenida con
+   * fetchPublicCatalogServer(catalogInitialQuery(...)). Solo se usa como
+   * fallback mientras la consulta actual coincide con la inicial; al cambiar
+   * filtros/orden/pagina el hook vuelve a su flujo normal (skeleton + fetch).
+   */
+  initialData?: PublicProductsPage
 }
 
 /** Normalizes a single-or-multi filter value into an id array. */
@@ -77,13 +89,13 @@ export function usePublicCatalogController({
   categories = [],
   brands = [],
   units = [],
-  refreshInterval = 300000
+  refreshInterval = 300000,
+  initialData
 }: PublicCatalogControllerOptions = {}) {
   // State management
-  const [filters, setFilters] = useState<PublicProductFilters>({
-    isActive: true,
-    ...initialFilters
-  })
+  const [filters, setFilters] = useState<PublicProductFilters>(
+    () => catalogInitialQuery({ initialFilters }).filters
+  )
 
   const [sortField, setSortField] = useState<PublicProductSortField>(initialSortField)
   const [sortDirection, setSortDirection] = useState<SortDirection>(initialSortDirection)
@@ -102,7 +114,7 @@ export function usePublicCatalogController({
   useEffect(() => {
     if (appliedInitialFiltersRef.current === serializedInitialFilters) return
     appliedInitialFiltersRef.current = serializedInitialFilters
-    setFilters({ isActive: true, ...JSON.parse(serializedInitialFilters) })
+    setFilters(catalogInitialQuery({ initialFilters: JSON.parse(serializedInitialFilters) }).filters)
     setCurrentPage(1)
   }, [serializedInitialFilters])
 
@@ -116,6 +128,22 @@ export function usePublicCatalogController({
     size: pageSize
   }), [currentPage, pageSize])
 
+  // Fallback prerenderizado: solo mientras la consulta actual es la inicial.
+  // Sin esta comparacion SWR devolveria la pagina inicial (sin skeleton) al
+  // cambiar de filtro, porque fallbackData aplica a cualquier clave sin data.
+  const initialKey = useMemo(() => {
+    if (!initialData) return null
+    const q = catalogInitialQuery({
+      initialFilters: JSON.parse(serializedInitialFilters),
+      initialSortField,
+      initialSortDirection,
+      initialPageSize
+    })
+    return createProductsKey(q.filters, q.sort, q.pagination, q.include)
+  }, [initialData, serializedInitialFilters, initialSortField, initialSortDirection, initialPageSize])
+  const currentKey = createProductsKey(filters, sortParams, paginationParams, CATALOG_PRODUCTS_INCLUDE)
+  const fallbackData = initialData && currentKey === initialKey ? initialData : undefined
+
   // Fetch products with SWR
   const {
     products,
@@ -128,11 +156,12 @@ export function usePublicCatalogController({
     filters,
     sortParams,
     paginationParams,
-    'unit,category,brand,images,currency',
+    CATALOG_PRODUCTS_INCLUDE,
     {
       refreshInterval,
       revalidateOnFocus: false,
-      revalidateOnReconnect: true
+      revalidateOnReconnect: true,
+      fallbackData
     }
   )
 

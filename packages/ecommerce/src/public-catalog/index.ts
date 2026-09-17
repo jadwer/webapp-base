@@ -86,6 +86,22 @@ export {
   migrateLegacyCartStorage
 } from './hooks'
 
+// SEO Bloque 1: consulta inicial y claves de cache para prerender en servidor
+export { catalogInitialQuery, CATALOG_PRODUCTS_INCLUDE } from './services/catalogQuery'
+export type { CatalogInitialQueryOptions, CatalogQuery } from './services/catalogQuery'
+export { createProductsKey, createProductKey } from './hooks'
+export {
+  buildPublicProductsQueryParams,
+  buildPublicProductsQueryString,
+  enhancePublicProduct,
+  enhancePublicProductsResponse,
+  enhancePublicProductResponse,
+  formatPublicPrice
+} from './services/publicProductsTransform'
+export type { PublicProductsPage } from './services/publicProductsTransform'
+export { mapPublicCategories } from './services/publicCategoriesTransform'
+export type { PublicCategorySummary } from './services/publicCategoriesTransform'
+
 // Export cart types
 export type {
   LocalCartItem,

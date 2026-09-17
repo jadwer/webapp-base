@@ -10,7 +10,7 @@
  *                  (id == numero de pagina del endpoint publico)
  * /sitemap.xml es el indice que apunta a todos ellos.
  *
- * Categorias: fuera hasta que tengan URL propia en el front (Fase 1).
+ * Categorias: /productos?categoryId=<id> (canonica desde SEO Bloque 1).
  * Marcas: no existe endpoint publico.
  */
 
@@ -102,6 +102,27 @@ export async function fetchPublishedPages(backendUrl: string, fetchImpl: FetchLi
     .map((item) => ({ slug: item.attributes.slug as string, updatedAt: item.attributes.updatedAt }))
 }
 
+export interface PublicCategoryRef {
+  id: string
+  updatedAt?: string
+}
+
+/** Categorias activas; su URL canonica en el front es /productos?categoryId=<id> (SEO Bloque 1). */
+export async function fetchPublicCategoryRefs(backendUrl: string, fetchImpl: FetchLike): Promise<PublicCategoryRef[]> {
+  const url = `${backendUrl}/api/public/v1/public-categories?page[size]=100&sort=name`
+  const body = await fetchJsonApi<{ updatedAt?: string }>(url, fetchImpl)
+  return body.data.map((item) => ({ id: item.id, updatedAt: item.attributes.updatedAt }))
+}
+
+export function categoryEntries(host: string, categories: PublicCategoryRef[]): SitemapEntry[] {
+  return categories.map((category) => ({
+    url: absoluteUrl(host, `/productos?categoryId=${encodeURIComponent(category.id)}`),
+    lastModified: category.updatedAt,
+    changeFrequency: 'weekly',
+    priority: 0.7,
+  }))
+}
+
 export function staticEntries(host: string, paths: string[]): SitemapEntry[] {
   return paths.map((path) => ({
     url: absoluteUrl(host, path),
@@ -152,9 +173,13 @@ export async function buildSitemap(rawId: number | string, source: SitemapSource
   if (!Number.isInteger(id) || id < 0) return []
 
   if (id === 0) {
-    const pages = await fetchPublishedPages(source.backendUrl, fetchImpl)
+    const [pages, categories] = await Promise.all([
+      fetchPublishedPages(source.backendUrl, fetchImpl),
+      fetchPublicCategoryRefs(source.backendUrl, fetchImpl),
+    ])
     return dedupeEntries([
       ...staticEntries(source.host, source.staticPaths),
+      ...categoryEntries(source.host, categories),
       ...pageEntries(source.host, pages),
     ])
   }

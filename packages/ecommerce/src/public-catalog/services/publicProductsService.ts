@@ -2,213 +2,32 @@
  * PUBLIC PRODUCTS SERVICE
  * Complete API service for Public Products following JSON:API 5.x specification
  * Endpoints: /api/public/v1/public-products
+ *
+ * El armado de query y la resolucion de relaciones viven en
+ * publicProductsTransform.ts (puro) para compartirlos con los fetchers de
+ * servidor (server.ts). Aqui solo queda el transporte con axios.
  */
 
 import { axiosClient } from '@lwm/auth'
 import type {
-  PublicProduct,
   PublicProductFilters,
   PublicProductSort,
   PublicProductPagination,
   PublicProductInclude,
-  PublicProductsQueryParams,
   PublicProductsResponse,
   SinglePublicProductResponse,
-  EnhancedPublicProduct,
-  PublicUnit,
-  PublicCategory,
-  PublicBrand,
-  PublicCurrency,
-  PublicProductImage
+  EnhancedPublicProduct
 } from '../types/publicProduct'
+import {
+  PUBLIC_PRODUCTS_PATH,
+  buildPublicProductsQueryParams,
+  enhancePublicProductResponse,
+  enhancePublicProductsResponse,
+  type PublicProductsPage
+} from './publicProductsTransform'
 
 class PublicProductsService {
-  private readonly baseUrl = '/api/public/v1/public-products'
-
-  /**
-   * Transform filters to JSON:API query parameters
-   */
-  private buildQueryParams(
-    filters?: PublicProductFilters,
-    sort?: PublicProductSort[],
-    pagination?: PublicProductPagination,
-    include?: PublicProductInclude
-  ): PublicProductsQueryParams {
-    const params: PublicProductsQueryParams = {}
-
-    // Apply filters
-    if (filters) {
-      if (filters.search) {
-        params['filter[search]'] = filters.search
-      }
-      
-      // Multi-value filters: backend maps plural params (brands/categories/units)
-      // to WhereIn with comma delimiter. Singular *_id params only accept a
-      // single value, so we always send the plural form (works for 1..n values).
-      if (filters.categoryId) {
-        params['filter[categories]'] = Array.isArray(filters.categoryId)
-          ? filters.categoryId.join(',')
-          : filters.categoryId
-      }
-
-      if (filters.brandId) {
-        params['filter[brands]'] = Array.isArray(filters.brandId)
-          ? filters.brandId.join(',')
-          : filters.brandId
-      }
-
-      if (filters.unitId) {
-        params['filter[units]'] = Array.isArray(filters.unitId)
-          ? filters.unitId.join(',')
-          : filters.unitId
-      }
-
-      if (filters.priceMin !== undefined) {
-        params['filter[price_min]'] = filters.priceMin.toString()
-      }
-
-      if (filters.priceMax !== undefined) {
-        params['filter[price_max]'] = filters.priceMax.toString()
-      }
-      
-      // is_active filter not supported by API - removing for now
-      // if (filters.isActive !== undefined) {
-      //   params['filter[is_active]'] = filters.isActive ? '1' : '0'
-      // }
-
-      // On sale filter
-      if (filters.isOnSale !== undefined) {
-        params['filter[is_on_sale]'] = filters.isOnSale ? '1' : '0'
-      }
-
-      if (filters.sku) {
-        params['filter[sku]'] = filters.sku
-      }
-    }
-
-    // Apply sorting
-    if (sort && sort.length > 0) {
-      const sortString = sort
-        .map(s => s.direction === 'desc' ? `-${s.field}` : s.field)
-        .join(',')
-      params.sort = sortString
-    }
-
-    // Apply pagination
-    if (pagination) {
-      if (pagination.page !== undefined) {
-        params['page[number]'] = pagination.page.toString()
-      }
-      if (pagination.size !== undefined) {
-        params['page[size]'] = pagination.size.toString()
-      }
-    }
-
-    // Apply includes
-    if (include) {
-      params.include = include
-    }
-
-    return params
-  }
-
-  /**
-   * Resolve relationships from included resources
-   */
-  private resolveRelationships(
-    product: PublicProduct,
-    included?: (PublicUnit | PublicCategory | PublicBrand | PublicCurrency | PublicProductImage)[]
-  ): EnhancedPublicProduct {
-    const enhanced: EnhancedPublicProduct = {
-      ...product,
-      displayName: product.attributes.name,
-      displayPrice: this.formatPrice(product.attributes.price),
-      displayCurrency: 'MXN',
-      displayCategory: 'Sin categoría',
-      displayBrand: 'Sin marca',
-      displayUnit: 'Sin unidad'
-    }
-
-    if (!included) return enhanced
-
-    // Resolve currency relationship
-    if (product.relationships.currency?.data) {
-      const curr = included.find(
-        item => item.type === 'currencies' && item.id === product.relationships.currency?.data?.id
-      ) as PublicCurrency | undefined
-
-      if (curr) {
-        enhanced.currency = curr
-        enhanced.displayCurrency = curr.attributes.code
-        enhanced.displayPrice = this.formatPrice(product.attributes.price, curr.attributes.code)
-      }
-    }
-
-    // Resolve unit relationship
-    if (product.relationships.unit.data) {
-      const unit = included.find(
-        item => item.type === 'units' && item.id === product.relationships.unit.data?.id
-      ) as PublicUnit | undefined
-
-      if (unit) {
-        enhanced.unit = unit
-        enhanced.displayUnit = unit.attributes.abbreviation || unit.attributes.name
-      }
-    }
-
-    // Resolve category relationship
-    if (product.relationships.category.data) {
-      const category = included.find(
-        item => item.type === 'categories' && item.id === product.relationships.category.data?.id
-      ) as PublicCategory | undefined
-
-      if (category) {
-        enhanced.category = category
-        enhanced.displayCategory = category.attributes.name
-      }
-    }
-
-    // Resolve brand relationship
-    if (product.relationships.brand.data) {
-      const brand = included.find(
-        item => item.type === 'brands' && item.id === product.relationships.brand.data?.id
-      ) as PublicBrand | undefined
-
-      if (brand) {
-        enhanced.brand = brand
-        enhanced.displayBrand = brand.attributes.name
-      }
-    }
-
-    // Resolve images relationship
-    if (product.relationships.images?.data) {
-      const imageIds = new Set(product.relationships.images.data.map(r => r.id))
-      const images = included
-        .filter((item): item is PublicProductImage => item.type === 'product-images' && imageIds.has(item.id))
-        .sort((a, b) => (a.attributes.sortOrder ?? 0) - (b.attributes.sortOrder ?? 0))
-      if (images.length > 0) {
-        enhanced.galleryImages = images
-      }
-    }
-
-    return enhanced
-  }
-
-  /**
-   * Format price for display
-   */
-  private formatPrice(price: number | null, currencyCode: string = 'MXN'): string {
-    if (price === null || price === undefined) {
-      return 'Precio no disponible'
-    }
-
-    return new Intl.NumberFormat('es-MX', {
-      style: 'currency',
-      currency: currencyCode,
-      currencyDisplay: 'narrowSymbol',
-      minimumFractionDigits: 2
-    }).format(price)
-  }
+  private readonly baseUrl = PUBLIC_PRODUCTS_PATH
 
   /**
    * Get all public products with filtering, sorting, and pagination
@@ -218,31 +37,14 @@ class PublicProductsService {
     sort?: PublicProductSort[],
     pagination?: PublicProductPagination,
     include: PublicProductInclude = 'unit,category,brand,currency'
-  ): Promise<{
-    products: EnhancedPublicProduct[]
-    meta: PublicProductsResponse['meta']
-    links: PublicProductsResponse['links']
-  }> {
-    const queryParams = this.buildQueryParams(filters, sort, pagination, include)
+  ): Promise<PublicProductsPage> {
+    const queryParams = buildPublicProductsQueryParams(filters, sort, pagination, include)
 
     const response = await axiosClient.get<PublicProductsResponse>(this.baseUrl, {
       params: queryParams
     })
 
-    // Enhance products with resolved relationships
-    const enhancedProducts = response.data.data.map(product =>
-      this.resolveRelationships(product, response.data.included)
-    )
-
-    // JSON:API pagination wraps meta under meta.page
-    const rawMeta = response.data.meta as PublicProductsResponse['meta'] & { page?: PublicProductsResponse['meta'] }
-    const meta = rawMeta.page ?? rawMeta
-
-    return {
-      products: enhancedProducts,
-      meta,
-      links: response.data.links
-    }
+    return enhancePublicProductsResponse(response.data)
   }
 
   /**
@@ -259,11 +61,7 @@ class PublicProductsService {
       }
     )
 
-    // Enhance product with resolved relationships
-    return this.resolveRelationships(
-      response.data.data,
-      response.data.included
-    )
+    return enhancePublicProductResponse(response.data)
   }
 
   /**
@@ -273,11 +71,7 @@ class PublicProductsService {
     query: string,
     pagination?: PublicProductPagination,
     include: PublicProductInclude = 'unit,category,brand,currency'
-  ): Promise<{
-    products: EnhancedPublicProduct[]
-    meta: PublicProductsResponse['meta']
-    links: PublicProductsResponse['links']
-  }> {
+  ): Promise<PublicProductsPage> {
     return this.getPublicProducts(
       { search: query },
       undefined,
@@ -293,11 +87,7 @@ class PublicProductsService {
     categoryId: string,
     pagination?: PublicProductPagination,
     include: PublicProductInclude = 'unit,category,brand,currency'
-  ): Promise<{
-    products: EnhancedPublicProduct[]
-    meta: PublicProductsResponse['meta']
-    links: PublicProductsResponse['links']
-  }> {
+  ): Promise<PublicProductsPage> {
     return this.getPublicProducts(
       { categoryId },
       undefined,
@@ -313,11 +103,7 @@ class PublicProductsService {
     brandId: string,
     pagination?: PublicProductPagination,
     include: PublicProductInclude = 'unit,category,brand,currency'
-  ): Promise<{
-    products: EnhancedPublicProduct[]
-    meta: PublicProductsResponse['meta']
-    links: PublicProductsResponse['links']
-  }> {
+  ): Promise<PublicProductsPage> {
     return this.getPublicProducts(
       { brandId },
       undefined,
@@ -334,13 +120,9 @@ class PublicProductsService {
     maxPrice: number,
     pagination?: PublicProductPagination,
     include: PublicProductInclude = 'unit,category,brand,currency'
-  ): Promise<{
-    products: EnhancedPublicProduct[]
-    meta: PublicProductsResponse['meta']
-    links: PublicProductsResponse['links']
-  }> {
+  ): Promise<PublicProductsPage> {
     return this.getPublicProducts(
-      { 
+      {
         priceMin: minPrice,
         priceMax: maxPrice
       },
@@ -358,12 +140,12 @@ class PublicProductsService {
     include: PublicProductInclude = 'unit,category,brand,currency'
   ): Promise<EnhancedPublicProduct[]> {
     const result = await this.getPublicProducts(
-      undefined, // Remove isActive filter as it's not supported
-      [{ field: 'name', direction: 'asc' }], // Use 'name' instead of 'created_at'
+      undefined,
+      [{ field: 'name', direction: 'asc' }],
       { size: limit },
       include
     )
-    
+
     return result.products
   }
 
@@ -374,11 +156,7 @@ class PublicProductsService {
   async getProductsOnOffer(
     pagination?: PublicProductPagination,
     include: PublicProductInclude = 'unit,category,brand,currency'
-  ): Promise<{
-    products: EnhancedPublicProduct[]
-    meta: PublicProductsResponse['meta']
-    links: PublicProductsResponse['links']
-  }> {
+  ): Promise<PublicProductsPage> {
     // For now, return products sorted by price (ascending) as "offers"
     return this.getPublicProducts(
       { isActive: true },
@@ -399,23 +177,23 @@ class PublicProductsService {
     try {
       // First get the product to know its category and brand
       const product = await this.getPublicProduct(productId, include)
-      
+
       // Get related products from same category
       const filters: PublicProductFilters = {}
-      
+
       if (product.category) {
         filters.categoryId = product.category.id
       } else if (product.brand) {
         filters.brandId = product.brand.id
       }
-      
+
       const result = await this.getPublicProducts(
         filters,
-        [{ field: 'name', direction: 'asc' }], // Use 'name' instead of 'created_at'
+        [{ field: 'name', direction: 'asc' }],
         { size: limit + 1 }, // +1 to exclude current product
         include
       )
-      
+
       // Filter out the current product
       return result.products.filter(p => p.id !== productId).slice(0, limit)
     } catch {
