@@ -58,7 +58,12 @@ export async function generateMetadata({ params }: ProductRouteProps): Promise<M
 
   const brand = product.brand?.attributes.name
   const sku = product.attributes.sku
-  const title = [product.attributes.name, brand, sku].filter(Boolean).join(' ')
+  // Igual que el slug: no repetir marca ni sku si el nombre ya los trae
+  // ("... Repair Hach" + marca Hach daba "Hach Hach").
+  const name = product.attributes.name
+  const notInName = (token?: string | null) =>
+    token && !name.toLowerCase().includes(token.toLowerCase()) ? token : undefined
+  const title = [name, notInName(brand), notInName(sku)].filter(Boolean).join(' ')
   const description =
     cleanText(product.attributes.description) ??
     cleanText(product.attributes.fullDescription) ??
