@@ -24,6 +24,7 @@ import { useAuth } from '@lwm/auth'
 import { useIsClient } from '@/hooks/useIsClient'
 import { usePublicSettings } from '@lwm/app-config'
 import { ContactOffcanvas } from '../ContactOffcanvas/ContactOffcanvas'
+import { categoryPath } from '@/lib/seo/categoryPath'
 import styles from './Header.module.scss'
 
 export interface HeaderProps {
@@ -166,7 +167,7 @@ export const Header: React.FC<HeaderProps> = ({ initialCategories }) => {
           ) : (
             categories.map((c) => (
               <li key={c.id}>
-                <Link className="dropdown-item" href={`/productos?categoryId=${c.id}`}>{c.name}</Link>
+                <Link className="dropdown-item" href={categoryPath(c)}>{c.name}</Link>
               </li>
             ))
           )}

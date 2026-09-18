@@ -14,6 +14,8 @@
  * Marcas: no existe endpoint publico.
  */
 
+import { categoryPath } from './categoryPath'
+
 export const PRODUCT_CHUNK_SIZE = 5000
 export const SITEMAP_REVALIDATE_SECONDS = 86400
 
@@ -105,19 +107,20 @@ export async function fetchPublishedPages(backendUrl: string, fetchImpl: FetchLi
 
 export interface PublicCategoryRef {
   id: string
+  slug?: string | null
   updatedAt?: string
 }
 
-/** Categorias activas; su URL canonica en el front es /productos?categoryId=<id> (SEO Bloque 1). */
+/** Categorias activas; URL canonica /productos/categoria/<slug> (o ?categoryId=<id> si no hay slug). */
 export async function fetchPublicCategoryRefs(backendUrl: string, fetchImpl: FetchLike): Promise<PublicCategoryRef[]> {
   const url = `${backendUrl}/api/public/v1/public-categories?page[size]=100&sort=name`
-  const body = await fetchJsonApi<{ updatedAt?: string }>(url, fetchImpl)
-  return body.data.map((item) => ({ id: item.id, updatedAt: item.attributes.updatedAt }))
+  const body = await fetchJsonApi<{ slug?: string | null; updatedAt?: string }>(url, fetchImpl)
+  return body.data.map((item) => ({ id: item.id, slug: item.attributes.slug ?? null, updatedAt: item.attributes.updatedAt }))
 }
 
 export function categoryEntries(host: string, categories: PublicCategoryRef[]): SitemapEntry[] {
   return categories.map((category) => ({
-    url: absoluteUrl(host, `/productos?categoryId=${encodeURIComponent(category.id)}`),
+    url: absoluteUrl(host, categoryPath(category)),
     lastModified: category.updatedAt,
     changeFrequency: 'weekly',
     priority: 0.7,

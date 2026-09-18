@@ -67,10 +67,13 @@ export async function generateMetadata({ params }: ProductRouteProps): Promise<M
   const notInName = (token?: string | null) =>
     token && !name.toLowerCase().includes(token.toLowerCase()) ? token : undefined
   const title = [name, notInName(brand), notInName(sku)].filter(Boolean).join(' ')
+  // Muchas descripciones del catalogo son solo el nombre repetido: si la
+  // descripcion es pobre (< 60 caracteres) se usa la plantilla completa.
+  const richText = [cleanText(product.attributes.fullDescription), cleanText(product.attributes.description)]
+    .find((t) => t && t.length >= 60 && t.toLowerCase() !== name.toLowerCase())
   const description =
-    cleanText(product.attributes.description) ??
-    cleanText(product.attributes.fullDescription) ??
-    `${product.attributes.name}${brand ? ` de ${brand}` : ''}${sku ? ` (${sku})` : ''} en Labor Wasser de México. Reactivos y material de laboratorio con envío a todo el país.`
+    richText ??
+    `${name}${brand ? ` de ${brand}` : ''}${sku ? ` (${sku})` : ''}: compra en línea o cotiza en Labor Wasser de México, distribuidora de reactivos y material de laboratorio con envío a todo el país.`
   const image = product.galleryImages?.[0]?.attributes.imageUrl || product.attributes.imageUrl || undefined
 
   return {

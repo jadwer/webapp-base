@@ -151,8 +151,8 @@ describe('listSitemapIds', () => {
 
 const categoriesPayload = {
   data: [
-    { type: 'public-categories', id: '1', attributes: { name: 'Reactivos', slug: 'x', updatedAt: '2025-08-02T23:34:41.000000Z' } },
-    { type: 'public-categories', id: '4', attributes: { name: 'Refacciones', slug: 'y' } },
+    { type: 'public-categories', id: '1', attributes: { name: 'Reactivos', slug: 'reactivos', updatedAt: '2025-08-02T23:34:41.000000Z' } },
+    { type: 'public-categories', id: '4', attributes: { name: 'Refacciones', slug: 'Refacciones raras' } },
   ],
 }
 
@@ -169,8 +169,14 @@ describe('categorias', () => {
     const fetchImpl = fetchByUrl()
     const refs = await fetchPublicCategoryRefs('https://api.test', fetchImpl)
     expect((fetchImpl as ReturnType<typeof vi.fn>).mock.calls[0][0]).toBe('https://api.test/api/public/v1/public-categories?page[size]=100&sort=name')
-    expect(refs).toEqual([{ id: '1', updatedAt: '2025-08-02T23:34:41.000000Z' }, { id: '4', updatedAt: undefined }])
-    expect(categoryEntries('https://x.com', refs)[0]).toMatchObject({ url: 'https://x.com/productos?categoryId=1', priority: 0.7 })
+    expect(refs).toEqual([
+      { id: '1', slug: 'reactivos', updatedAt: '2025-08-02T23:34:41.000000Z' },
+      { id: '4', slug: 'Refacciones raras', updatedAt: undefined },
+    ])
+    const entries = categoryEntries('https://x.com', refs)
+    expect(entries[0]).toMatchObject({ url: 'https://x.com/productos/categoria/reactivos', priority: 0.7 })
+    // slug sucio (espacios, mayusculas) -> URL por id hasta que se corrija
+    expect(entries[1].url).toBe('https://x.com/productos?categoryId=4')
   })
 })
 
@@ -182,7 +188,7 @@ describe('buildSitemap', () => {
       'https://tenant.test/',
       'https://tenant.test/productos',
       'https://tenant.test/nosotros',
-      'https://tenant.test/productos?categoryId=1',
+      'https://tenant.test/productos/categoria/reactivos',
       'https://tenant.test/productos?categoryId=4',
       'https://tenant.test/aviso-privacidad',
     ])

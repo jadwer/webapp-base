@@ -59,10 +59,11 @@ export async function generateMetadata({ params }: ProductRouteProps): Promise<M
   const notInName = (token?: string | null) =>
     token && !name.toLowerCase().includes(token.toLowerCase()) ? token : undefined
   const title = [name, notInName(brand), notInName(sku)].filter(Boolean).join(' ')
+  // Si la descripcion es pobre (< 60 caracteres o igual al nombre) se usa la plantilla.
+  const richText = [cleanText(product.attributes.fullDescription), cleanText(product.attributes.description)]
+    .find((t) => t && t.length >= 60 && t.toLowerCase() !== name.toLowerCase())
   const description =
-    cleanText(product.attributes.description) ??
-    cleanText(product.attributes.fullDescription) ??
-    `${product.attributes.name}${brand ? ` de ${brand}` : ''}${sku ? ` (${sku})` : ''}.`
+    richText ?? `${name}${brand ? ` de ${brand}` : ''}${sku ? ` (${sku})` : ''}: compra en línea o solicita cotización.`
   const image = product.galleryImages?.[0]?.attributes.imageUrl || product.attributes.imageUrl || undefined
 
   return {

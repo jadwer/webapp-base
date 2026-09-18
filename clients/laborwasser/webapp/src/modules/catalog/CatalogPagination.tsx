@@ -35,21 +35,32 @@ function pageItems(current: number, last: number): (number | 'gap')[] {
  * filtros del motor (no desde window.location) para que el HTML de servidor
  * ya traiga los enlaces correctos: el robot no ejecuta JavaScript.
  */
-export function pageHref(page: number, filters: { categoryId?: string | string[]; search?: string }): string {
+export function pageHref(
+  page: number,
+  filters: { categoryId?: string | string[]; search?: string },
+  basePath = '/productos'
+): string {
   const params = new URLSearchParams()
   const categoryId = Array.isArray(filters.categoryId) ? filters.categoryId[0] : filters.categoryId
   if (filters.search) params.set('search', filters.search)
-  if (categoryId) params.set('categoryId', categoryId)
+  // En /productos/categoria/<slug> la categoria ya va en la ruta
+  if (categoryId && basePath === '/productos') params.set('categoryId', categoryId)
   if (page > 1) params.set('page', String(page))
   const qs = params.toString()
-  return `/productos${qs ? `?${qs}` : ''}`
+  return `${basePath}${qs ? `?${qs}` : ''}`
 }
 
-export const CatalogPagination: React.FC<{ controller: PublicCatalogController }> = ({ controller }) => {
+export interface CatalogPaginationProps {
+  controller: PublicCatalogController
+  /** Ruta base de los enlaces (default /productos; la pagina de categoria manda su slug). */
+  basePath?: string
+}
+
+export const CatalogPagination: React.FC<CatalogPaginationProps> = ({ controller, basePath = '/productos' }) => {
   const { meta, currentPage, handlePageChange, filters } = controller
   if (!meta.lastPage || meta.lastPage <= 1) return null
 
-  const hrefOf = (page: number) => pageHref(page, { categoryId: filters.categoryId, search: filters.search })
+  const hrefOf = (page: number) => pageHref(page, { categoryId: filters.categoryId, search: filters.search }, basePath)
   const go = (page: number) => (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault()
     handlePageChange(page)

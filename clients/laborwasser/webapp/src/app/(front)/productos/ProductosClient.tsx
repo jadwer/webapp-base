@@ -42,8 +42,10 @@ export interface ProductosClientProps {
   initialCategories?: PublicCategorySummary[]
   /** ?page=N resuelto en servidor (paginacion rastreable, SEO 2026-09-18). */
   initialPage?: number
-  /** Categoria activa (?categoryId=): h1 y texto propios en el hero. */
-  category?: { id: string; name: string; description?: string | null }
+  /** Categoria activa (?categoryId= o /productos/categoria/<slug>): h1, texto y filtro inicial. */
+  category?: { id: string; name: string; description?: string | null; slug?: string | null }
+  /** Ruta base para los enlaces de paginacion (la pagina de categoria manda la suya). */
+  basePath?: string
 }
 
 export default function ProductosClient(props: ProductosClientProps) {
@@ -62,12 +64,13 @@ export default function ProductosClient(props: ProductosClientProps) {
   )
 }
 
-function ProductosContent({ initialCatalog, initialCategories, initialPage, category }: ProductosClientProps) {
+function ProductosContent({ initialCatalog, initialCategories, initialPage, category, basePath }: ProductosClientProps) {
   const toast = useToast()
   const router = useRouter()
   const searchParams = useSearchParams()
   const initialSearch = searchParams.get('search') || undefined
-  const initialCategoryId = searchParams.get('categoryId') || undefined
+  // En la ruta por slug la categoria viene como prop (no hay ?categoryId=)
+  const initialCategoryId = category?.id || searchParams.get('categoryId') || undefined
 
   // Categorias con counts reales del backend (productsCount)
   const { categories: publicCategories } = usePublicCategories({ limit: 100, initialData: initialCategories })
@@ -187,7 +190,7 @@ function ProductosContent({ initialCatalog, initialCategories, initialPage, cate
             </div>
           )}
 
-          <CatalogPagination controller={controller} />
+          <CatalogPagination controller={controller} basePath={basePath} />
         </div>
       </div>
 

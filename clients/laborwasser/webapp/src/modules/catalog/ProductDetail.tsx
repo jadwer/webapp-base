@@ -26,6 +26,8 @@ import {
 import { useTrackProductView } from '@lwm/ecommerce'
 import { useToast } from '@lwm/ui'
 import { LandingProductCard } from '../landing/components/LandingProductCard'
+import { optimizedImage } from '@/lib/images'
+import { categoryPath } from '@/lib/seo/categoryPath'
 import styles from './ProductDetail.module.scss'
 
 const BACKEND = process.env.NEXT_PUBLIC_BACKEND_URL || ''
@@ -114,7 +116,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, initial
             {category && (
               <>
                 <span aria-hidden="true">/</span>
-                <Link href={`/productos?categoryId=${category.id}`}>{category.attributes.name}</Link>
+                <Link href={categoryPath({ id: category.id, slug: category.attributes.slug })}>{category.attributes.name}</Link>
               </>
             )}
             <span aria-hidden="true">/</span>
@@ -135,7 +137,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, initial
               )}
               {mainImage ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={mainImage} alt={product.displayName} className={styles.image} />
+                <img src={optimizedImage(mainImage, 1080) ?? mainImage} alt={product.displayName} className={styles.image} fetchPriority="high" decoding="async" />
               ) : (
                 <div className={styles.placeholder}><i className="bi bi-box-seam" aria-hidden="true" /></div>
               )}
@@ -199,7 +201,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, initial
               {category && (
                 <div>
                   <dt>Categoría:</dt>
-                  <dd><Link href={`/productos?categoryId=${category.id}`}>{category.attributes.name}</Link></dd>
+                  <dd><Link href={categoryPath({ id: category.id, slug: category.attributes.slug })}>{category.attributes.name}</Link></dd>
                 </div>
               )}
               {product.attributes.description && (
