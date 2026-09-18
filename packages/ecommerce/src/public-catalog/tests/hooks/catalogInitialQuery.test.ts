@@ -4,7 +4,24 @@
  */
 
 import { describe, it, expect } from 'vitest'
-import { catalogInitialQuery, CATALOG_PRODUCTS_INCLUDE } from '../../services/catalogQuery'
+import { catalogInitialQuery, normalizePage, CATALOG_PRODUCTS_INCLUDE } from '../../services/catalogQuery'
+
+describe('normalizePage', () => {
+  it('acepta enteros >= 1 (numero o texto) y cae a 1 con basura', () => {
+    expect(normalizePage(3)).toBe(3)
+    expect(normalizePage('7')).toBe(7)
+    expect(normalizePage('0')).toBe(1)
+    expect(normalizePage(-2)).toBe(1)
+    expect(normalizePage('abc')).toBe(1)
+    expect(normalizePage(undefined)).toBe(1)
+    expect(normalizePage(2.5)).toBe(1)
+  })
+
+  it('initialPage entra a la paginacion de la consulta inicial', () => {
+    expect(catalogInitialQuery({ initialPage: 4 }).pagination).toEqual({ page: 4, size: 24 })
+    expect(catalogInitialQuery({ initialPage: 0 }).pagination).toEqual({ page: 1, size: 24 })
+  })
+})
 import { createProductsKey } from '../../hooks/usePublicProducts'
 
 describe('catalogInitialQuery', () => {

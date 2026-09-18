@@ -26,6 +26,8 @@ export interface CatalogInitialQueryOptions {
   initialSortField?: PublicProductSortField
   initialSortDirection?: SortDirection
   initialPageSize?: number
+  /** Pagina inicial (?page=N en la URL, para paginacion rastreable). */
+  initialPage?: number
 }
 
 export interface CatalogQuery {
@@ -39,12 +41,19 @@ export function catalogInitialQuery({
   initialFilters = {},
   initialSortField = 'name',
   initialSortDirection = 'asc',
-  initialPageSize = 24
+  initialPageSize = 24,
+  initialPage = 1
 }: CatalogInitialQueryOptions = {}): CatalogQuery {
   return {
     filters: { isActive: true, ...initialFilters },
     sort: [{ field: initialSortField, direction: initialSortDirection }],
-    pagination: { page: 1, size: initialPageSize },
+    pagination: { page: normalizePage(initialPage), size: initialPageSize },
     include: CATALOG_PRODUCTS_INCLUDE
   }
+}
+
+/** Entero >= 1; cualquier otra cosa (NaN, 0, negativos, texto) es pagina 1. */
+export function normalizePage(value: unknown): number {
+  const n = typeof value === 'string' ? parseInt(value, 10) : Number(value)
+  return Number.isInteger(n) && n >= 1 ? n : 1
 }

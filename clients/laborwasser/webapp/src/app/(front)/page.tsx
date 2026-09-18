@@ -62,6 +62,10 @@ export default async function HomePage() {
 
   return (
     <>
+      {/* LCP = foto del hero (Lighthouse 2026-09-18). React 19 iza estos
+          <link> al <head>: el navegador la pide antes de parsear el CSS. */}
+      <link rel="preload" as="image" href="/images/laborwasser/labor-wasser-redesign-hero-mobile.webp" media="(max-width: 767.98px)" fetchPriority="high" />
+      <link rel="preload" as="image" href="/images/laborwasser/labor-wasser-redesign-hero.webp" media="(min-width: 768px)" fetchPriority="high" />
       <JsonLd data={faqPageJsonLd(faq)} />
       <HomeClient />
     </>

@@ -72,5 +72,5 @@
   --lw-shadow-float: 0 12px 32px rgba(0, 0, 0, 0.12);
 
   // Tipografia del rediseno: Poppins para todo (titulos incluidos).
-  --lw-font: "Poppins", system-ui, -apple-system, sans-serif;
+  --lw-font: var(--font-poppins, "Poppins"), system-ui, -apple-system, sans-serif;
 }

@@ -1,11 +1,36 @@
 import type { Metadata } from 'next'
 import Script from 'next/script'
+import { Anek_Bangla, Poppins } from 'next/font/google'
 import { NavigationProgress } from '@lwm/ui'
+import 'bootstrap-icons/font/bootstrap-icons.css'
 import '@/styles/main.scss'
+
+// Fuentes autoalojadas por next/font (rendimiento, 2026-09-18): antes venian
+// por @import de Google Fonts dentro del CSS (bloqueo de render en cadena,
+// 18 variantes de Poppins). Solo los pesos que usa el diseno.
+const poppins = Poppins({
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '600', '700'],
+  display: 'swap',
+  variable: '--font-poppins',
+})
+const anekBangla = Anek_Bangla({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  display: 'swap',
+  variable: '--font-anek',
+})
 
 // Solo IDs de GA4 con forma valida; cualquier otra cosa se ignora (nunca se
 // interpola texto arbitrario dentro del script).
 const GA_ID = /^G-[A-Z0-9]{4,}$/.test(process.env.NEXT_PUBLIC_GA_ID ?? '') ? process.env.NEXT_PUBLIC_GA_ID : undefined
+const BACKEND_ORIGIN = (() => {
+  try {
+    return new URL(process.env.NEXT_PUBLIC_BACKEND_URL ?? '').origin
+  } catch {
+    return ''
+  }
+})()
 
 export const metadata: Metadata = {
   title: {
@@ -47,14 +72,12 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="es">
+    <html lang="es" className={`${poppins.variable} ${anekBangla.variable}`}>
       <head>
-        {/* Bootstrap Icons via CDN (icon fonts only, the rest of Bootstrap
-            is compiled into our own SASS chain via main.scss). */}
-        <link
-          rel="stylesheet"
-          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
-        />
+        {/* Bootstrap Icons se importan como CSS local (ver import arriba):
+            el CDN bloqueaba el render ~950 ms en movil (Lighthouse 2026-09-18).
+            Preconexion al backend: de ahi vienen las imagenes de producto. */}
+        {BACKEND_ORIGIN && <link rel="preconnect" href={BACKEND_ORIGIN} crossOrigin="anonymous" />}
       </head>
       <body>
         <NavigationProgress />
@@ -70,8 +93,8 @@ export default function RootLayout({
             build de prod; dev y demo no lo definen y no envian hits). */}
         {GA_ID && (
           <>
-            <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`} strategy="afterInteractive" />
-            <Script id="google-analytics" strategy="afterInteractive">
+            <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`} strategy="lazyOnload" />
+            <Script id="google-analytics" strategy="lazyOnload">
               {`window.dataLayer = window.dataLayer || [];
 function gtag(){dataLayer.push(arguments);}
 gtag('js', new Date());

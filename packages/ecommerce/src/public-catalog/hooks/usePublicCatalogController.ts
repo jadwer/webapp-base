@@ -18,6 +18,7 @@ import { usePublicProducts, createProductsKey } from './usePublicProducts'
 import type { PublicProductsPage } from '../services/publicProductsTransform'
 import {
   catalogInitialQuery,
+  normalizePage,
   CATALOG_PRODUCTS_INCLUDE,
   type CatalogInitialQueryOptions
 } from '../services/catalogQuery'
@@ -90,7 +91,8 @@ export function usePublicCatalogController({
   brands = [],
   units = [],
   refreshInterval = 300000,
-  initialData
+  initialData,
+  initialPage = 1
 }: PublicCatalogControllerOptions = {}) {
   // State management
   const [filters, setFilters] = useState<PublicProductFilters>(
@@ -100,7 +102,7 @@ export function usePublicCatalogController({
   const [sortField, setSortField] = useState<PublicProductSortField>(initialSortField)
   const [sortDirection, setSortDirection] = useState<SortDirection>(initialSortDirection)
   const [viewMode, setViewMode] = useState<ProductViewMode>(initialViewMode)
-  const [currentPage, setCurrentPage] = useState(1)
+  const [currentPage, setCurrentPage] = useState(() => normalizePage(initialPage))
   const [pageSize, setPageSize] = useState(initialPageSize)
 
   // Navegar /productos -> /productos?categoryId=X NO desmonta la pagina
@@ -137,10 +139,11 @@ export function usePublicCatalogController({
       initialFilters: JSON.parse(serializedInitialFilters),
       initialSortField,
       initialSortDirection,
-      initialPageSize
+      initialPageSize,
+      initialPage
     })
     return createProductsKey(q.filters, q.sort, q.pagination, q.include)
-  }, [initialData, serializedInitialFilters, initialSortField, initialSortDirection, initialPageSize])
+  }, [initialData, serializedInitialFilters, initialSortField, initialSortDirection, initialPageSize, initialPage])
   const currentKey = createProductsKey(filters, sortParams, paginationParams, CATALOG_PRODUCTS_INCLUDE)
   const fallbackData = initialData && currentKey === initialKey ? initialData : undefined
 

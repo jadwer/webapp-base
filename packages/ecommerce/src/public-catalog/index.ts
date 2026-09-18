@@ -87,7 +87,7 @@ export {
 } from './hooks'
 
 // SEO Bloque 1: consulta inicial y claves de cache para prerender en servidor
-export { catalogInitialQuery, CATALOG_PRODUCTS_INCLUDE } from './services/catalogQuery'
+export { catalogInitialQuery, normalizePage, CATALOG_PRODUCTS_INCLUDE } from './services/catalogQuery'
 export type { CatalogInitialQueryOptions, CatalogQuery } from './services/catalogQuery'
 export { createProductsKey, createProductKey } from './hooks'
 export {

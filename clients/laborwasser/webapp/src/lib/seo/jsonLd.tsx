@@ -120,6 +120,9 @@ export function productJsonLd(input: ProductInput): JsonLdObject {
     name: input.name,
     url: input.url,
     sku: input.sku || undefined,
+    // mpn = numero de catalogo del fabricante; en LWM el sku ES ese numero
+    // con prefijo de marca (HA-001215), asi que se reporta el mismo valor.
+    mpn: input.sku || undefined,
     description: input.description || undefined,
     image: input.image || undefined,
     brand: input.brand ? { '@type': 'Brand', name: input.brand } : undefined,

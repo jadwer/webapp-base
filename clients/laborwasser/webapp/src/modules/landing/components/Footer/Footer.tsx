@@ -15,9 +15,22 @@ import Link from 'next/link'
 import { usePublicSettings } from '@lwm/app-config'
 import styles from './Footer.module.scss'
 
-export const Footer: React.FC = () => {
+export interface FooterProps {
+  /**
+   * Settings publicos resueltos en servidor por el layout (SEO 2026-09-18):
+   * sin ellos el HTML inicial decia "2026. Empresa." y sin telefonos porque
+   * usePublicSettings solo tiene datos tras hidratar.
+   */
+  initialSettings?: Record<string, string | undefined>
+}
+
+export const Footer: React.FC<FooterProps> = ({ initialSettings }) => {
   const currentYear = new Date().getFullYear()
-  const { get } = usePublicSettings()
+  const { get: getClient } = usePublicSettings()
+  const get = (key: string): string | undefined => {
+    const v = getClient(key)
+    return (typeof v === 'string' && v.trim() !== '' ? v : undefined) ?? initialSettings?.[key]
+  }
 
   const phone = get('company.phone')
   const phoneSecondary = get('company.phone_secondary')
@@ -106,7 +119,7 @@ export const Footer: React.FC = () => {
       <div className={styles.bottom}>
         <div className="container">
           <p className={styles.bottomText}>
-            {currentYear}. {companyName || 'Empresa'}. Todos los Derechos Reservados.
+            {currentYear}. {companyName || 'Labor Wasser de México'}. Todos los Derechos Reservados.
             &nbsp;|&nbsp;<Link href="/aviso-privacidad">Aviso de privacidad</Link>
             &nbsp;|&nbsp;<Link href="/derechos-reservados">Términos de uso</Link>
             &nbsp;|&nbsp;Designed and developed by{' '}

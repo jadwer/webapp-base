@@ -40,6 +40,10 @@ export interface ProductosClientProps {
   initialCatalog?: PublicProductsPage
   /** Categorias activas traidas en servidor (evita "Cargando..." en facetas). */
   initialCategories?: PublicCategorySummary[]
+  /** ?page=N resuelto en servidor (paginacion rastreable, SEO 2026-09-18). */
+  initialPage?: number
+  /** Categoria activa (?categoryId=): h1 y texto propios en el hero. */
+  category?: { id: string; name: string; description?: string | null }
 }
 
 export default function ProductosClient(props: ProductosClientProps) {
@@ -58,7 +62,7 @@ export default function ProductosClient(props: ProductosClientProps) {
   )
 }
 
-function ProductosContent({ initialCatalog, initialCategories }: ProductosClientProps) {
+function ProductosContent({ initialCatalog, initialCategories, initialPage, category }: ProductosClientProps) {
   const toast = useToast()
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -80,6 +84,7 @@ function ProductosContent({ initialCatalog, initialCategories }: ProductosClient
   const controller = usePublicCatalogController({
     initialFilters: { search: initialSearch, categoryId: initialCategoryId },
     initialData: initialCatalog,
+    initialPage,
     initialSortField: 'name',
     initialSortDirection: 'asc',
     initialViewMode: 'list',
@@ -112,7 +117,11 @@ function ProductosContent({ initialCatalog, initialCategories }: ProductosClient
 
   return (
     <>
-      <CatalogHero />
+      {category ? (
+        <CatalogHero title={category.name} description={category.description} />
+      ) : (
+        <CatalogHero />
+      )}
 
       <div className={`container ${styles.layout}`}>
         <CatalogSidebar controller={controller} />

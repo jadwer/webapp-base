@@ -7,9 +7,13 @@
  *
  * SEO Bloque 2: JSON-LD Organization en todas las paginas publicas, con los
  * datos de contacto de app-config (los mismos que muestra el footer).
+ * 2026-09-18: el Footer recibe los mismos settings resueltos en servidor
+ * (razon social y telefonos en el HTML inicial) y se monta el rastreo de
+ * eventos de negocio para GA4.
  */
 
 import { Header, Footer } from '@/modules/landing'
+import { AnalyticsEvents } from '@/modules/landing/components/AnalyticsEvents/AnalyticsEvents'
 import { CustomerSidebar } from '@lwm/ecommerce'
 import { fetchPublicCategoriesServer } from '@lwm/ecommerce/server'
 import { JsonLd, organizationJsonLd } from '@/lib/seo/jsonLd'
@@ -17,11 +21,19 @@ import { absoluteAsset, getPublicSettings, settingString } from '@/lib/seo/publi
 
 const HOST = (process.env.NEXT_PUBLIC_CANONICAL_HOST || 'https://laborwasserdemexico.com').replace(/\/+$/, '')
 
+const FOOTER_KEYS = [
+  'company.name', 'company.phone', 'company.phone_secondary', 'company.phone_tertiary',
+  'company.whatsapp_number', 'company.whatsapp_display', 'company.email', 'company.address',
+  'company.logo_path_alt', 'company.logo_path_footer', 'social.facebook', 'social.instagram', 'social.linkedin',
+] as const
+
 export default async function FrontLayout({ children }: { children: React.ReactNode }) {
   const [categories, settings] = await Promise.all([
     fetchPublicCategoriesServer(100, { revalidate: 3600 }).catch(() => undefined),
     getPublicSettings(),
   ])
+
+  const footerSettings = Object.fromEntries(FOOTER_KEYS.map((k) => [k, settingString(settings, k)]))
 
   const organization = organizationJsonLd({
     name: settingString(settings, 'company.name') ?? 'Labor Wasser de México',
@@ -53,7 +65,8 @@ export default async function FrontLayout({ children }: { children: React.ReactN
       <Header initialCategories={categories} />
       <CustomerSidebar />
       <main>{children}</main>
-      <Footer />
+      <Footer initialSettings={footerSettings} />
+      <AnalyticsEvents />
     </>
   )
 }

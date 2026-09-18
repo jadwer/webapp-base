@@ -38,7 +38,7 @@ export type { PublicProductsPage, PublicCategorySummary, EnhancedPublicProduct }
 export { productPath, isNumericProductSegment } from './utils/productPath'
 // La consulta inicial del catalogo se importa desde aqui en server
 // components (el index del package arrastra modulos 'use client').
-export { catalogInitialQuery, CATALOG_PRODUCTS_INCLUDE } from './services/catalogQuery'
+export { catalogInitialQuery, normalizePage, CATALOG_PRODUCTS_INCLUDE } from './services/catalogQuery'
 export type { CatalogInitialQueryOptions, CatalogQuery } from './services/catalogQuery'
 
 export interface PublicCatalogServerOptions {

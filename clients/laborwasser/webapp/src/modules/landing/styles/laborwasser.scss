@@ -9,8 +9,8 @@
 // ============================================
 // GOOGLE FONTS
 // ============================================
-@import url('https://fonts.googleapis.com/css2?family=Anek+Bangla:wght@100..800&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+// Fuentes: se sirven con next/font/google desde el layout raiz (autoalojadas,
+// sin @import bloqueante; variables --font-poppins y --font-anek). 2026-09-18.
 
 // ============================================
 // GLOBAL STYLES - Apply to all (front) pages
@@ -18,7 +18,7 @@
 
 // --- Typography ---
 p {
-  font-family: "Poppins", sans-serif;
+  font-family: var(--font-poppins, "Poppins"), sans-serif;
 }
 
 h1, .h1,
@@ -27,7 +27,7 @@ h3, .h3,
 h4, .h4,
 h5, .h5,
 h6, .h6 {
-  font-family: "Anek Bangla", sans-serif;
+  font-family: var(--font-anek, "Anek Bangla"), sans-serif;
 }
 
 h1, .h1 {

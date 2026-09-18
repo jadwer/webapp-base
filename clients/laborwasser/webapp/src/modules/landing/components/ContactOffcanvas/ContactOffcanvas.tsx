@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react'
 import { usePublicSettings } from '@lwm/app-config'
+import { trackEvent } from '@/lib/analytics'
 
 export const ContactOffcanvas: React.FC = () => {
   const { get } = usePublicSettings()
@@ -52,6 +53,7 @@ export const ContactOffcanvas: React.FC = () => {
 
       // Open WhatsApp with pre-filled message
       const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`
+      trackEvent('contact_submit', { method: 'whatsapp' })
       window.open(whatsappUrl, '_blank')
 
       setStatus('success')
@@ -76,6 +78,7 @@ export const ContactOffcanvas: React.FC = () => {
       `Teléfono: ${tel}\n\n` +
       `Mensaje:\n${mensaje}`
     )
+    trackEvent('contact_submit', { method: 'email' })
     window.open(`mailto:${companyEmail}?subject=${subject}&body=${body}`, '_blank')
   }
 

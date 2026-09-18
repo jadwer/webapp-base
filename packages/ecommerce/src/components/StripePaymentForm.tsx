@@ -14,11 +14,25 @@ import {
   useStripe,
   useElements,
 } from '@stripe/react-stripe-js'
-import { loadStripe, type StripeElementsOptions } from '@stripe/stripe-js'
+// '/pure': la entrada por defecto de @stripe/stripe-js inyecta el <script>
+// de Stripe.js al IMPORTARSE (efecto secundario), asi que cualquier pagina
+// que arrastre este modulo lo descargaba aunque nunca montara el formulario.
+import { loadStripe } from '@stripe/stripe-js/pure'
+import type { StripeElementsOptions } from '@stripe/stripe-js'
 import { Button } from '@lwm/ui'
 
-// Initialize Stripe outside of component to avoid recreating on each render
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '')
+// Stripe.js (~860 KB) se carga SOLO cuando se monta el formulario de pago.
+// Antes se inicializaba a nivel de modulo y, como este archivo forma parte
+// del index de @lwm/ecommerce, cualquier pagina publica (home incluido) lo
+// descargaba y bloqueaba el render (Lighthouse 2026-09-18: 290 ms). Se
+// memoriza para no recrearlo entre renders.
+let stripePromise: ReturnType<typeof loadStripe> | null = null
+function getStripePromise() {
+  if (!stripePromise) {
+    stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '')
+  }
+  return stripePromise
+}
 
 interface StripePaymentFormProps {
   clientSecret: string
@@ -221,7 +235,7 @@ export function StripePaymentForm({
   }
 
   return (
-    <Elements stripe={stripePromise} options={options}>
+    <Elements stripe={getStripePromise()} options={options}>
       <PaymentForm
         amount={amount}
         currency={currency}

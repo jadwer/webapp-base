@@ -59,6 +59,7 @@ describe('productJsonLd', () => {
   it('con precio > 0 arma Offer en MXN; sin precio no inventa oferta ni disponibilidad', () => {
     const p = productJsonLd({ name: 'Jumper', url: 'https://x.com/productos/jumper', sku: 'HA-1', brand: 'Hach', price: 435.5, currency: 'MXN', image: 'https://x.com/i.webp' })
     expect(p.brand).toEqual({ '@type': 'Brand', name: 'Hach' })
+    expect(p.mpn).toBe('HA-1')
     expect(p.offers).toEqual({ '@type': 'Offer', url: 'https://x.com/productos/jumper', price: '435.50', priceCurrency: 'MXN', itemCondition: 'https://schema.org/NewCondition' })
     expect(JSON.stringify(p)).not.toContain('availability')
 

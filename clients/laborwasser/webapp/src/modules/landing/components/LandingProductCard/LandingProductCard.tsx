@@ -17,6 +17,7 @@
 import React from 'react'
 import Link from 'next/link'
 import { productPath, type EnhancedPublicProduct } from '@lwm/ecommerce'
+import { optimizedImage, optimizedSrcSet } from '@/lib/images'
 import styles from './LandingProductCard.module.scss'
 
 export type LandingProductCardVariant = 'offer' | 'new' | 'catalog'
@@ -82,10 +83,13 @@ export const LandingProductCard: React.FC<LandingProductCardProps> = ({
         {imageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            src={imageUrl}
+            src={optimizedImage(imageUrl, 640) ?? imageUrl}
+            srcSet={optimizedSrcSet(imageUrl)}
+            sizes="(max-width: 767px) 90vw, 33vw"
             alt={product.displayName}
             className={styles.image}
             loading="lazy"
+            decoding="async"
             onError={(e) => {
               const el = e.currentTarget
               el.style.display = 'none'
