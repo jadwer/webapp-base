@@ -57,6 +57,33 @@ const remotePatterns: NonNullable<NonNullable<NextConfig['images']>['remotePatte
 const envPattern = apiHostPattern()
 if (envPattern) remotePatterns.push(envPattern)
 
+// Workspace packages que Next compila desde su fuente TS+SCSS. La misma lista
+// alimenta transpilePackages y optimizePackageImports (abajo).
+const LWM_PACKAGES = [
+  '@lwm/primitives',
+  '@lwm/ui',
+  '@lwm/auth',
+  '@lwm/app-config',
+  '@lwm/billing',
+  '@lwm/system-health',
+  '@lwm/audit',
+  '@lwm/commissions',
+  '@lwm/products',
+  '@lwm/contacts',
+  '@lwm/sales',
+  '@lwm/ecommerce',
+  '@lwm/page-builder',
+  '@lwm/mailer-manager',
+  '@lwm/permissions',
+  '@lwm/accounting',
+  '@lwm/reports',
+  '@lwm/hr',
+  '@lwm/crm',
+  '@lwm/finance',
+  '@lwm/purchase',
+  '@lwm/inventory',
+]
+
 const nextConfig: NextConfig = {
   // Build self-contained output for cPanel deploy. Phusion Passenger spawns
   // node on a single dir; `standalone` bundles required node_modules
@@ -65,30 +92,17 @@ const nextConfig: NextConfig = {
   // packages instead of stopping at the cwd.
   output: 'standalone',
   outputFileTracingRoot: path.join(__dirname, '..', '..', '..'),
-  transpilePackages: [
-    '@lwm/primitives',
-    '@lwm/ui',
-    '@lwm/auth',
-    '@lwm/app-config',
-    '@lwm/billing',
-    '@lwm/system-health',
-    '@lwm/audit',
-    '@lwm/commissions',
-    '@lwm/products',
-    '@lwm/contacts',
-    '@lwm/sales',
-    '@lwm/ecommerce',
-    '@lwm/page-builder',
-    '@lwm/mailer-manager',
-    '@lwm/permissions',
-    '@lwm/accounting',
-    '@lwm/reports',
-    '@lwm/hr',
-    '@lwm/crm',
-    '@lwm/finance',
-    '@lwm/purchase',
-    '@lwm/inventory',
-  ],
+  transpilePackages: LWM_PACKAGES,
+  experimental: {
+    // Rendimiento (SEO Bloque 4, 2026-09-18). Cada @lwm/* expone un barrel
+    // (src/index.ts); cuando un server component importa un componente
+    // cliente desde ese barrel, Next registra como referencia cliente todo lo
+    // que el barrel exporta y el JS del sitio publico cargaba el carrito, el
+    // checkout y los formularios de auth. Con esto Next reescribe el import
+    // al archivo concreto en tiempo de compilacion. Complementa el
+    // "sideEffects" declarado en el package.json de cada package.
+    optimizePackageImports: LWM_PACKAGES,
+  },
   sassOptions: {
     includePaths: [
       // packages/primitives/src/styles is 4 levels up from

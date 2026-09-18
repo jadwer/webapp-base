@@ -50,6 +50,10 @@ const remotePatterns: NonNullable<NonNullable<NextConfig['images']>['remotePatte
 const envPattern = apiHostPattern();
 if (envPattern) remotePatterns.push(envPattern);
 
+// Every @lwm/* package that ships TS+SCSS source. Feeds transpilePackages and
+// experimental.optimizePackageImports below.
+const LWM_PACKAGES = ['@lwm/primitives', '@lwm/ui', '@lwm/auth', '@lwm/app-config', '@lwm/billing', '@lwm/system-health', '@lwm/audit', '@lwm/commissions', '@lwm/products', '@lwm/contacts', '@lwm/sales', '@lwm/ecommerce', '@lwm/page-builder', '@lwm/mailer-manager', '@lwm/permissions', '@lwm/accounting', '@lwm/reports', '@lwm/hr', '@lwm/crm', '@lwm/finance', '@lwm/purchase', '@lwm/inventory'];
+
 const nextConfig: NextConfig = {
   // Self-contained build for cPanel/Passenger deploys (marca blanca demo).
   // Same pattern as clients/*/webapp: standalone bundles the needed
@@ -65,7 +69,15 @@ const nextConfig: NextConfig = {
   // Every @lwm/* package that ships .module.scss imports must be listed here.
   // Tenants in clients/<name>/webapp/ MUST mirror this list in their own
   // next.config.ts; otherwise CSS Modules from these packages render unstyled.
-  transpilePackages: ['@lwm/primitives', '@lwm/ui', '@lwm/auth', '@lwm/app-config', '@lwm/billing', '@lwm/system-health', '@lwm/audit', '@lwm/commissions', '@lwm/products', '@lwm/contacts', '@lwm/sales', '@lwm/ecommerce', '@lwm/page-builder', '@lwm/mailer-manager', '@lwm/permissions', '@lwm/accounting', '@lwm/reports', '@lwm/hr', '@lwm/crm', '@lwm/finance', '@lwm/purchase', '@lwm/inventory'],
+  transpilePackages: LWM_PACKAGES,
+  experimental: {
+    // Rendimiento (SEO Bloque 4, 2026-09-18). Un server component que importa
+    // un componente cliente desde el barrel de un @lwm/* registra como
+    // referencia cliente TODO lo que el barrel exporta; Next reescribe aqui el
+    // import al archivo concreto. Los tenants deben mirror esta lista igual
+    // que transpilePackages.
+    optimizePackageImports: LWM_PACKAGES,
+  },
   // Single source of truth for SCSS design tokens lives in @lwm/primitives
   // (moved there in 2026-05-12 to break the @lwm/auth ↔ @lwm/ui cycle —
   // deuda B5). Every *.module.scss across the workspace can

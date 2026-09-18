@@ -12,7 +12,14 @@
  * eventos de negocio para GA4.
  */
 
-import { Header, Footer } from '@/modules/landing'
+// Rendimiento (Bloque 4, 2026-09-18): un server component que importa un
+// componente cliente desde un barrel registra como referencia cliente TODO
+// lo que el barrel exporta (Next no poda esa traversal), y el JS del home
+// cargaba el carrito, el checkout y los formularios de auth. Por eso aqui
+// se importa por ruta directa; para los packages @lwm/* lo resuelve
+// experimental.optimizePackageImports en next.config.
+import { Header } from '@/modules/landing/components/Header'
+import { Footer } from '@/modules/landing/components/Footer'
 import { AnalyticsEvents } from '@/modules/landing/components/AnalyticsEvents/AnalyticsEvents'
 import { CustomerSidebar } from '@lwm/ecommerce'
 import { fetchPublicCategoriesServer } from '@lwm/ecommerce/server'

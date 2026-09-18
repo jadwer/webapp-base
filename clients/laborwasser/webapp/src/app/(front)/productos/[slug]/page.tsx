@@ -19,7 +19,9 @@ import {
   fetchPublicProductServer,
   type EnhancedPublicProduct,
 } from '@lwm/ecommerce/server'
-import { ProductDetail } from '@/modules/catalog'
+// Ruta directa y no el barrel de @/modules/catalog: desde un server component
+// el barrel arrastraba CartPage (y @lwm/sales) al JS de la ficha (Bloque 4).
+import { ProductDetail } from '@/modules/catalog/ProductDetail'
 import { JsonLd, breadcrumbJsonLd, productJsonLd } from '@/lib/seo/jsonLd'
 
 export const revalidate = 3600
