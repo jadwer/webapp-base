@@ -92,6 +92,14 @@ export default function OrderConfirmationPage({ params }: OrderConfirmationPageP
           }
         })
 
+        // shippingAddress llega como objeto desde 2026-09-23 (el API expone la
+        // direccion capturada en checkout: line1, line2, city, state,
+        // postal_code, country); pintarlo como texto tronaba la pagina.
+        const rawAddress = attrs.shippingAddress as string | Record<string, string | null> | undefined
+        const addressObj = rawAddress && typeof rawAddress === 'object' ? rawAddress : undefined
+        const addressText = addressObj
+          ? [addressObj.line1, addressObj.line2].filter(Boolean).join(', ')
+          : (typeof rawAddress === 'string' ? rawAddress : undefined)
         // API returns camelCase attributes
         const subtotal = (attrs.subtotalAmount ?? attrs.subtotal ?? attrs.subtotal_amount ?? 0) as number
         const taxAmount = (attrs.taxAmount ?? attrs.tax_amount ?? 0) as number
@@ -106,10 +114,10 @@ export default function OrderConfirmationPage({ params }: OrderConfirmationPageP
           taxAmount: taxAmount || (totalAmount - subtotal),
           discountAmount: (attrs.discountTotal ?? attrs.discount_total ?? attrs.discountAmount ?? 0) as number,
           createdAt: (attrs.createdAt ?? attrs.created_at ?? '') as string,
-          shippingAddress: attrs.shippingAddress as string | undefined,
-          shippingCity: attrs.shippingCity as string | undefined,
-          shippingState: attrs.shippingState as string | undefined,
-          shippingPostalCode: attrs.shippingPostalCode as string | undefined,
+          shippingAddress: addressText || undefined,
+          shippingCity: (addressObj?.city ?? attrs.shippingCity) as string | undefined,
+          shippingState: (addressObj?.state ?? attrs.shippingState) as string | undefined,
+          shippingPostalCode: (addressObj?.postal_code ?? attrs.shippingPostalCode) as string | undefined,
           items: includedItems.map((item: { id: string; attributes: Record<string, unknown> }) => {
             const productId = (item.attributes.productId ?? item.attributes.product_id ?? '') as string
             const product = productMap[String(productId)]
