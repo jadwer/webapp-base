@@ -100,8 +100,13 @@ export function usePublicProducts(
       refreshInterval: options?.refreshInterval ?? 300000, // 5 minutes default
       revalidateOnFocus: options?.revalidateOnFocus ?? false,
       revalidateOnReconnect: options?.revalidateOnReconnect ?? true,
-      // Keep previous data while revalidating for better UX
-      keepPreviousData: true,
+      // Keep previous data while revalidating for better UX. EXCEPTO cuando
+      // llega fallbackData para la clave actual (navegacion suave
+      // /productos -> /productos?search=x con datos del servidor): SWR con
+      // keepPreviousData devuelve los datos de la clave anterior en vez del
+      // fallback y, como el fallback ya cuenta como data, tampoco revalida.
+      // El grid se quedaba con el catalogo viejo (E2E dev 2026-09-18, H1).
+      keepPreviousData: !options?.fallbackData,
       // Dedupe requests within 5 seconds
       dedupingInterval: 5000,
       ...(options?.fallbackData ? { fallbackData: options.fallbackData } : {})
