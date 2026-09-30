@@ -10,6 +10,7 @@ import React, { memo, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@lwm/ui'
 import { Input } from '@lwm/ui'
+import { BranchSelect } from '@lwm/auth'
 import type { WarehouseParsed, CreateWarehouseData, UpdateWarehouseData } from '../types'
 import { handleComponentError } from '../types/errors'
 
@@ -41,7 +42,8 @@ export const WarehouseForm = memo<WarehouseFormProps>(({
     managerName: warehouse?.managerName || '',
     maxCapacity: warehouse?.maxCapacity || undefined,
     capacityUnit: warehouse?.capacityUnit || 'm3',
-    isActive: warehouse?.isActive ?? true
+    isActive: warehouse?.isActive ?? true,
+    branchId: warehouse?.branchId ?? null
   })
   
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -262,6 +264,14 @@ export const WarehouseForm = memo<WarehouseFormProps>(({
                       <option value="distribution">Distribución</option>
                       <option value="returns">Devoluciones</option>
                     </select>
+                  </div>
+
+                  <div className="col-md-6">
+                    <BranchSelect
+                      id="warehouse-branch"
+                      value={formData.branchId ? String(formData.branchId) : ''}
+                      onChange={(id) => setFormData(prev => ({ ...prev, branchId: id ? Number(id) : null }))}
+                    />
                   </div>
                   
                   <div className="col-12">

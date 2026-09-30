@@ -9,6 +9,10 @@ import { UsersAdminPage, PAGE_SIZE_OPTIONS } from '../../components/UsersAdminPa
 import { useUsers, useUserMutations } from '../../hooks/useUsers'
 import { useRoleOptions } from '../../hooks/useRoleOptions'
 
+vi.mock('@lwm/auth', () => ({
+  BranchFilter: () => null,
+  useBranchName: () => ({ multi: false, name: () => '—' }),
+}))
 vi.mock('next/navigation', () => ({
   useRouter: () => ({ push: vi.fn(), replace: vi.fn(), back: vi.fn(), prefetch: vi.fn() }),
   usePathname: () => '/dashboard/users',

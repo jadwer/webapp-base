@@ -20,6 +20,7 @@ export type QuoteStatus =
 export interface Quote {
   id: string
   contactId: number
+  branchId?: number | null
   shoppingCartId: number | null
   salesOrderId: number | null
   purchaseOrderId: number | null
@@ -144,6 +145,8 @@ export interface CreateQuoteRequest {
   termsAndConditions?: string
   shippingAddress?: Address
   billingAddress?: Address
+  /** Sucursal del documento; ausente = la del usuario o la Matriz. */
+  branchId?: number
 }
 
 export interface UpdateQuoteRequest {
@@ -161,6 +164,8 @@ export interface UpdateQuoteRequest {
 
 export interface CreateQuoteFromCartRequest {
   shopping_cart_id: number
+  /** Multi-sucursal: opcional; sin valor aplica la del usuario o la Matriz. */
+  branch_id?: number
   /** Optional: backend resolves the contact from the authenticated user when omitted. */
   contact_id?: number
   valid_until?: string
@@ -237,6 +242,8 @@ export interface QuoteFilters {
   dateFrom?: string
   dateTo?: string
   expiringWithinDays?: number
+  /** Multi-sucursal: '' o ausente = todas las visibles. */
+  branchId?: string
 }
 
 export interface QuoteSortOptions {

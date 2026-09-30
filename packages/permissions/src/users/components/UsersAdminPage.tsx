@@ -11,6 +11,7 @@ import { useUsers, useUserMutations } from '../hooks/useUsers'
 import { useRoleOptions } from '../hooks/useRoleOptions'
 import { UsersTable } from './UsersTable'
 import { UsersPagination } from './UsersPagination'
+import { BranchFilter } from '@lwm/auth'
 // Opciones del selector "por pagina" (peticion Gabino 2026-09-10).
 export const PAGE_SIZE_OPTIONS = [5, 10, 50, 100]
 import type { User, UserStatus } from '../types/user'
@@ -34,6 +35,7 @@ export const UsersAdminPage = () => {
   const [searchTerm, setSearchTerm] = useState('')
   const [roleFilter, setRoleFilter] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
+  const [branchFilter, setBranchFilter] = useState('')
   const [showTrashed, setShowTrashed] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
@@ -52,6 +54,7 @@ export const UsersAdminPage = () => {
       search: searchTerm || undefined,
       role: roleFilter || undefined,
       status: (statusFilter as UserStatus) || undefined,
+      branchId: branchFilter || undefined,
       trashed: showTrashed ? 'with' : undefined,
     },
     currentPage,
@@ -135,7 +138,7 @@ export const UsersAdminPage = () => {
       <div className="card mb-4">
         <div className="card-body">
           <div className="row g-3 align-items-center">
-            <div className="col-md-3">
+            <div className="col-md-2">
               <div className="input-group">
                 <span className="input-group-text">
                   <i className="bi bi-search"></i>
@@ -164,6 +167,16 @@ export const UsersAdminPage = () => {
                   </option>
                 ))}
               </select>
+            </div>
+            <div className="col-md-2">
+              <BranchFilter
+                className="form-select"
+                value={branchFilter}
+                onChange={(id) => {
+                  setBranchFilter(id)
+                  setCurrentPage(1)
+                }}
+              />
             </div>
             <div className="col-md-2">
               <select

@@ -38,6 +38,7 @@ export const ORDER_TYPE_LABELS: Record<SalesOrderType, string> = {
 export interface SalesOrder {
   id: string
   contactId: number
+  branchId?: number | null
   contact?: Contact
   orderNumber: string
   orderDate: string
@@ -109,6 +110,8 @@ export interface SalesOrderFormData {
   invoicingNotes?: string | null
   notes?: string
   items?: SalesOrderItem[]
+  /** Sucursal del documento; ausente = la del usuario o la Matriz. */
+  branchId?: string | number | null
 }
 
 // JSON:API related types (common interface used across modules)
@@ -145,6 +148,8 @@ export interface SalesOrderFilters {
   dateTo?: string
   // Nota cliente #11: pedidos por surtir (abiertos, no entregados ni cerrados)
   pendingFulfillment?: boolean
+  /** Multi-sucursal: '' o ausente = todas las visibles. */
+  branchId?: string
 }
 
 export interface PaginationMeta {

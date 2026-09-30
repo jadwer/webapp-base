@@ -15,6 +15,7 @@ export type FinancialStatus = 'not_invoiced' | 'invoiced' | 'paid'
 export interface PurchaseOrder {
   id: string
   contactId: number
+  branchId?: number | null
   contact?: Contact
   orderNumber?: string // Frontend-generated, not in backend
   orderDate: string
@@ -73,6 +74,8 @@ export interface PurchaseOrderFormData {
   status: PurchaseOrderStatus
   notes?: string | null
   items?: PurchaseOrderItem[]
+  /** Sucursal del documento; ausente = la del usuario o la Matriz. */
+  branchId?: string | number | null
 }
 
 // JSON:API related types (common interface used across modules)
@@ -109,6 +112,8 @@ export interface PurchaseOrderFilters {
   dateTo?: string
   // Nota cliente #11: compras por surtir (status pending+approved)
   pendingReceipt?: boolean
+  /** Multi-sucursal: '' o ausente = todas las visibles. */
+  branchId?: string
 }
 
 export interface PaginationMeta {

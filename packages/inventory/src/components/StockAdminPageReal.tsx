@@ -12,18 +12,20 @@ import { StockTableSimple } from './StockTableSimple'
 import { FilterBar } from './FilterBar'
 import { PaginationSimple } from './PaginationSimple'
 import { Button } from '@lwm/ui'
+import { BranchFilter } from '@lwm/auth'
 import { Alert } from '@lwm/ui'
 import { useNavigationProgress } from '@lwm/ui'
 
 export const StockAdminPageReal = () => {
   const [searchTerm, setSearchTerm] = useState('')
+  const [branchId, setBranchId] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
   const pageSize = 20
   const navigation = useNavigationProgress()
 
   // Hooks con paginación real del backend
   const { stock, meta, isLoading, error } = useStock({
-    filters: searchTerm ? { search: searchTerm } : undefined,
+    filters: searchTerm || branchId ? { search: searchTerm || undefined, branchId: branchId || undefined } : undefined,
     pagination: { page: currentPage, size: pageSize },
     include: ['product', 'warehouse', 'location']
   })
@@ -141,11 +143,25 @@ export const StockAdminPageReal = () => {
       </div>
 
       {/* Filtros */}
-      <FilterBar
-        searchTerm={searchTerm}
-        onSearchChange={handleSearchChange}
-        placeholder="Buscar productos en stock..."
-      />
+      <div className="row g-2">
+        <div className="col">
+          <FilterBar
+            searchTerm={searchTerm}
+            onSearchChange={handleSearchChange}
+            placeholder="Buscar productos en stock..."
+          />
+        </div>
+        <div className="col-md-3">
+          <BranchFilter
+            className="form-select"
+            value={branchId}
+            onChange={(id) => {
+              setBranchId(id)
+              setCurrentPage(1)
+            }}
+          />
+        </div>
+      </div>
 
       {/* Error State */}
       {error && (

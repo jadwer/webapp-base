@@ -6,7 +6,10 @@
  */
 
 import React from 'react'
+import useSWR from 'swr'
 import { useUser } from '../hooks/useUsers'
+import { accessService, SYSTEM_ROLE_LABELS, type SystemRole } from '../services/accessService'
+import { useBranches } from '@lwm/auth'
 import type { UserStatus } from '../types/user'
 import { Alert, useNavigationProgress } from '@lwm/ui'
 
@@ -36,6 +39,9 @@ const formatDate = (value?: string | null): string => {
 export const UserViewPage: React.FC<UserViewPageProps> = ({ userId }) => {
   const navigation = useNavigationProgress()
   const { user, isLoading, error } = useUser(userId)
+  const { branches } = useBranches()
+  const { data: access } = useSWR(['user-access', userId], () => accessService.get(userId), { revalidateOnFocus: false })
+  const branchName = (id: string | null) => branches.find((b) => b.id === id)?.name ?? (id ? `#${id}` : 'Matriz')
 
   if (isLoading) {
     return (
@@ -128,19 +134,43 @@ export const UserViewPage: React.FC<UserViewPageProps> = ({ userId }) => {
                   </span>
                 </dd>
 
-                <dt className="col-sm-4">Roles</dt>
+                <dt className="col-sm-4">Roles de sistema</dt>
                 <dd className="col-sm-8">
-                  {user.roles.length > 0 ? (
+                  {access && access.systemRoles.length > 0 ? (
                     <div className="d-flex flex-wrap gap-1">
-                      {user.roles.map((role) => (
-                        <span key={role.id} className="badge bg-info text-dark">
-                          {role.name}
+                      {access.systemRoles.map((role) => (
+                        <span key={role} className="badge bg-info text-dark">
+                          {SYSTEM_ROLE_LABELS[role as SystemRole] ?? role}
                         </span>
                       ))}
                     </div>
                   ) : (
-                    <span className="text-muted">Sin rol asignado</span>
+                    <span className="text-muted">Ninguno</span>
                   )}
+                </dd>
+
+                <dt className="col-sm-4">Permisos</dt>
+                <dd className="col-sm-8">
+                  {access ? (
+                    <>
+                      {access.effectivePermissionIds.length} permisos
+                      {(user.permissionTemplate || access.templateRoles[0]) && (
+                        <span className="text-muted">
+                          {' '}(plantilla {user.permissionTemplate || access.templateRoles[0]})
+                        </span>
+                      )}
+                    </>
+                  ) : (
+                    <span className="text-muted">—</span>
+                  )}
+                </dd>
+
+                <dt className="col-sm-4">Sucursal principal</dt>
+                <dd className="col-sm-8">{branchName(user.branchId)}</dd>
+
+                <dt className="col-sm-4">Sucursales con acceso</dt>
+                <dd className="col-sm-8">
+                  {user.branchIds.length > 0 ? user.branchIds.map(branchName).join(', ') : <span className="text-muted">Solo la principal</span>}
                 </dd>
 
                 <dt className="col-sm-4">Email verificado</dt>

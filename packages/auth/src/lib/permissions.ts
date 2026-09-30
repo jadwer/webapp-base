@@ -28,6 +28,10 @@ export interface User {
   role?: string
   roles?: Role[]
   permissions?: Permission[]
+  /** Sucursal principal (multi-sucursal 2026-09). */
+  branch_id?: string | null
+  /** Sucursales visibles; null = sin restriccion (god/admin). */
+  branch_ids?: string[] | null
   created_at: string
   updated_at: string
 }

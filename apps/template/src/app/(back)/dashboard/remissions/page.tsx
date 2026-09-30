@@ -13,6 +13,7 @@ import { useRouter } from 'next/navigation'
 import { remissionService, salesService, REMISSION_STATUS_LABELS } from '@/modules/sales'
 import type { Remission } from '@/modules/sales'
 import { toast } from '@/lib/toast'
+import { BranchFilter, useBranchName } from '@lwm/auth'
 import ConfirmModal, { ConfirmModalHandle } from '@/ui/components/base/ConfirmModal'
 
 export default function RemissionsPage() {
@@ -26,6 +27,8 @@ export default function RemissionsPage() {
   // Filtros basicos
   const [statusFilter, setStatusFilter] = useState('')
   const [orderIdFilter, setOrderIdFilter] = useState('')
+  const [branchFilter, setBranchFilter] = useState('')
+  const branchName = useBranchName()
 
   // Crear desde orden por folio
   const [orderFolio, setOrderFolio] = useState('')
@@ -37,6 +40,7 @@ export default function RemissionsPage() {
       const result = await remissionService.getAll({
         status: statusFilter || undefined,
         salesOrderId: orderIdFilter || undefined,
+        branchId: branchFilter || undefined,
       })
       setRemissions(result)
     } catch {
@@ -45,7 +49,7 @@ export default function RemissionsPage() {
     } finally {
       setIsLoading(false)
     }
-  }, [statusFilter, orderIdFilter])
+  }, [statusFilter, orderIdFilter, branchFilter])
 
   useEffect(() => {
     loadRemissions()
@@ -248,10 +252,13 @@ export default function RemissionsPage() {
       <div className="card">
         <div className="card-header">
           <div className="row g-2 align-items-center">
-            <div className="col-md-4">
+            <div className="col-md-3">
               <h5 className="card-title mb-0">Lista de remisiones ({remissions.length})</h5>
             </div>
-            <div className="col-md-3 ms-auto">
+            <div className="col-md-2 ms-auto">
+              <BranchFilter value={branchFilter} onChange={setBranchFilter} />
+            </div>
+            <div className="col-md-3">
               <select
                 className="form-select form-select-sm"
                 aria-label="Filtrar por estado"
@@ -296,6 +303,7 @@ export default function RemissionsPage() {
                   <tr>
                     <th>Numero</th>
                     <th>Orden</th>
+                    {branchName.multi && <th>Sucursal</th>}
                     <th>Estado</th>
                     <th>Fecha</th>
                     <th>Entrega</th>
@@ -321,6 +329,7 @@ export default function RemissionsPage() {
                             '-'
                           )}
                         </td>
+                        {branchName.multi && <td className="small">{branchName.name(rem.branchId)}</td>}
                         <td>
                           <span className={`badge ${statusConfig.badgeClass}`}>{statusConfig.label}</span>
                         </td>

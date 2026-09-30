@@ -4,10 +4,12 @@ import { useState, useRef } from 'react'
 import { useCFDIInvoices, useCFDIInvoicesMutations, useCFDIWorkflow } from '../hooks'
 import type { CFDIInvoicesFilters, CFDIStatus, TipoComprobante } from '../types'
 import { toast } from '@lwm/ui'
+import { BranchFilter, useBranchName } from '@lwm/auth'
 import { ConfirmModal, type ConfirmModalHandle } from '@lwm/ui'
 
 export function CFDIInvoicesAdminPage() {
   const [filters, setFilters] = useState<CFDIInvoicesFilters>({})
+  const branchName = useBranchName()
   const confirmModalRef = useRef<ConfirmModalHandle>(null)
   const { invoices, isLoading, error, mutate } = useCFDIInvoices(filters)
   const { deleteInvoice, downloadXML, downloadPDF } = useCFDIInvoicesMutations()
@@ -321,6 +323,13 @@ export function CFDIInvoicesAdminPage() {
                 }
               />
             </div>
+            <div className="col-12 col-md-2">
+              <BranchFilter
+                className="form-select"
+                value={filters.branchId || ''}
+                onChange={(branchId) => setFilters({ ...filters, branchId: branchId || undefined })}
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -346,6 +355,7 @@ export function CFDIInvoicesAdminPage() {
                     <th>Serie-Folio</th>
                     <th>Tipo</th>
                     <th>Receptor</th>
+                    {branchName.multi && <th>Sucursal</th>}
                     <th>UUID</th>
                     <th>Total</th>
                     <th>Fecha</th>
@@ -369,6 +379,7 @@ export function CFDIInvoicesAdminPage() {
                           {invoice.receptorNombre}
                         </div>
                       </td>
+                      {branchName.multi && <td className="small">{branchName.name(invoice.branchId)}</td>}
                       <td>
                         <small className="font-monospace">
                           {invoice.uuid ? invoice.uuid.substring(0, 8) + '...' : '-'}

@@ -49,10 +49,11 @@ export default function PermissionManagerPage() {
         <div>
           <h1 className="h3 mb-0">
             <i className="bi bi-shield-fill-check me-2 text-primary"></i>
-            Roles y Permisos
+            Permission Manager
           </h1>
           <p className="text-muted mb-0">
-            Administra los roles del sistema y sus permisos por módulo
+            Plantillas de permisos: al dar de alta un usuario se elige una plantilla que precarga sus permisos
+            y después se ajustan solo para ese usuario. Editar una plantilla no cambia a los usuarios ya creados.
           </p>
         </div>
         <button
@@ -60,7 +61,7 @@ export default function PermissionManagerPage() {
           onClick={() => setShowCreateForm(true)}
         >
           <i className="bi bi-plus-circle me-2"></i>
-          Nuevo Rol
+          Nueva plantilla
         </button>
       </div>
 
@@ -72,7 +73,7 @@ export default function PermissionManagerPage() {
             onClick={() => setActiveTab('roles')}
           >
             <i className="bi bi-people me-2"></i>
-            Roles
+            Plantillas
           </button>
         </li>
         <li className="nav-item">

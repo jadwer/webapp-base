@@ -41,6 +41,7 @@ export const mockContacts = (count: number = 3): Contact[] => {
 export const mockPurchaseOrder = (overrides?: Partial<PurchaseOrder>): PurchaseOrder => ({
   id: '1',
   contactId: 1,
+  branchId: null,
   contact: mockContact(),
   orderNumber: 'PO-2025-001',
   orderDate: '2025-01-01',

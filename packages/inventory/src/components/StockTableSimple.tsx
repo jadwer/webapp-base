@@ -10,6 +10,7 @@ import React from 'react'
 import Link from 'next/link'
 import { formatCurrency, formatQuantity } from '@lwm/ui'
 import type { Stock } from '../types'
+import { useBranchName } from '@lwm/auth'
 
 interface StockTableSimpleProps {
   stock?: Stock[]
@@ -24,6 +25,7 @@ export const StockTableSimple = ({
   onEdit: _unused, // eslint-disable-line @typescript-eslint/no-unused-vars
   onAdjust
 }: StockTableSimpleProps) => {
+  const branchName = useBranchName()
   const formatDate = (dateString?: string) => {
     if (!dateString) return '-'
     try {
@@ -95,6 +97,14 @@ export const StockTableSimple = ({
                 </div>
                 {item.location?.name && (
                   <small className="text-muted">{item.location.name}</small>
+                )}
+                {branchName.multi && item.warehouse?.branchId != null && (
+                  <div>
+                    <small className="text-muted">
+                      <i className="bi bi-building me-1" aria-hidden="true" />
+                      {branchName.name(item.warehouse.branchId)}
+                    </small>
+                  </div>
                 )}
               </td>
               <td>

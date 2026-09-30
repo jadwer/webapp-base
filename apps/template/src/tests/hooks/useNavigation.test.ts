@@ -59,9 +59,9 @@ describe('useNavigation', () => {
       mockUser.mockReturnValue(makeUser({ roleName: 'god' }))
     })
 
-    it('sees all top links', () => {
+    it('sees all top links (Usuarios paso al bloque Usuarios, 2026-09-24)', () => {
       const { result } = renderHook(() => useNavigation())
-      expect(result.current.topLinks).toHaveLength(2)
+      expect(result.current.topLinks).toHaveLength(1)
     })
 
     it('sees all 17 groups', () => {

@@ -38,21 +38,20 @@ export const adminNavigation: NavigationSection = {
   topLinks: [
     { href: '/dashboard', label: 'Panel Principal', icon: 'bi-house', permissions: [] },
     // Mi perfil vive en el header (avatar), fuera del sidebar (poda UX 2026-09).
-    { href: '/dashboard/users', label: 'Usuarios', icon: 'bi-people', permissions: ['users.index'] },
   ],
 
   groups: [
-    // Roles y Permisos
+    // Usuarios (2026-09-24): usuarios con permisos por usuario + Permission
+    // Manager (plantillas). Las pantallas legacy Roles y Permisos se retiraron.
     {
-      key: 'rcrud',
-      label: 'Roles y Permisos',
-      icon: 'bi-shield-fill-check',
-      activePathPrefixes: ['/dashboard/permission-manager', '/dashboard/roles', '/dashboard/permissions'],
+      key: 'users',
+      label: 'Usuarios',
+      icon: 'bi-people',
+      activePathPrefixes: ['/dashboard/users', '/dashboard/permission-manager'],
       permissions: [],
       items: [
+        { href: '/dashboard/users', label: 'Usuarios', icon: 'bi-people', permissions: ['users.index'] },
         { href: '/dashboard/permission-manager', label: 'Permission Manager', icon: 'bi-layout-text-window-reverse', permissions: ['permissions.show'] },
-        { href: '/dashboard/roles', label: 'Roles', icon: 'bi-person-badge', permissions: ['roles.show'] },
-        { href: '/dashboard/permissions', label: 'Permisos', icon: 'bi-shield-lock', permissions: ['permissions.show'] },
       ],
     },
 
@@ -282,6 +281,7 @@ export const adminNavigation: NavigationSection = {
       items: [
         { href: '/dashboard/settings/app-config', label: 'Configuracion General', icon: 'bi-gear', permissions: [] },
         { href: '/dashboard/settings/documents', label: 'Configuracion de Documentos', icon: 'bi-file-earmark-text', permissions: ['folio-sequences.index'] },
+        { href: '/dashboard/settings/branches', label: 'Sucursales', icon: 'bi-shop', permissions: ['branches.index'] },
         { href: '/dashboard/pages', label: 'Gestión de Páginas', icon: 'bi-brush', permissions: ['page.index'] },
         { href: '/dashboard/pages/templates', label: 'Galería de Templates', icon: 'bi-layout-text-window-reverse', permissions: ['page.index'] },
         { href: '/dashboard/mailer-manager', label: 'Plantillas de Correo', icon: 'bi-envelope', permissions: ['email-templates.index'] },

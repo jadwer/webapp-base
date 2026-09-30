@@ -32,6 +32,9 @@ export const useSalesOrders = (params?: SalesOrderFilters) => {
   if (params?.pendingFulfillment) {
     queryParams['filter[pending_fulfillment]'] = '1'
   }
+  if (params?.branchId) {
+    queryParams['filter[branch]'] = params.branchId
+  }
 
   // Default: lo mas reciente primero (pedido de Gabino 2026-07-19). Sin sort
   // el backend devuelve id ascendente y el listado abria en lo mas viejo.

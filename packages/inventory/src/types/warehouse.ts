@@ -24,6 +24,8 @@ export interface WarehouseAttributes {
   operatingHours?: string
   metadata?: Record<string, unknown> | null
   isActive: boolean
+  /** Sucursal duena del almacen (multi-sucursal 2026-09). */
+  branchId?: number | null
   createdAt: string
   updatedAt: string
 }
@@ -57,6 +59,7 @@ export interface CreateWarehouseData {
   maxCapacity?: number
   capacityUnit?: string
   isActive?: boolean
+  branchId?: number | null
 }
 
 export interface UpdateWarehouseData {
@@ -76,6 +79,7 @@ export interface UpdateWarehouseData {
   maxCapacity?: number
   capacityUnit?: string
   isActive?: boolean
+  branchId?: number | null
 }
 
 export interface WarehouseFilters {

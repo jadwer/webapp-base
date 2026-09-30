@@ -7,6 +7,7 @@ import { useSalesOrderMutations, useSalesContacts, useSalesOrderItemMutations } 
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
 import { ItemsManager } from '@/modules/sales'
 import { formatCurrency } from '@/lib/formatters'
+import { BranchSelect } from '@lwm/auth'
 
 interface OrderItem {
   tempId: string
@@ -28,7 +29,8 @@ export default function CreateSalesOrderPage() {
     orderNumber: '',
     orderDate: new Date().toISOString().split('T')[0],
     status: 'pending' as 'pending' | 'approved' | 'completed' | 'cancelled',
-    notes: ''
+    notes: '',
+    branchId: ''
   })
 
   const [orderItems, setOrderItems] = useState<OrderItem[]>([])
@@ -243,6 +245,14 @@ export default function CreateSalesOrderPage() {
                       <option value="completed">Completada</option>
                       <option value="cancelled">Cancelada</option>
                     </select>
+                  </div>
+
+                  <div className="col-md-6">
+                    <BranchSelect
+                      id="branchId"
+                      value={formData.branchId}
+                      onChange={(branchId) => setFormData(prev => ({ ...prev, branchId }))}
+                    />
                   </div>
 
                   <div className="col-12">

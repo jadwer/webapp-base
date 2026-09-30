@@ -55,6 +55,7 @@ export function transformJsonApiCFDIInvoice(
     id: String(resource.id),
     companySettingId: attributes.company_setting_id as number,
     contactId: attributes.contact_id as number,
+    branchId: (attributes.branch_id ?? attributes.branchId ?? null) as number | null,
     arInvoiceId: (attributes.ar_invoice_id as number | undefined) || undefined,
     series: String(attributes.series || ''),
     folio: attributes.folio as number,

@@ -58,7 +58,7 @@ describe('usersService', () => {
       // Assert
       expect(axiosClient.get).toHaveBeenCalledWith('/api/v1/users', {
         params: {
-          include: 'roles',
+          include: 'roles,branch',
           'page[number]': 1,
           'page[size]': DEFAULT_PAGE_SIZE,
         },
@@ -73,7 +73,7 @@ describe('usersService', () => {
 
       // Act
       await usersService.getUsers(
-        { search: 'gabino', role: 'admin', status: 'inactive', trashed: 'with' },
+        { search: 'gabino', role: 'admin', status: 'inactive', trashed: 'with', branchId: '2' },
         3,
         10
       )
@@ -81,13 +81,14 @@ describe('usersService', () => {
       // Assert
       expect(axiosClient.get).toHaveBeenCalledWith('/api/v1/users', {
         params: {
-          include: 'roles',
+          include: 'roles,branch',
           'page[number]': 3,
           'page[size]': 10,
           'filter[search]': 'gabino',
           'filter[role]': 'admin',
           'filter[status]': 'inactive',
           'filter[trashed]': 'with',
+          'filter[branch]': '2',
         },
       })
     })
@@ -134,7 +135,7 @@ describe('usersService', () => {
 
       // Assert
       expect(axiosClient.get).toHaveBeenCalledWith('/api/v1/users/5', {
-        params: { include: 'roles' },
+        params: { include: 'roles,branch,branches' },
       })
       expect(user.id).toBe('5')
       expect(user.roles).toEqual([{ id: '10', name: 'customer' }])

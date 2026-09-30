@@ -17,6 +17,12 @@ export interface User {
   email: string
   status: UserStatus
   roles: UserRole[]
+  /** Sucursal principal (null solo en datos previos al backfill). */
+  branchId: string | null
+  /** Sucursales con acceso ademas de la principal. */
+  branchIds: string[]
+  /** Plantilla (rol) de la que salieron sus permisos; informativo. */
+  permissionTemplate?: string | null
   emailVerifiedAt: string | null
   createdAt: string
   updatedAt?: string
@@ -32,6 +38,8 @@ export interface UserFilters {
   status?: UserStatus | ''
   /** Soft deletes: 'with' incluye eliminados, 'only' solo eliminados. */
   trashed?: 'with' | 'only'
+  /** Multi-sucursal: filter[branch] (sucursal principal). */
+  branchId?: string
 }
 
 export interface UserFormData {
@@ -41,8 +49,12 @@ export interface UserFormData {
   /** Requerido al crear (min 8); vacio al editar = no cambia. */
   password?: string
   passwordConfirmation?: string
-  /** IDs de roles a asignar (multi-rol). */
-  roleIds: string[]
+  /** IDs de roles (legacy). El acceso nuevo va por PUT /users/{id}/access. */
+  roleIds?: string[]
+  /** Sucursal principal; vacio = el backend asigna la Matriz. */
+  branchId?: string | null
+  /** Sucursales con acceso. */
+  branchIds?: string[]
 }
 
 export interface UsersPageMeta {

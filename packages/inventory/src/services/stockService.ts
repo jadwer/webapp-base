@@ -46,6 +46,9 @@ export const stockService = {
     if (filters.status) {
       queryParams['filter[status]'] = filters.status
     }
+    if (filters.branchId) {
+      queryParams['filter[branch]'] = filters.branchId
+    }
     if (filters.lowStock !== undefined) {
       queryParams['filter[low_stock]'] = filters.lowStock ? 1 : 0
     }

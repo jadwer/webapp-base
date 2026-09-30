@@ -10,7 +10,7 @@ export default function CreateUserPage() {
   return (
     <div className="container-fluid py-4">
       <div className="row justify-content-center">
-        <div className="col-12 col-lg-8 col-xl-6">
+        <div className="col-12 col-xxl-10">
           {/* Header */}
           <div className="d-flex align-items-center mb-4">
             <button

@@ -126,6 +126,8 @@ export interface StockFilters {
   outOfStock?: boolean // quantity <= 0
   minQuantity?: number
   maxQuantity?: number
+  /** Multi-sucursal: filtra por la sucursal del almacen (solo filtro, no muro). */
+  branchId?: string
 }
 
 export interface StockSortOptions {

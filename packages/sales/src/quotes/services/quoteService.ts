@@ -219,6 +219,10 @@ function buildQueryParams(
       params['filter[contact]'] = filters.contactId.toString()
     }
 
+    if (filters.branchId) {
+      params['filter[branch]'] = filters.branchId
+    }
+
     // Customer portal filter - filter by contact email
     if (filters.contactEmail) {
       params['filter[contact_email]'] = filters.contactEmail

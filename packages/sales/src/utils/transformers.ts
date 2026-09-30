@@ -18,6 +18,7 @@ export function transformJsonApiSalesOrder(resource: JsonApiResource): SalesOrde
   return {
     id: resource.id,
     contactId: (attributes.contact_id || attributes.contactId) as number,
+    branchId: (attributes.branch_id ?? attributes.branchId ?? null) as number | null,
     orderNumber: (attributes.order_number || attributes.orderNumber || '') as string,
     orderDate: (attributes.order_date || attributes.orderDate || '') as string,
     status: (attributes.status || 'draft') as OrderStatus,
@@ -226,7 +227,9 @@ export function transformSalesOrderFormToJsonApi(data: SalesOrderFormData, type:
         approvedAt: data.approvedAt || null,
         deliveredAt: data.deliveredAt || null,
         invoicingNotes: data.invoicingNotes || null,
-        notes: data.notes || ''
+        notes: data.notes || '',
+        // Solo si viene: en edicion no se mueve la sucursal por omision.
+        ...(data.branchId ? { branchId: Number(data.branchId) } : {})
       },
       relationships: {
         contact: {

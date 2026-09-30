@@ -18,6 +18,7 @@ export function transformJsonApiPurchaseOrder(resource: JsonApiResource): Purcha
   return {
     id: resource.id,
     contactId: (attributes.contact_id || attributes.contactId) as number,
+    branchId: (attributes.branch_id ?? attributes.branchId ?? null) as number | null,
     orderNumber: (attributes.order_number || attributes.orderNumber || `PO-${resource.id}`) as string, // Use API value first, fallback to generated
     orderDate: (attributes.order_date || attributes.orderDate || '') as string,
     status: (attributes.status || 'draft') as PurchaseOrderStatus,
@@ -214,6 +215,8 @@ export function transformPurchaseOrderFormToJsonApi(data: PurchaseOrderFormData,
         status: data.status,
         notes: data.notes || '',
         totalAmount: 0, // requerido por el Request; el backend recalcula desde items
+        // Solo si viene: en edicion no se mueve la sucursal por omision.
+        ...(data.branchId ? { branchId: Number(data.branchId) } : {}),
         // orderNumber lo genera el backend (folio OC-), no se envia.
       },
       relationships: {

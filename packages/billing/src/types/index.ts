@@ -20,6 +20,7 @@ export interface CFDIInvoice {
   // Foreign keys
   companySettingId: number
   contactId: number
+  branchId?: number | null
   arInvoiceId?: number
 
   // CFDI Identification
@@ -272,6 +273,8 @@ export interface CFDIInvoicesFilters {
   arInvoiceId?: number
   dateFrom?: string
   dateTo?: string
+  /** Multi-sucursal: '' o ausente = todas las visibles. */
+  branchId?: string
 }
 
 export interface CFDIItemsFilters {

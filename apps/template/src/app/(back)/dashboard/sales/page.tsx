@@ -4,14 +4,17 @@ import { useState } from 'react'
 import { useSalesOrders, formatDateOnly } from '@/modules/sales'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
 import { formatCurrency } from '@/lib/formatters'
+import { BranchFilter, useBranchName } from '@lwm/auth'
 
 export default function SalesPage() {
   const navigation = useNavigationProgress()
   const [searchTerm, setSearchTerm] = useState('')
-  
+  const [branchId, setBranchId] = useState('')
+  const branchName = useBranchName()
 
   const { salesOrders, isLoading, error } = useSalesOrders({
-    search: searchTerm || undefined
+    search: searchTerm || undefined,
+    branchId: branchId || undefined
   })
 
   const getStatusBadgeClass = (status: string) => {
@@ -77,7 +80,10 @@ export default function SalesPage() {
             />
           </div>
         </div>
-        <div className="col-md-6">
+        <div className="col-md-3">
+          <BranchFilter className="form-select" value={branchId} onChange={setBranchId} />
+        </div>
+        <div className="col-md-3">
           <div className="d-flex gap-2">
             <button className="btn btn-outline-secondary btn-sm">
               <i className="bi bi-funnel"></i> Filtros
@@ -129,6 +135,7 @@ export default function SalesPage() {
                       <tr>
                         <th>Número de Orden</th>
                         <th>Cliente</th>
+                        {branchName.multi && <th>Sucursal</th>}
                         <th>Fecha</th>
                         <th>Estado</th>
                         <th>Total</th>
@@ -139,7 +146,7 @@ export default function SalesPage() {
                     <tbody>
                       {salesOrders && salesOrders.length === 0 ? (
                         <tr>
-                          <td colSpan={7} className="text-center text-muted py-4">
+                          <td colSpan={branchName.multi ? 8 : 7} className="text-center text-muted py-4">
                             <i className="bi bi-inbox display-4 text-muted mb-3 d-block"></i>
                             <h6>No hay órdenes de venta</h6>
                             <p className="mb-0">
@@ -172,6 +179,7 @@ export default function SalesPage() {
                                 </span>
                               )}
                             </td>
+                            {branchName.multi && <td className="small">{branchName.name(order.branchId)}</td>}
                             <td>
                               {/* order_date es date-only: formatear en UTC para
                                   no retroceder un dia en zonas al oeste de UTC */}

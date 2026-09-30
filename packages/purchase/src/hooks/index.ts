@@ -29,6 +29,9 @@ export const usePurchaseOrders = (params?: PurchaseOrderFilters) => {
   if (params?.pendingReceipt) {
     queryParams['filter[pending_receipt]'] = '1'
   }
+  if (params?.branchId) {
+    queryParams['filter[branch]'] = params.branchId
+  }
 
   // Default: lo mas reciente primero (pedido de Gabino 2026-07-19). Sin sort
   // el backend devuelve id ascendente y el listado abria en lo mas viejo.

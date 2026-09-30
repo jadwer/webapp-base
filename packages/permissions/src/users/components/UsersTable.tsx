@@ -7,6 +7,7 @@
  */
 
 import React from 'react'
+import { useBranchName } from '@lwm/auth'
 import type { User, UserStatus } from '../types/user'
 
 interface UsersTableProps {
@@ -37,6 +38,8 @@ export const UsersTable: React.FC<UsersTableProps> = ({
   onDelete,
   onRestore,
 }) => {
+  const branchName = useBranchName()
+
   if (isLoading) {
     return (
       <div className="table-responsive">
@@ -46,6 +49,7 @@ export const UsersTable: React.FC<UsersTableProps> = ({
               <th>Nombre</th>
               <th>Email</th>
               <th>Roles</th>
+              {branchName.multi && <th>Sucursal</th>}
               <th>Estado</th>
               <th style={{ width: '130px' }}>Acciones</th>
             </tr>
@@ -56,6 +60,7 @@ export const UsersTable: React.FC<UsersTableProps> = ({
                 <td><span className="placeholder col-8"></span></td>
                 <td><span className="placeholder col-10"></span></td>
                 <td><span className="placeholder col-6"></span></td>
+                {branchName.multi && <td><span className="placeholder col-6"></span></td>}
                 <td><span className="placeholder col-5"></span></td>
                 <td>
                   <div className="d-flex gap-1">
@@ -94,6 +99,7 @@ export const UsersTable: React.FC<UsersTableProps> = ({
             <th>Nombre</th>
             <th>Email</th>
             <th>Roles</th>
+            {branchName.multi && <th>Sucursal</th>}
             <th>Estado</th>
             <th style={{ width: '130px' }}>Acciones</th>
           </tr>
@@ -134,10 +140,16 @@ export const UsersTable: React.FC<UsersTableProps> = ({
                         </span>
                       ))}
                     </div>
+                  ) : user.permissionTemplate ? (
+                    // Rol = plantilla (2026-09-24): sin rol de sistema, permisos por usuario.
+                    <span className="badge bg-light text-dark border" title="Plantilla de permisos">
+                      {user.permissionTemplate}
+                    </span>
                   ) : (
                     <span className="text-muted">Sin rol</span>
                   )}
                 </td>
+                {branchName.multi && <td className="small">{branchName.name(user.branchId)}</td>}
                 <td>{renderStatusBadge(user.status)}</td>
                 <td>
                   <div className="d-flex gap-1">

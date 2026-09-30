@@ -8,6 +8,7 @@ import { shoppingCartService } from '@/modules/ecommerce'
 import type { ShoppingCart } from '@/modules/ecommerce'
 import { stockService } from '@/modules/inventory'
 import { toast } from '@/lib/toast'
+import { BranchSelect } from '@lwm/auth'
 import type { LocalCartItem } from '@/modules/public-catalog'
 
 interface Contact {
@@ -54,6 +55,7 @@ export default function CreateQuotePage() {
   const [validUntil, setValidUntil] = useState<string>('')
   const [notes, setNotes] = useState<string>('')
   const [termsAndConditions, setTermsAndConditions] = useState<string>('')
+  const [branchId, setBranchId] = useState<string>('')
 
   // Data from API
   const [contacts, setContacts] = useState<Contact[]>([])
@@ -245,7 +247,8 @@ export default function CreateQuotePage() {
           validUntil: validUntil || undefined,
           notes: notes || undefined,
           termsAndConditions: termsAndConditions || undefined,
-          currency: 'MXN'
+          currency: 'MXN',
+          branchId: branchId ? Number(branchId) : undefined
         })
 
         toast.success('Cotización creada. Agrega los productos a continuación.')
@@ -281,7 +284,8 @@ export default function CreateQuotePage() {
         contact_id: parseInt(selectedContactId),
         valid_until: validUntil || undefined,
         notes: notes || undefined,
-        terms_and_conditions: termsAndConditions || undefined
+        terms_and_conditions: termsAndConditions || undefined,
+        branch_id: branchId ? Number(branchId) : undefined
       })
 
       toast.success('Cotización creada exitosamente')
@@ -658,6 +662,10 @@ export default function CreateQuotePage() {
                           </option>
                         ))}
                       </select>
+                    </div>
+
+                    <div className="mb-3">
+                      <BranchSelect id="quote-branch" value={branchId} onChange={setBranchId} />
                     </div>
 
                     {selectedContact && (

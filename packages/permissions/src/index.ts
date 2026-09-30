@@ -47,3 +47,4 @@ export { RolesPage, PermissionManagerPage } from './roles'
 // Users sub-module
 // ============================================
 export * from './users'
+export * from './branches'

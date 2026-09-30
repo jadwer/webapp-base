@@ -7,7 +7,7 @@
 export { UsersAdminPage } from './components/UsersAdminPage'
 export { UsersTable } from './components/UsersTable'
 export { UsersPagination } from './components/UsersPagination'
-export { UserForm, generateSecurePassword } from './components/UserForm'
+export { UserForm, generateSecurePassword, getAccessErrorMessages } from './components/UserForm'
 export { UserViewPage } from './components/UserViewPage'
 
 // Hooks
@@ -16,6 +16,8 @@ export { useRoleOptions } from './hooks/useRoleOptions'
 
 // Services
 export { usersService, DEFAULT_PAGE_SIZE } from './services/usersService'
+export { accessService, SYSTEM_ROLES, SYSTEM_ROLE_LABELS } from './services/accessService'
+export type { UserAccess, UserAccessPayload, SystemRole } from './services/accessService'
 export { getRoleOptions } from './services/rolesService'
 
 // Utils

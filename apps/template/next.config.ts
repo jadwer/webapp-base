@@ -88,6 +88,16 @@ const nextConfig: NextConfig = {
     ],
   },
   images: { remotePatterns },
+  async redirects() {
+    return [
+      // Pantallas legacy de Roles y Permisos retiradas (2026-09-24): todo se
+      // administra en el Permission Manager (plantillas) y en Usuarios.
+      { source: '/dashboard/roles/:path*', destination: '/dashboard/permission-manager', permanent: true },
+      { source: '/dashboard/roles', destination: '/dashboard/permission-manager', permanent: true },
+      { source: '/dashboard/permissions/:path*', destination: '/dashboard/permission-manager', permanent: true },
+      { source: '/dashboard/permissions', destination: '/dashboard/permission-manager', permanent: true },
+    ];
+  },
 };
 
 export default nextConfig;

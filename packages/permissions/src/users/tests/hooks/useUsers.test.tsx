@@ -29,6 +29,8 @@ const mockUser = (id: string): User => ({
   email: `user${id}@example.com`,
   status: 'active',
   roles: [{ id: '1', name: 'admin' }],
+  branchId: null,
+  branchIds: [],
   emailVerifiedAt: null,
   createdAt: '2026-01-01T00:00:00Z',
   deletedAt: null,

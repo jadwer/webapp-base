@@ -95,3 +95,8 @@ export {
   resetPasswordSchema,
   type ResetPasswordFormData,
 } from './schemas/reset-password.schema'
+
+// ============================================
+// SUCURSALES (multi-sucursal 2026-09)
+// ============================================
+export * from './branches'

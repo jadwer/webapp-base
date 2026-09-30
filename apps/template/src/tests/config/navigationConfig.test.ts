@@ -11,8 +11,8 @@ describe('navigationConfig', () => {
       expect(adminNavigation.audience).toBe('admin')
     })
 
-    it('has 2 top links (Mi perfil vive en el header desde la poda UX 2026-09)', () => {
-      expect(adminNavigation.topLinks).toHaveLength(2)
+    it('has 1 top link (Usuarios paso al bloque Usuarios, 2026-09-24)', () => {
+      expect(adminNavigation.topLinks).toHaveLength(1)
     })
 
     it('has 17 groups (poda UX 2026-09: comisiones en Ventas; Page Builder y Correos en Configuracion)', () => {
@@ -95,7 +95,8 @@ describe('navigationConfig', () => {
       expect(keys).toContain('hr')
       expect(keys).toContain('settings')
       expect(keys).toContain('system')
-      expect(keys).toContain('rcrud')
+      expect(keys).toContain('users')
+      expect(keys).not.toContain('rcrud')
       // Poda UX 2026-09: estos grupos se disolvieron en Ventas y Configuracion.
       expect(keys).not.toContain('pageBuilder')
       expect(keys).not.toContain('commissions')
@@ -154,5 +155,16 @@ describe('navigationConfig', () => {
       expect(customerExtraLinks).toHaveLength(1)
       expect(customerExtraLinks[0].href).toBe('/productos')
     })
+  })
+})
+
+describe('bloque Usuarios (2026-09-24)', () => {
+  it('agrupa Usuarios y Permission Manager y ya no enlaza las pantallas legacy', () => {
+    const group = adminNavigation.groups.find((g) => g.key === 'users')
+    expect(group?.label).toBe('Usuarios')
+    expect(group?.items.map((i) => i.href)).toEqual(['/dashboard/users', '/dashboard/permission-manager'])
+    const allHrefs = adminNavigation.groups.flatMap((g) => g.items.map((i) => i.href))
+    expect(allHrefs).not.toContain('/dashboard/roles')
+    expect(allHrefs).not.toContain('/dashboard/permissions')
   })
 })

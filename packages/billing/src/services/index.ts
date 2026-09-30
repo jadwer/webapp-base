@@ -56,6 +56,9 @@ export const cfdiInvoicesService = {
     if (filters?.tipoComprobante) {
       queryParams.append('filter[tipoComprobante]', filters.tipoComprobante)
     }
+    if (filters?.branchId) {
+      queryParams.append('filter[branch]', filters.branchId)
+    }
 
     if (filters?.arInvoiceId) {
       queryParams.append('filter[arInvoiceId]', filters.arInvoiceId.toString())

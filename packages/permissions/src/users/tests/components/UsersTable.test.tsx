@@ -7,12 +7,18 @@ import { render, screen, fireEvent } from '@testing-library/react'
 import { UsersTable } from '../../components/UsersTable'
 import type { User } from '../../types/user'
 
+vi.mock('@lwm/auth', () => ({
+  useBranchName: () => ({ multi: true, name: (id?: string | null) => (id === '2' ? 'Toluca' : '—') }),
+}))
+
 const baseUser = (overrides: Partial<User> = {}): User => ({
   id: '1',
   name: 'Gabino Ramírez',
   email: 'gabino@example.com',
   status: 'active',
   roles: [],
+  branchId: null,
+  branchIds: [],
   emailVerifiedAt: null,
   createdAt: '2026-01-01T00:00:00Z',
   deletedAt: null,
@@ -46,6 +52,15 @@ describe('UsersTable', () => {
 
     // Assert
     expect(screen.getByText('Sin rol')).toBeInTheDocument()
+  })
+
+  it('sin rol de sistema muestra la plantilla de permisos y la sucursal', () => {
+    render(<UsersTable users={[baseUser({ permissionTemplate: 'vendedor', branchId: '2' })]} />)
+
+    expect(screen.getByText('vendedor')).toBeInTheDocument()
+    expect(screen.queryByText('Sin rol')).not.toBeInTheDocument()
+    expect(screen.getByText('Sucursal')).toBeInTheDocument()
+    expect(screen.getByText('Toluca')).toBeInTheDocument()
   })
 
   it('fila eliminada: atenuada, badge Eliminado y boton Restaurar en vez de acciones', () => {

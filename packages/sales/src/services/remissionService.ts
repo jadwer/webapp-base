@@ -11,6 +11,7 @@ import { axiosClient } from '@lwm/auth'
 export interface Remission {
   id: string
   salesOrderId: number
+  branchId?: number | null
   warehouseId: number | null
   remissionNumber: string
   status: 'draft' | 'printed' | 'delivered' | 'cancelled'
@@ -65,10 +66,11 @@ export const remissionService = {
   /**
    * Get all remissions
    */
-  async getAll(filters?: { salesOrderId?: string; status?: string }): Promise<Remission[]> {
+  async getAll(filters?: { salesOrderId?: string; status?: string; branchId?: string }): Promise<Remission[]> {
     const params: Record<string, string> = { include: 'salesOrder,items' }
     if (filters?.salesOrderId) params['filter[salesOrder]'] = filters.salesOrderId
     if (filters?.status) params['filter[status]'] = filters.status
+    if (filters?.branchId) params['filter[branch]'] = filters.branchId
 
     const response = await axiosClient.get(BASE_URL, { params })
     return (response.data.data as JsonApiResource[]).map(parseRemission)

@@ -45,6 +45,8 @@ const transformUser = (resource: JsonApiResource, rolesMap: Map<string, UserRole
   const roles = refs
     .map((ref) => rolesMap.get(String(ref.id)))
     .filter((role): role is UserRole => role !== undefined)
+  const branchRef = resource.relationships?.branch?.data
+  const branchesRef = resource.relationships?.branches?.data
 
   return {
     id: String(resource.id),
@@ -52,6 +54,9 @@ const transformUser = (resource: JsonApiResource, rolesMap: Map<string, UserRole
     email: (attrs.email as string) || '',
     status: (attrs.status as UserStatus) || 'active',
     roles,
+    branchId: branchRef && !Array.isArray(branchRef) ? String(branchRef.id) : null,
+    branchIds: Array.isArray(branchesRef) ? branchesRef.map((r) => String(r.id)) : [],
+    permissionTemplate: (attrs.permissionTemplate as string | null) ?? null,
     emailVerifiedAt: (attrs.emailVerifiedAt as string | null) ?? null,
     createdAt: (attrs.createdAt as string) || '',
     updatedAt: attrs.updatedAt as string | undefined,
@@ -79,6 +84,20 @@ const buildRolesRelationship = (roleIds: string[]) => ({
   },
 })
 
+/**
+ * Roles + sucursales (multi-sucursal 2026-09). Las sucursales solo se envian
+ * si el formulario las trae (undefined = no tocar).
+ */
+const buildRelationships = (data: UserFormData) => ({
+  ...(data.roleIds !== undefined ? buildRolesRelationship(data.roleIds) : {}),
+  ...(data.branchId !== undefined
+    ? { branch: { data: data.branchId ? { type: 'branches', id: String(data.branchId) } : null } }
+    : {}),
+  ...(data.branchIds !== undefined
+    ? { branches: { data: data.branchIds.map((id) => ({ type: 'branches', id: String(id) })) } }
+    : {}),
+})
+
 export const usersService = {
   /**
    * Lista paginada con filtros. Devuelve usuarios planos + meta.page
@@ -90,7 +109,7 @@ export const usersService = {
     pageSize = DEFAULT_PAGE_SIZE
   ): Promise<UsersListResult> => {
     const params: Record<string, unknown> = {
-      include: 'roles',
+      include: 'roles,branch',
       'page[number]': page,
       'page[size]': pageSize,
     }
@@ -98,6 +117,7 @@ export const usersService = {
     if (filters.role) params['filter[role]'] = filters.role
     if (filters.status) params['filter[status]'] = filters.status
     if (filters.trashed) params['filter[trashed]'] = filters.trashed
+    if (filters.branchId) params['filter[branch]'] = filters.branchId
 
     const response = await axiosClient.get(RESOURCE, { params })
     const body = response.data as {
@@ -115,7 +135,7 @@ export const usersService = {
 
   getUser: async (id: string): Promise<User> => {
     const response = await axiosClient.get(`${RESOURCE}/${id}`, {
-      params: { include: 'roles' },
+      params: { include: 'roles,branch,branches' },
     })
     const body = response.data as { data: JsonApiResource; included?: unknown[] }
     return transformUser(body.data, buildRolesMap(body.included))
@@ -126,7 +146,7 @@ export const usersService = {
       data: {
         type: 'users',
         attributes: buildAttributes(data),
-        relationships: buildRolesRelationship(data.roleIds),
+        relationships: buildRelationships(data),
       },
     })
     const body = response.data as { data: JsonApiResource; included?: unknown[] }
@@ -139,7 +159,7 @@ export const usersService = {
         type: 'users',
         id: String(id),
         attributes: buildAttributes(data),
-        relationships: buildRolesRelationship(data.roleIds),
+        relationships: buildRelationships(data),
       },
     })
     const body = response.data as { data: JsonApiResource; included?: unknown[] }
