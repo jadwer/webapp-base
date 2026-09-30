@@ -33,7 +33,12 @@ export {
   changePassword,
   updateProfile,
   uploadAvatar,
+  setAvatarPreset,
+  removeAvatar,
 } from './lib/profileApi'
+export { AVATAR_PRESETS, AVATAR_PRESET_COUNT, avatarPresetSrc, avatarSrc, initials } from './lib/avatar'
+export { UserAvatar } from './components/UserAvatar'
+export { AvatarPickerModal } from './components/AvatarPickerModal'
 export { handleApiErrors } from './lib/handleApiErrors'
 // Note: parseJsonApiErrors lives in @lwm/ui (utils/parseJsonApiErrors).
 // Earlier in Fase 3.6 we re-exported it from here for "auth owns errors"

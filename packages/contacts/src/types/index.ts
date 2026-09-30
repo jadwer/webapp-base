@@ -10,6 +10,18 @@ export type ContactStatus = 'active' | 'inactive' | 'suspended' | 'archived'
 export type AddressType = 'billing' | 'shipping' | 'fiscal' | 'other'
 export type DocumentType = 'id_card' | 'tax_certificate' | 'contract' | 'license' | 'other'
 
+/**
+ * Telefono de un contacto (2026-09-30): solo digitos; con lada 52 el numero
+ * lleva 10 digitos, con otra lada hasta 12. El primero se refleja en
+ * `phone`/`phoneExtension` (lo hace el backend) para PDFs y reportes.
+ */
+export interface ContactPhone {
+  label?: string | null
+  code: string
+  number: string
+  ext?: string | null
+}
+
 // ===== MAIN CONTACT ENTITY =====
 export interface Contact {
   id: string
@@ -18,7 +30,9 @@ export interface Contact {
   legalName?: string
   taxId?: string
   email?: string
+  additionalEmails?: string[]
   phone?: string
+  phones?: ContactPhone[]
   website?: string
   status: ContactStatus
   isCustomer: boolean
@@ -152,7 +166,11 @@ export interface CreateContactData {
   legalName?: string
   taxId?: string
   email?: string
+  /** Correos extra (compras, laboratorio...). Arreglo vacio = limpiar. */
+  additionalEmails?: string[]
   phone?: string
+  /** Telefonos estructurados. Arreglo vacio = limpiar. */
+  phones?: ContactPhone[]
   website?: string
   status: ContactStatus
   isCustomer: boolean

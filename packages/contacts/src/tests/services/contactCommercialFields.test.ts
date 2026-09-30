@@ -191,7 +191,7 @@ describe('contactsService.getById (lectura: campos comerciales fluyen al flat)',
     })
 
     const res = await contactsService.getById('42')
-    const contact = res.data as Record<string, unknown>
+    const contact = res.data as unknown as Record<string, unknown>
 
     expect(contact.id).toBe('42')
     expect(contact.defaultSalespersonId).toBe(5)

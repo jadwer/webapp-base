@@ -28,6 +28,8 @@ export interface User {
   role?: string
   roles?: Role[]
   permissions?: Permission[]
+  /** "preset:N", URL de la foto o null (2026-09-30). */
+  avatar?: string | null
   /** Sucursal principal (multi-sucursal 2026-09). */
   branch_id?: string | null
   /** Sucursales visibles; null = sin restriccion (god/admin). */

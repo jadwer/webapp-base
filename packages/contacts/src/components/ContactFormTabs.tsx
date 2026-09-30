@@ -1,7 +1,16 @@
 /**
  * CONTACT FORM WITH TABS
- * Sistema completo de gestión de contactos con pestañas
- * Incluye: Datos básicos, Direcciones, Documentos y Personas de contacto
+ *
+ * Alta y edicion de contactos por pasos (peticion de Jasim, 2026-09-30):
+ * 1. Datos generales: identificacion, correos, telefonos, clasificacion y
+ *    condiciones comerciales. "Siguiente" valida y desbloquea el resto.
+ * 2. Datos fiscales: razon social, RFC, regimen, uso CFDI, cuentas y la
+ *    direccion fiscal.
+ * 3. Direcciones (de entrega), 4. Documentos, 5. Personas.
+ *
+ * En edicion el contacto ya existe, asi que todas las pestanas arrancan
+ * desbloqueadas. Las direcciones, documentos y personas nuevas se guardan
+ * despues del contacto (necesitan su id).
  */
 
 'use client'
@@ -11,20 +20,23 @@ import { ContactAddresses } from './ContactAddresses'
 import { ContactDocuments } from './ContactDocuments'
 import { ContactPeople } from './ContactPeople'
 import { ContactCommercialFields } from './ContactCommercialFields'
-import { Button } from '@lwm/ui'
+import { PhoneListInput } from './PhoneListInput'
+import { Button, EmailChipsInput, singleEmailError } from '@lwm/ui'
 import { Input } from '@lwm/ui'
 import { useContactAddresses, useContactDocuments, useContactPeople } from '../hooks'
 import { useContactCatalogs } from '../hooks/useContactCatalogs'
 import { contactAddressesService, contactPeopleService, contactDocumentsService } from '../services'
 import { getValidationErrorMessages } from '../utils/jsonApiErrors'
+import { cleanPhones, phoneError, parsePhoneText } from '../utils/phones'
 import { useAuth } from '@lwm/auth'
 import { toast } from '@lwm/ui'
-import type { 
-  ContactFormData, 
-  ContactParsed, 
-  ContactAddress, 
-  ContactDocument, 
-  ContactPerson 
+import type {
+  ContactFormData,
+  ContactParsed,
+  ContactAddress,
+  ContactDocument,
+  ContactPerson,
+  ContactPhone
 } from '../types'
 
 interface ContactFormTabsProps {
@@ -42,11 +54,59 @@ interface ContactFormTabsProps {
   roleContext?: 'customer' | 'supplier' | 'prospect'
 }
 
-type TabType = 'basic' | 'addresses' | 'documents' | 'people'
+type TabType = 'general' | 'fiscal' | 'addresses' | 'documents' | 'people'
+
+const TAB_ORDER: TabType[] = ['general', 'fiscal', 'addresses', 'documents', 'people']
+
+/** Campos de cada paso, para llevar al usuario a la pestana del error. */
+const FISCAL_FIELDS = new Set(['taxId', 'legalName', 'regimenFiscal', 'usoCfdi'])
 
 // Local document type that includes the actual File object
 interface LocalContactDocument extends ContactDocument {
   file?: File // Only for local documents pending upload
+}
+
+/** Telefonos iniciales: la lista estructurada o, en contactos viejos, el telefono legado. */
+function initialPhones(contact?: ContactParsed): ContactPhone[] {
+  if (contact?.phones && contact.phones.length > 0) {
+    return contact.phones.map((p) => ({ label: p.label ?? '', code: p.code, number: p.number, ext: p.ext ?? '' }))
+  }
+  if (contact?.phone) {
+    const parsed = parsePhoneText(contact.phone)
+    return [{ label: 'Principal', code: parsed.code, number: parsed.number, ext: contact.phoneExtension || parsed.ext || '' }]
+  }
+  return []
+}
+
+function initialFormData(contact: ContactParsed | undefined, roleContext: ContactFormTabsProps['roleContext']): ContactFormData {
+  return {
+    contactType: contact?.contactType || 'company',
+    name: contact?.name || '',
+    legalName: contact?.legalName || '',
+    taxId: contact?.taxId || '',
+    email: contact?.email || '',
+    additionalEmails: contact?.additionalEmails ?? [],
+    phones: initialPhones(contact),
+    website: contact?.website || '',
+    status: contact?.status || 'active',
+    isCustomer: contact?.isCustomer ?? (roleContext === 'customer'),
+    isSupplier: contact?.isSupplier ?? (roleContext === 'supplier'),
+    creditLimit: contact?.creditLimit || undefined,
+    classification: contact?.classification || '',
+    paymentTerms: contact?.paymentTerms ?? undefined,
+    notes: contact?.notes || '',
+    metadata: contact?.metadata || {},
+    // Datos comerciales y fiscales (nota cliente #10)
+    defaultSalespersonId: contact?.defaultSalespersonId ?? null,
+    collectionsAgentId: contact?.collectionsAgentId ?? null,
+    commissionPctOverride: contact?.commissionPctOverride ?? null,
+    regimenFiscal: contact?.regimenFiscal || '',
+    usoCfdi: contact?.usoCfdi || '',
+    bankAccountNumber: contact?.bankAccountNumber || '',
+    referralSource: contact?.referralSource || '',
+    cuentaContable: contact?.cuentaContable || '',
+    discountPct: contact?.discountPct ?? null
+  }
 }
 
 export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
@@ -57,129 +117,52 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
   className = '',
   roleContext
 }) => {
-  const [activeTab, setActiveTab] = useState<TabType>('basic')
+  const [activeTab, setActiveTab] = useState<TabType>('general')
   const { user } = useAuth()
-  
-  // Estado controlado para los datos básicos del contacto (persistente entre pestañas)
-  const [formData, setFormData] = useState<ContactFormData>(() => ({
-    contactType: contact?.contactType || 'company',
-    name: contact?.name || '',
-    legalName: contact?.legalName || '',
-    taxId: contact?.taxId || '',
-    email: contact?.email || '',
-    phone: contact?.phone || '',
-    phoneExtension: contact?.phoneExtension || '',
-    website: contact?.website || '',
-    status: contact?.status || 'active',
-    isCustomer: contact?.isCustomer ?? (roleContext === 'customer'),
-    isSupplier: contact?.isSupplier ?? (roleContext === 'supplier'),
-    creditLimit: contact?.creditLimit || undefined,
-    classification: contact?.classification || '',
-    paymentTerms: contact?.paymentTerms || undefined,
-    notes: contact?.notes || '',
-    metadata: contact?.metadata || {},
-    // Datos comerciales y fiscales (nota cliente #10)
-    defaultSalespersonId: contact?.defaultSalespersonId ?? null,
-    collectionsAgentId: contact?.collectionsAgentId ?? null,
-    commissionPctOverride: contact?.commissionPctOverride ?? null,
-    regimenFiscal: contact?.regimenFiscal || '',
-    usoCfdi: contact?.usoCfdi || '',
-    creditMonths: contact?.creditMonths ?? null,
-    bankAccountNumber: contact?.bankAccountNumber || '',
-    referralSource: contact?.referralSource || '',
-    cuentaContable: contact?.cuentaContable || '',
-    discountPct: contact?.discountPct ?? null
-  }))
+
+  // Estado controlado del contacto (persistente entre pestanas)
+  const [formData, setFormData] = useState<ContactFormData>(() => initialFormData(contact, roleContext))
+  // Paso 1 validado: en edicion el contacto ya existe y todo esta abierto.
+  const [generalValidated, setGeneralValidated] = useState<boolean>(Boolean(contact))
+  const [showPhoneErrors, setShowPhoneErrors] = useState(false)
 
   // Update form data when contact prop changes (for edit mode)
   React.useEffect(() => {
     if (contact) {
-      setFormData({
-        contactType: contact.contactType || 'company',
-        name: contact.name || '',
-        legalName: contact.legalName || '',
-        taxId: contact.taxId || '',
-        email: contact.email || '',
-        phone: contact.phone || '',
-        phoneExtension: contact.phoneExtension || '',
-        website: contact.website || '',
-        status: contact.status || 'active',
-        isCustomer: contact.isCustomer || false,
-        isSupplier: contact.isSupplier || false,
-        creditLimit: contact.creditLimit || undefined,
-        classification: contact.classification || '',
-        paymentTerms: contact.paymentTerms || undefined,
-        notes: contact.notes || '',
-        metadata: contact.metadata || {},
-        // Datos comerciales y fiscales (nota cliente #10)
-        defaultSalespersonId: contact.defaultSalespersonId ?? null,
-        collectionsAgentId: contact.collectionsAgentId ?? null,
-        commissionPctOverride: contact.commissionPctOverride ?? null,
-        regimenFiscal: contact.regimenFiscal || '',
-        usoCfdi: contact.usoCfdi || '',
-        creditMonths: contact.creditMonths ?? null,
-        bankAccountNumber: contact.bankAccountNumber || '',
-        referralSource: contact.referralSource || '',
-        cuentaContable: contact.cuentaContable || '',
-        discountPct: contact.discountPct ?? null
-      })
+      setFormData(initialFormData(contact, roleContext))
+      setGeneralValidated(true)
     }
-  }, [contact])
-  
+  }, [contact, roleContext])
+
   const [formErrors, setFormErrors] = useState<Record<string, string>>({})
-  
-  // Cargar entidades relacionadas desde la API (solo en modo edit)
+
   // Clasificacion desde el catalogo del backend (fuente unica, regla 7).
   const { classifications } = useContactCatalogs()
 
-  const {
-    addresses: apiAddresses
-  } = useContactAddresses(contact?.id)
-  
-  const { 
-    documents: apiDocuments
-  } = useContactDocuments(contact?.id)
-  
-  const { 
-    people: apiPeople
-  } = useContactPeople(contact?.id)
-  
+  // Cargar entidades relacionadas desde la API (solo en modo edit)
+  const { addresses: apiAddresses } = useContactAddresses(contact?.id)
+  const { documents: apiDocuments } = useContactDocuments(contact?.id)
+  const { people: apiPeople } = useContactPeople(contact?.id)
+
   // Estados locales para las entidades relacionadas (para crear/editar)
   const [localAddresses, setLocalAddresses] = useState<ContactAddress[]>([])
   const [localDocuments, setLocalDocuments] = useState<LocalContactDocument[]>([])
   const [localPeople, setLocalPeople] = useState<ContactPerson[]>([])
   const [, setIsSubmitting] = useState(false)
-  
+
   // Combinar datos de API con datos locales
   const addresses = [...(apiAddresses || []), ...localAddresses]
   const documents = [...(apiDocuments || []), ...localDocuments]
   const people = [...(apiPeople || []), ...localPeople]
+  const fiscalCount = addresses.filter((a) => a.addressType === 'fiscal').length
+  const deliveryCount = addresses.length - fiscalCount
 
-  const tabs = [
-    {
-      id: 'basic' as TabType,
-      label: 'Datos Básicos',
-      icon: 'bi-person-circle',
-      count: null
-    },
-    {
-      id: 'addresses' as TabType,
-      label: 'Direcciones',
-      icon: 'bi-geo-alt-fill',
-      count: addresses.length
-    },
-    {
-      id: 'documents' as TabType,
-      label: 'Documentos',
-      icon: 'bi-file-earmark-text-fill',
-      count: documents.length
-    },
-    {
-      id: 'people' as TabType,
-      label: 'Personas',
-      icon: 'bi-people-fill',
-      count: people.length
-    }
+  const tabs: Array<{ id: TabType; label: string; icon: string; count: number | null }> = [
+    { id: 'general', label: 'Datos generales', icon: 'bi-person-circle', count: null },
+    { id: 'fiscal', label: 'Datos fiscales', icon: 'bi-bank', count: null },
+    { id: 'addresses', label: 'Direcciones', icon: 'bi-geo-alt-fill', count: deliveryCount },
+    { id: 'documents', label: 'Documentos', icon: 'bi-file-earmark-text-fill', count: documents.length },
+    { id: 'people', label: 'Personas', icon: 'bi-people-fill', count: people.length }
   ]
 
   // Form field update handler
@@ -191,87 +174,118 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
     }
   }
 
-  // Validacion de datos basicos, compartida entre "Validar datos basicos"
-  // y el submit final (el usuario puede editar DESPUES de validar).
-  const validateBasicData = (): Record<string, string> => {
-    const newErrors: Record<string, string> = {}
+  // Paso 1: datos generales. Mismas reglas que el backend (ContactChannels).
+  const validateGeneral = (): Record<string, string> => {
+    const errors: Record<string, string> = {}
 
     if (!formData.name.trim()) {
-      newErrors.name = 'El nombre es obligatorio'
+      errors.name = 'El nombre es obligatorio'
     }
 
-    if (formData.email && !/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'El email no es válido'
+    const emailError = singleEmailError(formData.email)
+    if (emailError) {
+      errors.email = `${emailError} Los demás van en "Correos adicionales".`
     }
 
-    // RFC/Tax ID validation
+    const badExtra = (formData.additionalEmails ?? []).find((e) => singleEmailError(e, 'correo adicional'))
+    if (badExtra) {
+      errors.additionalEmails = `Correo adicional no válido: ${badExtra}`
+    }
+
+    const phoneIssue = (formData.phones ?? [])
+      .map((p, i) => ({ i, error: p.number || p.label ? phoneError(p) : null }))
+      .find((x) => x.error)
+    if (phoneIssue) {
+      errors.phones = `Teléfono ${phoneIssue.i + 1}: ${phoneIssue.error}`
+    }
+
+    // Bounds numericos (P0.3): mismos limites que el backend.
+    if (formData.creditLimit !== undefined && formData.creditLimit !== null && (formData.creditLimit > 999999.99 || formData.creditLimit < 0)) {
+      errors.creditLimit = 'El límite de crédito debe estar entre 0 y 999,999.99'
+    }
+    if (formData.paymentTerms !== undefined && formData.paymentTerms !== null && (formData.paymentTerms > 365 || formData.paymentTerms < 0)) {
+      errors.paymentTerms = 'Los términos de pago deben estar entre 0 y 365 días'
+    }
+
+    return errors
+  }
+
+  // Paso 2: datos fiscales.
+  const validateFiscal = (): Record<string, string> => {
+    const errors: Record<string, string> = {}
     if (formData.taxId && formData.taxId.trim()) {
       const taxId = formData.taxId.trim().toUpperCase()
       if (taxId.length > 13) {
-        newErrors.taxId = 'El RFC no puede tener más de 13 caracteres'
+        errors.taxId = 'El RFC no puede tener más de 13 caracteres'
       } else if (!/^[A-ZÑ&]{3,4}[0-9]{6}[A-Z0-9]{3}$/.test(taxId)) {
-        newErrors.taxId = 'Formato de RFC inválido (ej. ABC123456XYZ o ABCD123456XYZ)'
+        errors.taxId = 'Formato de RFC inválido (ej. ABC123456XYZ o ABCD123456XYZ)'
       }
     }
-
-    // Bounds numericos (P0.3): mismos limites que el backend, para que el
-    // usuario vea el error en el campo y no hasta el 422.
-    if (formData.creditLimit !== undefined && formData.creditLimit !== null && formData.creditLimit > 999999.99) {
-      newErrors.creditLimit = 'El límite de crédito no puede exceder 999,999.99'
-    }
-    if (formData.creditLimit !== undefined && formData.creditLimit !== null && formData.creditLimit < 0) {
-      newErrors.creditLimit = 'El límite de crédito no puede ser negativo'
-    }
-    if (formData.paymentTerms !== undefined && formData.paymentTerms !== null && (formData.paymentTerms > 365 || formData.paymentTerms < 0)) {
-      newErrors.paymentTerms = 'Los términos de pago deben estar entre 0 y 365 días'
-    }
-
-    // Telefono: el backend rechaza mas de 20 caracteres (bug 2026-07-29:
-    // ese 422 llegaba mudo al usuario). Avisar aqui antes de enviar.
-    if (formData.phone && formData.phone.trim().length > 20) {
-      newErrors.phone = 'El teléfono no puede tener más de 20 caracteres'
-    }
-
-    return newErrors
+    return errors
   }
 
-  // Basic contact data validation and submission
-  const handleBasicDataSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+  const goTo = (tab: TabType) => {
+    if (tab !== 'general' && !generalValidated) return
+    setActiveTab(tab)
+  }
 
-    const newErrors = validateBasicData()
-    if (Object.keys(newErrors).length > 0) {
-      setFormErrors(newErrors)
-      return
+  // "Siguiente": valida el paso actual y avanza. El paso 1 desbloquea el resto.
+  const handleNext = () => {
+    if (activeTab === 'general') {
+      const errors = validateGeneral()
+      setShowPhoneErrors(true)
+      if (Object.keys(errors).length > 0) {
+        setFormErrors(errors)
+        if (!contact) setGeneralValidated(false)
+        toast.warning('Revisa los datos marcados en rojo para continuar.')
+        return
+      }
+      setFormErrors({})
+      setGeneralValidated(true)
     }
+    if (activeTab === 'fiscal') {
+      const errors = validateFiscal()
+      if (Object.keys(errors).length > 0) {
+        setFormErrors(errors)
+        return
+      }
+      setFormErrors({})
+    }
+    const next = TAB_ORDER[TAB_ORDER.indexOf(activeTab) + 1]
+    if (next) setActiveTab(next)
+  }
 
-    setFormErrors({})
+  const handleBack = () => {
+    const prev = TAB_ORDER[TAB_ORDER.indexOf(activeTab) - 1]
+    if (prev) setActiveTab(prev)
   }
 
   const handleFinalSubmit = () => {
-    if (!formData.name.trim()) {
-      toast.warning('Por favor completa los datos básicos del contacto primero')
-      setActiveTab('basic')
-      return
-    }
-
-    // Revalidar: el formulario pudo cambiar despues de "Validar datos basicos".
-    const validationErrors = validateBasicData()
-    if (Object.keys(validationErrors).length > 0) {
-      setFormErrors(validationErrors)
-      setActiveTab('basic')
+    // Revalidar todo: el usuario pudo cambiar datos despues de "Siguiente".
+    const generalErrors = validateGeneral()
+    const fiscalErrors = validateFiscal()
+    const all = { ...generalErrors, ...fiscalErrors }
+    if (Object.keys(all).length > 0) {
+      setFormErrors(all)
+      setShowPhoneErrors(true)
+      const firstField = Object.keys(all)[0]
+      setActiveTab(FISCAL_FIELDS.has(firstField) ? 'fiscal' : 'general')
       toast.warning('Hay datos inválidos en el formulario. Revisa los campos marcados.')
       return
     }
 
-    // Clean up form data - convert empty strings to null for optional fields
-    const cleanedData = {
-      ...formData,
+    // Clean up form data - convert empty strings to undefined for optional fields.
+    // El telefono legado (phone/phoneExtension) lo refleja el backend desde
+    // la lista, por eso no se envia.
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { phone: _phone, phoneExtension: _ext, creditMonths: _months, ...rest } = formData
+    const cleanedData: ContactFormData = {
+      ...rest,
       legalName: formData.legalName?.trim() || undefined,
       taxId: formData.taxId?.trim() ? formData.taxId.trim().toUpperCase() : undefined,
       email: formData.email?.trim() || undefined,
-      phone: formData.phone?.trim() || undefined,
-      phoneExtension: formData.phoneExtension?.trim() || undefined,
+      additionalEmails: formData.additionalEmails ?? [],
+      phones: cleanPhones(formData.phones ?? []),
       // El backend valida website con regla 'url' (exige esquema). Los
       // usuarios escriben "www.empresa.com": anteponer https:// en vez de
       // dejar que truene con un 422 (causa probable del bug 2026-07-29).
@@ -283,7 +297,8 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
       classification: formData.classification?.trim() || undefined,
       notes: formData.notes?.trim() || undefined,
       creditLimit: formData.creditLimit || undefined,
-      paymentTerms: formData.paymentTerms || undefined,
+      // 0 dias = contado: es un valor valido, no se descarta.
+      paymentTerms: formData.paymentTerms ?? undefined,
       // Comerciales/fiscales: strings vacios -> undefined; nullables tal cual
       regimenFiscal: formData.regimenFiscal?.trim() || undefined,
       usoCfdi: formData.usoCfdi?.trim() || undefined,
@@ -561,51 +576,93 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
     }
   }
 
+  const isLast = activeTab === TAB_ORDER[TAB_ORDER.length - 1]
+  const saveLabel = contact ? 'Guardar cambios' : 'Crear contacto'
+
+  /** Pie comun: Cancelar | Anterior | Siguiente | Guardar. */
+  const renderFooter = () => (
+    <div className="d-flex flex-wrap justify-content-between gap-2 mt-4 pt-3 border-top">
+      <Button type="button" variant="secondary" onClick={onCancel} disabled={isLoading}>
+        Cancelar
+      </Button>
+      <div className="d-flex flex-wrap gap-2">
+        {activeTab !== 'general' && (
+          <Button type="button" variant="secondary" onClick={handleBack} disabled={isLoading}>
+            <i className="bi bi-arrow-left me-1" aria-hidden="true"></i>
+            Anterior
+          </Button>
+        )}
+        {!isLast && (
+          <Button type="button" variant="primary" onClick={handleNext} disabled={isLoading}>
+            Siguiente
+            <i className="bi bi-arrow-right ms-1" aria-hidden="true"></i>
+          </Button>
+        )}
+        {generalValidated && (
+          <Button type="button" variant="success" onClick={handleFinalSubmit} disabled={isLoading}>
+            {isLoading && <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>}
+            <i className="bi bi-check-lg me-1" aria-hidden="true"></i>
+            {saveLabel}
+          </Button>
+        )}
+      </div>
+    </div>
+  )
+
   return (
     <div className={`contact-form-tabs ${className}`}>
       {/* Navigation Tabs */}
       <div className="mb-4">
         <ul className="nav nav-tabs" role="tablist">
-          {tabs.map((tab) => (
-            <li key={tab.id} className="nav-item" role="presentation">
-              <button
-                className={`nav-link d-flex align-items-center gap-2 ${
-                  activeTab === tab.id ? 'active' : ''
-                }`}
-                type="button"
-                role="tab"
-                onClick={() => setActiveTab(tab.id)}
-                disabled={isLoading}
-              >
-                <i className={tab.icon} aria-hidden="true"></i>
-                {tab.label}
-                {tab.count !== null && tab.count > 0 && (
-                  <span className="badge bg-primary rounded-pill ms-1">
-                    {tab.count}
-                  </span>
-                )}
-              </button>
-            </li>
-          ))}
+          {tabs.map((tab) => {
+            const locked = tab.id !== 'general' && !generalValidated
+            return (
+              <li key={tab.id} className="nav-item" role="presentation">
+                <button
+                  className={`nav-link d-flex align-items-center gap-2 ${activeTab === tab.id ? 'active' : ''}`}
+                  type="button"
+                  role="tab"
+                  aria-selected={activeTab === tab.id}
+                  onClick={() => goTo(tab.id)}
+                  disabled={isLoading || locked}
+                  title={locked ? 'Completa los datos generales y presiona "Siguiente"' : undefined}
+                >
+                  <i className={locked ? 'bi bi-lock' : tab.icon} aria-hidden="true"></i>
+                  {tab.label}
+                  {tab.count !== null && tab.count > 0 && (
+                    <span className="badge bg-primary rounded-pill ms-1">{tab.count}</span>
+                  )}
+                </button>
+              </li>
+            )
+          })}
         </ul>
+        {!generalValidated && (
+          <div className="form-text mt-2">
+            <i className="bi bi-info-circle me-1" aria-hidden="true"></i>
+            Captura los datos generales y presiona &quot;Siguiente&quot; para continuar con los datos fiscales.
+          </div>
+        )}
       </div>
 
-      {/* Tab Content */}
       <div className="tab-content">
-        {/* Basic Contact Form - Controlled */}
-        <div className={`tab-pane fade ${activeTab === 'basic' ? 'show active' : ''}`}>
-          {activeTab === 'basic' && (
-            <form onSubmit={handleBasicDataSubmit}>
+        {/* ===== 1. Datos generales ===== */}
+        {activeTab === 'general' && (
+          <div className="tab-pane fade show active">
+            <form
+              onSubmit={(e) => {
+                e.preventDefault()
+                handleNext()
+              }}
+            >
               <div className="row g-3">
-                {/* Basic Information */}
                 <div className="col-12">
-                  <h5 className="mb-3">
-                    <i className="bi bi-info-circle me-2"></i>
-                    Información básica
+                  <h5 className="mb-0">
+                    <i className="bi bi-info-circle me-2" aria-hidden="true"></i>
+                    Identificación
                   </h5>
                 </div>
 
-                {/* Contact Type */}
                 <div className="col-md-6">
                   <label htmlFor="contactType" className="form-label">
                     Tipo de contacto <span className="text-danger">*</span>
@@ -622,7 +679,6 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
                   </select>
                 </div>
 
-                {/* Status */}
                 <div className="col-md-6">
                   <label htmlFor="status" className="form-label">
                     Estado <span className="text-danger">*</span>
@@ -640,7 +696,6 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
                   </select>
                 </div>
 
-                {/* Name */}
                 <div className="col-md-6">
                   <label htmlFor="name" className="form-label">
                     {formData.contactType === 'company' ? 'Nombre comercial' : 'Nombre completo'} <span className="text-danger">*</span>
@@ -656,111 +711,80 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
                   />
                 </div>
 
-                {/* Legal Name */}
-                <div className="col-md-6">
-                  <label htmlFor="legalName" className="form-label">
-                    {formData.contactType === 'company' ? 'Razón social' : 'Nombre legal'}
-                  </label>
-                  <Input
-                    id="legalName"
-                    type="text"
-                    value={formData.legalName}
-                    onChange={(e) => updateField('legalName', e.target.value)}
-                    disabled={isLoading}
-                    placeholder={formData.contactType === 'company' ? 'Ej. Acme Corporation S.A. de C.V.' : 'Nombre completo legal'}
-                  />
-                </div>
-
-                {/* Tax ID */}
-                <div className="col-md-6">
-                  <label htmlFor="taxId" className="form-label">
-                    {formData.contactType === 'company' ? 'RFC / Tax ID' : 'RFC / CURP'}
-                  </label>
-                  <Input
-                    id="taxId"
-                    type="text"
-                    value={formData.taxId}
-                    onChange={(e) => updateField('taxId', e.target.value.toUpperCase())}
-                    errorText={formErrors.taxId}
-                    disabled={isLoading}
-                    placeholder={formData.contactType === 'company' ? 'ACM123456ABC (máx. 13 caracteres)' : 'PERJ800101HDFLRN01'}
-                    maxLength={13}
-                  />
-                  {formData.taxId && formData.taxId.length > 0 && (
-                    <div className="form-text">
-                      <small className={formData.taxId.length <= 13 ? 'text-muted' : 'text-danger'}>
-                        {formData.taxId.length}/13 caracteres
-                      </small>
-                    </div>
-                  )}
-                </div>
-
-                {/* Email */}
-                <div className="col-md-6">
-                  <label htmlFor="email" className="form-label">
-                    Email
-                  </label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => updateField('email', e.target.value)}
-                    errorText={formErrors.email}
-                    disabled={isLoading}
-                    placeholder="contacto@ejemplo.com"
-                    leftIcon="bi-envelope"
-                  />
-                </div>
-
-                {/* Phone + extension (feedback cliente: conmutadores) */}
-                <div className="col-md-4">
-                  <label htmlFor="phone" className="form-label">
-                    Teléfono
-                  </label>
-                  <Input
-                    id="phone"
-                    type="tel"
-                    value={formData.phone}
-                    onChange={(e) => updateField('phone', e.target.value)}
-                    disabled={isLoading}
-                    placeholder="+52 55 1234 5678"
-                    leftIcon="bi-telephone"
-                  />
-                </div>
-                <div className="col-md-2">
-                  <label htmlFor="phoneExtension" className="form-label">
-                    Ext.
-                  </label>
-                  <Input
-                    id="phoneExtension"
-                    type="text"
-                    value={formData.phoneExtension || ''}
-                    onChange={(e) => updateField('phoneExtension', e.target.value.slice(0, 10))}
-                    disabled={isLoading}
-                    placeholder="104"
-                  />
-                </div>
-
-                {/* Website */}
                 <div className="col-md-6">
                   <label htmlFor="website" className="form-label">
                     Sitio web
                   </label>
                   <Input
                     id="website"
-                    type="url"
+                    type="text"
                     value={formData.website}
                     onChange={(e) => updateField('website', e.target.value)}
                     disabled={isLoading}
-                    placeholder="https://ejemplo.com"
+                    placeholder="www.ejemplo.com"
                     leftIcon="bi-globe"
                   />
                 </div>
 
-                {/* Classification Section */}
                 <div className="col-12">
-                  <h5 className="mb-3 mt-4">
-                    <i className="bi bi-tags me-2"></i>
+                  <h5 className="mb-0 mt-3">
+                    <i className="bi bi-envelope me-2" aria-hidden="true"></i>
+                    Correos y teléfonos
+                  </h5>
+                </div>
+
+                <div className="col-md-6">
+                  <label htmlFor="email" className="form-label">
+                    Correo principal
+                  </label>
+                  <Input
+                    id="email"
+                    type="text"
+                    inputMode="email"
+                    value={formData.email}
+                    onChange={(e) => {
+                      updateField('email', e.target.value)
+                      const err = singleEmailError(e.target.value)
+                      // Error en vivo solo por separadores o segunda @ (lo que pidio el cliente).
+                      if (err && /[\s,;]|@.*@/.test(e.target.value.trim())) {
+                        setFormErrors(prev => ({ ...prev, email: `${err} Los demás van en "Correos adicionales".` }))
+                      }
+                    }}
+                    errorText={formErrors.email}
+                    helpText={formErrors.email ? undefined : 'Un solo correo; también es el acceso al portal del cliente.'}
+                    disabled={isLoading}
+                    placeholder="compras@empresa.com"
+                    leftIcon="bi-envelope"
+                  />
+                </div>
+
+                <div className="col-md-6">
+                  <EmailChipsInput
+                    id="additionalEmails"
+                    label="Correos adicionales"
+                    value={formData.additionalEmails ?? []}
+                    onChange={(emails) => updateField('additionalEmails', emails)}
+                    exclude={formData.email ? [formData.email] : []}
+                    errorText={formErrors.additionalEmails}
+                    helpText="Laboratorio, inventarios, otra área. Sepáralos con coma o punto y coma."
+                    placeholder="laboratorio@empresa.com; inventarios@empresa.com"
+                    disabled={isLoading}
+                  />
+                </div>
+
+                <div className="col-12">
+                  <label className="form-label mb-1">Teléfonos</label>
+                  <PhoneListInput
+                    value={formData.phones ?? []}
+                    onChange={(phones) => updateField('phones', phones)}
+                    showErrors={showPhoneErrors}
+                    disabled={isLoading}
+                  />
+                </div>
+
+                <div className="col-12">
+                  <h5 className="mb-0 mt-3">
+                    <i className="bi bi-tags me-2" aria-hidden="true"></i>
                     Clasificación
                   </h5>
                 </div>
@@ -769,9 +793,8 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
                     crudos en flujos dirigidos; ver feedback 2026-08-31) */}
                 <div className="col-12">
                   {roleContext && !contact ? (
-                    // Alta dirigida: el rol lo aporta el punto de entrada
                     <div className="alert alert-info d-flex align-items-center mb-0 py-2">
-                      <i className={`bi ${roleContext === 'customer' ? 'bi-person-check' : roleContext === 'supplier' ? 'bi-building' : 'bi-person-dash'} me-2`}></i>
+                      <i className={`bi ${roleContext === 'customer' ? 'bi-person-check' : roleContext === 'supplier' ? 'bi-building' : 'bi-person-dash'} me-2`} aria-hidden="true"></i>
                       <span>
                         Se creará como{' '}
                         <strong>
@@ -780,17 +803,16 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
                       </span>
                     </div>
                   ) : contact ? (
-                    // Edicion: badges + acciones explicitas
                     <div>
                       <div className="d-flex align-items-center flex-wrap gap-2">
                         {formData.isCustomer && (
-                          <span className="badge bg-success"><i className="bi bi-person-check me-1"></i>Cliente</span>
+                          <span className="badge bg-success"><i className="bi bi-person-check me-1" aria-hidden="true"></i>Cliente</span>
                         )}
                         {formData.isSupplier && (
-                          <span className="badge bg-info"><i className="bi bi-building me-1"></i>Proveedor</span>
+                          <span className="badge bg-info"><i className="bi bi-building me-1" aria-hidden="true"></i>Proveedor</span>
                         )}
                         {!formData.isCustomer && !formData.isSupplier && (
-                          <span className="badge bg-secondary"><i className="bi bi-person-dash me-1"></i>Prospecto</span>
+                          <span className="badge bg-secondary"><i className="bi bi-person-dash me-1" aria-hidden="true"></i>Prospecto</span>
                         )}
                         <span className="vr mx-1 d-none d-md-inline-block"></span>
                         {!formData.isCustomer ? (
@@ -818,62 +840,53 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
                       </div>
                       {(formData.isCustomer !== contact.isCustomer || formData.isSupplier !== contact.isSupplier) && (
                         <div className="text-warning small mt-1">
-                          <i className="bi bi-info-circle me-1"></i>
+                          <i className="bi bi-info-circle me-1" aria-hidden="true"></i>
                           El cambio de rol se aplica al guardar el contacto
                         </div>
                       )}
                     </div>
                   ) : (
-                    // Alta generica (Directorio): seleccion manual de roles
                     <div>
-                      <div className="row g-3">
-                        <div className="col-md-4">
-                          <div className="form-check">
-                            <input
-                              className="form-check-input"
-                              type="checkbox"
-                              id="isCustomer"
-                              checked={formData.isCustomer}
-                              onChange={(e) => updateField('isCustomer', e.target.checked)}
-                              disabled={isLoading}
-                            />
-                            <label className="form-check-label" htmlFor="isCustomer">
-                              <i className="bi bi-person-check me-1"></i>
-                              Es cliente
-                            </label>
-                          </div>
+                      <div className="d-flex flex-wrap gap-4">
+                        <div className="form-check">
+                          <input
+                            className="form-check-input"
+                            type="checkbox"
+                            id="isCustomer"
+                            checked={formData.isCustomer}
+                            onChange={(e) => updateField('isCustomer', e.target.checked)}
+                            disabled={isLoading}
+                          />
+                          <label className="form-check-label" htmlFor="isCustomer">
+                            <i className="bi bi-person-check me-1" aria-hidden="true"></i>
+                            Es cliente
+                          </label>
                         </div>
-                        <div className="col-md-4">
-                          <div className="form-check">
-                            <input
-                              className="form-check-input"
-                              type="checkbox"
-                              id="isSupplier"
-                              checked={formData.isSupplier}
-                              onChange={(e) => updateField('isSupplier', e.target.checked)}
-                              disabled={isLoading}
-                            />
-                            <label className="form-check-label" htmlFor="isSupplier">
-                              <i className="bi bi-building me-1"></i>
-                              Es proveedor
-                            </label>
-                          </div>
+                        <div className="form-check">
+                          <input
+                            className="form-check-input"
+                            type="checkbox"
+                            id="isSupplier"
+                            checked={formData.isSupplier}
+                            onChange={(e) => updateField('isSupplier', e.target.checked)}
+                            disabled={isLoading}
+                          />
+                          <label className="form-check-label" htmlFor="isSupplier">
+                            <i className="bi bi-building me-1" aria-hidden="true"></i>
+                            Es proveedor
+                          </label>
                         </div>
                       </div>
-                      {formErrors.type && (
-                        <div className="text-danger small mt-1">{formErrors.type}</div>
-                      )}
-                      {!formData.isCustomer && !formData.isSupplier && !formErrors.type && (
+                      {!formData.isCustomer && !formData.isSupplier && (
                         <div className="text-warning small mt-1">
-                          <i className="bi bi-info-circle me-1"></i>
-                          Este contacto se guardara como Prospecto
+                          <i className="bi bi-info-circle me-1" aria-hidden="true"></i>
+                          Este contacto se guardará como Prospecto
                         </div>
                       )}
                     </div>
                   )}
                 </div>
 
-                {/* Classification */}
                 <div className="col-md-6">
                   <label htmlFor="classification" className="form-label">
                     Clasificación
@@ -892,7 +905,15 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
                   </select>
                 </div>
 
-                {/* Payment Terms */}
+                {/* Condiciones comerciales: credito en dias (unico campo de
+                    plazo; "Credito (meses)" se retiro por redundante) */}
+                <div className="col-12">
+                  <h5 className="mb-0 mt-3">
+                    <i className="bi bi-cash-coin me-2" aria-hidden="true"></i>
+                    Condiciones comerciales
+                  </h5>
+                </div>
+
                 <div className="col-md-6">
                   <label htmlFor="paymentTerms" className="form-label">
                     Términos de pago (días)
@@ -902,15 +923,15 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
                     type="number"
                     min="0"
                     max="365"
-                    value={formData.paymentTerms?.toString() || ''}
-                    onChange={(e) => updateField('paymentTerms', e.target.value ? parseInt(e.target.value) : undefined)}
+                    value={formData.paymentTerms?.toString() ?? ''}
+                    onChange={(e) => updateField('paymentTerms', e.target.value !== '' ? parseInt(e.target.value) : undefined)}
                     disabled={isLoading}
                     placeholder="30"
+                    helpText="0 = contado."
                     errorText={formErrors.paymentTerms}
                   />
                 </div>
 
-                {/* Credit Limit */}
                 {formData.isCustomer && (
                   <div className="col-md-6">
                     <label htmlFor="creditLimit" className="form-label">
@@ -932,14 +953,14 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
                   </div>
                 )}
 
-                {/* Datos comerciales y fiscales */}
                 <ContactCommercialFields
                   formData={formData}
                   updateField={updateField}
                   isLoading={isLoading}
+                  section="commercial"
+                  showHeading={false}
                 />
 
-                {/* Notes */}
                 <div className="col-12">
                   <label htmlFor="notes" className="form-label">
                     Notas adicionales
@@ -954,60 +975,78 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
                     placeholder="Información adicional sobre el contacto..."
                   />
                 </div>
-
-                {/* Form Actions */}
-                <div className="col-12">
-                  <div className="d-flex gap-2 justify-content-end pt-3 border-top">
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      onClick={onCancel}
-                      disabled={isLoading}
-                    >
-                      Cancelar
-                    </Button>
-                    <Button
-                      type="submit"
-                      variant="primary"
-                      disabled={isLoading}
-                    >
-                      {isLoading && <div className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></div>}
-                      Validar datos básicos
-                    </Button>
-                  </div>
-                </div>
               </div>
             </form>
-          )}
-          
-          {/* Show saved data indicator */}
-          {formData.name.trim() && (
-            <div className="mt-3 p-2 bg-success-subtle border border-success-subtle rounded">
-              <small className="text-success">
-                <i className="bi bi-check-circle me-1"></i>
-                Datos básicos: <strong>{formData.name}</strong>
-                {formData.email && ` (${formData.email})`}
-              </small>
-            </div>
-          )}
-          
-          {/* Final Submit Button */}
-          {formData.name.trim() && (
-            <div className="d-flex justify-content-end mt-4 pt-3 border-top">
-              <Button
-                type="button"
-                variant="success"
-                onClick={handleFinalSubmit}
-                disabled={isLoading}
-              >
-                <i className="bi bi-check-lg me-1"></i>
-                {contact ? 'Actualizar contacto' : 'Crear contacto'}
-              </Button>
-            </div>
-          )}
-        </div>
+            {renderFooter()}
+          </div>
+        )}
 
-        {/* Direcciones Tab */}
+        {/* ===== 2. Datos fiscales ===== */}
+        {activeTab === 'fiscal' && (
+          <div className="tab-pane fade show active">
+            <div className="row g-3 mb-4">
+              <div className="col-12">
+                <h5 className="mb-0">
+                  <i className="bi bi-bank me-2" aria-hidden="true"></i>
+                  Datos fiscales
+                </h5>
+                <p className="text-muted small mb-0">Como aparecen en la constancia de situación fiscal; se usan para facturar.</p>
+              </div>
+
+              <div className="col-md-6">
+                <label htmlFor="legalName" className="form-label">
+                  {formData.contactType === 'company' ? 'Razón social' : 'Nombre legal'}
+                </label>
+                <Input
+                  id="legalName"
+                  type="text"
+                  value={formData.legalName}
+                  onChange={(e) => updateField('legalName', e.target.value)}
+                  disabled={isLoading}
+                  placeholder={formData.contactType === 'company' ? 'Ej. Acme Corporation S.A. de C.V.' : 'Nombre completo legal'}
+                />
+              </div>
+
+              <div className="col-md-6">
+                <label htmlFor="taxId" className="form-label">
+                  RFC
+                </label>
+                <Input
+                  id="taxId"
+                  type="text"
+                  value={formData.taxId}
+                  onChange={(e) => updateField('taxId', e.target.value.toUpperCase())}
+                  errorText={formErrors.taxId}
+                  disabled={isLoading}
+                  placeholder={formData.contactType === 'company' ? 'ACM123456ABC' : 'PERJ800101AB1'}
+                  maxLength={13}
+                  helpText={formErrors.taxId ? undefined : `${(formData.taxId || '').length}/13 caracteres`}
+                />
+              </div>
+
+              <ContactCommercialFields
+                formData={formData}
+                updateField={updateField}
+                isLoading={isLoading}
+                section="fiscal"
+                showHeading={false}
+              />
+            </div>
+
+            <ContactAddresses
+              contactId={contact?.id}
+              addresses={addresses}
+              onAddAddress={handleAddAddress}
+              onUpdateAddress={handleUpdateAddress}
+              onDeleteAddress={handleDeleteAddress}
+              isLoading={isLoading}
+              section="fiscal"
+            />
+            {renderFooter()}
+          </div>
+        )}
+
+        {/* ===== 3. Direcciones (entrega) ===== */}
         {activeTab === 'addresses' && (
           <div className="tab-pane fade show active">
             <ContactAddresses
@@ -1017,54 +1056,13 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
               onUpdateAddress={handleUpdateAddress}
               onDeleteAddress={handleDeleteAddress}
               isLoading={isLoading}
+              section="delivery"
             />
-            
-            {/* Navigation buttons for non-basic tabs */}
-            <div className="d-flex justify-content-between mt-4 pt-3 border-top">
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={onCancel}
-                disabled={isLoading}
-              >
-                Cancelar
-              </Button>
-              <div className="d-flex gap-2">
-                <Button
-                  type="button"
-                  variant="primary"
-                  onClick={() => setActiveTab('basic')}
-                  disabled={isLoading}
-                >
-                  <i className="bi bi-arrow-left me-1"></i>
-                  Datos Básicos
-                </Button>
-                <Button
-                  type="button"
-                  variant="primary"
-                  onClick={() => setActiveTab('documents')}
-                  disabled={isLoading}
-                >
-                  Documentos
-                  <i className="bi bi-arrow-right ms-1"></i>
-                </Button>
-                {formData.name.trim() && (
-                  <Button
-                    type="button"
-                    variant="success"
-                    onClick={handleFinalSubmit}
-                    disabled={isLoading}
-                  >
-                    <i className="bi bi-check-lg me-1"></i>
-                    Crear Contacto
-                  </Button>
-                )}
-              </div>
-            </div>
+            {renderFooter()}
           </div>
         )}
 
-        {/* Documentos Tab */}
+        {/* ===== 4. Documentos ===== */}
         {activeTab === 'documents' && (
           <div className="tab-pane fade show active">
             <ContactDocuments
@@ -1076,53 +1074,11 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
               onVerifyDocument={handleVerifyDocument}
               isLoading={isLoading}
             />
-            
-            {/* Navigation buttons */}
-            <div className="d-flex justify-content-between mt-4 pt-3 border-top">
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={onCancel}
-                disabled={isLoading}
-              >
-                Cancelar
-              </Button>
-              <div className="d-flex gap-2">
-                <Button
-                  type="button"
-                  variant="primary"
-                  onClick={() => setActiveTab('addresses')}
-                  disabled={isLoading}
-                >
-                  <i className="bi bi-arrow-left me-1"></i>
-                  Direcciones
-                </Button>
-                <Button
-                  type="button"
-                  variant="primary"
-                  onClick={() => setActiveTab('people')}
-                  disabled={isLoading}
-                >
-                  Personas
-                  <i className="bi bi-arrow-right ms-1"></i>
-                </Button>
-                {formData.name.trim() && (
-                  <Button
-                    type="button"
-                    variant="success"
-                    onClick={handleFinalSubmit}
-                    disabled={isLoading}
-                  >
-                    <i className="bi bi-check-lg me-1"></i>
-                    Crear Contacto
-                  </Button>
-                )}
-              </div>
-            </div>
+            {renderFooter()}
           </div>
         )}
 
-        {/* Personas Tab */}
+        {/* ===== 5. Personas ===== */}
         {activeTab === 'people' && (
           <div className="tab-pane fade show active">
             <ContactPeople
@@ -1133,80 +1089,11 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
               onDeletePerson={handleDeletePerson}
               isLoading={isLoading}
             />
-            
-            {/* Navigation buttons */}
-            <div className="d-flex justify-content-between mt-4 pt-3 border-top">
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={onCancel}
-                disabled={isLoading}
-              >
-                Cancelar
-              </Button>
-              <div className="d-flex gap-2">
-                <Button
-                  type="button"
-                  variant="primary"
-                  onClick={() => setActiveTab('documents')}
-                  disabled={isLoading}
-                >
-                  <i className="bi bi-arrow-left me-1"></i>
-                  Documentos
-                </Button>
-                {formData.name.trim() && (
-                  <Button
-                    type="button"
-                    variant="success"
-                    onClick={handleFinalSubmit}
-                    disabled={isLoading}
-                  >
-                    <i className="bi bi-check-lg me-1"></i>
-                    Crear Contacto
-                  </Button>
-                )}
-              </div>
-            </div>
+            {renderFooter()}
           </div>
         )}
       </div>
-
-      {/* Floating Progress Indicator */}
-      {(formData.name.trim() || addresses.length > 0 || documents.length > 0 || people.length > 0) && (
-        <div className="position-fixed bottom-0 end-0 m-4">
-          <div className="toast show" role="alert">
-            <div className="toast-header">
-              <i className={`bi ${formData.name.trim() ? 'bi-check-circle-fill text-success' : 'bi-info-circle-fill text-primary'} me-2`}></i>
-              <strong className="me-auto">Progreso del Contacto</strong>
-            </div>
-            <div className="toast-body small">
-              <div className={formData.name.trim() ? 'text-success' : 'text-muted'}>
-                {formData.name.trim() ? '✅' : '⏳'} Datos básicos {formData.name.trim() ? `(${formData.name})` : '(pendientes)'}
-              </div>
-              {addresses.length > 0 && <div className="text-success">✅ {addresses.length} direccion(es)</div>}
-              {documents.length > 0 && <div className="text-success">✅ {documents.length} documento(s)</div>}
-              {people.length > 0 && <div className="text-success">✅ {people.length} persona(s)</div>}
-              {formData.name.trim() && (addresses.length > 0 || documents.length > 0 || people.length > 0) && (
-                <hr className="my-2" />
-              )}
-              {formData.name.trim() && (
-                <div className="text-center">
-                  <Button
-                    type="button"
-                    variant="success"
-                    size="small"
-                    onClick={handleFinalSubmit}
-                    disabled={isLoading}
-                  >
-                    <i className="bi bi-check-lg me-1"></i>
-                    Crear Contacto
-                  </Button>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   )
 }
+

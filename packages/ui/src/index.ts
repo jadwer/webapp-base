@@ -40,6 +40,7 @@ export { Skeleton } from './components/Skeleton'
 export * from './hooks/useToast'
 export * from './hooks/useNavigationProgress'
 export { toast } from './utils/toast'
+export { singleEmailError, splitEmails, normalizeEmails } from './utils/emails'
 export { formatCurrency, formatQuantity, getCurrentCurrency, getCurrentLocale } from './utils/formatters'
 export { DATE_PRESETS, getPresetDates } from './utils/datePresets'
 

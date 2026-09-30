@@ -14,7 +14,8 @@ export type {
   UseContactsParams,
   CreateContactData,
   UpdateContactData,
-  ContactFormData
+  ContactFormData,
+  ContactPhone
 } from './types'
 
 // Hooks
@@ -57,6 +58,8 @@ export {
 // Utils
 export { getValidationErrorMessages } from './utils/jsonApiErrors'
 export { useContactCatalogs } from './hooks/useContactCatalogs'
+export { PhoneListInput } from './components/PhoneListInput'
+export { phoneError, parsePhoneText, cleanPhones, formatPhone, phonesForDisplay } from './utils/phones'
 
 // Components to be added in future phases
 // export { ContactView } from './components/ContactView'

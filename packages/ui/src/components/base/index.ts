@@ -13,6 +13,9 @@ export type { CardProps, CardSectionProps } from './Card'
 export { Input, Textarea, Select } from '@lwm/primitives'
 export type { InputProps, TextareaProps, SelectProps } from '@lwm/primitives'
 
+export { EmailChipsInput } from './EmailChipsInput'
+export type { EmailChipsInputProps } from './EmailChipsInput'
+
 export { Checkbox } from './Checkbox'
 export type { CheckboxProps } from './Checkbox'
 

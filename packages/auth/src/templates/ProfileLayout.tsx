@@ -40,7 +40,9 @@ export default function ProfileLayout() {
       </ul>
 
       <div className="card p-4">
-        {tab === "profile" && <ProfileInfo user={user} />}
+        {tab === "profile" && (
+          <ProfileInfo user={user} onAvatarChange={(avatar) => setUser({ ...user, avatar })} />
+        )}
         {tab === "security" && <ChangePasswordForm />}
       </div>
     </div>

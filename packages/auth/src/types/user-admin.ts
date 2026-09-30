@@ -14,7 +14,11 @@ export interface AdminUser {
   password_confirmation?: string
   role?: string
   roles?: AdminRole[]
+  /** "preset:N", URL de la foto o null (2026-09-30). */
+  avatar?: string | null
   createdAt?: string
+  /** El endpoint /profile lo manda en snake_case. */
+  created_at?: string
   updatedAt?: string
   deletedAt?: string | null
 }

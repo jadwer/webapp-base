@@ -10,6 +10,7 @@ import useSWR from 'swr'
 import { useCallback } from 'react'
 import { contactsService, contactAddressesService, contactDocumentsService, contactPeopleService, processIncludedData } from '../services'
 import type {
+  ContactPhone,
   Contact,
   ContactType,
   ContactStatus,
@@ -34,7 +35,10 @@ export const parseContact = (rawContact: unknown): ContactParsed => {
     legalName: c.legalName as string | undefined,
     taxId: c.taxId as string | undefined,
     email: c.email as string | undefined,
+    // Correos y telefonos (2026-09-30): listas del backend; sin ellas, vacias.
+    additionalEmails: Array.isArray(c.additionalEmails) ? (c.additionalEmails as string[]) : [],
     phone: c.phone as string | undefined,
+    phones: Array.isArray(c.phones) ? (c.phones as ContactPhone[]) : [],
     website: c.website as string | undefined,
     status: (c.status as ContactStatus) || 'active',
     isCustomer: Boolean(c.isCustomer),

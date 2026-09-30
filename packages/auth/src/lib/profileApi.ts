@@ -38,24 +38,16 @@ async function changePassword(payload: {
 }
 
 /**
- * Actualizar informacion del perfil del usuario
+ * Actualizar el nombre del usuario (2026-09-30: el backend ya no acepta
+ * correo ni estado desde el perfil; eso se administra en Usuarios).
  */
-async function updateProfile(payload: {
-  name?: string;
-  email?: string;
-  phone?: string;
-}) {
-  const res = await axiosClient.patch("/api/v1/profile", {
-    data: {
-      type: "users",
-      attributes: payload
-    }
-  });
+async function updateProfile(payload: { name: string }) {
+  const res = await axiosClient.patch("/api/v1/profile", { name: payload.name });
   return res.data?.data?.attributes ?? null;
 }
 
 /**
- * Subir avatar del usuario
+ * Subir foto de perfil (JPG, PNG o WEBP, hasta 2 MB).
  */
 async function uploadAvatar(file: File) {
   const formData = new FormData();
@@ -69,9 +61,27 @@ async function uploadAvatar(file: File) {
   return res.data?.data?.attributes ?? null;
 }
 
+/**
+ * Elegir uno de los avatares ilustrados (1 a AVATAR_PRESET_COUNT).
+ */
+async function setAvatarPreset(preset: number) {
+  const res = await axiosClient.post("/api/v1/profile/avatar", { preset });
+  return res.data?.data?.attributes ?? null;
+}
+
+/**
+ * Quitar el avatar (vuelve a las iniciales).
+ */
+async function removeAvatar() {
+  const res = await axiosClient.delete("/api/v1/profile/avatar");
+  return res.data?.data?.attributes ?? null;
+}
+
 export { 
     getCurrentUser, 
     changePassword, 
-    updateProfile, 
-    uploadAvatar 
+    updateProfile,
+    uploadAvatar,
+    setAvatarPreset,
+    removeAvatar
 };

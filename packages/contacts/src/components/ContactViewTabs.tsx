@@ -8,6 +8,7 @@
 
 import React, { useState, useRef } from 'react'
 import { Button } from '@lwm/ui'
+import { formatPhone } from '../utils/phones'
 import { ConfirmModal, type ConfirmModalHandle } from '@lwm/ui'
 import { useUsers } from '@lwm/permissions'
 import type { 
@@ -163,19 +164,44 @@ export const ContactViewTabs: React.FC<ContactViewTabsProps> = ({
                   )}
                 </div>
               </div>
-              <div className="col-12">
-                <strong>Teléfono:</strong>
-                <div>
-                  {contact.phone ? (
-                    <a href={`tel:${contact.phone}`} className="text-decoration-none">
-                      <i className="bi bi-telephone me-1"></i>
-                      {contact.phone}
-                      {contact.phoneExtension && <span className="text-muted"> ext. {contact.phoneExtension}</span>}
-                    </a>
-                  ) : (
-                    <span className="text-muted">No registrado</span>
-                  )}
+              {(contact.additionalEmails ?? []).length > 0 && (
+                <div className="col-12">
+                  <strong>Correos adicionales:</strong>
+                  {(contact.additionalEmails ?? []).map((email) => (
+                    <div key={email}>
+                      <a href={`mailto:${email}`} className="text-decoration-none">
+                        <i className="bi bi-envelope me-1"></i>
+                        {email}
+                      </a>
+                    </div>
+                  ))}
                 </div>
+              )}
+              <div className="col-12">
+                <strong>{(contact.phones ?? []).length > 1 ? 'Teléfonos:' : 'Teléfono:'}</strong>
+                {(contact.phones ?? []).length > 0 ? (
+                  (contact.phones ?? []).map((p, i) => (
+                    <div key={i}>
+                      <a href={`tel:+${p.code}${p.number}`} className="text-decoration-none">
+                        <i className="bi bi-telephone me-1"></i>
+                        {p.label && <span className="text-muted">{p.label}: </span>}
+                        {formatPhone(p)}
+                      </a>
+                    </div>
+                  ))
+                ) : (
+                  <div>
+                    {contact.phone ? (
+                      <a href={`tel:${contact.phone}`} className="text-decoration-none">
+                        <i className="bi bi-telephone me-1"></i>
+                        {contact.phone}
+                        {contact.phoneExtension && <span className="text-muted"> ext. {contact.phoneExtension}</span>}
+                      </a>
+                    ) : (
+                      <span className="text-muted">No registrado</span>
+                    )}
+                  </div>
+                )}
               </div>
               <div className="col-12">
                 <strong>Sitio web:</strong>
@@ -246,22 +272,16 @@ export const ContactViewTabs: React.FC<ContactViewTabsProps> = ({
                   </div>
                 </div>
               )}
-              {contact.paymentTerms && (
+              {contact.paymentTerms !== undefined && contact.paymentTerms !== null && (
                 <div className="col-12">
                   <strong>Términos de pago:</strong>
-                  <div>{contact.paymentTerms} días</div>
+                  <div>{contact.paymentTerms === 0 ? 'Contado' : `${contact.paymentTerms} días`}</div>
                 </div>
               )}
               {contact.creditLimit && (
                 <div className="col-12">
                   <strong>Límite de crédito:</strong>
                   <div>${contact.creditLimit.toLocaleString()}</div>
-                </div>
-              )}
-              {(contact.creditMonths !== undefined && contact.creditMonths !== null) && (
-                <div className="col-12">
-                  <strong>Crédito (meses):</strong>
-                  <div>{contact.creditMonths} {contact.creditMonths === 1 ? 'mes' : 'meses'}</div>
                 </div>
               )}
               <div className="col-12">

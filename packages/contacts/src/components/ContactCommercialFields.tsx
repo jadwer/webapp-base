@@ -24,13 +24,26 @@ interface ContactCommercialFieldsProps {
   formData: ContactFormData
   updateField: <K extends keyof ContactFormData>(field: K, value: ContactFormData[K]) => void
   isLoading?: boolean
+  /**
+   * Alta por pasos (2026-09-30): 'commercial' va en Datos generales
+   * (vendedor, cobranza, comision, descuento, como se entero) y 'fiscal' en
+   * Datos fiscales (regimen, uso CFDI, cuenta bancaria, cuenta contable).
+   * 'all' conserva la seccion completa para el form simple.
+   */
+  section?: 'all' | 'commercial' | 'fiscal'
+  /** Oculta el titulo cuando el contenedor ya pone el suyo. */
+  showHeading?: boolean
 }
 
 export const ContactCommercialFields: React.FC<ContactCommercialFieldsProps> = ({
   formData,
   updateField,
   isLoading = false,
+  section = 'all',
+  showHeading = true,
 }) => {
+  const showCommercial = section !== 'fiscal'
+  const showFiscal = section !== 'commercial'
   // Catalogo de usuarios internos para los selects de vendedor/cobrador
   // (page size amplio: el hook v2 de @lwm/permissions pagina server-side).
   const { users, isLoading: usersLoading } = useUsers({}, 1, 200)
@@ -83,13 +96,17 @@ export const ContactCommercialFields: React.FC<ContactCommercialFieldsProps> = (
 
   return (
     <>
-      <div className="col-12">
-        <h5 className="mb-3 mt-4">
-          <i className="bi bi-cash-coin me-2"></i>
-          Datos comerciales y fiscales
-        </h5>
-      </div>
+      {showHeading && (
+        <div className="col-12">
+          <h5 className="mb-3 mt-4">
+            <i className={`bi ${section === 'fiscal' ? 'bi-bank' : 'bi-cash-coin'} me-2`}></i>
+            {section === 'fiscal' ? 'Datos fiscales' : section === 'commercial' ? 'Condiciones comerciales' : 'Datos comerciales y fiscales'}
+          </h5>
+        </div>
+      )}
 
+      {showCommercial && (
+      <>
       {/* Vendedor asignado (campo estrella - comisiones) */}
       <div className="col-md-6">
         <label htmlFor="defaultSalespersonId" className="form-label">
@@ -165,6 +182,11 @@ export const ContactCommercialFields: React.FC<ContactCommercialFieldsProps> = (
         />
       </div>
 
+      </>
+      )}
+
+      {showFiscal && (
+      <>
       {/* Regimen fiscal SAT. Select con el catalogo espejo del backend: como
           texto libre, el usuario (y el autofill del navegador) escribia
           "601 - General de Ley..." y el backend (Rule::in de codigos) lo
@@ -200,22 +222,6 @@ export const ContactCommercialFields: React.FC<ContactCommercialFieldsProps> = (
         </select>
       </div>
 
-      {/* Credito (meses) */}
-      <div className="col-md-6">
-        <label htmlFor="creditMonths" className="form-label">
-          Credito (meses)
-        </label>
-        <Input
-          id="creditMonths"
-          type="number"
-          min="0"
-          max="120"
-          value={formData.creditMonths?.toString() ?? ''}
-          onChange={(e) => updateField('creditMonths', numberOrNull(e.target.value))}
-          disabled={isLoading}
-          placeholder="0"
-        />
-      </div>
 
       {/* No. de cuenta bancaria */}
       <div className="col-md-6">
@@ -247,6 +253,11 @@ export const ContactCommercialFields: React.FC<ContactCommercialFieldsProps> = (
         />
       </div>
 
+      </>
+      )}
+
+      {showCommercial && (
+      <>
       {/* Como se entero de nosotros */}
       <div className="col-md-6">
         <label htmlFor="referralSource" className="form-label">
@@ -261,6 +272,8 @@ export const ContactCommercialFields: React.FC<ContactCommercialFieldsProps> = (
           placeholder="Ej. Recomendacion, Google, Feria..."
         />
       </div>
+      </>
+      )}
     </>
   )
 }

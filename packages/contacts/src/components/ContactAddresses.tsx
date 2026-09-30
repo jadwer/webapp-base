@@ -31,6 +31,12 @@ interface ContactAddressesProps {
   onDeleteAddress: (id: string) => void
   isLoading?: boolean
   className?: string
+  /**
+   * Alta por pasos (2026-09-30): 'fiscal' muestra solo la direccion fiscal
+   * (pestana Datos fiscales) y 'delivery' solo las de entrega y legadas
+   * (pestana Direcciones). 'all' las muestra juntas.
+   */
+  section?: 'all' | 'fiscal' | 'delivery'
 }
 
 interface AddressFormData {
@@ -94,7 +100,8 @@ export const ContactAddresses: React.FC<ContactAddressesProps> = ({
   onUpdateAddress,
   onDeleteAddress,
   isLoading = false,
-  className = ''
+  className = '',
+  section = 'all'
 }) => {
   const [showForm, setShowForm] = useState(false)
   const [editingAddress, setEditingAddress] = useState<ContactAddress | null>(null)
@@ -281,6 +288,8 @@ export const ContactAddresses: React.FC<ContactAddressesProps> = ({
 
   return (
     <div className={`contact-addresses ${className}`}>
+      {section !== 'delivery' && (
+      <>
       {/* ===== Direccion fiscal (una sola) ===== */}
       <div className="mb-4">
         <div className="d-flex justify-content-between align-items-center mb-2">
@@ -321,6 +330,11 @@ export const ContactAddresses: React.FC<ContactAddressesProps> = ({
         )}
       </div>
 
+      </>
+      )}
+
+      {section !== 'fiscal' && (
+      <>
       {/* ===== Direcciones de entrega ===== */}
       <div className="mb-4">
         <div className="d-flex justify-content-between align-items-center mb-2">
@@ -379,6 +393,9 @@ export const ContactAddresses: React.FC<ContactAddressesProps> = ({
             ))}
           </div>
         </div>
+      )}
+
+      </>
       )}
 
       {/* ===== Formulario ===== */}

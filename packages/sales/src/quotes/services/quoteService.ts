@@ -8,6 +8,23 @@
  */
 
 import { axiosClient as axios } from '@lwm/auth'
+
+export interface SendQuoteOptions {
+  recipients?: string[]
+  saveToContact?: boolean
+}
+
+export interface SendQuoteResult {
+  data: Quote
+  message: string
+  meta?: { recipients: string[]; emailSent: boolean; emailError: string | null }
+}
+
+export interface QuoteRecipientOption {
+  email: string
+  label: string
+  kind: 'primary' | 'additional' | 'person'
+}
 import type {
   Quote,
   Contact,
@@ -369,17 +386,49 @@ export const quoteService = {
   },
 
   /**
-   * Send quote to customer
+   * Send quote to customer.
+   * Sin opciones manda al correo principal del contacto (como antes). Con
+   * `recipients` manda a los elegidos en el modal; `saveToContact` guarda
+   * los correos nuevos como adicionales del contacto (2026-09-30).
    */
-  async send(id: string): Promise<{ data: Quote; message: string }> {
-    const response = await axios.post<{ data: JsonApiResource; message: string }>(
-      `${QUOTES_BASE_URL}/${id}/send`
-    )
+  async send(id: string, options?: SendQuoteOptions): Promise<SendQuoteResult> {
+    type SendResponse = { data: JsonApiResource; message: string; meta?: SendQuoteResult['meta'] }
+    const url = `${QUOTES_BASE_URL}/${id}/send`
+    const response = options
+      ? await axios.post<SendResponse>(url, options)
+      : await axios.post<SendResponse>(url)
 
     return {
       data: parseQuote(response.data.data),
-      message: response.data.message
+      message: response.data.message,
+      meta: response.data.meta
     }
+  },
+
+  /**
+   * Correos disponibles para enviar una cotizacion: principal, adicionales y
+   * los de las personas de contacto (compras, laboratorio...).
+   */
+  async getRecipientOptions(contactId: string | number): Promise<QuoteRecipientOption[]> {
+    const response = await axios.get<{
+      data: { attributes: { email?: string | null; additionalEmails?: string[] | null } }
+      included?: Array<{ type: string; attributes: { name?: string; email?: string | null; department?: string | null; position?: string | null } }>
+    }>(`/api/v1/contacts/${contactId}`, { params: { include: 'contactPeople' } })
+
+    const attrs = response.data.data.attributes
+    const options: QuoteRecipientOption[] = []
+    const push = (email: string | null | undefined, label: string, kind: QuoteRecipientOption['kind']) => {
+      const e = (email ?? '').trim().toLowerCase()
+      if (e && !options.some((o) => o.email === e)) options.push({ email: e, label, kind })
+    }
+    push(attrs.email, 'Correo principal', 'primary')
+    for (const e of attrs.additionalEmails ?? []) push(e, 'Correo adicional', 'additional')
+    for (const p of response.data.included ?? []) {
+      if (p.type !== 'contact-people') continue
+      const who = [p.attributes.name, p.attributes.department || p.attributes.position].filter(Boolean).join(' - ')
+      push(p.attributes.email, who || 'Persona de contacto', 'person')
+    }
+    return options
   },
 
   /**

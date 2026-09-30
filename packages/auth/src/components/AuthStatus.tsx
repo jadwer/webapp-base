@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from '../lib/auth'
 import { useIsClient } from '@lwm/primitives'
 import { useEffect } from 'react'
+import { UserAvatar } from './UserAvatar'
 
 export default function AuthStatus() {
   const { user, logout, isLoading } = useAuth()
@@ -33,7 +34,7 @@ export default function AuthStatus() {
             className="d-flex align-items-center gap-2 text-decoration-none"
             title="Ir a mi perfil"
           >
-            <i className="bi bi-person-circle fs-5 text-primary" aria-hidden="true"></i>
+            <UserAvatar avatar={user.avatar} name={user.name} size={30} />
             <span className="fw-semibold small text-muted hover-text-primary">{user.name}</span>
           </Link>
           <button

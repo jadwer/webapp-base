@@ -9,6 +9,7 @@
 import useSWR, { mutate } from 'swr'
 import { useState, useCallback } from 'react'
 import { quoteService, quoteItemService } from '../services'
+import type { SendQuoteOptions } from '../services/quoteService'
 import type {
   QuoteFilters,
   QuoteSortOptions,
@@ -144,10 +145,10 @@ export function useQuoteMutations() {
     }
   }, [invalidateQuotes])
 
-  const sendMutation = useCallback(async (id: string) => {
+  const sendMutation = useCallback(async (id: string, options?: SendQuoteOptions) => {
     setIsLoading(true)
     try {
-      const result = await quoteService.send(id)
+      const result = await quoteService.send(id, options)
       mutate(quoteKeys.detail(id))
       invalidateQuotes()
       return result

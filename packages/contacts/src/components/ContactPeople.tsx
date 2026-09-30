@@ -7,7 +7,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Input } from '@lwm/ui'
+import { Input, singleEmailError } from '@lwm/ui'
 import { Button } from '@lwm/ui'
 import type { ContactPerson } from '../types'
 
@@ -64,8 +64,10 @@ export const ContactPeople: React.FC<ContactPeopleProps> = ({
       newErrors.name = 'El nombre es obligatorio'
     }
     
-    if (formData.email && !/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'El email no es válido'
+    // Un solo correo por persona (misma regla que el backend, 2026-09-30).
+    const emailError = singleEmailError(formData.email, 'correo por persona')
+    if (emailError) {
+      newErrors.email = emailError
     }
     
     if (Object.keys(newErrors).length > 0) {
