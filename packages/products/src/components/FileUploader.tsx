@@ -11,6 +11,8 @@ interface FileUploaderProps {
   onClear: () => void
   previewUrl?: string | null
   currentFileName?: string
+  /** Enlace para abrir el archivo actual (ficha existente). */
+  currentFileUrl?: string
   isLoading?: boolean
   label: string
   helpText?: string
@@ -25,6 +27,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
   onClear,
   previewUrl,
   currentFileName,
+  currentFileUrl,
   isLoading = false,
   label,
   helpText,
@@ -190,7 +193,20 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
             <div className="d-flex align-items-center gap-2 mb-2">
               <i className="bi bi-file-earmark-pdf text-danger" style={{ fontSize: '2.5rem' }}></i>
             </div>
-            <span className="text-truncate mb-2" style={{ maxWidth: '200px' }}>{displayFileName}</span>
+            {!localFileName && currentFileUrl ? (
+              <a
+                href={currentFileUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-truncate mb-2"
+                style={{ maxWidth: '200px' }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                {displayFileName}
+              </a>
+            ) : (
+              <span className="text-truncate mb-2" style={{ maxWidth: '200px' }}>{displayFileName}</span>
+            )}
             <button
               type="button"
               className="btn btn-sm btn-outline-danger"

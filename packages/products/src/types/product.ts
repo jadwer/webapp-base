@@ -81,7 +81,7 @@ export interface CreateProductData {
   saleEndsAt?: string | null
   saleBadge?: string | null
   imgPath?: string
-  datasheetPath?: string
+  datasheetPath?: string | null
   unitId: string
   categoryId?: string | null
   brandId?: string | null

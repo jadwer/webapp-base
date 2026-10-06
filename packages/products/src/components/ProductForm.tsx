@@ -114,6 +114,9 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   // File upload states
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [datasheetFile, setDatasheetFile] = useState<File | null>(null)
+  // Ficha tecnica (2026-10-06): "Quitar" la ficha existente manda null al
+  // guardar; antes el valor vacio se descartaba y la ficha nunca se quitaba.
+  const [datasheetRemoved, setDatasheetRemoved] = useState(false)
   const [uploadingImage, setUploadingImage] = useState(false)
   const [uploadingDatasheet, setUploadingDatasheet] = useState(false)
 
@@ -323,6 +326,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       // Observer manage it to stay in sync with the gallery.
       ...(newImgPath && { imgPath: newImgPath }),
       ...(newDatasheetPath && { datasheetPath: newDatasheetPath }),
+      ...(!newDatasheetPath && datasheetRemoved && product?.datasheetPath ? { datasheetPath: null } : {}),
       unitId: formData.unitId,
       categoryId: formData.categoryId,
       brandId: formData.brandId,
@@ -636,6 +640,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               isImage={false}
               onFileSelect={(file) => {
                 setDatasheetFile(file)
+                setDatasheetRemoved(false)
                 setErrors(prev => {
                   if (!prev.datasheetPath) return prev
                   const { datasheetPath: _drop, ...rest } = prev
@@ -644,6 +649,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               }}
               onClear={() => {
                 setDatasheetFile(null)
+                setDatasheetRemoved(true)
                 handleInputChange('datasheetPath', '')
                 setErrors(prev => {
                   if (!prev.datasheetPath) return prev
@@ -651,9 +657,10 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                   return rest
                 })
               }}
-              currentFileName={product?.datasheetPath ? 'Archivo existente' : undefined}
+              currentFileName={product?.datasheetPath && !datasheetRemoved ? product.datasheetPath.split('/').pop() : undefined}
+              currentFileUrl={product?.datasheetUrl && !datasheetRemoved ? product.datasheetUrl : undefined}
               isLoading={uploadingDatasheet}
-              helpText="Archivo PDF. Máximo 10MB"
+              helpText={datasheetRemoved && product?.datasheetPath ? 'La ficha actual se quitará al guardar.' : 'Archivo PDF. Máximo 10MB. Al subir uno nuevo se reemplaza el anterior.'}
               errorText={errors.datasheetPath}
             />
           </div>
