@@ -139,6 +139,18 @@ const nextConfig: NextConfig = {
         destination: '/productos',
         permanent: true,
       },
+      // Lista de precios PDF del sitio viejo: tiene backlinks externos
+      // (SEOptimer 2026-09-30) y daba 404. El de Hach va a sus productos.
+      {
+        source: '/prices/hach-labor-wasser.pdf',
+        destination: '/productos?search=hach',
+        permanent: true,
+      },
+      {
+        source: '/prices/:path*',
+        destination: '/productos',
+        permanent: true,
+      },
     ]
   },
 }
