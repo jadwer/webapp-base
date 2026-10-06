@@ -85,16 +85,22 @@ export const salesService = {
       return response.data
     },
 
-    /** Descarga el PDF de la orden de compra del cliente. */
+    /**
+     * Descarga la constancia de autorizacion del cliente (PDF de la OC o
+     * captura). La ruta real es /customer-po; la anterior
+     * (/download-customer-po) no existia y daba 404.
+     */
     downloadCustomerPo: async (id: string, orderNumber?: string) => {
-      const response = await axiosClient.get(`/api/v1/sales-orders/${id}/download-customer-po`, {
+      const response = await axiosClient.get(`/api/v1/sales-orders/${id}/customer-po`, {
         responseType: 'blob'
       })
-      const blob = new Blob([response.data], { type: 'application/pdf' })
+      const type = (response.headers?.['content-type'] as string | undefined) || 'application/octet-stream'
+      const ext = type.includes('pdf') ? 'pdf' : type.includes('png') ? 'png' : type.includes('webp') ? 'webp' : type.includes('jpeg') ? 'jpg' : 'bin'
+      const blob = new Blob([response.data], { type })
       const url = window.URL.createObjectURL(blob)
       const link = document.createElement('a')
       link.href = url
-      link.download = `oc-cliente-${orderNumber || id}.pdf`
+      link.download = `autorizacion-cliente-${orderNumber || id}.${ext}`
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)

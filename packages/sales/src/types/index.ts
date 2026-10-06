@@ -48,6 +48,9 @@ export interface SalesOrder {
   // Fase A - Venta directa vs Pedido
   orderType?: SalesOrderType
   customerPoNumber?: string | null
+  /** Canal por el que el cliente autorizo el pedido (2026-10-06). */
+  acceptanceChannel?: string | null
+  /** Constancia: PDF de la OC o captura (WhatsApp, correo). */
   customerPoPath?: string | null
   paymentMethod?: PaymentMethod | null
   creditDays?: number | null

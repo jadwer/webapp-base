@@ -89,22 +89,42 @@ describe('GenerateOrderModal', () => {
     } as unknown as ReturnType<typeof useQuoteMutations>)
   })
 
-  it('requires customer_po_number before converting', async () => {
+  it('requires the PO number only when the customer authorized by purchase order', async () => {
     setup()
 
     fireEvent.click(screen.getByRole('button', { name: /generar pedido/i }))
 
     await waitFor(() =>
-      expect(screen.getByText(/el numero de oc del cliente es requerido/i)).toBeInTheDocument()
+      expect(screen.getByText(/captura el número de la orden de compra del cliente/i)).toBeInTheDocument()
     )
     expect(mockConvert).not.toHaveBeenCalled()
+  })
+
+  it('converts without a PO number when the customer authorized by WhatsApp', async () => {
+    mockConvert.mockResolvedValue(successResponse)
+    setup()
+
+    fireEvent.change(screen.getByLabelText(/cómo autorizó el cliente/i), { target: { value: 'whatsapp' } })
+    fireEvent.click(screen.getByRole('button', { name: /generar pedido/i }))
+
+    await waitFor(() =>
+      expect(mockConvert).toHaveBeenCalledWith({
+        id: '7',
+        data: {
+          order_type: 'order',
+          acceptance_channel: 'whatsapp',
+          payment_method: 'PUE',
+          credit_days: 15,
+        },
+      })
+    )
   })
 
   it('sends order_type order with po number and payment fields prefilled from the quote', async () => {
     mockConvert.mockResolvedValue(successResponse)
     const { onConverted } = setup()
 
-    fireEvent.change(screen.getByLabelText(/no\. oc del cliente/i), {
+    fireEvent.change(screen.getByLabelText(/orden de compra que emitió el cliente/i), {
       target: { value: 'OC-2026-0157' },
     })
     fireEvent.click(screen.getByRole('button', { name: /generar pedido/i }))
@@ -114,6 +134,7 @@ describe('GenerateOrderModal', () => {
         id: '7',
         data: {
           order_type: 'order',
+          acceptance_channel: 'purchase_order',
           customer_po_number: 'OC-2026-0157',
           payment_method: 'PUE',
           credit_days: 15,
@@ -125,17 +146,17 @@ describe('GenerateOrderModal', () => {
     expect(salesService.orders.uploadCustomerPo).not.toHaveBeenCalled()
   })
 
-  it('uploads the customer PO PDF after creating the order', async () => {
+  it('uploads the evidence file after creating the order', async () => {
     mockConvert.mockResolvedValue(successResponse)
     vi.mocked(salesService.orders.uploadCustomerPo).mockResolvedValue({})
     setup()
 
-    fireEvent.change(screen.getByLabelText(/no\. oc del cliente/i), {
+    fireEvent.change(screen.getByLabelText(/orden de compra que emitió el cliente/i), {
       target: { value: 'OC-123' },
     })
 
-    const file = new File(['%PDF-1.4'], 'oc.pdf', { type: 'application/pdf' })
-    fireEvent.change(screen.getByLabelText(/pdf de la oc/i), { target: { files: [file] } })
+    const file = new File(['png'], 'whatsapp.png', { type: 'image/png' })
+    fireEvent.change(screen.getByLabelText(/constancia/i), { target: { files: [file] } })
 
     fireEvent.click(screen.getByRole('button', { name: /generar pedido/i }))
 
@@ -146,14 +167,14 @@ describe('GenerateOrderModal', () => {
     expect(mockConvert).toHaveBeenCalled()
   })
 
-  it('rejects non-PDF files client-side', async () => {
+  it('rejects files that are neither PDF nor image client-side', async () => {
     setup()
 
-    const file = new File(['not a pdf'], 'oc.png', { type: 'image/png' })
-    fireEvent.change(screen.getByLabelText(/pdf de la oc/i), { target: { files: [file] } })
+    const file = new File(['doc'], 'oc.docx', { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' })
+    fireEvent.change(screen.getByLabelText(/constancia/i), { target: { files: [file] } })
 
     await waitFor(() =>
-      expect(screen.getByText(/el archivo debe ser un pdf/i)).toBeInTheDocument()
+      expect(screen.getByText(/la constancia debe ser pdf o imagen/i)).toBeInTheDocument()
     )
   })
 
@@ -174,7 +195,7 @@ describe('GenerateOrderModal', () => {
     })
     setup()
 
-    fireEvent.change(screen.getByLabelText(/no\. oc del cliente/i), {
+    fireEvent.change(screen.getByLabelText(/orden de compra que emitió el cliente/i), {
       target: { value: 'OC-9' },
     })
     fireEvent.click(screen.getByRole('button', { name: /generar pedido/i }))
@@ -190,7 +211,7 @@ describe('GenerateOrderModal', () => {
     })
     const { onConverted } = setup()
 
-    fireEvent.change(screen.getByLabelText(/no\. oc del cliente/i), {
+    fireEvent.change(screen.getByLabelText(/orden de compra que emitió el cliente/i), {
       target: { value: 'OC-1' },
     })
     fireEvent.click(screen.getByRole('button', { name: /generar pedido/i }))

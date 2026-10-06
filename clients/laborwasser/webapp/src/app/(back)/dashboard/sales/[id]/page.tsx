@@ -6,7 +6,8 @@ import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
 import { formatCurrency, formatQuantity } from '@/lib/formatters'
 import { salesService } from '@/modules/sales'
 import { remissionService, REMISSION_STATUS_LABELS } from '@/modules/sales'
-import type { Remission } from '@/modules/sales'
+import type { Remission, AcceptanceChannel } from '@/modules/sales'
+import { ACCEPTANCE_CHANNEL_LABELS } from '@/modules/sales'
 import { toast } from '@/lib/toast'
 import axiosClient from '@/lib/axiosClient'
 import { cfdiInvoicesService } from '@/modules/billing'
@@ -434,6 +435,41 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
                   </table>
                 </div>
               </div>
+
+              {/* Autorizacion del cliente (2026-10-06): canal, OC y constancia.
+                  Antes estos datos se guardaban y no se mostraban en ningun lado. */}
+              {salesOrder.orderType === 'order' && (
+                <div className="mt-3 p-3 bg-light border rounded">
+                  <h6 className="mb-2">
+                    <i className="bi bi-patch-check me-2"></i>
+                    Autorización del cliente
+                  </h6>
+                  <div className="row small">
+                    <div className="col-md-4">
+                      <span className="text-muted">Canal: </span>
+                      <strong>{ACCEPTANCE_CHANNEL_LABELS[(salesOrder.acceptanceChannel ?? '') as AcceptanceChannel] ?? 'No registrado'}</strong>
+                    </div>
+                    <div className="col-md-4">
+                      <span className="text-muted">Orden de compra del cliente: </span>
+                      <strong>{salesOrder.customerPoNumber || 'Sin número'}</strong>
+                    </div>
+                    <div className="col-md-4">
+                      {salesOrder.customerPoPath ? (
+                        <button
+                          type="button"
+                          className="btn btn-sm btn-outline-primary"
+                          onClick={() => salesService.orders.downloadCustomerPo(salesOrder.id, salesOrder.orderNumber)}
+                        >
+                          <i className="bi bi-paperclip me-1"></i>
+                          Ver constancia
+                        </button>
+                      ) : (
+                        <span className="text-muted">Sin constancia adjunta</span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {salesOrder.notes && (
                 <div className="mt-3">

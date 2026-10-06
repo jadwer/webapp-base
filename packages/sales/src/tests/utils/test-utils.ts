@@ -44,6 +44,7 @@ export const mockSalesOrder = (overrides?: Partial<SalesOrder>): SalesOrder => (
   id: '1',
   contactId: 1,
   branchId: null,
+  acceptanceChannel: null,
   contact: mockContact(),
   orderNumber: 'SO-2025-001',
   orderDate: '2025-01-01',

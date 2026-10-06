@@ -27,6 +27,7 @@ export function transformJsonApiSalesOrder(resource: JsonApiResource): SalesOrde
     // Fase A - Venta directa vs Pedido
     orderType: (attributes.order_type || attributes.orderType || 'order') as SalesOrderType,
     customerPoNumber: (attributes.customer_po_number ?? attributes.customerPoNumber ?? null) as string | null,
+    acceptanceChannel: (attributes.acceptance_channel ?? attributes.acceptanceChannel ?? null) as string | null,
     customerPoPath: (attributes.customer_po_path ?? attributes.customerPoPath ?? null) as string | null,
     paymentMethod: (attributes.payment_method ?? attributes.paymentMethod ?? null) as PaymentMethod | null,
     creditDays: (attributes.credit_days ?? attributes.creditDays ?? null) as number | null,

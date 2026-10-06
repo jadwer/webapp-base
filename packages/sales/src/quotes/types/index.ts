@@ -206,11 +206,25 @@ export interface UpdateQuoteItemRequest {
  * - order_type 'direct_sale': valida stock de TODOS los items; 422 con
  *   detalle de faltantes si alguno no alcanza. La orden nace 'confirmed'.
  * - order_type 'order': no bloquea por stock; la respuesta incluye
- *   items_requiring_purchase. Requiere customer_po_number. Nace 'pending'.
+ *   items_requiring_purchase. Registra como autorizo el cliente
+ *   (acceptance_channel); customer_po_number solo es obligatorio cuando el
+ *   canal es la orden de compra. Nace 'pending'.
  * - payment_method / credit_days: defaults desde la quote si se omiten.
  */
+/** Como autorizo el cliente el pedido (2026-10-06). */
+export type AcceptanceChannel = 'purchase_order' | 'email' | 'whatsapp' | 'phone' | 'counter'
+
+export const ACCEPTANCE_CHANNEL_LABELS: Record<AcceptanceChannel, string> = {
+  purchase_order: 'Orden de compra del cliente',
+  email: 'Correo electrónico',
+  whatsapp: 'WhatsApp',
+  phone: 'Teléfono',
+  counter: 'En mostrador',
+}
+
 export interface ConvertQuoteRequest {
   order_type?: SalesOrderType
+  acceptance_channel?: AcceptanceChannel
   customer_po_number?: string
   payment_method?: PaymentMethod
   credit_days?: number
