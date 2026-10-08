@@ -44,6 +44,9 @@ export { singleEmailError, splitEmails, normalizeEmails } from './utils/emails'
 export { formatCurrency, formatQuantity, getCurrentCurrency, getCurrentLocale } from './utils/formatters'
 export { DATE_PRESETS, getPresetDates } from './utils/datePresets'
 
+// Primitivas de layout para paginas del dashboard (Bootstrap puro)
+export * from './components/patterns'
+
 // ============================================
 // Layout primitives (require @lwm/auth as peer)
 // ============================================
