@@ -118,80 +118,14 @@ function transformToCamelCase(data: Record<string, unknown> | null | undefined):
   return transformed
 }
 
-// Transform camelCase to snake_case for API requests
-function transformToSnakeCase(data: Record<string, unknown>): Record<string, unknown> {
-  const transformed: Record<string, unknown> = {}
-
-  for (const [key, value] of Object.entries(data)) {
-    if (value === undefined) continue
-
-    let transformedKey = key
-
-    // Handle specific field mappings
-    switch (key) {
-      case 'discountType':
-        transformedKey = 'discount_type'
-        break
-      case 'discountValue':
-        transformedKey = 'discount_value'
-        break
-      case 'buyQuantity':
-        transformedKey = 'buy_quantity'
-        break
-      case 'getQuantity':
-        transformedKey = 'get_quantity'
-        break
-      case 'appliesTo':
-        transformedKey = 'applies_to'
-        break
-      case 'minOrderAmount':
-        transformedKey = 'min_order_amount'
-        break
-      case 'minQuantity':
-        transformedKey = 'min_quantity'
-        break
-      case 'maxDiscountAmount':
-        transformedKey = 'max_discount_amount'
-        break
-      case 'productIds':
-        transformedKey = 'product_ids'
-        break
-      case 'categoryIds':
-        transformedKey = 'category_ids'
-        break
-      case 'customerIds':
-        transformedKey = 'customer_ids'
-        break
-      case 'customerClassifications':
-        transformedKey = 'customer_classifications'
-        break
-      case 'startDate':
-        transformedKey = 'start_date'
-        break
-      case 'endDate':
-        transformedKey = 'end_date'
-        break
-      case 'usageLimit':
-        transformedKey = 'usage_limit'
-        break
-      case 'usagePerCustomer':
-        transformedKey = 'usage_per_customer'
-        break
-      case 'isCombinable':
-        transformedKey = 'is_combinable'
-        break
-      case 'isActive':
-        transformedKey = 'is_active'
-        break
-      default:
-        // Convert camelCase to snake_case
-        transformedKey = key.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`)
-    }
-
-    transformed[transformedKey] = value
-  }
-
-  return transformed
+// El Schema declara los atributos en camelCase; mandar snake_case daba 400
+// (atributo no soportado). Solo se limpian los undefined.
+function toApiAttributes(data: Record<string, unknown>): Record<string, unknown> {
+  const attributes: Record<string, unknown> = {}
+  Object.entries(data).forEach(([key, value]) => {
+    if (value !== undefined) attributes[key] = value
+  })
+  return attributes
 }
 
 // Generate discount display string
@@ -370,7 +304,7 @@ export const discountRulesService = {
    * Create new discount rule
    */
   async create(data: CreateDiscountRuleRequest) {
-    const attributes = transformToSnakeCase(data as unknown as Record<string, unknown>)
+    const attributes = toApiAttributes(data as unknown as Record<string, unknown>)
 
     const requestData = {
       data: {
@@ -395,7 +329,7 @@ export const discountRulesService = {
    * Update existing discount rule
    */
   async update(id: string, data: UpdateDiscountRuleRequest) {
-    const attributes = transformToSnakeCase(data as unknown as Record<string, unknown>)
+    const attributes = toApiAttributes(data as unknown as Record<string, unknown>)
 
     const requestData = {
       data: {

@@ -411,7 +411,7 @@ export default function QuotesPage() {
                                         <li>
                                           <button
                                             className="dropdown-item"
-                                            onClick={() => router.push(`/dashboard/quotes/${quote.id}/edit`)}
+                                            onClick={() => router.push(`/dashboard/quotes/${quote.id}`)}
                                           >
                                             <i className="bi bi-pencil me-2"></i>
                                             Editar

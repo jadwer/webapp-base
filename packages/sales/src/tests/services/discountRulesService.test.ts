@@ -183,9 +183,9 @@ describe('discountRulesService', () => {
           attributes: expect.objectContaining({
             name: 'Summer Sale',
             code: 'SUMMER2025',
-            discount_type: 'percentage',
-            discount_value: 10,
-            applies_to: 'order'
+            discountType: 'percentage',
+            discountValue: 10,
+            appliesTo: 'order'
           })
         }
       })
@@ -219,13 +219,13 @@ describe('discountRulesService', () => {
         data: {
           type: 'discount-rules',
           attributes: expect.objectContaining({
-            discount_type: 'buy_x_get_y',
-            buy_quantity: 3,
-            get_quantity: 1,
-            applies_to: 'product',
-            min_order_amount: 100,
-            is_combinable: false,
-            is_active: true
+            discountType: 'buy_x_get_y',
+            buyQuantity: 3,
+            getQuantity: 1,
+            appliesTo: 'product',
+            minOrderAmount: 100,
+            isCombinable: false,
+            isActive: true
           })
         }
       })
@@ -246,7 +246,7 @@ describe('discountRulesService', () => {
           type: 'discount-rules',
           id: '1',
           attributes: {
-            discount_value: 15
+            discountValue: 15
           }
         }
       })
@@ -266,7 +266,7 @@ describe('discountRulesService', () => {
           type: 'discount-rules',
           id: '1',
           attributes: {
-            is_active: false
+            isActive: false
           }
         }
       })
@@ -297,7 +297,7 @@ describe('discountRulesService', () => {
           type: 'discount-rules',
           id: '1',
           attributes: {
-            is_active: true
+            isActive: true
           }
         }
       })
@@ -316,7 +316,7 @@ describe('discountRulesService', () => {
           type: 'discount-rules',
           id: '1',
           attributes: {
-            is_active: false
+            isActive: false
           }
         }
       })

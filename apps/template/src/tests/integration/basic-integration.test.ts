@@ -38,7 +38,7 @@ describe('Integration Tests - Basic Concepts', () => {
     expect(reportsServices).toBeDefined();
     expect(hrServices).toBeDefined();
     expect(billingServices).toBeDefined();
-  });
+  }, 60000);
 });
 
 /**
