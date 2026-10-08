@@ -1,195 +1,161 @@
 /**
- * STOCK ADMIN PAGE - REAL IMPLEMENTATION
- * Página real de gestión de stock/inventario siguiendo patrón exitoso de Warehouses
- * Sencilla, profesional, bonita, completa
+ * STOCK ADMIN PAGE
+ * Control de stock: KPIs reales del backend (meta.page.total) y filtros por
+ * estado, nivel y sucursal. El nivel se puede abrir desde la URL
+ * (?level=low | ?level=out) para los enlaces del dashboard.
  */
 
 'use client'
 
-import React, { useState } from 'react'
-import { useStock } from '../hooks'
-import { StockTableSimple } from './StockTableSimple'
-import { FilterBar } from './FilterBar'
-import { PaginationSimple } from './PaginationSimple'
-import { Button } from '@lwm/ui'
+import { Suspense, useEffect, useState } from 'react'
+import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
+import { Alert, KpiCard, ListToolbar, PageHeader } from '@lwm/ui'
 import { BranchFilter } from '@lwm/auth'
-import { Alert } from '@lwm/ui'
-import { useNavigationProgress } from '@lwm/ui'
+import { useStock } from '../hooks'
+import { useStockCounts } from '../hooks/useInventoryCounts'
+import { StockTableSimple } from './StockTableSimple'
+import { PaginationSimple } from './PaginationSimple'
+import { STOCK_STATUS } from '../utils/labels'
+import { readPageMeta } from '../utils/listing'
 
-export const StockAdminPageReal = () => {
+const PAGE_SIZE = 20
+
+type StockLevel = '' | 'low' | 'out'
+
+const parseLevel = (value: string | null): StockLevel =>
+  value === 'low' || value === 'out' ? value : ''
+
+const StockAdminPageContent = () => {
+  const searchParams = useSearchParams()
+  const levelParam = parseLevel(searchParams.get('level'))
+
   const [searchTerm, setSearchTerm] = useState('')
+  const [statusFilter, setStatusFilter] = useState('')
+  const [level, setLevel] = useState<StockLevel>(levelParam)
   const [branchId, setBranchId] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
-  const pageSize = 20
-  const navigation = useNavigationProgress()
 
-  // Hooks con paginación real del backend
+  // Navegar a ?level=... con la pagina abierta tambien aplica el filtro
+  useEffect(() => {
+    setLevel(levelParam)
+    setCurrentPage(1)
+  }, [levelParam])
+
   const { stock, meta, isLoading, error } = useStock({
-    filters: searchTerm || branchId ? { search: searchTerm || undefined, branchId: branchId || undefined } : undefined,
-    pagination: { page: currentPage, size: pageSize },
-    include: ['product', 'warehouse', 'location']
+    filters: {
+      search: searchTerm || undefined,
+      status: statusFilter || undefined,
+      branchId: branchId || undefined,
+      lowStock: level === 'low' ? true : undefined,
+      outOfStock: level === 'out' ? true : undefined,
+    },
+    pagination: { page: currentPage, size: PAGE_SIZE },
+    include: ['product', 'warehouse', 'location'],
   })
+  const counts = useStockCounts({ branchId: branchId || undefined })
 
-  // Paginación desde meta.page structure
-  const paginationInfo = meta?.page as { lastPage?: number; total?: number; currentPage?: number; perPage?: number } | undefined
-  const totalPages = paginationInfo?.lastPage || 1
-  const totalItems = paginationInfo?.total || 0
-  const currentBackendPage = paginationInfo?.currentPage || currentPage
+  const page = readPageMeta(meta, currentPage, PAGE_SIZE)
 
-  // Reset to page 1 when search changes
-  const handleSearchChange = (newSearchTerm: string) => {
-    setSearchTerm(newSearchTerm)
+  const withReset = <T,>(setter: (value: T) => void) => (value: T) => {
+    setter(value)
     setCurrentPage(1)
   }
 
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page)
-  }
-
-  // Calcular métricas de stock (API devuelve strings, convertir a números)
-  const stockMetrics = React.useMemo(() => {
-    if (!stock) return { availableStock: 0, lowStock: 0, outOfStock: 0 }
-    
-    return {
-      availableStock: stock.filter(s => parseFloat(String(s.quantity || '0')) > 0).length,
-      lowStock: stock.filter(s => {
-        const quantity = parseFloat(String(s.quantity || '0'))
-        const minStock = parseFloat(String(s.minimumStock || '0'))
-        return minStock > 0 && quantity <= minStock
-      }).length,
-      outOfStock: stock.filter(s => parseFloat(String(s.quantity || '0')) <= 0).length
-    }
-  }, [stock])
-
   return (
     <div className="container-fluid py-4">
-      {/* Header */}
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <div>
-          <h1 className="h3 mb-0">Control de Inventario</h1>
-          <p className="text-muted mb-0">
-            Gestión de stock y niveles de inventario por producto y ubicación
-          </p>
-        </div>
-        <div className="d-flex gap-2">
-          <Button variant="primary" onClick={() => {}}>
-            <i className="bi bi-download me-2" />
-            Exportar
-          </Button>
-          <Button 
-            variant="primary" 
-            onClick={() => navigation.push('/dashboard/inventory/stock/create')}
-          >
+      <PageHeader
+        title="Control de Stock"
+        subtitle="Existencias por producto, almacén y ubicación"
+        actions={
+          <Link href="/dashboard/inventory/stock/create" className="btn btn-primary">
             <i className="bi bi-plus-lg me-2" />
-            Nuevo Stock
-          </Button>
-        </div>
-      </div>
+            Nuevo registro de stock
+          </Link>
+        }
+      />
 
-      {/* Stock Summary Cards */}
       <div className="row g-3 mb-4">
-        <div className="col-md-3">
-          <div className="card border-0 bg-primary text-white">
-            <div className="card-body">
-              <div className="d-flex justify-content-between align-items-center">
-                <div>
-                  <h6 className="card-title text-white-50">Total Productos</h6>
-                  <h3 className="mb-0">{totalItems || '--'}</h3>
-                </div>
-                <i className="bi bi-boxes" style={{ fontSize: '2rem', opacity: 0.7 }} />
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="col-md-3">
-          <div className="card border-0 bg-success text-white">
-            <div className="card-body">
-              <div className="d-flex justify-content-between align-items-center">
-                <div>
-                  <h6 className="card-title text-white-50">Stock Disponible</h6>
-                  <h3 className="mb-0">{isLoading ? '--' : stockMetrics.availableStock}</h3>
-                </div>
-                <i className="bi bi-check-circle" style={{ fontSize: '2rem', opacity: 0.7 }} />
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="col-md-3">
-          <div className="card border-0 bg-warning text-white">
-            <div className="card-body">
-              <div className="d-flex justify-content-between align-items-center">
-                <div>
-                  <h6 className="card-title text-white-50">Stock Bajo</h6>
-                  <h3 className="mb-0">{isLoading ? '--' : stockMetrics.lowStock}</h3>
-                </div>
-                <i className="bi bi-exclamation-triangle" style={{ fontSize: '2rem', opacity: 0.7 }} />
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="col-md-3">
-          <div className="card border-0 bg-danger text-white">
-            <div className="card-body">
-              <div className="d-flex justify-content-between align-items-center">
-                <div>
-                  <h6 className="card-title text-white-50">Sin Stock</h6>
-                  <h3 className="mb-0">{isLoading ? '--' : stockMetrics.outOfStock}</h3>
-                </div>
-                <i className="bi bi-x-circle" style={{ fontSize: '2rem', opacity: 0.7 }} />
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Filtros */}
-      <div className="row g-2">
-        <div className="col">
-          <FilterBar
-            searchTerm={searchTerm}
-            onSearchChange={handleSearchChange}
-            placeholder="Buscar productos en stock..."
+        <div className="col-md-4">
+          <KpiCard
+            label="Registros de stock"
+            value={counts.total ?? '--'}
+            icon="bi-boxes"
+            variant="primary"
+            isLoading={counts.isLoading}
           />
         </div>
-        <div className="col-md-3">
-          <BranchFilter
-            className="form-select"
-            value={branchId}
-            onChange={(id) => {
-              setBranchId(id)
-              setCurrentPage(1)
-            }}
+        <div className="col-md-4">
+          <KpiCard
+            label="Stock bajo"
+            value={counts.low ?? '--'}
+            icon="bi-exclamation-triangle"
+            variant="warning"
+            isLoading={counts.isLoading}
+            href="/dashboard/inventory/stock?level=low"
+          />
+        </div>
+        <div className="col-md-4">
+          <KpiCard
+            label="Sin stock"
+            value={counts.out ?? '--'}
+            icon="bi-x-circle"
+            variant="danger"
+            isLoading={counts.isLoading}
+            href="/dashboard/inventory/stock?level=out"
           />
         </div>
       </div>
 
-      {/* Error State */}
+      <ListToolbar
+        search={{
+          value: searchTerm,
+          onChange: withReset(setSearchTerm),
+          placeholder: 'Buscar por producto, SKU o almacén',
+        }}
+      >
+        <select
+          className="form-select w-auto"
+          value={statusFilter}
+          onChange={(e) => withReset(setStatusFilter)(e.target.value)}
+          aria-label="Filtrar por estado"
+        >
+          <option value="">Todos los estados</option>
+          {Object.entries(STOCK_STATUS).map(([value, { label }]) => (
+            <option key={value} value={value}>{label}</option>
+          ))}
+        </select>
+        <select
+          className="form-select w-auto"
+          value={level}
+          onChange={(e) => withReset(setLevel)(parseLevel(e.target.value))}
+          aria-label="Filtrar por nivel de stock"
+        >
+          <option value="">Todos los niveles</option>
+          <option value="low">Stock bajo</option>
+          <option value="out">Sin stock</option>
+        </select>
+        <BranchFilter className="form-select w-auto" value={branchId} onChange={withReset(setBranchId)} />
+      </ListToolbar>
+
       {error && (
-        <Alert variant="danger" className="mb-4">
+        <Alert variant="danger" className="mb-3">
           <i className="bi bi-exclamation-triangle me-2" />
-          <strong>Error:</strong> {error.message || 'Error al cargar el stock'}
+          {error.message || 'Error al cargar el stock'}
         </Alert>
       )}
 
-      {/* Content */}
       <div className="card">
         <div className="card-body p-0">
-          <StockTableSimple
-            stock={stock}
-            isLoading={isLoading}
-            onEdit={(stockItem) => navigation.push(`/dashboard/inventory/stock/${stockItem.id}/edit`)}
-            onAdjust={(stockItem) => navigation.push(`/dashboard/inventory/stock/${stockItem.id}/adjust`)}
-          />
-          
-          {/* Paginación - Show if we have more than 1 page */}
-          {totalPages > 1 && (
+          <StockTableSimple stock={stock} isLoading={isLoading} />
+          {page.lastPage > 1 && (
             <PaginationSimple
-              currentPage={currentBackendPage}
-              totalPages={totalPages}
-              onPageChange={handlePageChange}
+              currentPage={page.currentPage}
+              totalPages={page.lastPage}
+              onPageChange={setCurrentPage}
               isLoading={isLoading}
-              totalItems={totalItems}
-              pageSize={paginationInfo?.perPage || pageSize}
+              totalItems={page.total}
+              pageSize={page.perPage}
             />
           )}
         </div>
@@ -197,3 +163,18 @@ export const StockAdminPageReal = () => {
     </div>
   )
 }
+
+/** useSearchParams exige un limite de Suspense en paginas estaticas */
+export const StockAdminPageReal = () => (
+  <Suspense
+    fallback={
+      <div className="d-flex justify-content-center p-5">
+        <div className="spinner-border text-primary" role="status">
+          <span className="visually-hidden">Cargando...</span>
+        </div>
+      </div>
+    }
+  >
+    <StockAdminPageContent />
+  </Suspense>
+)

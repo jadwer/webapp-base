@@ -1,565 +1,217 @@
 /**
  * PRODUCT BATCH DETAIL
- * Vista detalle para lotes de productos
- * Siguiendo patrón exitoso de MovementDetail
+ * Detalle de lote con el esqueleto de detalle (encabezado, secciones y resumen).
  */
 
 'use client'
 
-import { useState } from 'react'
-import { Button } from '@lwm/ui'
-import { formatCurrency, formatQuantity } from '@lwm/ui'
-import { useNavigationProgress } from '@lwm/ui'
+import { useRef, type ReactNode } from 'react'
+import Link from 'next/link'
+import {
+  ConfirmModal,
+  DetailSection,
+  PageHeader,
+  StatusBadge,
+  toast,
+  useNavigationProgress,
+  type ConfirmModalHandle,
+} from '@lwm/ui'
 import { useProductBatch, useProductBatchMutations } from '../hooks'
+import { BATCH_STATUS } from '../utils/labels'
+import { formatDate, formatMoney, formatQty, toNumber } from '../utils/format'
+import { deleteErrorMessage } from '../utils/listing'
 
 interface ProductBatchDetailProps {
   productBatchId: string
 }
 
+const LIST_HREF = '/dashboard/inventory/product-batch'
+const DAY_MS = 1000 * 60 * 60 * 24
+
+const Field = ({ label, children }: { label: string; children: ReactNode }) => (
+  <>
+    <dt className="col-sm-5 text-muted fw-normal">{label}</dt>
+    <dd className="col-sm-7">{children || <span className="text-muted">-</span>}</dd>
+  </>
+)
+
+const expirationInfo = (expirationDate?: string | null) => {
+  if (!expirationDate) return null
+  const date = new Date(`${expirationDate.slice(0, 10)}T00:00:00`)
+  if (Number.isNaN(date.getTime())) return null
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const days = Math.round((date.getTime() - today.getTime()) / DAY_MS)
+  if (days < 0) return { variant: 'danger', text: `Vencido hace ${Math.abs(days)} días` }
+  if (days <= 7) return { variant: 'danger', text: days === 0 ? 'Vence hoy' : `Vence en ${days} días` }
+  if (days <= 30) return { variant: 'warning', text: `Vence en ${days} días` }
+  return { variant: 'success', text: `${days} días restantes` }
+}
+
+const JsonBlock = ({ title, value }: { title: string; value: unknown }) => (
+  <div className="mb-3">
+    <h6 className="text-muted small text-uppercase">{title}</h6>
+    <pre className="bg-light p-3 rounded small mb-0">{JSON.stringify(value, null, 2)}</pre>
+  </div>
+)
+
 export const ProductBatchDetail = ({ productBatchId }: ProductBatchDetailProps) => {
   const navigation = useNavigationProgress()
+  const confirmModalRef = useRef<ConfirmModalHandle>(null)
   const { productBatch, isLoading, error } = useProductBatch({ id: productBatchId })
   const { deleteProductBatch } = useProductBatchMutations()
-  const [isConfirmingDelete, setIsConfirmingDelete] = useState(false)
-  const [isDeleting, setIsDeleting] = useState(false)
-  
-  // Helper functions
-  const getStatusLabel = (status: string) => {
-    const statuses = {
-      active: 'Activo',
-      quarantine: 'Cuarentena',
-      expired: 'Vencido',
-      recalled: 'Retirado',
-      consumed: 'Consumido'
-    }
-    return statuses[status as keyof typeof statuses] || status
-  }
-  
-  const getStatusBadgeClass = (status: string) => {
-    const classes = {
-      active: 'bg-success',
-      quarantine: 'bg-warning',
-      expired: 'bg-danger',
-      recalled: 'bg-danger',
-      consumed: 'bg-secondary'
-    }
-    return classes[status as keyof typeof classes] || 'bg-secondary'
-  }
-  
-  const formatDate = (dateString?: string) => {
-    if (!dateString) return 'No especificada'
-    try {
-      return new Date(dateString).toLocaleDateString('es-ES', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-      })
-    } catch {
-      return 'Fecha inválida'
-    }
-  }
 
-  const getDaysUntilExpiration = (expirationDate: string) => {
-    if (!expirationDate) return null
-    try {
-      const now = new Date()
-      const expiry = new Date(expirationDate)
-      const diffTime = expiry.getTime() - now.getTime()
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-      return diffDays
-    } catch {
-      return null
-    }
-  }
-
-  const getExpirationWarning = (expirationDate: string) => {
-    const days = getDaysUntilExpiration(expirationDate)
-    if (days === null) return null
-
-    if (days < 0) {
-      return { color: 'danger', text: `Vencido hace ${Math.abs(days)} días`, icon: 'bi-exclamation-triangle' }
-    } else if (days <= 7) {
-      return { color: 'danger', text: `Vence en ${days} días`, icon: 'bi-exclamation-triangle' }
-    } else if (days <= 30) {
-      return { color: 'warning', text: `Vence en ${days} días`, icon: 'bi-clock' }
-    }
-    return { color: 'success', text: `${days} días restantes`, icon: 'bi-check-circle' }
-  }
-
-  const getQuantityPercentage = (current: number, initial: number) => {
-    if (!current || !initial) return 0
-    return Math.round((current / initial) * 100)
-  }
-  
-  const handleEdit = () => {
-    navigation.push(`/dashboard/inventory/product-batch/${productBatchId}/edit`)
-  }
-  
   const handleDelete = async () => {
-    if (!isConfirmingDelete) {
-      setIsConfirmingDelete(true)
-      return
-    }
-    
+    if (!productBatch) return
+    const confirmed = await confirmModalRef.current?.confirm(
+      `¿Eliminar el lote "${productBatch.batchNumber}"?\n\nEsta acción no se puede deshacer.`,
+      { title: 'Eliminar lote', confirmText: 'Eliminar', confirmVariant: 'danger' },
+    )
+    if (!confirmed) return
+
     try {
-      setIsDeleting(true)
       await deleteProductBatch(productBatchId)
-      
-      // Show success toast
-      const toastElement = document.createElement('div')
-      toastElement.className = 'position-fixed top-0 end-0 p-3'
-      toastElement.style.zIndex = '9999'
-      toastElement.innerHTML = `
-        <div class="toast show" role="alert">
-          <div class="toast-header bg-success text-white">
-            <strong class="me-auto">Éxito</strong>
-          </div>
-          <div class="toast-body">
-            Lote eliminado correctamente
-          </div>
-        </div>
-      `
-      document.body.appendChild(toastElement)
-      setTimeout(() => {
-        document.body.removeChild(toastElement)
-        navigation.push('/dashboard/inventory/product-batch')
-      }, 2000)
-      
-    } catch (error: unknown) {
-      // Show error toast
-      const message = (error as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Error al eliminar el lote'
-      const toastElement = document.createElement('div')
-      toastElement.className = 'position-fixed top-0 end-0 p-3'
-      toastElement.style.zIndex = '9999'
-      toastElement.innerHTML = `
-        <div class="toast show" role="alert">
-          <div class="toast-header bg-danger text-white">
-            <strong class="me-auto">Error</strong>
-          </div>
-          <div class="toast-body">
-            ${message}
-          </div>
-        </div>
-      `
-      document.body.appendChild(toastElement)
-      setTimeout(() => document.body.removeChild(toastElement), 4000)
-    } finally {
-      setIsDeleting(false)
-      setIsConfirmingDelete(false)
+      toast.success('Lote eliminado')
+      navigation.push(LIST_HREF)
+    } catch (err) {
+      toast.error(deleteErrorMessage(err, 'el lote'))
     }
   }
-  
-  const handleBack = () => {
-    navigation.push('/dashboard/inventory/product-batch')
-  }
-  
+
   if (isLoading) {
     return (
       <div className="container-fluid py-4">
-        <div className="row justify-content-center">
-          <div className="col-lg-10">
-            <div className="card">
-              <div className="card-body text-center py-5">
-                <div className="spinner-border text-primary" role="status">
-                  <span className="visually-hidden">Cargando...</span>
-                </div>
-                <p className="mt-3 text-muted">Cargando detalles del lote...</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  }
-  
-  if (error) {
-    return (
-      <div className="container-fluid py-4">
-        <div className="row justify-content-center">
-          <div className="col-lg-10">
-            <div className="card border-danger">
-              <div className="card-body text-center py-5">
-                <i className="bi bi-exclamation-triangle text-danger" style={{ fontSize: '3rem' }}></i>
-                <h4 className="mt-3 text-danger">Error al cargar el lote</h4>
-                <p className="text-muted">{error.message || 'No se pudo cargar la información del lote'}</p>
-                <Button variant="primary" onClick={handleBack}>
-                  <i className="bi bi-arrow-left me-2"></i>
-                  Volver a Lotes
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  }
-  
-  if (!productBatch) {
-    return (
-      <div className="container-fluid py-4">
-        <div className="row justify-content-center">
-          <div className="col-lg-10">
-            <div className="card">
-              <div className="card-body text-center py-5">
-                <i className="bi bi-box" style={{ fontSize: '3rem', opacity: 0.3 }}></i>
-                <h4 className="mt-3">Lote no encontrado</h4>
-                <p className="text-muted">El lote solicitado no existe o no está disponible</p>
-                <Button variant="primary" onClick={handleBack}>
-                  <i className="bi bi-arrow-left me-2"></i>
-                  Volver a Lotes
-                </Button>
-              </div>
-            </div>
+        <div className="d-flex justify-content-center p-5">
+          <div className="spinner-border text-primary" role="status">
+            <span className="visually-hidden">Cargando lote...</span>
           </div>
         </div>
       </div>
     )
   }
 
-  const expirationWarning = getExpirationWarning(productBatch.expirationDate || '')
-  const quantityPercentage = getQuantityPercentage(productBatch.currentQuantity || 0, productBatch.initialQuantity || 0)
-  
+  if (error || !productBatch) {
+    return (
+      <div className="container-fluid py-4">
+        <PageHeader title="Lote" backHref={LIST_HREF} />
+        <div className="alert alert-danger">
+          <i className="bi bi-exclamation-triangle me-2" />
+          {error?.message || 'El lote no existe o no está disponible.'}
+        </div>
+      </div>
+    )
+  }
+
+  const expiration = expirationInfo(productBatch.expirationDate)
+  const current = toNumber(productBatch.currentQuantity)
+  const initial = toNumber(productBatch.initialQuantity)
+  const percentage = initial > 0 ? Math.round((current / initial) * 100) : 0
+  const barVariant = percentage <= 25 ? 'danger' : percentage <= 50 ? 'warning' : 'success'
+  const hasExtra = Boolean(productBatch.testResults || productBatch.certifications || productBatch.metadata)
+
   return (
     <div className="container-fluid py-4">
-      <div className="row justify-content-center">
-        <div className="col-lg-10">
-          {/* Header */}
-          <div className="d-flex justify-content-between align-items-center mb-4">
-            <div>
-              <div className="d-flex align-items-center gap-3 mb-2">
-                <h1 className="h3 mb-0">Lote: {productBatch.batchNumber}</h1>
-                <span className={`badge ${getStatusBadgeClass(productBatch.status || 'active')} text-white`}>
-                  {getStatusLabel(productBatch.status || 'active')}
-                </span>
-                {expirationWarning && (
-                  <span className={`badge bg-${expirationWarning.color} text-white`}>
-                    <i className={`bi ${expirationWarning.icon} me-1`}></i>
-                    {expirationWarning.text}
-                  </span>
-                )}
-              </div>
-              <p className="text-muted mb-0">
-                <strong>Producto:</strong> {productBatch.product?.name || 'No especificado'} •{' '}
-                <strong>Cantidad:</strong> {formatQuantity(productBatch.currentQuantity || 0)} / {formatQuantity(productBatch.initialQuantity || 0)} ({quantityPercentage}%)
-              </p>
-            </div>
-            
-            <div className="d-flex gap-2">
-              <Button
-                variant="secondary"
-                size="medium"
-                onClick={handleBack}
-              >
-                <i className="bi bi-arrow-left me-2"></i>
-                Volver
-              </Button>
-              
-              <Button
-                variant="primary"
-                size="medium"
-                onClick={handleEdit}
-              >
-                <i className="bi bi-pencil me-2"></i>
-                Editar
-              </Button>
-              
-              <Button
-                variant={isConfirmingDelete ? "danger" : "secondary"}
-                size="medium"
-                onClick={handleDelete}
-                disabled={isDeleting}
-              >
-                {isDeleting ? (
-                  <>
-                    <span className="spinner-border spinner-border-sm me-2"></span>
-                    Eliminando...
-                  </>
-                ) : isConfirmingDelete ? (
-                  <>
-                    <i className="bi bi-check me-2"></i>
-                    Confirmar Eliminar
-                  </>
-                ) : (
-                  <>
-                    <i className="bi bi-trash me-2"></i>
-                    Eliminar
-                  </>
-                )}
-              </Button>
-            </div>
-          </div>
-          
-          {/* Content */}
-          <div className="row g-4">
-            {/* Basic Information */}
-            <div className="col-lg-6">
-              <div className="card h-100">
-                <div className="card-header bg-primary text-white">
-                  <h5 className="card-title mb-0">
-                    <i className="bi bi-info-circle me-2"></i>
-                    Información Básica
-                  </h5>
-                </div>
-                <div className="card-body">
-                  <dl className="row">
-                    <dt className="col-sm-5">Número de Lote:</dt>
-                    <dd className="col-sm-7">
-                      <span className="fw-bold">{productBatch.batchNumber}</span>
-                    </dd>
-                    
-                    {productBatch.lotNumber && (
-                      <>
-                        <dt className="col-sm-5">Número LOT:</dt>
-                        <dd className="col-sm-7">{productBatch.lotNumber}</dd>
-                      </>
-                    )}
-                    
-                    <dt className="col-sm-5">Estado:</dt>
-                    <dd className="col-sm-7">
-                      <span className={`badge ${getStatusBadgeClass(productBatch.status || 'active')} text-white`}>
-                        {getStatusLabel(productBatch.status || 'active')}
-                      </span>
-                    </dd>
-                    
-                    <dt className="col-sm-5">Fabricación:</dt>
-                    <dd className="col-sm-7">{formatDate(productBatch.manufacturingDate)}</dd>
-                    
-                    <dt className="col-sm-5">Vencimiento:</dt>
-                    <dd className="col-sm-7">
-                      <span className={expirationWarning ? `text-${expirationWarning.color}` : ''}>
-                        {formatDate(productBatch.expirationDate)}
-                        {expirationWarning && (
-                          <small className="d-block">
-                            <i className={`bi ${expirationWarning.icon} me-1`}></i>
-                            {expirationWarning.text}
-                          </small>
-                        )}
-                      </span>
-                    </dd>
-                    
-                    {productBatch.bestBeforeDate && (
-                      <>
-                        <dt className="col-sm-5">Mejor Antes De:</dt>
-                        <dd className="col-sm-7">{formatDate(productBatch.bestBeforeDate)}</dd>
-                      </>
-                    )}
-                  </dl>
-                </div>
-              </div>
-            </div>
-            
-            {/* Quantities and Cost */}
-            <div className="col-lg-6">
-              <div className="card h-100">
-                <div className="card-header bg-success text-white">
-                  <h5 className="card-title mb-0">
-                    <i className="bi bi-calculator me-2"></i>
-                    Cantidades y Costo
-                  </h5>
-                </div>
-                <div className="card-body">
-                  <dl className="row">
-                    <dt className="col-sm-5">Cantidad Inicial:</dt>
-                    <dd className="col-sm-7">
-                      <span className="fw-bold text-info">
-                        {formatQuantity(productBatch.initialQuantity || 0)}
-                      </span>
-                    </dd>
-                    
-                    <dt className="col-sm-5">Cantidad Actual:</dt>
-                    <dd className="col-sm-7">
-                      <span className={`fw-bold ${quantityPercentage <= 25 ? 'text-danger' : quantityPercentage <= 50 ? 'text-warning' : 'text-success'}`}>
-                        {formatQuantity(productBatch.currentQuantity || 0)}
-                      </span>
-                      <small className="text-muted ms-2">({quantityPercentage}%)</small>
-                      <div className="progress mt-1" style={{ height: '4px' }}>
-                        <div 
-                          className={`progress-bar ${quantityPercentage <= 25 ? 'bg-danger' : quantityPercentage <= 50 ? 'bg-warning' : 'bg-success'}`}
-                          role="progressbar" 
-                          style={{ width: `${quantityPercentage}%` }}
-                        ></div>
-                      </div>
-                    </dd>
-                    
-                    <dt className="col-sm-5">Costo Unitario:</dt>
-                    <dd className="col-sm-7">
-                      <span className="fw-bold">
-                        {formatCurrency(productBatch.unitCost || 0)}
-                      </span>
-                    </dd>
-                    
-                    <dt className="col-sm-5">Valor Total:</dt>
-                    <dd className="col-sm-7">
-                      <span className="fw-bold text-success">
-                        {formatCurrency((productBatch.currentQuantity || 0) * (productBatch.unitCost || 0))}
-                      </span>
-                    </dd>
-                  </dl>
-                </div>
-              </div>
-            </div>
-            
-            {/* Product and Location */}
-            <div className="col-lg-6">
-              <div className="card h-100">
-                <div className="card-header bg-warning text-dark">
-                  <h5 className="card-title mb-0">
-                    <i className="bi bi-box me-2"></i>
-                    Producto y Ubicación
-                  </h5>
-                </div>
-                <div className="card-body">
-                  <dl className="row">
-                    <dt className="col-sm-5">Producto:</dt>
-                    <dd className="col-sm-7">
-                      <div className="fw-bold">{productBatch.product?.name || 'No especificado'}</div>
-                      {productBatch.product?.sku && (
-                        <small className="text-muted">SKU: {productBatch.product.sku}</small>
-                      )}
-                    </dd>
-                    
-                    <dt className="col-sm-5">Almacén:</dt>
-                    <dd className="col-sm-7">
-                      <div className="fw-bold">{productBatch.warehouse?.name || 'No especificado'}</div>
-                      {productBatch.warehouse?.code && (
-                        <small className="text-muted">Código: {productBatch.warehouse.code}</small>
-                      )}
-                    </dd>
-                    
-                    <dt className="col-sm-5">Ubicación:</dt>
-                    <dd className="col-sm-7">
-                      {productBatch.warehouseLocation?.name ? (
-                        <div>
-                          <div className="fw-bold">{productBatch.warehouseLocation.name}</div>
-                          {productBatch.warehouseLocation.code && (
-                            <small className="text-muted">Código: {productBatch.warehouseLocation.code}</small>
-                          )}
-                        </div>
-                      ) : (
-                        <span className="text-muted">No especificada</span>
-                      )}
-                    </dd>
-                  </dl>
-                </div>
-              </div>
-            </div>
-            
-            {/* Supplier Information */}
-            <div className="col-lg-6">
-              <div className="card h-100">
-                <div className="card-header bg-info text-white">
-                  <h5 className="card-title mb-0">
-                    <i className="bi bi-truck me-2"></i>
-                    Información del Proveedor
-                  </h5>
-                </div>
-                <div className="card-body">
-                  <dl className="row">
-                    <dt className="col-sm-5">Proveedor:</dt>
-                    <dd className="col-sm-7">
-                      {productBatch.supplierName || <span className="text-muted">No especificado</span>}
-                    </dd>
-                    
-                    <dt className="col-sm-5">Lote del Proveedor:</dt>
-                    <dd className="col-sm-7">
-                      {productBatch.supplierBatch || <span className="text-muted">No especificado</span>}
-                    </dd>
-                    
-                    {productBatch.qualityNotes && (
-                      <>
-                        <dt className="col-sm-5">Notas de Calidad:</dt>
-                        <dd className="col-sm-7">
-                          <div className="bg-light p-2 rounded">
-                            {productBatch.qualityNotes}
-                          </div>
-                        </dd>
-                      </>
-                    )}
-                  </dl>
-                </div>
-              </div>
-            </div>
-
-            {/* Additional Data */}
-            {(productBatch.testResults || productBatch.certifications || productBatch.metadata) && (
-              <div className="col-12">
-                <div className="card">
-                  <div className="card-header bg-secondary text-white">
-                    <h5 className="card-title mb-0">
-                      <i className="bi bi-clipboard-data me-2"></i>
-                      Información Adicional
-                    </h5>
-                  </div>
-                  <div className="card-body">
-                    <div className="row">
-                      {productBatch.testResults && (
-                        <div className="col-md-4 mb-3">
-                          <h6 className="text-primary">Resultados de Pruebas</h6>
-                          <pre className="bg-light p-3 rounded small">
-                            {JSON.stringify(productBatch.testResults, null, 2)}
-                          </pre>
-                        </div>
-                      )}
-                      
-                      {productBatch.certifications && (
-                        <div className="col-md-4 mb-3">
-                          <h6 className="text-success">Certificaciones</h6>
-                          <pre className="bg-light p-3 rounded small">
-                            {JSON.stringify(productBatch.certifications, null, 2)}
-                          </pre>
-                        </div>
-                      )}
-                      
-                      {productBatch.metadata && (
-                        <div className="col-md-4 mb-3">
-                          <h6 className="text-info">Metadatos</h6>
-                          <pre className="bg-light p-3 rounded small">
-                            {JSON.stringify(productBatch.metadata, null, 2)}
-                          </pre>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
+      <PageHeader
+        title={`Lote ${productBatch.batchNumber}`}
+        icon="bi-box"
+        badges={
+          <>
+            <StatusBadge status={productBatch.status} map={BATCH_STATUS} />
+            {expiration && expiration.variant !== 'success' && (
+              <span className={`badge bg-${expiration.variant}${expiration.variant === 'warning' ? ' text-dark' : ''}`}>
+                {expiration.text}
+              </span>
             )}
+          </>
+        }
+        subtitle={productBatch.product?.name}
+        backHref={LIST_HREF}
+        actions={
+          <>
+            <button type="button" className="btn btn-outline-danger" onClick={handleDelete}>
+              <i className="bi bi-trash me-1" />
+              Eliminar
+            </button>
+            <Link href={`${LIST_HREF}/${productBatchId}/edit`} className="btn btn-primary">
+              <i className="bi bi-pencil me-1" />
+              Editar
+            </Link>
+          </>
+        }
+      />
 
-            {/* System Information */}
-            <div className="col-12">
-              <div className="card">
-                <div className="card-header bg-dark text-white">
-                  <h5 className="card-title mb-0">
-                    <i className="bi bi-clock me-2"></i>
-                    Información del Sistema
-                  </h5>
+      <div className="row g-4">
+        <div className="col-lg-8">
+          <DetailSection title="Información del lote" icon="bi-info-circle">
+            <dl className="row mb-0">
+              <Field label="Número de lote"><strong>{productBatch.batchNumber}</strong></Field>
+              <Field label="Número LOT">{productBatch.lotNumber}</Field>
+              <Field label="Fabricación">{formatDate(productBatch.manufacturingDate)}</Field>
+              <Field label="Vencimiento">
+                {formatDate(productBatch.expirationDate)}
+                {expiration && <small className={`d-block text-${expiration.variant}`}>{expiration.text}</small>}
+              </Field>
+              {productBatch.bestBeforeDate && (
+                <Field label="Consumir preferentemente antes de">{formatDate(productBatch.bestBeforeDate)}</Field>
+              )}
+            </dl>
+          </DetailSection>
+
+          <DetailSection title="Producto y ubicación" icon="bi-geo-alt">
+            <dl className="row mb-0">
+              <Field label="Producto">
+                {productBatch.product?.name}
+                {productBatch.product?.sku && <small className="d-block text-muted">SKU: {productBatch.product.sku}</small>}
+              </Field>
+              <Field label="Almacén">
+                {productBatch.warehouse?.name}
+                {productBatch.warehouse?.code && <small className="d-block text-muted">Código: {productBatch.warehouse.code}</small>}
+              </Field>
+              <Field label="Ubicación">{productBatch.warehouseLocation?.name}</Field>
+            </dl>
+          </DetailSection>
+
+          <DetailSection title="Proveedor y calidad" icon="bi-truck">
+            <dl className="row mb-0">
+              <Field label="Proveedor">{productBatch.supplierName}</Field>
+              <Field label="Lote del proveedor">{productBatch.supplierBatch}</Field>
+              <Field label="Notas de calidad">{productBatch.qualityNotes}</Field>
+            </dl>
+          </DetailSection>
+
+          {hasExtra && (
+            <DetailSection title="Información adicional" icon="bi-clipboard-data">
+              {productBatch.testResults && <JsonBlock title="Resultados de pruebas" value={productBatch.testResults} />}
+              {productBatch.certifications && <JsonBlock title="Certificaciones" value={productBatch.certifications} />}
+              {productBatch.metadata && <JsonBlock title="Metadatos" value={productBatch.metadata} />}
+            </DetailSection>
+          )}
+        </div>
+
+        <div className="col-lg-4">
+          <DetailSection title="Resumen" icon="bi-calculator">
+            <dl className="row mb-0">
+              <Field label="Cantidad inicial">{formatQty(initial)}</Field>
+              <Field label="Cantidad actual">
+                <strong>{formatQty(current)}</strong>
+                <small className="text-muted ms-1">({percentage}%)</small>
+                <div className="progress mt-1" style={{ height: '4px' }}>
+                  <div className={`progress-bar bg-${barVariant}`} role="progressbar" style={{ width: `${percentage}%` }} />
                 </div>
-                <div className="card-body">
-                  <div className="row">
-                    <div className="col-md-6">
-                      <dl className="row">
-                        <dt className="col-sm-4">ID:</dt>
-                        <dd className="col-sm-8">
-                          <code>{productBatch.id}</code>
-                        </dd>
-                        
-                        <dt className="col-sm-4">Creado:</dt>
-                        <dd className="col-sm-8">
-                          {productBatch.createdAt ? new Date(productBatch.createdAt).toLocaleString('es-ES') : 'No disponible'}
-                        </dd>
-                        
-                        <dt className="col-sm-4">Actualizado:</dt>
-                        <dd className="col-sm-8">
-                          {productBatch.updatedAt ? new Date(productBatch.updatedAt).toLocaleString('es-ES') : 'No disponible'}
-                        </dd>
-                      </dl>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+              </Field>
+              <Field label="Reservada">{formatQty(productBatch.reservedQuantity)}</Field>
+              <Field label="Costo unitario">{formatMoney(productBatch.unitCost)}</Field>
+              <Field label="Valor actual">
+                <strong>{formatMoney(current * toNumber(productBatch.unitCost))}</strong>
+              </Field>
+              <Field label="Creado">{formatDate(productBatch.createdAt, { withTime: true })}</Field>
+              <Field label="Actualizado">{formatDate(productBatch.updatedAt, { withTime: true })}</Field>
+            </dl>
+          </DetailSection>
         </div>
       </div>
+
+      <ConfirmModal ref={confirmModalRef} />
     </div>
   )
 }

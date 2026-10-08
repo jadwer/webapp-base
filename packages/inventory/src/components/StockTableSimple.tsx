@@ -1,177 +1,149 @@
 /**
  * STOCK TABLE SIMPLE
- * Tabla simple para mostrar stock con estructura JSON:API y relationships
- * Siguiendo patrón exitoso de WarehousesTableSimple
+ * Tabla de registros de stock con el patron de listados. Estados con
+ * STOCK_STATUS (valores del backend) y columna Sucursal solo con mas de una.
  */
 
 'use client'
 
-import React from 'react'
 import Link from 'next/link'
-import { formatCurrency, formatQuantity } from '@lwm/ui'
-import type { Stock } from '../types'
+import { EmptyState, StatusBadge } from '@lwm/ui'
 import { useBranchName } from '@lwm/auth'
+import { STOCK_STATUS } from '../utils/labels'
+import { formatMoney, formatQty, toNumber } from '../utils/format'
+import type { Stock } from '../types'
 
 interface StockTableSimpleProps {
   stock?: Stock[]
   isLoading?: boolean
-  onEdit?: (stock: Stock) => void
-  onAdjust?: (stock: Stock) => void
 }
 
-export const StockTableSimple = ({
-  stock = [],
-  isLoading = false,
-  onEdit: _unused, // eslint-disable-line @typescript-eslint/no-unused-vars
-  onAdjust
-}: StockTableSimpleProps) => {
+/** URL del formulario de movimiento prellenado como ajuste */
+export const stockAdjustHref = (item: Stock): string => {
+  const params = new URLSearchParams({ type: 'adjustment' })
+  const productId = item.product?.id ?? item.productId
+  const warehouseId = item.warehouse?.id ?? item.warehouseId
+  const locationId = item.location?.id ?? item.warehouseLocationId
+  if (productId) params.set('productId', String(productId))
+  if (warehouseId) params.set('warehouseId', String(warehouseId))
+  if (locationId) params.set('locationId', String(locationId))
+  return `/dashboard/inventory/movements/create?${params.toString()}`
+}
+
+const availabilityVariant = (item: Stock): string => {
+  const available = toNumber(item.availableQuantity)
+  if (available <= 0) return 'danger'
+  const minimum = toNumber(item.minimumStock)
+  if (minimum > 0 && toNumber(item.quantity) <= minimum) return 'warning'
+  return 'success'
+}
+
+export const StockTableSimple = ({ stock = [], isLoading = false }: StockTableSimpleProps) => {
   const branchName = useBranchName()
-  const formatDate = (dateString?: string) => {
-    if (!dateString) return '-'
-    try {
-      return new Date(dateString).toLocaleDateString('es-ES')
-    } catch {
-      return '-'
-    }
-  }
-
-
-  const getStockStatusColor = (quantity: number, reorderPoint?: number) => {
-    if (quantity === 0) return 'danger'
-    if (reorderPoint && quantity <= reorderPoint) return 'warning'
-    return 'success'
-  }
 
   if (isLoading) {
     return (
-      <div className="text-center py-5">
+      <div className="d-flex justify-content-center p-4">
         <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Cargando...</span>
+          <span className="visually-hidden">Cargando stock...</span>
         </div>
-        <p className="text-muted mt-2">Cargando stock...</p>
       </div>
     )
   }
 
-  if (!stock || stock.length === 0) {
+  if (stock.length === 0) {
     return (
-      <div className="text-center py-5">
-        <i className="bi bi-boxes text-muted mb-3" style={{ fontSize: '3rem' }} />
-        <h4 className="text-muted">No hay stock</h4>
-        <p className="text-muted">No se encontraron productos en stock para mostrar.</p>
-      </div>
+      <EmptyState
+        title="No hay registros de stock"
+        description="No se encontraron registros con los filtros actuales."
+      />
     )
   }
 
   return (
     <div className="table-responsive">
-      <table className="table table-hover mb-0">
-        <thead className="table-light">
+      <table className="table table-striped table-hover mb-0">
+        <thead className="table-dark">
           <tr>
-            <th scope="col">Producto</th>
-            <th scope="col">Ubicación</th>
-            <th scope="col">Cantidad</th>
-            <th scope="col">Disponible</th>
-            <th scope="col">Valor</th>
-            <th scope="col">Estado</th>
-            <th scope="col">Actualizado</th>
-            <th scope="col" style={{ width: '150px' }}>Acciones</th>
+            <th>Producto</th>
+            <th>Almacén</th>
+            {branchName.multi && <th>Sucursal</th>}
+            <th className="text-end">Cantidad</th>
+            <th className="text-end">Disponible</th>
+            <th className="text-end">Valor</th>
+            <th>Estado</th>
+            <th style={{ width: '140px' }}>Acciones</th>
           </tr>
         </thead>
         <tbody>
-          {stock.map((item) => (
-            <tr key={item.id}>
-              <td>
-                <div className="fw-semibold">
-                  {item.product?.name || 'Producto sin datos'}
-                </div>
-                {item.product?.sku && (
-                  <small className="text-muted">SKU: {item.product.sku}</small>
-                )}
-              </td>
-              <td>
-                <div>
-                  <span className="fw-semibold">
-                    {item.warehouse?.name || 'Almacén sin datos'}
-                  </span>
-                </div>
-                {item.location?.name && (
-                  <small className="text-muted">{item.location.name}</small>
-                )}
-                {branchName.multi && item.warehouse?.branchId != null && (
-                  <div>
-                    <small className="text-muted">
-                      <i className="bi bi-building me-1" aria-hidden="true" />
-                      {branchName.name(item.warehouse.branchId)}
-                    </small>
-                  </div>
-                )}
-              </td>
-              <td>
-                <div className="d-flex flex-column">
-                  <span className="fw-semibold">{formatQuantity(item.quantity)}</span>
-                  {parseFloat(String(item.reservedQuantity || '0')) > 0 && (
-                    <small className="text-warning">
-                      {formatQuantity(item.reservedQuantity)} reservado
-                    </small>
-                  )}
-                </div>
-              </td>
-              <td>
-                <span className={`badge bg-${getStockStatusColor(parseFloat(String(item.availableQuantity || '0')), parseFloat(String(item.reorderPoint || '0')))}`}>
-                  {formatQuantity(item.availableQuantity)}
-                </span>
-              </td>
-              <td>
-                <div className="d-flex flex-column">
-                  <span>{formatCurrency(parseFloat(String(item.totalValue || '0')))}</span>
-                  {item.unitCost && (
-                    <small className="text-muted">
-                      {formatCurrency(parseFloat(String(item.unitCost || '0')))} / unidad
-                    </small>
-                  )}
-                </div>
-              </td>
-              <td>
-                <span className={`badge bg-${item.status === 'available' ? 'success' : 'secondary'}`}>
-                  {item.status === 'available' ? 'Activo' : 'Inactivo'}
-                </span>
-              </td>
-              <td>
-                <small className="text-muted">
-                  {formatDate(item.updatedAt)}
-                </small>
-              </td>
-              <td>
-                <div className="btn-group btn-group-sm" role="group">
+          {stock.map((item) => {
+            const reserved = toNumber(item.reservedQuantity)
+            return (
+              <tr key={item.id}>
+                <td>
                   <Link
                     href={`/dashboard/inventory/stock/${item.id}`}
-                    className="btn btn-outline-info"
-                    title="Ver detalles"
-                    target="_blank"
-                    rel="noopener noreferrer"
+                    className="fw-semibold text-decoration-none"
                   >
-                    <i className="bi bi-eye" />
+                    {item.product?.name || 'Producto sin datos'}
                   </Link>
-                  <Link
-                    href={`/dashboard/inventory/stock/${item.id}/edit`}
-                    className="btn btn-outline-primary"
-                    title="Editar stock"
-                  >
-                    <i className="bi bi-pencil" />
-                  </Link>
-                  <button
-                    type="button"
-                    className="btn btn-outline-warning"
-                    onClick={() => onAdjust?.(item)}
-                    title="Ajuste de stock"
-                  >
-                    <i className="bi bi-plus-minus" />
-                  </button>
-                </div>
-              </td>
-            </tr>
-          ))}
+                  {item.product?.sku && (
+                    <div>
+                      <small className="text-muted">SKU: {item.product.sku}</small>
+                    </div>
+                  )}
+                </td>
+                <td>
+                  <div>{item.warehouse?.name || <span className="text-muted">-</span>}</div>
+                  {item.location?.name && <small className="text-muted">{item.location.name}</small>}
+                </td>
+                {branchName.multi && (
+                  <td className="small">{branchName.name(item.warehouse?.branchId)}</td>
+                )}
+                <td className="text-end">
+                  <div className="fw-semibold">{formatQty(item.quantity)}</div>
+                  {reserved > 0 && (
+                    <small className="text-warning">{formatQty(reserved)} reservado</small>
+                  )}
+                </td>
+                <td className="text-end">
+                  <span className={`badge bg-${availabilityVariant(item)}`}>
+                    {formatQty(item.availableQuantity)}
+                  </span>
+                </td>
+                <td className="text-end">
+                  <div>{formatMoney(item.totalValue)}</div>
+                  {toNumber(item.unitCost) > 0 && (
+                    <small className="text-muted">{formatMoney(item.unitCost)} / unidad</small>
+                  )}
+                </td>
+                <td>
+                  <StatusBadge status={item.status} map={STOCK_STATUS} />
+                </td>
+                <td>
+                  <div className="btn-group btn-group-sm" role="group">
+                    <Link
+                      href={`/dashboard/inventory/stock/${item.id}`}
+                      className="btn btn-outline-primary"
+                      title="Ver detalle"
+                    >
+                      <i className="bi bi-eye" />
+                    </Link>
+                    <Link
+                      href={`/dashboard/inventory/stock/${item.id}/edit`}
+                      className="btn btn-outline-secondary"
+                      title="Editar"
+                    >
+                      <i className="bi bi-pencil" />
+                    </Link>
+                    <Link href={stockAdjustHref(item)} className="btn btn-outline-warning" title="Ajustar">
+                      <i className="bi bi-sliders" />
+                    </Link>
+                  </div>
+                </td>
+              </tr>
+            )
+          })}
         </tbody>
       </table>
     </div>

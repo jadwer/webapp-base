@@ -1,8 +1,10 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
-import { Button } from '@lwm/ui'
+import { PageHeader, StatusBadge } from '@lwm/ui'
 import { useFractionation } from '../hooks/useFractionations'
+import { FRACTIONATION_STATUS } from '../utils/labels'
+
+const LIST_HREF = '/dashboard/inventory/fraccionamiento'
 
 interface FractionationDetailProps {
   fractionationId: string
@@ -27,21 +29,7 @@ const formatNumber = (value: number) => {
   }).format(value)
 }
 
-const statusBadge = (status: string) => {
-  switch (status) {
-    case 'completed':
-      return <span className="badge bg-success fs-6">Completado</span>
-    case 'pending':
-      return <span className="badge bg-warning text-dark fs-6">Pendiente</span>
-    case 'cancelled':
-      return <span className="badge bg-danger fs-6">Cancelado</span>
-    default:
-      return <span className="badge bg-secondary fs-6">{status}</span>
-  }
-}
-
 export const FractionationDetail = ({ fractionationId }: FractionationDetailProps) => {
-  const router = useRouter()
   const { fractionation, isLoading, error } = useFractionation(
     fractionationId,
     ['sourceProduct', 'destinationProduct', 'warehouse', 'user']
@@ -49,9 +37,11 @@ export const FractionationDetail = ({ fractionationId }: FractionationDetailProp
 
   if (isLoading) {
     return (
-      <div className="text-center py-5">
-        <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Cargando...</span>
+      <div className="container-fluid py-4">
+        <div className="d-flex justify-content-center p-5">
+          <div className="spinner-border text-primary" role="status">
+            <span className="visually-hidden">Cargando fraccionamiento...</span>
+          </div>
         </div>
       </div>
     )
@@ -60,40 +50,31 @@ export const FractionationDetail = ({ fractionationId }: FractionationDetailProp
   if (error || !fractionation) {
     return (
       <div className="container-fluid py-4">
+        <PageHeader title="Fraccionamiento" backHref={LIST_HREF} />
         <div className="alert alert-danger">
-          {error?.message || 'Fraccionamiento no encontrado'}
+          <i className="bi bi-exclamation-triangle me-2" />
+          {error?.message || 'El fraccionamiento no existe o no está disponible.'}
         </div>
-        <Button variant="secondary" onClick={() => router.push('/dashboard/inventory/fraccionamiento')}>
-          Volver al historial
-        </Button>
       </div>
     )
   }
 
   return (
     <div className="container-fluid py-4">
-      <div className="d-flex align-items-center mb-4">
-        <button
-          className="btn btn-link text-decoration-none p-0 me-3"
-          onClick={() => router.push('/dashboard/inventory/fraccionamiento')}
-        >
-          <i className="bi bi-arrow-left fs-4" />
-        </button>
-        <div className="flex-grow-1">
-          <div className="d-flex align-items-center gap-3">
-            <h1 className="h3 mb-0">{fractionation.folioNumber}</h1>
-            {statusBadge(fractionation.status)}
-          </div>
-          <p className="text-muted mb-0">Detalle del fraccionamiento</p>
-        </div>
-      </div>
+      <PageHeader
+        title={fractionation.folioNumber}
+        icon="bi-scissors"
+        badges={<StatusBadge status={fractionation.status} map={FRACTIONATION_STATUS} />}
+        subtitle="Detalle del fraccionamiento"
+        backHref={LIST_HREF}
+      />
 
       <div className="row g-4">
         {/* Products info */}
         <div className="col-md-6">
           <div className="card h-100">
             <div className="card-header bg-light">
-              <h6 className="mb-0">Producto Origen</h6>
+              <h6 className="mb-0">Producto origen</h6>
             </div>
             <div className="card-body">
               {fractionation.sourceProduct ? (
@@ -115,7 +96,7 @@ export const FractionationDetail = ({ fractionationId }: FractionationDetailProp
         <div className="col-md-6">
           <div className="card h-100">
             <div className="card-header bg-light">
-              <h6 className="mb-0">Producto Destino</h6>
+              <h6 className="mb-0">Producto destino</h6>
             </div>
             <div className="card-body">
               {fractionation.destinationProduct ? (
@@ -138,12 +119,12 @@ export const FractionationDetail = ({ fractionationId }: FractionationDetailProp
         <div className="col-12">
           <div className="card">
             <div className="card-header bg-light">
-              <h6 className="mb-0">Detalles de la Conversion</h6>
+              <h6 className="mb-0">Detalles de la conversión</h6>
             </div>
             <div className="card-body">
               <div className="row g-3">
                 <div className="col-md-3">
-                  <div className="text-muted small">Factor de Conversion</div>
+                  <div className="text-muted small">Factor de conversión</div>
                   <div className="fw-bold fs-5">{fractionation.conversionFactorUsed}x</div>
                 </div>
                 <div className="col-md-3">
@@ -155,7 +136,7 @@ export const FractionationDetail = ({ fractionationId }: FractionationDetailProp
                   <div className="fw-bold fs-5 text-warning">{formatNumber(fractionation.wasteQuantity)}</div>
                 </div>
                 <div className="col-md-3">
-                  <div className="text-muted small">Almacen</div>
+                  <div className="text-muted small">Almacén</div>
                   <div className="fw-bold fs-5">
                     {fractionation.warehouse?.name || `ID: ${fractionation.warehouseId}`}
                   </div>
@@ -169,7 +150,7 @@ export const FractionationDetail = ({ fractionationId }: FractionationDetailProp
         <div className="col-12">
           <div className="card">
             <div className="card-header bg-light">
-              <h6 className="mb-0">Informacion Adicional</h6>
+              <h6 className="mb-0">Información adicional</h6>
             </div>
             <div className="card-body">
               <div className="row g-3">
@@ -178,7 +159,7 @@ export const FractionationDetail = ({ fractionationId }: FractionationDetailProp
                   <div>{fractionation.user?.name || `ID: ${fractionation.userId}`}</div>
                 </div>
                 <div className="col-md-4">
-                  <div className="text-muted small">Fecha de Ejecucion</div>
+                  <div className="text-muted small">Fecha de ejecución</div>
                   <div>{formatDate(fractionation.executedAt)}</div>
                 </div>
                 <div className="col-md-4">

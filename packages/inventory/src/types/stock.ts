@@ -74,6 +74,8 @@ export interface Stock {
   productId?: string
   warehouseId?: string
   warehouseLocationId?: string
+  /** Nombre real del atributo en StockSchema */
+  locationId?: string | number | null
   
   // Relationships (después de JSON:API parsing)
   product?: ProductParsed
@@ -84,7 +86,8 @@ export interface Stock {
 export interface CreateStockData {
   quantity: number
   reservedQuantity?: number
-  availableQuantity: number
+  /** Solo lectura en el backend; no se envia */
+  availableQuantity?: number
   minimumStock?: number
   maximumStock?: number
   reorderPoint?: number
@@ -99,10 +102,16 @@ export interface CreateStockData {
   // Relationship IDs for creation
   productId: string
   warehouseId: string
-  warehouseLocationId: string
+  /** Se envia como locationId */
+  warehouseLocationId?: string
 }
 
 export interface UpdateStockData {
+  productId?: string
+  warehouseId?: string
+  warehouseLocationId?: string
+  lastMovementDate?: string
+  lastMovementType?: string
   quantity?: number
   reservedQuantity?: number
   availableQuantity?: number

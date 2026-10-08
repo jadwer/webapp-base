@@ -11,10 +11,9 @@ import React, { useState, useCallback, useRef } from 'react'
 import { useCycleCounts } from '../hooks/useCycleCounts'
 import { useCycleCountMutations } from '../hooks/useCycleCountMutations'
 import { CycleCountsTableSimple } from './CycleCountsTableSimple'
-import { FilterBar } from './FilterBar'
 import { PaginationSimple } from './PaginationSimple'
 import { Button } from '@lwm/ui'
-import { Alert } from '@lwm/ui'
+import { Alert, ListToolbar } from '@lwm/ui'
 import { ConfirmModal } from '@lwm/ui'
 import type { ConfirmModalHandle } from '@lwm/ui'
 import { useNavigationProgress } from '@lwm/ui'
@@ -317,10 +316,12 @@ export const CycleCountsAdminPageReal = () => {
       </div>
 
       {/* Search Filter */}
-      <FilterBar
-        searchTerm={searchTerm}
-        onSearchChange={handleSearchChange}
-        placeholder="Buscar por numero de conteo, producto, almacen..."
+      <ListToolbar
+        search={{
+          value: searchTerm,
+          onChange: handleSearchChange,
+          placeholder: 'Buscar por número de conteo, producto o almacén',
+        }}
       />
 
       {/* Error State */}

@@ -49,6 +49,9 @@ export const warehousesService = {
     if (filters.isActive !== undefined) {
       queryParams['filter[is_active]'] = filters.isActive ? 1 : 0
     }
+    if (filters.branchId) {
+      queryParams['filter[branch]'] = filters.branchId
+    }
     
     // Sorting
     if (sort) {

@@ -1,83 +1,38 @@
 'use client'
 
+import { toast, useNavigationProgress } from '@lwm/ui'
 import { StockForm } from './StockForm'
+import { FormStateCard } from './FormStateCard'
 import { useStockItem, useStockMutations } from '../hooks'
-import type { UpdateStockData } from '../types'
+import type { CreateStockData, UpdateStockData } from '../types'
 
 interface EditStockWrapperProps {
   stockId: string
 }
 
+const LIST_HREF = '/dashboard/inventory/stock'
+
 export const EditStockWrapper = ({ stockId }: EditStockWrapperProps) => {
-  const { stockItem: stock, isLoading: isLoadingStock, error } = useStockItem(stockId, ['product', 'warehouse', 'location'])
+  const navigation = useNavigationProgress()
+  const detailHref = `${LIST_HREF}/${stockId}`
+  const { stockItem: stock, isLoading, error } = useStockItem(stockId, ['product', 'warehouse', 'location'])
   const { updateStock } = useStockMutations()
-  
-  const handleSubmit = async (data: UpdateStockData) => {
-    await updateStock(stockId, data)
+
+  const handleSubmit = async (data: CreateStockData | UpdateStockData) => {
+    await updateStock(stockId, data as UpdateStockData)
+    toast.success('Registro de stock actualizado')
+    navigation.push(detailHref)
   }
-  
-  if (isLoadingStock) {
-    return (
-      <div className="container-fluid py-4">
-        <div className="row justify-content-center">
-          <div className="col-lg-8">
-            <div className="card">
-              <div className="card-body text-center py-5">
-                <div className="spinner-border text-primary" role="status">
-                  <span className="visually-hidden">Cargando...</span>
-                </div>
-                <p className="mt-3 text-muted">Cargando datos del stock...</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
+
+  if (isLoading) {
+    return <FormStateCard state="loading" title="Editar registro de stock" backHref={detailHref} message="Cargando registro..." />
   }
-  
   if (error) {
-    return (
-      <div className="container-fluid py-4">
-        <div className="row justify-content-center">
-          <div className="col-lg-8">
-            <div className="card border-danger">
-              <div className="card-body text-center py-5">
-                <i className="bi bi-exclamation-triangle text-danger" style={{ fontSize: '3rem' }}></i>
-                <h4 className="mt-3 text-danger">Error al cargar el stock</h4>
-                <p className="text-muted">{error.message || 'No se pudo cargar la información del stock'}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
+    return <FormStateCard state="error" title="Editar registro de stock" backHref={LIST_HREF} message={error.message || 'No se pudo cargar el registro.'} />
   }
-  
   if (!stock) {
-    return (
-      <div className="container-fluid py-4">
-        <div className="row justify-content-center">
-          <div className="col-lg-8">
-            <div className="card">
-              <div className="card-body text-center py-5">
-                <i className="bi bi-boxes" style={{ fontSize: '3rem', opacity: 0.3 }}></i>
-                <h4 className="mt-3">Stock no encontrado</h4>
-                <p className="text-muted">El registro de stock solicitado no existe o no está disponible</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
+    return <FormStateCard state="not-found" title="Editar registro de stock" backHref={LIST_HREF} icon="bi-boxes" message="El registro de stock no existe o no está disponible." />
   }
-  
-  // Stock is already parsed, so just use it directly
-  const stockForForm = stock
-  
-  return (
-    <StockForm
-      stock={stockForForm}
-      onSubmit={handleSubmit}
-    />
-  )
+
+  return <StockForm stock={stock} onSubmit={handleSubmit} onCancel={() => navigation.push(detailHref)} backHref={detailHref} />
 }

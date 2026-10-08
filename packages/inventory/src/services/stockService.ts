@@ -15,6 +15,24 @@ import type {
   JsonApiResponse
 } from '../types'
 
+const READ_ONLY_STOCK_FIELDS = ['availableQuantity', 'totalValue'] as const
+
+/** Atributos que acepta StockSchema: ids numericos y locationId (no warehouseLocationId) */
+const buildStockAttributes = (data: CreateStockData | UpdateStockData): Record<string, unknown> => {
+  const { warehouseLocationId, ...rest } = data as CreateStockData
+  const attributes: Record<string, unknown> = { ...rest }
+  READ_ONLY_STOCK_FIELDS.forEach((field) => delete attributes[field])
+  if (attributes.productId != null && attributes.productId !== '') attributes.productId = Number(attributes.productId)
+  if (attributes.warehouseId != null && attributes.warehouseId !== '') attributes.warehouseId = Number(attributes.warehouseId)
+  if (warehouseLocationId !== undefined) {
+    attributes.locationId = warehouseLocationId ? Number(warehouseLocationId) : null
+  }
+  Object.keys(attributes).forEach((key) => {
+    if (attributes[key] === undefined) delete attributes[key]
+  })
+  return attributes
+}
+
 export const stockService = {
   /**
    * Obtener todo el stock con filtros y paginación
@@ -103,14 +121,23 @@ export const stockService = {
   },
 
   /**
-   * Crear nuevo stock entry
-   * Formato corregido según API spec: IDs van en attributes
+   * Crear registro de stock.
+   * StockSchema expone productId/warehouseId/locationId como atributos y
+   * StockRequest exige ademas las relaciones product y warehouse.
+   * availableQuantity y totalValue son de solo lectura (los calcula el backend).
    */
   create: async (data: CreateStockData): Promise<JsonApiResponse<Stock>> => {
     const payload = {
       data: {
         type: 'stocks',
-        attributes: data
+        attributes: buildStockAttributes(data),
+        relationships: {
+          product: { data: { type: 'products', id: String(data.productId) } },
+          warehouse: { data: { type: 'warehouses', id: String(data.warehouseId) } },
+          ...(data.warehouseLocationId
+            ? { location: { data: { type: 'warehouse-locations', id: String(data.warehouseLocationId) } } }
+            : {}),
+        },
       }
     }
     
@@ -129,7 +156,7 @@ export const stockService = {
       data: {
         type: 'stocks',
         id,
-        attributes: data
+        attributes: buildStockAttributes(data)
       }
     }
     

@@ -1,528 +1,310 @@
 /**
  * LOCATION FORM
- * Formulario para crear/editar warehouse locations
- * Patrón basado en el éxito del módulo Products
+ * Alta y edicion de ubicaciones de almacen. Tipos desde LOCATION_TYPE
+ * (WarehouseLocationRequest).
  */
 
 'use client'
 
-import React, { memo, useState, useCallback, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { Button } from '@lwm/ui'
-import { Input } from '@lwm/ui'
+import React, { memo, useCallback, useState } from 'react'
+import { DetailSection, PageHeader } from '@lwm/ui'
 import { useWarehouses } from '../hooks'
+import { LOCATION_TYPE } from '../utils/labels'
+import { toNumber } from '../utils/format'
+import { apiErrorList } from '../utils/listing'
 import type { WarehouseLocationParsed, CreateLocationData, UpdateLocationData } from '../types'
 
 interface LocationFormProps {
-  location?: WarehouseLocationParsed // For edit mode
+  location?: WarehouseLocationParsed
   onSubmit: (data: CreateLocationData | UpdateLocationData) => Promise<void>
+  onCancel?: () => void
   isLoading?: boolean
+  /** Almacen preseleccionado (?warehouseId= desde el detalle del almacen) */
+  defaultWarehouseId?: string
+  backHref?: string
 }
+
+const numberText = (value: unknown) => (value == null || value === '' ? '' : String(toNumber(value)))
 
 export const LocationForm = memo<LocationFormProps>(({
   location,
   onSubmit,
-  isLoading = false
+  onCancel,
+  isLoading = false,
+  defaultWarehouseId,
+  backHref = '/dashboard/inventory/locations',
 }) => {
-  const router = useRouter()
-  
-  // Fetch warehouses for selection
-  const { warehouses } = useWarehouses()
-  
-  const [formData, setFormData] = useState<CreateLocationData>({
+  const { warehouses } = useWarehouses({ filters: { isActive: true }, pagination: { size: 100 } })
+
+  const [formData, setFormData] = useState({
     name: location?.name || '',
     code: location?.code || '',
     description: location?.description || '',
-    locationType: location?.locationType || 'rack',
+    locationType: location?.locationType && location.locationType in LOCATION_TYPE ? location.locationType : 'rack',
     aisle: location?.aisle || '',
     rack: location?.rack || '',
     shelf: location?.shelf || '',
     level: location?.level || '',
     position: location?.position || '',
     barcode: location?.barcode || '',
-    maxWeight: location?.maxWeight || undefined,
-    maxVolume: location?.maxVolume || undefined,
+    maxWeight: numberText(location?.maxWeight),
+    maxVolume: numberText(location?.maxVolume),
     dimensions: location?.dimensions || '',
     isActive: location?.isActive ?? true,
     isPickable: location?.isPickable ?? true,
     isReceivable: location?.isReceivable ?? true,
-    priority: location?.priority || 1,
-    warehouseId: location?.warehouseId || '',
-    metadata: location?.metadata || undefined
+    priority: location?.priority != null ? String(location.priority) : '1',
+    warehouseId: String(location?.warehouseId ?? location?.warehouse?.id ?? defaultWarehouseId ?? ''),
   })
-  
+  const [codeTouched, setCodeTouched] = useState(Boolean(location))
   const [errors, setErrors] = useState<Record<string, string>>({})
+  const [submitErrors, setSubmitErrors] = useState<string[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
-  
-  // Auto-generate code from hierarchical structure
-  useEffect(() => {
-    if (!location && formData.aisle && formData.rack) {
-      const parts = [
-        formData.aisle,
-        formData.rack,
-        formData.shelf,
-        formData.level
-      ].filter(Boolean)
-      
-      if (parts.length >= 2) {
-        const generatedCode = parts.join('-')
-        setFormData(prev => ({ 
-          ...prev, 
-          code: generatedCode,
-          name: prev.name || `Location ${generatedCode}`
-        }))
+
+  const setField = useCallback((field: keyof typeof formData, value: string | boolean) => {
+    setFormData((prev) => {
+      const next = { ...prev, [field]: value }
+      // Codigo sugerido a partir de pasillo-rack-estante-nivel mientras no se edite a mano
+      if (!codeTouched && ['aisle', 'rack', 'shelf', 'level'].includes(field)) {
+        const parts = [next.aisle, next.rack, next.shelf, next.level].filter(Boolean)
+        if (parts.length >= 2) next.code = parts.join('-')
       }
-    }
-  }, [formData.aisle, formData.rack, formData.shelf, formData.level, location])
-  
-  const handleInputChange = useCallback((field: keyof CreateLocationData) => (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
-  ) => {
-    const value = e.target.type === 'checkbox' 
-      ? (e.target as HTMLInputElement).checked
-      : e.target.type === 'number'
-      ? e.target.value ? parseFloat(e.target.value) : undefined
-      : e.target.value
-    
-    setFormData(prev => ({ ...prev, [field]: value }))
-    
-    // Clear error when field is modified
-    if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: '' }))
-    }
-  }, [errors])
-  
+      return next
+    })
+    if (field === 'code') setCodeTouched(true)
+    setErrors((prev) => (prev[field] ? { ...prev, [field]: '' } : prev))
+  }, [codeTouched])
+
   const validateForm = useCallback((): boolean => {
-    const newErrors: Record<string, string> = {}
-    
-    // Required fields
-    if (!formData.name.trim()) {
-      newErrors.name = 'Name is required'
+    const next: Record<string, string> = {}
+    if (!formData.name.trim()) next.name = 'El nombre es obligatorio'
+    if (!formData.code.trim()) next.code = 'El código es obligatorio'
+    if (!formData.warehouseId) next.warehouseId = 'Selecciona un almacén'
+    if (formData.maxWeight !== '' && (Number.isNaN(Number(formData.maxWeight)) || Number(formData.maxWeight) < 0)) {
+      next.maxWeight = 'El peso máximo no puede ser negativo'
     }
-    if (!formData.code.trim()) {
-      newErrors.code = 'Code is required'
+    if (formData.maxVolume !== '' && (Number.isNaN(Number(formData.maxVolume)) || Number(formData.maxVolume) < 0)) {
+      next.maxVolume = 'El volumen máximo no puede ser negativo'
     }
-    if (!formData.warehouseId) {
-      newErrors.warehouseId = 'Warehouse is required'
+    const priority = Number(formData.priority)
+    if (formData.priority !== '' && (!Number.isInteger(priority) || priority < 1 || priority > 10)) {
+      next.priority = 'La prioridad debe ser un entero entre 1 y 10'
     }
-    if (!formData.locationType) {
-      newErrors.locationType = 'Location type is required'
-    }
-    
-    // Numeric validations
-    if (formData.maxWeight && formData.maxWeight <= 0) {
-      newErrors.maxWeight = 'Max weight must be greater than 0'
-    }
-    if (formData.maxVolume && formData.maxVolume <= 0) {
-      newErrors.maxVolume = 'Max volume must be greater than 0'
-    }
-    if (formData.priority && (formData.priority < 1 || formData.priority > 10)) {
-      newErrors.priority = 'Priority must be between 1 and 10'
-    }
-    
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
+    setErrors(next)
+    return Object.keys(next).length === 0
   }, [formData])
-  
+
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault()
-    
-    if (!validateForm()) {
-      return
+    setSubmitErrors([])
+    if (!validateForm()) return
+
+    const text = (value: string) => value.trim() || undefined
+    const data: CreateLocationData = {
+      name: formData.name.trim(),
+      code: formData.code.trim(),
+      description: text(formData.description),
+      locationType: formData.locationType,
+      aisle: text(formData.aisle),
+      rack: text(formData.rack),
+      shelf: text(formData.shelf),
+      level: text(formData.level),
+      position: text(formData.position),
+      barcode: text(formData.barcode),
+      maxWeight: formData.maxWeight === '' ? undefined : Number(formData.maxWeight),
+      maxVolume: formData.maxVolume === '' ? undefined : Number(formData.maxVolume),
+      dimensions: text(formData.dimensions),
+      isActive: formData.isActive,
+      isPickable: formData.isPickable,
+      isReceivable: formData.isReceivable,
+      priority: formData.priority === '' ? undefined : Number(formData.priority),
+      warehouseId: formData.warehouseId,
     }
-    
+
     setIsSubmitting(true)
-    
     try {
-      // Clean up data - remove empty strings and undefined values
-      const cleanData = {...formData}
-      
-      // Remove empty values
-      Object.keys(cleanData).forEach(key => {
-        const value = cleanData[key as keyof CreateLocationData]
-        if (value === '' || value === undefined || value === null) {
-          delete cleanData[key as keyof CreateLocationData]
-        }
-      })
-      
-      await onSubmit(cleanData)
-      
-      // Show success message
-      const toastElement = document.createElement('div')
-      toastElement.className = 'position-fixed top-0 end-0 p-3'
-      toastElement.style.zIndex = '9999'
-      toastElement.innerHTML = `
-        <div class="toast show" role="alert">
-          <div class="toast-header bg-success text-white">
-            <strong class="me-auto">Éxito</strong>
-          </div>
-          <div class="toast-body">
-            Location ${location ? 'actualizada' : 'creada'} correctamente
-          </div>
-        </div>
-      `
-      document.body.appendChild(toastElement)
-      setTimeout(() => {
-        document.body.removeChild(toastElement)
-        router.push('/dashboard/inventory/locations')
-      }, 2000)
-      
-    } catch (error: unknown) {
-      // Show error message
-      const message = (error as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Error saving location'
-      const toastElement = document.createElement('div')
-      toastElement.className = 'position-fixed top-0 end-0 p-3'
-      toastElement.style.zIndex = '9999'
-      toastElement.innerHTML = `
-        <div class="toast show" role="alert">
-          <div class="toast-header bg-danger text-white">
-            <strong class="me-auto">Error</strong>
-          </div>
-          <div class="toast-body">
-            ${message}
-          </div>
-        </div>
-      `
-      document.body.appendChild(toastElement)
-      setTimeout(() => document.body.removeChild(toastElement), 4000)
-      
+      await onSubmit(data)
+    } catch (err) {
+      setSubmitErrors(apiErrorList(err, 'No se pudo guardar la ubicación'))
     } finally {
       setIsSubmitting(false)
     }
-  }, [formData, onSubmit, location, router, validateForm])
-  
-  const selectedWarehouse = warehouses?.find(w => w.id === formData.warehouseId)
-  
+  }, [formData, onSubmit, validateForm])
+
+  const busy = isLoading || isSubmitting
+  const currentWarehouse = location?.warehouse
+  const warehouseOptions = currentWarehouse && !warehouses.some((w) => w.id === String(currentWarehouse.id))
+    ? [currentWarehouse, ...warehouses]
+    : warehouses
+  const selectedWarehouse = warehouseOptions.find((w) => String(w.id) === formData.warehouseId)
+
+  const invalid = (field: string) => (errors[field] ? ' is-invalid' : '')
+  const feedback = (field: string) =>
+    errors[field] ? <div className="invalid-feedback">{errors[field]}</div> : null
+
+  const textInput = (field: keyof typeof formData, label: string, opts: { required?: boolean; placeholder?: string; type?: string; min?: string; max?: string; step?: string } = {}) => (
+    <>
+      <label htmlFor={`location-${field}`} className="form-label">
+        {label}
+        {opts.required && <span className="text-danger"> *</span>}
+      </label>
+      <input
+        id={`location-${field}`}
+        type={opts.type || 'text'}
+        min={opts.min}
+        max={opts.max}
+        step={opts.step}
+        placeholder={opts.placeholder}
+        className={`form-control${invalid(field)}`}
+        value={String(formData[field])}
+        onChange={(e) => setField(field, e.target.value)}
+        disabled={busy}
+      />
+      {feedback(field)}
+    </>
+  )
+
+  const checkbox = (field: 'isActive' | 'isPickable' | 'isReceivable', label: string) => (
+    <div className="form-check">
+      <input
+        type="checkbox"
+        className="form-check-input"
+        id={`location-${field}`}
+        checked={formData[field]}
+        onChange={(e) => setField(field, e.target.checked)}
+        disabled={busy}
+      />
+      <label className="form-check-label" htmlFor={`location-${field}`}>{label}</label>
+    </div>
+  )
+
   return (
     <div className="container-fluid py-4">
       <div className="row justify-content-center">
         <div className="col-lg-8">
-          {/* Header */}
-          <div className="d-flex justify-content-between align-items-center mb-4">
-            <div>
-              <h2 className="mb-1">
-                {location ? 'Edit Location' : 'Create Location'}
-              </h2>
-              <p className="text-muted mb-0">
-                {location 
-                  ? 'Update location information and settings'
-                  : 'Add a new location to a warehouse'
-                }
-              </p>
+          <PageHeader
+            title={location ? `Editar ubicación ${location.code || ''}`.trim() : 'Nueva ubicación'}
+            subtitle={location ? 'Modifica los datos de la ubicación' : 'Agrega una ubicación dentro de un almacén'}
+            backHref={backHref}
+          />
+
+          {submitErrors.length > 0 && (
+            <div className="alert alert-danger" role="alert">
+              <i className="bi bi-exclamation-triangle me-2" />
+              {submitErrors.length === 1 ? submitErrors[0] : (
+                <ul className="mb-0 ps-3">{submitErrors.map((msg) => <li key={msg}>{msg}</li>)}</ul>
+              )}
             </div>
-            <Button
-              variant="secondary"
-              onClick={() => router.back()}
-            >
-              <i className="bi bi-arrow-left me-2" />
-              Back
-            </Button>
-          </div>
-          
-          <form onSubmit={handleSubmit}>
-            <div className="card">
-              <div className="card-body">
-                <div className="row g-3">
-                  {/* Basic Information */}
-                  <div className="col-12">
-                    <h5 className="card-title border-bottom pb-2">Basic Information</h5>
-                  </div>
-                  
-                  <div className="col-md-6">
-                    <Input
-                      label="Name *"
-                      type="text"
-                      value={formData.name}
-                      onChange={handleInputChange('name')}
-                      errorText={errors.name}
-                      placeholder="e.g., Zone A - Aisle 1 - Rack 1"
-                      required
-                    />
-                  </div>
-                  
-                  <div className="col-md-6">
-                    <Input
-                      label="Code *"
-                      type="text"
-                      value={formData.code}
-                      onChange={handleInputChange('code')}
-                      errorText={errors.code}
-                      placeholder="e.g., A-1-1"
-                      required
-                    />
-                  </div>
-                  
-                  <div className="col-md-6">
-                    <label className="form-label">Warehouse *</label>
-                    <select
-                      className={`form-select ${errors.warehouseId ? 'is-invalid' : ''}`}
-                      value={formData.warehouseId}
-                      onChange={handleInputChange('warehouseId')}
-                      required
-                    >
-                      <option value="">Select a warehouse...</option>
-                      {warehouses?.map(warehouse => (
-                        <option key={warehouse.id} value={warehouse.id}>
-                          {warehouse.name} ({warehouse.code})
-                        </option>
-                      ))}
-                    </select>
-                    {errors.warehouseId && (
-                      <div className="invalid-feedback">{errors.warehouseId}</div>
-                    )}
-                    {selectedWarehouse && (
-                      <div className="form-text">
-                        <i className="bi bi-info-circle me-1" />
-                        {selectedWarehouse.address || 'No address specified'}
-                      </div>
-                    )}
-                  </div>
-                  
-                  <div className="col-md-6">
-                    <label className="form-label">Location Type *</label>
-                    <select
-                      className="form-select"
-                      value={formData.locationType}
-                      onChange={handleInputChange('locationType')}
-                      required
-                    >
-                      <option value="rack">Rack</option>
-                      <option value="shelf">Shelf</option>
-                      <option value="floor">Floor</option>
-                      <option value="bin">Bin</option>
-                      <option value="dock">Dock</option>
-                    </select>
-                  </div>
-                  
-                  <div className="col-12">
-                    <label className="form-label">Description</label>
-                    <textarea
-                      className="form-control"
-                      rows={3}
-                      value={formData.description}
-                      onChange={handleInputChange('description')}
-                      placeholder="Optional description of the location..."
-                    />
-                  </div>
-                  
-                  {/* Hierarchical Location */}
-                  <div className="col-12 mt-4">
-                    <h5 className="card-title border-bottom pb-2">
-                      Hierarchical Position
-                      <small className="text-muted ms-2">Define the physical location structure</small>
-                    </h5>
-                  </div>
-                  
-                  <div className="col-md-3">
-                    <Input
-                      label="Aisle"
-                      type="text"
-                      value={formData.aisle}
-                      onChange={handleInputChange('aisle')}
-                      placeholder="A, B, C..."
-                    />
-                  </div>
-                  
-                  <div className="col-md-3">
-                    <Input
-                      label="Rack"
-                      type="text"
-                      value={formData.rack}
-                      onChange={handleInputChange('rack')}
-                      placeholder="1, 2, 3..."
-                    />
-                  </div>
-                  
-                  <div className="col-md-3">
-                    <Input
-                      label="Shelf"
-                      type="text"
-                      value={formData.shelf}
-                      onChange={handleInputChange('shelf')}
-                      placeholder="1, 2, 3..."
-                    />
-                  </div>
-                  
-                  <div className="col-md-3">
-                    <Input
-                      label="Level"
-                      type="text"
-                      value={formData.level}
-                      onChange={handleInputChange('level')}
-                      placeholder="1, 2, 3..."
-                    />
-                  </div>
-                  
-                  <div className="col-md-6">
-                    <Input
-                      label="Position"
-                      type="text"
-                      value={formData.position}
-                      onChange={handleInputChange('position')}
-                      placeholder="Left, Right, Center..."
-                    />
-                  </div>
-                  
-                  <div className="col-md-6">
-                    <Input
-                      label="Barcode"
-                      type="text"
-                      value={formData.barcode}
-                      onChange={handleInputChange('barcode')}
-                      placeholder="Barcode for scanning"
-                    />
-                  </div>
-                  
-                  {/* Capacity Limits */}
-                  <div className="col-12 mt-4">
-                    <h5 className="card-title border-bottom pb-2">Capacity Limits</h5>
-                  </div>
-                  
-                  <div className="col-md-4">
-                    <Input
-                      label="Max Weight (kg)"
-                      type="number"
-                      value={formData.maxWeight?.toString() || ''}
-                      onChange={handleInputChange('maxWeight')}
-                      errorText={errors.maxWeight}
-                      placeholder="1000"
-                      min="0"
-                      step="0.01"
-                    />
-                  </div>
-                  
-                  <div className="col-md-4">
-                    <Input
-                      label="Max Volume (m³)"
-                      type="number"
-                      value={formData.maxVolume?.toString() || ''}
-                      onChange={handleInputChange('maxVolume')}
-                      errorText={errors.maxVolume}
-                      placeholder="100"
-                      min="0"
-                      step="0.01"
-                    />
-                  </div>
-                  
-                  <div className="col-md-4">
-                    <Input
-                      label="Dimensions"
-                      type="text"
-                      value={formData.dimensions}
-                      onChange={handleInputChange('dimensions')}
-                      placeholder="2m x 1m x 3m"
-                    />
-                  </div>
-                  
-                  {/* Properties */}
-                  <div className="col-12 mt-4">
-                    <h5 className="card-title border-bottom pb-2">Properties & Settings</h5>
-                  </div>
-                  
-                  <div className="col-md-4">
-                    <Input
-                      label="Priority (1-10)"
-                      type="number"
-                      value={formData.priority?.toString() || ''}
-                      onChange={handleInputChange('priority')}
-                      errorText={errors.priority}
-                      placeholder="1"
-                      min="1"
-                      max="10"
-                    />
-                  </div>
-                  
-                  <div className="col-md-8">
-                    <label className="form-label">Status & Capabilities</label>
-                    <div className="d-flex gap-4">
-                      <div className="form-check">
-                        <input
-                          type="checkbox"
-                          className="form-check-input"
-                          id="isActive"
-                          checked={formData.isActive}
-                          onChange={handleInputChange('isActive')}
-                        />
-                        <label className="form-check-label" htmlFor="isActive">
-                          Active location
-                        </label>
-                      </div>
-                      
-                      <div className="form-check">
-                        <input
-                          type="checkbox"
-                          className="form-check-input"
-                          id="isPickable"
-                          checked={formData.isPickable}
-                          onChange={handleInputChange('isPickable')}
-                        />
-                        <label className="form-check-label" htmlFor="isPickable">
-                          Pickable
-                        </label>
-                      </div>
-                      
-                      <div className="form-check">
-                        <input
-                          type="checkbox"
-                          className="form-check-input"
-                          id="isReceivable"
-                          checked={formData.isReceivable}
-                          onChange={handleInputChange('isReceivable')}
-                        />
-                        <label className="form-check-label" htmlFor="isReceivable">
-                          Receivable
-                        </label>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* Metadata */}
-                  <div className="col-12 mt-4">
-                    <h5 className="card-title border-bottom pb-2">Additional Metadata</h5>
-                  </div>
-                  
-                  <div className="col-12">
-                    <label className="form-label">Metadata (JSON)</label>
-                    <textarea
-                      className="form-control"
-                      rows={3}
-                      value={formData.metadata ? JSON.stringify(formData.metadata, null, 2) : ''}
-                      onChange={(e) => {
-                        try {
-                          const parsed = e.target.value ? JSON.parse(e.target.value) : undefined
-                          setFormData(prev => ({ ...prev, metadata: parsed }))
-                        } catch {
-                          // Invalid JSON, keep the string for now
-                        }
-                      }}
-                      placeholder='{"storage_conditions": "dry", "special_handling": "fragile"}'
-                    />
-                    <div className="form-text">
-                      Enter additional metadata as JSON (storage conditions, special handling, etc.)
-                    </div>
+          )}
+
+          <form onSubmit={handleSubmit} noValidate>
+            <DetailSection title="Información general" icon="bi-info-circle">
+              <div className="row g-3">
+                <div className="col-md-6">{textInput('name', 'Nombre', { required: true, placeholder: 'Zona A, pasillo 1, rack 1' })}</div>
+                <div className="col-md-6">
+                  {textInput('code', 'Código', { required: true, placeholder: 'A-1-1' })}
+                  {!errors.code && !location && <div className="form-text">Se sugiere a partir de pasillo, rack, estante y nivel.</div>}
+                </div>
+                <div className="col-md-6">
+                  <label htmlFor="location-warehouseId" className="form-label">
+                    Almacén <span className="text-danger">*</span>
+                  </label>
+                  <select
+                    id="location-warehouseId"
+                    className={`form-select${invalid('warehouseId')}`}
+                    value={formData.warehouseId}
+                    onChange={(e) => setField('warehouseId', e.target.value)}
+                    disabled={busy}
+                  >
+                    <option value="">Seleccionar almacén...</option>
+                    {warehouseOptions.map((warehouse) => (
+                      <option key={warehouse.id} value={String(warehouse.id)}>
+                        {warehouse.name}{warehouse.code ? ` (${warehouse.code})` : ''}
+                      </option>
+                    ))}
+                  </select>
+                  {feedback('warehouseId')}
+                  {selectedWarehouse?.address && !errors.warehouseId && (
+                    <div className="form-text">{selectedWarehouse.address}</div>
+                  )}
+                </div>
+                <div className="col-md-6">
+                  <label htmlFor="location-locationType" className="form-label">
+                    Tipo de ubicación <span className="text-danger">*</span>
+                  </label>
+                  <select
+                    id="location-locationType"
+                    className="form-select"
+                    value={formData.locationType}
+                    onChange={(e) => setField('locationType', e.target.value)}
+                    disabled={busy}
+                  >
+                    {Object.entries(LOCATION_TYPE).map(([value, { label }]) => (
+                      <option key={value} value={value}>{label}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="col-12">
+                  <label htmlFor="location-description" className="form-label">Descripción</label>
+                  <textarea
+                    id="location-description"
+                    className="form-control"
+                    rows={2}
+                    value={formData.description}
+                    onChange={(e) => setField('description', e.target.value)}
+                    disabled={busy}
+                  />
+                </div>
+              </div>
+            </DetailSection>
+
+            <DetailSection title="Posición física" icon="bi-grid-3x3">
+              <div className="row g-3">
+                <div className="col-md-3">{textInput('aisle', 'Pasillo', { placeholder: 'A' })}</div>
+                <div className="col-md-3">{textInput('rack', 'Rack', { placeholder: '1' })}</div>
+                <div className="col-md-3">{textInput('shelf', 'Estante', { placeholder: '1' })}</div>
+                <div className="col-md-3">{textInput('level', 'Nivel', { placeholder: '1' })}</div>
+                <div className="col-md-6">{textInput('position', 'Posición', { placeholder: 'Izquierda, centro...' })}</div>
+                <div className="col-md-6">{textInput('barcode', 'Código de barras')}</div>
+              </div>
+            </DetailSection>
+
+            <DetailSection title="Capacidad y operación" icon="bi-sliders">
+              <div className="row g-3">
+                <div className="col-md-4">{textInput('maxWeight', 'Peso máximo (kg)', { type: 'number', min: '0', step: '0.01' })}</div>
+                <div className="col-md-4">{textInput('maxVolume', 'Volumen máximo (m³)', { type: 'number', min: '0', step: '0.01' })}</div>
+                <div className="col-md-4">{textInput('dimensions', 'Dimensiones', { placeholder: '2 m x 1 m x 3 m' })}</div>
+                <div className="col-md-4">{textInput('priority', 'Prioridad (1-10)', { type: 'number', min: '1', max: '10', step: '1' })}</div>
+                <div className="col-md-8">
+                  <label className="form-label">Estado y capacidades</label>
+                  <div className="d-flex flex-wrap gap-4">
+                    {checkbox('isActive', 'Activa')}
+                    {checkbox('isPickable', 'Permite picking')}
+                    {checkbox('isReceivable', 'Permite recepción')}
                   </div>
                 </div>
               </div>
-              
-              <div className="card-footer d-flex justify-content-end gap-2">
-                <Button
-                  type="button"
-                  variant="secondary"
-                  buttonStyle="outline"
-                  onClick={() => router.back()}
-                  disabled={isSubmitting}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  variant="primary"
-                  isLoading={isSubmitting}
-                  disabled={isLoading}
-                >
-                  {location ? 'Update' : 'Create'} Location
-                </Button>
-              </div>
+            </DetailSection>
+
+            <div className="d-flex justify-content-end gap-2">
+              {onCancel && (
+                <button type="button" className="btn btn-outline-secondary" onClick={onCancel} disabled={busy}>
+                  Cancelar
+                </button>
+              )}
+              <button type="submit" className="btn btn-primary" disabled={busy}>
+                {isSubmitting ? (
+                  <>
+                    <span className="spinner-border spinner-border-sm me-2" role="status" />
+                    Guardando...
+                  </>
+                ) : (
+                  <>
+                    <i className="bi bi-check-lg me-1" />
+                    {location ? 'Guardar cambios' : 'Crear ubicación'}
+                  </>
+                )}
+              </button>
             </div>
           </form>
         </div>

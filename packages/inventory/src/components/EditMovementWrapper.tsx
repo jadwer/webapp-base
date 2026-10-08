@@ -1,125 +1,56 @@
 'use client'
 
-import { InventoryMovementForm } from './InventoryMovementForm'
-import { useInventoryMovement, useInventoryMovementsMutations } from '../hooks'
-import { useWarehouses, useLocations } from '../hooks'
-import { useProducts } from '@lwm/products'
-import { useNavigationProgress } from '@lwm/ui'
+import { toast, useNavigationProgress } from '@lwm/ui'
+import { InventoryMovementForm, type MovementFormData } from './InventoryMovementForm'
+import { FormStateCard } from './FormStateCard'
+import { useInventoryMovement, useInventoryMovementsMutations, useWarehouses } from '../hooks'
 import type { UpdateMovementData } from '../types'
 
 interface EditMovementWrapperProps {
   movementId: string
 }
 
+const LIST_HREF = '/dashboard/inventory/movements'
+
 export const EditMovementWrapper = ({ movementId }: EditMovementWrapperProps) => {
   const navigation = useNavigationProgress()
+  const detailHref = `${LIST_HREF}/${movementId}`
   const { movement, isLoading: isLoadingMovement, error } = useInventoryMovement(movementId, ['product', 'warehouse', 'location'])
   const { updateMovement } = useInventoryMovementsMutations()
-  
-  // Cargar datos para los selects
-  const { warehouses, isLoading: isLoadingWarehouses } = useWarehouses()
-  const { locations, isLoading: isLoadingLocations } = useLocations()
-  const { products, isLoading: isLoadingProducts } = useProducts()
-  
-  const handleSubmit = async (data: UpdateMovementData) => {
-    try {
-      await updateMovement(movementId, data)
-      
-      // Show success toast
-      const toastElement = document.createElement('div')
-      toastElement.className = 'position-fixed top-0 end-0 p-3'
-      toastElement.style.zIndex = '9999'
-      toastElement.innerHTML = `
-        <div class="toast show" role="alert">
-          <div class="toast-header bg-success text-white">
-            <strong class="me-auto">Éxito</strong>
-          </div>
-          <div class="toast-body">
-            Movimiento actualizado correctamente
-          </div>
-        </div>
-      `
-      document.body.appendChild(toastElement)
-      
-      // Navigate to movement detail after brief delay
-      setTimeout(() => {
-        document.body.removeChild(toastElement)
-        navigation.push(`/dashboard/inventory/movements/${movementId}`)
-      }, 2000)
-      
-    } catch (error) {
-      throw error // Let form handle the error display
-    }
+  const { warehouses, isLoading: isLoadingWarehouses } = useWarehouses({
+    filters: { isActive: true },
+    pagination: { size: 100 },
+  })
+
+  const handleSubmit = async (data: MovementFormData | UpdateMovementData) => {
+    await updateMovement(movementId, data as UpdateMovementData)
+    toast.success('Movimiento actualizado')
+    navigation.push(detailHref)
   }
-  
-  const isLoading = isLoadingMovement || isLoadingWarehouses || isLoadingLocations || isLoadingProducts
-  
-  if (isLoading) {
-    return (
-      <div className="container-fluid py-4">
-        <div className="row justify-content-center">
-          <div className="col-lg-8">
-            <div className="card">
-              <div className="card-body text-center py-5">
-                <div className="spinner-border text-primary" role="status">
-                  <span className="visually-hidden">Cargando...</span>
-                </div>
-                <p className="mt-3 text-muted">Cargando datos del movimiento...</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
+
+  if (isLoadingMovement || (isLoadingWarehouses && warehouses.length === 0)) {
+    return <FormStateCard state="loading" title="Editar movimiento" backHref={detailHref} message="Cargando movimiento..." />
   }
-  
   if (error) {
-    return (
-      <div className="container-fluid py-4">
-        <div className="row justify-content-center">
-          <div className="col-lg-8">
-            <div className="card border-danger">
-              <div className="card-body text-center py-5">
-                <i className="bi bi-exclamation-triangle text-danger" style={{ fontSize: '3rem' }}></i>
-                <h4 className="mt-3 text-danger">Error al cargar el movimiento</h4>
-                <p className="text-muted">{error.message || 'No se pudo cargar la información del movimiento'}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
+    return <FormStateCard state="error" title="Editar movimiento" backHref={LIST_HREF} message={error.message || 'No se pudo cargar el movimiento.'} />
   }
-  
   if (!movement) {
-    return (
-      <div className="container-fluid py-4">
-        <div className="row justify-content-center">
-          <div className="col-lg-8">
-            <div className="card">
-              <div className="card-body text-center py-5">
-                <i className="bi bi-arrow-left-right" style={{ fontSize: '3rem', opacity: 0.3 }}></i>
-                <h4 className="mt-3">Movimiento no encontrado</h4>
-                <p className="text-muted">El movimiento solicitado no existe o no está disponible</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
+    return <FormStateCard state="not-found" title="Editar movimiento" backHref={LIST_HREF} icon="bi-arrow-left-right" message="El movimiento no existe o no está disponible." />
   }
-  
-  // Movement data already processed by JSON:API parser in hook
-  const movementForForm = movement
-  
+
+  // Un almacen inactivo del movimiento sigue disponible en la edicion
+  const current = movement.warehouse
+  const options = current && !warehouses.some((w) => w.id === String(current.id))
+    ? [current, ...warehouses]
+    : warehouses
+
   return (
     <InventoryMovementForm
-      movement={movementForForm}
+      movement={movement}
       onSubmit={handleSubmit}
-      isLoading={isLoading}
-      warehouses={warehouses}
-      products={products}
-      locations={locations}
+      onCancel={() => navigation.push(detailHref)}
+      warehouses={options}
+      backHref={detailHref}
     />
   )
 }

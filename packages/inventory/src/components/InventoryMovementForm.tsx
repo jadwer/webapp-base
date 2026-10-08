@@ -1,25 +1,78 @@
 /**
  * INVENTORY MOVEMENT FORM
- * Formulario para crear/editar movimientos de inventario
- * Patrón basado en el éxito del módulo Products
+ * Alta y edicion de movimientos. Las opciones de tipo, referencia y estado
+ * son exactamente las que valida InventoryMovementRequest.
  */
 
 'use client'
 
-import React, { memo, useCallback, useState, useEffect } from 'react'
-import type { InventoryMovement, InventoryMovementParsed, CreateMovementData, UpdateMovementData, WarehouseParsed, WarehouseLocationParsed } from '../types'
-import type { Product } from '@lwm/products'
-import { useProductBatches } from '../hooks'
+import React, { memo, useCallback, useMemo, useState } from 'react'
+import { DetailSection, PageHeader } from '@lwm/ui'
+import { ProductSearchSelect } from '@lwm/products'
+import type {
+  InventoryMovement,
+  InventoryMovementParsed,
+  CreateMovementData,
+  UpdateMovementData,
+  WarehouseParsed,
+} from '../types'
+import { useProductBatches, useWarehouseLocationOptions } from '../hooks'
+import { MOVEMENT_STATUS, MOVEMENT_TYPE } from '../utils/labels'
+import { formatDate, formatMoney, formatQty, toNumber } from '../utils/format'
+import { apiErrorList } from '../utils/listing'
+
+export type MovementType = 'entry' | 'exit' | 'transfer' | 'adjustment'
+
+export interface MovementFormDefaults {
+  movementType?: MovementType
+  productId?: string
+  warehouseId?: string
+  locationId?: string
+}
+
+/** Lo que entrega el formulario; el wrapper agrega userId al crear */
+export type MovementFormData = Omit<CreateMovementData, 'userId'>
 
 interface InventoryMovementFormProps {
   movement?: InventoryMovement | InventoryMovementParsed
-  onSubmit: (data: CreateMovementData | UpdateMovementData) => Promise<void>
+  onSubmit: (data: MovementFormData | UpdateMovementData) => Promise<void>
   onCancel?: () => void
   isLoading?: boolean
   warehouses: WarehouseParsed[]
-  products: Product[]
-  locations: WarehouseLocationParsed[]
+  /** Prellenado desde la URL (?type=&productId=&warehouseId=&locationId=) */
+  defaults?: MovementFormDefaults
+  backHref?: string
 }
+
+// InventoryMovementRequest: referenceType in purchase,sale,transfer,adjustment,manual
+const REFERENCE_TYPES = [
+  { value: 'manual', label: 'Manual' },
+  { value: 'purchase', label: 'Compra' },
+  { value: 'sale', label: 'Venta' },
+  { value: 'transfer', label: 'Transferencia' },
+  { value: 'adjustment', label: 'Ajuste' },
+]
+
+const REFERENCE_FOR_TYPE: Record<MovementType, string> = {
+  entry: 'manual',
+  exit: 'manual',
+  transfer: 'transfer',
+  adjustment: 'adjustment',
+}
+
+const isMovementType = (value: unknown): value is MovementType =>
+  typeof value === 'string' && value in MOVEMENT_TYPE
+
+const toLocalDateTime = (value?: string) => {
+  const date = value ? new Date(value) : new Date()
+  if (Number.isNaN(date.getTime())) return ''
+  const offset = date.getTimezoneOffset() * 60000
+  return new Date(date.getTime() - offset).toISOString().slice(0, 16)
+}
+
+const parseJson = (value: string) => (value.trim() ? JSON.parse(value) : undefined)
+
+const optionalId = (value: unknown) => (value == null || value === '' ? '' : String(value))
 
 export const InventoryMovementForm = memo<InventoryMovementFormProps>(({
   movement,
@@ -27,698 +80,531 @@ export const InventoryMovementForm = memo<InventoryMovementFormProps>(({
   onCancel,
   isLoading = false,
   warehouses,
-  products,
-  locations
+  defaults,
+  backHref = '/dashboard/inventory/movements',
 }) => {
-  // Form state
+  const initialType: MovementType = isMovementType(movement?.movementType)
+    ? movement.movementType
+    : isMovementType(defaults?.movementType)
+      ? defaults.movementType
+      : 'entry'
+
   const [formData, setFormData] = useState({
-    movementType: movement?.movementType || 'entry' as const,
-    referenceType: movement?.referenceType || 'purchase',
+    movementType: initialType,
+    referenceType: movement?.referenceType || REFERENCE_FOR_TYPE[initialType],
     referenceId: movement?.referenceId?.toString() || '',
-    movementDate: movement?.movementDate ? new Date(movement.movementDate).toISOString().slice(0, 16) : new Date().toISOString().slice(0, 16),
+    movementDate: toLocalDateTime(movement?.movementDate),
     description: movement?.description || '',
-    quantity: movement?.quantity?.toString() || '',
-    unitCost: movement?.unitCost?.toString() || '',
+    quantity: movement?.quantity != null ? String(toNumber(movement.quantity)) : '',
+    unitCost: movement?.unitCost != null ? String(toNumber(movement.unitCost)) : '',
     status: movement?.status || 'pending',
-    productId: movement?.productId || '',
-    warehouseId: movement?.warehouseId || '',
-    locationId: movement?.locationId || '',
-    destinationWarehouseId: movement?.destinationWarehouseId || '',
-    destinationLocationId: movement?.destinationLocationId || '',
-    batchInfo: JSON.stringify(movement?.batchInfo || {}, null, 2),
-    metadata: JSON.stringify(movement?.metadata || {}, null, 2),
-    selectedBatchId: '' // New field for batch selection
+    productId: optionalId(movement?.productId ?? movement?.product?.id ?? defaults?.productId),
+    warehouseId: optionalId(movement?.warehouseId ?? movement?.warehouse?.id ?? defaults?.warehouseId),
+    locationId: optionalId(movement?.locationId ?? movement?.location?.id ?? defaults?.locationId),
+    destinationWarehouseId: optionalId(movement?.destinationWarehouseId),
+    destinationLocationId: optionalId(movement?.destinationLocationId),
+    batchInfo: movement?.batchInfo && Object.keys(movement.batchInfo).length > 0
+      ? JSON.stringify(movement.batchInfo, null, 2)
+      : '',
+    metadata: movement?.metadata && Object.keys(movement.metadata).length > 0
+      ? JSON.stringify(movement.metadata, null, 2)
+      : '',
+    selectedBatchId: '',
   })
-  
   const [errors, setErrors] = useState<Record<string, string>>({})
-  
-  const [availableLocations, setAvailableLocations] = useState<WarehouseLocationParsed[]>([])
-  const [availableDestinationLocations, setAvailableDestinationLocations] = useState<WarehouseLocationParsed[]>([])
-  
-  // Get product batches for selected product
+  const [submitErrors, setSubmitErrors] = useState<string[]>([])
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const { locations, isLoading: isLoadingLocations } = useWarehouseLocationOptions(formData.warehouseId)
+  const { locations: destinationLocations, isLoading: isLoadingDestination } =
+    useWarehouseLocationOptions(formData.movementType === 'transfer' ? formData.destinationWarehouseId : null)
+
   const { productBatches: availableBatches, isLoading: isBatchesLoading } = useProductBatches({
     filters: {
       productId: formData.productId,
-      status: ['available'] // Only available batches for movements
+      status: 'active',
+      ...(formData.warehouseId ? { warehouseId: formData.warehouseId } : {}),
     },
-    enabled: !!formData.productId
+    pageSize: 100,
+    enabled: Boolean(formData.productId),
   })
-  
-  // TEMPORAL: Filter locations client-side until backend supports warehouseId filter
-  useEffect(() => {
-    if (formData.warehouseId && locations?.length > 0) {
-      // TEMPORAL: Since backend doesn't expose warehouseId, use naming convention or number matching
-      // This is a workaround until backend adds warehouseId to attributes or supports filtering
-      const filtered = locations.filter((location, index) => {
-        // TEMPORAL SOLUTION: Use position-based matching or naming patterns
-        // This assumes locations are somewhat organized by warehouse
-        // In a real scenario, we'd need backend support or different approach
 
-        // Try to extract warehouse info from location name or use mod calculation
-        const warehouseId = String(Math.floor(index / 10) + 1) // Simple grouping
+  // Si la ubicacion actual quedo inactiva sigue apareciendo en la edicion
+  const locationOptions = useMemo(() => {
+    const current = movement?.location
+    if (current && String(current.id) === formData.locationId && !locations.some((l) => l.id === String(current.id))) {
+      return [{ id: String(current.id), name: current.name, code: current.code }, ...locations]
+    }
+    return locations
+  }, [locations, movement?.location, formData.locationId])
 
-        return warehouseId === String(formData.warehouseId)
-      })
-
-      setAvailableLocations(filtered)
-
-      // Reset location if not available in new warehouse
-      if (!filtered.find(l => l.id === formData.locationId)) {
-        setFormData(prev => ({ ...prev, locationId: '' }))
+  const setField = useCallback((field: string, value: string) => {
+    setFormData((prev) => {
+      const next = { ...prev, [field]: value }
+      if (field === 'warehouseId') {
+        next.locationId = ''
+        next.selectedBatchId = ''
       }
-    } else {
-      setAvailableLocations([])
-      setFormData(prev => ({ ...prev, locationId: '' }))
-    }
-  }, [formData.warehouseId, formData.locationId, locations])
-  
-  // Similar for destination locations
-  useEffect(() => {
-    if (formData.destinationWarehouseId && locations?.length > 0) {
-      const filtered = locations.filter((location, index) => {
-        const warehouseId = String(Math.floor(index / 10) + 1)
-        return warehouseId === String(formData.destinationWarehouseId)
-      })
-      setAvailableDestinationLocations(filtered)
-      
-      if (!filtered.find(l => l.id === formData.destinationLocationId)) {
-        setFormData(prev => ({ ...prev, destinationLocationId: '' }))
+      if (field === 'destinationWarehouseId') next.destinationLocationId = ''
+      if (field === 'productId') next.selectedBatchId = ''
+      if (field === 'movementType' && isMovementType(value) && !movement) {
+        next.referenceType = REFERENCE_FOR_TYPE[value]
       }
-    } else {
-      setAvailableDestinationLocations([])
-      setFormData(prev => ({ ...prev, destinationLocationId: '' }))
-    }
-  }, [formData.destinationWarehouseId, formData.destinationLocationId, locations])
-  
-  const handleInputChange = useCallback((field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }))
-    // Clear error when user starts typing
-    if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: '' }))
-    }
-  }, [errors])
-  
-  // Handle batch selection
+      return next
+    })
+    setErrors((prev) => (prev[field] ? { ...prev, [field]: '' } : prev))
+  }, [movement])
+
   const handleBatchSelect = useCallback((batchId: string) => {
-    const selectedBatch = availableBatches.find(batch => batch.id === batchId)
-    
-    if (selectedBatch) {
-      // Update batchInfo with selected batch data
-      const batchInfo = {
-        batchId: selectedBatch.id,
-        batchNumber: selectedBatch.batchNumber,
-        lotNumber: selectedBatch.lotNumber,
-        expirationDate: selectedBatch.expirationDate,
-        currentQuantity: selectedBatch.currentQuantity
-      }
-      
-      setFormData(prev => ({
-        ...prev,
-        selectedBatchId: batchId,
-        batchInfo: JSON.stringify(batchInfo, null, 2)
-      }))
-    } else {
-      // Clear batch info if no batch selected
-      setFormData(prev => ({
-        ...prev,
-        selectedBatchId: '',
-        batchInfo: '{}'
-      }))
-    }
+    const batch = availableBatches.find((b) => b.id === batchId)
+    setFormData((prev) => ({
+      ...prev,
+      selectedBatchId: batchId,
+      batchInfo: batch
+        ? JSON.stringify({
+            batchId: batch.id,
+            batchNumber: batch.batchNumber,
+            lotNumber: batch.lotNumber,
+            expirationDate: batch.expirationDate,
+          }, null, 2)
+        : prev.batchInfo,
+    }))
   }, [availableBatches])
-  
+
   const validateForm = useCallback((): boolean => {
-    const newErrors: Record<string, string> = {}
-    
-    // Required fields
-    if (!formData.movementType) newErrors.movementType = 'Movement type is required'
-    if (!formData.referenceType) newErrors.referenceType = 'Reference type is required'
-    if (!formData.productId) newErrors.productId = 'Product is required'
-    if (!formData.warehouseId) newErrors.warehouseId = 'Warehouse is required'
-    if (!formData.quantity) newErrors.quantity = 'Quantity is required'
-    if (!formData.movementDate) newErrors.movementDate = 'Movement date is required'
-    
-    // Numeric validations
-    if (formData.quantity && isNaN(Number(formData.quantity))) {
-      newErrors.quantity = 'Quantity must be a valid number'
-    } else if (formData.quantity && Number(formData.quantity) <= 0) {
-      newErrors.quantity = 'Quantity must be greater than 0'
+    const next: Record<string, string> = {}
+    const quantity = Number(formData.quantity)
+
+    if (!formData.productId) next.productId = 'Selecciona un producto'
+    if (!formData.warehouseId) next.warehouseId = 'Selecciona un almacén'
+    if (!formData.movementDate) next.movementDate = 'La fecha es obligatoria'
+
+    if (formData.quantity === '' || Number.isNaN(quantity)) {
+      next.quantity = 'Captura una cantidad válida'
+    } else if (quantity === 0) {
+      next.quantity = 'La cantidad no puede ser cero'
+    } else if (quantity < 0 && formData.movementType !== 'adjustment') {
+      next.quantity = 'La cantidad debe ser positiva (solo los ajustes aceptan negativos)'
     }
-    
-    if (formData.unitCost && isNaN(Number(formData.unitCost))) {
-      newErrors.unitCost = 'Unit cost must be a valid number'
-    } else if (formData.unitCost && Number(formData.unitCost) < 0) {
-      newErrors.unitCost = 'Unit cost cannot be negative'
+
+    if (formData.unitCost !== '' && (Number.isNaN(Number(formData.unitCost)) || Number(formData.unitCost) < 0)) {
+      next.unitCost = 'El costo unitario no puede ser negativo'
     }
-    
-    // Transfer-specific validations
+
     if (formData.movementType === 'transfer') {
       if (!formData.destinationWarehouseId) {
-        newErrors.destinationWarehouseId = 'Destination warehouse is required for transfers'
-      }
-      if (formData.warehouseId === formData.destinationWarehouseId) {
-        newErrors.destinationWarehouseId = 'Destination warehouse must be different from source warehouse'
+        next.destinationWarehouseId = 'Las transferencias requieren almacén destino'
+      } else if (formData.destinationWarehouseId === formData.warehouseId) {
+        next.destinationWarehouseId = 'El almacén destino debe ser distinto al de origen'
       }
     }
-    
-    // JSON validations
-    if (formData.batchInfo) {
+
+    for (const field of ['batchInfo', 'metadata'] as const) {
       try {
-        JSON.parse(formData.batchInfo)
+        parseJson(formData[field])
       } catch {
-        newErrors.batchInfo = 'Batch info must be valid JSON'
+        next[field] = 'JSON inválido'
       }
     }
-    
-    if (formData.metadata) {
-      try {
-        JSON.parse(formData.metadata)
-      } catch {
-        newErrors.metadata = 'Metadata must be valid JSON'
-      }
-    }
-    
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
+
+    setErrors(next)
+    return Object.keys(next).length === 0
   }, [formData])
-  
+
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault()
-    
-    if (!validateForm()) {
-      return
+    setSubmitErrors([])
+    if (!validateForm()) return
+
+    const isTransfer = formData.movementType === 'transfer'
+    const data: MovementFormData = {
+      movementType: formData.movementType,
+      referenceType: formData.referenceType,
+      referenceId: formData.referenceId ? Number(formData.referenceId) : undefined,
+      movementDate: formData.movementDate,
+      description: formData.description.trim() || undefined,
+      quantity: Number(formData.quantity),
+      // unitCost es obligatorio en el backend; vacio se manda como 0
+      unitCost: formData.unitCost === '' ? 0 : Number(formData.unitCost),
+      status: formData.status,
+      productId: formData.productId,
+      warehouseId: formData.warehouseId,
+      locationId: formData.locationId || undefined,
+      destinationWarehouseId: isTransfer ? formData.destinationWarehouseId || undefined : undefined,
+      destinationLocationId: isTransfer ? formData.destinationLocationId || undefined : undefined,
+      batchInfo: parseJson(formData.batchInfo),
+      metadata: parseJson(formData.metadata),
     }
-    
+
+    setIsSubmitting(true)
     try {
-      const submitData = {
-        movementType: formData.movementType,
-        referenceType: formData.referenceType,
-        referenceId: formData.referenceId ? Number(formData.referenceId) : undefined,
-        movementDate: formData.movementDate,
-        description: formData.description || undefined,
-        quantity: Number(formData.quantity),
-        unitCost: formData.unitCost ? Number(formData.unitCost) : undefined,
-        status: formData.status,
-        productId: formData.productId,
-        warehouseId: formData.warehouseId,
-        locationId: formData.locationId || undefined,
-        destinationWarehouseId: formData.destinationWarehouseId || undefined,
-        destinationLocationId: formData.destinationLocationId || undefined,
-        batchInfo: formData.batchInfo ? JSON.parse(formData.batchInfo) : undefined,
-        metadata: formData.metadata ? JSON.parse(formData.metadata) : undefined
-      }
-      
-      await onSubmit(submitData)
-    } catch {
-      // Error handled by parent component
+      await onSubmit(data)
+    } catch (err) {
+      setSubmitErrors(apiErrorList(err, 'No se pudo guardar el movimiento'))
+    } finally {
+      setIsSubmitting(false)
     }
   }, [formData, onSubmit, validateForm])
-  
-  const getTotalValue = () => {
-    const quantity = Number(formData.quantity) || 0
-    const unitCost = Number(formData.unitCost) || 0
-    return quantity * unitCost
-  }
-  
-  const getMovementTypeOptions = () => [
-    { value: 'entry', label: 'Entrada', icon: 'bi-arrow-down-circle', color: 'text-success' },
-    { value: 'exit', label: 'Salida', icon: 'bi-arrow-up-circle', color: 'text-danger' },
-    { value: 'transfer', label: 'Transferencia', icon: 'bi-arrow-left-right', color: 'text-info' },
-    { value: 'adjustment', label: 'Ajuste', icon: 'bi-wrench', color: 'text-warning' }
-  ]
-  
-  const getReferenceTypeOptions = () => [
-    { value: 'purchase', label: 'Orden de Compra' },
-    { value: 'sale', label: 'Orden de Venta' },
-    { value: 'adjustment', label: 'Ajuste de Stock' },
-    { value: 'transfer', label: 'Transferencia Interna' },
-    { value: 'return', label: 'Devolución' },
-    { value: 'damage', label: 'Reporte de Daño' },
-    { value: 'count', label: 'Conteo Físico' }
-  ]
-  
-  const getStatusOptions = () => [
-    { value: 'draft', label: 'Borrador' },
-    { value: 'pending', label: 'Pendiente' },
-    { value: 'completed', label: 'Completado' },
-    { value: 'cancelled', label: 'Cancelado' }
-  ]
-  
+
+  const busy = isLoading || isSubmitting
+  const totalValue = toNumber(formData.quantity) * toNumber(formData.unitCost)
+  const isTransfer = formData.movementType === 'transfer'
+  const destinationWarehouses = warehouses.filter((w) => w.id !== formData.warehouseId)
+  const initialProduct = movement?.product
+    ? { id: String(movement.product.id), name: movement.product.name, sku: movement.product.sku }
+    : null
+
+  const invalid = (field: string) => (errors[field] ? ' is-invalid' : '')
+  const feedback = (field: string) =>
+    errors[field] ? <div className="invalid-feedback">{errors[field]}</div> : null
+
   return (
-    <form onSubmit={handleSubmit} className="inventory-movement-form">
-      <div className="row g-4">
-        {/* Movement Type & Reference */}
-        <div className="col-12">
-          <div className="card">
-            <div className="card-header">
-              <h6 className="mb-0">
-                <i className="bi bi-arrow-repeat me-2" />
-                Movement Information
-              </h6>
+    <div className="container-fluid py-4">
+      <div className="row justify-content-center">
+        <div className="col-lg-8">
+          <PageHeader
+            title={movement ? 'Editar movimiento' : 'Nuevo movimiento'}
+            subtitle={movement ? 'Modifica los datos del movimiento de inventario' : 'Registra una entrada, salida, transferencia o ajuste'}
+            backHref={backHref}
+          />
+
+          {submitErrors.length > 0 && (
+            <div className="alert alert-danger" role="alert">
+              <i className="bi bi-exclamation-triangle me-2" />
+              {submitErrors.length === 1 ? submitErrors[0] : (
+                <ul className="mb-0 ps-3">{submitErrors.map((msg) => <li key={msg}>{msg}</li>)}</ul>
+              )}
             </div>
-            <div className="card-body">
+          )}
+
+          <form onSubmit={handleSubmit} noValidate>
+            <DetailSection title="Movimiento" icon="bi-arrow-left-right">
               <div className="row g-3">
                 <div className="col-md-6">
-                  <label className="form-label fw-semibold">
-                    Tipo de Movimiento <span className="text-danger">*</span>
+                  <label htmlFor="movementType" className="form-label">
+                    Tipo de movimiento <span className="text-danger">*</span>
                   </label>
                   <select
-                    className={`form-select ${errors.movementType ? 'is-invalid' : ''}`}
+                    id="movementType"
+                    className="form-select"
                     value={formData.movementType}
-                    onChange={(e) => handleInputChange('movementType', e.target.value)}
-                    disabled={isLoading}
+                    onChange={(e) => setField('movementType', e.target.value)}
+                    disabled={busy}
                   >
-                    {getMovementTypeOptions().map(option => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
+                    {Object.entries(MOVEMENT_TYPE).map(([value, { label }]) => (
+                      <option key={value} value={value}>{label}</option>
                     ))}
                   </select>
-                  {errors.movementType && (
-                    <div className="invalid-feedback">{errors.movementType}</div>
-                  )}
                 </div>
-                
                 <div className="col-md-6">
-                  <label className="form-label fw-semibold">
-                    Tipo de Referencia <span className="text-danger">*</span>
-                  </label>
+                  <label htmlFor="status" className="form-label">Estado</label>
                   <select
-                    className={`form-select ${errors.referenceType ? 'is-invalid' : ''}`}
-                    value={formData.referenceType}
-                    onChange={(e) => handleInputChange('referenceType', e.target.value)}
-                    disabled={isLoading}
+                    id="status"
+                    className="form-select"
+                    value={formData.status}
+                    onChange={(e) => setField('status', e.target.value)}
+                    disabled={busy}
                   >
-                    {getReferenceTypeOptions().map(option => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
+                    {Object.entries(MOVEMENT_STATUS).map(([value, { label }]) => (
+                      <option key={value} value={value}>{label}</option>
                     ))}
                   </select>
-                  {errors.referenceType && (
-                    <div className="invalid-feedback">{errors.referenceType}</div>
-                  )}
                 </div>
-                
                 <div className="col-md-6">
-                  <label className="form-label fw-semibold">
-                    Reference ID
+                  <label htmlFor="movementDate" className="form-label">
+                    Fecha <span className="text-danger">*</span>
                   </label>
                   <input
-                    type="number"
-                    className={`form-control ${errors.referenceId ? 'is-invalid' : ''}`}
-                    placeholder="External reference number..."
-                    value={formData.referenceId}
-                    onChange={(e) => handleInputChange('referenceId', e.target.value)}
-                    disabled={isLoading}
-                  />
-                  {errors.referenceId && (
-                    <div className="invalid-feedback">{errors.referenceId}</div>
-                  )}
-                </div>
-                
-                <div className="col-md-6">
-                  <label className="form-label fw-semibold">
-                    Fecha de Movimiento <span className="text-danger">*</span>
-                  </label>
-                  <input
+                    id="movementDate"
                     type="datetime-local"
-                    className={`form-control ${errors.movementDate ? 'is-invalid' : ''}`}
+                    className={`form-control${invalid('movementDate')}`}
                     value={formData.movementDate}
-                    onChange={(e) => handleInputChange('movementDate', e.target.value)}
-                    disabled={isLoading}
+                    onChange={(e) => setField('movementDate', e.target.value)}
+                    disabled={busy}
                   />
-                  {errors.movementDate && (
-                    <div className="invalid-feedback">{errors.movementDate}</div>
-                  )}
+                  {feedback('movementDate')}
                 </div>
-                
-                <div className="col-12">
-                  <label className="form-label fw-semibold">
-                    Description
-                  </label>
-                  <textarea
+                <div className="col-md-3">
+                  <label htmlFor="referenceType" className="form-label">Referencia</label>
+                  <select
+                    id="referenceType"
+                    className="form-select"
+                    value={formData.referenceType}
+                    onChange={(e) => setField('referenceType', e.target.value)}
+                    disabled={busy}
+                  >
+                    {REFERENCE_TYPES.map((option) => (
+                      <option key={option.value} value={option.value}>{option.label}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="col-md-3">
+                  <label htmlFor="referenceId" className="form-label">Folio de referencia</label>
+                  <input
+                    id="referenceId"
+                    type="number"
+                    min="1"
                     className="form-control"
-                    rows={3}
-                    placeholder="Describe the inventory movement..."
+                    value={formData.referenceId}
+                    onChange={(e) => setField('referenceId', e.target.value)}
+                    disabled={busy}
+                  />
+                </div>
+                <div className="col-12">
+                  <label htmlFor="description" className="form-label">Descripción</label>
+                  <textarea
+                    id="description"
+                    className="form-control"
+                    rows={2}
+                    maxLength={1000}
+                    placeholder="Motivo o comentario del movimiento"
                     value={formData.description}
-                    onChange={(e) => handleInputChange('description', e.target.value)}
-                    disabled={isLoading}
+                    onChange={(e) => setField('description', e.target.value)}
+                    disabled={busy}
                   />
                 </div>
               </div>
-            </div>
-          </div>
-        </div>
-        
-        {/* Product & Quantity */}
-        <div className="col-12">
-          <div className="card">
-            <div className="card-header">
-              <h6 className="mb-0">
-                <i className="bi bi-box me-2" />
-                Producto y Cantidad
-              </h6>
-            </div>
-            <div className="card-body">
+            </DetailSection>
+
+            <DetailSection title="Producto y cantidad" icon="bi-box">
               <div className="row g-3">
-                <div className="col-md-6">
-                  <label className="form-label fw-semibold">
-                    Producto <span className="text-danger">*</span>
-                  </label>
-                  <select
-                    className={`form-select ${errors.productId ? 'is-invalid' : ''}`}
+                <div className="col-12">
+                  <ProductSearchSelect
+                    id="productId"
+                    className=""
                     value={formData.productId}
-                    onChange={(e) => handleInputChange('productId', e.target.value)}
-                    disabled={isLoading}
-                  >
-                    <option value="">Seleccionar producto...</option>
-                    {products?.map(product => (
-                      <option key={product.id} value={product.id}>
-                        {product.name} ({product.sku})
-                      </option>
-                    )) || []}
-                  </select>
-                  {errors.productId && (
-                    <div className="invalid-feedback">{errors.productId}</div>
-                  )}
+                    initialProduct={initialProduct}
+                    onChange={(id) => setField('productId', id)}
+                    required
+                    disabled={busy}
+                    errorText={errors.productId}
+                  />
                 </div>
-                
-                {/* ProductBatch Selection - Only show if product selected and batches available */}
                 {formData.productId && (
-                  <div className="col-md-6">
-                    <label className="form-label fw-semibold">
-                      <i className="bi bi-calendar-check me-1" />
-                      Lote de Producto
-                    </label>
+                  <div className="col-12">
+                    <label htmlFor="selectedBatchId" className="form-label">Lote</label>
                     <select
+                      id="selectedBatchId"
                       className="form-select"
                       value={formData.selectedBatchId}
                       onChange={(e) => handleBatchSelect(e.target.value)}
-                      disabled={isLoading || isBatchesLoading}
+                      disabled={busy || isBatchesLoading}
                     >
                       <option value="">Sin lote específico</option>
-                      {availableBatches?.map(batch => (
+                      {availableBatches.map((batch) => (
                         <option key={batch.id} value={batch.id}>
-                          {batch.batchNumber} 
-                          {batch.lotNumber && ` (${batch.lotNumber})`}
-                          {` - Stock: ${batch.currentQuantity}`}
-                          {batch.expirationDate && ` - Vence: ${new Date(batch.expirationDate).toLocaleDateString()}`}
+                          {batch.batchNumber}
+                          {batch.lotNumber ? ` (${batch.lotNumber})` : ''}
+                          {` - Existencia: ${formatQty(batch.currentQuantity)}`}
+                          {batch.expirationDate ? ` - Vence: ${formatDate(batch.expirationDate)}` : ''}
                         </option>
-                      )) || []}
+                      ))}
                     </select>
-                    {isBatchesLoading && (
-                      <small className="text-muted">Cargando lotes...</small>
-                    )}
-                    {formData.productId && !isBatchesLoading && availableBatches?.length === 0 && (
-                      <small className="text-muted">No hay lotes activos para este producto</small>
-                    )}
+                    <div className="form-text">
+                      {isBatchesLoading
+                        ? 'Cargando lotes...'
+                        : availableBatches.length === 0
+                          ? 'No hay lotes activos de este producto en el almacén elegido.'
+                          : 'Solo lotes activos. Al elegir uno se llena la información de lote.'}
+                    </div>
                   </div>
                 )}
-                
-                <div className="col-md-6">
-                  <label className="form-label fw-semibold">
-                    Estado <span className="text-danger">*</span>
-                  </label>
-                  <select
-                    className={`form-select ${errors.status ? 'is-invalid' : ''}`}
-                    value={formData.status}
-                    onChange={(e) => handleInputChange('status', e.target.value)}
-                    disabled={isLoading}
-                  >
-                    {getStatusOptions().map(option => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
-                  {errors.status && (
-                    <div className="invalid-feedback">{errors.status}</div>
-                  )}
-                </div>
-                
                 <div className="col-md-4">
-                  <label className="form-label fw-semibold">
+                  <label htmlFor="quantity" className="form-label">
                     Cantidad <span className="text-danger">*</span>
                   </label>
                   <input
+                    id="quantity"
                     type="number"
-                    step="0.01"
-                    className={`form-control ${errors.quantity ? 'is-invalid' : ''}`}
-                    placeholder="0.00"
+                    step="0.0001"
+                    className={`form-control${invalid('quantity')}`}
                     value={formData.quantity}
-                    onChange={(e) => handleInputChange('quantity', e.target.value)}
-                    disabled={isLoading}
+                    onChange={(e) => setField('quantity', e.target.value)}
+                    disabled={busy}
                   />
-                  {errors.quantity && (
-                    <div className="invalid-feedback">{errors.quantity}</div>
+                  {feedback('quantity')}
+                  {formData.movementType === 'adjustment' && !errors.quantity && (
+                    <div className="form-text">Negativa para disminuir la existencia.</div>
                   )}
                 </div>
-                
                 <div className="col-md-4">
-                  <label className="form-label fw-semibold">
-                    Unit Cost
-                  </label>
-                  <div className="input-group">
+                  <label htmlFor="unitCost" className="form-label">Costo unitario</label>
+                  <div className="input-group has-validation">
                     <span className="input-group-text">$</span>
                     <input
+                      id="unitCost"
                       type="number"
                       step="0.01"
-                      className={`form-control ${errors.unitCost ? 'is-invalid' : ''}`}
+                      min="0"
                       placeholder="0.00"
+                      className={`form-control${invalid('unitCost')}`}
                       value={formData.unitCost}
-                      onChange={(e) => handleInputChange('unitCost', e.target.value)}
-                      disabled={isLoading}
+                      onChange={(e) => setField('unitCost', e.target.value)}
+                      disabled={busy}
                     />
-                    {errors.unitCost && (
-                      <div className="invalid-feedback">{errors.unitCost}</div>
-                    )}
+                    {feedback('unitCost')}
                   </div>
                 </div>
-                
                 <div className="col-md-4">
-                  <label className="form-label fw-semibold">
-                    Total Value
-                  </label>
-                  <div className="input-group">
-                    <span className="input-group-text">$</span>
-                    <input
-                      type="text"
-                      className="form-control"
-                      value={getTotalValue().toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                      disabled
-                    />
-                  </div>
+                  <label className="form-label">Valor total</label>
+                  <div className="form-control-plaintext fw-semibold">{formatMoney(totalValue)}</div>
                 </div>
               </div>
-            </div>
-          </div>
-        </div>
-        
-        {/* Location Information */}
-        <div className="col-12">
-          <div className="card">
-            <div className="card-header">
-              <h6 className="mb-0">
-                <i className="bi bi-geo-alt me-2" />
-                Location Information
-              </h6>
-            </div>
-            <div className="card-body">
+            </DetailSection>
+
+            <DetailSection title={isTransfer ? 'Origen' : 'Ubicación'} icon="bi-geo-alt">
               <div className="row g-3">
                 <div className="col-md-6">
-                  <label className="form-label fw-semibold">
-                    Warehouse <span className="text-danger">*</span>
+                  <label htmlFor="warehouseId" className="form-label">
+                    Almacén <span className="text-danger">*</span>
                   </label>
                   <select
-                    className={`form-select ${errors.warehouseId ? 'is-invalid' : ''}`}
+                    id="warehouseId"
+                    className={`form-select${invalid('warehouseId')}`}
                     value={formData.warehouseId}
-                    onChange={(e) => handleInputChange('warehouseId', e.target.value)}
-                    disabled={isLoading}
+                    onChange={(e) => setField('warehouseId', e.target.value)}
+                    disabled={busy}
                   >
                     <option value="">Seleccionar almacén...</option>
-                    {warehouses?.map(warehouse => (
+                    {warehouses.map((warehouse) => (
                       <option key={warehouse.id} value={warehouse.id}>
-                        {warehouse.name} ({warehouse.code})
+                        {warehouse.name}{warehouse.code ? ` (${warehouse.code})` : ''}
                       </option>
-                    )) || []}
+                    ))}
                   </select>
-                  {errors.warehouseId && (
-                    <div className="invalid-feedback">{errors.warehouseId}</div>
-                  )}
+                  {feedback('warehouseId')}
                 </div>
-                
                 <div className="col-md-6">
-                  <label className="form-label fw-semibold">
-                    Location
-                  </label>
+                  <label htmlFor="locationId" className="form-label">Ubicación</label>
                   <select
-                    className={`form-select ${errors.locationId ? 'is-invalid' : ''}`}
+                    id="locationId"
+                    className="form-select"
                     value={formData.locationId}
-                    onChange={(e) => handleInputChange('locationId', e.target.value)}
-                    disabled={isLoading || !formData.warehouseId}
+                    onChange={(e) => setField('locationId', e.target.value)}
+                    disabled={busy || !formData.warehouseId || isLoadingLocations}
                   >
-                    <option value="">Seleccionar ubicación...</option>
-                    {availableLocations?.map(location => (
+                    <option value="">
+                      {!formData.warehouseId
+                        ? 'Elige primero un almacén'
+                        : isLoadingLocations
+                          ? 'Cargando ubicaciones...'
+                          : 'Sin ubicación específica'}
+                    </option>
+                    {locationOptions.map((location) => (
                       <option key={location.id} value={location.id}>
-                        {location.name} ({location.code})
+                        {location.name}{location.code ? ` (${location.code})` : ''}
                       </option>
-                    )) || []}
+                    ))}
                   </select>
-                  {errors.locationId && (
-                    <div className="invalid-feedback">{errors.locationId}</div>
-                  )}
                 </div>
               </div>
-            </div>
-          </div>
-        </div>
-        
-        {/* Transfer Destination (only for transfers) */}
-        {formData.movementType === 'transfer' && (
-          <div className="col-12">
-            <div className="card">
-              <div className="card-header">
-                <h6 className="mb-0">
-                  <i className="bi bi-arrow-right me-2" />
-                  Transfer Destination
-                </h6>
-              </div>
-              <div className="card-body">
+            </DetailSection>
+
+            {isTransfer && (
+              <DetailSection title="Destino" icon="bi-box-arrow-right">
                 <div className="row g-3">
                   <div className="col-md-6">
-                    <label className="form-label fw-semibold">
-                      Destination Warehouse <span className="text-danger">*</span>
+                    <label htmlFor="destinationWarehouseId" className="form-label">
+                      Almacén destino <span className="text-danger">*</span>
                     </label>
                     <select
-                      className={`form-select ${errors.destinationWarehouseId ? 'is-invalid' : ''}`}
+                      id="destinationWarehouseId"
+                      className={`form-select${invalid('destinationWarehouseId')}`}
                       value={formData.destinationWarehouseId}
-                      onChange={(e) => handleInputChange('destinationWarehouseId', e.target.value)}
-                      disabled={isLoading}
+                      onChange={(e) => setField('destinationWarehouseId', e.target.value)}
+                      disabled={busy}
                     >
                       <option value="">Seleccionar almacén destino...</option>
-                      {warehouses?.filter(w => w.id !== formData.warehouseId).map(warehouse => (
+                      {destinationWarehouses.map((warehouse) => (
                         <option key={warehouse.id} value={warehouse.id}>
-                          {warehouse.name} ({warehouse.code})
+                          {warehouse.name}{warehouse.code ? ` (${warehouse.code})` : ''}
                         </option>
-                      )) || []}
+                      ))}
                     </select>
-                    {errors.destinationWarehouseId && (
-                      <div className="invalid-feedback">{errors.destinationWarehouseId}</div>
-                    )}
+                    {feedback('destinationWarehouseId')}
                   </div>
-                  
                   <div className="col-md-6">
-                    <label className="form-label fw-semibold">
-                      Destination Location
-                    </label>
+                    <label htmlFor="destinationLocationId" className="form-label">Ubicación destino</label>
                     <select
-                      className={`form-select ${errors.destinationLocationId ? 'is-invalid' : ''}`}
+                      id="destinationLocationId"
+                      className="form-select"
                       value={formData.destinationLocationId}
-                      onChange={(e) => handleInputChange('destinationLocationId', e.target.value)}
-                      disabled={isLoading || !formData.destinationWarehouseId}
+                      onChange={(e) => setField('destinationLocationId', e.target.value)}
+                      disabled={busy || !formData.destinationWarehouseId || isLoadingDestination}
                     >
-                      <option value="">Seleccionar ubicación destino...</option>
-                      {availableDestinationLocations?.map(location => (
+                      <option value="">
+                        {!formData.destinationWarehouseId
+                          ? 'Elige primero el almacén destino'
+                          : isLoadingDestination
+                            ? 'Cargando ubicaciones...'
+                            : 'Sin ubicación específica'}
+                      </option>
+                      {destinationLocations.map((location) => (
                         <option key={location.id} value={location.id}>
-                          {location.name} ({location.code})
+                          {location.name}{location.code ? ` (${location.code})` : ''}
                         </option>
-                      )) || []}
+                      ))}
                     </select>
-                    {errors.destinationLocationId && (
-                      <div className="invalid-feedback">{errors.destinationLocationId}</div>
-                    )}
                   </div>
                 </div>
-              </div>
-            </div>
-          </div>
-        )}
-        
-        {/* Additional Information */}
-        <div className="col-12">
-          <div className="card">
-            <div className="card-header">
-              <h6 className="mb-0">
-                <i className="bi bi-info-circle me-2" />
-                Additional Information (Optional)
-              </h6>
-            </div>
-            <div className="card-body">
+              </DetailSection>
+            )}
+
+            <DetailSection title="Información adicional (opcional)" icon="bi-info-circle">
               <div className="row g-3">
                 <div className="col-md-6">
-                  <label className="form-label fw-semibold">
-                    Batch Information (JSON)
-                  </label>
+                  <label htmlFor="batchInfo" className="form-label">Información de lote (JSON)</label>
                   <textarea
-                    className={`form-control ${errors.batchInfo ? 'is-invalid' : ''}`}
-                    rows={6}
-                    placeholder='{"batchNumber": "BATCH001", "expiryDate": "2025-12-31", "manufacturingDate": "2025-01-01"}'
+                    id="batchInfo"
+                    className={`form-control font-monospace small${invalid('batchInfo')}`}
+                    rows={5}
+                    placeholder='{"batchNumber": "LOTE-001"}'
                     value={formData.batchInfo}
-                    onChange={(e) => handleInputChange('batchInfo', e.target.value)}
-                    disabled={isLoading}
+                    onChange={(e) => setField('batchInfo', e.target.value)}
+                    disabled={busy}
                   />
-                  {errors.batchInfo && (
-                    <div className="invalid-feedback">{errors.batchInfo}</div>
-                  )}
+                  {feedback('batchInfo')}
                 </div>
-                
                 <div className="col-md-6">
-                  <label className="form-label fw-semibold">
-                    Metadata (JSON)
-                  </label>
+                  <label htmlFor="metadata" className="form-label">Metadatos (JSON)</label>
                   <textarea
-                    className={`form-control ${errors.metadata ? 'is-invalid' : ''}`}
-                    rows={6}
-                    placeholder='{"notes": "Additional notes", "customField": "value"}'
+                    id="metadata"
+                    className={`form-control font-monospace small${invalid('metadata')}`}
+                    rows={5}
+                    placeholder='{"notas": "..."}'
                     value={formData.metadata}
-                    onChange={(e) => handleInputChange('metadata', e.target.value)}
-                    disabled={isLoading}
+                    onChange={(e) => setField('metadata', e.target.value)}
+                    disabled={busy}
                   />
-                  {errors.metadata && (
-                    <div className="invalid-feedback">{errors.metadata}</div>
-                  )}
+                  {feedback('metadata')}
                 </div>
               </div>
-            </div>
-          </div>
-        </div>
-        
-        {/* Form Actions */}
-        <div className="col-12">
-          <div className="d-flex justify-content-end gap-2">
-            {onCancel && (
-              <button
-                type="button"
-                className="btn btn-outline-secondary"
-                onClick={onCancel}
-                disabled={isLoading}
-              >
-                <i className="bi bi-x-circle me-2" />
-                Cancel
-              </button>
-            )}
-            <button
-              type="submit"
-              className="btn btn-primary"
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                <>
-                  <div className="spinner-border spinner-border-sm me-2" role="status" />
-                  Saving...
-                </>
-              ) : (
-                <>
-                  <i className="bi bi-check-circle me-2" />
-                  {movement ? 'Update Movement' : 'Create Movement'}
-                </>
+            </DetailSection>
+
+            <div className="d-flex justify-content-end gap-2">
+              {onCancel && (
+                <button type="button" className="btn btn-outline-secondary" onClick={onCancel} disabled={busy}>
+                  Cancelar
+                </button>
               )}
-            </button>
-          </div>
+              <button type="submit" className="btn btn-primary" disabled={busy}>
+                {isSubmitting ? (
+                  <>
+                    <span className="spinner-border spinner-border-sm me-2" role="status" />
+                    Guardando...
+                  </>
+                ) : (
+                  <>
+                    <i className="bi bi-check-lg me-1" />
+                    {movement ? 'Guardar cambios' : 'Registrar movimiento'}
+                  </>
+                )}
+              </button>
+            </div>
+          </form>
         </div>
       </div>
-    </form>
+    </div>
   )
 })
 

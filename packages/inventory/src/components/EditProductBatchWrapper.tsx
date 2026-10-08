@@ -1,177 +1,56 @@
-/**
- * EDIT PRODUCT BATCH WRAPPER
- * Wrapper component for editing existing product batches
- * Siguiendo patrón exitoso de EditMovementWrapper
- */
-
 'use client'
 
+import { toast, useNavigationProgress } from '@lwm/ui'
 import { ProductBatchForm } from './ProductBatchForm'
-import { useProductBatch, useProductBatchMutations } from '../hooks'
-import { useWarehouses, useLocations } from '../hooks'
-import { useProducts } from '@lwm/products'
-import { useNavigationProgress } from '@lwm/ui'
-import type { CreateProductBatchRequest, UpdateProductBatchRequest } from '../types'
+import { FormStateCard } from './FormStateCard'
+import { useProductBatch, useProductBatchMutations, useWarehouses } from '../hooks'
+import type { CreateProductBatchRequest, UpdateProductBatchRequest, WarehouseParsed } from '../types'
 
 interface EditProductBatchWrapperProps {
   productBatchId: string
 }
 
+const LIST_HREF = '/dashboard/inventory/product-batch'
+
 export const EditProductBatchWrapper = ({ productBatchId }: EditProductBatchWrapperProps) => {
   const navigation = useNavigationProgress()
-  const { productBatch, isLoading: isLoadingProductBatch, error } = useProductBatch({ id: productBatchId })
+  const detailHref = `${LIST_HREF}/${productBatchId}`
+  const { productBatch, isLoading: isLoadingBatch, error } = useProductBatch({ id: productBatchId })
   const { updateProductBatch } = useProductBatchMutations()
-  
-  // Cargar datos para los selects
-  const { warehouses, isLoading: isLoadingWarehouses } = useWarehouses()
-  const { locations, isLoading: isLoadingLocations } = useLocations()
-  const { products, isLoading: isLoadingProducts } = useProducts()
-  
+  const { warehouses, isLoading: isLoadingWarehouses } = useWarehouses({
+    filters: { isActive: true },
+    pagination: { size: 100 },
+  })
+
   const handleSubmit = async (data: CreateProductBatchRequest | UpdateProductBatchRequest) => {
-    try {
-      await updateProductBatch(productBatchId, data as UpdateProductBatchRequest)
-      
-      // Show success toast
-      const toastElement = document.createElement('div')
-      toastElement.className = 'position-fixed top-0 end-0 p-3'
-      toastElement.style.zIndex = '9999'
-      toastElement.innerHTML = `
-        <div class="toast show" role="alert">
-          <div class="toast-header bg-success text-white">
-            <strong class="me-auto">Éxito</strong>
-          </div>
-          <div class="toast-body">
-            Lote de producto actualizado correctamente
-          </div>
-        </div>
-      `
-      document.body.appendChild(toastElement)
-      
-      // Navigate to product batch detail after brief delay
-      setTimeout(() => {
-        document.body.removeChild(toastElement)
-        navigation.push(`/dashboard/inventory/product-batch/${productBatchId}`)
-      }, 2000)
-      
-    } catch (error: unknown) {
-      // Show error toast
-      const errorMessage = error instanceof Error ? error.message : 'Error al actualizar el lote'
-      const toastElement = document.createElement('div')
-      toastElement.className = 'position-fixed top-0 end-0 p-3'
-      toastElement.style.zIndex = '9999'
-      toastElement.innerHTML = `
-        <div class="toast show" role="alert">
-          <div class="toast-header bg-danger text-white">
-            <strong class="me-auto">Error</strong>
-          </div>
-          <div class="toast-body">
-            ${errorMessage}
-          </div>
-        </div>
-      `
-      document.body.appendChild(toastElement)
-      setTimeout(() => document.body.removeChild(toastElement), 4000)
-      
-      throw error // Let form handle the error display
-    }
+    await updateProductBatch(productBatchId, data as UpdateProductBatchRequest)
+    toast.success('Lote actualizado')
+    navigation.push(detailHref)
   }
-  
-  const handleCancel = () => {
-    navigation.push(`/dashboard/inventory/product-batch/${productBatchId}`)
+
+  if (isLoadingBatch || (isLoadingWarehouses && warehouses.length === 0)) {
+    return <FormStateCard state="loading" title="Editar lote" backHref={detailHref} message="Cargando lote..." />
   }
-  
-  const isLoading = isLoadingProductBatch || isLoadingWarehouses || isLoadingLocations || isLoadingProducts
-  
-  if (isLoading) {
-    return (
-      <div className="container-fluid py-4">
-        <div className="row justify-content-center">
-          <div className="col-lg-8">
-            <div className="card">
-              <div className="card-body text-center py-5">
-                <div className="spinner-border text-primary" role="status">
-                  <span className="visually-hidden">Cargando...</span>
-                </div>
-                <p className="mt-3 text-muted">Cargando datos del lote...</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  }
-  
   if (error) {
-    return (
-      <div className="container-fluid py-4">
-        <div className="row justify-content-center">
-          <div className="col-lg-8">
-            <div className="card border-danger">
-              <div className="card-body text-center py-5">
-                <i className="bi bi-exclamation-triangle text-danger" style={{ fontSize: '3rem' }}></i>
-                <h4 className="mt-3 text-danger">Error al cargar el lote</h4>
-                <p className="text-muted">{error.message || 'No se pudo cargar la información del lote'}</p>
-                <div className="mt-3">
-                  <button 
-                    className="btn btn-primary me-2"
-                    onClick={() => navigation.push('/dashboard/inventory/product-batch')}
-                  >
-                    <i className="bi bi-arrow-left me-2"></i>
-                    Volver a Lotes
-                  </button>
-                  <button 
-                    className="btn btn-outline-secondary"
-                    onClick={() => window.location.reload()}
-                  >
-                    <i className="bi bi-arrow-clockwise me-2"></i>
-                    Reintentar
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
+    return <FormStateCard state="error" title="Editar lote" backHref={LIST_HREF} message={error.message || 'No se pudo cargar el lote.'} />
   }
-  
   if (!productBatch) {
-    return (
-      <div className="container-fluid py-4">
-        <div className="row justify-content-center">
-          <div className="col-lg-8">
-            <div className="card">
-              <div className="card-body text-center py-5">
-                <i className="bi bi-box" style={{ fontSize: '3rem', opacity: 0.3 }}></i>
-                <h4 className="mt-3">Lote no encontrado</h4>
-                <p className="text-muted">El lote solicitado no existe o no está disponible</p>
-                <button 
-                  className="btn btn-primary"
-                  onClick={() => navigation.push('/dashboard/inventory/product-batch')}
-                >
-                  <i className="bi bi-arrow-left me-2"></i>
-                  Volver a Lotes
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
+    return <FormStateCard state="not-found" title="Editar lote" backHref={LIST_HREF} icon="bi-box" message="El lote no existe o no está disponible." />
   }
-  
-  // ProductBatch data already processed by JSON:API parser in hook
-  const productBatchForForm = productBatch
-  
+
+  // Un almacen inactivo del lote sigue disponible en la edicion
+  const current = productBatch.warehouse as WarehouseParsed | undefined
+  const options = current && !warehouses.some((w) => w.id === String(current.id))
+    ? [current, ...warehouses]
+    : warehouses
+
   return (
     <ProductBatchForm
-      productBatch={productBatchForForm}
+      productBatch={productBatch}
       onSubmit={handleSubmit}
-      onCancel={handleCancel}
-      isLoading={false}
-      products={products}
-      warehouses={warehouses}
-      locations={locations}
+      onCancel={() => navigation.push(detailHref)}
+      warehouses={options}
+      backHref={detailHref}
     />
   )
 }

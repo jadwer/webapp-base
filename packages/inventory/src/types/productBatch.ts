@@ -47,14 +47,11 @@ export interface ProductBatch {
   } | null
 }
 
-// ProductBatch status enum (includes both backend API values and legacy frontend values)
+// Valores que valida ProductBatchRequest (status in active,expired,quarantine,recalled,consumed)
 export type ProductBatchStatus =
-  | 'available'
-  | 'reserved'
-  | 'quarantine'
-  | 'expired'
-  | 'depleted'
   | 'active'
+  | 'expired'
+  | 'quarantine'
   | 'recalled'
   | 'consumed'
 
@@ -165,22 +162,15 @@ export interface ParsedProductBatch {
   } | null
 }
 
-// Filters interface
+// Filtros que declara ProductBatchSchema
 export interface ProductBatchFilters {
+  /** Lote, numero LOT, proveedor, nombre o SKU del producto */
   search?: string
-  status?: ProductBatchStatus[]
+  /** Un solo estado (Where::make('status')) */
+  status?: ProductBatchStatus
   productId?: string
   warehouseId?: string
   warehouseLocationId?: string
-  expiresAfter?: string // ISO date
-  expiresBefore?: string // ISO date
-  manufacturedAfter?: string // ISO date
-  manufacturedBefore?: string // ISO date
-  supplierName?: string
-  minQuantity?: number
-  maxQuantity?: number
-  hasTestResults?: boolean
-  hasCertifications?: boolean
 }
 
 // Sort options interface
@@ -258,61 +248,6 @@ export interface ProductBatchStatusConfig {
   variant: 'success' | 'warning' | 'danger' | 'secondary' | 'info'
   icon: string
 }
-
-export const PRODUCT_BATCH_STATUS_CONFIG: Record<ProductBatchStatus, ProductBatchStatusConfig> = {
-  available: {
-    label: 'Disponible',
-    variant: 'success',
-    icon: 'bi-check-circle-fill'
-  },
-  reserved: {
-    label: 'Reservado',
-    variant: 'info',
-    icon: 'bi-bookmark-fill'
-  },
-  quarantine: {
-    label: 'Cuarentena',
-    variant: 'warning',
-    icon: 'bi-shield-exclamation'
-  },
-  expired: {
-    label: 'Vencido',
-    variant: 'danger',
-    icon: 'bi-exclamation-triangle-fill'
-  },
-  depleted: {
-    label: 'Agotado',
-    variant: 'secondary',
-    icon: 'bi-archive-fill'
-  },
-  active: {
-    label: 'Activo',
-    variant: 'success',
-    icon: 'bi-check-circle-fill'
-  },
-  recalled: {
-    label: 'Retirado',
-    variant: 'danger',
-    icon: 'bi-x-circle-fill'
-  },
-  consumed: {
-    label: 'Consumido',
-    variant: 'secondary',
-    icon: 'bi-archive-fill'
-  }
-}
-
-// Constants
-export const PRODUCT_BATCH_STATUS_OPTIONS = [
-  { value: 'available', label: 'Disponible' },
-  { value: 'reserved', label: 'Reservado' },
-  { value: 'quarantine', label: 'Cuarentena' },
-  { value: 'expired', label: 'Vencido' },
-  { value: 'depleted', label: 'Agotado' },
-  { value: 'active', label: 'Activo' },
-  { value: 'recalled', label: 'Retirado' },
-  { value: 'consumed', label: 'Consumido' }
-] as const
 
 export const QUALITY_GRADE_OPTIONS = [
   { value: 'A', label: 'Grado A - Excelente' },

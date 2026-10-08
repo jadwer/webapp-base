@@ -1,6 +1,9 @@
 'use client'
 
 import Link from 'next/link'
+import { EmptyState, StatusBadge } from '@lwm/ui'
+import { FRACTIONATION_STATUS } from '../utils/labels'
+import { formatDate, formatQty, toNumber } from '../utils/format'
 import type { Fractionation } from '../types/fractionation'
 
 interface FractionationHistoryProps {
@@ -8,43 +11,22 @@ interface FractionationHistoryProps {
   isLoading: boolean
 }
 
-const statusBadge = (status: string) => {
-  switch (status) {
-    case 'completed':
-      return <span className="badge bg-success">Completado</span>
-    case 'pending':
-      return <span className="badge bg-warning text-dark">Pendiente</span>
-    case 'cancelled':
-      return <span className="badge bg-danger">Cancelado</span>
-    default:
-      return <span className="badge bg-secondary">{status}</span>
-  }
-}
-
-const formatDate = (dateStr?: string) => {
-  if (!dateStr) return '-'
-  return new Date(dateStr).toLocaleString('es-MX', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  })
-}
-
-const formatNumber = (value: number) => {
-  return new Intl.NumberFormat('es-MX', {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 4,
-  }).format(value)
-}
+const ProductCell = ({ product }: { product?: { name: string; sku: string } }) =>
+  product ? (
+    <>
+      <div>{product.name}</div>
+      <small className="text-muted">{product.sku}</small>
+    </>
+  ) : (
+    <span className="text-muted">-</span>
+  )
 
 export const FractionationHistory = ({ fractionations, isLoading }: FractionationHistoryProps) => {
   if (isLoading) {
     return (
-      <div className="text-center py-5">
+      <div className="d-flex justify-content-center p-4">
         <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Cargando...</span>
+          <span className="visually-hidden">Cargando historial...</span>
         </div>
       </div>
     )
@@ -52,27 +34,28 @@ export const FractionationHistory = ({ fractionations, isLoading }: Fractionatio
 
   if (fractionations.length === 0) {
     return (
-      <div className="text-center py-5 text-muted">
-        <i className="bi bi-scissors fs-1 d-block mb-2" />
-        No se encontraron fraccionamientos
-      </div>
+      <EmptyState
+        title="No hay fraccionamientos"
+        description="No se encontraron fraccionamientos con los filtros actuales."
+      />
     )
   }
 
   return (
     <div className="table-responsive">
-      <table className="table table-hover mb-0">
-        <thead className="table-light">
+      <table className="table table-striped table-hover mb-0">
+        <thead className="table-dark">
           <tr>
             <th>Folio</th>
-            <th>Producto Origen</th>
-            <th>Producto Destino</th>
+            <th>Producto origen</th>
+            <th>Producto destino</th>
             <th className="text-end">Cantidad</th>
             <th className="text-end">Producido</th>
             <th className="text-end">Merma</th>
-            <th className="text-center">Estado</th>
+            <th>Almacén</th>
+            <th>Estado</th>
             <th>Fecha</th>
-            <th className="text-end">Acciones</th>
+            <th style={{ width: '70px' }}>Acciones</th>
           </tr>
         </thead>
         <tbody>
@@ -81,46 +64,35 @@ export const FractionationHistory = ({ fractionations, isLoading }: Fractionatio
               <td>
                 <Link
                   href={`/dashboard/inventory/fraccionamiento/${frac.id}`}
-                  className="text-decoration-none fw-bold"
+                  className="fw-semibold text-decoration-none"
                 >
                   {frac.folioNumber}
                 </Link>
               </td>
-              <td>
-                {frac.sourceProduct ? (
-                  <div>
-                    <div>{frac.sourceProduct.name}</div>
-                    <div className="text-muted small">{frac.sourceProduct.sku}</div>
-                  </div>
-                ) : (
-                  <span className="text-muted">-</span>
-                )}
-              </td>
-              <td>
-                {frac.destinationProduct ? (
-                  <div>
-                    <div>{frac.destinationProduct.name}</div>
-                    <div className="text-muted small">{frac.destinationProduct.sku}</div>
-                  </div>
-                ) : (
-                  <span className="text-muted">-</span>
-                )}
-              </td>
-              <td className="text-end">{formatNumber(frac.sourceQuantity)}</td>
-              <td className="text-end text-success fw-bold">{formatNumber(frac.producedQuantity)}</td>
+              <td><ProductCell product={frac.sourceProduct} /></td>
+              <td><ProductCell product={frac.destinationProduct} /></td>
+              <td className="text-end">{formatQty(frac.sourceQuantity)}</td>
+              <td className="text-end fw-semibold text-success">{formatQty(frac.producedQuantity)}</td>
               <td className="text-end">
-                {frac.wasteQuantity > 0 ? (
-                  <span className="text-warning">{formatNumber(frac.wasteQuantity)} ({frac.wastePercentage}%)</span>
+                {toNumber(frac.wasteQuantity) > 0 ? (
+                  <span className="text-warning">
+                    {formatQty(frac.wasteQuantity)} ({toNumber(frac.wastePercentage)}%)
+                  </span>
                 ) : (
                   <span className="text-muted">0</span>
                 )}
               </td>
-              <td className="text-center">{statusBadge(frac.status)}</td>
-              <td className="text-nowrap">{formatDate(frac.executedAt)}</td>
-              <td className="text-end">
+              <td>{frac.warehouse?.name || <span className="text-muted">-</span>}</td>
+              <td>
+                <StatusBadge status={frac.status} map={FRACTIONATION_STATUS} />
+              </td>
+              <td className="text-nowrap">
+                <small>{formatDate(frac.executedAt, { withTime: true })}</small>
+              </td>
+              <td>
                 <Link
                   href={`/dashboard/inventory/fraccionamiento/${frac.id}`}
-                  className="btn btn-outline-primary btn-sm"
+                  className="btn btn-sm btn-outline-primary"
                   title="Ver detalle"
                 >
                   <i className="bi bi-eye" />

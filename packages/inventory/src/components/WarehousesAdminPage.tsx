@@ -1,231 +1,147 @@
 /**
  * WAREHOUSES ADMIN PAGE
- * Página principal de administración de warehouses
- * UI simple y elegante con funcionalidad completa
+ * Listado de almacenes con pestanas Almacenes | Ubicaciones.
  */
 
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
+import Link from 'next/link'
+import {
+  Alert,
+  ConfirmModal,
+  ListToolbar,
+  PageHeader,
+  toast,
+  type ConfirmModalHandle,
+} from '@lwm/ui'
+import { BranchFilter } from '@lwm/auth'
 import { useWarehouses, useWarehousesMutations } from '../hooks'
 import { WarehousesTableSimple } from './WarehousesTableSimple'
-import { WarehouseFormModal } from './WarehouseFormModal'
-import { FilterBar } from './FilterBar'
+import { WarehousesTabs } from './WarehousesTabs'
 import { PaginationSimple } from './PaginationSimple'
-import { Button } from '@lwm/ui'
-import { Alert } from '@lwm/ui'
-import { Modal } from '@lwm/ui'
-import { useNavigationProgress } from '@lwm/ui'
-import type { WarehouseParsed, CreateWarehouseData, UpdateWarehouseData } from '../types'
+import { WAREHOUSE_TYPE } from '../utils/labels'
+import { deleteErrorMessage, readPageMeta } from '../utils/listing'
+import type { WarehouseParsed } from '../types'
+
+const PAGE_SIZE = 20
 
 export const WarehousesAdminPage = () => {
-  // State
   const [searchTerm, setSearchTerm] = useState('')
+  const [typeFilter, setTypeFilter] = useState('')
+  const [activeFilter, setActiveFilter] = useState('')
+  const [branchId, setBranchId] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
-  const [editingWarehouse, setEditingWarehouse] = useState<WarehouseParsed | null>(null)
-  const [deletingWarehouse, setDeletingWarehouse] = useState<WarehouseParsed | null>(null)
+  const confirmModalRef = useRef<ConfirmModalHandle>(null)
 
-  const pageSize = 20
-  const navigation = useNavigationProgress()
-
-  // Hooks - Backend DOES support pagination with correct format
-  const { warehouses, meta, isLoading, error, mutate } = useWarehouses({
-    filters: searchTerm ? { search: searchTerm } : undefined,
-    pagination: { page: currentPage, size: pageSize }
+  const { warehouses, meta, isLoading, error } = useWarehouses({
+    filters: {
+      search: searchTerm || undefined,
+      warehouseType: typeFilter || undefined,
+      isActive: activeFilter === '' ? undefined : activeFilter === 'true',
+      branchId: branchId || undefined,
+    },
+    pagination: { page: currentPage, size: PAGE_SIZE },
   })
+  const { deleteWarehouse } = useWarehousesMutations()
 
-  // Backend pagination info - correct structure
-  const paginationInfo = meta?.page
-  const hasRealPagination = !!(paginationInfo && typeof paginationInfo === 'object' && 'total' in paginationInfo && 'lastPage' in paginationInfo)
+  const page = readPageMeta(meta, currentPage, PAGE_SIZE)
 
-  // Use backend pagination data
-  const totalItems = (paginationInfo && typeof paginationInfo === 'object' && 'total' in paginationInfo) ? (paginationInfo as Record<string, unknown>).total as number : 0
-  const totalPages = (paginationInfo && typeof paginationInfo === 'object' && 'lastPage' in paginationInfo) ? (paginationInfo as Record<string, unknown>).lastPage as number : 1
-  const currentBackendPage = (paginationInfo && typeof paginationInfo === 'object' && 'currentPage' in paginationInfo) ? (paginationInfo as Record<string, unknown>).currentPage as number : currentPage
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const _pageFrom = (paginationInfo && typeof paginationInfo === 'object' && 'from' in paginationInfo) ? (paginationInfo as Record<string, unknown>).from as number : 0
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const _pageTo = (paginationInfo && typeof paginationInfo === 'object' && 'to' in paginationInfo) ? (paginationInfo as Record<string, unknown>).to as number : 0
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const _hasRealPagination = hasRealPagination
-
-  // Reset to page 1 when search changes
-  const handleSearchChange = (newSearchTerm: string) => {
-    setSearchTerm(newSearchTerm)
+  // Cualquier filtro regresa a la pagina 1
+  const withReset = <T,>(setter: (value: T) => void) => (value: T) => {
+    setter(value)
     setCurrentPage(1)
   }
 
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page)
-  }
-  
-  const { 
-    createWarehouse, 
-    updateWarehouse, 
-    deleteWarehouse, 
-    isLoading: isMutating 
-  } = useWarehousesMutations()
+  const handleDelete = async (warehouse: WarehouseParsed) => {
+    const confirmed = await confirmModalRef.current?.confirm(
+      `¿Eliminar el almacén "${warehouse.name}"?\n\nEsta acción no se puede deshacer.`,
+      { title: 'Eliminar almacén', confirmText: 'Eliminar', confirmVariant: 'danger' },
+    )
+    if (!confirmed) return
 
-  // Handlers
-  const handleCreate = async (data: CreateWarehouseData | UpdateWarehouseData) => {
     try {
-      await createWarehouse(data as CreateWarehouseData)
-      setIsCreateModalOpen(false)
-      mutate() // Refresh data
-    } catch (error) {
-      throw error
+      await deleteWarehouse(warehouse.id)
+      toast.success('Almacén eliminado')
+    } catch (err) {
+      toast.error(deleteErrorMessage(err, 'el almacén'))
     }
-  }
-
-  const handleUpdate = async (data: UpdateWarehouseData) => {
-    if (!editingWarehouse) return
-    
-    try {
-      await updateWarehouse(editingWarehouse.id, data)
-      setEditingWarehouse(null)
-      mutate() // Refresh data
-    } catch (error) {
-      throw error
-    }
-  }
-
-  const handleDelete = async () => {
-    if (!deletingWarehouse) return
-    
-    try {
-      await deleteWarehouse(deletingWarehouse.id)
-      setDeletingWarehouse(null)
-      mutate() // Refresh data
-    } catch (error) {
-      throw error
-    }
-  }
-
-  const handleEdit = (warehouse: WarehouseParsed) => {
-    setEditingWarehouse(warehouse)
-  }
-
-  const handleDeleteClick = (warehouse: WarehouseParsed) => {
-    setDeletingWarehouse(warehouse)
   }
 
   return (
     <div className="container-fluid py-4">
-      {/* Header */}
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <div>
-          <h1 className="h3 mb-1">Almacenes</h1>
-          <p className="text-muted">Administración de almacenes y centros de distribución</p>
-        </div>
-        <div className="d-flex gap-2">
-          <Button
-            variant="primary"
-            onClick={() => navigation.push('/dashboard/inventory/warehouses/create')}
-          >
-            <i className="bi bi-plus-circle me-2" />
-            Crear Nuevo
-          </Button>
-          <Button
-            variant="secondary"
-            onClick={() => setIsCreateModalOpen(true)}
-            disabled={isMutating}
-          >
-            <i className="bi bi-plus-circle me-2" />
-            Modal Rápido
-          </Button>
-        </div>
-      </div>
-
-      {/* Filters */}
-      <FilterBar
-        searchTerm={searchTerm}
-        onSearchChange={handleSearchChange}
-        placeholder="Buscar almacenes..."
+      <PageHeader
+        title="Almacenes"
+        subtitle="Almacenes y centros de distribución por sucursal"
+        actions={
+          <Link href="/dashboard/inventory/warehouses/create" className="btn btn-primary">
+            <i className="bi bi-plus-lg me-2" />
+            Nuevo almacén
+          </Link>
+        }
       />
 
-      {/* Error State */}
+      <WarehousesTabs />
+
+      <ListToolbar
+        search={{
+          value: searchTerm,
+          onChange: withReset(setSearchTerm),
+          placeholder: 'Buscar por nombre',
+        }}
+      >
+        <select
+          className="form-select w-auto"
+          value={typeFilter}
+          onChange={(e) => withReset(setTypeFilter)(e.target.value)}
+          aria-label="Filtrar por tipo"
+        >
+          <option value="">Todos los tipos</option>
+          {Object.entries(WAREHOUSE_TYPE).map(([value, { label }]) => (
+            <option key={value} value={value}>{label}</option>
+          ))}
+        </select>
+        <select
+          className="form-select w-auto"
+          value={activeFilter}
+          onChange={(e) => withReset(setActiveFilter)(e.target.value)}
+          aria-label="Filtrar por estado"
+        >
+          <option value="">Todos los estados</option>
+          <option value="true">Activos</option>
+          <option value="false">Inactivos</option>
+        </select>
+        <BranchFilter className="form-select w-auto" value={branchId} onChange={withReset(setBranchId)} />
+      </ListToolbar>
+
       {error && (
-        <Alert variant="danger" className="mb-4">
-          <strong>Error:</strong> {error.message || 'Error al cargar los almacenes'}
+        <Alert variant="danger" className="mb-3">
+          <i className="bi bi-exclamation-triangle me-2" />
+          {error.message || 'Error al cargar los almacenes'}
         </Alert>
       )}
 
-      {/* Content */}
       <div className="card">
         <div className="card-body p-0">
           <WarehousesTableSimple
             warehouses={warehouses}
             isLoading={isLoading}
-            onEdit={handleEdit}
-            onDelete={handleDeleteClick}
+            onDelete={handleDelete}
           />
-          
-          {/* Pagination - Show if we have more than 1 page */}
-          {totalPages > 1 && (
+          {page.lastPage > 1 && (
             <PaginationSimple
-              currentPage={currentBackendPage}
-              totalPages={totalPages}
-              onPageChange={handlePageChange}
+              currentPage={page.currentPage}
+              totalPages={page.lastPage}
+              onPageChange={setCurrentPage}
               isLoading={isLoading}
-              totalItems={totalItems}
-              pageSize={pageSize}
+              totalItems={page.total}
+              pageSize={page.perPage}
             />
           )}
         </div>
       </div>
 
-      {/* Create Modal */}
-      <WarehouseFormModal
-        isOpen={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
-        onSubmit={handleCreate}
-        title="Nuevo Almacén"
-        isLoading={isMutating}
-      />
-
-      {/* Edit Modal */}
-      <WarehouseFormModal
-        isOpen={!!editingWarehouse}
-        onClose={() => setEditingWarehouse(null)}
-        onSubmit={handleUpdate}
-        title="Editar Almacén"
-        isLoading={isMutating}
-        initialData={editingWarehouse || undefined}
-      />
-
-      {/* Delete Confirmation Modal */}
-      <Modal
-        show={!!deletingWarehouse}
-        onHide={() => setDeletingWarehouse(null)}
-        title="Eliminar Almacén"
-      >
-        <div className="modal-body">
-          <p className="mb-0">
-            ¿Estás seguro que deseas eliminar el almacén &quot;{deletingWarehouse?.name}&quot;?
-          </p>
-          <p className="text-muted small mt-2">
-            Esta acción no se puede deshacer.
-          </p>
-        </div>
-        <div className="modal-footer">
-          <Button
-            variant="secondary"
-            onClick={() => setDeletingWarehouse(null)}
-            disabled={isMutating}
-          >
-            Cancelar
-          </Button>
-          <Button
-            variant="danger"
-            onClick={handleDelete}
-            disabled={isMutating}
-            isLoading={isMutating}
-          >
-            Eliminar
-          </Button>
-        </div>
-      </Modal>
+      <ConfirmModal ref={confirmModalRef} />
     </div>
   )
 }

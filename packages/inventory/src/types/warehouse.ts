@@ -3,7 +3,8 @@
  * Basado en API responses reales de Fase 1 testing
  */
 
-export type WarehouseType = 'main' | 'distribution' | 'retail' | 'storage' | 'cross-dock'
+// Valores que valida WarehouseRequest (warehouseType in main,secondary,distribution,returns)
+export type WarehouseType = 'main' | 'secondary' | 'distribution' | 'returns'
 
 export interface WarehouseAttributes {
   name: string
@@ -89,6 +90,8 @@ export interface WarehouseFilters {
   exactCode?: string // Búsqueda exacta por código
   warehouseType?: string
   isActive?: boolean
+  /** Multi-sucursal: filter[branch] */
+  branchId?: string
 }
 
 export interface WarehouseSortOptions {

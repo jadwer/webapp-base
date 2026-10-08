@@ -38,10 +38,10 @@ export function useCycleCounts(params: UseCycleCountsParams = {}): UseCycleCount
     cycleCounts: data?.data || [],
     meta: data?.meta
       ? {
-          total: data.meta.pagination?.total || 0,
-          perPage: data.meta.pagination?.size || pageSize,
-          currentPage: data.meta.pagination?.page || page,
-          lastPage: data.meta.pagination?.pages || 1
+          total: data.meta.page?.total || 0,
+          perPage: data.meta.page?.perPage || pageSize,
+          currentPage: data.meta.page?.currentPage || page,
+          lastPage: data.meta.page?.lastPage || 1
         }
       : undefined,
     isLoading,

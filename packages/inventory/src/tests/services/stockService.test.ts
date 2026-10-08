@@ -336,11 +336,22 @@ describe('stockService', () => {
       // Act
       const result = await stockService.create(stockData)
 
-      // Assert
+      // Assert: ids numericos, locationId y relaciones que exige StockRequest
       expect(axios.post).toHaveBeenCalledWith('/api/v1/stocks', {
         data: {
           type: 'stocks',
-          attributes: stockData,
+          attributes: {
+            productId: 1,
+            warehouseId: 2,
+            locationId: 3,
+            quantity: 100,
+            status: 'available',
+          },
+          relationships: {
+            product: { data: { type: 'products', id: '1' } },
+            warehouse: { data: { type: 'warehouses', id: '2' } },
+            location: { data: { type: 'warehouse-locations', id: '3' } },
+          },
         },
       })
       expect(result).toEqual(apiResponse)

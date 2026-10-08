@@ -1,106 +1,164 @@
 /**
- * LOCATIONS ADMIN PAGE - REAL IMPLEMENTATION
- * Página real de gestión de ubicaciones siguiendo patrón exitoso de Warehouses
- * Sencilla, profesional, bonita, completa
+ * LOCATIONS ADMIN PAGE
+ * Listado de ubicaciones; vive como pestana de Almacenes.
  */
 
 'use client'
 
-import React, { useState } from 'react'
-import { useLocations } from '../hooks'
+import { useRef, useState } from 'react'
+import Link from 'next/link'
+import {
+  Alert,
+  ConfirmModal,
+  ListToolbar,
+  PageHeader,
+  toast,
+  type ConfirmModalHandle,
+} from '@lwm/ui'
+import { useLocations, useLocationsMutations, useWarehouses } from '../hooks'
 import { LocationsTableSimple } from './LocationsTableSimple'
-import { FilterBar } from './FilterBar'
+import { WarehousesTabs } from './WarehousesTabs'
 import { PaginationSimple } from './PaginationSimple'
-import { Button } from '@lwm/ui'
-import { Alert } from '@lwm/ui'
-import { useNavigationProgress } from '@lwm/ui'
+import { LOCATION_TYPE } from '../utils/labels'
+import { deleteErrorMessage, readPageMeta } from '../utils/listing'
+import type { WarehouseLocationParsed } from '../types'
+
+const PAGE_SIZE = 20
 
 export const LocationsAdminPageReal = () => {
   const [searchTerm, setSearchTerm] = useState('')
+  const [warehouseId, setWarehouseId] = useState('')
+  const [typeFilter, setTypeFilter] = useState('')
+  const [activeFilter, setActiveFilter] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
-  const pageSize = 20
-  const navigation = useNavigationProgress()
+  const confirmModalRef = useRef<ConfirmModalHandle>(null)
 
-  // Hooks con paginación real del backend
   const { locations, meta, isLoading, error } = useLocations({
-    filters: searchTerm ? { search: searchTerm } : undefined,
-    pagination: { page: currentPage, size: pageSize },
-    include: ['warehouse']
+    filters: {
+      search: searchTerm || undefined,
+      warehouseId: warehouseId || undefined,
+      locationType: typeFilter || undefined,
+      isActive: activeFilter === '' ? undefined : activeFilter === 'true',
+    },
+    pagination: { page: currentPage, size: PAGE_SIZE },
+    include: ['warehouse'],
   })
+  const { warehouses } = useWarehouses({ filters: { isActive: true }, pagination: { size: 100 } })
+  const { deleteLocation } = useLocationsMutations()
 
-  // Paginación desde meta.page structure
-  const paginationInfo = meta?.page as { lastPage?: number; total?: number; currentPage?: number; perPage?: number } | undefined
-  const totalPages = paginationInfo?.lastPage || 1
-  const totalItems = paginationInfo?.total || 0
-  const currentBackendPage = paginationInfo?.currentPage || currentPage
+  const page = readPageMeta(meta, currentPage, PAGE_SIZE)
 
-  // Reset to page 1 when search changes
-  const handleSearchChange = (newSearchTerm: string) => {
-    setSearchTerm(newSearchTerm)
+  const withReset = <T,>(setter: (value: T) => void) => (value: T) => {
+    setter(value)
     setCurrentPage(1)
   }
 
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page)
+  const handleDelete = async (location: WarehouseLocationParsed) => {
+    const confirmed = await confirmModalRef.current?.confirm(
+      `¿Eliminar la ubicación "${location.name}"?\n\nEsta acción no se puede deshacer.`,
+      { title: 'Eliminar ubicación', confirmText: 'Eliminar', confirmVariant: 'danger' },
+    )
+    if (!confirmed) return
+
+    try {
+      await deleteLocation(location.id)
+      toast.success('Ubicación eliminada')
+    } catch (err) {
+      toast.error(deleteErrorMessage(err, 'la ubicación'))
+    }
   }
 
   return (
     <div className="container-fluid py-4">
-      {/* Header */}
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <div>
-          <h1 className="h3 mb-0">Ubicaciones de Almacén</h1>
-          <p className="text-muted mb-0">
-            Gestión de ubicaciones físicas dentro de almacenes
-          </p>
-        </div>
-        <Button 
-          variant="primary" 
-          onClick={() => navigation.push('/dashboard/inventory/locations/create')}
-        >
-          <i className="bi bi-plus-lg me-2" />
-          Crear Nueva
-        </Button>
-      </div>
-
-      {/* Filtros */}
-      <FilterBar
-        searchTerm={searchTerm}
-        onSearchChange={handleSearchChange}
-        placeholder="Buscar ubicaciones..."
+      <PageHeader
+        title="Almacenes"
+        subtitle="Ubicaciones físicas dentro de cada almacén"
+        actions={
+          <Link
+            href={
+              warehouseId
+                ? `/dashboard/inventory/locations/create?warehouseId=${warehouseId}`
+                : '/dashboard/inventory/locations/create'
+            }
+            className="btn btn-primary"
+          >
+            <i className="bi bi-plus-lg me-2" />
+            Nueva ubicación
+          </Link>
+        }
       />
 
-      {/* Error State */}
+      <WarehousesTabs />
+
+      <ListToolbar
+        search={{
+          value: searchTerm,
+          onChange: withReset(setSearchTerm),
+          placeholder: 'Buscar por nombre',
+        }}
+      >
+        <select
+          className="form-select w-auto"
+          value={warehouseId}
+          onChange={(e) => withReset(setWarehouseId)(e.target.value)}
+          aria-label="Filtrar por almacén"
+        >
+          <option value="">Todos los almacenes</option>
+          {warehouses.map((w) => (
+            <option key={w.id} value={w.id}>{w.name}</option>
+          ))}
+        </select>
+        <select
+          className="form-select w-auto"
+          value={typeFilter}
+          onChange={(e) => withReset(setTypeFilter)(e.target.value)}
+          aria-label="Filtrar por tipo"
+        >
+          <option value="">Todos los tipos</option>
+          {Object.entries(LOCATION_TYPE).map(([value, { label }]) => (
+            <option key={value} value={value}>{label}</option>
+          ))}
+        </select>
+        <select
+          className="form-select w-auto"
+          value={activeFilter}
+          onChange={(e) => withReset(setActiveFilter)(e.target.value)}
+          aria-label="Filtrar por estado"
+        >
+          <option value="">Todos los estados</option>
+          <option value="true">Activas</option>
+          <option value="false">Inactivas</option>
+        </select>
+      </ListToolbar>
+
       {error && (
-        <Alert variant="danger" className="mb-4">
+        <Alert variant="danger" className="mb-3">
           <i className="bi bi-exclamation-triangle me-2" />
-          <strong>Error:</strong> {error.message || 'Error al cargar las ubicaciones'}
+          {error.message || 'Error al cargar las ubicaciones'}
         </Alert>
       )}
 
-      {/* Content */}
       <div className="card">
         <div className="card-body p-0">
           <LocationsTableSimple
             locations={locations}
             isLoading={isLoading}
-            onEdit={() => {}}
-            onDelete={() => {}}
+            onDelete={handleDelete}
           />
-          
-          {/* Paginación - Show if we have more than 1 page */}
-          {totalPages > 1 && (
+          {page.lastPage > 1 && (
             <PaginationSimple
-              currentPage={currentBackendPage}
-              totalPages={totalPages}
-              onPageChange={handlePageChange}
+              currentPage={page.currentPage}
+              totalPages={page.lastPage}
+              onPageChange={setCurrentPage}
               isLoading={isLoading}
-              totalItems={totalItems}
-              pageSize={paginationInfo?.perPage || pageSize}
+              totalItems={page.total}
+              pageSize={page.perPage}
             />
           )}
         </div>
       </div>
+
+      <ConfirmModal ref={confirmModalRef} />
     </div>
   )
 }

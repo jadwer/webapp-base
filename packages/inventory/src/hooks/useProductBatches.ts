@@ -53,12 +53,13 @@ export function useProductBatches(params: UseProductBatchesParams = {}): UseProd
     }
   )
 
-  // Transform meta to match expected interface
-  const transformedMeta = data?.meta?.pagination ? {
-    total: data.meta.pagination.total,
-    perPage: data.meta.pagination.size,
-    currentPage: data.meta.pagination.page,
-    lastPage: data.meta.pagination.pages
+  // El backend emite meta.page (PagePagination), igual que las demas listas
+  const pageMeta = data?.meta?.page
+  const transformedMeta = pageMeta ? {
+    total: pageMeta.total,
+    perPage: pageMeta.perPage,
+    currentPage: pageMeta.currentPage,
+    lastPage: pageMeta.lastPage
   } : undefined
 
   return {
@@ -84,35 +85,9 @@ export function useProductBatchesByWarehouse(warehouseId: string) {
   })
 }
 
-export function useProductBatchesByStatus(status: ProductBatchStatus[]) {
+export function useProductBatchesByStatus(status: ProductBatchStatus) {
   return useProductBatches({
     filters: { status },
     sort: { field: 'expirationDate', direction: 'asc' }
-  })
-}
-
-// Hook for product batches expiring soon
-export function useExpiringProductBatches(days: number = 30) {
-  const expiresAfter = new Date().toISOString().split('T')[0] // Today
-  const expiresBefore = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
-  
-  return useProductBatches({
-    filters: {
-      status: ['active'],
-      expiresAfter,
-      expiresBefore
-    },
-    sort: { field: 'expirationDate', direction: 'asc' }
-  })
-}
-
-// Hook for low stock product batches
-export function useLowStockProductBatches(threshold: number = 10) {
-  return useProductBatches({
-    filters: {
-      status: ['active'],
-      maxQuantity: threshold
-    },
-    sort: { field: 'currentQuantity', direction: 'asc' }
   })
 }

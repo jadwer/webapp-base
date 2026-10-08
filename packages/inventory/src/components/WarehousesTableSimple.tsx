@@ -1,111 +1,104 @@
 /**
  * WAREHOUSES TABLE SIMPLE
- * Tabla simple de warehouses para el UI elegante
- * Sin complejidades innecesarias, solo funcionalidad esencial
+ * Tabla de almacenes con el patron de listados (thead oscuro, badges en espanol,
+ * columna Sucursal solo con mas de una sucursal).
  */
 
 'use client'
 
-import React from 'react'
 import Link from 'next/link'
+import { EmptyState, StatusBadge } from '@lwm/ui'
+import { useBranchName } from '@lwm/auth'
+import { WAREHOUSE_TYPE } from '../utils/labels'
 import type { WarehouseParsed } from '../types'
 
 interface WarehousesTableSimpleProps {
   warehouses?: WarehouseParsed[]
   isLoading: boolean
-  onEdit: (warehouse: WarehouseParsed) => void
   onDelete: (warehouse: WarehouseParsed) => void
 }
 
 export const WarehousesTableSimple = ({
   warehouses = [],
   isLoading,
-  onEdit: _unused, // eslint-disable-line @typescript-eslint/no-unused-vars
-  onDelete
+  onDelete,
 }: WarehousesTableSimpleProps) => {
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('es-ES', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    })
-  }
+  const branchName = useBranchName()
 
   if (isLoading) {
     return (
-      <div className="text-center py-5">
+      <div className="d-flex justify-content-center p-4">
         <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Cargando...</span>
+          <span className="visually-hidden">Cargando almacenes...</span>
         </div>
-        <p className="mt-3 text-muted">Cargando almacenes...</p>
       </div>
     )
   }
 
-  if (!warehouses || warehouses.length === 0) {
+  if (warehouses.length === 0) {
     return (
-      <div className="text-center py-5">
-        <i className="bi bi-building display-1 text-muted" />
-        <h5 className="mt-3">No se encontraron almacenes</h5>
-        <p className="text-muted">Crea tu primer almacén para comenzar</p>
-      </div>
+      <EmptyState
+        title="No hay almacenes"
+        description="No se encontraron almacenes con los filtros actuales."
+      />
     )
   }
 
   return (
     <div className="table-responsive">
-      <table className="table table-hover">
-        <thead className="table-light">
+      <table className="table table-striped table-hover mb-0">
+        <thead className="table-dark">
           <tr>
+            <th>Código</th>
             <th>Nombre</th>
-            <th>Descripción</th>
-            <th>Dirección</th>
+            <th>Tipo</th>
+            {branchName.multi && <th>Sucursal</th>}
             <th>Estado</th>
-            <th>Creado</th>
-            <th style={{ width: '150px' }}>Acciones</th>
+            <th style={{ width: '140px' }}>Acciones</th>
           </tr>
         </thead>
         <tbody>
           {warehouses.map((warehouse) => (
             <tr key={warehouse.id}>
               <td>
-                <div className="fw-semibold">{warehouse.name}</div>
-                {warehouse.phone && (
-                  <small className="text-muted">{warehouse.phone}</small>
+                <code>{warehouse.code || '-'}</code>
+              </td>
+              <td>
+                <Link
+                  href={`/dashboard/inventory/warehouses/${warehouse.id}`}
+                  className="fw-semibold text-decoration-none"
+                >
+                  {warehouse.name}
+                </Link>
+                {warehouse.city && (
+                  <div>
+                    <small className="text-muted">{warehouse.city}</small>
+                  </div>
                 )}
               </td>
               <td>
-                <span className="text-muted">
-                  {warehouse.description || '-'}
-                </span>
+                <StatusBadge status={warehouse.warehouseType} map={WAREHOUSE_TYPE} />
               </td>
-              <td>
-                <span className="text-muted">
-                  {warehouse.address || '-'}
-                </span>
-              </td>
+              {branchName.multi && (
+                <td className="small">{branchName.name(warehouse.branchId)}</td>
+              )}
               <td>
                 <span className={`badge bg-${warehouse.isActive ? 'success' : 'secondary'}`}>
                   {warehouse.isActive ? 'Activo' : 'Inactivo'}
                 </span>
               </td>
               <td>
-                <small className="text-muted">
-                  {warehouse.createdAt ? formatDate(warehouse.createdAt) : '-'}
-                </small>
-              </td>
-              <td>
                 <div className="btn-group btn-group-sm" role="group">
                   <Link
                     href={`/dashboard/inventory/warehouses/${warehouse.id}`}
-                    className="btn btn-outline-info"
-                    title="Ver detalles"
+                    className="btn btn-outline-primary"
+                    title="Ver detalle"
                   >
                     <i className="bi bi-eye" />
                   </Link>
                   <Link
                     href={`/dashboard/inventory/warehouses/${warehouse.id}/edit`}
-                    className="btn btn-outline-primary"
+                    className="btn btn-outline-secondary"
                     title="Editar"
                   >
                     <i className="bi bi-pencil" />

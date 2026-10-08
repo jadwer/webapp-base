@@ -1,10 +1,8 @@
 /**
- * INVENTORY SIMPLE MODULE
- * Arquitectura simple basada en el patrón exitoso del módulo Products
- * 
- * Entidades: Warehouses, Locations, Stock, InventoryMovements
- * Patrón: Simple SWR + Zustand UI state + Vitest Testing
- * Status: ✅ ENTERPRISE PRODUCTION READY
+ * @lwm/inventory
+ * Almacenes, ubicaciones, stock, movimientos, lotes, fraccionamiento,
+ * conversiones y conteos ciclicos sobre la API JSON:API (SWR + servicios axios).
+ * Estructura y esqueletos de pagina en INVENTORY_SIMPLE_README.md.
  */
 
 // Types
@@ -16,11 +14,21 @@ export * from './services'
 // Hooks
 export * from './hooks'
 
-// Store
-// export * from './store' // Not used in current implementation
-
-// Components - ✅ COMPLETED
+// Components
 export * from './components'
 
 // Utils
 // export * from './utils' // Commented to avoid type conflicts
+// Formato y etiquetas se exportan por nombre (el barrel de utils choca con jsonApi.ts)
+export { toNumber, formatDate, formatQty, formatMoney } from './utils/format'
+export type { FormatDateOptions } from './utils/format'
+export {
+  STOCK_STATUS,
+  BATCH_STATUS,
+  MOVEMENT_TYPE,
+  MOVEMENT_STATUS,
+  WAREHOUSE_TYPE,
+  FRACTIONATION_STATUS,
+  LOCATION_TYPE,
+} from './utils/labels'
+export type { InventoryLabelMap } from './utils/labels'

@@ -1,6 +1,8 @@
 'use client'
 
 import Link from 'next/link'
+import { EmptyState } from '@lwm/ui'
+import { toNumber } from '../utils/format'
 import type { ProductConversion } from '../types/productConversion'
 
 interface ProductConversionsTableProps {
@@ -16,9 +18,9 @@ export const ProductConversionsTable = ({
 }: ProductConversionsTableProps) => {
   if (isLoading) {
     return (
-      <div className="text-center py-5">
+      <div className="d-flex justify-content-center p-4">
         <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Cargando...</span>
+          <span className="visually-hidden">Cargando conversiones...</span>
         </div>
       </div>
     )
@@ -26,24 +28,24 @@ export const ProductConversionsTable = ({
 
   if (conversions.length === 0) {
     return (
-      <div className="text-center py-5 text-muted">
-        <i className="bi bi-arrow-repeat fs-1 d-block mb-2" />
-        No se encontraron conversiones de productos
-      </div>
+      <EmptyState
+        title="No hay conversiones"
+        description="Configura un par de productos para poder fraccionar."
+      />
     )
   }
 
   return (
     <div className="table-responsive">
-      <table className="table table-hover mb-0">
-        <thead className="table-light">
+      <table className="table table-striped table-hover mb-0">
+        <thead className="table-dark">
           <tr>
-            <th>Producto Origen</th>
-            <th>Producto Destino</th>
-            <th className="text-center">Factor</th>
-            <th className="text-center">Merma %</th>
-            <th className="text-center">Estado</th>
-            <th className="text-end">Acciones</th>
+            <th>Producto origen</th>
+            <th>Producto destino</th>
+            <th className="text-end">Factor</th>
+            <th className="text-end">Merma</th>
+            <th>Estado</th>
+            <th style={{ width: '110px' }}>Acciones</th>
           </tr>
         </thead>
         <tbody>
@@ -51,50 +53,49 @@ export const ProductConversionsTable = ({
             <tr key={conversion.id}>
               <td>
                 {conversion.sourceProduct ? (
-                  <div>
-                    <strong>{conversion.sourceProduct.name}</strong>
-                    <div className="text-muted small">{conversion.sourceProduct.sku}</div>
-                  </div>
+                  <>
+                    <div className="fw-semibold">{conversion.sourceProduct.name}</div>
+                    <small className="text-muted">{conversion.sourceProduct.sku}</small>
+                  </>
                 ) : (
                   <span className="text-muted">ID: {conversion.sourceProductId}</span>
                 )}
               </td>
               <td>
                 {conversion.destinationProduct ? (
-                  <div>
-                    <strong>{conversion.destinationProduct.name}</strong>
-                    <div className="text-muted small">{conversion.destinationProduct.sku}</div>
-                  </div>
+                  <>
+                    <div className="fw-semibold">{conversion.destinationProduct.name}</div>
+                    <small className="text-muted">{conversion.destinationProduct.sku}</small>
+                  </>
                 ) : (
                   <span className="text-muted">ID: {conversion.destinationProductId}</span>
                 )}
               </td>
-              <td className="text-center">
-                <span className="badge bg-info">{conversion.conversionFactor}</span>
-              </td>
-              <td className="text-center">
-                {conversion.wastePercentage > 0 ? (
-                  <span className="badge bg-warning text-dark">{conversion.wastePercentage}%</span>
+              <td className="text-end">{toNumber(conversion.conversionFactor)}</td>
+              <td className="text-end">
+                {toNumber(conversion.wastePercentage) > 0 ? (
+                  <span className="text-warning">{toNumber(conversion.wastePercentage)}%</span>
                 ) : (
                   <span className="text-muted">0%</span>
                 )}
               </td>
-              <td className="text-center">
-                <span className={`badge ${conversion.isActive ? 'bg-success' : 'bg-secondary'}`}>
+              <td>
+                <span className={`badge bg-${conversion.isActive ? 'success' : 'secondary'}`}>
                   {conversion.isActive ? 'Activa' : 'Inactiva'}
                 </span>
               </td>
-              <td className="text-end">
-                <div className="btn-group btn-group-sm">
+              <td>
+                <div className="btn-group btn-group-sm" role="group">
                   <Link
                     href={`/dashboard/inventory/product-conversions/${conversion.id}/edit`}
-                    className="btn btn-outline-primary"
+                    className="btn btn-outline-secondary"
                     title="Editar"
                   >
                     <i className="bi bi-pencil" />
                   </Link>
                   {onDelete && (
                     <button
+                      type="button"
                       className="btn btn-outline-danger"
                       onClick={() => onDelete(conversion)}
                       title="Eliminar"

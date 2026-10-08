@@ -1,9 +1,16 @@
-'use client'
-
-import { use } from 'react'
+import type { Metadata } from 'next'
 import { ProductConversionForm } from '@/modules/inventory'
 
-export default function EditProductConversionPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params)
+interface PageProps {
+  params: Promise<{ id: string }>
+}
+
+export const metadata: Metadata = {
+  title: 'Editar conversión - Inventario',
+  description: 'Modificar la conversión entre productos',
+}
+
+export default async function EditProductConversionPage({ params }: PageProps) {
+  const { id } = await params
   return <ProductConversionForm conversionId={id} />
 }

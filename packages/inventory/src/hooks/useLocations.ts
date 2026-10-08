@@ -27,13 +27,16 @@ export const useLocations = (params: {
   sort?: LocationSortOptions
   pagination?: PaginationParams
   include?: string[]
+  /** false = no consulta (p.ej. formulario sin almacen elegido) */
+  enabled?: boolean
 } = {}) => {
-  const key = ['warehouse-locations', params]
+  const { enabled = true, ...query } = params
+  const key = enabled ? ['warehouse-locations', query] : null
   
   const { data, error, isLoading, mutate } = useSWR(
     key,
     async () => {
-      const response = await locationsService.getAll(params)
+      const response = await locationsService.getAll(query)
       return processJsonApiResponse<WarehouseLocationParsed[]>(response)
     },
     {
@@ -50,6 +53,28 @@ export const useLocations = (params: {
     isLoading,
     error,
     mutate
+  }
+}
+
+/**
+ * Ubicaciones activas de un almacen para selects de formularios.
+ * Sin almacen no consulta; filtra por warehouseId porque keepPreviousData
+ * devuelve las del almacen anterior mientras carga.
+ */
+export const useWarehouseLocationOptions = (warehouseId?: string | number | null) => {
+  const id = warehouseId ? String(warehouseId) : ''
+  const { locations, isLoading, error } = useLocations({
+    filters: { warehouseId: id, isActive: true },
+    pagination: { size: 200 },
+    enabled: Boolean(id),
+  })
+
+  return {
+    locations: id
+      ? locations.filter((location) => location.warehouseId == null || String(location.warehouseId) === id)
+      : [],
+    isLoading: Boolean(id) && isLoading,
+    error,
   }
 }
 

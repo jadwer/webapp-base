@@ -13,3 +13,8 @@ export { inventoryReservationsService } from './inventoryReservationsService'
 export { lotTraceabilityService } from './lotTraceabilityService'
 export { productConversionsService } from './productConversionsService'
 export { fractionationService } from './fractionationService'
+export type {
+  ExpiringSoonBatch,
+  ExpiredBatch,
+  LotAlertSummary
+} from './lotTraceabilityService'

@@ -1,106 +1,111 @@
+/**
+ * FRACTIONATIONS ADMIN PAGE
+ * Historial de fraccionamiento con pestanas Historial | Conversiones.
+ */
+
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
+import { Alert, ListToolbar, PageHeader } from '@lwm/ui'
 import { useFractionations } from '../hooks/useFractionations'
+import { useWarehouses } from '../hooks'
 import { FractionationHistory } from './FractionationHistory'
+import { FractionationTabs } from './FractionationTabs'
 import { PaginationSimple } from './PaginationSimple'
-import { Button } from '@lwm/ui'
-import { Alert } from '@lwm/ui'
-import { useNavigationProgress } from '@lwm/ui'
+import { FRACTIONATION_STATUS } from '../utils/labels'
+import { readPageMeta } from '../utils/listing'
+
+const PAGE_SIZE = 20
 
 export const FractionationsAdminPage = () => {
+  const [folio, setFolio] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
+  const [warehouseId, setWarehouseId] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
-  const pageSize = 20
-  const navigation = useNavigationProgress()
 
   const { fractionations, meta, isLoading, error } = useFractionations({
-    filters: statusFilter ? { status: statusFilter } : undefined,
-    pagination: { page: currentPage, size: pageSize },
+    filters: {
+      folioNumber: folio.trim() || undefined,
+      status: statusFilter || undefined,
+      warehouse: warehouseId || undefined,
+    },
+    pagination: { page: currentPage, size: PAGE_SIZE },
     include: ['sourceProduct', 'destinationProduct', 'warehouse'],
   })
+  const { warehouses } = useWarehouses({ filters: { isActive: true }, pagination: { size: 100 } })
 
-  const paginationInfo = meta?.page
-  const totalItems = (paginationInfo && typeof paginationInfo === 'object' && 'total' in paginationInfo) ? (paginationInfo as Record<string, unknown>).total as number : 0
-  const totalPages = (paginationInfo && typeof paginationInfo === 'object' && 'lastPage' in paginationInfo) ? (paginationInfo as Record<string, unknown>).lastPage as number : 1
-  const currentBackendPage = (paginationInfo && typeof paginationInfo === 'object' && 'currentPage' in paginationInfo) ? (paginationInfo as Record<string, unknown>).currentPage as number : currentPage
+  const page = readPageMeta(meta, currentPage, PAGE_SIZE)
+
+  const withReset = <T,>(setter: (value: T) => void) => (value: T) => {
+    setter(value)
+    setCurrentPage(1)
+  }
 
   return (
     <div className="container-fluid py-4">
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <div>
-          <h1 className="h3 mb-1">Fraccionamiento</h1>
-          <p className="text-muted">Historial de fraccionamiento de productos</p>
-        </div>
-        <Button
-          variant="primary"
-          onClick={() => navigation.push('/dashboard/inventory/fraccionamiento/create')}
-        >
-          <i className="bi bi-scissors me-2" />
-          Nuevo Fraccionamiento
-        </Button>
-      </div>
+      <PageHeader
+        title="Fraccionamiento"
+        subtitle="Conversión de productos a presentaciones menores"
+        actions={
+          <Link href="/dashboard/inventory/fraccionamiento/create" className="btn btn-primary">
+            <i className="bi bi-scissors me-2" />
+            Nuevo fraccionamiento
+          </Link>
+        }
+      />
 
-      {/* Filters */}
-      <div className="card mb-3">
-        <div className="card-body py-2">
-          <div className="row align-items-center">
-            <div className="col-auto">
-              <label className="form-label mb-0 small text-muted">Estado:</label>
-            </div>
-            <div className="col-auto">
-              <div className="btn-group btn-group-sm">
-                <button
-                  className={`btn ${!statusFilter ? 'btn-primary' : 'btn-outline-primary'}`}
-                  onClick={() => { setStatusFilter(''); setCurrentPage(1) }}
-                >
-                  Todos
-                </button>
-                <button
-                  className={`btn ${statusFilter === 'completed' ? 'btn-primary' : 'btn-outline-primary'}`}
-                  onClick={() => { setStatusFilter('completed'); setCurrentPage(1) }}
-                >
-                  Completados
-                </button>
-                <button
-                  className={`btn ${statusFilter === 'pending' ? 'btn-primary' : 'btn-outline-primary'}`}
-                  onClick={() => { setStatusFilter('pending'); setCurrentPage(1) }}
-                >
-                  Pendientes
-                </button>
-                <button
-                  className={`btn ${statusFilter === 'cancelled' ? 'btn-primary' : 'btn-outline-primary'}`}
-                  onClick={() => { setStatusFilter('cancelled'); setCurrentPage(1) }}
-                >
-                  Cancelados
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <FractionationTabs />
+
+      <ListToolbar
+        search={{
+          value: folio,
+          onChange: withReset(setFolio),
+          placeholder: 'Folio exacto',
+        }}
+      >
+        <select
+          className="form-select w-auto"
+          value={statusFilter}
+          onChange={(e) => withReset(setStatusFilter)(e.target.value)}
+          aria-label="Filtrar por estado"
+        >
+          <option value="">Todos los estados</option>
+          {Object.entries(FRACTIONATION_STATUS).map(([value, { label }]) => (
+            <option key={value} value={value}>{label}</option>
+          ))}
+        </select>
+        <select
+          className="form-select w-auto"
+          value={warehouseId}
+          onChange={(e) => withReset(setWarehouseId)(e.target.value)}
+          aria-label="Filtrar por almacén"
+        >
+          <option value="">Todos los almacenes</option>
+          {warehouses.map((w) => (
+            <option key={w.id} value={w.id}>{w.name}</option>
+          ))}
+        </select>
+      </ListToolbar>
 
       {error && (
-        <Alert variant="danger" className="mb-4">
-          <strong>Error:</strong> {error.message || 'Error al cargar el historial'}
+        <Alert variant="danger" className="mb-3">
+          <i className="bi bi-exclamation-triangle me-2" />
+          {error.message || 'Error al cargar el historial'}
         </Alert>
       )}
 
       <div className="card">
         <div className="card-body p-0">
-          <FractionationHistory
-            fractionations={fractionations}
-            isLoading={isLoading}
-          />
-
-          {totalPages > 1 && (
+          <FractionationHistory fractionations={fractionations} isLoading={isLoading} />
+          {page.lastPage > 1 && (
             <PaginationSimple
-              currentPage={currentBackendPage}
-              totalPages={totalPages}
+              currentPage={page.currentPage}
+              totalPages={page.lastPage}
               onPageChange={setCurrentPage}
               isLoading={isLoading}
-              totalItems={totalItems}
-              pageSize={pageSize}
+              totalItems={page.total}
+              pageSize={page.perPage}
             />
           )}
         </div>

@@ -27,7 +27,7 @@ describe('productBatchService', () => {
       ]
       const apiResponse = {
         data: batches,
-        meta: { pagination: { total: 2 } },
+        meta: { page: { currentPage: 1, lastPage: 1, perPage: 20, total: 2 } },
       }
       vi.mocked(axios.get).mockResolvedValue({ data: apiResponse })
 
@@ -45,7 +45,7 @@ describe('productBatchService', () => {
         })
       )
       expect(result.data).toHaveLength(2)
-      expect(result.meta).toEqual({ pagination: { total: 2 } })
+      expect(result.meta).toEqual({ page: { currentPage: 1, lastPage: 1, perPage: 20, total: 2 } })
     })
 
     it('should fetch batches with search filter', async () => {
@@ -76,7 +76,7 @@ describe('productBatchService', () => {
       vi.mocked(axios.get).mockResolvedValue({ data: apiResponse })
 
       // Act
-      const result = await productBatchService.getAll({ status: ['active'] })
+      const result = await productBatchService.getAll({ status: 'active' })
 
       // Assert
       expect(axios.get).toHaveBeenCalledWith(
@@ -90,28 +90,25 @@ describe('productBatchService', () => {
       expect(result.data).toHaveLength(1)
     })
 
-    it('should fetch batches with multiple status values', async () => {
+    it('should send a single status value (Where, not WhereIn)', async () => {
       // Arrange
-      const batches = [
-        createMockProductBatch({ id: '1', status: 'active' }),
-        createMockProductBatch({ id: '2', status: 'expired' }),
-      ]
+      const batches = [createMockProductBatch({ id: '2', status: 'expired' })]
       const apiResponse = { data: batches, meta: {} }
       vi.mocked(axios.get).mockResolvedValue({ data: apiResponse })
 
       // Act
-      const result = await productBatchService.getAll({ status: ['active', 'expired'] })
+      const result = await productBatchService.getAll({ status: 'expired' })
 
       // Assert
       expect(axios.get).toHaveBeenCalledWith(
         '/api/v1/product-batches',
         expect.objectContaining({
           params: expect.objectContaining({
-            'filter[status]': 'active,expired'
+            'filter[status]': 'expired'
           })
         })
       )
-      expect(result.data).toHaveLength(2)
+      expect(result.data).toHaveLength(1)
     })
 
     it('should fetch batches with productId filter', async () => {
@@ -174,115 +171,6 @@ describe('productBatchService', () => {
           })
         })
       )
-      expect(result.data).toHaveLength(1)
-    })
-
-    // Note: The following filters are commented out in the service (not supported by backend yet):
-    // expiresAfter, expiresBefore, manufacturedAfter, manufacturedBefore, supplierName,
-    // minQuantity, maxQuantity, hasTestResults, hasCertifications
-    // These tests verify the service still accepts the filter params gracefully.
-
-    it('should accept expiration date range filters without sending them to API', async () => {
-      // Arrange
-      const batches = [createMockProductBatch({ id: '1', expirationDate: '2025-06-30' })]
-      const apiResponse = { data: batches, meta: {} }
-      vi.mocked(axios.get).mockResolvedValue({ data: apiResponse })
-
-      // Act - filters accepted but not sent (commented out in service)
-      const result = await productBatchService.getAll({
-        expiresAfter: '2025-01-01',
-        expiresBefore: '2025-12-31'
-      })
-
-      // Assert - call succeeds, filters are NOT in params
-      expect(axios.get).toHaveBeenCalled()
-      expect(result.data).toHaveLength(1)
-    })
-
-    it('should accept manufacturing date range filters without sending them to API', async () => {
-      // Arrange
-      const batches = [createMockProductBatch({ id: '1', manufacturingDate: '2024-06-15' })]
-      const apiResponse = { data: batches, meta: {} }
-      vi.mocked(axios.get).mockResolvedValue({ data: apiResponse })
-
-      // Act
-      const result = await productBatchService.getAll({
-        manufacturedAfter: '2024-01-01',
-        manufacturedBefore: '2024-12-31'
-      })
-
-      // Assert
-      expect(axios.get).toHaveBeenCalled()
-      expect(result.data).toHaveLength(1)
-    })
-
-    it('should accept supplierName filter without sending it to API', async () => {
-      // Arrange
-      const batches = [createMockProductBatch({ id: '1', supplierName: 'ACME Corp' })]
-      const apiResponse = { data: batches, meta: {} }
-      vi.mocked(axios.get).mockResolvedValue({ data: apiResponse })
-
-      // Act
-      const result = await productBatchService.getAll({ supplierName: 'ACME Corp' })
-
-      // Assert
-      expect(axios.get).toHaveBeenCalled()
-      expect(result.data).toHaveLength(1)
-    })
-
-    it('should accept minQuantity filter without sending it to API', async () => {
-      // Arrange
-      const batches = [createMockProductBatch({ id: '1', currentQuantity: 100 })]
-      const apiResponse = { data: batches, meta: {} }
-      vi.mocked(axios.get).mockResolvedValue({ data: apiResponse })
-
-      // Act
-      const result = await productBatchService.getAll({ minQuantity: 50 })
-
-      // Assert
-      expect(axios.get).toHaveBeenCalled()
-      expect(result.data).toHaveLength(1)
-    })
-
-    it('should accept maxQuantity filter without sending it to API', async () => {
-      // Arrange
-      const batches = [createMockProductBatch({ id: '1', currentQuantity: 50 })]
-      const apiResponse = { data: batches, meta: {} }
-      vi.mocked(axios.get).mockResolvedValue({ data: apiResponse })
-
-      // Act
-      const result = await productBatchService.getAll({ maxQuantity: 100 })
-
-      // Assert
-      expect(axios.get).toHaveBeenCalled()
-      expect(result.data).toHaveLength(1)
-    })
-
-    it('should accept hasTestResults filter without sending it to API', async () => {
-      // Arrange
-      const batches = [createMockProductBatch({ id: '1', testResults: { quality: 'A' } })]
-      const apiResponse = { data: batches, meta: {} }
-      vi.mocked(axios.get).mockResolvedValue({ data: apiResponse })
-
-      // Act
-      const result = await productBatchService.getAll({ hasTestResults: true })
-
-      // Assert
-      expect(axios.get).toHaveBeenCalled()
-      expect(result.data).toHaveLength(1)
-    })
-
-    it('should accept hasCertifications filter without sending it to API', async () => {
-      // Arrange
-      const batches = [createMockProductBatch({ id: '1', certifications: { ISO: true } })]
-      const apiResponse = { data: batches, meta: {} }
-      vi.mocked(axios.get).mockResolvedValue({ data: apiResponse })
-
-      // Act
-      const result = await productBatchService.getAll({ hasCertifications: true })
-
-      // Assert
-      expect(axios.get).toHaveBeenCalled()
       expect(result.data).toHaveLength(1)
     })
 
@@ -365,7 +253,7 @@ describe('productBatchService', () => {
       // Act - only pass filters that the service actually sends
       const result = await productBatchService.getAll({
         search: 'BATCH',
-        status: ['active'],
+        status: 'active',
         productId: '5',
         warehouseId: '3',
       })
@@ -573,13 +461,13 @@ describe('productBatchService', () => {
       // Arrange
       const updateData = {
         currentQuantity: 75,
-        status: 'depleted' as const,
+        status: 'consumed' as const,
         qualityNotes: 'Updated quality notes'
       }
       const updatedBatch = createMockProductBatch({
         id: '1',
         currentQuantity: 75,
-        status: 'depleted',
+        status: 'consumed',
         qualityNotes: 'Updated quality notes'
       })
       // Transform to JSON:API format
@@ -590,13 +478,13 @@ describe('productBatchService', () => {
           attributes: updatedBatch
         }
       }
-      vi.mocked(axios.put).mockResolvedValue({ data: apiResponse })
+      vi.mocked(axios.patch).mockResolvedValue({ data: apiResponse })
 
       // Act
       const result = await productBatchService.update('1', updateData)
 
       // Assert
-      expect(axios.put).toHaveBeenCalledWith(
+      expect(axios.patch).toHaveBeenCalledWith(
         '/api/v1/product-batches/1',
         expect.objectContaining({
           data: expect.objectContaining({
@@ -604,7 +492,7 @@ describe('productBatchService', () => {
             id: '1',
             attributes: expect.objectContaining({
               currentQuantity: 75,
-              status: 'depleted',
+              status: 'consumed',
               qualityNotes: 'Updated quality notes'
             })
           })
@@ -612,7 +500,7 @@ describe('productBatchService', () => {
       )
       expect(result.id).toBe('1')
       expect(result.currentQuantity).toBe(75)
-      expect(result.status).toBe('depleted')
+      expect(result.status).toBe('consumed')
     })
 
     it('should update batch with relationship changes', async () => {
@@ -634,13 +522,13 @@ describe('productBatchService', () => {
           attributes: updatedBatch
         }
       }
-      vi.mocked(axios.put).mockResolvedValue({ data: apiResponse })
+      vi.mocked(axios.patch).mockResolvedValue({ data: apiResponse })
 
       // Act
       const result = await productBatchService.update('1', updateData)
 
       // Assert
-      expect(axios.put).toHaveBeenCalledWith(
+      expect(axios.patch).toHaveBeenCalledWith(
         '/api/v1/product-batches/1',
         expect.objectContaining({
           data: expect.objectContaining({
@@ -662,7 +550,7 @@ describe('productBatchService', () => {
       // Arrange
       const updateData = { currentQuantity: 50 }
       const error = new Error('Not found')
-      vi.mocked(axios.put).mockRejectedValue(error)
+      vi.mocked(axios.patch).mockRejectedValue(error)
 
       // Act & Assert
       await expect(productBatchService.update('999', updateData)).rejects.toThrow('Not found')

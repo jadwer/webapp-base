@@ -1,84 +1,38 @@
 'use client'
 
+import { toast, useNavigationProgress } from '@lwm/ui'
 import { WarehouseForm } from './WarehouseForm'
+import { FormStateCard } from './FormStateCard'
 import { useWarehouse, useWarehousesMutations } from '../hooks'
-import type { UpdateWarehouseData } from '../types'
+import type { CreateWarehouseData, UpdateWarehouseData } from '../types'
 
 interface EditWarehouseWrapperProps {
   warehouseId: string
 }
 
+const LIST_HREF = '/dashboard/inventory/warehouses'
+
 export const EditWarehouseWrapper = ({ warehouseId }: EditWarehouseWrapperProps) => {
-  const { warehouse, isLoading: isLoadingWarehouse, error } = useWarehouse(warehouseId)
-  const { updateWarehouse, isLoading: isUpdating } = useWarehousesMutations()
-  
-  const handleSubmit = async (data: UpdateWarehouseData) => {
-    await updateWarehouse(warehouseId, data)
+  const navigation = useNavigationProgress()
+  const detailHref = `${LIST_HREF}/${warehouseId}`
+  const { warehouse, isLoading, error } = useWarehouse(warehouseId)
+  const { updateWarehouse } = useWarehousesMutations()
+
+  const handleSubmit = async (data: CreateWarehouseData | UpdateWarehouseData) => {
+    await updateWarehouse(warehouseId, data as UpdateWarehouseData)
+    toast.success('Almacén actualizado')
+    navigation.push(detailHref)
   }
-  
-  if (isLoadingWarehouse) {
-    return (
-      <div className="container-fluid py-4">
-        <div className="row justify-content-center">
-          <div className="col-lg-8">
-            <div className="card">
-              <div className="card-body text-center py-5">
-                <div className="spinner-border text-primary" role="status">
-                  <span className="visually-hidden">Cargando...</span>
-                </div>
-                <p className="mt-3 text-muted">Cargando datos del almacén...</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
+
+  if (isLoading) {
+    return <FormStateCard state="loading" title="Editar almacén" backHref={detailHref} message="Cargando almacén..." />
   }
-  
   if (error) {
-    return (
-      <div className="container-fluid py-4">
-        <div className="row justify-content-center">
-          <div className="col-lg-8">
-            <div className="card border-danger">
-              <div className="card-body text-center py-5">
-                <i className="bi bi-exclamation-triangle text-danger" style={{ fontSize: '3rem' }}></i>
-                <h4 className="mt-3 text-danger">Error al cargar el almacén</h4>
-                <p className="text-muted">{error.message || 'No se pudo cargar la información del almacén'}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
+    return <FormStateCard state="error" title="Editar almacén" backHref={LIST_HREF} message={error.message || 'No se pudo cargar el almacén.'} />
   }
-  
   if (!warehouse) {
-    return (
-      <div className="container-fluid py-4">
-        <div className="row justify-content-center">
-          <div className="col-lg-8">
-            <div className="card">
-              <div className="card-body text-center py-5">
-                <i className="bi bi-building" style={{ fontSize: '3rem', opacity: 0.3 }}></i>
-                <h4 className="mt-3">Almacén no encontrado</h4>
-                <p className="text-muted">El almacén solicitado no existe o no está disponible</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
+    return <FormStateCard state="not-found" title="Editar almacén" backHref={LIST_HREF} icon="bi-building" message="El almacén no existe o no está disponible." />
   }
-  
-  // Warehouse is already parsed, so just use it directly
-  const warehouseForForm = warehouse
-  
-  return (
-    <WarehouseForm
-      warehouse={warehouseForForm}
-      onSubmit={handleSubmit}
-      isLoading={isUpdating}
-    />
-  )
+
+  return <WarehouseForm warehouse={warehouse} onSubmit={handleSubmit} onCancel={() => navigation.push(detailHref)} backHref={detailHref} />
 }

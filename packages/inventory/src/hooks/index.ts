@@ -19,7 +19,8 @@ export {
   useLocations,
   useLocation,
   useLocationsMutations,
-  useLocationStock
+  useLocationStock,
+  useWarehouseLocationOptions
 } from './useLocations'
 
 // Stock hooks
@@ -48,9 +49,7 @@ export {
   useProductBatches,
   useProductBatchesByProduct,
   useProductBatchesByWarehouse,
-  useProductBatchesByStatus,
-  useExpiringProductBatches,
-  useLowStockProductBatches
+  useProductBatchesByStatus
 } from './useProductBatches'
 
 export {
@@ -63,18 +62,18 @@ export {
 
 
 // Dashboard hooks
-export {
-  useInventoryDashboard,
-  useStockAlerts,
-  useRecentActivity
-} from './useDashboard'
+export { useRecentActivity } from './useDashboard'
 
-// Variante con stats para el dashboard (homonimo del hook de useProductBatches.ts;
-// se exporta con alias porque el barrel ya reserva el nombre para aquel)
+// Conteos reales del backend (meta.page.total) y alertas
 export {
-  useExpiringProductBatches as useExpiringProductBatchesStats,
-  type UseExpiringProductBatchesOptions
-} from './useExpiringProductBatches'
+  useInventoryDashboardCounts,
+  useStockCounts,
+  useMovementCounts,
+  useStockAlerts,
+  useLotAlerts,
+  readPageTotal,
+  type StockAlert
+} from './useInventoryCounts'
 
 // Cycle Count hooks - Backend v1.1
 export { useCycleCounts } from './useCycleCounts'

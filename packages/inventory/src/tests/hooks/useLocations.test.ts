@@ -10,6 +10,7 @@ import {
   useLocation,
   useLocationsMutations,
   useLocationStock,
+  useWarehouseLocationOptions,
 } from '../../hooks/useLocations'
 import { locationsService } from '../../services'
 import { createMockLocation } from '../utils/test-utils'
@@ -369,5 +370,39 @@ describe('useLocationStock', () => {
     // Assert
     expect(result.current.stock).toEqual(stock)
     expect(locationsService.getStock).toHaveBeenCalledWith('1', ['product', 'productBatch'])
+  })
+})
+
+
+describe('useWarehouseLocationOptions', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('no consulta sin almacen', () => {
+    const { result } = renderHook(() => useWarehouseLocationOptions(''))
+    expect(result.current.locations).toEqual([])
+    expect(result.current.isLoading).toBe(false)
+    expect(locationsService.getAll).not.toHaveBeenCalled()
+  })
+
+  it('pide las ubicaciones activas del almacen con tamano 200 y descarta las de otro almacen', async () => {
+    const locations = [
+      { ...createMockLocation({ id: '11', name: 'Rack 1' }), warehouseId: '77' },
+      { ...createMockLocation({ id: '12', name: 'Rack 2' }), warehouseId: '78' },
+    ]
+    vi.mocked(locationsService.getAll).mockResolvedValue({ data: locations })
+    vi.mocked(processJsonApiResponse).mockReturnValue({ data: locations })
+
+    const { result } = renderHook(() => useWarehouseLocationOptions('77'))
+
+    await waitFor(() => {
+      expect(result.current.locations).toHaveLength(1)
+    })
+    expect(result.current.locations[0].id).toBe('11')
+    expect(locationsService.getAll).toHaveBeenCalledWith({
+      filters: { warehouseId: '77', isActive: true },
+      pagination: { size: 200 },
+    })
   })
 })

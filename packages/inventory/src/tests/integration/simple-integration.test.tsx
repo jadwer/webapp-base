@@ -25,6 +25,20 @@ vi.mock('../../hooks/useProductBatches', () => ({
   }))
 }))
 
+vi.mock('../../hooks/useWarehouses', () => ({
+  useWarehouses: vi.fn(() => ({ warehouses: [], meta: undefined, isLoading: false, error: null })),
+}))
+
+vi.mock('../../hooks/useInventoryCounts', () => ({
+  useLotAlerts: vi.fn(() => ({
+    expiring: [],
+    expiringCount: 4,
+    expiredCount: 2,
+    isLoading: false,
+    error: null,
+  })),
+}))
+
 vi.mock('@lwm/ui', async () => {
   const actual = await vi.importActual<typeof import('@lwm/ui')>('@lwm/ui')
   return {
@@ -44,7 +58,7 @@ describe('Simple Integration Tests', () => {
   it('should render admin page successfully', () => {
     render(<ProductBatchesAdminPageReal />)
     
-    expect(screen.getByText('Lotes de Productos')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Lotes de productos' })).toBeInTheDocument()
   })
 
   it('should display product batch data', () => {
@@ -53,12 +67,11 @@ describe('Simple Integration Tests', () => {
     expect(screen.getByText('BATCH-001')).toBeInTheDocument()
   })
 
-  it('should show correct total count', () => {
+  it('should show lot alert counts from the backend', () => {
     render(<ProductBatchesAdminPageReal />)
-    
-    // Should display total count somewhere in the UI
-    const elements = screen.getAllByText('1')
-    expect(elements.length).toBeGreaterThan(0)
+
+    expect(screen.getByText('4')).toBeInTheDocument()
+    expect(screen.getByText('2')).toBeInTheDocument()
   })
 
   it('should render without errors', () => {

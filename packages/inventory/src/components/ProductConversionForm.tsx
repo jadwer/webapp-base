@@ -2,26 +2,23 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Button } from '@lwm/ui'
-import { Alert } from '@lwm/ui'
-import { toast } from '@lwm/ui'
+import { DetailSection, PageHeader, toast } from '@lwm/ui'
+import { ProductSearchSelect } from '@lwm/products'
 import { useProductConversionsMutations, useProductConversion } from '../hooks/useProductConversions'
+import { FormStateCard } from './FormStateCard'
+import { apiErrorList } from '../utils/listing'
 import type { CreateProductConversionData, UpdateProductConversionData } from '../types/productConversion'
 
 interface ProductConversionFormProps {
   conversionId?: string
 }
 
-interface ProductOption {
-  id: string
-  name: string
-  sku: string
-}
+const LIST_HREF = '/dashboard/inventory/product-conversions'
 
 export const ProductConversionForm = ({ conversionId }: ProductConversionFormProps) => {
   const router = useRouter()
   const isEditing = !!conversionId
-  const { conversion, isLoading: isLoadingConversion } = useProductConversion(
+  const { conversion, isLoading: isLoadingConversion, error: loadError } = useProductConversion(
     conversionId || null,
     ['sourceProduct', 'destinationProduct']
   )
@@ -35,33 +32,8 @@ export const ProductConversionForm = ({ conversionId }: ProductConversionFormPro
     isActive: true,
     notes: '',
   })
-  const [products, setProducts] = useState<ProductOption[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [isLoadingProducts, setIsLoadingProducts] = useState(true)
-
-  // Load products list
-  useEffect(() => {
-    const loadProducts = async () => {
-      try {
-        const { default: axiosClient } = await import('../lib/axiosClient')
-        const response = await axiosClient.get('/api/v1/products', {
-          params: { 'page[size]': 200, sort: 'name' }
-        })
-        const productList = (response.data?.data || []).map((p: { id: string; attributes?: { name?: string; sku?: string } }) => ({
-          id: p.id,
-          name: p.attributes?.name || '',
-          sku: p.attributes?.sku || '',
-        }))
-        setProducts(productList)
-      } catch {
-        setError('Error al cargar los productos')
-      } finally {
-        setIsLoadingProducts(false)
-      }
-    }
-    loadProducts()
-  }, [])
+  const [errors, setErrors] = useState<string[]>([])
 
   // Populate form when editing
   useEffect(() => {
@@ -79,7 +51,17 @@ export const ProductConversionForm = ({ conversionId }: ProductConversionFormPro
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setError(null)
+    const missing: string[] = []
+    if (!formData.sourceProductId) missing.push('Selecciona el producto origen')
+    if (!formData.destinationProductId) missing.push('Selecciona el producto destino')
+    if (formData.sourceProductId && formData.sourceProductId === formData.destinationProductId) {
+      missing.push('El producto destino debe ser distinto al origen')
+    }
+    if (!(Number(formData.conversionFactor) > 0)) missing.push('El factor de conversión debe ser mayor a cero')
+    const waste = Number(formData.wastePercentage)
+    if (Number.isNaN(waste) || waste < 0 || waste > 100) missing.push('La merma debe estar entre 0 y 100')
+    setErrors(missing)
+    if (missing.length > 0) return
     setIsSubmitting(true)
 
     try {
@@ -93,7 +75,7 @@ export const ProductConversionForm = ({ conversionId }: ProductConversionFormPro
           notes: formData.notes || undefined,
         }
         await updateConversion(conversionId, updateData)
-        toast.success('Conversion actualizada correctamente')
+        toast.success('Conversión actualizada')
       } else {
         const createData: CreateProductConversionData = {
           sourceProductId: Number(formData.sourceProductId),
@@ -104,190 +86,188 @@ export const ProductConversionForm = ({ conversionId }: ProductConversionFormPro
           notes: formData.notes || undefined,
         }
         await createConversion(createData)
-        toast.success('Conversion creada correctamente')
+        toast.success('Conversión creada')
       }
-      router.push('/dashboard/inventory/product-conversions')
+      router.push(LIST_HREF)
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Error al guardar la conversion'
-      setError(message)
-      toast.error(message)
+      setErrors(apiErrorList(err, 'No se pudo guardar la conversión'))
     } finally {
       setIsSubmitting(false)
     }
   }
 
   if (isEditing && isLoadingConversion) {
-    return (
-      <div className="text-center py-5">
-        <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Cargando...</span>
-        </div>
-      </div>
-    )
+    return <FormStateCard state="loading" title="Editar conversión" backHref={LIST_HREF} message="Cargando conversión..." />
   }
+  if (isEditing && loadError) {
+    return <FormStateCard state="error" title="Editar conversión" backHref={LIST_HREF} message={loadError.message || 'No se pudo cargar la conversión.'} />
+  }
+  if (isEditing && !conversion) {
+    return <FormStateCard state="not-found" title="Editar conversión" backHref={LIST_HREF} icon="bi-arrow-repeat" message="La conversión no existe o no está disponible." />
+  }
+
+  const factor = Number(formData.conversionFactor)
+  const wastePct = Number(formData.wastePercentage)
+  const sourceInitial = conversion?.sourceProduct
+    ? { id: String(conversion.sourceProduct.id), name: conversion.sourceProduct.name, sku: conversion.sourceProduct.sku }
+    : null
+  const destinationInitial = conversion?.destinationProduct
+    ? { id: String(conversion.destinationProduct.id), name: conversion.destinationProduct.name, sku: conversion.destinationProduct.sku }
+    : null
 
   return (
     <div className="container-fluid py-4">
       <div className="row justify-content-center">
         <div className="col-lg-8">
-          <div className="d-flex align-items-center mb-4">
-            <button
-              className="btn btn-link text-decoration-none p-0 me-3"
-              onClick={() => router.push('/dashboard/inventory/product-conversions')}
-            >
-              <i className="bi bi-arrow-left fs-4" />
-            </button>
-            <div>
-              <h1 className="h3 mb-0">{isEditing ? 'Editar Conversion' : 'Nueva Conversion'}</h1>
-              <p className="text-muted mb-0">
-                {isEditing ? 'Modificar la conversion entre productos' : 'Definir una nueva conversion entre productos'}
-              </p>
-            </div>
-          </div>
+          <PageHeader
+            title={isEditing ? 'Editar conversión' : 'Nueva conversión'}
+            subtitle={isEditing ? 'Modifica la conversión entre productos' : 'Define cuántas unidades destino salen de una unidad origen'}
+            backHref={LIST_HREF}
+          />
 
-          {error && (
-            <Alert variant="danger" className="mb-3">
-              {error}
-            </Alert>
+          {errors.length > 0 && (
+            <div className="alert alert-danger" role="alert">
+              <i className="bi bi-exclamation-triangle me-2" />
+              {errors.length === 1 ? errors[0] : (
+                <ul className="mb-0 ps-3">{errors.map((msg) => <li key={msg}>{msg}</li>)}</ul>
+              )}
+            </div>
           )}
 
-          <div className="card">
-            <div className="card-body">
-              <form onSubmit={handleSubmit}>
-                <div className="row mb-3">
-                  <div className="col-md-6">
-                    <label className="form-label">Producto Origen *</label>
-                    <select
-                      className="form-select"
-                      value={formData.sourceProductId}
-                      onChange={(e) => setFormData({ ...formData, sourceProductId: e.target.value })}
-                      required
-                      disabled={isLoadingProducts}
-                    >
-                      <option value="">Seleccionar producto...</option>
-                      {products.map((p) => (
-                        <option key={p.id} value={p.id}>
-                          {p.sku} - {p.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="col-md-6">
-                    <label className="form-label">Producto Destino *</label>
-                    <select
-                      className="form-select"
-                      value={formData.destinationProductId}
-                      onChange={(e) => setFormData({ ...formData, destinationProductId: e.target.value })}
-                      required
-                      disabled={isLoadingProducts}
-                    >
-                      <option value="">Seleccionar producto...</option>
-                      {products.filter((p) => p.id !== formData.sourceProductId).map((p) => (
-                        <option key={p.id} value={p.id}>
-                          {p.sku} - {p.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-
-                <div className="row mb-3">
-                  <div className="col-md-4">
-                    <label className="form-label">Factor de Conversion *</label>
-                    <input
-                      type="number"
-                      className="form-control"
-                      value={formData.conversionFactor}
-                      onChange={(e) => setFormData({ ...formData, conversionFactor: e.target.value })}
-                      step="0.0001"
-                      min="0.0001"
-                      required
-                      placeholder="Ej: 10"
-                    />
-                    <div className="form-text">
-                      Cuantas unidades destino se obtienen por cada unidad origen
-                    </div>
-                  </div>
-                  <div className="col-md-4">
-                    <label className="form-label">Porcentaje de Merma</label>
-                    <div className="input-group">
-                      <input
-                        type="number"
-                        className="form-control"
-                        value={formData.wastePercentage}
-                        onChange={(e) => setFormData({ ...formData, wastePercentage: e.target.value })}
-                        step="0.01"
-                        min="0"
-                        max="100"
-                        placeholder="0"
-                      />
-                      <span className="input-group-text">%</span>
-                    </div>
-                    <div className="form-text">
-                      Porcentaje de perdida esperado
-                    </div>
-                  </div>
-                  <div className="col-md-4">
-                    <label className="form-label">Estado</label>
-                    <div className="form-check form-switch mt-2">
-                      <input
-                        className="form-check-input"
-                        type="checkbox"
-                        checked={formData.isActive}
-                        onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
-                        id="isActiveSwitch"
-                      />
-                      <label className="form-check-label" htmlFor="isActiveSwitch">
-                        {formData.isActive ? 'Activa' : 'Inactiva'}
-                      </label>
-                    </div>
-                  </div>
-                </div>
-
-                {formData.conversionFactor && (
-                  <div className="alert alert-info mb-3">
-                    <i className="bi bi-calculator me-2" />
-                    <strong>Preview:</strong> 1 unidad origen = {Number(formData.conversionFactor)} unidades destino
-                    {Number(formData.wastePercentage) > 0 && (
-                      <>
-                        {' '}(produccion neta: {(Number(formData.conversionFactor) * (1 - Number(formData.wastePercentage) / 100)).toFixed(4)},
-                        merma: {(Number(formData.conversionFactor) * Number(formData.wastePercentage) / 100).toFixed(4)})
-                      </>
-                    )}
-                  </div>
-                )}
-
-                <div className="mb-3">
-                  <label className="form-label">Notas</label>
-                  <textarea
-                    className="form-control"
-                    value={formData.notes}
-                    onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                    rows={3}
-                    placeholder="Notas opcionales sobre esta conversion..."
+          <form onSubmit={handleSubmit} noValidate>
+            <DetailSection title="Productos" icon="bi-arrow-repeat">
+              <div className="row g-3">
+                <div className="col-md-6">
+                  <ProductSearchSelect
+                    id="conversion-source"
+                    className=""
+                    label="Producto origen"
+                    value={formData.sourceProductId}
+                    initialProduct={sourceInitial}
+                    onChange={(id) => setFormData((prev) => ({ ...prev, sourceProductId: id }))}
+                    excludeIds={[formData.destinationProductId]}
+                    required
+                    disabled={isSubmitting}
                   />
                 </div>
-
-                <div className="d-flex justify-content-end gap-2">
-                  <Button
-                    variant="secondary"
-                    onClick={() => router.push('/dashboard/inventory/product-conversions')}
+                <div className="col-md-6">
+                  <ProductSearchSelect
+                    id="conversion-destination"
+                    className=""
+                    label="Producto destino"
+                    value={formData.destinationProductId}
+                    initialProduct={destinationInitial}
+                    onChange={(id) => setFormData((prev) => ({ ...prev, destinationProductId: id }))}
+                    excludeIds={[formData.sourceProductId]}
+                    required
                     disabled={isSubmitting}
-                  >
-                    Cancelar
-                  </Button>
-                  <Button
-                    variant="primary"
-                    type="submit"
-                    disabled={isSubmitting}
-                    isLoading={isSubmitting}
-                  >
-                    {isEditing ? 'Actualizar' : 'Crear Conversion'}
-                  </Button>
+                  />
                 </div>
-              </form>
+              </div>
+            </DetailSection>
+
+            <DetailSection title="Conversión" icon="bi-calculator">
+              <div className="row g-3">
+                <div className="col-md-4">
+                  <label htmlFor="conversion-factor" className="form-label">
+                    Factor de conversión <span className="text-danger">*</span>
+                  </label>
+                  <input
+                    id="conversion-factor"
+                    type="number"
+                    className="form-control"
+                    value={formData.conversionFactor}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, conversionFactor: e.target.value }))}
+                    step="0.0001"
+                    min="0.0001"
+                    placeholder="10"
+                    disabled={isSubmitting}
+                  />
+                  <div className="form-text">Unidades destino por cada unidad origen</div>
+                </div>
+                <div className="col-md-4">
+                  <label htmlFor="conversion-waste" className="form-label">Merma</label>
+                  <div className="input-group">
+                    <input
+                      id="conversion-waste"
+                      type="number"
+                      className="form-control"
+                      value={formData.wastePercentage}
+                      onChange={(e) => setFormData((prev) => ({ ...prev, wastePercentage: e.target.value }))}
+                      step="0.01"
+                      min="0"
+                      max="100"
+                      disabled={isSubmitting}
+                    />
+                    <span className="input-group-text">%</span>
+                  </div>
+                  <div className="form-text">Pérdida esperada</div>
+                </div>
+                <div className="col-md-4">
+                  <label className="form-label d-block">Estado</label>
+                  <div className="form-check form-switch mt-2">
+                    <input
+                      className="form-check-input"
+                      type="checkbox"
+                      checked={formData.isActive}
+                      onChange={(e) => setFormData((prev) => ({ ...prev, isActive: e.target.checked }))}
+                      id="conversion-isActive"
+                      disabled={isSubmitting}
+                    />
+                    <label className="form-check-label" htmlFor="conversion-isActive">
+                      {formData.isActive ? 'Activa' : 'Inactiva'}
+                    </label>
+                  </div>
+                </div>
+                {factor > 0 && (
+                  <div className="col-12">
+                    <div className="alert alert-info mb-0">
+                      <i className="bi bi-calculator me-2" />
+                      1 unidad origen = {factor} unidades destino
+                      {wastePct > 0 && (
+                        <> (producción neta {(factor * (1 - wastePct / 100)).toFixed(4)}, merma {(factor * wastePct / 100).toFixed(4)})</>
+                      )}
+                    </div>
+                  </div>
+                )}
+                <div className="col-12">
+                  <label htmlFor="conversion-notes" className="form-label">Notas</label>
+                  <textarea
+                    id="conversion-notes"
+                    className="form-control"
+                    value={formData.notes}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, notes: e.target.value }))}
+                    rows={3}
+                    disabled={isSubmitting}
+                  />
+                </div>
+              </div>
+            </DetailSection>
+
+            <div className="d-flex justify-content-end gap-2">
+              <button
+                type="button"
+                className="btn btn-outline-secondary"
+                onClick={() => router.push(LIST_HREF)}
+                disabled={isSubmitting}
+              >
+                Cancelar
+              </button>
+              <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
+                {isSubmitting ? (
+                  <>
+                    <span className="spinner-border spinner-border-sm me-2" role="status" />
+                    Guardando...
+                  </>
+                ) : (
+                  <>
+                    <i className="bi bi-check-lg me-1" />
+                    {isEditing ? 'Guardar cambios' : 'Crear conversión'}
+                  </>
+                )}
+              </button>
             </div>
-          </div>
+          </form>
         </div>
       </div>
     </div>

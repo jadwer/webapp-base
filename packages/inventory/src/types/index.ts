@@ -122,11 +122,14 @@ export interface SortParams {
 export interface JsonApiResponse<T> {
   data: T
   included?: import('../utils/jsonApi').JsonApiResource[]
+  // PagePagination de laravel-json-api: meta.page.{currentPage,from,lastPage,perPage,to,total}
   meta?: {
-    pagination?: {
-      page: number
-      pages: number
-      size: number
+    page?: {
+      currentPage: number
+      from?: number
+      lastPage: number
+      perPage: number
+      to?: number
       total: number
     }
   }
@@ -149,40 +152,6 @@ export interface JsonApiError {
     parameter?: string
   }
 }
-
-// Import types for UI interfaces
-import type { WarehouseFilters, WarehouseSortOptions } from './warehouse'
-import type { LocationFilters, LocationSortOptions } from './location'
-import type { StockFilters, StockSortOptions } from './stock'
-import type { MovementFilters, MovementSortOptions } from './inventoryMovement'
-import type { ProductBatchFilters, ProductBatchSortOptions } from './productBatch'
-
-// UI State types (for Zustand) - simplified to avoid missing type references
-export interface InventoryUIFilters {
-  warehouses: WarehouseFilters
-  locations: LocationFilters
-  stock: StockFilters  
-  movements: MovementFilters
-  productBatches: ProductBatchFilters
-}
-
-export interface InventoryUISort {
-  warehouses: WarehouseSortOptions
-  locations: LocationSortOptions
-  stock: StockSortOptions
-  movements: MovementSortOptions
-  productBatches: ProductBatchSortOptions
-}
-
-export interface InventoryUIPagination {
-  warehouses: PaginationParams
-  locations: PaginationParams
-  stock: PaginationParams
-  movements: PaginationParams
-  productBatches: PaginationParams
-}
-
-export type ViewMode = 'table' | 'grid' | 'list' | 'compact' | 'showcase'
 
 // Common types
 export type {

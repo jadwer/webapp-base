@@ -26,7 +26,7 @@ export const FractionationCalculator = ({ preview, isLoading }: FractionationCal
       <div className="card-header bg-light">
         <h6 className="mb-0">
           <i className="bi bi-calculator me-2" />
-          Preview del Fraccionamiento
+          Vista previa del fraccionamiento
         </h6>
       </div>
       <div className="card-body">

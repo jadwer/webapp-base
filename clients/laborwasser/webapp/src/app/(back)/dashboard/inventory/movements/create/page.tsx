@@ -1,15 +1,11 @@
-/**
- * CREATE MOVEMENT PAGE
- * Página para crear nuevos movimientos de inventario
- */
-
+import type { Metadata } from 'next'
 import { CreateMovementWrapper } from '@/modules/inventory'
+
+export const metadata: Metadata = {
+  title: 'Nuevo movimiento - Inventario',
+  description: 'Registrar una entrada, salida, transferencia o ajuste de inventario',
+}
 
 export default function CreateMovementPage() {
   return <CreateMovementWrapper />
-}
-
-export const metadata = {
-  title: 'Crear Movimiento - Gestión de Inventario',
-  description: 'Crear un nuevo movimiento de inventario en el sistema'
 }

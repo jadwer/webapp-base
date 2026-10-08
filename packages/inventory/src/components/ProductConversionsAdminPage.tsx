@@ -1,65 +1,97 @@
+/**
+ * PRODUCT CONVERSIONS ADMIN PAGE
+ * Pares de conversion para fraccionamiento; pestana de Fraccionamiento.
+ */
+
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
+import Link from 'next/link'
+import {
+  Alert,
+  ConfirmModal,
+  ListToolbar,
+  PageHeader,
+  toast,
+  type ConfirmModalHandle,
+} from '@lwm/ui'
 import { useProductConversions, useProductConversionsMutations } from '../hooks/useProductConversions'
 import { ProductConversionsTable } from './ProductConversionsTable'
+import { FractionationTabs } from './FractionationTabs'
 import { PaginationSimple } from './PaginationSimple'
-import { Button } from '@lwm/ui'
-import { Alert } from '@lwm/ui'
-import { Modal } from '@lwm/ui'
-import { useNavigationProgress } from '@lwm/ui'
-import { toast } from '@lwm/ui'
+import { deleteErrorMessage, readPageMeta } from '../utils/listing'
 import type { ProductConversion } from '../types/productConversion'
 
-export const ProductConversionsAdminPage = () => {
-  const [currentPage, setCurrentPage] = useState(1)
-  const [deletingConversion, setDeletingConversion] = useState<ProductConversion | null>(null)
-  const pageSize = 20
-  const navigation = useNavigationProgress()
+const PAGE_SIZE = 20
 
-  const { conversions, meta, isLoading, error, mutate } = useProductConversions({
-    pagination: { page: currentPage, size: pageSize },
+export const ProductConversionsAdminPage = () => {
+  const [activeFilter, setActiveFilter] = useState('')
+  const [currentPage, setCurrentPage] = useState(1)
+  const confirmModalRef = useRef<ConfirmModalHandle>(null)
+
+  const { conversions, meta, isLoading, error } = useProductConversions({
+    filters: activeFilter ? { isActive: activeFilter } : undefined,
+    pagination: { page: currentPage, size: PAGE_SIZE },
     include: ['sourceProduct', 'destinationProduct'],
   })
-
   const { deleteConversion } = useProductConversionsMutations()
 
-  const paginationInfo = meta?.page
-  const totalItems = (paginationInfo && typeof paginationInfo === 'object' && 'total' in paginationInfo) ? (paginationInfo as Record<string, unknown>).total as number : 0
-  const totalPages = (paginationInfo && typeof paginationInfo === 'object' && 'lastPage' in paginationInfo) ? (paginationInfo as Record<string, unknown>).lastPage as number : 1
-  const currentBackendPage = (paginationInfo && typeof paginationInfo === 'object' && 'currentPage' in paginationInfo) ? (paginationInfo as Record<string, unknown>).currentPage as number : currentPage
+  const page = readPageMeta(meta, currentPage, PAGE_SIZE)
 
-  const handleDelete = async () => {
-    if (!deletingConversion) return
+  const handleDelete = async (conversion: ProductConversion) => {
+    const pair =
+      conversion.sourceProduct && conversion.destinationProduct
+        ? `\n\n${conversion.sourceProduct.name} a ${conversion.destinationProduct.name} (factor ${conversion.conversionFactor})`
+        : ''
+    const confirmed = await confirmModalRef.current?.confirm(
+      `¿Eliminar esta conversión?${pair}\n\nEsta acción no se puede deshacer.`,
+      { title: 'Eliminar conversión', confirmText: 'Eliminar', confirmVariant: 'danger' },
+    )
+    if (!confirmed) return
+
     try {
-      await deleteConversion(deletingConversion.id)
-      setDeletingConversion(null)
-      mutate()
-      toast.success('Conversion eliminada correctamente')
-    } catch {
-      toast.error('Error al eliminar la conversion')
+      await deleteConversion(conversion.id)
+      toast.success('Conversión eliminada')
+    } catch (err) {
+      toast.error(deleteErrorMessage(err, 'la conversión'))
     }
   }
 
   return (
     <div className="container-fluid py-4">
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <div>
-          <h1 className="h3 mb-1">Conversiones de Productos</h1>
-          <p className="text-muted">Configuracion de pares de conversion para fraccionamiento</p>
-        </div>
-        <Button
-          variant="primary"
-          onClick={() => navigation.push('/dashboard/inventory/product-conversions/create')}
+      <PageHeader
+        title="Fraccionamiento"
+        subtitle="Pares de conversión entre productos para fraccionar"
+        actions={
+          <Link href="/dashboard/inventory/product-conversions/create" className="btn btn-primary">
+            <i className="bi bi-plus-lg me-2" />
+            Nueva conversión
+          </Link>
+        }
+      />
+
+      <FractionationTabs />
+
+      <ListToolbar>
+        <select
+          className="form-select w-auto"
+          value={activeFilter}
+          onChange={(e) => {
+            setActiveFilter(e.target.value)
+            setCurrentPage(1)
+          }}
+          aria-label="Filtrar por estado"
         >
-          <i className="bi bi-plus-circle me-2" />
-          Nueva Conversion
-        </Button>
-      </div>
+          <option value="">Todos los estados</option>
+          <option value="1">Activas</option>
+          <option value="0">Inactivas</option>
+        </select>
+      </ListToolbar>
 
       {error && (
-        <Alert variant="danger" className="mb-4">
-          <strong>Error:</strong> {error.message || 'Error al cargar las conversiones'}
+        <Alert variant="danger" className="mb-3">
+          <i className="bi bi-exclamation-triangle me-2" />
+          {error.message || 'Error al cargar las conversiones'}
         </Alert>
       )}
 
@@ -68,47 +100,22 @@ export const ProductConversionsAdminPage = () => {
           <ProductConversionsTable
             conversions={conversions}
             isLoading={isLoading}
-            onDelete={setDeletingConversion}
+            onDelete={handleDelete}
           />
-
-          {totalPages > 1 && (
+          {page.lastPage > 1 && (
             <PaginationSimple
-              currentPage={currentBackendPage}
-              totalPages={totalPages}
+              currentPage={page.currentPage}
+              totalPages={page.lastPage}
               onPageChange={setCurrentPage}
               isLoading={isLoading}
-              totalItems={totalItems}
-              pageSize={pageSize}
+              totalItems={page.total}
+              pageSize={page.perPage}
             />
           )}
         </div>
       </div>
 
-      <Modal
-        show={!!deletingConversion}
-        onHide={() => setDeletingConversion(null)}
-        title="Eliminar Conversion"
-      >
-        <div className="modal-body">
-          <p className="mb-0">
-            ¿Estas seguro que deseas eliminar esta conversion?
-          </p>
-          {deletingConversion?.sourceProduct && deletingConversion?.destinationProduct && (
-            <p className="text-muted small mt-2">
-              {deletingConversion.sourceProduct.name} → {deletingConversion.destinationProduct.name}
-              (Factor: {deletingConversion.conversionFactor})
-            </p>
-          )}
-        </div>
-        <div className="modal-footer">
-          <Button variant="secondary" onClick={() => setDeletingConversion(null)}>
-            Cancelar
-          </Button>
-          <Button variant="danger" onClick={handleDelete}>
-            Eliminar
-          </Button>
-        </div>
-      </Modal>
+      <ConfirmModal ref={confirmModalRef} />
     </div>
   )
 }

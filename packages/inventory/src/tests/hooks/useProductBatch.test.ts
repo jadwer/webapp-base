@@ -11,8 +11,6 @@ import {
   useProductBatchesByProduct,
   useProductBatchesByWarehouse,
   useProductBatchesByStatus,
-  useExpiringProductBatches,
-  useLowStockProductBatches,
   useProductBatchMutations
 } from '../../hooks'
 import { productBatchService } from '../../services/productBatchService'
@@ -100,11 +98,11 @@ describe('useProductBatches', () => {
     const response = {
       data: batches,
       meta: {
-        pagination: {
-          total: 2,
-          size: 20,
-          page: 1,
-          pages: 1
+        page: {
+          currentPage: 1,
+          lastPage: 1,
+          perPage: 20,
+          total: 2
         }
       }
     }
@@ -302,7 +300,7 @@ describe('useProductBatchesByStatus', () => {
     vi.mocked(productBatchService.getAll).mockResolvedValue(response)
 
     // Act
-    const { result } = renderHook(() => useProductBatchesByStatus(['active']))
+    const { result } = renderHook(() => useProductBatchesByStatus('active'))
 
     // Wait for data to load
     await waitFor(() => {
@@ -312,116 +310,8 @@ describe('useProductBatchesByStatus', () => {
     // Assert
     expect(result.current.productBatches).toEqual(batches)
     expect(productBatchService.getAll).toHaveBeenCalledWith(
-      { status: ['active'] },
+      { status: 'active' },
       { field: 'expirationDate', direction: 'asc' },
-      1,
-      20
-    )
-  })
-})
-
-describe('useExpiringProductBatches', () => {
-  beforeEach(() => {
-    vi.clearAllMocks()
-    vi.spyOn(console, 'log').mockImplementation(() => {})
-  })
-
-  it('should fetch batches expiring in next 30 days by default', async () => {
-    // Arrange
-    const batches = [createMockProductBatch({ id: '1', status: 'active' })]
-    const response = { data: batches, meta: {} }
-    vi.mocked(productBatchService.getAll).mockResolvedValue(response)
-
-    // Act
-    const { result } = renderHook(() => useExpiringProductBatches())
-
-    // Wait for data to load
-    await waitFor(() => {
-      expect(result.current.isLoading).toBe(false)
-    })
-
-    // Assert
-    expect(result.current.productBatches).toEqual(batches)
-    const callArgs = vi.mocked(productBatchService.getAll).mock.calls[0]
-    expect(callArgs[0]).toMatchObject({
-      status: ['active'],
-      expiresAfter: expect.any(String),
-      expiresBefore: expect.any(String)
-    })
-  })
-
-  it('should fetch batches expiring in custom days', async () => {
-    // Arrange
-    const batches = [createMockProductBatch({ id: '1', status: 'active' })]
-    const response = { data: batches, meta: {} }
-    vi.mocked(productBatchService.getAll).mockResolvedValue(response)
-
-    // Act
-    const { result } = renderHook(() => useExpiringProductBatches(7))
-
-    // Wait for data to load
-    await waitFor(() => {
-      expect(result.current.isLoading).toBe(false)
-    })
-
-    // Assert
-    expect(result.current.productBatches).toEqual(batches)
-    const callArgs = vi.mocked(productBatchService.getAll).mock.calls[0]
-    expect(callArgs[0]).toMatchObject({
-      status: ['active']
-    })
-  })
-})
-
-describe('useLowStockProductBatches', () => {
-  beforeEach(() => {
-    vi.clearAllMocks()
-    vi.spyOn(console, 'log').mockImplementation(() => {})
-  })
-
-  it('should fetch low stock batches with default threshold', async () => {
-    // Arrange
-    const batches = [createMockProductBatch({ id: '1', currentQuantity: 5 })]
-    const response = { data: batches, meta: {} }
-    vi.mocked(productBatchService.getAll).mockResolvedValue(response)
-
-    // Act
-    const { result } = renderHook(() => useLowStockProductBatches())
-
-    // Wait for data to load
-    await waitFor(() => {
-      expect(result.current.isLoading).toBe(false)
-    })
-
-    // Assert
-    expect(result.current.productBatches).toEqual(batches)
-    expect(productBatchService.getAll).toHaveBeenCalledWith(
-      { status: ['active'], maxQuantity: 10 },
-      { field: 'currentQuantity', direction: 'asc' },
-      1,
-      20
-    )
-  })
-
-  it('should fetch low stock batches with custom threshold', async () => {
-    // Arrange
-    const batches = [createMockProductBatch({ id: '1', currentQuantity: 15 })]
-    const response = { data: batches, meta: {} }
-    vi.mocked(productBatchService.getAll).mockResolvedValue(response)
-
-    // Act
-    const { result } = renderHook(() => useLowStockProductBatches(20))
-
-    // Wait for data to load
-    await waitFor(() => {
-      expect(result.current.isLoading).toBe(false)
-    })
-
-    // Assert
-    expect(result.current.productBatches).toEqual(batches)
-    expect(productBatchService.getAll).toHaveBeenCalledWith(
-      { status: ['active'], maxQuantity: 20 },
-      { field: 'currentQuantity', direction: 'asc' },
       1,
       20
     )
@@ -493,12 +383,12 @@ describe('useProductBatchMutations', () => {
       // Arrange
       const updateData = {
         currentQuantity: 75,
-        status: 'depleted' as const,
+        status: 'consumed' as const,
       }
       const updatedBatch = createMockProductBatch({
         id: '1',
         currentQuantity: 75,
-        status: 'depleted',
+        status: 'consumed',
       })
       vi.mocked(productBatchService.update).mockResolvedValue(updatedBatch)
 
