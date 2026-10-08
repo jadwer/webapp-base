@@ -45,6 +45,12 @@ export const productService = {
       // Filtros múltiples
       if (params.filters.brands) queryParams['filter[brands]'] = params.filters.brands.join(',')
       if (params.filters.categories) queryParams['filter[categories]'] = params.filters.categories.join(',')
+      if (params.filters.isActive !== undefined) {
+        queryParams['filter[is_active]'] = params.filters.isActive ? '1' : '0'
+      }
+      if (params.filters.isPublic !== undefined) {
+        queryParams['filter[is_public]'] = params.filters.isPublic ? '1' : '0'
+      }
       // Productos en oferta (alimenta la seccion Ofertas del sitio publico).
       if (params.filters.isOnSale !== undefined) {
         queryParams['filter[is_on_sale]'] = params.filters.isOnSale ? '1' : '0'
