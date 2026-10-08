@@ -305,7 +305,7 @@ describe('locationsService', () => {
       expect(axios.post).toHaveBeenCalledWith('/api/v1/warehouse-locations', {
         data: {
           type: 'warehouse-locations',
-          attributes: locationData,
+          attributes: { ...locationData, warehouseId: 1 },
         },
       })
       expect(result).toEqual(apiResponse)

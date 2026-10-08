@@ -15,6 +15,23 @@ import type {
   JsonApiResponse
 } from '../types'
 
+// El Schema declara warehouseId, maxWeight, maxVolume y priority como Number:
+// un string (lo que entrega un select) lo rechaza con 500.
+const NUMERIC_LOCATION_FIELDS = ['warehouseId', 'maxWeight', 'maxVolume', 'priority'] as const
+
+const buildLocationAttributes = (data: CreateLocationData | UpdateLocationData): Record<string, unknown> => {
+  const attributes: Record<string, unknown> = { ...data }
+  NUMERIC_LOCATION_FIELDS.forEach((field) => {
+    const value = attributes[field]
+    if (value === undefined) return
+    attributes[field] = value === null || value === '' ? null : Number(value)
+  })
+  Object.keys(attributes).forEach((key) => {
+    if (attributes[key] === undefined) delete attributes[key]
+  })
+  return attributes
+}
+
 export const locationsService = {
   /**
    * Obtener todas las locations con filtros y paginación
@@ -107,7 +124,7 @@ export const locationsService = {
     const payload = {
       data: {
         type: 'warehouse-locations',
-        attributes: data
+        attributes: buildLocationAttributes(data)
       }
     }
     
@@ -126,7 +143,7 @@ export const locationsService = {
       data: {
         type: 'warehouse-locations',
         id,
-        attributes: data
+        attributes: buildLocationAttributes(data)
       }
     }
     
