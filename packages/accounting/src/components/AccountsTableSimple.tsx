@@ -152,6 +152,7 @@ export const AccountsTableSimple = ({
                 <div className="btn-group btn-group-sm">
                   {onView && (
                     <button
+                      aria-label="Ver cuenta"
                       type="button"
                       className="btn btn-outline-primary"
                       onClick={() => onView(account.id)}
@@ -162,6 +163,7 @@ export const AccountsTableSimple = ({
                   )}
                   {onEdit && account.status === 'active' && (
                     <button
+                      aria-label="Editar cuenta"
                       type="button"
                       className="btn btn-outline-secondary"
                       onClick={() => onEdit(account.id)}

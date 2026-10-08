@@ -11,6 +11,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useAuth } from '@/modules/auth'
 import { myOrdersService } from '@/modules/sales'
+import { formatDateOnly } from '@lwm/ui'
 
 interface SalesOrder {
   id: string
@@ -177,7 +178,7 @@ export default function MyOrdersPage() {
                       <td>{formatDate(order.createdAt)}</td>
                       <td>
                         {order.expectedDeliveryDate
-                          ? formatDate(order.expectedDeliveryDate)
+                          ? formatDateOnly(order.expectedDeliveryDate, 'es-MX', { year: 'numeric', month: 'short', day: 'numeric' })
                           : '-'}
                       </td>
                       <td>

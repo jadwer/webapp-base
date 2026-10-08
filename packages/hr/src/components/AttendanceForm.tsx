@@ -7,7 +7,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Input, Button } from '@lwm/ui'
+import { Input, Button, todayDateInput, toDateInput } from '@lwm/ui'
 import { useEmployees } from '../hooks'
 import type { AttendanceFormData, AttendanceStatus } from '../types'
 
@@ -27,7 +27,7 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
   const { employees, isLoading: loadingEmployees } = useEmployees()
 
   const [formData, setFormData] = useState<AttendanceFormData>({
-    date: initialData?.date || new Date().toISOString().split('T')[0],
+    date: toDateInput(initialData?.date) || todayDateInput(),
     checkIn: initialData?.checkIn || '09:00:00',
     checkOut: initialData?.checkOut || '',
     status: initialData?.status || 'present',
@@ -152,6 +152,7 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
             <option value="absent">Ausente</option>
             <option value="late">Tarde</option>
             <option value="half_day">Medio Día</option>
+            <option value="on_leave">Con licencia</option>
           </select>
         </div>
 

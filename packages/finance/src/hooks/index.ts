@@ -12,7 +12,7 @@ import {
   satCatalogsService,
 } from '../services';
 import type {
-  BankAccount,
+  BankAccountForm,
   APInvoiceForm,
   APPaymentForm,
   ARInvoiceForm,
@@ -107,18 +107,11 @@ export function useAPInvoiceMutations() {
     mutate('/api/v1/a-p-invoices');
   };
 
-  const postAPInvoice = async (id: string) => {
-    const result = await apInvoicesService.post(id);
-    mutate(`/api/v1/a-p-invoices/${id}`);
-    mutate('/api/v1/a-p-invoices');
-    return result;
-  };
 
   return {
     createAPInvoice,
     updateAPInvoice,
     deleteAPInvoice,
-    postAPInvoice,
   };
 }
 
@@ -211,19 +204,11 @@ export function useAPPaymentMutations() {
     mutate('/api/v1/ap-invoices');
   };
 
-  const postAPPayment = async (id: string) => {
-    const result = await apPaymentsService.post(id);
-    mutate(`/api/v1/payments/${id}`);
-    mutate('/api/v1/payments');
-    mutate('/api/v1/ap-invoices');
-    return result;
-  };
 
   return {
     createAPPayment,
     updateAPPayment,
     deleteAPPayment,
-    postAPPayment,
   };
 }
 
@@ -314,18 +299,11 @@ export function useARInvoiceMutations() {
     mutate('/api/v1/a-r-invoices');
   };
 
-  const postARInvoice = async (id: string) => {
-    const result = await arInvoicesService.post(id);
-    mutate(`/api/v1/a-r-invoices/${id}`);
-    mutate('/api/v1/a-r-invoices');
-    return result;
-  };
 
   return {
     createARInvoice,
     updateARInvoice,
     deleteARInvoice,
-    postARInvoice,
   };
 }
 
@@ -444,28 +422,28 @@ export function useARReceiptMutations() {
     mutate('/api/v1/ar-invoices');
   };
 
-  const postARReceipt = async (id: string) => {
-    const result = await arReceiptsService.post(id);
-    mutate(`/api/v1/payments/${id}`);
-    mutate('/api/v1/payments');
-    mutate('/api/v1/ar-invoices');
-    return result;
-  };
 
   return {
     createARReceipt,
     updateARReceipt,
     deleteARReceipt,
-    postARReceipt,
   };
 }
 
 // Bank Accounts Hooks
 export function useBankAccounts(params: Record<string, unknown> = {}) {
-  const key = ['/api/v1/bank-accounts', params];
+  // Acepta { filters: {...} } como los demas hooks y lo traduce a filter[x].
+  const { filters, ...rest } = params as { filters?: Record<string, unknown> } & Record<string, unknown>;
+  const formattedParams: Record<string, unknown> = { ...rest };
+  if (filters) {
+    Object.keys(filters).forEach(key => {
+      formattedParams[`filter[${key}]`] = filters[key];
+    });
+  }
+  const key = ['/api/v1/bank-accounts', formattedParams];
   const { data, error, isLoading, mutate } = useSWR(
     key,
-    () => bankAccountsService.getAll(params)
+    () => bankAccountsService.getAll(formattedParams)
   );
 
   return {
@@ -494,13 +472,13 @@ export function useBankAccount(id: string | null) {
 export function useBankAccountMutations() {
   const { mutate } = useSWRConfig();
 
-  const createBankAccount = async (data: Omit<BankAccount, 'id' | 'createdAt' | 'updatedAt'>) => {
+  const createBankAccount = async (data: BankAccountForm) => {
     const result = await bankAccountsService.create(data);
     mutate('/api/v1/bank-accounts');
     return result;
   };
 
-  const updateBankAccount = async (id: string, data: Partial<BankAccount>) => {
+  const updateBankAccount = async (id: string, data: Partial<BankAccountForm>) => {
     const result = await bankAccountsService.update(id, data);
     mutate(`/api/v1/bank-accounts/${id}`);
     mutate('/api/v1/bank-accounts');
@@ -524,7 +502,6 @@ export {
   usePaymentApplication,
   usePaymentApplicationsByPayment,
   usePaymentApplicationsByARInvoice,
-  usePaymentApplicationsByAPInvoice,
   usePaymentApplicationMutations,
 } from './usePaymentApplications'
 

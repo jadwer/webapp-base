@@ -122,6 +122,7 @@ export default function AuditTable({
                 </td>
                 <td>
                   <Link
+                    aria-label="Ver detalle"
                     href={`/dashboard/audit/${audit.id}`}
                     className="btn btn-sm btn-outline-primary"
                     onClick={(e) => e.stopPropagation()}

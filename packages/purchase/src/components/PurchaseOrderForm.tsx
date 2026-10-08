@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useCallback } from 'react'
-import { Button, Input } from '@lwm/ui'
+import { Button, Input, todayDateInput, toDateInput } from '@lwm/ui'
 import { usePurchaseContacts } from '../hooks'
 import ItemsManager from './ItemsManager'
 import type { PurchaseOrder, PurchaseOrderFormData, PurchaseOrderStatus } from '../types'
@@ -23,8 +23,9 @@ interface PurchaseOrderFormProps {
   onCancel?: () => void
 }
 
+// Estados iniciales que acepta api-base Modules/Purchase/app/JsonApi/V1/PurchaseOrders/PurchaseOrderRequest.php
+// al crear; en edicion el status es readOnlyOnUpdate y cambia con approve/receive/cancel.
 const ORDER_STATUSES: { value: PurchaseOrderStatus; label: string }[] = [
-  { value: 'draft', label: 'Borrador' },
   { value: 'pending', label: 'Pendiente' },
   { value: 'approved', label: 'Aprobada' },
   { value: 'received', label: 'Recibida' },
@@ -40,8 +41,8 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
   const [formData, setFormData] = useState({
     contactId: purchaseOrder?.contactId?.toString() || '',
     orderNumber: purchaseOrder?.orderNumber || '',
-    orderDate: purchaseOrder?.orderDate || new Date().toISOString().split('T')[0],
-    status: (purchaseOrder?.status || 'draft') as PurchaseOrderStatus,
+    orderDate: toDateInput(purchaseOrder?.orderDate) || todayDateInput(),
+    status: (purchaseOrder?.status || 'pending') as PurchaseOrderStatus,
     notes: purchaseOrder?.notes || '',
     invoicingNotes: purchaseOrder?.invoicingNotes || ''
   })
@@ -58,8 +59,8 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
       setFormData({
         contactId: purchaseOrder.contactId?.toString() || '',
         orderNumber: purchaseOrder.orderNumber || '',
-        orderDate: purchaseOrder.orderDate || new Date().toISOString().split('T')[0],
-        status: purchaseOrder.status || 'draft',
+        orderDate: toDateInput(purchaseOrder.orderDate) || todayDateInput(),
+        status: purchaseOrder.status || 'pending',
         notes: purchaseOrder.notes || '',
         invoicingNotes: purchaseOrder.invoicingNotes || ''
       })
@@ -224,7 +225,7 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
                     value={formData.status}
                     onChange={(e) => handleInputChange('status', e.target.value)}
                     onBlur={() => handleBlur('status')}
-                    disabled={isFormLoading}
+                    disabled={isFormLoading || Boolean(purchaseOrder)}
                     options={ORDER_STATUSES.map(s => ({ value: s.value, label: s.label }))}
                   />
                 </div>

@@ -7,7 +7,7 @@
 'use client'
 
 import Link from 'next/link'
-import { EmptyState, StatusBadge } from '@lwm/ui'
+import { EmptyState, RowActions, StatusBadge } from '@lwm/ui'
 import { useBranchName } from '@lwm/auth'
 import { WAREHOUSE_TYPE } from '../utils/labels'
 import type { WarehouseParsed } from '../types'
@@ -88,30 +88,12 @@ export const WarehousesTableSimple = ({
                 </span>
               </td>
               <td>
-                <div className="btn-group btn-group-sm" role="group">
-                  <Link
-                    href={`/dashboard/inventory/warehouses/${warehouse.id}`}
-                    className="btn btn-outline-primary"
-                    title="Ver detalle"
-                  >
-                    <i className="bi bi-eye" />
-                  </Link>
-                  <Link
-                    href={`/dashboard/inventory/warehouses/${warehouse.id}/edit`}
-                    className="btn btn-outline-secondary"
-                    title="Editar"
-                  >
-                    <i className="bi bi-pencil" />
-                  </Link>
-                  <button
-                    type="button"
-                    className="btn btn-outline-danger"
-                    title="Eliminar"
-                    onClick={() => onDelete(warehouse)}
-                  >
-                    <i className="bi bi-trash" />
-                  </button>
-                </div>
+                <RowActions
+                  viewHref={`/dashboard/inventory/warehouses/${warehouse.id}`}
+                  editHref={`/dashboard/inventory/warehouses/${warehouse.id}/edit`}
+                  onDelete={() => onDelete(warehouse)}
+                  labels={{ view: 'Ver detalle' }}
+                />
               </td>
             </tr>
           ))}

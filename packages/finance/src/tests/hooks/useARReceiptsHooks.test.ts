@@ -20,7 +20,6 @@ vi.mock('../../services', () => ({
     create: vi.fn(),
     update: vi.fn(),
     delete: vi.fn(),
-    post: vi.fn()
   }
 }))
 
@@ -75,7 +74,7 @@ describe('AR Receipts Hooks', () => {
     it('should accept filters parameter', () => {
       // Act
       const params = {
-        filters: { status: 'completed' }
+        filters: { status: 'applied' }
       }
       renderHook(() => useARReceipts(params))
 
@@ -158,24 +157,23 @@ describe('AR Receipts Hooks', () => {
       expect(result.current).toHaveProperty('createARReceipt')
       expect(result.current).toHaveProperty('updateARReceipt')
       expect(result.current).toHaveProperty('deleteARReceipt')
-      expect(result.current).toHaveProperty('postARReceipt')
+      expect(result.current).not.toHaveProperty('postARReceipt')
       expect(typeof result.current.createARReceipt).toBe('function')
       expect(typeof result.current.updateARReceipt).toBe('function')
       expect(typeof result.current.deleteARReceipt).toBe('function')
-      expect(typeof result.current.postARReceipt).toBe('function')
     })
 
     it('should call create service on createARReceipt', async () => {
       // Arrange
       const mockReceipt = {
+        paymentNumber: 'PAG-001',
         contactId: 1,
-        arInvoiceId: 1,
         paymentMethodId: 1,
-        receiptDate: '2025-01-15',
+        bankAccountId: 1,
+        paymentDate: '2025-01-15',
         currency: 'MXN',
-        amount: 2000,
-        reference: 'REC-001',
-        status: 'pending'
+        amount: 1000,
+        reference: 'PAY-001',
       }
       vi.mocked(arReceiptsService.create).mockResolvedValue({ data: { id: '1' } } as any)
 
@@ -189,7 +187,7 @@ describe('AR Receipts Hooks', () => {
 
     it('should call update service on updateARReceipt', async () => {
       // Arrange
-      const mockUpdate = { status: 'completed' as const }
+      const mockUpdate = { status: 'applied' as const }
       vi.mocked(arReceiptsService.update).mockResolvedValue({ data: { id: '1' } } as any)
 
       // Act
@@ -212,16 +210,5 @@ describe('AR Receipts Hooks', () => {
       expect(arReceiptsService.delete).toHaveBeenCalledWith('1')
     })
 
-    it('should call post service on postARReceipt', async () => {
-      // Arrange
-      vi.mocked(arReceiptsService.post).mockResolvedValue({ data: { id: '1' } } as any)
-
-      // Act
-      const { result } = renderHook(() => useARReceiptMutations())
-      await result.current.postARReceipt('1')
-
-      // Assert
-      expect(arReceiptsService.post).toHaveBeenCalledWith('1')
-    })
   })
 })

@@ -7,7 +7,7 @@
  */
 
 import { describe, it, expect } from 'vitest'
-import { transformSalesOrderFormToJsonApi } from '../../utils/transformers'
+import { transformSalesOrderFormToJsonApi, transformJsonApiSalesOrderItem } from '../../utils/transformers'
 import { mockSalesOrderFormData } from './test-utils'
 
 describe('transformSalesOrderFormToJsonApi', () => {
@@ -72,5 +72,35 @@ describe('transformSalesOrderFormToJsonApi', () => {
       type: 'contacts',
       id: '9',
     })
+  })
+
+  it('manda currency e invoicingNotes solo con las llaves del Schema', () => {
+    const payload = transformSalesOrderFormToJsonApi(
+      mockSalesOrderFormData({ currency: 'usd', invoicingNotes: 'Facturar a fin de mes' })
+    ) as { data: { attributes: Record<string, unknown> } }
+
+    expect(payload.data.attributes.currency).toBe('USD')
+    expect(payload.data.attributes.invoicingNotes).toBe('Facturar a fin de mes')
+    expect(payload.data.attributes).not.toHaveProperty('subtotal')
+
+    const sinMoneda = transformSalesOrderFormToJsonApi(mockSalesOrderFormData()) as {
+      data: { attributes: Record<string, unknown> }
+    }
+    expect(sinMoneda.data.attributes).not.toHaveProperty('currency')
+  })
+})
+
+describe('transformJsonApiSalesOrderItem', () => {
+  it('no expone campos de facturacion que la API ya no tiene', () => {
+    const item = transformJsonApiSalesOrderItem({
+      id: '3',
+      type: 'sales-order-items',
+      attributes: { salesOrderId: 1, productId: 2, quantity: 2, unitPrice: 50, discount: 0, total: 100 },
+    })
+
+    expect(item.total).toBe(100)
+    expect(item).not.toHaveProperty('arInvoiceLineId')
+    expect(item).not.toHaveProperty('invoicedQuantity')
+    expect(item).not.toHaveProperty('invoicedAmount')
   })
 })

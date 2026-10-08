@@ -10,6 +10,7 @@ import { useLeads, useLeadsMutations } from '../hooks'
 import { LeadsTableSimple } from './LeadsTableSimple'
 import { ConfirmModal, type ConfirmModalHandle } from '@lwm/ui'
 import type { Lead } from '../types'
+import { LEAD_STATUSES, LEAD_STATUS_LABELS } from '../types'
 
 export const LeadsAdminPageReal = () => {
   const router = useRouter()
@@ -298,13 +299,9 @@ export const LeadsAdminPageReal = () => {
                 onChange={(e) => setStatusFilter(e.target.value)}
               >
                 <option value="">Todos los estados</option>
-                <option value="new">Nuevo</option>
-                <option value="contacted">Contactado</option>
-                <option value="qualified">Calificado</option>
-                <option value="proposal">Propuesta</option>
-                <option value="negotiation">Negociación</option>
-                <option value="converted">Convertido</option>
-                <option value="lost">Perdido</option>
+                {LEAD_STATUSES.map(status => (
+                  <option key={status} value={status}>{LEAD_STATUS_LABELS[status]}</option>
+                ))}
               </select>
             </div>
 

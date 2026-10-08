@@ -12,6 +12,7 @@ import { BankTransactionFormComponent } from './BankTransactionForm'
 import { useBankTransaction } from '../hooks/useBankTransaction'
 import { useBankTransactionMutations } from '../hooks/useBankTransactionMutations'
 import type { BankTransactionFormData } from '../types'
+import { toDateInput } from '@lwm/ui'
 
 interface EditBankTransactionWrapperProps {
   transactionId: string
@@ -87,7 +88,7 @@ export const EditBankTransactionWrapper: React.FC<EditBankTransactionWrapperProp
   // Map transaction to form data, converting nulls to undefined
   const initialData: Partial<BankTransactionFormData> = {
     bankAccountId: bankTransaction.bankAccountId,
-    transactionDate: bankTransaction.transactionDate,
+    transactionDate: toDateInput(bankTransaction.transactionDate),
     amount: bankTransaction.amount,
     transactionType: bankTransaction.transactionType,
     reference: bankTransaction.reference ?? undefined,
@@ -104,6 +105,7 @@ export const EditBankTransactionWrapper: React.FC<EditBankTransactionWrapperProp
         <div className="col-12">
           <div className="d-flex align-items-center mb-4">
             <button
+              aria-label="Volver"
               className="btn btn-link text-decoration-none p-0 me-3"
               onClick={handleCancel}
             >

@@ -8,7 +8,14 @@ export type PurchaseOrderStatus =
   // Legacy frontend value
   | 'completed'
 
-export type InvoicingStatus = 'pending' | 'partial' | 'invoiced' | 'not_required'
+// Enum de invoicing_status en api-base Modules/Purchase/Database/migrations/2024_12_25_100002_create_purchase_orders_table.php
+export type InvoicingStatus = 'not_invoiced' | 'partial' | 'invoiced'
+
+export const INVOICING_STATUS_CONFIG: Record<InvoicingStatus, { label: string; badgeClass: string }> = {
+  not_invoiced: { label: 'Sin facturar', badgeClass: 'bg-warning text-dark' },
+  partial: { label: 'Parcial', badgeClass: 'bg-info' },
+  invoiced: { label: 'Facturada', badgeClass: 'bg-success' },
+}
 // Legacy frontend financial status
 export type FinancialStatus = 'not_invoiced' | 'invoiced' | 'paid'
 

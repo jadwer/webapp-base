@@ -166,6 +166,7 @@ export default function SystemEmailsTemplate() {
                     <td className="text-end">
                       <div className="btn-group btn-group-sm">
                         <button
+                          aria-label="Vista previa"
                           className="btn btn-outline-info"
                           title="Vista previa"
                           onClick={() => handlePreview(se)}
@@ -174,6 +175,7 @@ export default function SystemEmailsTemplate() {
                           <i className="bi bi-eye"></i>
                         </button>
                         <button
+                          aria-label="Enviar prueba"
                           className="btn btn-outline-primary"
                           title="Enviar prueba"
                           onClick={() => setSendTestTarget(se)}

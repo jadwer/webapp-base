@@ -46,6 +46,7 @@ export default function EditUserPage({ params }: EditUserPageProps) {
           {/* Header */}
           <div className="d-flex align-items-center mb-4">
             <button
+              aria-label="Volver"
               type="button"
               onClick={() => router.back()}
               className="btn btn-link text-muted p-0 me-3"

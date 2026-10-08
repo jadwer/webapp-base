@@ -21,7 +21,7 @@ export function transformJsonApiPurchaseOrder(resource: JsonApiResource): Purcha
     branchId: (attributes.branch_id ?? attributes.branchId ?? null) as number | null,
     orderNumber: (attributes.order_number || attributes.orderNumber || `PO-${resource.id}`) as string, // Use API value first, fallback to generated
     orderDate: (attributes.order_date || attributes.orderDate || '') as string,
-    status: (attributes.status || 'draft') as PurchaseOrderStatus,
+    status: (attributes.status || 'pending') as PurchaseOrderStatus,
     totalAmount: (attributes.total_amount || attributes.totalAmount || 0) as number,
     notes: (attributes.notes ?? null) as string | null,
     // Finance integration fields

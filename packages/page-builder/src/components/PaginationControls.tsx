@@ -78,6 +78,7 @@ export const PaginationControls: React.FC<PaginationControlsProps> = ({
         <div className="d-flex gap-1">
           {/* Previous button */}
           <Button
+            aria-label="Página anterior"
             size="small"
             variant="secondary"
             buttonStyle="outline"
@@ -118,6 +119,7 @@ export const PaginationControls: React.FC<PaginationControlsProps> = ({
 
           {/* Next button */}
           <Button
+            aria-label="Página siguiente"
             size="small"
             variant="secondary"
             buttonStyle="outline"

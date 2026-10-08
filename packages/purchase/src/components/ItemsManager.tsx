@@ -220,6 +220,7 @@ export default function ItemsManager({ items, onItemsChange, onTotalChange }: It
               <div className="col-md-2 d-flex align-items-end">
                 <div className="btn-group w-100">
                   <button
+                    aria-label="Agregar producto"
                     type="button"
                     className="btn btn-success btn-sm"
                     onClick={addItem}
@@ -228,6 +229,7 @@ export default function ItemsManager({ items, onItemsChange, onTotalChange }: It
                     <i className="bi bi-check"></i>
                   </button>
                   <button
+                    aria-label="Cancelar"
                     type="button"
                     className="btn btn-outline-secondary btn-sm"
                     onClick={() => setShowAddForm(false)}
@@ -288,6 +290,7 @@ export default function ItemsManager({ items, onItemsChange, onTotalChange }: It
                     </td>
                     <td>
                       <button
+                        aria-label="Eliminar producto"
                         type="button"
                         className="btn btn-outline-danger btn-sm"
                         onClick={() => removeItem(item.tempId)}

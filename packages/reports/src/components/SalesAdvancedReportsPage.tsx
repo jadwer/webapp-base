@@ -35,6 +35,7 @@ import {
   useSalesTrend,
   useReportExport,
 } from '../hooks'
+import { todayDateInput, dateToInput } from '@lwm/ui'
 
 // Colors for charts
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82CA9D', '#FFC658', '#FF6B6B']
@@ -53,7 +54,7 @@ const DATE_PRESETS = [
 
 const getPresetDates = (preset: string): { startDate: string; endDate: string } => {
   const today = new Date()
-  const endDate = today.toISOString().split('T')[0]
+  const endDate = dateToInput(today)
 
   switch (preset) {
     case 'today':
@@ -61,31 +62,31 @@ const getPresetDates = (preset: string): { startDate: string; endDate: string } 
     case 'yesterday': {
       const yesterday = new Date(today)
       yesterday.setDate(yesterday.getDate() - 1)
-      const yd = yesterday.toISOString().split('T')[0]
+      const yd = dateToInput(yesterday)
       return { startDate: yd, endDate: yd }
     }
     case '7days': {
       const d7 = new Date(today)
       d7.setDate(d7.getDate() - 7)
-      return { startDate: d7.toISOString().split('T')[0], endDate }
+      return { startDate: dateToInput(d7), endDate }
     }
     case '30days': {
       const d30 = new Date(today)
       d30.setDate(d30.getDate() - 30)
-      return { startDate: d30.toISOString().split('T')[0], endDate }
+      return { startDate: dateToInput(d30), endDate }
     }
     case 'thisMonth': {
       const firstDay = new Date(today.getFullYear(), today.getMonth(), 1)
-      return { startDate: firstDay.toISOString().split('T')[0], endDate }
+      return { startDate: dateToInput(firstDay), endDate }
     }
     case 'lastMonth': {
       const firstDayLast = new Date(today.getFullYear(), today.getMonth() - 1, 1)
       const lastDayLast = new Date(today.getFullYear(), today.getMonth(), 0)
-      return { startDate: firstDayLast.toISOString().split('T')[0], endDate: lastDayLast.toISOString().split('T')[0] }
+      return { startDate: dateToInput(firstDayLast), endDate: dateToInput(lastDayLast) }
     }
     case 'thisYear': {
       const jan1 = new Date(today.getFullYear(), 0, 1)
-      return { startDate: jan1.toISOString().split('T')[0], endDate }
+      return { startDate: dateToInput(jan1), endDate }
     }
     default:
       return { startDate: endDate, endDate }
@@ -122,8 +123,8 @@ export const SalesAdvancedReportsPage = () => {
   const { startDate, endDate } = useMemo(() => {
     if (datePreset === 'custom') {
       return {
-        startDate: customStartDate || new Date().toISOString().split('T')[0],
-        endDate: customEndDate || new Date().toISOString().split('T')[0],
+        startDate: customStartDate || todayDateInput(),
+        endDate: customEndDate || todayDateInput(),
       }
     }
     return getPresetDates(datePreset)

@@ -11,7 +11,9 @@
 // ============================================================================
 
 export type TipoComprobante = 'I' | 'E' | 'T' | 'N' | 'P' // Ingreso, Egreso, Traslado, Nomina, Pago
-export type CFDIStatus = 'draft' | 'generated' | 'stamped' | 'valid' | 'cancelled' | 'error'
+// Valores reales de cfdi_invoices.status (api-base Modules/Billing: CFDIInvoiceRequest y
+// CFDIStampingService): draft al crear, valid al timbrar, cancelled al cancelar, error
+export type CFDIStatus = 'draft' | 'valid' | 'cancelled' | 'error'
 export type MetodoPago = 'PUE' | 'PPD' // Pago en Una Exhibicion, Pago en Parcialidades o Diferido
 
 export interface CFDIInvoice {
@@ -61,6 +63,8 @@ export interface CFDIInvoice {
   fechaPago?: string
   montoPago?: number // In cents
   formaPagoP?: string // SAT forma de pago catalog code used in the REP
+  numParcialidad?: number
+  impSaldoInsoluto?: number // In cents
 
   // Related CFDI
   cfdiRelacionadoTipo?: string // 01, 02, 03, etc.
@@ -96,8 +100,11 @@ export interface CFDIInvoiceFormData {
   companySettingId: number
   contactId: number
   arInvoiceId?: number
+  branchId?: number | null
 
   series: string
+  // Obligatorio al crear (CFDIInvoiceRequest); en edicion se omite
+  folio?: number
   tipoComprobante: TipoComprobante
 
   receptorRfc: string
@@ -126,6 +133,7 @@ export interface CFDIInvoiceFormData {
 
   status: CFDIStatus
   fechaEmision: string
+  metadata?: Record<string, unknown> | null
 }
 
 // ============================================================================
@@ -181,6 +189,9 @@ export interface CFDIItem {
 
 export interface CFDIItemFormData {
   cfdiInvoiceId: number
+  productId?: number | null
+  // Obligatorio al crear (CFDIItemRequest); por omision 1
+  numeroLinea?: number
   claveProdServ: string
   noIdentificacion?: string
   cantidad: number
@@ -199,6 +210,12 @@ export interface CFDIItemFormData {
   retencionTipoFactor?: string
   retencionTasaOCuota?: string
   retencionImporte?: number
+  // Si viene, se manda tal cual y los campos traslado* / retencion* se ignoran
+  impuestos?: Record<string, unknown> | null
+  numeroPedimento?: string | null
+  cuentaPredial?: Record<string, unknown> | null
+  informacionAduanera?: Record<string, unknown> | null
+  metadata?: Record<string, unknown> | null
 }
 
 // ============================================================================
@@ -253,9 +270,8 @@ export interface CompanySettingFormData {
   pacUsername: string
   pacPassword?: string // Only for create/update
   pacProductionMode: boolean
-  certificateFile: string
-  keyFile: string
-  keyPassword?: string // Only for create/update
+  // Certificado, llave y contrasena son readOnly en la API: van por
+  // upload-certificate / upload-key, nunca en este payload
   logoPath?: string
   additionalSettings?: Record<string, unknown>
   isActive: boolean
@@ -303,11 +319,15 @@ export interface CFDICancelResponse {
   fechaCancelacion: string
 }
 
+// generate-xml / generate-pdf responden { message, invoice_id, xml | pdf_path, pdf_url }
+// (endpoint propio, sin status)
 export interface CFDIGenerateResponse {
   cfdiId: string
+  message?: string
   xmlPath?: string
   pdfPath?: string
-  status: CFDIStatus
+  pdfUrl?: string
+  status?: CFDIStatus
 }
 
 export interface CFDIDownloadInfo {

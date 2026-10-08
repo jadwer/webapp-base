@@ -33,7 +33,7 @@ export function transformJsonApiSalesOrder(resource: JsonApiResource): SalesOrde
     creditDays: (attributes.credit_days ?? attributes.creditDays ?? null) as number | null,
     // Finance integration fields
     arInvoiceId: (attributes.ar_invoice_id ?? attributes.arInvoiceId ?? null) as number | null,
-    invoicingStatus: (attributes.invoicing_status || attributes.invoicingStatus || 'pending') as InvoicingStatus,
+    invoicingStatus: (attributes.invoicing_status || attributes.invoicingStatus || 'not_invoiced') as InvoicingStatus,
     // Bloque FE del ciclo: el detalle pinta el estado financiero (cancelled tras
     // anular la factura); el Schema del backend ya lo expone readOnly.
     financialStatus: (attributes.financial_status || attributes.financialStatus || undefined) as SalesOrder['financialStatus'],
@@ -43,6 +43,7 @@ export function transformJsonApiSalesOrder(resource: JsonApiResource): SalesOrde
     // Amounts
     discountTotal: (attributes.discount_total || attributes.discountTotal || 0) as number,
     totalAmount: (attributes.total_amount || attributes.totalAmount || 0) as number,
+    currency: (attributes.currency || undefined) as string | undefined,
     // Metadata
     notes: (attributes.notes ?? null) as string | null,
     createdAt: (attributes.created_at || attributes.createdAt || '') as string,
@@ -74,10 +75,6 @@ export function transformJsonApiSalesOrderItem(resource: JsonApiResource): Sales
     discount,
     total,
     totalPrice: total, // Legacy alias
-    // Finance integration fields
-    arInvoiceLineId: (attributes.ar_invoice_line_id ?? attributes.arInvoiceLineId ?? null) as number | null,
-    invoicedQuantity: (attributes.invoiced_quantity ?? attributes.invoicedQuantity ?? null) as number | null,
-    invoicedAmount: (attributes.invoiced_amount ?? attributes.invoicedAmount ?? null) as number | null,
     // Metadata
     createdAt: (attributes.created_at || attributes.createdAt || '') as string,
     updatedAt: (attributes.updated_at || attributes.updatedAt || '') as string,
@@ -228,6 +225,7 @@ export function transformSalesOrderFormToJsonApi(data: SalesOrderFormData, type:
         approvedAt: data.approvedAt || null,
         deliveredAt: data.deliveredAt || null,
         invoicingNotes: data.invoicingNotes || null,
+        ...(data.currency ? { currency: data.currency.toUpperCase() } : {}),
         notes: data.notes || '',
         // Solo si viene: en edicion no se mueve la sucursal por omision.
         ...(data.branchId ? { branchId: Number(data.branchId) } : {})

@@ -8,7 +8,9 @@
 export type ContactType = 'person' | 'company'
 export type ContactStatus = 'active' | 'inactive' | 'suspended' | 'archived'
 export type AddressType = 'billing' | 'shipping' | 'fiscal' | 'other'
-export type DocumentType = 'id_card' | 'tax_certificate' | 'contract' | 'license' | 'other'
+// Lista del backend en utils/documentTypes.ts (espejo de ContactDocumentRequest)
+import type { ContactDocumentType } from '../utils/documentTypes'
+export type DocumentType = ContactDocumentType
 
 /**
  * Telefono de un contacto (2026-09-30): solo digitos; con lada 52 el numero

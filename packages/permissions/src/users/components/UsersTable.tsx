@@ -168,6 +168,7 @@ export const UsersTable: React.FC<UsersTableProps> = ({
                       <>
                         {onView && (
                           <button
+                            aria-label="Ver detalles"
                             className="btn btn-sm btn-primary"
                             onClick={() => onView(user)}
                             title="Ver detalles"
@@ -177,6 +178,7 @@ export const UsersTable: React.FC<UsersTableProps> = ({
                         )}
                         {onEdit && (
                           <button
+                            aria-label="Editar"
                             className="btn btn-sm btn-outline-secondary"
                             onClick={() => onEdit(user)}
                             title="Editar"
@@ -186,6 +188,7 @@ export const UsersTable: React.FC<UsersTableProps> = ({
                         )}
                         {onDelete && (
                           <button
+                            aria-label="Eliminar"
                             className="btn btn-sm btn-outline-danger"
                             onClick={() => onDelete(user)}
                             title="Eliminar"

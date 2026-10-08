@@ -8,6 +8,7 @@ import { formatCurrency, formatQuantity } from '@/lib/formatters'
 import { toast } from '@/lib/toast'
 import ConfirmModal, { ConfirmModalHandle } from '@/ui/components/base/ConfirmModal'
 import { AddItemModal } from '@/modules/purchase'
+import { todayDateInput, formatDateOnly } from '@lwm/ui'
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -61,7 +62,7 @@ export default function PurchaseOrderDetailPage({ params }: PageProps) {
       // Sin items explicitos el backend recibe todo lo pendiente de cada linea.
       await purchaseService.orders.receive(resolvedParams.id, {
         items: [],
-        receivedDate: new Date().toISOString().slice(0, 10),
+        receivedDate: todayDateInput(),
       })
       toast.success('Mercancia recibida: el stock fue actualizado')
       await Promise.all([mutateOrder(), mutateItems()])
@@ -238,11 +239,7 @@ export default function PurchaseOrderDetailPage({ params }: PageProps) {
                       <tr>
                         <td><strong>Fecha de Orden:</strong></td>
                         <td>
-                          {purchaseOrder.orderDate ? new Date(purchaseOrder.orderDate).toLocaleDateString('es-ES', {
-                            day: '2-digit',
-                            month: '2-digit',
-                            year: 'numeric'
-                          }) : 'Sin fecha'}
+                          {purchaseOrder.orderDate ? formatDateOnly(purchaseOrder.orderDate) : 'Sin fecha'}
                         </td>
                       </tr>
                       <tr>

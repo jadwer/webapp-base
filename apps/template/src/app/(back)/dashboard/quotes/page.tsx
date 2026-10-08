@@ -16,6 +16,7 @@ import { formatCurrency } from '@/lib/formatters'
 import { toast } from '@/lib/toast'
 import { getValidationErrorMessages } from '@/modules/contacts'
 import { BranchFilter, useBranchName } from '@lwm/auth'
+import { isPastDateOnly } from '@lwm/ui'
 
 const STATUS_CONFIG: Record<QuoteStatus, { label: string; badgeClass: string }> = {
   draft: { label: 'Borrador', badgeClass: 'bg-secondary' },
@@ -362,7 +363,7 @@ export default function QuotesPage() {
                             <td>{formatDate(quote.quoteDate)}</td>
                             <td>
                               {quote.validUntil ? (
-                                <span className={new Date(quote.validUntil) < new Date() ? 'text-danger' : ''}>
+                                <span className={isPastDateOnly(quote.validUntil) ? 'text-danger' : ''}>
                                   {formatDate(quote.validUntil)}
                                 </span>
                               ) : '-'}
@@ -385,6 +386,7 @@ export default function QuotesPage() {
                             <td>
                               <div className="btn-group btn-group-sm">
                                 <button
+                                  aria-label="Ver detalle"
                                   className="btn btn-outline-primary"
                                   onClick={() => router.push(`/dashboard/quotes/${quote.id}`)}
                                   title="Ver detalle"
@@ -395,6 +397,7 @@ export default function QuotesPage() {
                                 {/* Dropdown for more actions */}
                                 <div className="btn-group btn-group-sm" role="group">
                                   <button
+                                    aria-label="Más acciones"
                                     type="button"
                                     className="btn btn-outline-secondary dropdown-toggle"
                                     data-bs-toggle="dropdown"

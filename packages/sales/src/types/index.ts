@@ -13,7 +13,14 @@ export type OrderStatus =
   // Legacy frontend value
   | 'pending'
 
-export type InvoicingStatus = 'pending' | 'partial' | 'invoiced' | 'not_required'
+// Enum de invoicing_status en api-base Modules/Sales/Database/migrations/2025_07_28_191111_create_sales_orders_table.php
+export type InvoicingStatus = 'not_invoiced' | 'partial' | 'invoiced'
+
+export const INVOICING_STATUS_CONFIG: Record<InvoicingStatus, { label: string; badgeClass: string }> = {
+  not_invoiced: { label: 'Sin facturar', badgeClass: 'bg-warning text-dark' },
+  partial: { label: 'Parcial', badgeClass: 'bg-info' },
+  invoiced: { label: 'Facturada', badgeClass: 'bg-success' },
+}
 // Bloque FE del ciclo: alineado a los valores REALES que escribe el backend
 // (not_invoiced default, invoiced al facturar, cancelled al anular). Se conservan
 // los valores viejos por si algun dato historico los usa.
@@ -66,6 +73,7 @@ export interface SalesOrder {
   totalAmount: number
   subtotalAmount?: number
   taxAmount?: number
+  currency?: string
   // Metadata
   notes: string | null
   metadata?: Record<string, unknown> | null
@@ -82,10 +90,6 @@ export interface SalesOrderItem {
   discount: number
   total: number
   totalPrice?: number // Legacy frontend alias for total
-  // Finance integration fields
-  arInvoiceLineId: number | null
-  invoicedQuantity: number | null
-  invoicedAmount: number | null
   // Metadata
   metadata?: Record<string, unknown> | null
   createdAt: string
@@ -111,6 +115,8 @@ export interface SalesOrderFormData {
   approvedAt?: string | null
   deliveredAt?: string | null
   invoicingNotes?: string | null
+  /** ISO 4217 de 3 letras; ausente = la del backend (MXN). */
+  currency?: string
   notes?: string
   items?: SalesOrderItem[]
   /** Sucursal del documento; ausente = la del usuario o la Matriz. */

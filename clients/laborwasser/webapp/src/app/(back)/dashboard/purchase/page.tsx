@@ -5,6 +5,7 @@ import { usePurchaseOrders } from '@/modules/purchase'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
 import { formatCurrency } from '@/lib/formatters'
 import { BranchFilter, useBranchName } from '@lwm/auth'
+import { formatDateOnly } from '@lwm/ui'
 
 interface PurchaseOrder {
   branchId?: number | null
@@ -192,11 +193,7 @@ export default function PurchasePage() {
                             </td>
                             {branchName.multi && <td className="small">{branchName.name(order.branchId)}</td>}
                             <td>
-                              {order.orderDate ? new Date(order.orderDate).toLocaleDateString('es-ES', {
-                                day: '2-digit',
-                                month: '2-digit', 
-                                year: 'numeric'
-                              }) : 'Sin fecha'}
+                              {order.orderDate ? formatDateOnly(order.orderDate) : 'Sin fecha'}
                             </td>
                             <td>
                               <span className={`badge ${getStatusBadgeClass(order.status)}`}>

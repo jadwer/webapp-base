@@ -6,11 +6,23 @@
 
 import { axiosClient } from '@lwm/auth';
 
+// Valores que puede tener la columna: enum de la migracion
+// api-base Modules/Ecommerce/Database/migrations/2025_10_29_221009_create_checkout_sessions_table.php.
+// Desde B3 el CheckoutSessionRequest valida contra CheckoutSession::STATUSES/STEPS
+// (pasos: address, shipping, payment, confirmation).
+export type CheckoutSessionStatus =
+  | 'initiated'
+  | 'payment_pending'
+  | 'payment_confirmed'
+  | 'completed'
+  | 'failed'
+  | 'expired';
+
 export interface CheckoutSession {
   id: string;
   shoppingCartId: number;
   contactId: number | null;
-  status: 'pending' | 'payment_pending' | 'completed' | 'failed' | 'cancelled';
+  status: CheckoutSessionStatus;
   shippingAddressId: number | null;
   billingAddressId: number | null;
   subtotal: number;

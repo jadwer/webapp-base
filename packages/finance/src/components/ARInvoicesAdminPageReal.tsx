@@ -17,6 +17,7 @@ import { Alert } from '@lwm/ui'
 import { useNavigationProgress } from '@lwm/ui'
 import { toast } from '@lwm/ui'
 import type { ARInvoice } from '../types'
+import { INVOICE_STATUS_FILTER_OPTIONS, isInvoiceClosed, isInvoiceOpen } from '../utils/invoiceStatus'
 
 export const ARInvoicesAdminPageReal = () => {
   const [searchTerm, setSearchTerm] = useState('')
@@ -128,9 +129,7 @@ export const ARInvoicesAdminPageReal = () => {
         onStatusFilterChange={handleStatusFilterChange}
         statusOptions={[
           { value: '', label: 'Todos los estados' },
-          { value: 'draft', label: 'Borrador' },
-          { value: 'sent', label: 'Enviada' },
-          { value: 'paid', label: 'Cobrada' },
+          ...INVOICE_STATUS_FILTER_OPTIONS,
         ]}
         placeholder="Buscar por número de factura, cliente..."
       />
@@ -201,7 +200,7 @@ export const ARInvoicesAdminPageReal = () => {
         <div className="bg-white p-4 rounded-lg border">
           <div className="text-sm text-gray-600">Por Cobrar</div>
           <div className="text-2xl font-bold text-blue-600">
-            {arInvoices?.filter(inv => inv.status === 'sent' && (inv.totalAmount - inv.paidAmount) > 0).length || 0}
+            {arInvoices?.filter(inv => isInvoiceOpen(inv)).length || 0}
           </div>
         </div>
         <div className="bg-white p-4 rounded-lg border">
@@ -222,7 +221,7 @@ export const ARInvoicesAdminPageReal = () => {
               currency: 'MXN'
             }).format(
               arInvoices?.reduce((sum, inv) =>
-                (inv.status !== 'paid' && inv.status !== 'cancelled' && inv.status !== 'void')
+                (inv.status !== 'draft' && !isInvoiceClosed(inv.status))
                   ? sum + (inv.totalAmount - inv.paidAmount)
                   : sum, 0
               ) || 0

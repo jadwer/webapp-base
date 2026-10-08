@@ -8,6 +8,12 @@
 'use client'
 
 import useSWR from 'swr'
+import {
+  satCfdiCatalogsService,
+  FALLBACK_FORMAS_PAGO,
+  FALLBACK_REGIMENES_FISCALES,
+  FALLBACK_USOS_CFDI,
+} from '../services/satCfdiCatalogsService'
 import { useCallback } from 'react'
 import type {
   CFDIInvoice,
@@ -477,5 +483,25 @@ export function useSalesOrderBillingMutations() {
   return {
     prefacturaFromOrder,
     facturar,
+  }
+}
+
+// ============================================================================
+// SAT CATALOGS (uso CFDI, regimen fiscal, forma de pago) desde el backend
+// ============================================================================
+
+export function useSatCfdiCatalogs() {
+  const swrOptions = { revalidateOnFocus: false, dedupingInterval: 5 * 60 * 1000 }
+  const contact = useSWR('contact-catalogs', () => satCfdiCatalogsService.getContactCatalogs(), swrOptions)
+  const formas = useSWR('/api/v1/sat/forma-pago', () => satCfdiCatalogsService.getFormasPago(), swrOptions)
+
+  const formasPago = formas.data && formas.data.length > 0 ? formas.data : FALLBACK_FORMAS_PAGO
+
+  return {
+    usosCfdi: contact.data?.usos_cfdi ?? FALLBACK_USOS_CFDI,
+    regimenesFiscales: contact.data?.regimenes_fiscales ?? FALLBACK_REGIMENES_FISCALES,
+    formasPago,
+    isLoading: (contact.isLoading && !contact.data) || (formas.isLoading && !formas.data),
+    isFallback: (Boolean(contact.error) && !contact.data) || (Boolean(formas.error) && !formas.data),
   }
 }

@@ -48,7 +48,7 @@ export const createMockARInvoice = (overrides?: Partial<ARInvoice>): ARInvoice =
   subtotal: 2000.00,
   taxAmount: 320.00,
   totalAmount: 2320.00,
-  status: 'sent',
+  status: 'posted',
   paidAmount: 500.00,
   paidDate: null,
   journalEntryId: null,
@@ -86,7 +86,7 @@ export const createMockPayment = (overrides?: Partial<Payment>): Payment => ({
   currency: 'MXN',
   appliedAmount: 0,
   unappliedAmount: 1160.00,
-  status: 'pending',
+  status: 'unapplied',
   journalEntryId: null,
   reference: 'TXN-12345',
   notes: null,
@@ -97,20 +97,14 @@ export const createMockPayment = (overrides?: Partial<Payment>): Payment => ({
   ...overrides,
 })
 
-// Legacy: Mock AP Payment factory (alias for Payment with AP-specific fields)
+// Pagos AP y cobros AR son el mismo recurso `payments`
 export const createMockAPPayment = (overrides?: Partial<APPayment>): APPayment => ({
   ...createMockPayment(),
-  apInvoiceId: 1,
-  paymentMethod: 'transfer',
   ...overrides,
 })
 
-// Legacy: Mock AR Receipt factory (alias for Payment with AR-specific fields)
 export const createMockARReceipt = (overrides?: Partial<ARReceipt>): ARReceipt => ({
   ...createMockPayment(),
-  arInvoiceId: 1,
-  receiptDate: '2025-08-20',
-  paymentMethod: 'transfer',
   ...overrides,
 })
 
@@ -123,14 +117,12 @@ export const createMockBankAccount = (overrides?: Partial<BankAccount>): BankAcc
   currency: 'MXN',
   glAccountId: null,
   currentBalance: 50000.00,
-  accountType: 'checking',
+  openingBalance: 50000.00,
+  status: 'active',
+  metadata: null,
   isActive: true,
   createdAt: '2025-08-20T10:00:00.000Z',
   updatedAt: '2025-08-20T10:00:00.000Z',
-  // Legacy fields
-  clabe: '012180001234567890',
-  openingBalance: '50000.00',
-  status: 'active',
   ...overrides,
 })
 
@@ -139,17 +131,15 @@ export const createMockPaymentApplication = (overrides?: Partial<PaymentApplicat
   id: '1',
   paymentId: 1,
   arInvoiceId: 1,
-  apInvoiceId: null,
-  appliedAmount: 500.00,
+  amount: 500.00,
+  applicationDate: '2025-08-20',
   notes: null,
+  isActive: true,
   metadata: null,
   createdAt: '2025-08-20T10:00:00.000Z',
   updatedAt: '2025-08-20T10:00:00.000Z',
   invoiceNumber: 'INV-001',
   paymentNumber: 'PAY-001',
-  // Legacy fields
-  applicationDate: '2025-08-20',
-  amount: '500.00',
   ...overrides,
 })
 

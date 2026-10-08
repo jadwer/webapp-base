@@ -45,7 +45,6 @@ describe('Payment Applications Service', () => {
           attributes: {
             paymentId: app.paymentId,
             arInvoiceId: app.arInvoiceId,
-            apInvoiceId: app.apInvoiceId,
             amount: app.amount,
             applicationDate: app.applicationDate,
             createdAt: app.createdAt,
@@ -80,7 +79,6 @@ describe('Payment Applications Service', () => {
           attributes: {
             paymentId: app.paymentId,
             arInvoiceId: app.arInvoiceId,
-            apInvoiceId: app.apInvoiceId,
             amount: app.amount,
             applicationDate: app.applicationDate,
             createdAt: app.createdAt,
@@ -92,7 +90,7 @@ describe('Payment Applications Service', () => {
 
       mockAxios.get.mockResolvedValue({ data: mockResponse })
 
-      const params = { 'filter[paymentId]': '5' }
+      const params = { 'filter[payment_id]': '5' }
 
       // Act
       const result = await paymentApplicationsService.getAll(params)
@@ -105,7 +103,7 @@ describe('Payment Applications Service', () => {
 
     it('should fetch payment applications filtered by AR invoice', async () => {
       // Arrange
-      const mockApplications = [createMockPaymentApplication({ arInvoiceId: 10, apInvoiceId: null })]
+      const mockApplications = [createMockPaymentApplication({ arInvoiceId: 10 })]
 
       const mockResponse = {
         jsonapi: { version: '1.0' },
@@ -115,7 +113,6 @@ describe('Payment Applications Service', () => {
           attributes: {
             paymentId: app.paymentId,
             arInvoiceId: app.arInvoiceId,
-            apInvoiceId: app.apInvoiceId,
             amount: app.amount,
             applicationDate: app.applicationDate,
             createdAt: app.createdAt,
@@ -126,7 +123,7 @@ describe('Payment Applications Service', () => {
 
       mockAxios.get.mockResolvedValue({ data: mockResponse })
 
-      const params = { 'filter[arInvoiceId]': '10' }
+      const params = { 'filter[ar_invoice_id]': '10' }
 
       // Act
       const result = await paymentApplicationsService.getAll(params)
@@ -134,42 +131,9 @@ describe('Payment Applications Service', () => {
       // Assert
       expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/payment-applications', { params })
       expect(result.data[0].arInvoiceId).toBe(10)
-      expect(result.data[0].apInvoiceId).toBeNull()
+      expect(result.data[0]).not.toHaveProperty('apInvoiceId')
     })
 
-    it('should fetch payment applications filtered by AP invoice', async () => {
-      // Arrange
-      const mockApplications = [createMockPaymentApplication({ arInvoiceId: null, apInvoiceId: 15 })]
-
-      const mockResponse = {
-        jsonapi: { version: '1.0' },
-        data: mockApplications.map(app => ({
-          id: app.id,
-          type: 'payment-applications',
-          attributes: {
-            paymentId: app.paymentId,
-            arInvoiceId: app.arInvoiceId,
-            apInvoiceId: app.apInvoiceId,
-            amount: app.amount,
-            applicationDate: app.applicationDate,
-            createdAt: app.createdAt,
-            updatedAt: app.updatedAt
-          }
-        }))
-      }
-
-      mockAxios.get.mockResolvedValue({ data: mockResponse })
-
-      const params = { 'filter[apInvoiceId]': '15' }
-
-      // Act
-      const result = await paymentApplicationsService.getAll(params)
-
-      // Assert
-      expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/payment-applications', { params })
-      expect(result.data[0].apInvoiceId).toBe(15)
-      expect(result.data[0].arInvoiceId).toBeNull()
-    })
 
     it('should fetch payment applications with pagination', async () => {
       // Arrange
@@ -183,7 +147,6 @@ describe('Payment Applications Service', () => {
           attributes: {
             paymentId: app.paymentId,
             arInvoiceId: app.arInvoiceId,
-            apInvoiceId: app.apInvoiceId,
             amount: app.amount,
             applicationDate: app.applicationDate,
             createdAt: app.createdAt,
@@ -225,7 +188,6 @@ describe('Payment Applications Service', () => {
           attributes: {
             paymentId: mockApplication.paymentId,
             arInvoiceId: mockApplication.arInvoiceId,
-            apInvoiceId: mockApplication.apInvoiceId,
             amount: mockApplication.amount,
             applicationDate: mockApplication.applicationDate,
             createdAt: mockApplication.createdAt,
@@ -256,7 +218,6 @@ describe('Payment Applications Service', () => {
           attributes: {
             paymentId: mockApplication.paymentId,
             arInvoiceId: mockApplication.arInvoiceId,
-            apInvoiceId: mockApplication.apInvoiceId,
             amount: mockApplication.amount,
             applicationDate: mockApplication.applicationDate,
             createdAt: mockApplication.createdAt,
@@ -299,12 +260,12 @@ describe('Payment Applications Service', () => {
       const formData: PaymentApplicationForm = {
         paymentId: 1,
         arInvoiceId: 1,
-        apInvoiceId: null,
-        appliedAmount: 500.00,
+        amount: 500.00,
+        applicationDate: '2025-08-20',
         notes: 'Payment application for AR invoice'
       }
 
-      const mockApplication = createMockPaymentApplication({ paymentId: 1, arInvoiceId: 1, apInvoiceId: null, appliedAmount: 500.00 })
+      const mockApplication = createMockPaymentApplication({ paymentId: 1, arInvoiceId: 1, amount: 500.00 })
       const mockResponse = {
         data: {
           id: mockApplication.id,
@@ -312,8 +273,7 @@ describe('Payment Applications Service', () => {
           attributes: {
             paymentId: mockApplication.paymentId,
             arInvoiceId: mockApplication.arInvoiceId,
-            apInvoiceId: mockApplication.apInvoiceId,
-            appliedAmount: mockApplication.appliedAmount,
+            amount: mockApplication.amount,
             notes: mockApplication.notes,
             createdAt: mockApplication.createdAt,
             updatedAt: mockApplication.updatedAt
@@ -327,67 +287,31 @@ describe('Payment Applications Service', () => {
       const result = await paymentApplicationsService.create(formData)
 
       // Assert
-      // Transformer sends amount (BE field name) instead of appliedAmount, no apInvoiceId (BE doesn't support it)
+      // Atributos exactos de PaymentApplicationSchema: amount (no appliedAmount), sin apInvoiceId
       expect(mockAxios.post).toHaveBeenCalledWith('/api/v1/payment-applications', {
         data: {
           type: 'payment-applications',
           attributes: {
-            paymentId: formData.paymentId,
-            arInvoiceId: formData.arInvoiceId,
-            amount: formData.appliedAmount,
-            notes: formData.notes,
-            metadata: null
+            paymentId: 1,
+            arInvoiceId: 1,
+            amount: 500,
+            applicationDate: '2025-08-20',
+            notes: 'Payment application for AR invoice',
           }
         }
       })
       expect(result.data.id).toBe('1')
       expect(result.data.arInvoiceId).toBe(1)
+      expect(result.data.amount).toBe(500)
     })
 
-    it('should create payment application for AP invoice successfully', async () => {
-      // Arrange
-      const formData: PaymentApplicationForm = {
-        paymentId: 2,
-        arInvoiceId: null,
-        apInvoiceId: 5,
-        appliedAmount: 1200.00,
-        notes: 'Payment application for AP invoice'
-      }
-
-      const mockApplication = createMockPaymentApplication({ paymentId: 2, arInvoiceId: null, apInvoiceId: 5, appliedAmount: 1200.00 })
-      const mockResponse = {
-        data: {
-          id: mockApplication.id,
-          type: 'payment-applications',
-          attributes: {
-            paymentId: mockApplication.paymentId,
-            arInvoiceId: mockApplication.arInvoiceId,
-            apInvoiceId: mockApplication.apInvoiceId,
-            appliedAmount: mockApplication.appliedAmount,
-            notes: mockApplication.notes,
-            createdAt: mockApplication.createdAt,
-            updatedAt: mockApplication.updatedAt
-          }
-        }
-      }
-
-      mockAxios.post.mockResolvedValue({ data: mockResponse })
-
-      // Act
-      const result = await paymentApplicationsService.create(formData)
-
-      // Assert
-      expect(result.data.apInvoiceId).toBe(5)
-      expect(result.data.arInvoiceId).toBeNull()
-      expect(result.data.appliedAmount).toBe(1200.00)
-    })
   })
 
   describe('update', () => {
     it('should update payment application successfully', async () => {
       // Arrange
-      const updateData = { appliedAmount: 750.00 }
-      const mockApplication = createMockPaymentApplication({ appliedAmount: 750.00 })
+      const updateData = { amount: 750.00 }
+      const mockApplication = createMockPaymentApplication({ amount: 750.00 })
 
       const mockResponse = {
         data: {
@@ -396,8 +320,7 @@ describe('Payment Applications Service', () => {
           attributes: {
             paymentId: mockApplication.paymentId,
             arInvoiceId: mockApplication.arInvoiceId,
-            apInvoiceId: mockApplication.apInvoiceId,
-            appliedAmount: mockApplication.appliedAmount,
+            amount: mockApplication.amount,
             notes: mockApplication.notes,
             createdAt: mockApplication.createdAt,
             updatedAt: mockApplication.updatedAt
@@ -418,7 +341,7 @@ describe('Payment Applications Service', () => {
           attributes: updateData
         }
       })
-      expect(result.data.appliedAmount).toBe(750.00)
+      expect(result.data.amount).toBe(750.00)
     })
 
     it('should update notes successfully', async () => {
@@ -433,8 +356,7 @@ describe('Payment Applications Service', () => {
           attributes: {
             paymentId: mockApplication.paymentId,
             arInvoiceId: mockApplication.arInvoiceId,
-            apInvoiceId: mockApplication.apInvoiceId,
-            appliedAmount: mockApplication.appliedAmount,
+            amount: mockApplication.amount,
             notes: mockApplication.notes,
             createdAt: mockApplication.createdAt,
             updatedAt: mockApplication.updatedAt
@@ -513,7 +435,6 @@ describe('Payment Applications Service', () => {
           attributes: {
             paymentId: mockApplication.paymentId,
             arInvoiceId: mockApplication.arInvoiceId,
-            apInvoiceId: mockApplication.apInvoiceId,
             amount: mockApplication.amount,
             applicationDate: mockApplication.applicationDate,
             createdAt: mockApplication.createdAt,

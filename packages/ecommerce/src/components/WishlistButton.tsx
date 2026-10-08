@@ -92,6 +92,7 @@ export function WishlistButton({
 
   return (
     <button
+      aria-label={isInWishlist ? 'Quitar de lista de deseos' : 'Agregar a lista de deseos'}
       type="button"
       className={`btn ${isInWishlist ? 'btn-danger' : 'btn-outline-secondary'} ${sizeClasses[size]} ${className}`}
       onClick={handleClick}

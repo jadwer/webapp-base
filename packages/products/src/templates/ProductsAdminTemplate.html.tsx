@@ -105,6 +105,7 @@ export const ProductsAdminTemplate: React.FC<ProductsAdminTemplateProps> = ({
         <div className="d-flex align-items-center gap-2">
           <div className="btn-group" role="group">
             <Button
+              aria-label="Vista de tabla"
               size="small"
               variant={viewMode === 'table' ? 'primary' : 'secondary'}
               buttonStyle={viewMode === 'table' ? 'filled' : 'outline'}
@@ -114,6 +115,7 @@ export const ProductsAdminTemplate: React.FC<ProductsAdminTemplateProps> = ({
               <i className="bi bi-table" />
             </Button>
             <Button
+              aria-label="Vista de tarjetas"
               size="small"
               variant={viewMode === 'grid' ? 'primary' : 'secondary'}
               buttonStyle={viewMode === 'grid' ? 'filled' : 'outline'}
@@ -123,6 +125,7 @@ export const ProductsAdminTemplate: React.FC<ProductsAdminTemplateProps> = ({
               <i className="bi bi-grid-3x3-gap" />
             </Button>
             <Button
+              aria-label="Vista de lista"
               size="small"
               variant={viewMode === 'list' ? 'primary' : 'secondary'}
               buttonStyle={viewMode === 'list' ? 'filled' : 'outline'}

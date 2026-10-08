@@ -456,7 +456,7 @@ export interface MockCheckoutSession {
   id: string
   shoppingCartId: number
   contactId: number | null
-  status: 'pending' | 'payment_pending' | 'completed' | 'failed' | 'cancelled'
+  status: 'initiated' | 'payment_pending' | 'payment_confirmed' | 'completed' | 'failed' | 'expired'
   shippingAddressId: number | null
   billingAddressId: number | null
   subtotal: number
@@ -476,7 +476,7 @@ export function createMockCheckoutSession(overrides?: Partial<MockCheckoutSessio
     id: 'session-123',
     shoppingCartId: 1,
     contactId: 1,
-    status: 'pending',
+    status: 'initiated',
     shippingAddressId: 10,
     billingAddressId: 11,
     subtotal: 100.00,

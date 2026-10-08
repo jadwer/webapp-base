@@ -20,12 +20,15 @@ vi.mock('../../lib/axiosClient', () => ({
   }
 }))
 
-// Mock transformers
-vi.mock('../../utils/transformers', () => ({
-  transformARInvoicesFromAPI: vi.fn((data) => data.data || []),
-  transformARInvoiceFromAPI: vi.fn((data) => data),
-  transformARInvoiceToAPI: vi.fn((data) => ({ data: { type: 'ar-invoices', attributes: data } }))
-}))
+// FromAPI mockeados; los ToAPI son los reales para asertar el payload exacto
+vi.mock('../../utils/transformers', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../../utils/transformers')>()
+  return {
+    ...actual,
+    transformARInvoicesFromAPI: vi.fn((data) => data.data || []),
+    transformARInvoiceFromAPI: vi.fn((data) => data),
+  }
+})
 
 const mockAxios = axiosClient as any
 
@@ -120,14 +123,24 @@ describe('AR Invoices Service', () => {
       const result = await arInvoicesService.create(formData)
 
       // Assert
-      expect(mockAxios.post).toHaveBeenCalledWith(
-        '/api/v1/ar-invoices',
-        expect.objectContaining({
-          data: expect.objectContaining({
-            type: 'ar-invoices'
-          })
-        })
-      )
+      // Tipo y atributos exactos de ARInvoiceSchema (camelCase, numeros como number)
+      expect(mockAxios.post).toHaveBeenCalledWith('/api/v1/ar-invoices', {
+        data: {
+          type: 'ar-invoices',
+          attributes: {
+            invoiceNumber: 'AR-001',
+            invoiceDate: '2025-01-15',
+            dueDate: '2025-02-15',
+            contactId: 1,
+            salesOrderId: null,
+            currency: 'MXN',
+            subtotal: 1724.14,
+            taxAmount: 275.86,
+            totalAmount: 2000,
+            status: 'pending',
+          },
+        },
+      })
       expect(result.data).toBeDefined()
     })
   })
@@ -172,37 +185,22 @@ describe('AR Invoices Service', () => {
     })
   })
 
-  describe('post', () => {
-    it('should post AR invoice', async () => {
-      // Arrange
-      const mockInvoice = createMockARInvoice({ status: 'sent' })
-      mockAxios.post.mockResolvedValue({
-        data: { data: mockInvoice }
-      })
-
-      // Act
-      const result = await arInvoicesService.post('1')
-
-      // Assert
-      expect(mockAxios.post).toHaveBeenCalledWith('/api/v1/ar-invoices/1/post')
-      expect(result.data).toBeDefined()
-    })
-  })
 
   describe('registerPayment', () => {
     it('should send the payload with snake_case fields to the register-payment endpoint', async () => {
-      // Arrange
-      const mockResponse = {
-        message: 'Payment registered successfully',
+      // Arrange: respuesta real del ARInvoiceController (snake_case, ids numericos)
+      const backendResponse = {
+        message: 'Pago registrado exitosamente',
+        payment: { id: 7, payment_number: 'PAY-2026-00007' },
         invoice: {
-          id: '1',
-          totalAmount: 2320,
-          paidAmount: 1000,
+          id: 1,
+          total_amount: 2320,
+          paid_amount: 1000,
           balance: 1320,
           status: 'partial',
         },
       }
-      mockAxios.post.mockResolvedValue({ data: mockResponse })
+      mockAxios.post.mockResolvedValue({ data: backendResponse })
 
       // Act
       const result = await arInvoicesService.registerPayment('1', {
@@ -221,7 +219,17 @@ describe('AR Invoices Service', () => {
         reference: 'REF-123',
         comments: 'Pago parcial',
       })
-      expect(result).toEqual(mockResponse)
+      expect(result).toEqual({
+        message: 'Pago registrado exitosamente',
+        payment: { id: '7', paymentNumber: 'PAY-2026-00007' },
+        invoice: {
+          id: '1',
+          totalAmount: 2320,
+          paidAmount: 1000,
+          balance: 1320,
+          status: 'partial',
+        },
+      })
     })
 
     it('should omit optional reference and comments when not provided', async () => {
@@ -229,7 +237,8 @@ describe('AR Invoices Service', () => {
       mockAxios.post.mockResolvedValue({
         data: {
           message: 'ok',
-          invoice: { id: '1', totalAmount: 100, paidAmount: 100, balance: 0, status: 'paid' },
+          payment: { id: 8, payment_number: 'PAY-2026-00008' },
+          invoice: { id: 1, total_amount: 100, paid_amount: 100, balance: 0, status: 'paid' },
         },
       })
 

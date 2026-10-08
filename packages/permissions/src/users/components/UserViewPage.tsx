@@ -83,6 +83,7 @@ export const UserViewPage: React.FC<UserViewPageProps> = ({ userId }) => {
           {/* Header */}
           <div className="d-flex align-items-center mb-4">
             <button
+              aria-label="Volver a usuarios"
               className="btn btn-link text-muted p-0 me-3"
               onClick={() => navigation.push('/dashboard/users')}
               title="Volver a usuarios"

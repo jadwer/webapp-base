@@ -20,12 +20,15 @@ vi.mock('../../lib/axiosClient', () => ({
   }
 }))
 
-// Mock transformers
-vi.mock('../../utils/transformers', () => ({
-  transformAPPaymentsFromAPI: vi.fn((data) => data.data || []),
-  transformAPPaymentFromAPI: vi.fn((data) => data),
-  transformAPPaymentToAPI: vi.fn((data) => ({ data: { type: 'payments', attributes: data } }))
-}))
+// FromAPI mockeados; los ToAPI son los reales para asertar el payload exacto
+vi.mock('../../utils/transformers', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../../utils/transformers')>()
+  return {
+    ...actual,
+    transformAPPaymentsFromAPI: vi.fn((data) => data.data || []),
+    transformAPPaymentFromAPI: vi.fn((data) => data),
+  }
+})
 
 const mockAxios = axiosClient as any
 
@@ -48,14 +51,14 @@ describe('AP Payments Service', () => {
       const result = await apPaymentsService.getAll()
 
       // Assert
-      expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/payments', { params: {} })
+      expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/payments', { params: { 'filter[direction]': 'ap' } })
       expect(result).toHaveProperty('data')
       expect(result).toHaveProperty('jsonapi')
     })
 
     it('should pass query parameters correctly', async () => {
       // Arrange
-      const params = { 'filter[status]': 'completed', 'page[number]': 1 }
+      const params = { 'filter[status]': 'applied', 'page[number]': 1 }
       const mockResponse = createMockAPIResponse([])
       mockAxios.get.mockResolvedValue({ data: mockResponse })
 
@@ -63,7 +66,15 @@ describe('AP Payments Service', () => {
       await apPaymentsService.getAll(params)
 
       // Assert
-      expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/payments', { params })
+      expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/payments', { params: { ...params, 'filter[direction]': 'ap' } })
+    })
+
+    it('siempre filtra direction=ap aunque el llamador mande otro valor', async () => {
+      mockAxios.get.mockResolvedValue({ data: createMockAPIResponse([]) })
+
+      await apPaymentsService.getAll({ 'filter[direction]': 'ar' })
+
+      expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/payments', { params: { 'filter[direction]': 'ap' } })
     })
   })
 
@@ -91,10 +102,10 @@ describe('AP Payments Service', () => {
       })
 
       // Act
-      await apPaymentsService.getById('1', ['apInvoice', 'bankAccount'])
+      await apPaymentsService.getById('1', ['contact', 'paymentMethod'])
 
       // Assert
-      expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/payments/1?include=apInvoice,bankAccount')
+      expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/payments/1?include=contact,paymentMethod')
     })
   })
 
@@ -102,14 +113,14 @@ describe('AP Payments Service', () => {
     it('should create new AP payment', async () => {
       // Arrange
       const formData: APPaymentForm = {
+        paymentNumber: 'PAG-001',
         contactId: 1,
-        apInvoiceId: 1,
-        paymentMethodId: 1,
+        paymentMethodId: 2,
+        bankAccountId: 3,
         paymentDate: '2025-01-15',
         currency: 'MXN',
         amount: 1000,
-        reference: 'PAY-001',
-        status: 'pending'
+        reference: 'REF-001',
       }
       const mockPayment = createMockAPPayment()
       mockAxios.post.mockResolvedValue({
@@ -120,14 +131,25 @@ describe('AP Payments Service', () => {
       const result = await apPaymentsService.create(formData)
 
       // Assert
-      expect(mockAxios.post).toHaveBeenCalledWith(
-        '/api/v1/payments',
-        expect.objectContaining({
-          data: expect.objectContaining({
-            type: 'payments'
-          })
-        })
-      )
+      // Recurso `payments` con atributos de PaymentSchema; nace sin aplicar
+      expect(mockAxios.post).toHaveBeenCalledWith('/api/v1/payments', {
+        data: {
+          type: 'payments',
+          attributes: {
+            paymentNumber: 'PAG-001',
+            paymentDate: '2025-01-15',
+            contactId: 1,
+            bankAccountId: 3,
+            paymentMethodId: 2,
+            amount: 1000,
+            currency: 'MXN',
+            appliedAmount: 0,
+            unappliedAmount: 1000,
+            status: 'unapplied',
+            reference: 'REF-001',
+          },
+        },
+      })
       expect(result.data).toBeDefined()
     })
   })
@@ -135,8 +157,8 @@ describe('AP Payments Service', () => {
   describe('update', () => {
     it('should update existing AP payment', async () => {
       // Arrange
-      const updateData = { status: 'completed' as const }
-      const mockPayment = createMockAPPayment({ status: 'completed' })
+      const updateData = { status: 'applied' as const }
+      const mockPayment = createMockAPPayment({ status: 'applied' })
       mockAxios.patch.mockResolvedValue({
         data: { data: mockPayment }
       })
@@ -172,20 +194,4 @@ describe('AP Payments Service', () => {
     })
   })
 
-  describe('post', () => {
-    it('should post AP payment', async () => {
-      // Arrange
-      const mockPayment = createMockAPPayment({ status: 'completed' })
-      mockAxios.post.mockResolvedValue({
-        data: { data: mockPayment }
-      })
-
-      // Act
-      const result = await apPaymentsService.post('1')
-
-      // Assert
-      expect(mockAxios.post).toHaveBeenCalledWith('/api/v1/payments/1/post')
-      expect(result.data).toBeDefined()
-    })
-  })
 })

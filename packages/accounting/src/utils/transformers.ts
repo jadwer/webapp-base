@@ -122,16 +122,26 @@ export const transformJournalEntryToAPI = (formData: JournalEntryFormData) => ({
   },
 })
 
+// Atributos con las llaves del JournalLineSchema (camelCase, contactId incluido).
+// memo es alias legado de description; solo viaja lo que viene definido.
+export const journalLineAttributesToAPI = (formData: Partial<JournalLineForm>): Record<string, unknown> => {
+  const toNumber = (value: unknown) => (value === null || value === '' ? null : Number(value))
+  const attributes: Record<string, unknown> = {}
+  if (formData.journalEntryId !== undefined) attributes.journalEntryId = toNumber(formData.journalEntryId)
+  if (formData.accountId !== undefined) attributes.accountId = toNumber(formData.accountId)
+  if (formData.contactId !== undefined) attributes.contactId = toNumber(formData.contactId)
+  if (formData.debit !== undefined) attributes.debit = Number(formData.debit || 0)
+  if (formData.credit !== undefined) attributes.credit = Number(formData.credit || 0)
+  const description = formData.description !== undefined ? formData.description : formData.memo
+  if (description !== undefined) attributes.description = description || null
+  if (formData.reference !== undefined) attributes.reference = formData.reference || null
+  return attributes
+}
+
 export const transformJournalLineToAPI = (formData: JournalLineForm) => ({
   data: {
     type: 'journal-lines',
-    attributes: {
-      accountId: formData.accountId,          // ✅ Required: string ID
-      debit: formData.debit,                  // ✅ Required: decimal as string
-      credit: formData.credit,                // ✅ Required: decimal as string
-      memo: formData.memo,                    // ✅ Optional
-      journalEntryId: formData.journalEntryId, // ✅ Optional: string ID
-    },
+    attributes: journalLineAttributesToAPI(formData),
   },
 })
 

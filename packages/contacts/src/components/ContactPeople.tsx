@@ -183,6 +183,7 @@ export const ContactPeople: React.FC<ContactPeopleProps> = ({
                       </div>
                       <div className="btn-group btn-group-sm">
                         <button
+                          aria-label="Editar"
                           type="button"
                           className="btn btn-primary btn-sm"
                           onClick={() => handleEdit(person)}
@@ -191,6 +192,7 @@ export const ContactPeople: React.FC<ContactPeopleProps> = ({
                           <i className="bi bi-pencil"></i>
                         </button>
                         <button
+                          aria-label="Eliminar"
                           type="button"
                           className="btn btn-outline-danger btn-sm"
                           onClick={() => onDeletePerson(person.id)}

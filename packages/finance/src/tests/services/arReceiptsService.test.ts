@@ -20,12 +20,15 @@ vi.mock('../../lib/axiosClient', () => ({
   }
 }))
 
-// Mock transformers
-vi.mock('../../utils/transformers', () => ({
-  transformARReceiptsFromAPI: vi.fn((data) => data.data || []),
-  transformARReceiptFromAPI: vi.fn((data) => data),
-  transformARReceiptToAPI: vi.fn((data) => ({ data: { type: 'payments', attributes: data } }))
-}))
+// FromAPI mockeados; los ToAPI son los reales para asertar el payload exacto
+vi.mock('../../utils/transformers', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../../utils/transformers')>()
+  return {
+    ...actual,
+    transformARReceiptsFromAPI: vi.fn((data) => data.data || []),
+    transformARReceiptFromAPI: vi.fn((data) => data),
+  }
+})
 
 const mockAxios = axiosClient as any
 
@@ -48,14 +51,14 @@ describe('AR Receipts Service', () => {
       const result = await arReceiptsService.getAll()
 
       // Assert
-      expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/payments', { params: {} })
+      expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/payments', { params: { 'filter[direction]': 'ar' } })
       expect(result).toHaveProperty('data')
       expect(result).toHaveProperty('jsonapi')
     })
 
     it('should pass query parameters correctly', async () => {
       // Arrange
-      const params = { 'filter[status]': 'completed', 'page[number]': 1 }
+      const params = { 'filter[status]': 'applied', 'page[number]': 1 }
       const mockResponse = createMockAPIResponse([])
       mockAxios.get.mockResolvedValue({ data: mockResponse })
 
@@ -63,7 +66,15 @@ describe('AR Receipts Service', () => {
       await arReceiptsService.getAll(params)
 
       // Assert
-      expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/payments', { params })
+      expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/payments', { params: { ...params, 'filter[direction]': 'ar' } })
+    })
+
+    it('siempre filtra direction=ar aunque el llamador mande otro valor', async () => {
+      mockAxios.get.mockResolvedValue({ data: createMockAPIResponse([]) })
+
+      await arReceiptsService.getAll({ 'filter[direction]': 'ap' })
+
+      expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/payments', { params: { 'filter[direction]': 'ar' } })
     })
   })
 
@@ -91,10 +102,10 @@ describe('AR Receipts Service', () => {
       })
 
       // Act
-      await arReceiptsService.getById('1', ['arInvoice', 'bankAccount'])
+      await arReceiptsService.getById('1', ['contact', 'paymentMethod'])
 
       // Assert
-      expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/payments/1?include=arInvoice,bankAccount')
+      expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/payments/1?include=contact,paymentMethod')
     })
   })
 
@@ -102,14 +113,14 @@ describe('AR Receipts Service', () => {
     it('should create new AR receipt', async () => {
       // Arrange
       const formData: ARReceiptForm = {
+        paymentNumber: 'PAG-001',
         contactId: 1,
-        arInvoiceId: 1,
-        paymentMethodId: 1,
-        receiptDate: '2025-01-15',
+        paymentMethodId: 2,
+        bankAccountId: 3,
+        paymentDate: '2025-01-15',
         currency: 'MXN',
-        amount: 2000,
-        reference: 'REC-001',
-        status: 'pending'
+        amount: 1000,
+        reference: 'REF-001',
       }
       const mockReceipt = createMockARReceipt()
       mockAxios.post.mockResolvedValue({
@@ -120,14 +131,25 @@ describe('AR Receipts Service', () => {
       const result = await arReceiptsService.create(formData)
 
       // Assert
-      expect(mockAxios.post).toHaveBeenCalledWith(
-        '/api/v1/payments',
-        expect.objectContaining({
-          data: expect.objectContaining({
-            type: 'payments'
-          })
-        })
-      )
+      // Recurso `payments` con atributos de PaymentSchema; nace sin aplicar
+      expect(mockAxios.post).toHaveBeenCalledWith('/api/v1/payments', {
+        data: {
+          type: 'payments',
+          attributes: {
+            paymentNumber: 'PAG-001',
+            paymentDate: '2025-01-15',
+            contactId: 1,
+            bankAccountId: 3,
+            paymentMethodId: 2,
+            amount: 1000,
+            currency: 'MXN',
+            appliedAmount: 0,
+            unappliedAmount: 1000,
+            status: 'unapplied',
+            reference: 'REF-001',
+          },
+        },
+      })
       expect(result.data).toBeDefined()
     })
   })
@@ -135,8 +157,8 @@ describe('AR Receipts Service', () => {
   describe('update', () => {
     it('should update existing AR receipt', async () => {
       // Arrange
-      const updateData = { status: 'completed' as const }
-      const mockReceipt = createMockARReceipt({ status: 'completed' })
+      const updateData = { status: 'applied' as const }
+      const mockReceipt = createMockARReceipt({ status: 'applied' })
       mockAxios.patch.mockResolvedValue({
         data: { data: mockReceipt }
       })
@@ -172,20 +194,4 @@ describe('AR Receipts Service', () => {
     })
   })
 
-  describe('post', () => {
-    it('should post AR receipt', async () => {
-      // Arrange
-      const mockReceipt = createMockARReceipt({ status: 'completed' })
-      mockAxios.post.mockResolvedValue({
-        data: { data: mockReceipt }
-      })
-
-      // Act
-      const result = await arReceiptsService.post('1')
-
-      // Assert
-      expect(mockAxios.post).toHaveBeenCalledWith('/api/v1/payments/1/post')
-      expect(result.data).toBeDefined()
-    })
-  })
 })

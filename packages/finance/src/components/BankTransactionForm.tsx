@@ -7,7 +7,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { Button } from '@lwm/ui'
+import { Button, todayDateInput } from '@lwm/ui'
 import { Input } from '@lwm/ui'
 import { Alert } from '@lwm/ui'
 import { useBankAccounts } from '../hooks'
@@ -24,7 +24,7 @@ interface BankTransactionFormProps {
 
 const defaultFormData: BankTransactionFormData = {
   bankAccountId: 0,
-  transactionDate: new Date().toISOString().split('T')[0],
+  transactionDate: todayDateInput(),
   amount: 0,
   transactionType: 'debit',
   reference: '',

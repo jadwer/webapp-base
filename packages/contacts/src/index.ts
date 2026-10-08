@@ -58,6 +58,12 @@ export {
 // Utils
 export { getValidationErrorMessages } from './utils/jsonApiErrors'
 export { useContactCatalogs } from './hooks/useContactCatalogs'
+export {
+  CONTACT_DOCUMENT_TYPES,
+  CONTACT_DOCUMENT_TYPE_LABELS,
+  contactDocumentTypeLabel,
+  type ContactDocumentType
+} from './utils/documentTypes'
 export { PhoneListInput } from './components/PhoneListInput'
 export { phoneError, parsePhoneText, cleanPhones, formatPhone, phonesForDisplay } from './utils/phones'
 

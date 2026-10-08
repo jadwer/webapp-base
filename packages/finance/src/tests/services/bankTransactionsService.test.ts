@@ -379,17 +379,22 @@ describe('Bank Transactions Service', () => {
       const result = await bankTransactionsService.create(formData)
 
       // Assert
+      // Atributos camelCase exactos de BankTransactionSchema
       expect(mockAxios.post).toHaveBeenCalledWith('/api/v1/bank-transactions', {
         data: {
           type: 'bank-transactions',
-          attributes: expect.objectContaining({
-            bank_account_id: 1,
-            transaction_date: '2025-08-20',
+          attributes: {
+            bankAccountId: 1,
+            transactionDate: '2025-08-20',
             amount: 5000.00,
-            transaction_type: 'credit',
+            transactionType: 'credit',
             reference: 'DEP-002',
-            description: 'Wire transfer deposit'
-          })
+            description: 'Wire transfer deposit',
+            reconciliationStatus: 'unreconciled',
+            statementNumber: null,
+            runningBalance: null,
+            isActive: true,
+          }
         }
       })
       expect(result.transactionType).toBe('credit')
@@ -586,8 +591,8 @@ describe('Bank Transactions Service', () => {
       expect(mockAxios.patch).toHaveBeenCalledWith('/api/v1/bank-transactions/1', expect.objectContaining({
         data: expect.objectContaining({
           attributes: expect.objectContaining({
-            reconciliation_status: 'reconciled',
-            reconciliation_notes: 'Matched with bank statement'
+            reconciliationStatus: 'reconciled',
+            reconciliationNotes: 'Matched with bank statement'
           })
         })
       }))
@@ -665,13 +670,19 @@ describe('Bank Transactions Service', () => {
       const result = await bankTransactionsService.unreconcile('1')
 
       // Assert
-      expect(mockAxios.patch).toHaveBeenCalledWith('/api/v1/bank-transactions/1', expect.objectContaining({
-        data: expect.objectContaining({
-          attributes: expect.objectContaining({
-            reconciliation_status: 'unreconciled'
-          })
-        })
-      }))
+      // Desconciliar limpia fecha, usuario y notas con null explicito
+      expect(mockAxios.patch).toHaveBeenCalledWith('/api/v1/bank-transactions/1', {
+        data: {
+          type: 'bank-transactions',
+          id: '1',
+          attributes: {
+            reconciliationStatus: 'unreconciled',
+            reconciledAt: null,
+            reconciledById: null,
+            reconciliationNotes: null,
+          }
+        }
+      })
       expect(result.reconciliationStatus).toBe('unreconciled')
     })
   })

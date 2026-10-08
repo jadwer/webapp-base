@@ -12,7 +12,7 @@ import { useCycleCounts } from '../hooks/useCycleCounts'
 import { useCycleCountMutations } from '../hooks/useCycleCountMutations'
 import { CycleCountsTableSimple } from './CycleCountsTableSimple'
 import { PaginationSimple } from './PaginationSimple'
-import { Button } from '@lwm/ui'
+import { Button, isPastDateOnly } from '@lwm/ui'
 import { Alert, ListToolbar } from '@lwm/ui'
 import { ConfirmModal } from '@lwm/ui'
 import type { ConfirmModalHandle } from '@lwm/ui'
@@ -52,9 +52,6 @@ export const CycleCountsAdminPageReal = () => {
 
   // Calculate metrics dynamically
   const countMetrics = React.useMemo(() => {
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
-
     return {
       total: cycleCounts.length,
       scheduled: cycleCounts.filter(c => c.status === 'scheduled').length,
@@ -63,8 +60,7 @@ export const CycleCountsAdminPageReal = () => {
       withVariance: cycleCounts.filter(c => c.hasVariance).length,
       overdue: cycleCounts.filter(c => {
         if (c.status !== 'scheduled') return false
-        const scheduled = new Date(c.scheduledDate)
-        return scheduled < today
+        return isPastDateOnly(c.scheduledDate)
       }).length
     }
   }, [cycleCounts])

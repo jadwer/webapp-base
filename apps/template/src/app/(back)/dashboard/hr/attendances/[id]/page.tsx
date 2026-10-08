@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import useSWR from 'swr'
 import axiosClient from '@/lib/axiosClient'
 import type { Attendance } from '@/modules/hr'
+import { formatDateOnly } from '@lwm/ui'
 
 interface AttendanceViewPageProps {
   params: Promise<{
@@ -56,13 +57,8 @@ export default function AttendanceViewPage({ params }: AttendanceViewPageProps) 
   }
 
   const formatDate = (date: string | null | undefined) => {
-    if (!date) return '-'
-    return new Date(date).toLocaleDateString('es-MX', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    })
+    // date es fecha sin hora
+    return formatDateOnly(date, 'es-MX', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
   }
 
   const getStatusBadge = (status: string | undefined) => {
@@ -110,6 +106,7 @@ export default function AttendanceViewPage({ params }: AttendanceViewPageProps) 
           {/* Header */}
           <div className="d-flex align-items-center mb-4">
             <button
+              aria-label="Volver a asistencias"
               type="button"
               onClick={handleBack}
               className="btn btn-link p-0 me-3 text-decoration-none"

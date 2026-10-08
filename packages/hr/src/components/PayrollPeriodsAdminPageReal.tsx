@@ -7,7 +7,7 @@
 'use client'
 
 import React, { useState, useCallback, useRef } from 'react'
-import { Button, ConfirmModal } from '@lwm/ui'
+import { Button, ConfirmModal, toast, todayDateInput, formatDateOnly } from '@lwm/ui'
 import type { ConfirmModalHandle } from '@lwm/ui'
 import { usePayrollPeriods, usePayrollPeriodsMutations } from '../hooks'
 import type { PayrollPeriod, PayrollPeriodFormData, PayrollPeriodsFilters as FiltersType, PeriodType, PayrollStatus } from '../types'
@@ -16,27 +16,33 @@ const StatusBadge: React.FC<{ status: PayrollStatus }> = ({ status }) => {
   const config = {
     draft: { color: 'secondary', text: 'Borrador', icon: 'file-earmark' },
     processing: { color: 'info', text: 'Procesando', icon: 'hourglass-split' },
-    approved: { color: 'success', text: 'Aprobado', icon: 'check-circle' },
     paid: { color: 'primary', text: 'Pagado', icon: 'cash-stack' },
     closed: { color: 'dark', text: 'Cerrado', icon: 'lock' },
   }
-  const c = config[status]
+  const c = config[status] ?? { color: 'secondary', text: status, icon: 'question-circle' }
   return <span className={`badge bg-${c.color} bg-opacity-10 text-${c.color}`}><i className={`bi bi-${c.icon} me-1`} />{c.text}</span>
 }
 
 export const PayrollPeriodsAdminPageReal: React.FC = () => {
   const [filters] = useState<FiltersType>({})
   const { payrollPeriods, isLoading, mutate } = usePayrollPeriods(filters)
-  const { createPayrollPeriod, updatePayrollPeriod, deletePayrollPeriod } = usePayrollPeriodsMutations()
+  const {
+    createPayrollPeriod,
+    deletePayrollPeriod,
+    processPayrollPeriod,
+    markPayrollPeriodAsPaid,
+    closePayrollPeriod,
+    reopenPayrollPeriod,
+  } = usePayrollPeriodsMutations()
 
   const [showCreateModal, setShowCreateModal] = useState(false)
   const confirmModalRef = useRef<ConfirmModalHandle>(null)
   const [formData, setFormData] = useState<PayrollPeriodFormData>({
     name: '',
     periodType: 'monthly',
-    startDate: new Date().toISOString().split('T')[0],
-    endDate: new Date().toISOString().split('T')[0],
-    paymentDate: new Date().toISOString().split('T')[0],
+    startDate: todayDateInput(),
+    endDate: todayDateInput(),
+    paymentDate: todayDateInput(),
     status: 'draft',
     notes: '',
   })
@@ -57,23 +63,25 @@ export const PayrollPeriodsAdminPageReal: React.FC = () => {
     }
   }, [formData, createPayrollPeriod, mutate])
 
-  const handleStatusChange = useCallback(async (period: PayrollPeriod, newStatus: PayrollStatus) => {
+  // Flujo real del backend: draft -> processing -> paid -> closed (y reabrir closed -> processing)
+  type PayrollAction = 'process' | 'markAsPaid' | 'close' | 'reopen'
+  const handleTransition = useCallback(async (period: PayrollPeriod, action: PayrollAction) => {
+    const run = {
+      process: processPayrollPeriod,
+      markAsPaid: markPayrollPeriodAsPaid,
+      close: closePayrollPeriod,
+      reopen: reopenPayrollPeriod,
+    }[action]
     try {
-      const periodData: PayrollPeriodFormData = {
-        name: period.name,
-        periodType: period.periodType,
-        startDate: period.startDate,
-        endDate: period.endDate,
-        paymentDate: period.paymentDate,
-        status: newStatus,
-        notes: period.notes,
-      }
-      await updatePayrollPeriod(period.id, periodData)
+      const result = await run(period.id)
+      toast.success(result?.message || 'Período de nómina actualizado')
       mutate()
-    } catch {
-      // Error handled silently
+    } catch (error: unknown) {
+      const data = (error as { response?: { data?: { message?: string; error?: string } } })?.response?.data
+      const detail = [data?.message, data?.error].filter(Boolean).join(' ')
+      toast.error(detail || 'No se pudo cambiar el estado del período de nómina')
     }
-  }, [updatePayrollPeriod, mutate])
+  }, [processPayrollPeriod, markPayrollPeriodAsPaid, closePayrollPeriod, reopenPayrollPeriod, mutate])
 
   const handleDelete = useCallback(async (period: PayrollPeriod) => {
     const confirmed = await confirmModalRef.current?.confirm(
@@ -184,30 +192,35 @@ export const PayrollPeriodsAdminPageReal: React.FC = () => {
                           {period.periodType === 'weekly' ? 'Semanal' : period.periodType === 'biweekly' ? 'Quincenal' : 'Mensual'}
                         </span>
                       </td>
-                      <td>{new Date(period.startDate).toLocaleDateString('es-MX')}</td>
-                      <td>{new Date(period.endDate).toLocaleDateString('es-MX')}</td>
-                      <td><strong>{new Date(period.paymentDate).toLocaleDateString('es-MX')}</strong></td>
+                      <td>{formatDateOnly(period.startDate)}</td>
+                      <td>{formatDateOnly(period.endDate)}</td>
+                      <td><strong>{formatDateOnly(period.paymentDate)}</strong></td>
                       <td>${period.totalGross.toLocaleString('es-MX', {minimumFractionDigits: 2})}</td>
                       <td className="text-success fw-medium">${period.totalNet.toLocaleString('es-MX', {minimumFractionDigits: 2})}</td>
                       <td><StatusBadge status={period.status} /></td>
                       <td>
                         <div className="d-flex justify-content-end gap-2">
                           {period.status === 'draft' && (
-                            <Button size="small" variant="primary" buttonStyle="outline" onClick={() => handleStatusChange(period, 'processing')} title="Procesar">
+                            <Button size="small" variant="primary" buttonStyle="outline" onClick={() => handleTransition(period, 'process')} title="Procesar" aria-label="Procesar">
                               <i className="bi bi-play-fill" />
                             </Button>
                           )}
                           {period.status === 'processing' && (
-                            <Button size="small" variant="success" buttonStyle="outline" onClick={() => handleStatusChange(period, 'approved')} title="Aprobar">
-                              <i className="bi bi-check-lg" />
-                            </Button>
-                          )}
-                          {period.status === 'approved' && (
-                            <Button size="small" variant="primary" buttonStyle="outline" onClick={() => handleStatusChange(period, 'paid')} title="Marcar como Pagado">
+                            <Button size="small" variant="success" buttonStyle="outline" onClick={() => handleTransition(period, 'markAsPaid')} title="Marcar como pagado" aria-label="Marcar como pagado">
                               <i className="bi bi-cash" />
                             </Button>
                           )}
-                          <Button size="small" variant="danger" buttonStyle="outline" onClick={() => handleDelete(period)}>
+                          {period.status === 'paid' && (
+                            <Button size="small" variant="secondary" buttonStyle="outline" onClick={() => handleTransition(period, 'close')} title="Cerrar período" aria-label="Cerrar período">
+                              <i className="bi bi-lock" />
+                            </Button>
+                          )}
+                          {period.status === 'closed' && (
+                            <Button size="small" variant="warning" buttonStyle="outline" onClick={() => handleTransition(period, 'reopen')} title="Reabrir período" aria-label="Reabrir período">
+                              <i className="bi bi-unlock" />
+                            </Button>
+                          )}
+                          <Button aria-label="Eliminar" size="small" variant="danger" buttonStyle="outline" onClick={() => handleDelete(period)}>
                             <i className="bi bi-trash" />
                           </Button>
                         </div>
@@ -228,7 +241,7 @@ export const PayrollPeriodsAdminPageReal: React.FC = () => {
             <div className="modal-content">
               <div className="modal-header">
                 <h5 className="modal-title">Nuevo Período de Nómina</h5>
-                <button type="button" className="btn-close" onClick={() => setShowCreateModal(false)} />
+                <button aria-label="Cerrar" type="button" className="btn-close" onClick={() => setShowCreateModal(false)} />
               </div>
               <div className="modal-body">
                 <div className="row g-3">

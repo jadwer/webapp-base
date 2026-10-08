@@ -204,6 +204,7 @@ export const CategoriesAdminTemplate: React.FC<CategoriesAdminTemplateProps> = (
           <div className="d-flex align-items-center gap-2">
             {hasCategories && (
               <Button
+                aria-label="Actualizar lista"
                 size="small"
                 variant="secondary"
                 buttonStyle="outline"

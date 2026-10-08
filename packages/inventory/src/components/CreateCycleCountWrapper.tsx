@@ -49,6 +49,7 @@ export const CreateCycleCountWrapper: React.FC = () => {
           {/* Header */}
           <div className="d-flex align-items-center mb-4">
             <button
+              aria-label="Volver"
               type="button"
               className="btn btn-link text-decoration-none p-0 me-3"
               onClick={handleCancel}

@@ -172,6 +172,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
               unoptimized
             />
             <button
+              aria-label="Quitar archivo"
               type="button"
               className="btn btn-sm btn-danger position-absolute"
               style={{ top: '-8px', right: '-8px' }}

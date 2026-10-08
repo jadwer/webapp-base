@@ -139,6 +139,7 @@ export const OffersTable: React.FC<OffersTableProps> = ({
                     <div className="d-flex justify-content-end gap-1">
                       {onView && (
                         <Button
+                          aria-label="Ver producto"
                           size="small"
                           variant="secondary"
                           buttonStyle="outline"
@@ -152,6 +153,7 @@ export const OffersTable: React.FC<OffersTableProps> = ({
 
                       {onEdit && (
                         <Button
+                          aria-label="Editar oferta"
                           size="small"
                           variant="primary"
                           buttonStyle="outline"
@@ -165,6 +167,7 @@ export const OffersTable: React.FC<OffersTableProps> = ({
 
                       {onDelete && (
                         <Button
+                          aria-label="Eliminar oferta"
                           size="small"
                           variant="danger"
                           buttonStyle="outline"

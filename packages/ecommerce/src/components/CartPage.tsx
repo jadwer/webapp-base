@@ -247,6 +247,7 @@ export const CartPage = React.memo<CartPageProps>(({ sessionId, contactId }) => 
                     <div className="col-md-3 text-center">
                       <div className="d-flex align-items-center justify-content-center">
                         <Button
+                          aria-label="Disminuir cantidad"
                           variant="secondary"
                           buttonStyle="outline"
                           size="small"
@@ -263,6 +264,7 @@ export const CartPage = React.memo<CartPageProps>(({ sessionId, contactId }) => 
                           )}
                         </span>
                         <Button
+                          aria-label="Aumentar cantidad"
                           variant="secondary"
                           buttonStyle="outline"
                           size="small"

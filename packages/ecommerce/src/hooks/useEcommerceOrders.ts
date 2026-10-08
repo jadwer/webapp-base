@@ -14,8 +14,6 @@ import type {
   EcommerceOrderItem,
   EcommerceOrderFilters,
   OrderStatus,
-  PaymentStatus,
-  ShippingStatus,
 } from '../types';
 
 // ============================================
@@ -133,52 +131,12 @@ export function useEcommerceOrderMutations() {
   };
 
   /**
-   * Update payment status
-   */
-  const updatePaymentStatus = async (
-    id: string,
-    paymentStatus: PaymentStatus
-  ): Promise<EcommerceOrder> => {
-    setIsUpdating(true);
-    try {
-      const result = await ecommerceService.orders.updatePaymentStatus(
-        id,
-        paymentStatus
-      );
-      return result;
-    } finally {
-      setIsUpdating(false);
-    }
-  };
-
-  /**
-   * Update shipping status
-   */
-  const updateShippingStatus = async (
-    id: string,
-    shippingStatus: ShippingStatus
-  ): Promise<EcommerceOrder> => {
-    setIsUpdating(true);
-    try {
-      const result = await ecommerceService.orders.updateShippingStatus(
-        id,
-        shippingStatus
-      );
-      return result;
-    } finally {
-      setIsUpdating(false);
-    }
-  };
-
-  /**
    * Update order totals
    */
   const updateEcommerceOrderTotals = async (
     id: string,
     totals: {
-      subtotalAmount: number;
       taxAmount: number;
-      shippingAmount?: number;
       discountAmount?: number;
       totalAmount: number;
     }
@@ -221,8 +179,6 @@ export function useEcommerceOrderMutations() {
     createEcommerceOrder,
     updateEcommerceOrder,
     updateOrderStatus,
-    updatePaymentStatus,
-    updateShippingStatus,
     updateEcommerceOrderTotals,
     deleteEcommerceOrder,
     cancelOrder,

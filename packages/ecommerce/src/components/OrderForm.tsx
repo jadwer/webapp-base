@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect } from 'react'
 import { Button, Input } from '@lwm/ui'
-import type { EcommerceOrder, EcommerceOrderFormData, OrderStatus, PaymentStatus, ShippingStatus } from '../types'
+import type { EcommerceOrder, EcommerceOrderFormData } from '../types'
+import { OrderStatusBadge } from './OrderStatusBadge'
 
 interface OrderFormProps {
   order?: EcommerceOrder
@@ -10,34 +11,6 @@ interface OrderFormProps {
   onSubmit: (data: EcommerceOrderFormData) => Promise<void>
   onCancel?: () => void
 }
-
-const ORDER_STATUSES: { value: OrderStatus; label: string }[] = [
-  { value: 'pending', label: 'Pendiente' },
-  { value: 'confirmed', label: 'Confirmado' },
-  { value: 'processing', label: 'Procesando' },
-  { value: 'shipped', label: 'Enviado' },
-  { value: 'delivered', label: 'Entregado' },
-  { value: 'cancelled', label: 'Cancelado' },
-  { value: 'refunded', label: 'Reembolsado' },
-]
-
-const PAYMENT_STATUSES: { value: PaymentStatus; label: string }[] = [
-  { value: 'pending', label: 'Pendiente' },
-  { value: 'processing', label: 'Procesando' },
-  { value: 'completed', label: 'Completado' },
-  { value: 'failed', label: 'Fallido' },
-  { value: 'refunded', label: 'Reembolsado' },
-  { value: 'cancelled', label: 'Cancelado' },
-]
-
-const SHIPPING_STATUSES: { value: ShippingStatus; label: string }[] = [
-  { value: 'pending', label: 'Pendiente' },
-  { value: 'processing', label: 'Procesando' },
-  { value: 'shipped', label: 'Enviado' },
-  { value: 'in_transit', label: 'En Transito' },
-  { value: 'delivered', label: 'Entregado' },
-  { value: 'returned', label: 'Devuelto' },
-]
 
 const COUNTRIES = [
   { value: 'MX', label: 'Mexico' },
@@ -62,10 +35,6 @@ export const OrderForm: React.FC<OrderFormProps> = ({
     shippingPostalCode: order?.shippingPostalCode || '',
     shippingCountry: order?.shippingCountry || 'MX',
     notes: order?.notes || '',
-    // Status fields for editing
-    status: order?.status || 'pending',
-    paymentStatus: order?.paymentStatus || 'pending',
-    shippingStatus: order?.shippingStatus || 'pending',
   })
 
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -84,9 +53,6 @@ export const OrderForm: React.FC<OrderFormProps> = ({
         shippingPostalCode: order.shippingPostalCode || '',
         shippingCountry: order.shippingCountry || 'MX',
         notes: order.notes || '',
-        status: order.status || 'pending',
-        paymentStatus: order.paymentStatus || 'pending',
-        shippingStatus: order.shippingStatus || 'pending',
       })
     }
   }, [order])
@@ -94,14 +60,17 @@ export const OrderForm: React.FC<OrderFormProps> = ({
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {}
 
-    if (!formData.customerEmail.trim()) {
-      newErrors.customerEmail = 'El email es requerido'
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.customerEmail)) {
-      newErrors.customerEmail = 'Email invalido'
-    }
+    // En edicion los datos del cliente viven en su contacto: no se validan ni se envian
+    if (!order) {
+      if (!formData.customerEmail.trim()) {
+        newErrors.customerEmail = 'El email es requerido'
+      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.customerEmail)) {
+        newErrors.customerEmail = 'Email invalido'
+      }
 
-    if (!formData.customerName.trim()) {
-      newErrors.customerName = 'El nombre del cliente es requerido'
+      if (!formData.customerName.trim()) {
+        newErrors.customerName = 'El nombre del cliente es requerido'
+      }
     }
 
     if (!formData.shippingAddressLine1.trim()) {
@@ -144,16 +113,20 @@ export const OrderForm: React.FC<OrderFormProps> = ({
 
     if (!validateForm()) return
 
+    // Solo atributos escribibles de sales-orders: direccion (hash shippingAddress) y notas
     const submitData: EcommerceOrderFormData = {
-      customerEmail: formData.customerEmail,
-      customerName: formData.customerName,
-      customerPhone: formData.customerPhone || undefined,
+      ...(order ? {} : {
+        customerEmail: formData.customerEmail,
+        customerName: formData.customerName,
+        customerPhone: formData.customerPhone || undefined,
+      }),
       shippingAddressLine1: formData.shippingAddressLine1,
       shippingAddressLine2: formData.shippingAddressLine2 || undefined,
       shippingCity: formData.shippingCity,
       shippingState: formData.shippingState,
       shippingPostalCode: formData.shippingPostalCode,
       shippingCountry: formData.shippingCountry,
+      shippingAddressData: order?.shippingAddressData,
       notes: formData.notes || undefined,
     }
 
@@ -169,10 +142,15 @@ export const OrderForm: React.FC<OrderFormProps> = ({
             <div className="card-header">
               <h5 className="card-title mb-0">
                 <i className="bi bi-person me-2"></i>
-                Informacion del Cliente
+                Información del Cliente
               </h5>
             </div>
             <div className="card-body">
+              {order && (
+                <p className="small text-muted">
+                  Los datos del cliente se toman de su contacto y se editan desde el módulo de contactos.
+                </p>
+              )}
               <div className="row g-3">
                 <div className="col-md-6">
                   <Input
@@ -181,6 +159,7 @@ export const OrderForm: React.FC<OrderFormProps> = ({
                     value={formData.customerName}
                     onChange={(e) => handleInputChange('customerName', e.target.value)}
                     onBlur={() => handleBlur('customerName')}
+                    readOnly={Boolean(order)}
                     errorText={touched.customerName ? errors.customerName : ''}
                     required
                     placeholder="Nombre completo"
@@ -195,6 +174,7 @@ export const OrderForm: React.FC<OrderFormProps> = ({
                     value={formData.customerEmail}
                     onChange={(e) => handleInputChange('customerEmail', e.target.value)}
                     onBlur={() => handleBlur('customerEmail')}
+                    readOnly={Boolean(order)}
                     errorText={touched.customerEmail ? errors.customerEmail : ''}
                     required
                     placeholder="email@ejemplo.com"
@@ -210,6 +190,7 @@ export const OrderForm: React.FC<OrderFormProps> = ({
                     value={formData.customerPhone}
                     onChange={(e) => handleInputChange('customerPhone', e.target.value)}
                     onBlur={() => handleBlur('customerPhone')}
+                    readOnly={Boolean(order)}
                     placeholder="+52 123 456 7890"
                     leftIcon="bi-telephone"
                     disabled={isLoading}
@@ -335,7 +316,8 @@ export const OrderForm: React.FC<OrderFormProps> = ({
         </div>
 
         <div className="col-lg-4">
-          {/* Order Status (only for editing existing orders) */}
+          {/* Estado: solo lectura. Las transiciones van por las acciones del pedido
+              (OrderStatusService); paymentStatus lo escribe el flujo de pago. */}
           {order && (
             <div className="card mb-4">
               <div className="card-header">
@@ -345,38 +327,17 @@ export const OrderForm: React.FC<OrderFormProps> = ({
                 </h5>
               </div>
               <div className="card-body">
-                <div className="mb-3">
-                  <Input
-                    label="Estado del Pedido"
-                    type="select"
-                    value={formData.status}
-                    onChange={(e) => handleInputChange('status', e.target.value)}
-                    disabled={isLoading}
-                    options={ORDER_STATUSES.map(s => ({ value: s.value, label: s.label }))}
-                  />
+                <div className="d-flex justify-content-between align-items-center mb-2">
+                  <span>Pedido:</span>
+                  <OrderStatusBadge status={order.status} type="order" />
                 </div>
-
-                <div className="mb-3">
-                  <Input
-                    label="Estado del Pago"
-                    type="select"
-                    value={formData.paymentStatus}
-                    onChange={(e) => handleInputChange('paymentStatus', e.target.value)}
-                    disabled={isLoading}
-                    options={PAYMENT_STATUSES.map(s => ({ value: s.value, label: s.label }))}
-                  />
+                <div className="d-flex justify-content-between align-items-center mb-2">
+                  <span>Pago:</span>
+                  <OrderStatusBadge status={order.paymentStatus} type="payment" />
                 </div>
-
-                <div className="mb-3">
-                  <Input
-                    label="Estado del Envio"
-                    type="select"
-                    value={formData.shippingStatus}
-                    onChange={(e) => handleInputChange('shippingStatus', e.target.value)}
-                    disabled={isLoading}
-                    options={SHIPPING_STATUSES.map(s => ({ value: s.value, label: s.label }))}
-                  />
-                </div>
+                <small className="text-muted">
+                  El estado se cambia con las acciones del pedido, no desde este formulario.
+                </small>
               </div>
             </div>
           )}

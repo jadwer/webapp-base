@@ -16,6 +16,7 @@ import { quoteService, quoteItemService } from '@/modules/quotes'
 import type { Quote, QuoteItem } from '@/modules/quotes'
 import { formatDateOnly } from '@/modules/quotes'
 import { toast } from '@/lib/toast'
+import { isPastDateOnly } from '@lwm/ui'
 
 interface MyQuoteDetailPageProps {
   params: Promise<{ id: string }>
@@ -129,7 +130,7 @@ export default function MyQuoteDetailPage({ params }: MyQuoteDetailPageProps) {
   }
 
   const canAccept = quote.status === 'sent'
-  const isExpired = quote.validUntil && new Date(quote.validUntil) < new Date()
+  const isExpired = quote.validUntil && isPastDateOnly(quote.validUntil)
 
   return (
     <div className="container-fluid py-4">

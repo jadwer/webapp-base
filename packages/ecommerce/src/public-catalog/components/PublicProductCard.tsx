@@ -186,6 +186,7 @@ export const PublicProductCard: React.FC<PublicProductCardProps> = ({
         {/* Wishlist button for compact layout */}
         {layout === 'compact' && showActions && onAddToWishlist && (
           <button
+            aria-label="Agregar a favoritos"
             type="button"
             className="btn btn-sm btn-outline-secondary"
             onClick={handleAddToWishlist}
@@ -214,6 +215,7 @@ export const PublicProductCard: React.FC<PublicProductCardProps> = ({
 
             {onAddToWishlist && (
               <Button
+                aria-label="Agregar a favoritos"
                 variant="secondary"
                 buttonStyle="outline"
                 size={layout === 'showcase' ? 'medium' : 'small'}

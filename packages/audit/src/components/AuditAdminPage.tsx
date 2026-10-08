@@ -96,6 +96,7 @@ export default function AuditAdminPage() {
                 <ul className="pagination pagination-sm mb-0">
                   <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
                     <button
+                      aria-label="Primera página"
                       className="page-link"
                       onClick={() => setPage(1)}
                       disabled={currentPage === 1}
@@ -105,6 +106,7 @@ export default function AuditAdminPage() {
                   </li>
                   <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
                     <button
+                      aria-label="Página anterior"
                       className="page-link"
                       onClick={() => setPage(currentPage - 1)}
                       disabled={currentPage === 1}
@@ -145,6 +147,7 @@ export default function AuditAdminPage() {
                     className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}
                   >
                     <button
+                      aria-label="Página siguiente"
                       className="page-link"
                       onClick={() => setPage(currentPage + 1)}
                       disabled={currentPage === totalPages}
@@ -156,6 +159,7 @@ export default function AuditAdminPage() {
                     className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}
                   >
                     <button
+                      aria-label="Última página"
                       className="page-link"
                       onClick={() => setPage(totalPages)}
                       disabled={currentPage === totalPages}

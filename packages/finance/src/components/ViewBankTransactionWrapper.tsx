@@ -9,7 +9,7 @@
 import React from 'react'
 import { useRouter } from 'next/navigation'
 import clsx from 'clsx'
-import { Button } from '@lwm/ui'
+import { Button, formatDateOnly } from '@lwm/ui'
 import { useBankTransaction } from '../hooks/useBankTransaction'
 import { BankTransactionStatusBadge } from './BankTransactionStatusBadge'
 import { BANK_TRANSACTION_TYPE_CONFIG } from '../types'
@@ -20,15 +20,8 @@ interface ViewBankTransactionWrapperProps {
 
 const formatDate = (dateString: string | null | undefined): string => {
   if (!dateString) return '-'
-  try {
-    return new Date(dateString).toLocaleDateString('es-MX', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    })
-  } catch {
-    return dateString
-  }
+  // transactionDate es fecha sin hora
+  return formatDateOnly(dateString, 'es-MX', { year: 'numeric', month: 'long', day: 'numeric' })
 }
 
 const formatDateTime = (dateString: string | null | undefined): string => {
@@ -115,7 +108,7 @@ export const ViewBankTransactionWrapper: React.FC<ViewBankTransactionWrapperProp
       {/* Header */}
       <div className="d-flex justify-content-between align-items-start mb-4">
         <div className="d-flex align-items-center">
-          <button className="btn btn-link text-decoration-none p-0 me-3" onClick={handleBack}>
+          <button aria-label="Volver" className="btn btn-link text-decoration-none p-0 me-3" onClick={handleBack}>
             <i className="bi bi-arrow-left fs-4" />
           </button>
           <div>

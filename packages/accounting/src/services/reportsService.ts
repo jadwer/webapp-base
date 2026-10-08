@@ -2,6 +2,7 @@
 // Conecta con los 7 reportes ejecutivos disponibles
 
 import axiosClient from '../lib/axiosClient';
+import { todayDateInput, dateToInput } from '@lwm/ui'
 
 export interface BalanceGeneralAccount {
   account_id: number;
@@ -293,8 +294,8 @@ export const salesReportsService = {
   async getSalesOrdersReport(period?: number): Promise<SalesReportsResponse> {
     const params: Record<string, string> = {};
     if (period) {
-      const endDate = new Date().toISOString().split('T')[0];
-      const startDate = new Date(Date.now() - period * 86400000).toISOString().split('T')[0];
+      const endDate = todayDateInput();
+      const startDate = dateToInput(new Date(Date.now() - period * 86400000));
       params['filter[startDate]'] = startDate;
       params['filter[endDate]'] = endDate;
     }
@@ -308,8 +309,8 @@ export const purchaseReportsService = {
   async getPurchaseOrdersReport(period?: number): Promise<PurchaseReportsResponse> {
     const params: Record<string, string> = {};
     if (period) {
-      const endDate = new Date().toISOString().split('T')[0];
-      const startDate = new Date(Date.now() - period * 86400000).toISOString().split('T')[0];
+      const endDate = todayDateInput();
+      const startDate = dateToInput(new Date(Date.now() - period * 86400000));
       params['filter[startDate]'] = startDate;
       params['filter[endDate]'] = endDate;
     }

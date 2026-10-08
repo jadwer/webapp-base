@@ -7,7 +7,7 @@
 'use client'
 
 import React from 'react'
-import { Button } from '@lwm/ui'
+import { Button, formatDateOnly } from '@lwm/ui'
 import type { Attendance } from '../types'
 
 interface AttendancesTableProps {
@@ -23,6 +23,7 @@ const StatusBadge: React.FC<{ status: Attendance['status'] }> = ({ status }) => 
     absent: { color: 'danger', text: 'Ausente', icon: 'x-circle' },
     late: { color: 'warning', text: 'Tarde', icon: 'clock' },
     half_day: { color: 'info', text: 'Medio Día', icon: 'clock-history' },
+    on_leave: { color: 'secondary', text: 'Con licencia', icon: 'calendar-x' },
   }
 
   const config = statusConfig[status]
@@ -94,7 +95,7 @@ export const AttendancesTable: React.FC<AttendancesTableProps> = ({
               </td>
               <td>
                 <span className="badge bg-secondary bg-opacity-10 text-secondary">
-                  {new Date(attendance.date).toLocaleDateString('es-MX')}
+                  {formatDateOnly(attendance.date)}
                 </span>
               </td>
               <td>
@@ -127,6 +128,7 @@ export const AttendancesTable: React.FC<AttendancesTableProps> = ({
               <td>
                 <div className="d-flex justify-content-end gap-2">
                   <Button
+                    aria-label="Editar registro"
                     size="small"
                     variant="primary"
                     buttonStyle="outline"
@@ -136,6 +138,7 @@ export const AttendancesTable: React.FC<AttendancesTableProps> = ({
                     <i className="bi bi-pencil" />
                   </Button>
                   <Button
+                    aria-label="Eliminar registro"
                     size="small"
                     variant="danger"
                     buttonStyle="outline"

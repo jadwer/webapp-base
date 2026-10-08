@@ -41,9 +41,6 @@ function CompanySettingForm({
     pacUsername: setting?.pacUsername || '',
     pacPassword: '',
     pacProductionMode: setting?.pacProductionMode || false,
-    certificateFile: setting?.certificateFile || '',
-    keyFile: setting?.keyFile || '',
-    keyPassword: '',
     logoPath: setting?.logoPath || '',
     isActive: setting?.isActive ?? true,
   })
@@ -295,49 +292,32 @@ function CompanySettingForm({
           </h5>
         </div>
         <div className="card-body">
-          <div className="alert alert-info">
+          <div className="alert alert-info mb-0">
             <i className="bi bi-info-circle me-2" />
-            Los certificados se suben después de guardar la configuración.
+            Los certificados (.cer y .key) se suben después de guardar la configuración, desde la sección de carga de certificados.
           </div>
-          <div className="row g-3">
-            <div className="col-12 col-md-6">
-              <label className="form-label">Ruta Certificado (.cer)</label>
-              <input
-                type="text"
-                name="certificateFile"
-                value={formData.certificateFile}
-                onChange={handleChange}
-                className="form-control"
-                placeholder="storage/certificates/mi_empresa.cer"
-                readOnly={!!setting}
-              />
-            </div>
-            <div className="col-12 col-md-6">
-              <label className="form-label">Ruta Llave (.key)</label>
-              <input
-                type="text"
-                name="keyFile"
-                value={formData.keyFile}
-                onChange={handleChange}
-                className="form-control"
-                placeholder="storage/certificates/mi_empresa.key"
-                readOnly={!!setting}
-              />
-            </div>
-            {!setting && (
+          {setting && (
+            <div className="row g-3 mt-1">
               <div className="col-12 col-md-6">
-                <label className="form-label">Contraseña de Llave</label>
+                <label className="form-label">Certificado (.cer)</label>
                 <input
-                  type="password"
-                  name="keyPassword"
-                  value={formData.keyPassword}
-                  onChange={handleChange}
+                  type="text"
+                  value={setting.certificateFile || 'Sin cargar'}
                   className="form-control"
-                  placeholder="••••••••"
+                  readOnly
                 />
               </div>
-            )}
-          </div>
+              <div className="col-12 col-md-6">
+                <label className="form-label">Llave (.key)</label>
+                <input
+                  type="text"
+                  value={setting.keyFile || 'Sin cargar'}
+                  className="form-control"
+                  readOnly
+                />
+              </div>
+            </div>
+          )}
         </div>
       </div>
 

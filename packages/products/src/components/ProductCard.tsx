@@ -176,6 +176,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           
           {onDelete && (
             <Button
+              aria-label="Eliminar producto"
               size="small"
               variant="danger"
               buttonStyle="outline"

@@ -336,6 +336,29 @@ export const payrollPeriodsService = {
       throw error
     }
   },
+
+  // Transiciones de estado: endpoints de negocio de api-base (Modules/HR/routes/jsonapi.php,
+  // PayrollPeriodController). No se hace PATCH de status: process calcula totales y
+  // mark-as-paid genera la poliza contable.
+  process: async (id: string) => {
+    const response = await axiosClient.post(`/api/v1/payroll-periods/${id}/process`)
+    return response.data
+  },
+
+  markAsPaid: async (id: string) => {
+    const response = await axiosClient.post(`/api/v1/payroll-periods/${id}/mark-as-paid`)
+    return response.data
+  },
+
+  close: async (id: string) => {
+    const response = await axiosClient.post(`/api/v1/payroll-periods/${id}/close`)
+    return response.data
+  },
+
+  reopen: async (id: string) => {
+    const response = await axiosClient.post(`/api/v1/payroll-periods/${id}/reopen`)
+    return response.data
+  },
 }
 
 // ============================================================================
@@ -384,7 +407,7 @@ export interface PerformanceReview {
   employeeId: number
   reviewerId: number
   reviewPeriod: string
-  status: 'draft' | 'submitted' | 'reviewed' | 'completed'
+  status: 'draft' | 'submitted' | 'reviewed' | 'acknowledged'
   overallRating: number | null
   goals: Record<string, unknown>
   achievements: string | null

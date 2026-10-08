@@ -5,6 +5,7 @@ import { usePurchaseOrder, usePurchaseOrderMutations, usePurchaseContacts } from
 import type { PurchaseOrderStatus } from '@/modules/purchase'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
 import { getValidationErrorMessages } from '@/modules/contacts'
+import { toDateInput } from '@lwm/ui'
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -43,7 +44,7 @@ export default function EditPurchaseOrderPage({ params }: PageProps) {
       setFormData({
         contactId: purchaseOrder.contactId?.toString() || '',
         orderNumber: purchaseOrder.orderNumber || '',
-        orderDate: purchaseOrder.orderDate || '',
+        orderDate: toDateInput(purchaseOrder.orderDate),
         status: purchaseOrder.status || 'draft',
         notes: purchaseOrder.notes || ''
       })

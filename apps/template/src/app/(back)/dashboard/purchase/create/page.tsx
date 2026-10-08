@@ -6,6 +6,7 @@ import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
 import { ItemsManager } from '@/modules/purchase'
 import { formatCurrency } from '@/lib/formatters'
 import { BranchSelect } from '@lwm/auth'
+import { todayDateInput } from '@lwm/ui'
 
 interface Contact {
   id: string | number
@@ -49,7 +50,7 @@ export default function CreatePurchaseOrderPage() {
   const [formData, setFormData] = useState({
     contactId: '',
     orderNumber: '',
-    orderDate: new Date().toISOString().split('T')[0],
+    orderDate: todayDateInput(),
     status: 'pending' as 'pending' | 'approved' | 'received' | 'cancelled',
     notes: '',
     branchId: ''

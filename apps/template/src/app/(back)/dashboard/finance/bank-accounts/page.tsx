@@ -79,8 +79,7 @@ export default function BankAccountsPage() {
                       <tr>
                         <th>Banco</th>
                         <th>Número de Cuenta</th>
-                        <th>CLABE</th>
-                        <th>Tipo</th>
+                        <th>Nombre</th>
                         <th>Moneda</th>
                         <th>Saldo Inicial</th>
                         <th>Estado</th>
@@ -97,13 +96,14 @@ export default function BankAccountsPage() {
                               {account.accountNumber}
                             </code>
                           </td>
-                          <td>{account.clabe}</td>
-                          <td>{account.accountType}</td>
+                          <td>{account.accountName}</td>
                           <td>{account.currency}</td>
-                          <td>{account.openingBalance}</td>
+                          <td>
+                            {new Intl.NumberFormat('es-MX', { style: 'currency', currency: account.currency || 'MXN' }).format(account.openingBalance || 0)}
+                          </td>
                           <td>
                             <span className={`badge ${account.status === 'active' ? 'bg-success' : 'bg-secondary'}`}>
-                              {account.status}
+                              {({ active: 'Activa', inactive: 'Inactiva', closed: 'Cerrada' } as Record<string, string>)[account.status] || account.status}
                             </span>
                           </td>
                         </tr>

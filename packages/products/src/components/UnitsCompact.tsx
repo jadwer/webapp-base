@@ -114,6 +114,7 @@ export const UnitsCompact = React.memo<UnitsCompactProps>(({
               <div className="d-flex gap-1 ms-2">
                 {onView && (
                   <Button
+                    aria-label="Ver detalles"
                     size="small"
                     variant="primary"
                     buttonStyle="ghost"
@@ -126,6 +127,7 @@ export const UnitsCompact = React.memo<UnitsCompactProps>(({
                 )}
                 {onEdit && (
                   <Button
+                    aria-label="Editar"
                     size="small"
                     variant="warning"
                     buttonStyle="ghost"
@@ -138,6 +140,7 @@ export const UnitsCompact = React.memo<UnitsCompactProps>(({
                 )}
                 {onDelete && (
                   <Button
+                    aria-label="Eliminar"
                     size="small"
                     variant="danger"
                     buttonStyle="ghost"

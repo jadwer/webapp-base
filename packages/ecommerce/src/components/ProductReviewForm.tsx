@@ -69,6 +69,7 @@ export function ProductReviewForm({
       <div className="d-flex gap-1 mb-3">
         {[1, 2, 3, 4, 5].map(star => (
           <button
+            aria-label={`${star} de 5 estrellas`}
             key={star}
             type="button"
             className="btn btn-link p-0"

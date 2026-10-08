@@ -197,9 +197,9 @@ export const BrandsTableVirtualized = React.memo<BrandsTableVirtualizedProps>(({
 
                       <td style={{ width: COL_WIDTHS[6] }}>
                         <div className="d-flex gap-1">
-                          {onView && <Button size="small" variant="primary" buttonStyle="ghost" onClick={() => onView(brand)} title="Ver detalles"><i className="bi bi-eye" /></Button>}
-                          {onEdit && <Button size="small" variant="warning" buttonStyle="ghost" onClick={() => onEdit(brand)} title="Editar marca"><i className="bi bi-pencil" /></Button>}
-                          {onDelete && <Button size="small" variant="danger" buttonStyle="ghost" onClick={() => onDelete(brand.id)} title="Eliminar marca"><i className="bi bi-trash" /></Button>}
+                          {onView && <Button aria-label="Ver detalles" size="small" variant="primary" buttonStyle="ghost" onClick={() => onView(brand)} title="Ver detalles"><i className="bi bi-eye" /></Button>}
+                          {onEdit && <Button aria-label="Editar marca" size="small" variant="warning" buttonStyle="ghost" onClick={() => onEdit(brand)} title="Editar marca"><i className="bi bi-pencil" /></Button>}
+                          {onDelete && <Button aria-label="Eliminar marca" size="small" variant="danger" buttonStyle="ghost" onClick={() => onDelete(brand.id)} title="Eliminar marca"><i className="bi bi-trash" /></Button>}
                         </div>
                       </td>
                     </tr>

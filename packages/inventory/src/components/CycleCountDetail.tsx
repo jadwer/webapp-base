@@ -8,7 +8,7 @@
 
 import React from 'react'
 import { CycleCountStatusBadge, ABCClassBadge, VarianceBadge } from './CycleCountStatusBadge'
-import { Button } from '@lwm/ui'
+import { Button, formatDateOnly, isPastDateOnly } from '@lwm/ui'
 import type { ParsedCycleCount } from '../types'
 
 interface CycleCountDetailProps {
@@ -28,16 +28,9 @@ export const CycleCountDetail: React.FC<CycleCountDetailProps> = ({
   onCancelCount,
   isLoading = false
 }) => {
-  // Format date for display
-  const formatDate = (dateStr: string | null | undefined) => {
-    if (!dateStr) return '-'
-    const date = new Date(dateStr)
-    return date.toLocaleDateString('es-MX', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    })
-  }
+  // scheduledDate y completedDate son fechas sin hora
+  const formatDate = (dateStr: string | null | undefined) =>
+    formatDateOnly(dateStr, 'es-MX', { year: 'numeric', month: 'long', day: 'numeric' })
 
   // Format datetime for display
   const formatDateTime = (dateStr: string | null | undefined) => {
@@ -55,10 +48,7 @@ export const CycleCountDetail: React.FC<CycleCountDetailProps> = ({
   // Check if count is overdue
   const isOverdue = () => {
     if (cycleCount.status !== 'scheduled') return false
-    const scheduled = new Date(cycleCount.scheduledDate)
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
-    return scheduled < today
+    return isPastDateOnly(cycleCount.scheduledDate)
   }
 
   return (

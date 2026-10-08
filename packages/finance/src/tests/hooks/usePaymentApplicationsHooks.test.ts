@@ -141,8 +141,7 @@ describe('Payment Applications Hooks', () => {
       const mockApplication = {
         paymentId: 1,
         arInvoiceId: 1,
-        apInvoiceId: null,
-        appliedAmount: 500,
+        amount: 500,
         notes: 'Payment application for AR invoice'
       }
       vi.mocked(paymentApplicationsService.create).mockResolvedValue({ data: { id: '1' } } as any)

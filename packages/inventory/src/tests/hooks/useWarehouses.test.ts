@@ -4,7 +4,9 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { renderHook, waitFor } from '@testing-library/react'
+import React from 'react'
+import { renderHook, waitFor, act } from '@testing-library/react'
+import { SWRConfig } from 'swr'
 import {
   useWarehouses,
   useWarehouse,
@@ -381,6 +383,31 @@ describe('useWarehousesMutations', () => {
 
       // Assert
       await expect(result.current.deleteWarehouse('1')).rejects.toThrow('Foreign key constraint failed')
+    })
+
+    it('no revalida el detalle del almacen borrado y si la lista', async () => {
+      const parsed = createMockWarehouse({ id: '1' })
+      vi.mocked(warehousesService.getById).mockResolvedValue({ data: createMockWarehouseApiFormat(parsed) } as never)
+      vi.mocked(warehousesService.getAll).mockResolvedValue({ data: [createMockWarehouseApiFormat(parsed)] } as never)
+      vi.mocked(processJsonApiResponse).mockReturnValue({ data: parsed } as never)
+      vi.mocked(warehousesService.delete).mockResolvedValue(undefined)
+
+      const wrapper = ({ children }: { children: React.ReactNode }) =>
+        React.createElement(SWRConfig, { value: { provider: () => new Map(), dedupingInterval: 0 } }, children)
+      const { result } = renderHook(
+        () => ({ detail: useWarehouse('1'), list: useWarehouses(), mutations: useWarehousesMutations() }),
+        { wrapper },
+      )
+      await waitFor(() => expect(result.current.detail.warehouse).toBeDefined())
+      await waitFor(() => expect(warehousesService.getAll).toHaveBeenCalledTimes(1))
+      expect(warehousesService.getById).toHaveBeenCalledTimes(1)
+
+      await act(async () => {
+        await result.current.mutations.deleteWarehouse('1')
+      })
+
+      await waitFor(() => expect(warehousesService.getAll).toHaveBeenCalledTimes(2))
+      expect(warehousesService.getById).toHaveBeenCalledTimes(1)
     })
   })
 })

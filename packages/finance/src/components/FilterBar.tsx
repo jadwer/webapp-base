@@ -42,6 +42,7 @@ export const FilterBar = ({
             />
             {searchTerm && (
               <button
+                aria-label="Limpiar búsqueda"
                 type="button"
                 className="btn btn-outline-secondary"
                 onClick={() => onSearchChange('')}

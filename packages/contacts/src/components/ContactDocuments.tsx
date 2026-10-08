@@ -7,9 +7,15 @@
 'use client'
 
 import React, { useState, useRef } from 'react'
-import { Button } from '@lwm/ui'
+import { Button, formatDateOnly, isPastDateOnly } from '@lwm/ui'
 import { toast } from '@lwm/ui'
 import type { ContactDocument } from '../types'
+import {
+  CONTACT_DOCUMENT_TYPES,
+  contactDocumentTypeIcon,
+  contactDocumentTypeLabel,
+  type ContactDocumentType,
+} from '../utils/documentTypes'
 
 interface ContactDocumentsProps {
   contactId?: string
@@ -23,13 +29,13 @@ interface ContactDocumentsProps {
 }
 
 interface DocumentUploadData {
-  documentType: 'id_card' | 'tax_certificate' | 'contract' | 'license' | 'other'
+  documentType: ContactDocumentType
   notes: string
   file: File | null
 }
 
 const initialUploadForm: DocumentUploadData = {
-  documentType: 'tax_certificate',
+  documentType: 'constancia_sat',
   notes: '',
   file: null
 }
@@ -47,22 +53,6 @@ export const ContactDocuments: React.FC<ContactDocumentsProps> = ({
   const [uploadData, setUploadData] = useState<DocumentUploadData>(initialUploadForm)
   const [dragOver, setDragOver] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
-
-  const documentTypeLabels = {
-    id_card: 'Identificación Oficial',
-    tax_certificate: 'Certificado Fiscal (RFC)',
-    contract: 'Contrato',
-    license: 'Licencia de Funcionamiento',
-    other: 'Otro Documento'
-  }
-
-  const documentTypeIcons = {
-    id_card: 'bi-person-badge',
-    tax_certificate: 'bi-file-earmark-check',
-    contract: 'bi-file-earmark-text',
-    license: 'bi-file-earmark-lock',
-    other: 'bi-file-earmark'
-  }
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -137,7 +127,7 @@ export const ContactDocuments: React.FC<ContactDocumentsProps> = ({
     if (document.verifiedAt) {
       return <span className="badge bg-success"><i className="bi bi-check-circle me-1"></i>Verificado</span>
     }
-    if (document.expiresAt && new Date(document.expiresAt) < new Date()) {
+    if (document.expiresAt && isPastDateOnly(document.expiresAt)) {
       return <span className="badge bg-danger"><i className="bi bi-exclamation-triangle me-1"></i>Vencido</span>
     }
     return <span className="badge bg-warning"><i className="bi bi-clock me-1"></i>Pendiente</span>
@@ -180,7 +170,7 @@ export const ContactDocuments: React.FC<ContactDocumentsProps> = ({
                     <div className="d-flex justify-content-between align-items-start">
                       <div className="d-flex align-items-center flex-grow-1">
                         <div className="me-3">
-                          <i className={`${documentTypeIcons[document.documentType]} text-primary`} 
+                          <i className={`${contactDocumentTypeIcon(document.documentType)} text-primary`} 
                              style={{ fontSize: '2rem' }}></i>
                         </div>
                         <div className="flex-grow-1">
@@ -189,7 +179,7 @@ export const ContactDocuments: React.FC<ContactDocumentsProps> = ({
                             {getStatusBadge(document)}
                           </div>
                           <p className="text-muted small mb-1">
-                            {documentTypeLabels[document.documentType]}
+                            {contactDocumentTypeLabel(document.documentType)}
                           </p>
                           <div className="d-flex gap-3 text-muted small">
                             <span>
@@ -203,7 +193,7 @@ export const ContactDocuments: React.FC<ContactDocumentsProps> = ({
                             {document.expiresAt && (
                               <span>
                                 <i className="bi bi-calendar-x me-1"></i>
-                                Vence: {new Date(document.expiresAt).toLocaleDateString()}
+                                Vence: {formatDateOnly(document.expiresAt)}
                               </span>
                             )}
                           </div>
@@ -220,6 +210,7 @@ export const ContactDocuments: React.FC<ContactDocumentsProps> = ({
                       
                       <div className="btn-group btn-group-sm">
                         <button
+                          aria-label="Descargar"
                           type="button"
                           className="btn btn-primary"
                           onClick={() => onDownloadDocument(document.id)}
@@ -230,6 +221,7 @@ export const ContactDocuments: React.FC<ContactDocumentsProps> = ({
                         </button>
                         {onVerifyDocument && !document.verifiedAt && (
                           <button
+                            aria-label="Verificar documento"
                             type="button"
                             className="btn btn-outline-success"
                             onClick={() => onVerifyDocument(document.id)}
@@ -240,6 +232,7 @@ export const ContactDocuments: React.FC<ContactDocumentsProps> = ({
                           </button>
                         )}
                         <button
+                          aria-label="Eliminar"
                           type="button"
                           className="btn btn-outline-danger"
                           onClick={() => onDeleteDocument(document.id)}
@@ -286,11 +279,9 @@ export const ContactDocuments: React.FC<ContactDocumentsProps> = ({
                     disabled={isLoading}
                     required
                   >
-                    <option value="id_card">Identificación Oficial</option>
-                    <option value="tax_certificate">Certificado Fiscal (RFC)</option>
-                    <option value="contract">Contrato</option>
-                    <option value="license">Licencia de Funcionamiento</option>
-                    <option value="other">Otro Documento</option>
+                    {CONTACT_DOCUMENT_TYPES.map(type => (
+                      <option key={type} value={type}>{contactDocumentTypeLabel(type)}</option>
+                    ))}
                   </select>
                 </div>
 
@@ -334,6 +325,7 @@ export const ContactDocuments: React.FC<ContactDocumentsProps> = ({
                           </div>
                         </div>
                         <button
+                          aria-label="Quitar archivo"
                           type="button"
                           className="btn btn-outline-danger btn-sm"
                           onClick={() => setUploadData(prev => ({ ...prev, file: null }))}

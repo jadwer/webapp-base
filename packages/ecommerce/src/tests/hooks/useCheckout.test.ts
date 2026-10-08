@@ -281,12 +281,13 @@ describe('useCheckout Hooks', () => {
 
     it('should support different checkout statuses', async () => {
       // Business Rule: Checkout has specific status flow
-      const statuses: Array<'pending' | 'payment_pending' | 'completed' | 'failed' | 'cancelled'> = [
-        'pending',
+      const statuses: Array<'initiated' | 'payment_pending' | 'payment_confirmed' | 'completed' | 'failed' | 'expired'> = [
+        'initiated',
         'payment_pending',
+        'payment_confirmed',
         'completed',
         'failed',
-        'cancelled',
+        'expired',
       ];
 
       const { result } = renderHook(() => useCheckoutMutations());

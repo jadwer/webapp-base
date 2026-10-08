@@ -7,7 +7,7 @@
 'use client'
 
 import React from 'react'
-import { useNavigationProgress } from '@lwm/ui'
+import { useNavigationProgress, formatDateOnly, isPastDateOnly } from '@lwm/ui'
 import { CycleCountStatusBadge, ABCClassBadge, VarianceBadge } from './CycleCountStatusBadge'
 import type { ParsedCycleCount } from '../types'
 
@@ -36,24 +36,14 @@ export const CycleCountsTableSimple: React.FC<CycleCountsTableSimpleProps> = ({
     navigation.push(`/dashboard/inventory/cycle-counts/${id}/edit`)
   }
 
-  // Format date for display
-  const formatDate = (dateStr: string | null | undefined) => {
-    if (!dateStr) return '-'
-    const date = new Date(dateStr)
-    return date.toLocaleDateString('es-MX', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    })
-  }
+  // scheduledDate y completedDate son fechas sin hora
+  const formatDate = (dateStr: string | null | undefined) =>
+    formatDateOnly(dateStr, 'es-MX', { year: 'numeric', month: 'short', day: 'numeric' })
 
   // Check if count is overdue
   const isOverdue = (scheduledDate: string, status: string) => {
     if (status !== 'scheduled') return false
-    const scheduled = new Date(scheduledDate)
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
-    return scheduled < today
+    return isPastDateOnly(scheduledDate)
   }
 
   if (isLoading) {
@@ -165,6 +155,7 @@ export const CycleCountsTableSimple: React.FC<CycleCountsTableSimpleProps> = ({
               <td className="text-end">
                 <div className="btn-group btn-group-sm">
                   <button
+                    aria-label="Ver detalle"
                     type="button"
                     className="btn btn-outline-primary"
                     onClick={() => handleView(count.id)}
@@ -176,6 +167,7 @@ export const CycleCountsTableSimple: React.FC<CycleCountsTableSimpleProps> = ({
                   {count.status === 'scheduled' && (
                     <>
                       <button
+                        aria-label="Iniciar conteo"
                         type="button"
                         className="btn btn-outline-warning"
                         onClick={() => onStartCount?.(count.id)}
@@ -184,6 +176,7 @@ export const CycleCountsTableSimple: React.FC<CycleCountsTableSimpleProps> = ({
                         <i className="bi bi-play-fill" />
                       </button>
                       <button
+                        aria-label="Editar"
                         type="button"
                         className="btn btn-outline-secondary"
                         onClick={() => handleEdit(count.id)}
@@ -196,6 +189,7 @@ export const CycleCountsTableSimple: React.FC<CycleCountsTableSimpleProps> = ({
 
                   {count.status === 'in_progress' && (
                     <button
+                      aria-label="Registrar conteo"
                       type="button"
                       className="btn btn-outline-success"
                       onClick={() => onRecordCount?.(count.id)}
@@ -207,6 +201,7 @@ export const CycleCountsTableSimple: React.FC<CycleCountsTableSimpleProps> = ({
 
                   {(count.status === 'scheduled' || count.status === 'in_progress') && (
                     <button
+                      aria-label="Cancelar"
                       type="button"
                       className="btn btn-outline-danger"
                       onClick={() => onCancelCount?.(count.id)}

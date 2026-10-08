@@ -7,7 +7,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { Button } from '@lwm/ui'
+import { Button, todayDateInput, dateToInput } from '@lwm/ui'
 import { Input } from '@lwm/ui'
 import type { BudgetFormData, BudgetType, BudgetPeriodType, ParsedBudget } from '../types'
 import { BUDGET_TYPE_OPTIONS, BUDGET_PERIOD_TYPE_OPTIONS } from '../types'
@@ -26,8 +26,8 @@ const getDefaultFormData = (): BudgetFormData => ({
   description: '',
   budgetType: 'general',
   periodType: 'annual',
-  startDate: new Date().toISOString().split('T')[0],
-  endDate: new Date(new Date().getFullYear(), 11, 31).toISOString().split('T')[0],
+  startDate: todayDateInput(),
+  endDate: dateToInput(new Date(new Date().getFullYear(), 11, 31)),
   budgetedAmount: 0,
   warningThreshold: 80,
   criticalThreshold: 95,

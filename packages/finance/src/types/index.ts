@@ -1,10 +1,37 @@
 // Finance Module Types - Synced with FINANCE_FRONTEND_GUIDE.md 2025-12-28
 
 // ===== TYPE ALIASES FOR ENUMS =====
-export type InvoiceStatus = 'draft' | 'pending' | 'sent' | 'partial' | 'paid' | 'overdue' | 'cancelled' | 'void';
-export type PaymentStatus = 'draft' | 'pending' | 'completed' | 'cancelled' | 'void'
-  | 'posted';  // Legacy frontend value (backend uses 'completed')
-export type BankAccountStatus = 'active' | 'inactive' | 'closed';  // Legacy, backend only uses isActive
+// Espejo de Rule::in en ARInvoiceRequest/APInvoiceRequest. "Vencida" no es un
+// estado: se calcula con dueDate (ver isInvoiceOverdue en utils).
+export const INVOICE_STATUSES = ['draft', 'pending', 'posted', 'partial', 'paid', 'void', 'voided', 'cancelled'] as const;
+export type InvoiceStatus = typeof INVOICE_STATUSES[number];
+
+// Espejo de Rule::in en PaymentRequest.
+export const PAYMENT_STATUSES = ['draft', 'unapplied', 'partial', 'applied', 'fully_applied', 'void', 'voided'] as const;
+export type PaymentStatus = typeof PAYMENT_STATUSES[number];
+
+export type BankAccountStatus = 'active' | 'inactive' | 'closed';
+
+export const INVOICE_STATUS_LABELS: Record<InvoiceStatus, string> = {
+  draft: 'Borrador',
+  pending: 'Pendiente',
+  posted: 'Contabilizada',
+  partial: 'Pago parcial',
+  paid: 'Pagada',
+  void: 'Anulada',
+  voided: 'Anulada',
+  cancelled: 'Cancelada',
+};
+
+export const PAYMENT_STATUS_LABELS: Record<PaymentStatus, string> = {
+  draft: 'Borrador',
+  unapplied: 'Sin aplicar',
+  partial: 'Aplicado parcial',
+  applied: 'Aplicado',
+  fully_applied: 'Aplicado total',
+  void: 'Anulado',
+  voided: 'Anulado',
+};
 
 // ===== ARINVOICE (Accounts Receivable) =====
 export interface ARInvoice {
@@ -122,26 +149,20 @@ export interface Payment {
   paymentMethodName?: string;
 }
 
-// Legacy aliases for backward compatibility
-export type APPayment = Payment & {
-  apInvoiceId?: number | null;  // Legacy field
-  paymentMethod?: string;       // Legacy field (now use paymentMethodId)
-};
-
-export type ARReceipt = Payment & {
-  arInvoiceId?: number | null;  // Legacy field
-  receiptDate?: string;         // Legacy alias for paymentDate
-  paymentMethod?: string;       // Legacy field (now use paymentMethodId)
-};
+// Pagos a proveedor y cobros a cliente viven en el mismo recurso `payments`.
+export type APPayment = Payment;
+export type ARReceipt = Payment;
 
 // ===== PAYMENT APPLICATION =====
+// El backend solo aplica pagos a facturas AR (no existe apInvoiceId).
 export interface PaymentApplication {
   id: string;
   paymentId: number;
   arInvoiceId: number | null;
-  apInvoiceId: number | null;
-  appliedAmount: number;
+  amount: number;
+  applicationDate: string | null;
   notes: string | null;
+  isActive: boolean;
   metadata: Record<string, unknown> | null;
   createdAt: string;
   updatedAt: string;
@@ -149,9 +170,6 @@ export interface PaymentApplication {
   // Resolved from includes
   invoiceNumber?: string;
   paymentNumber?: string;
-  // Legacy field
-  applicationDate?: string;
-  amount?: string;  // Legacy alias for appliedAmount as string
 }
 
 // ===== BANK ACCOUNT =====
@@ -163,15 +181,12 @@ export interface BankAccount {
   currency: string;
   glAccountId: number | null;
   currentBalance: number;
-  accountType: string;
+  openingBalance: number;
+  status: BankAccountStatus | string;
+  metadata: Record<string, unknown> | null;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
-
-  // Legacy fields for backward compatibility
-  clabe?: string;
-  openingBalance?: string;
-  status?: BankAccountStatus;
 }
 
 // ===== PAYMENT METHOD =====
@@ -191,19 +206,18 @@ export interface PaymentMethod {
 
 // ===== FORM INTERFACES =====
 
+// accountName y glAccountId son NOT NULL en la tabla bank_accounts.
 export interface BankAccountForm {
   accountName: string;
   accountNumber: string;
   bankName: string;
   currency: string;
-  glAccountId?: number | null;
+  glAccountId: number;
+  openingBalance?: number;
   currentBalance?: number;
-  accountType: string;
-  isActive?: boolean;
-  // Legacy fields
-  clabe?: string;
-  openingBalance?: string;
   status?: BankAccountStatus;
+  metadata?: Record<string, unknown>;
+  isActive?: boolean;
 }
 
 export interface ARInvoiceForm {
@@ -260,38 +274,29 @@ export interface PaymentForm {
   metadata?: Record<string, unknown>;
 }
 
-// Legacy form interfaces for backward compatibility
+// Alta de pago/cobro (POST /payments). La tabla exige paymentNumber,
+// bankAccountId y paymentMethodId aunque el Request los marque nullable.
 export interface APPaymentForm {
-  contactId: number;
-  apInvoiceId?: number | null;
+  // Opcional: el backend genera PAY-000001 cuando no viene
+  paymentNumber?: string;
   paymentDate: string;
-  paymentMethod?: string;  // Legacy, use paymentMethodId
-  paymentMethodId?: number;
-  currency: string;
+  contactId: number;
+  bankAccountId: number;
+  paymentMethodId: number;
   amount: number;
-  bankAccountId?: number | null;
+  currency?: string;
+  status?: PaymentStatus;
   reference?: string;
-  status: string;
+  notes?: string;
 }
 
-export interface ARReceiptForm {
-  contactId: number;
-  arInvoiceId?: number | null;
-  receiptDate: string;  // Legacy alias for paymentDate
-  paymentMethod?: string;  // Legacy, use paymentMethodId
-  paymentMethodId?: number;
-  currency: string;
-  amount: number;
-  bankAccountId?: number | null;
-  reference?: string;
-  status: string;
-}
+export type ARReceiptForm = APPaymentForm;
 
 export interface PaymentApplicationForm {
   paymentId: number;
-  arInvoiceId?: number | null;
-  apInvoiceId?: number | null;
-  appliedAmount: number;
+  arInvoiceId: number;
+  amount: number;
+  applicationDate?: string;
   notes?: string;
   metadata?: Record<string, unknown>;
 }
@@ -306,8 +311,15 @@ export interface RegisterARPaymentForm {
   comments?: string;
 }
 
+// Respuesta mapeada a camelCase por arInvoicesService.registerPayment.
+// El backend responde { message, payment: { id, payment_number },
+// invoice: { id, total_amount, paid_amount, balance, status } }.
 export interface RegisterARPaymentResponse {
   message: string;
+  payment: {
+    id: string;
+    paymentNumber: string;
+  } | null;
   invoice: {
     id: string;
     totalAmount: number;
@@ -438,9 +450,9 @@ export interface UpdateBankTransactionRequest {
   reference?: string;
   description?: string;
   reconciliationStatus?: ReconciliationStatus;
-  reconciledById?: number;
-  reconciledAt?: string;
-  reconciliationNotes?: string;
+  reconciledById?: number | null;
+  reconciledAt?: string | null;
+  reconciliationNotes?: string | null;
   statementNumber?: string;
   runningBalance?: number;
   isActive?: boolean;

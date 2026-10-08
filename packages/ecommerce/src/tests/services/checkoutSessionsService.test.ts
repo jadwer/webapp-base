@@ -5,7 +5,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { checkoutSessionsService } from '../../services/checkoutSessionsService';
+import { checkoutSessionsService, type CheckoutSessionStatus } from '../../services/checkoutSessionsService';
 import { createMockCheckoutSession } from '../utils/test-utils';
 
 // Mock axios client
@@ -92,7 +92,7 @@ describe('checkoutSessionsService', () => {
           },
         },
       });
-      expect(result.status).toBe('pending');
+      expect(result.status).toBe('initiated');
       expect(result.shoppingCartId).toBe(1);
     });
 
@@ -162,12 +162,13 @@ describe('checkoutSessionsService', () => {
 
     it('should fetch session with all status types', async () => {
       // Test different status values
-      const statuses: Array<'pending' | 'payment_pending' | 'completed' | 'failed' | 'cancelled'> = [
-        'pending',
+      const statuses: CheckoutSessionStatus[] = [
+        'initiated',
         'payment_pending',
+        'payment_confirmed',
         'completed',
         'failed',
-        'cancelled',
+        'expired',
       ];
 
       for (const status of statuses) {
@@ -253,7 +254,7 @@ describe('checkoutSessionsService', () => {
         attributes: {
           shoppingCartId: 1,
           contactId: 10,
-          status: 'pending',
+          status: 'initiated',
           shippingAddressId: 20,
           billingAddressId: 21,
           subtotal: 100,
@@ -321,7 +322,7 @@ describe('checkoutSessionsService', () => {
         type: 'checkout-sessions',
         attributes: {
           shopping_cart_id: 1,
-          status: 'pending',
+          status: 'initiated',
           subtotal: 100,
           total: 100,
           created_at: '2025-01-15T10:00:00Z',
@@ -366,11 +367,11 @@ describe('checkoutSessionsService', () => {
 
     it('should track payment status through lifecycle', async () => {
       // Test payment lifecycle statuses
-      const statusFlow = ['pending', 'payment_pending', 'completed'];
+      const statusFlow = ['initiated', 'payment_pending', 'payment_confirmed', 'completed'];
 
       for (let i = 0; i < statusFlow.length; i++) {
         const mockSession = createMockCheckoutSession({
-          status: statusFlow[i] as 'pending' | 'payment_pending' | 'completed',
+          status: statusFlow[i] as CheckoutSessionStatus,
         });
         mockAxios.get.mockResolvedValue({
           data: createCheckoutSessionAPIResponse(mockSession),

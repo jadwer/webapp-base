@@ -369,6 +369,7 @@ export default function AppConfigPage() {
                             {setting.type === 'boolean' || setting.key === FAQ_KEY ? null : isEditing ? (
                               <div className="d-flex gap-1">
                                 <button
+                                  aria-label="Guardar"
                                   className="btn btn-sm btn-success"
                                   onClick={handleSave}
                                   disabled={saving}
@@ -380,6 +381,7 @@ export default function AppConfigPage() {
                                   )}
                                 </button>
                                 <button
+                                  aria-label="Cancelar"
                                   className="btn btn-sm btn-outline-secondary"
                                   onClick={handleCancel}
                                 >
@@ -388,6 +390,7 @@ export default function AppConfigPage() {
                               </div>
                             ) : (
                               <button
+                                aria-label="Editar"
                                 className="btn btn-sm btn-outline-primary"
                                 onClick={() => handleEdit(setting)}
                               >

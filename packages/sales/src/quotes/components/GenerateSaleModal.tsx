@@ -119,7 +119,7 @@ export function GenerateSaleModal({ quote, isOpen, onClose, onConverted }: Gener
               <i className="bi bi-cash-coin me-2"></i>
               Generar venta - {quote.quoteNumber}
             </h5>
-            <button type="button" className="btn-close" onClick={onClose} disabled={convert.isPending}></button>
+            <button aria-label="Cerrar" type="button" className="btn-close" onClick={onClose} disabled={convert.isPending}></button>
           </div>
 
           <div className="modal-body">

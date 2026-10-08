@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Button, Input } from '@lwm/ui'
+import { Button, Input, toDateInput } from '@lwm/ui'
 import type { LeadFormData, LeadStatus, LeadRating } from '../types'
 
 interface LeadFormProps {
@@ -35,10 +35,10 @@ export default function LeadForm({ initialData, onSubmit, onCancel }: LeadFormPr
     email: '',
     phone: '',
     estimatedValue: 0,
-    estimatedCloseDate: '',
     notes: '',
     userId: 1,
     ...initialData,
+    estimatedCloseDate: toDateInput(initialData?.estimatedCloseDate),
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})

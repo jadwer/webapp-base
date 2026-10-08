@@ -20,47 +20,85 @@ import type {
   PaymentGateway,
   CardBrand,
 } from '../types';
+import { todayDateInput } from '@lwm/ui'
 
 // ============================================
 // Ecommerce Order Transformers
 // ============================================
 
 /**
- * Transform EcommerceOrder from frontend to backend (camelCase attributes)
+ * Atributos escribibles de sales-orders que el backend valida.
+ * Fuente: api-base Modules/Sales/app/JsonApi/V1/SalesOrders/SalesOrderSchema.php (fields)
+ * y SalesOrderRequest.php (rules). No se mandan paymentStatus (readOnly), shippingStatus
+ * (no existe), datos del cliente (viven en el contacto) ni direcciones planas: las
+ * direcciones van en los hashes shippingAddress/billingAddress con las llaves que guarda
+ * el checkout (line1, line2, city, state, postal_code, country).
+ * status solo en creacion: en update es readOnlyOnUpdate y las transiciones van por
+ * POST /api/v1/orders/{id}/status.
  */
-export function ecommerceOrderToAPI(order: Partial<EcommerceOrder>): Record<string, unknown> {
-  return {
+export function ecommerceOrderToAPI(
+  order: Partial<EcommerceOrder>,
+  mode: 'create' | 'update' = 'update'
+): Record<string, unknown> {
+  const attributes: Record<string, unknown> = {
+    contactId: order.customerId,
     orderNumber: order.orderNumber,
-    customerId: order.customerId,
-    customerEmail: order.customerEmail,
-    customerName: order.customerName,
-    customerPhone: order.customerPhone,
-    status: order.status,
-    paymentStatus: order.paymentStatus,
-    shippingStatus: order.shippingStatus,
-    subtotalAmount: order.subtotalAmount,
-    taxAmount: order.taxAmount,
-    shippingAmount: order.shippingAmount,
-    discountAmount: order.discountAmount,
-    totalAmount: order.totalAmount,
-    shippingAddressLine1: order.shippingAddressLine1,
-    shippingAddressLine2: order.shippingAddressLine2,
-    shippingCity: order.shippingCity,
-    shippingState: order.shippingState,
-    shippingPostalCode: order.shippingPostalCode,
-    shippingCountry: order.shippingCountry,
-    billingAddressLine1: order.billingAddressLine1,
-    billingAddressLine2: order.billingAddressLine2,
-    billingCity: order.billingCity,
-    billingState: order.billingState,
-    billingPostalCode: order.billingPostalCode,
-    billingCountry: order.billingCountry,
-    paymentMethodId: order.paymentMethodId,
-    paymentReference: order.paymentReference,
-    notes: order.notes,
     orderDate: order.orderDate,
-    completedDate: order.completedDate,
+    discountTotal: order.discountAmount,
+    taxAmount: order.taxAmount,
+    totalAmount: order.totalAmount,
+    notes: order.notes,
   };
+
+  if (mode === 'create') {
+    attributes.status = order.status;
+  }
+
+  const shipping = addressHash(
+    order.shippingAddressLine1,
+    order.shippingAddressLine2,
+    order.shippingCity,
+    order.shippingState,
+    order.shippingPostalCode,
+    order.shippingCountry
+  );
+  if (shipping) attributes.shippingAddress = { ...(order.shippingAddressData ?? {}), ...shipping };
+
+  const billing = addressHash(
+    order.billingAddressLine1,
+    order.billingAddressLine2,
+    order.billingCity,
+    order.billingState,
+    order.billingPostalCode,
+    order.billingCountry
+  );
+  if (billing) attributes.billingAddress = billing;
+
+  return Object.fromEntries(Object.entries(attributes).filter(([, value]) => value !== undefined));
+}
+
+function addressHash(
+  line1?: string,
+  line2?: string,
+  city?: string,
+  state?: string,
+  postalCode?: string,
+  country?: string
+): Record<string, string | null> | null {
+  const values = [line1, line2, city, state, postalCode, country];
+  if (values.every(value => value === undefined)) return null;
+  return {
+    line1: line1 ?? null,
+    line2: line2 ?? null,
+    city: city ?? null,
+    state: state ?? null,
+    postal_code: postalCode ?? null,
+    country: country ?? null,
+  };
+}
+
+function readAddress(value: unknown): Record<string, unknown> {
+  return value && typeof value === 'object' && !Array.isArray(value) ? (value as Record<string, unknown>) : {};
 }
 
 /**
@@ -68,11 +106,13 @@ export function ecommerceOrderToAPI(order: Partial<EcommerceOrder>): Record<stri
  */
 export function ecommerceOrderFromAPI(data: Record<string, unknown>): EcommerceOrder {
   const attributes = (data.attributes || data) as Record<string, unknown>;
+  const shipping = readAddress(attributes.shippingAddress ?? attributes.shipping_address);
+  const billing = readAddress(attributes.billingAddress ?? attributes.billing_address);
 
   return {
     id: (data.id as string | number | undefined)?.toString() || (attributes.id as string | number | undefined)?.toString() || '',
     orderNumber: (attributes.orderNumber ?? attributes.order_number ?? '') as string,
-    customerId: (attributes.customerId ?? attributes.customer_id) as number | undefined,
+    customerId: (attributes.contactId ?? attributes.contact_id ?? attributes.customerId ?? attributes.customer_id) as number | undefined,
     customerEmail: (attributes.customerEmail ?? attributes.customer_email ?? '') as string,
     customerName: (attributes.customerName ?? attributes.customer_name ?? '') as string,
     customerPhone: (attributes.customerPhone ?? attributes.customer_phone) as string | undefined,
@@ -82,24 +122,25 @@ export function ecommerceOrderFromAPI(data: Record<string, unknown>): EcommerceO
     subtotalAmount: parseFloat(String(attributes.subtotalAmount ?? attributes.subtotal_amount ?? 0)),
     taxAmount: parseFloat(String(attributes.taxAmount ?? attributes.tax_amount ?? 0)),
     shippingAmount: parseFloat(String(attributes.shippingAmount ?? attributes.shipping_amount ?? 0)),
-    discountAmount: parseFloat(String(attributes.discountAmount ?? attributes.discount_amount ?? 0)),
+    discountAmount: parseFloat(String(attributes.discountTotal ?? attributes.discountAmount ?? attributes.discount_amount ?? 0)),
     totalAmount: parseFloat(String(attributes.totalAmount ?? attributes.total_amount ?? 0)),
-    shippingAddressLine1: (attributes.shippingAddressLine1 ?? attributes.shipping_address_line1 ?? '') as string,
-    shippingAddressLine2: (attributes.shippingAddressLine2 ?? attributes.shipping_address_line2) as string | undefined,
-    shippingCity: (attributes.shippingCity ?? attributes.shipping_city ?? '') as string,
-    shippingState: (attributes.shippingState ?? attributes.shipping_state ?? '') as string,
-    shippingPostalCode: (attributes.shippingPostalCode ?? attributes.shipping_postal_code ?? '') as string,
-    shippingCountry: (attributes.shippingCountry ?? attributes.shipping_country ?? '') as string,
-    billingAddressLine1: (attributes.billingAddressLine1 ?? attributes.billing_address_line1) as string | undefined,
-    billingAddressLine2: (attributes.billingAddressLine2 ?? attributes.billing_address_line2) as string | undefined,
-    billingCity: (attributes.billingCity ?? attributes.billing_city) as string | undefined,
-    billingState: (attributes.billingState ?? attributes.billing_state) as string | undefined,
-    billingPostalCode: (attributes.billingPostalCode ?? attributes.billing_postal_code) as string | undefined,
-    billingCountry: (attributes.billingCountry ?? attributes.billing_country) as string | undefined,
+    shippingAddressLine1: (shipping.line1 ?? attributes.shippingAddressLine1 ?? attributes.shipping_address_line1 ?? '') as string,
+    shippingAddressLine2: (shipping.line2 ?? attributes.shippingAddressLine2 ?? attributes.shipping_address_line2 ?? undefined) as string | undefined,
+    shippingCity: (shipping.city ?? attributes.shippingCity ?? attributes.shipping_city ?? '') as string,
+    shippingState: (shipping.state ?? attributes.shippingState ?? attributes.shipping_state ?? '') as string,
+    shippingPostalCode: (shipping.postal_code ?? attributes.shippingPostalCode ?? attributes.shipping_postal_code ?? '') as string,
+    shippingCountry: (shipping.country ?? attributes.shippingCountry ?? attributes.shipping_country ?? '') as string,
+    shippingAddressData: Object.keys(shipping).length > 0 ? shipping : undefined,
+    billingAddressLine1: (billing.line1 ?? attributes.billingAddressLine1 ?? attributes.billing_address_line1 ?? undefined) as string | undefined,
+    billingAddressLine2: (billing.line2 ?? attributes.billingAddressLine2 ?? attributes.billing_address_line2 ?? undefined) as string | undefined,
+    billingCity: (billing.city ?? attributes.billingCity ?? attributes.billing_city ?? undefined) as string | undefined,
+    billingState: (billing.state ?? attributes.billingState ?? attributes.billing_state ?? undefined) as string | undefined,
+    billingPostalCode: (billing.postal_code ?? attributes.billingPostalCode ?? attributes.billing_postal_code ?? undefined) as string | undefined,
+    billingCountry: (billing.country ?? attributes.billingCountry ?? attributes.billing_country ?? undefined) as string | undefined,
     paymentMethodId: (attributes.paymentMethodId ?? attributes.payment_method_id) as number | undefined,
     paymentReference: (attributes.paymentReference ?? attributes.payment_reference) as string | undefined,
     notes: attributes.notes as string | undefined,
-    orderDate: (attributes.orderDate ?? attributes.order_date ?? new Date().toISOString().split('T')[0]) as string,
+    orderDate: (attributes.orderDate ?? attributes.order_date ?? todayDateInput()) as string,
     completedDate: (attributes.completedDate ?? attributes.completed_date) as string | undefined,
     createdAt: (attributes.createdAt ?? attributes.created_at) as string | undefined,
     updatedAt: (attributes.updatedAt ?? attributes.updated_at) as string | undefined,
@@ -193,14 +234,14 @@ export function shoppingCartFromAPI(data: Record<string, unknown>): ShoppingCart
   return {
     id: (data.id as string | number | undefined)?.toString() || (attributes.id as string | number | undefined)?.toString() || '',
     sessionId: (attributes.sessionId ?? attributes.session_id ?? null) as string | null,
-    customerId: (attributes.customerId ?? attributes.customer_id) as number | undefined,
+    customerId: (attributes.contactId ?? attributes.contact_id ?? attributes.customerId ?? attributes.customer_id) as number | undefined,
     userId: (attributes.userId ?? attributes.user_id ?? null) as string | null,
     status: ((attributes.status as string) || 'active') as CartStatus,
     currency: (attributes.currency as string) || 'MXN',
     couponCode: (attributes.couponCode ?? attributes.coupon_code ?? null) as string | null,
     subtotalAmount,
     taxAmount,
-    discountAmount: parseFloat(String(attributes.discountAmount ?? attributes.discount_amount ?? 0)),
+    discountAmount: parseFloat(String(attributes.discountTotal ?? attributes.discountAmount ?? attributes.discount_amount ?? 0)),
     shippingAmount: parseFloat(String(attributes.shippingAmount ?? attributes.shipping_amount ?? 0)),
     totalAmount: parseFloat(String(attributes.totalAmount ?? attributes.total_amount ?? 0)) || finalTotal,
     itemsCount: parseInt(String(attributes.itemsCount ?? attributes.items_count ?? 0)),

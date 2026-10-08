@@ -9,7 +9,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Button } from '@lwm/ui'
+import { Button, todayDateInput, compareDateOnly, toDateInput } from '@lwm/ui'
 import type { ARInvoiceForm, ARInvoice } from '../types'
 
 interface ARInvoiceFormProps {
@@ -30,8 +30,8 @@ export const ARInvoiceFormComponent = ({
   const [formData, setFormData] = useState<ARInvoiceForm>({
     contactId: initialData?.contactId || '',
     invoiceNumber: initialData?.invoiceNumber || '',
-    invoiceDate: initialData?.invoiceDate || new Date().toISOString().split('T')[0],
-    dueDate: initialData?.dueDate || '',
+    invoiceDate: toDateInput(initialData?.invoiceDate) || todayDateInput(),
+    dueDate: toDateInput(initialData?.dueDate),
     currency: initialData?.currency || 'MXN',
     subtotal: initialData?.subtotal || '0',
     taxTotal: initialData?.taxTotal || '0',
@@ -83,7 +83,7 @@ export const ARInvoiceFormComponent = ({
 
     // Validate due date is after invoice date
     if (formData.invoiceDate && formData.dueDate) {
-      if (new Date(formData.dueDate) < new Date(formData.invoiceDate)) {
+      if (compareDateOnly(formData.dueDate, formData.invoiceDate) < 0) {
         newErrors.dueDate = 'La fecha de vencimiento debe ser posterior a la fecha de factura'
       }
     }

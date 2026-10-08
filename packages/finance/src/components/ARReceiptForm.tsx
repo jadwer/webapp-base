@@ -9,7 +9,8 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Button } from '@lwm/ui'
+import { Button, todayDateInput } from '@lwm/ui'
+import { useActivePaymentMethods } from '../hooks/usePaymentMethods'
 import type { ARReceiptForm, ARInvoice, BankAccount } from '../types'
 
 interface ARReceiptFormProps {
@@ -29,14 +30,16 @@ export const ARReceiptFormComponent = ({
 }: ARReceiptFormProps) => {
   const remainingBalance = arInvoice.totalAmount - arInvoice.paidAmount
 
+  const { activePaymentMethods } = useActivePaymentMethods()
   const [formData, setFormData] = useState<ARReceiptForm>({
-    contactId: arInvoice.contactId,
-    receiptDate: new Date().toISOString().split('T')[0],
-    paymentMethod: 'transfer',
+    paymentNumber: '',
+    contactId: Number(arInvoice.contactId),
+    paymentDate: todayDateInput(),
+    paymentMethodId: 0,
     currency: arInvoice.currency || 'MXN',
     amount: remainingBalance,
-    bankAccountId: null,
-    status: 'draft',
+    bankAccountId: 0,
+    status: 'unapplied',
   })
 
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -53,13 +56,16 @@ export const ARReceiptFormComponent = ({
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {}
 
+    if (!formData.paymentMethodId) {
+      newErrors.paymentMethodId = 'Debe seleccionar un método de cobro'
+    }
     if (!formData.bankAccountId) {
       newErrors.bankAccountId = 'Debe seleccionar una cuenta bancaria'
     }
-    if (!formData.receiptDate) {
-      newErrors.receiptDate = 'La fecha de cobro es obligatoria'
+    if (!formData.paymentDate) {
+      newErrors.paymentDate = 'La fecha de cobro es obligatoria'
     }
-    const amountNum = parseFloat(formData.amount)
+    const amountNum = Number(formData.amount)
     if (isNaN(amountNum) || amountNum <= 0) {
       newErrors.amount = 'El monto debe ser mayor a cero'
     }
@@ -75,7 +81,13 @@ export const ARReceiptFormComponent = ({
     e.preventDefault()
     
     if (validateForm()) {
-      onSubmit(formData)
+      onSubmit({
+        ...formData,
+        contactId: Number(formData.contactId),
+        bankAccountId: Number(formData.bankAccountId),
+        paymentMethodId: Number(formData.paymentMethodId),
+        amount: Number(formData.amount),
+      })
     }
   }
 
@@ -110,6 +122,27 @@ export const ARReceiptFormComponent = ({
         </div>
 
         <form onSubmit={handleSubmit} className="row g-3">
+          {/* Payment Number */}
+          <div className="col-md-6">
+            <label htmlFor="paymentNumber" className="form-label">
+              Número de Cobro
+            </label>
+            <input
+              type="text"
+              id="paymentNumber"
+              className={`form-control ${errors.paymentNumber ? 'is-invalid' : ''}`}
+              value={formData.paymentNumber}
+              onChange={(e) => handleInputChange('paymentNumber', e.target.value)}
+              maxLength={255}
+              placeholder="Automático (PAY-000001)"
+              disabled={isLoading}
+            />
+            <div className="form-text">Déjalo vacío para que el sistema asigne el folio.</div>
+            {errors.paymentNumber && (
+              <div className="invalid-feedback">{errors.paymentNumber}</div>
+            )}
+          </div>
+
           {/* Bank Account Selection */}
           <div className="col-md-6">
             <label htmlFor="bankAccountId" className="form-label">
@@ -119,7 +152,7 @@ export const ARReceiptFormComponent = ({
               id="bankAccountId"
               className={`form-select ${errors.bankAccountId ? 'is-invalid' : ''}`}
               value={formData.bankAccountId || ''}
-              onChange={(e) => setFormData(prev => ({ ...prev, bankAccountId: e.target.value || null }))}
+              onChange={(e) => setFormData(prev => ({ ...prev, bankAccountId: Number(e.target.value) || 0 }))}
               disabled={isLoading}
             >
               <option value="">Seleccionar cuenta...</option>
@@ -136,19 +169,19 @@ export const ARReceiptFormComponent = ({
 
           {/* Receipt Date */}
           <div className="col-md-6">
-            <label htmlFor="receiptDate" className="form-label">
+            <label htmlFor="paymentDate" className="form-label">
               Fecha de Cobro <span className="text-danger">*</span>
             </label>
             <input
               type="date"
-              id="receiptDate"
-              className={`form-control ${errors.receiptDate ? 'is-invalid' : ''}`}
-              value={formData.receiptDate}
-              onChange={(e) => handleInputChange('receiptDate', e.target.value)}
+              id="paymentDate"
+              className={`form-control ${errors.paymentDate ? 'is-invalid' : ''}`}
+              value={formData.paymentDate}
+              onChange={(e) => handleInputChange('paymentDate', e.target.value)}
               disabled={isLoading}
             />
-            {errors.receiptDate && (
-              <div className="invalid-feedback">{errors.receiptDate}</div>
+            {errors.paymentDate && (
+              <div className="invalid-feedback">{errors.paymentDate}</div>
             )}
           </div>
 
@@ -164,7 +197,7 @@ export const ARReceiptFormComponent = ({
                 id="amount"
                 className={`form-control ${errors.amount ? 'is-invalid' : ''}`}
                 value={formData.amount}
-                onChange={(e) => handleInputChange('amount', e.target.value)}
+                onChange={(e) => setFormData(prev => ({ ...prev, amount: e.target.value === '' ? 0 : Number(e.target.value) }))}
                 disabled={isLoading}
                 min="0"
                 step="0.01"
@@ -198,21 +231,26 @@ export const ARReceiptFormComponent = ({
 
           {/* Payment Method */}
           <div className="col-md-4">
-            <label htmlFor="paymentMethod" className="form-label">
-              Método de Cobro
+            <label htmlFor="paymentMethodId" className="form-label">
+              Método de Cobro <span className="text-danger">*</span>
             </label>
             <select
-              id="paymentMethod"
-              className="form-select"
-              value={formData.paymentMethod}
-              onChange={(e) => handleInputChange('paymentMethod', e.target.value)}
+              id="paymentMethodId"
+              className={`form-select ${errors.paymentMethodId ? 'is-invalid' : ''}`}
+              value={formData.paymentMethodId || ''}
+              onChange={(e) => setFormData(prev => ({ ...prev, paymentMethodId: Number(e.target.value) || 0 }))}
               disabled={isLoading}
             >
-              <option value="transfer">Transferencia Bancaria</option>
-              <option value="check">Cheque</option>
-              <option value="cash">Efectivo</option>
-              <option value="card">Tarjeta</option>
+              <option value="">Seleccionar método...</option>
+              {activePaymentMethods.map((method) => (
+                <option key={method.id} value={method.id}>
+                  {method.name}
+                </option>
+              ))}
             </select>
+            {errors.paymentMethodId && (
+              <div className="invalid-feedback">{errors.paymentMethodId}</div>
+            )}
           </div>
 
           {/* Form Actions */}

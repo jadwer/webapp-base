@@ -102,6 +102,7 @@ export default function ContactDetailPage({ params }: ContactDetailPageProps) {
       <div className="d-flex justify-content-between align-items-start mb-4">
         <div className="d-flex align-items-center">
           <button
+            aria-label="Volver"
             className="btn btn-link text-muted p-0 me-3"
             onClick={() => navigation.back()}
           >

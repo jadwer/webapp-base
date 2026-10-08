@@ -10,6 +10,7 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { Input, Button } from '@lwm/ui'
 import { useDepartments, usePositions } from '../hooks'
 import type { EmployeesFilters as FiltersType, EmployeeStatus } from '../types'
+import { EMPLOYEE_STATUSES, EMPLOYEE_STATUS_LABELS } from '../types'
 
 interface EmployeesFiltersProps {
   filters: FiltersType
@@ -108,9 +109,9 @@ export const EmployeesFilters: React.FC<EmployeesFiltersProps> = ({
               onChange={(e) => handleStatusChange(e.target.value as EmployeeStatus | '')}
             >
               <option value="">Todos los estados</option>
-              <option value="active">Activo</option>
-              <option value="inactive">Inactivo</option>
-              <option value="terminated">Terminado</option>
+              {EMPLOYEE_STATUSES.map(status => (
+                <option key={status} value={status}>{EMPLOYEE_STATUS_LABELS[status]}</option>
+              ))}
             </select>
           </div>
 

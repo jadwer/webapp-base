@@ -80,6 +80,7 @@ const ProductListItem = React.memo<{
     <div className="d-flex flex-column gap-1" style={{ width: '50px' }}>
       {onView && (
         <Button
+          aria-label="Ver detalles"
           size="small"
           variant="primary"
           buttonStyle="outline"
@@ -91,6 +92,7 @@ const ProductListItem = React.memo<{
       )}
       {onEdit && (
         <Button
+          aria-label="Editar"
           size="small"
           variant="secondary"
           buttonStyle="outline"
@@ -102,6 +104,7 @@ const ProductListItem = React.memo<{
       )}
       {onDelete && (
         <Button
+          aria-label="Eliminar"
           size="small"
           variant="danger"
           buttonStyle="outline"

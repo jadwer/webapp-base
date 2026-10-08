@@ -89,8 +89,8 @@ export const useProductConversionsMutations = () => {
 
   const deleteConversion = useCallback(async (id: string) => {
     await productConversionsService.delete(id)
-    mutate(['product-conversions', id])
-    mutate(key => Array.isArray(key) && key[0] === 'product-conversions')
+    // No se revalida la llave de detalle del id borrado: el detalle montado pediria un 404
+    mutate(key => Array.isArray(key) && key[0] === 'product-conversions' && key[1] !== id)
   }, [mutate])
 
   return {

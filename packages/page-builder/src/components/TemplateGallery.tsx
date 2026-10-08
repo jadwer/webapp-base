@@ -215,6 +215,7 @@ export const TemplateGallery: React.FC<TemplateGalleryProps> = ({
             <div className={styles.previewHeader}>
               <h3>{previewTemplate.name}</h3>
               <Button
+                aria-label="Cerrar vista previa"
                 variant="secondary"
                 size="small"
                 onClick={() => setPreviewTemplate(null)}

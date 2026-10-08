@@ -1,8 +1,8 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { Button, Input } from '@lwm/ui'
-import { useActiveCompanySetting } from '../hooks'
+import { Button, Input, todayDateInput } from '@lwm/ui'
+import { useActiveCompanySetting, useSatCfdiCatalogs } from '../hooks'
 import type { CFDIInvoice, CFDIInvoiceFormData, TipoComprobante, CFDIStatus, MetodoPago } from '../types'
 
 interface CFDIInvoiceFormProps {
@@ -25,27 +25,6 @@ const METODO_PAGO_OPTIONS: { value: MetodoPago; label: string }[] = [
   { value: 'PPD', label: 'Pago en Parcialidades o Diferido' },
 ]
 
-const FORMA_PAGO_OPTIONS = [
-  { value: '01', label: '01 - Efectivo' },
-  { value: '02', label: '02 - Cheque nominativo' },
-  { value: '03', label: '03 - Transferencia electronica de fondos' },
-  { value: '04', label: '04 - Tarjeta de credito' },
-  { value: '28', label: '28 - Tarjeta de debito' },
-  { value: '99', label: '99 - Por definir' },
-]
-
-const USO_CFDI_OPTIONS = [
-  { value: 'G01', label: 'G01 - Adquisicion de mercancias' },
-  { value: 'G02', label: 'G02 - Devoluciones, descuentos o bonificaciones' },
-  { value: 'G03', label: 'G03 - Gastos en general' },
-  { value: 'I01', label: 'I01 - Construcciones' },
-  { value: 'I02', label: 'I02 - Mobiliario y equipo de oficina' },
-  { value: 'I03', label: 'I03 - Equipo de transporte' },
-  { value: 'I04', label: 'I04 - Equipo de computo y accesorios' },
-  { value: 'P01', label: 'P01 - Por definir' },
-  { value: 'S01', label: 'S01 - Sin efectos fiscales' },
-]
-
 const MONEDA_OPTIONS = [
   { value: 'MXN', label: 'MXN - Peso Mexicano' },
   { value: 'USD', label: 'USD - Dolar Americano' },
@@ -59,6 +38,16 @@ export const CFDIInvoiceForm: React.FC<CFDIInvoiceFormProps> = ({
   onCancel
 }) => {
   const { activeSetting, isLoading: settingLoading } = useActiveCompanySetting()
+  // Uso CFDI, regimen fiscal y forma de pago salen del backend (regla 7)
+  const { usosCfdi, regimenesFiscales, formasPago } = useSatCfdiCatalogs()
+  const toOptions = (list: { code: string; label: string }[], current?: string) => {
+    const options = list.map(o => ({ value: o.code, label: `${o.code} - ${o.label}` }))
+    // Un valor guardado que ya no esta en el catalogo se muestra para no perderlo en silencio
+    if (current && !list.some(o => o.code === current)) {
+      options.unshift({ value: current, label: `${current} (fuera de catálogo)` })
+    }
+    return options
+  }
 
   const [formData, setFormData] = useState({
     companySettingId: invoice?.companySettingId?.toString() || '',
@@ -83,7 +72,7 @@ export const CFDIInvoiceForm: React.FC<CFDIInvoiceFormProps> = ({
     metodoPago: (invoice?.metodoPago || 'PUE') as MetodoPago,
     condicionesPago: invoice?.condicionesPago || '',
     status: (invoice?.status || 'draft') as CFDIStatus,
-    fechaEmision: invoice?.fechaEmision || new Date().toISOString().split('T')[0]
+    fechaEmision: invoice?.fechaEmision || todayDateInput()
   })
 
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -114,7 +103,7 @@ export const CFDIInvoiceForm: React.FC<CFDIInvoiceFormProps> = ({
         metodoPago: invoice.metodoPago || 'PUE',
         condicionesPago: invoice.condicionesPago || '',
         status: invoice.status || 'draft',
-        fechaEmision: invoice.fechaEmision || new Date().toISOString().split('T')[0]
+        fechaEmision: invoice.fechaEmision || todayDateInput()
       })
     }
   }, [invoice])
@@ -263,13 +252,13 @@ export const CFDIInvoiceForm: React.FC<CFDIInvoiceFormProps> = ({
 
                 <div className="col-md-4">
                   <Input
-                    label="Regimen Fiscal"
-                    type="text"
+                    label="Régimen Fiscal"
+                    type="select"
                     value={formData.receptorRegimenFiscal}
                     onChange={(e) => handleInputChange('receptorRegimenFiscal', e.target.value)}
                     onBlur={() => handleBlur('receptorRegimenFiscal')}
-                    placeholder="601"
                     disabled={isFormLoading}
+                    options={toOptions(regimenesFiscales, formData.receptorRegimenFiscal)}
                   />
                 </div>
 
@@ -281,7 +270,7 @@ export const CFDIInvoiceForm: React.FC<CFDIInvoiceFormProps> = ({
                     onChange={(e) => handleInputChange('receptorUsoCfdi', e.target.value)}
                     onBlur={() => handleBlur('receptorUsoCfdi')}
                     disabled={isFormLoading}
-                    options={USO_CFDI_OPTIONS.map(o => ({ value: o.value, label: o.label }))}
+                    options={toOptions(usosCfdi, formData.receptorUsoCfdi)}
                   />
                 </div>
               </div>
@@ -341,7 +330,7 @@ export const CFDIInvoiceForm: React.FC<CFDIInvoiceFormProps> = ({
                     onChange={(e) => handleInputChange('formaPago', e.target.value)}
                     onBlur={() => handleBlur('formaPago')}
                     disabled={isFormLoading}
-                    options={FORMA_PAGO_OPTIONS.map(o => ({ value: o.value, label: o.label }))}
+                    options={toOptions(formasPago, formData.formaPago)}
                   />
                 </div>
 

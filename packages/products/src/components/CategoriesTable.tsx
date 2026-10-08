@@ -109,6 +109,7 @@ export const CategoriesTable: React.FC<CategoriesTableProps> = ({
                     <div className="d-flex justify-content-end gap-1">
                       {onView && (
                         <Button
+                          aria-label="Ver categoría"
                           size="small"
                           variant="secondary"
                           buttonStyle="outline"
@@ -122,6 +123,7 @@ export const CategoriesTable: React.FC<CategoriesTableProps> = ({
                       
                       {onEdit && (
                         <Button
+                          aria-label="Editar categoría"
                           size="small"
                           variant="primary"
                           buttonStyle="outline"
@@ -135,6 +137,7 @@ export const CategoriesTable: React.FC<CategoriesTableProps> = ({
                       
                       {onDelete && (
                         <Button
+                          aria-label="Eliminar categoría"
                           size="small"
                           variant="danger"
                           buttonStyle="outline"

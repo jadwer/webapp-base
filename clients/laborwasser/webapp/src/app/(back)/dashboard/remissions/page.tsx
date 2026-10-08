@@ -15,6 +15,7 @@ import type { Remission } from '@/modules/sales'
 import { toast } from '@/lib/toast'
 import { BranchFilter, useBranchName } from '@lwm/auth'
 import ConfirmModal, { ConfirmModalHandle } from '@/ui/components/base/ConfirmModal'
+import { formatDateOnly } from '@lwm/ui'
 
 export default function RemissionsPage() {
   const router = useRouter()
@@ -183,12 +184,8 @@ export default function RemissionsPage() {
   }
 
   const formatDate = (dateString: string | null) => {
-    if (!dateString) return '-'
-    return new Date(dateString).toLocaleDateString('es-MX', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    })
+    // remissionDate y deliveryDate son fechas sin hora
+    return formatDateOnly(dateString, 'es-MX', { year: 'numeric', month: 'short', day: 'numeric' })
   }
 
   return (
@@ -340,6 +337,7 @@ export default function RemissionsPage() {
                           <div className="btn-group btn-group-sm">
                             {rem.status === 'draft' && (
                               <button
+                                aria-label="Imprimir (genera PDF)"
                                 className="btn btn-outline-primary"
                                 onClick={() => handlePrint(rem.id)}
                                 disabled={actionLoading === `print-${rem.id}`}
@@ -350,6 +348,7 @@ export default function RemissionsPage() {
                             )}
                             {rem.status === 'printed' && (
                               <button
+                                aria-label="Marcar como entregada"
                                 className="btn btn-outline-success"
                                 onClick={() => handleDeliver(rem.id)}
                                 disabled={actionLoading === `deliver-${rem.id}`}
@@ -360,6 +359,7 @@ export default function RemissionsPage() {
                             )}
                             {(rem.status === 'printed' || rem.status === 'delivered') && (
                               <button
+                                aria-label="Descargar PDF"
                                 className="btn btn-outline-secondary"
                                 onClick={() => handleDownloadPdf(rem.id)}
                                 disabled={actionLoading === `pdf-${rem.id}`}
@@ -370,6 +370,7 @@ export default function RemissionsPage() {
                             )}
                             {rem.status !== 'delivered' && rem.status !== 'cancelled' && (
                               <button
+                                aria-label="Cancelar"
                                 className="btn btn-outline-danger"
                                 onClick={() => handleCancel(rem.id)}
                                 disabled={actionLoading === `cancel-${rem.id}`}

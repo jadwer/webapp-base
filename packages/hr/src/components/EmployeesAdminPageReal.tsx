@@ -159,9 +159,9 @@ export const EmployeesAdminPageReal: React.FC = () => {
                   </div>
                 </div>
                 <div className="flex-grow-1 ms-3">
-                  <h6 className="mb-0 text-muted">Inactivos</h6>
+                  <h6 className="mb-0 text-muted">Con licencia o suspendidos</h6>
                   <h3 className="mb-0">
-                    {employees.filter(e => e.status === 'inactive').length}
+                    {employees.filter(e => e.status === 'on_leave' || e.status === 'suspended').length}
                   </h3>
                 </div>
               </div>
@@ -219,6 +219,7 @@ export const EmployeesAdminPageReal: React.FC = () => {
                   Nuevo Empleado
                 </h5>
                 <button
+                  aria-label="Cerrar"
                   type="button"
                   className="btn-close"
                   onClick={() => setShowCreateModal(false)}
@@ -246,6 +247,7 @@ export const EmployeesAdminPageReal: React.FC = () => {
                   Editar Empleado
                 </h5>
                 <button
+                  aria-label="Cerrar"
                   type="button"
                   className="btn-close"
                   onClick={() => setEditingEmployee(null)}

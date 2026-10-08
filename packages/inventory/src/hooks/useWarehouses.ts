@@ -126,9 +126,8 @@ export const useWarehousesMutations = () => {
       setIsLoading(true)
       await warehousesService.delete(id)
       
-      // Invalidar cache
-      mutate(['warehouses', id])
-      mutate(key => Array.isArray(key) && key[0] === 'warehouses')
+      // No se revalida la llave de detalle del id borrado: el detalle montado pediria un 404
+      mutate(key => Array.isArray(key) && key[0] === 'warehouses' && key[1] !== id)
       
     } catch (error) {
 

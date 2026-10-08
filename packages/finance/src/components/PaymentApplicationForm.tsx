@@ -9,12 +9,12 @@
 import React, { useState, useEffect } from 'react'
 import { usePaymentApplication, usePaymentApplicationMutations } from '../hooks'
 import type { PaymentApplicationForm as PaymentApplicationFormType } from '../types'
+import { todayDateInput, toDateInput } from '@lwm/ui'
 
 // Internal form state type (uses strings for input handling)
 interface FormState {
   paymentId: string
   arInvoiceId: string | null
-  apInvoiceId: string | null
   amount: string
   applicationDate: string
 }
@@ -34,13 +34,11 @@ export const PaymentApplicationForm: React.FC<PaymentApplicationFormProps> = ({
   const { application, isLoading: isLoadingApplication } = usePaymentApplication(applicationId || null)
   const { createApplication, updateApplication } = usePaymentApplicationMutations()
 
-  const [applicationType, setApplicationType] = useState<'ar' | 'ap'>('ar')
   const [formData, setFormData] = useState<FormState>({
     paymentId: '',
     arInvoiceId: null,
-    apInvoiceId: null,
     amount: '',
-    applicationDate: new Date().toISOString().split('T')[0]
+    applicationDate: todayDateInput()
   })
 
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -52,11 +50,9 @@ export const PaymentApplicationForm: React.FC<PaymentApplicationFormProps> = ({
       setFormData({
         paymentId: String(application.paymentId),
         arInvoiceId: application.arInvoiceId != null ? String(application.arInvoiceId) : null,
-        apInvoiceId: application.apInvoiceId != null ? String(application.apInvoiceId) : null,
-        amount: String(application.appliedAmount || application.amount || ''),
-        applicationDate: application.applicationDate || application.createdAt?.split('T')[0] || ''
+        amount: String(application.amount || ''),
+        applicationDate: toDateInput(application.applicationDate || application.createdAt)
       })
-      setApplicationType(application.arInvoiceId ? 'ar' : 'ap')
     }
   }, [application, isEditing])
 
@@ -67,12 +63,8 @@ export const PaymentApplicationForm: React.FC<PaymentApplicationFormProps> = ({
       newErrors.paymentId = 'El ID de pago es requerido'
     }
 
-    if (applicationType === 'ar' && !formData.arInvoiceId?.trim()) {
+    if (!formData.arInvoiceId?.trim()) {
       newErrors.arInvoiceId = 'El ID de factura AR es requerido'
-    }
-
-    if (applicationType === 'ap' && !formData.apInvoiceId?.trim()) {
-      newErrors.apInvoiceId = 'El ID de factura AP es requerido'
     }
 
     if (!formData.amount.trim()) {
@@ -94,12 +86,11 @@ export const PaymentApplicationForm: React.FC<PaymentApplicationFormProps> = ({
 
     if (!validate()) return
 
-    // Prepare data based on application type - convert strings to numbers
     const submitData: PaymentApplicationFormType = {
       paymentId: parseInt(formData.paymentId, 10),
-      arInvoiceId: applicationType === 'ar' && formData.arInvoiceId ? parseInt(formData.arInvoiceId, 10) : null,
-      apInvoiceId: applicationType === 'ap' && formData.apInvoiceId ? parseInt(formData.apInvoiceId, 10) : null,
-      appliedAmount: parseFloat(formData.amount),
+      arInvoiceId: parseInt(formData.arInvoiceId || '', 10),
+      amount: parseFloat(formData.amount),
+      applicationDate: formData.applicationDate,
     }
 
     setIsSubmitting(true)
@@ -168,50 +159,6 @@ export const PaymentApplicationForm: React.FC<PaymentApplicationFormProps> = ({
               )}
 
               <form onSubmit={handleSubmit}>
-                {/* Application Type */}
-                {!isEditing && (
-                  <div className="mb-4">
-                    <label className="form-label">
-                      Tipo de Aplicación <span className="text-danger">*</span>
-                    </label>
-                    <div className="btn-group w-100" role="group">
-                      <input
-                        type="radio"
-                        className="btn-check"
-                        id="typeAR"
-                        name="applicationType"
-                        checked={applicationType === 'ar'}
-                        onChange={() => {
-                          setApplicationType('ar')
-                          setFormData({ ...formData, apInvoiceId: null })
-                        }}
-                        disabled={isSubmitting}
-                      />
-                      <label className="btn btn-outline-success" htmlFor="typeAR">
-                        <i className="bi bi-arrow-down-circle me-2"></i>
-                        Cobro (AR Invoice)
-                      </label>
-
-                      <input
-                        type="radio"
-                        className="btn-check"
-                        id="typeAP"
-                        name="applicationType"
-                        checked={applicationType === 'ap'}
-                        onChange={() => {
-                          setApplicationType('ap')
-                          setFormData({ ...formData, arInvoiceId: null })
-                        }}
-                        disabled={isSubmitting}
-                      />
-                      <label className="btn btn-outline-warning" htmlFor="typeAP">
-                        <i className="bi bi-arrow-up-circle me-2"></i>
-                        Pago (AP Invoice)
-                      </label>
-                    </div>
-                  </div>
-                )}
-
                 {/* Payment ID */}
                 <div className="mb-3">
                   <label htmlFor="paymentId" className="form-label">
@@ -234,53 +181,27 @@ export const PaymentApplicationForm: React.FC<PaymentApplicationFormProps> = ({
                   </div>
                 </div>
 
-                {/* AR Invoice ID */}
-                {applicationType === 'ar' && (
-                  <div className="mb-3">
-                    <label htmlFor="arInvoiceId" className="form-label">
-                      ID de Factura AR (Cobro) <span className="text-danger">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      id="arInvoiceId"
-                      className={`form-control ${errors.arInvoiceId ? 'is-invalid' : ''}`}
-                      value={formData.arInvoiceId || ''}
-                      onChange={(e) => setFormData({ ...formData, arInvoiceId: e.target.value })}
-                      placeholder="ID de la factura de cobro"
-                      disabled={isSubmitting}
-                    />
-                    {errors.arInvoiceId && (
-                      <div className="invalid-feedback">{errors.arInvoiceId}</div>
-                    )}
-                    <div className="form-text">
-                      Factura de cuentas por cobrar a la que se aplicará el pago
-                    </div>
+              {/* AR Invoice ID: el backend solo aplica pagos a facturas AR */}
+                <div className="mb-3">
+                  <label htmlFor="arInvoiceId" className="form-label">
+                    ID de Factura AR (Cobro) <span className="text-danger">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="arInvoiceId"
+                    className={`form-control ${errors.arInvoiceId ? 'is-invalid' : ''}`}
+                    value={formData.arInvoiceId || ''}
+                    onChange={(e) => setFormData({ ...formData, arInvoiceId: e.target.value })}
+                    placeholder="ID de la factura de cobro"
+                    disabled={isSubmitting}
+                  />
+                  {errors.arInvoiceId && (
+                    <div className="invalid-feedback">{errors.arInvoiceId}</div>
+                  )}
+                  <div className="form-text">
+                    Factura de cuentas por cobrar a la que se aplicará el pago
                   </div>
-                )}
-
-                {/* AP Invoice ID */}
-                {applicationType === 'ap' && (
-                  <div className="mb-3">
-                    <label htmlFor="apInvoiceId" className="form-label">
-                      ID de Factura AP (Pago) <span className="text-danger">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      id="apInvoiceId"
-                      className={`form-control ${errors.apInvoiceId ? 'is-invalid' : ''}`}
-                      value={formData.apInvoiceId || ''}
-                      onChange={(e) => setFormData({ ...formData, apInvoiceId: e.target.value })}
-                      placeholder="ID de la factura de pago"
-                      disabled={isSubmitting}
-                    />
-                    {errors.apInvoiceId && (
-                      <div className="invalid-feedback">{errors.apInvoiceId}</div>
-                    )}
-                    <div className="form-text">
-                      Factura de cuentas por pagar a la que se aplicará el pago
-                    </div>
                   </div>
-                )}
 
                 {/* Amount */}
                 <div className="mb-3">

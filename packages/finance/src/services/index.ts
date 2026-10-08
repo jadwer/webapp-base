@@ -14,12 +14,17 @@ import {
   transformBankAccountsFromAPI,
   transformBankAccountFromAPI,
   transformAPInvoiceToAPI,
-  transformAPPaymentToAPI,
+  transformAPInvoiceUpdateToAPI,
   transformARInvoiceToAPI,
-  transformARReceiptToAPI,
+  transformARInvoiceUpdateToAPI,
+  transformPaymentToAPI,
+  transformPaymentUpdateToAPI,
+  transformBankAccountToAPI,
+  transformBankAccountUpdateToAPI,
   transformPaymentApplicationsFromAPI,
   transformPaymentApplicationFromAPI,
   transformPaymentApplicationToAPI,
+  transformPaymentApplicationUpdateToAPI,
   transformPaymentMethodsFromAPI,
   transformPaymentMethodFromAPI,
   transformPaymentMethodToAPI,
@@ -85,30 +90,22 @@ export const apInvoicesService = {
   },
 
   async update(id: string, data: Partial<APInvoiceForm>): Promise<{ data: APInvoice }> {
-    const response = await axiosClient.patch(`/api/v1/ap-invoices/${id}`, {
-      data: {
-        type: 'ap-invoices',
-        id,
-        attributes: data,
-      },
-    });
-    return response.data;
+    const response = await axiosClient.patch(`/api/v1/ap-invoices/${id}`, transformAPInvoiceUpdateToAPI(id, data));
+    return {
+      data: transformAPInvoiceFromAPI(response.data.data, response.data.included || [])
+    };
   },
 
   async delete(id: string): Promise<void> {
     await axiosClient.delete(`/api/v1/ap-invoices/${id}`);
   },
-
-  async post(id: string): Promise<{ data: APInvoice }> {
-    const response = await axiosClient.post(`/api/v1/ap-invoices/${id}/post`);
-    return response.data;
-  },
 };
 
 // AP Payments Service
 export const apPaymentsService = {
+  // payments guarda pagos AP y cobros AR; el Scope direction filtra por proveedor
   async getAll(params: Record<string, unknown> = {}): Promise<FinanceAPIResponse<APPayment>> {
-    const response = await axiosClient.get('/api/v1/payments', { params });
+    const response = await axiosClient.get('/api/v1/payments', { params: { ...params, 'filter[direction]': 'ap' } });
     const transformedData = transformAPPaymentsFromAPI(response.data);
     return {
       jsonapi: response.data.jsonapi || { version: '1.0' },
@@ -127,7 +124,7 @@ export const apPaymentsService = {
   },
 
   async create(data: APPaymentForm): Promise<{ data: APPayment }> {
-    const payload = transformAPPaymentToAPI(data);
+    const payload = transformPaymentToAPI(data);
     const response = await axiosClient.post('/api/v1/payments', payload);
     return {
       data: transformAPPaymentFromAPI(response.data.data)
@@ -135,23 +132,14 @@ export const apPaymentsService = {
   },
 
   async update(id: string, data: Partial<APPaymentForm>): Promise<{ data: APPayment }> {
-    const response = await axiosClient.patch(`/api/v1/payments/${id}`, {
-      data: {
-        type: 'payments',
-        id,
-        attributes: data,
-      },
-    });
-    return response.data;
+    const response = await axiosClient.patch(`/api/v1/payments/${id}`, transformPaymentUpdateToAPI(id, data));
+    return {
+      data: transformAPPaymentFromAPI(response.data.data, response.data.included || [])
+    };
   },
 
   async delete(id: string): Promise<void> {
     await axiosClient.delete(`/api/v1/payments/${id}`);
-  },
-
-  async post(id: string): Promise<{ data: APPayment }> {
-    const response = await axiosClient.post(`/api/v1/payments/${id}/post`);
-    return response.data;
   },
 };
 
@@ -185,23 +173,14 @@ export const arInvoicesService = {
   },
 
   async update(id: string, data: Partial<ARInvoiceForm>): Promise<{ data: ARInvoice }> {
-    const response = await axiosClient.patch(`/api/v1/ar-invoices/${id}`, {
-      data: {
-        type: 'ar-invoices',
-        id,
-        attributes: data,
-      },
-    });
-    return response.data;
+    const response = await axiosClient.patch(`/api/v1/ar-invoices/${id}`, transformARInvoiceUpdateToAPI(id, data));
+    return {
+      data: transformARInvoiceFromAPI(response.data.data, response.data.included || [])
+    };
   },
 
   async delete(id: string): Promise<void> {
     await axiosClient.delete(`/api/v1/ar-invoices/${id}`);
-  },
-
-  async post(id: string): Promise<{ data: ARInvoice }> {
-    const response = await axiosClient.post(`/api/v1/ar-invoices/${id}/post`);
-    return response.data;
   },
 
   async registerPayment(id: string, data: RegisterARPaymentForm): Promise<RegisterARPaymentResponse> {
@@ -213,8 +192,27 @@ export const arInvoicesService = {
       ...(data.comments ? { comments: data.comments } : {}),
     };
     const response = await axiosClient.post(`/api/v1/ar-invoices/${id}/register-payment`, payload);
-    return response.data;
+    return transformRegisterARPaymentResponse(response.data);
   },
+};
+
+// El endpoint register-payment no es JSON:API: responde snake_case.
+const transformRegisterARPaymentResponse = (body: Record<string, unknown>): RegisterARPaymentResponse => {
+  const invoice = (body.invoice || {}) as Record<string, unknown>;
+  const payment = body.payment as Record<string, unknown> | undefined;
+  return {
+    message: (body.message || '') as string,
+    payment: payment
+      ? { id: String(payment.id), paymentNumber: (payment.payment_number || '') as string }
+      : null,
+    invoice: {
+      id: String(invoice.id),
+      totalAmount: Number(invoice.total_amount ?? 0),
+      paidAmount: Number(invoice.paid_amount ?? 0),
+      balance: Number(invoice.balance ?? 0),
+      status: invoice.status as RegisterARPaymentResponse['invoice']['status'],
+    },
+  };
 };
 
 // SAT Catalogs Service (used for payment method select in RegisterPaymentModal)
@@ -227,8 +225,9 @@ export const satCatalogsService = {
 
 // AR Receipts Service
 export const arReceiptsService = {
+  // Solo cobros a clientes (Scope direction del PaymentSchema)
   async getAll(params: Record<string, unknown> = {}): Promise<FinanceAPIResponse<ARReceipt>> {
-    const response = await axiosClient.get('/api/v1/payments', { params });
+    const response = await axiosClient.get('/api/v1/payments', { params: { ...params, 'filter[direction]': 'ar' } });
     const transformedData = transformARReceiptsFromAPI(response.data);
     return {
       jsonapi: response.data.jsonapi || { version: '1.0' },
@@ -247,7 +246,7 @@ export const arReceiptsService = {
   },
 
   async create(data: ARReceiptForm): Promise<{ data: ARReceipt }> {
-    const payload = transformARReceiptToAPI(data);
+    const payload = transformPaymentToAPI(data);
     const response = await axiosClient.post('/api/v1/payments', payload);
     return {
       data: transformARReceiptFromAPI(response.data.data)
@@ -255,23 +254,14 @@ export const arReceiptsService = {
   },
 
   async update(id: string, data: Partial<ARReceiptForm>): Promise<{ data: ARReceipt }> {
-    const response = await axiosClient.patch(`/api/v1/payments/${id}`, {
-      data: {
-        type: 'payments',
-        id,
-        attributes: data,
-      },
-    });
-    return response.data;
+    const response = await axiosClient.patch(`/api/v1/payments/${id}`, transformPaymentUpdateToAPI(id, data));
+    return {
+      data: transformARReceiptFromAPI(response.data.data, response.data.included || [])
+    };
   },
 
   async delete(id: string): Promise<void> {
     await axiosClient.delete(`/api/v1/payments/${id}`);
-  },
-
-  async post(id: string): Promise<{ data: ARReceipt }> {
-    const response = await axiosClient.post(`/api/v1/payments/${id}/post`);
-    return response.data;
   },
 };
 
@@ -296,25 +286,14 @@ export const bankAccountsService = {
   },
 
   async create(data: BankAccountForm): Promise<{ data: BankAccount }> {
-    const response = await axiosClient.post('/api/v1/bank-accounts', {
-      data: {
-        type: 'bank-accounts',
-        attributes: data,
-      },
-    });
+    const response = await axiosClient.post('/api/v1/bank-accounts', transformBankAccountToAPI(data));
     return {
       data: transformBankAccountFromAPI(response.data.data)
     };
   },
 
-  async update(id: string, data: Partial<BankAccount>): Promise<{ data: BankAccount }> {
-    const response = await axiosClient.patch(`/api/v1/bank-accounts/${id}`, {
-      data: {
-        type: 'bank-accounts',
-        id,
-        attributes: data,
-      },
-    });
+  async update(id: string, data: Partial<BankAccountForm>): Promise<{ data: BankAccount }> {
+    const response = await axiosClient.patch(`/api/v1/bank-accounts/${id}`, transformBankAccountUpdateToAPI(id, data));
     return {
       data: transformBankAccountFromAPI(response.data.data)
     };
@@ -478,7 +457,7 @@ export const getBankAccounts = (params?: { filters?: Record<string, unknown>; pa
 
 export const getBankAccount = (id: string) => bankAccountsService.getById(id).then(response => response.data);
 export const createBankAccount = (data: BankAccountForm) => bankAccountsService.create(data).then(response => response.data);
-export const updateBankAccount = (id: string, data: Partial<BankAccount>) => bankAccountsService.update(id, data).then(response => response.data);
+export const updateBankAccount = (id: string, data: Partial<BankAccountForm>) => bankAccountsService.update(id, data).then(response => response.data);
 export const deleteBankAccount = (id: string) => bankAccountsService.delete(id);
 // Payment Applications Service
 export const paymentApplicationsService = {
@@ -510,13 +489,7 @@ export const paymentApplicationsService = {
   },
 
   async update(id: string, data: Partial<PaymentApplicationForm>): Promise<{ data: PaymentApplication }> {
-    const response = await axiosClient.patch('/api/v1/payment-applications/' + id, {
-      data: {
-        type: 'payment-applications',
-        id,
-        attributes: data,
-      },
-    });
+    const response = await axiosClient.patch('/api/v1/payment-applications/' + id, transformPaymentApplicationUpdateToAPI(id, data));
     return {
       data: transformPaymentApplicationFromAPI(response.data.data)
     };
@@ -739,9 +712,9 @@ export const bankTransactionsService = {
   async unreconcile(id: string): Promise<ParsedBankTransaction> {
     return this.update(id, {
       reconciliationStatus: 'unreconciled',
-      reconciledAt: undefined,
-      reconciledById: undefined,
-      reconciliationNotes: undefined,
+      reconciledAt: null,
+      reconciledById: null,
+      reconciliationNotes: null,
     });
   },
 

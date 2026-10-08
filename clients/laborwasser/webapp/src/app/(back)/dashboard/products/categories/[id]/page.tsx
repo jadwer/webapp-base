@@ -29,6 +29,7 @@ export default function CategoryViewPage({ params }: CategoryViewPageProps) {
           {/* Header */}
           <div className="d-flex align-items-center mb-4">
             <button
+              aria-label="Volver a categorías"
               type="button"
               onClick={handleBack}
               className="btn btn-link p-0 me-3 text-decoration-none"

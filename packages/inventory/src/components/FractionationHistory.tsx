@@ -91,6 +91,7 @@ export const FractionationHistory = ({ fractionations, isLoading }: Fractionatio
               </td>
               <td>
                 <Link
+                  aria-label="Ver detalle"
                   href={`/dashboard/inventory/fraccionamiento/${frac.id}`}
                   className="btn btn-sm btn-outline-primary"
                   title="Ver detalle"

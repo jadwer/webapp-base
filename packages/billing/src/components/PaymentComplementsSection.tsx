@@ -24,8 +24,6 @@ interface PaymentComplementsSectionProps {
 
 const REP_STATUS_BADGES: Record<string, { class: string; label: string }> = {
   draft: { class: 'bg-secondary', label: 'Borrador' },
-  generated: { class: 'bg-info', label: 'Generado' },
-  stamped: { class: 'bg-success', label: 'Timbrado' },
   valid: { class: 'bg-success', label: 'Vigente' },
   cancelled: { class: 'bg-danger', label: 'Cancelado' },
   error: { class: 'bg-warning', label: 'Error' },
@@ -43,19 +41,18 @@ const formatDate = (value?: string): string => {
 }
 
 /**
- * Extract the num de parcialidad from a REP record. The backend stores it in the
- * cfdi_payment_docs rows (DoctoRelacionado), which are not exposed via JSON:API,
- * so as a best effort we read it from metadata when present.
+ * Parcialidad y saldo insoluto vienen como atributos del Schema
+ * (numParcialidad, impSaldoInsoluto); metadata queda como respaldo.
  */
 const getParcialidad = (rep: CFDIInvoice): string => {
   const meta = rep.metadata as Record<string, unknown> | undefined
-  const value = meta?.num_parcialidad ?? meta?.numParcialidad
+  const value = rep.numParcialidad ?? meta?.numParcialidad ?? meta?.num_parcialidad
   return value !== undefined && value !== null ? String(value) : '-'
 }
 
 const getSaldoInsoluto = (rep: CFDIInvoice): number | undefined => {
   const meta = rep.metadata as Record<string, unknown> | undefined
-  const value = meta?.imp_saldo_insoluto ?? meta?.impSaldoInsoluto
+  const value = rep.impSaldoInsoluto ?? meta?.impSaldoInsoluto ?? meta?.imp_saldo_insoluto
   return typeof value === 'number' ? value : undefined
 }
 
@@ -238,6 +235,7 @@ export function PaymentComplementsSection({ invoice }: PaymentComplementsSection
                       <td className="text-end">
                         <div className="btn-group btn-group-sm">
                           <button
+                            aria-label="Descargar XML"
                             type="button"
                             className="btn btn-outline-secondary"
                             onClick={() => handleDownloadXML(rep)}
@@ -251,6 +249,7 @@ export function PaymentComplementsSection({ invoice }: PaymentComplementsSection
                             )}
                           </button>
                           <button
+                            aria-label="Descargar PDF"
                             type="button"
                             className="btn btn-outline-secondary"
                             onClick={() => handleDownloadPDF(rep)}

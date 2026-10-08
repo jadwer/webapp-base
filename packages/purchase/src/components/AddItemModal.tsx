@@ -117,6 +117,7 @@ export default function AddItemModal({ purchaseOrderId, isOpen, onClose, onSucce
               Agregar Item a la Orden de Compra
             </h5>
             <button
+              aria-label="Cerrar"
               type="button"
               className="btn-close"
               onClick={onClose}

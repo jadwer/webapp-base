@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useARAgingReport } from '../hooks/useReports'
+import { formatDateOnly } from '@lwm/ui'
 
 export function LibroMayorReport() {
   const [filters, setFilters] = useState({
@@ -237,7 +238,7 @@ export function LibroMayorReport() {
                             <tr key={index}>
                               <td>
                                 <span className="badge bg-light text-dark">
-                                  {new Date(entry.entry_date).toLocaleDateString('es-MX')}
+                                  {formatDateOnly(entry.entry_date)}
                                 </span>
                               </td>
                               <td>

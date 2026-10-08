@@ -103,6 +103,7 @@ export const PaginationPro = React.memo<PaginationProProps>(({
                 <div className="d-flex gap-1 align-items-center">
                   {/* First Page */}
                   <Button
+                    aria-label="Primera página"
                     size="small"
                     variant="secondary"
                     buttonStyle="outline"
@@ -115,6 +116,7 @@ export const PaginationPro = React.memo<PaginationProProps>(({
 
                   {/* Previous Page */}
                   <Button
+                    aria-label="Página anterior"
                     size="small"
                     variant="secondary" 
                     buttonStyle="outline"
@@ -160,6 +162,7 @@ export const PaginationPro = React.memo<PaginationProProps>(({
 
                   {/* Next Page */}
                   <Button
+                    aria-label="Página siguiente"
                     size="small"
                     variant="secondary"
                     buttonStyle="outline" 
@@ -172,6 +175,7 @@ export const PaginationPro = React.memo<PaginationProProps>(({
 
                   {/* Last Page */}
                   <Button
+                    aria-label="Última página"
                     size="small"
                     variant="secondary"
                     buttonStyle="outline"

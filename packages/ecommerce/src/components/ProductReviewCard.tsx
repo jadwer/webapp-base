@@ -87,6 +87,7 @@ export function ProductReviewCard({
           </div>
           {isOwner && (
             <button
+              aria-label="Eliminar reseña"
               className="btn btn-sm btn-outline-danger"
               onClick={handleDelete}
               disabled={isDeleting}

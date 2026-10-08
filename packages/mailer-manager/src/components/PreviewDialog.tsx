@@ -19,7 +19,7 @@ export default function PreviewDialog({ isOpen, onClose, subject, html }: Previe
               <i className="bi bi-eye me-2"></i>
               Vista Previa
             </h5>
-            <button type="button" className="btn-close" onClick={onClose}></button>
+            <button aria-label="Cerrar" type="button" className="btn-close" onClick={onClose}></button>
           </div>
           <div className="modal-body p-0">
             <div className="bg-light border-bottom px-3 py-2">

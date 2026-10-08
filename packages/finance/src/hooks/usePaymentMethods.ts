@@ -93,7 +93,7 @@ export const usePaymentMethod = (id: string | null) => {
  */
 export const useActivePaymentMethods = () => {
   const { paymentMethods, isLoading, error, mutate } = usePaymentMethods({
-    filters: { isActive: true },
+    filters: { is_active: true },
     sort: ['name'],
   })
 
@@ -110,7 +110,7 @@ export const useActivePaymentMethods = () => {
  */
 export const usePaymentMethodsRequiringReference = () => {
   const { paymentMethods, isLoading, error, mutate } = usePaymentMethods({
-    filters: { isActive: true, requiresReference: true },
+    filters: { is_active: true, requires_reference: true },
   })
 
   return {

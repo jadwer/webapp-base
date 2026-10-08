@@ -4,65 +4,89 @@
 
 import React, { useState } from 'react'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
-import { useARReceiptMutations, useBankAccounts } from '@/modules/finance'
+import {
+  useARReceiptMutations,
+  useBankAccounts,
+  useActivePaymentMethods,
+  getFinanceErrorMessage,
+} from '@/modules/finance'
 import { useContacts } from '@/modules/contacts'
 import { Button } from '@/ui/components/base/Button'
-import type { ARReceiptForm } from '@/modules/finance'
+import type { APPaymentForm } from '@/modules/finance'
+import { todayDateInput } from '@lwm/ui'
 
+// Pagos y cobros se guardan en el recurso `payments`. Fecha, contacto, cuenta
+// bancaria, metodo y monto son obligatorios; el folio es opcional (el backend
+// genera PAY-000001). Los numeros viajan como number.
 export default function CreateARReceiptPage() {
   const navigation = useNavigationProgress()
   const { createARReceipt } = useARReceiptMutations()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // Load contacts for customer selection (only customers, not suppliers)
   const { contacts, isLoading: contactsLoading } = useContacts({
-    filters: { isSupplier: false }
+    filters: { isCustomer: true }
   })
 
-  // Load bank accounts for deposit account selection
   const { bankAccounts, isLoading: bankAccountsLoading } = useBankAccounts({
-    filters: { status: 'active' }
+    filters: { is_active: true }
   })
-  const [formData, setFormData] = useState<ARReceiptForm>({
+
+  const { activePaymentMethods, isLoading: paymentMethodsLoading } = useActivePaymentMethods()
+
+  const [formData, setFormData] = useState({
+    paymentNumber: '',
     contactId: '',
-    receiptDate: new Date().toISOString().split('T')[0],
-    paymentMethod: 'transfer',
+    paymentDate: todayDateInput(),
+    paymentMethodId: '',
     currency: 'MXN',
-    amount: '0.00',
-    bankAccountId: null,
-    status: 'draft'
+    amount: '',
+    bankAccountId: '',
+    reference: '',
+    notes: '',
   })
+
+  const handleChange = (field: keyof typeof formData, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }))
+    setError(null)
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setIsLoading(true)
     setError(null)
-    
-    try {
-      // Validate required fields
-      if (!formData.contactId || !formData.receiptDate || !formData.amount || parseFloat(formData.amount) <= 0) {
-        throw new Error('Todos los campos requeridos deben estar completos y el monto debe ser mayor a 0')
-      }
 
-      const response = await createARReceipt(formData)
-      console.log('✅ [ARReceiptCreate] Receipt created successfully:', response)
+    const amount = Number(formData.amount)
+    if (!formData.contactId || !formData.paymentDate ||
+        !formData.paymentMethodId || !formData.bankAccountId || !formData.amount) {
+      setError('Completa los campos obligatorios: cliente, fecha, monto, método de pago y cuenta bancaria.')
+      return
+    }
+    if (!Number.isFinite(amount) || amount <= 0) {
+      setError('El monto debe ser mayor a 0.')
+      return
+    }
+
+    const payload: APPaymentForm = {
+      ...(formData.paymentNumber.trim() ? { paymentNumber: formData.paymentNumber.trim() } : {}),
+      paymentDate: formData.paymentDate,
+      contactId: Number(formData.contactId),
+      bankAccountId: Number(formData.bankAccountId),
+      paymentMethodId: Number(formData.paymentMethodId),
+      amount,
+      currency: formData.currency,
+      ...(formData.reference ? { reference: formData.reference } : {}),
+      ...(formData.notes ? { notes: formData.notes } : {}),
+    }
+
+    setIsLoading(true)
+    try {
+      await createARReceipt(payload)
       navigation.push('/dashboard/finance/ar-receipts')
     } catch (err) {
-      console.error('❌ [ARReceiptCreate] Error creating AR receipt:', err)
-      setError(err instanceof Error ? err.message : 'Error al crear el recibo de cliente')
+      setError(getFinanceErrorMessage(err, 'Error al crear el recibo de cliente'))
     } finally {
       setIsLoading(false)
     }
-  }
-
-  const handleCancel = () => {
-    navigation.back()
-  }
-
-  const handleInputChange = (field: keyof ARReceiptForm, value: string | null) => {
-    setFormData(prev => ({ ...prev, [field]: value }))
-    setError(null)
   }
 
   return (
@@ -86,6 +110,21 @@ export default function CreateARReceiptPage() {
               <form onSubmit={handleSubmit}>
                 <div className="row g-3">
                   <div className="col-md-6">
+                    <label htmlFor="paymentNumber" className="form-label">
+                      Folio
+                    </label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      id="paymentNumber"
+                      value={formData.paymentNumber}
+                      onChange={(e) => handleChange('paymentNumber', e.target.value)}
+                      maxLength={255}
+                      placeholder="Automático (PAY-000001)"
+                    />
+                    <div className="form-text">Déjalo vacío para que el sistema asigne el folio.</div>
+                  </div>
+                  <div className="col-md-6">
                     <label htmlFor="contactId" className="form-label">
                       Cliente <span className="text-danger">*</span>
                     </label>
@@ -93,7 +132,7 @@ export default function CreateARReceiptPage() {
                       id="contactId"
                       className="form-select"
                       value={formData.contactId}
-                      onChange={(e) => handleInputChange('contactId', e.target.value)}
+                      onChange={(e) => handleChange('contactId', e.target.value)}
                       disabled={contactsLoading || isLoading}
                       required
                     >
@@ -105,22 +144,19 @@ export default function CreateARReceiptPage() {
                       ))}
                     </select>
                     {contactsLoading && (
-                      <div className="form-text text-muted">
-                        <i className="bi bi-arrow-clockwise me-1"></i>
-                        Cargando clientes...
-                      </div>
+                      <div className="form-text text-muted">Cargando clientes...</div>
                     )}
                   </div>
                   <div className="col-md-6">
-                    <label htmlFor="receiptDate" className="form-label">
-                      Fecha de Recibo <span className="text-danger">*</span>
+                    <label htmlFor="paymentDate" className="form-label">
+                      Fecha de Cobro <span className="text-danger">*</span>
                     </label>
                     <input
                       type="date"
                       className="form-control"
-                      id="receiptDate"
-                      value={formData.receiptDate}
-                      onChange={(e) => setFormData(prev => ({ ...prev, receiptDate: e.target.value }))}
+                      id="paymentDate"
+                      value={formData.paymentDate}
+                      onChange={(e) => handleChange('paymentDate', e.target.value)}
                       required
                     />
                   </div>
@@ -133,10 +169,11 @@ export default function CreateARReceiptPage() {
                       className="form-control"
                       id="amount"
                       value={formData.amount}
-                      onChange={(e) => setFormData(prev => ({ ...prev, amount: e.target.value }))}
+                      onChange={(e) => handleChange('amount', e.target.value)}
                       required
-                      min="0"
+                      min="0.01"
                       step="0.01"
+                      placeholder="0.00"
                     />
                   </div>
                   <div className="col-md-6">
@@ -147,7 +184,7 @@ export default function CreateARReceiptPage() {
                       className="form-select"
                       id="currency"
                       value={formData.currency}
-                      onChange={(e) => setFormData(prev => ({ ...prev, currency: e.target.value }))}
+                      onChange={(e) => handleChange('currency', e.target.value)}
                     >
                       <option value="MXN">MXN - Peso Mexicano</option>
                       <option value="USD">USD - Dólar Estadounidense</option>
@@ -155,35 +192,38 @@ export default function CreateARReceiptPage() {
                     </select>
                   </div>
                   <div className="col-md-6">
-                    <label htmlFor="paymentMethod" className="form-label">
+                    <label htmlFor="paymentMethodId" className="form-label">
                       Método de Pago <span className="text-danger">*</span>
                     </label>
                     <select
                       className="form-select"
-                      id="paymentMethod"
-                      value={formData.paymentMethod}
-                      onChange={(e) => setFormData(prev => ({ ...prev, paymentMethod: e.target.value }))}
+                      id="paymentMethodId"
+                      value={formData.paymentMethodId}
+                      onChange={(e) => handleChange('paymentMethodId', e.target.value)}
+                      disabled={paymentMethodsLoading || isLoading}
                       required
                     >
-                      <option value="transfer">Transferencia</option>
-                      <option value="check">Cheque</option>
-                      <option value="cash">Efectivo</option>
-                      <option value="credit_card">Tarjeta de Crédito</option>
-                      <option value="debit_card">Tarjeta de Débito</option>
+                      <option value="">Seleccionar método...</option>
+                      {activePaymentMethods?.map((method) => (
+                        <option key={method.id} value={method.id}>
+                          {method.name}
+                        </option>
+                      ))}
                     </select>
                   </div>
                   <div className="col-md-6">
                     <label htmlFor="bankAccountId" className="form-label">
-                      Cuenta de Depósito (Opcional)
+                      Cuenta de Depósito <span className="text-danger">*</span>
                     </label>
                     <select
                       id="bankAccountId"
                       className="form-select"
-                      value={formData.bankAccountId || ''}
-                      onChange={(e) => handleInputChange('bankAccountId', e.target.value || null)}
+                      value={formData.bankAccountId}
+                      onChange={(e) => handleChange('bankAccountId', e.target.value)}
                       disabled={bankAccountsLoading || isLoading}
+                      required
                     >
-                      <option value="">Sin cuenta bancaria específica</option>
+                      <option value="">Seleccionar cuenta...</option>
                       {bankAccounts?.map((account) => (
                         <option key={account.id} value={account.id}>
                           {account.bankName} - {account.accountNumber} ({account.currency})
@@ -191,28 +231,36 @@ export default function CreateARReceiptPage() {
                       ))}
                     </select>
                     {bankAccountsLoading && (
-                      <div className="form-text text-muted">
-                        <i className="bi bi-arrow-clockwise me-1"></i>
-                        Cargando cuentas bancarias...
-                      </div>
+                      <div className="form-text text-muted">Cargando cuentas bancarias...</div>
                     )}
                   </div>
                   <div className="col-md-6">
-                    <label htmlFor="status" className="form-label">
-                      Estado
+                    <label htmlFor="reference" className="form-label">
+                      Referencia
                     </label>
-                    <select
-                      className="form-select"
-                      id="status"
-                      value={formData.status}
-                      onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value as 'draft' | 'posted' }))}
-                    >
-                      <option value="draft">Borrador</option>
-                      <option value="posted">Contabilizado</option>
-                    </select>
+                    <input
+                      type="text"
+                      className="form-control"
+                      id="reference"
+                      value={formData.reference}
+                      onChange={(e) => handleChange('reference', e.target.value)}
+                      maxLength={255}
+                    />
+                  </div>
+                  <div className="col-12">
+                    <label htmlFor="notes" className="form-label">
+                      Notas
+                    </label>
+                    <textarea
+                      className="form-control"
+                      id="notes"
+                      rows={2}
+                      value={formData.notes}
+                      onChange={(e) => handleChange('notes', e.target.value)}
+                    />
                   </div>
                 </div>
-                
+
                 <div className="mt-4 d-flex gap-2">
                   <Button
                     type="submit"
@@ -236,7 +284,7 @@ export default function CreateARReceiptPage() {
                   <Button
                     type="button"
                     variant="secondary"
-                    onClick={handleCancel}
+                    onClick={() => navigation.back()}
                     disabled={isLoading}
                   >
                     <i className="bi bi-x-lg me-2"></i>
@@ -248,14 +296,12 @@ export default function CreateARReceiptPage() {
           </div>
         </div>
       </div>
-      
+
       <div className="row mt-4">
         <div className="col-12">
           <div className="alert alert-info">
             <i className="bi bi-info-circle me-2"></i>
-            <strong>Phase 1 - Funcionalidad Básica:</strong> 
-            En esta fase se implementa la funcionalidad básica de recibos de clientes. 
-            La aplicación automática de recibos a facturas estará disponible en fases posteriores.
+            El recibo se registra sin aplicar. Para cobrar una factura específica usa &quot;Registrar pago&quot; desde Facturas por Cobrar.
           </div>
         </div>
       </div>

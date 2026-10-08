@@ -8,6 +8,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { RegisterPaymentModal } from '../../components/RegisterPaymentModal'
 import { createMockARInvoice } from '../utils/test-utils'
+import { todayDateInput } from '@lwm/ui'
 
 const registerPaymentMock = vi.fn()
 
@@ -57,7 +58,7 @@ describe('RegisterPaymentModal', () => {
     const dateInput = screen.getByLabelText(/fecha de pago/i) as HTMLInputElement
 
     expect(Number(amountInput.value)).toBe(1820) // 2320 - 500
-    expect(dateInput.value).toBe(new Date().toISOString().split('T')[0])
+    expect(dateInput.value).toBe(todayDateInput())
   })
 
   it('populates the forma de pago select from useFormaPagoOptions', () => {
@@ -104,7 +105,7 @@ describe('RegisterPaymentModal', () => {
 
     await waitFor(() => {
       expect(registerPaymentMock).toHaveBeenCalledWith('42', {
-        paymentDate: new Date().toISOString().split('T')[0],
+        paymentDate: todayDateInput(),
         amount: 1320,
         formaPago: '03',
         reference: 'REF-999',

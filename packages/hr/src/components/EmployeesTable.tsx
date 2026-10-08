@@ -20,11 +20,12 @@ interface EmployeesTableProps {
 const StatusBadge: React.FC<{ status: Employee['status'] }> = ({ status }) => {
   const statusConfig = {
     active: { color: 'success', text: 'Activo' },
-    inactive: { color: 'warning', text: 'Inactivo' },
+    on_leave: { color: 'info', text: 'Con licencia' },
+    suspended: { color: 'warning', text: 'Suspendido' },
     terminated: { color: 'danger', text: 'Terminado' },
   }
 
-  const config = statusConfig[status]
+  const config = statusConfig[status] ?? { color: 'secondary', text: status }
 
   return (
     <span className={`badge bg-${config.color} bg-opacity-10 text-${config.color}`}>
@@ -126,6 +127,7 @@ export const EmployeesTable: React.FC<EmployeesTableProps> = ({
               <td>
                 <div className="d-flex justify-content-end gap-2">
                   <Button
+                    aria-label="Editar empleado"
                     size="small"
                     variant="primary"
                     buttonStyle="outline"
@@ -135,6 +137,7 @@ export const EmployeesTable: React.FC<EmployeesTableProps> = ({
                     <i className="bi bi-pencil" />
                   </Button>
                   <Button
+                    aria-label="Eliminar empleado"
                     size="small"
                     variant="danger"
                     buttonStyle="outline"

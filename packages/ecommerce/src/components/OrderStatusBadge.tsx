@@ -16,12 +16,15 @@ interface OrderStatusBadgeProps {
 
 // Color mapping for different statuses
 const orderStatusColors: Record<OrderStatus, string> = {
+  draft: 'bg-light text-dark',
   pending: 'bg-warning text-dark',
   confirmed: 'bg-info text-white',
   processing: 'bg-primary text-white',
   shipped: 'bg-secondary text-white',
   delivered: 'bg-success text-white',
+  completed: 'bg-success text-white',
   cancelled: 'bg-danger text-white',
+  returned: 'bg-danger text-white',
   refunded: 'bg-dark text-white',
 }
 
@@ -47,12 +50,15 @@ const shippingStatusColors: Record<ShippingStatus, string> = {
 
 // Icon mapping for different statuses
 const orderStatusIcons: Record<OrderStatus, string> = {
+  draft: 'bi-file-earmark',
   pending: 'bi-clock',
   confirmed: 'bi-check-circle',
   processing: 'bi-gear',
   shipped: 'bi-truck',
   delivered: 'bi-check2-all',
+  completed: 'bi-check2-all',
   cancelled: 'bi-x-circle',
+  returned: 'bi-arrow-return-left',
   refunded: 'bi-arrow-counterclockwise',
 }
 
@@ -79,6 +85,7 @@ const shippingStatusIcons: Record<ShippingStatus, string> = {
 // Status labels in Spanish
 const statusLabels: Record<string, string> = {
   // Order statuses
+  draft: 'Borrador',
   pending: 'Pendiente',
   confirmed: 'Confirmado',
   processing: 'Procesando',

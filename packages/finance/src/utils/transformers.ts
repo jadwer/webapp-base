@@ -10,7 +10,7 @@ import type {
   APInvoiceForm,
   APPaymentForm,
   ARInvoiceForm,
-  ARReceiptForm,
+  BankAccountForm,
   PaymentApplication,
   PaymentApplicationForm,
   PaymentMethod,
@@ -74,6 +74,24 @@ export const transformAPInvoiceFromAPI = (apiData: Record<string, unknown>, incl
   }
 }
 
+// Nombres de cuenta bancaria y metodo de pago desde `included`.
+const resolvePaymentIncludes = (
+  attributes: Record<string, unknown>,
+  includedData?: Record<string, unknown>[]
+): { bankAccountName?: string; paymentMethodName?: string } => {
+  if (!includedData) return {}
+  const find = (type: string, id: unknown) =>
+    id != null ? includedData.find((item) => item.type === type && item.id === String(id)) : undefined
+  const bank = find('bank-accounts', attributes.bankAccountId ?? attributes.bank_account_id)
+  const method = find('payment-methods', attributes.paymentMethodId ?? attributes.payment_method_id)
+  const bankAttrs = (bank?.attributes || {}) as Record<string, unknown>
+  const methodAttrs = (method?.attributes || {}) as Record<string, unknown>
+  return {
+    bankAccountName: (bankAttrs.accountName || bankAttrs.bankName) as string | undefined,
+    paymentMethodName: methodAttrs.name as string | undefined,
+  }
+}
+
 export const transformAPPaymentFromAPI = (apiData: Record<string, unknown>, includedData?: Record<string, unknown>[]): APPayment => {
   const attributes = (apiData.attributes || {}) as Record<string, unknown>
 
@@ -110,9 +128,7 @@ export const transformAPPaymentFromAPI = (apiData: Record<string, unknown>, incl
     createdAt: (attributes.createdAt || attributes.created_at || '') as string,
     updatedAt: (attributes.updatedAt || attributes.updated_at || '') as string,
     contactName,
-    // Legacy fields for backward compatibility
-    apInvoiceId: (attributes.apInvoiceId ?? attributes.ap_invoice_id ?? null) as number | null,
-    paymentMethod: (attributes.paymentMethod || '') as string,
+    ...resolvePaymentIncludes(attributes, includedData),
   }
 }
 
@@ -189,7 +205,7 @@ export const transformARReceiptFromAPI = (apiData: Record<string, unknown>, incl
   return {
     id: apiData.id as string,
     paymentNumber: (attributes.paymentNumber || attributes.payment_number || '') as string,
-    paymentDate: (attributes.paymentDate || attributes.payment_date || attributes.receiptDate || attributes.receipt_date || '') as string,
+    paymentDate: (attributes.paymentDate || attributes.payment_date || '') as string,
     contactId: contactIdValue,
     bankAccountId: Number(attributes.bankAccountId || attributes.bank_account_id || 0),
     paymentMethodId: Number(attributes.paymentMethodId || attributes.payment_method_id || 0),
@@ -206,10 +222,7 @@ export const transformARReceiptFromAPI = (apiData: Record<string, unknown>, incl
     createdAt: (attributes.createdAt || attributes.created_at || '') as string,
     updatedAt: (attributes.updatedAt || attributes.updated_at || '') as string,
     contactName,
-    // Legacy fields for backward compatibility
-    arInvoiceId: (attributes.arInvoiceId ?? attributes.ar_invoice_id ?? null) as number | null,
-    receiptDate: (attributes.receiptDate || attributes.receipt_date || attributes.paymentDate || '') as string,
-    paymentMethod: (attributes.paymentMethod || '') as string,
+    ...resolvePaymentIncludes(attributes, includedData),
   }
 }
 
@@ -224,96 +237,141 @@ export const transformBankAccountFromAPI = (apiData: Record<string, unknown>): B
     currency: (attributes.currency || 'MXN') as string,
     glAccountId: (attributes.glAccountId ?? attributes.gl_account_id ?? null) as number | null,
     currentBalance: Number(attributes.currentBalance || attributes.current_balance || 0),
-    accountType: (attributes.accountType || attributes.account_type || '') as string,
+    openingBalance: Number(attributes.openingBalance || attributes.opening_balance || 0),
+    status: (attributes.status || 'active') as BankAccount['status'],
+    metadata: (attributes.metadata ?? null) as Record<string, unknown> | null,
     isActive: (attributes.isActive ?? attributes.is_active ?? true) as boolean,
     createdAt: (attributes.createdAt || attributes.created_at || '') as string,
     updatedAt: (attributes.updatedAt || attributes.updated_at || '') as string,
-    // Legacy fields for backward compatibility
-    clabe: (attributes.clabe || '') as string,
-    openingBalance: String(attributes.openingBalance || attributes.opening_balance || '0'),
-    status: (attributes.status || (attributes.isActive ? 'active' : 'inactive')) as BankAccount['status'],
   }
 }
 
 // ===== FRONTEND TO JSON:API TRANSFORMERS =====
 
-export const transformAPInvoiceToAPI = (formData: APInvoiceForm) => ({
+// Copia solo las llaves que el Schema declara como atributo escribible;
+// las numericas se convierten a number (un input HTML entrega string).
+const pickAttributes = (
+  data: Record<string, unknown>,
+  keys: readonly string[],
+  numericKeys: readonly string[] = []
+): Record<string, unknown> => {
+  const attributes: Record<string, unknown> = {}
+  for (const key of keys) {
+    if (data[key] === undefined) continue
+    const value = data[key]
+    if (numericKeys.includes(key)) {
+      attributes[key] = value === null || value === '' ? null : Number(value)
+    } else {
+      attributes[key] = value
+    }
+  }
+  return attributes
+}
+
+// Atributos escribibles segun APInvoiceSchema/APInvoiceRequest.
+const AP_INVOICE_KEYS = [
+  'invoiceNumber', 'invoiceDate', 'dueDate', 'contactId', 'purchaseOrderId', 'currency',
+  'subtotal', 'taxAmount', 'totalAmount', 'paidAmount', 'status', 'journalEntryId',
+  'notes', 'metadata', 'isActive',
+] as const
+const AP_INVOICE_NUMERIC = ['contactId', 'purchaseOrderId', 'subtotal', 'taxAmount', 'totalAmount', 'paidAmount', 'journalEntryId']
+
+// Atributos escribibles segun ARInvoiceSchema/ARInvoiceRequest.
+const AR_INVOICE_KEYS = [
+  'invoiceNumber', 'invoiceDate', 'dueDate', 'contactId', 'salesOrderId', 'currency',
+  'subtotal', 'taxAmount', 'totalAmount', 'paidAmount', 'status', 'journalEntryId',
+  'notes', 'metadata', 'isActive',
+  'discountPercent', 'discountDays', 'discountDate', 'discountAmount',
+  'discountApplied', 'discountAppliedAmount', 'discountAppliedDate',
+] as const
+const AR_INVOICE_NUMERIC = [
+  'contactId', 'salesOrderId', 'subtotal', 'taxAmount', 'totalAmount', 'paidAmount', 'journalEntryId',
+  'discountPercent', 'discountDays', 'discountAmount', 'discountAppliedAmount',
+]
+
+// Atributos escribibles segun PaymentSchema/PaymentRequest.
+const PAYMENT_KEYS = [
+  'paymentNumber', 'paymentDate', 'contactId', 'bankAccountId', 'paymentMethodId', 'amount',
+  'currency', 'appliedAmount', 'unappliedAmount', 'status', 'journalEntryId', 'reference',
+  'notes', 'metadata', 'isActive',
+] as const
+const PAYMENT_NUMERIC = ['contactId', 'bankAccountId', 'paymentMethodId', 'amount', 'appliedAmount', 'unappliedAmount', 'journalEntryId']
+
+// Atributos escribibles segun BankAccountSchema/BankAccountRequest.
+const BANK_ACCOUNT_KEYS = [
+  'accountNumber', 'accountName', 'bankName', 'currency', 'glAccountId', 'currentBalance',
+  'openingBalance', 'status', 'metadata', 'isActive',
+] as const
+const BANK_ACCOUNT_NUMERIC = ['glAccountId', 'currentBalance', 'openingBalance']
+
+// Atributos escribibles segun PaymentApplicationSchema/PaymentApplicationRequest.
+const PAYMENT_APPLICATION_KEYS = ['paymentId', 'arInvoiceId', 'amount', 'applicationDate', 'notes', 'isActive', 'metadata'] as const
+const PAYMENT_APPLICATION_NUMERIC = ['paymentId', 'arInvoiceId', 'amount']
+
+const toResource = (type: string, attributes: Record<string, unknown>, id?: string) => ({
   data: {
-    type: 'a-p-invoices',
-    attributes: {
-      contact_id: formData.contactId,
-      invoice_number: formData.invoiceNumber,
-      invoice_date: formData.invoiceDate,
-      due_date: formData.dueDate,
-      purchase_order_id: formData.purchaseOrderId || null,
-      currency: formData.currency || 'MXN',
-      subtotal: formData.subtotal,
-      tax_amount: formData.taxAmount,
-      total_amount: formData.totalAmount,
-      status: formData.status,
-      notes: formData.notes || null,
-      metadata: formData.metadata || {},
-    },
+    type,
+    ...(id ? { id } : {}),
+    attributes,
   },
 })
 
-export const transformAPPaymentToAPI = (formData: APPaymentForm) => ({
-  data: {
-    type: 'a-p-payments',
-    attributes: {
-      contactId: formData.contactId,                                              // ✅ Updated field
-      paymentDate: formData.paymentDate,                                          // ✅ YYYY-MM-DD format
-      paymentMethod: formData.paymentMethod,                                      // ✅ Required field
-      currency: formData.currency,                                                // ✅ Required field  
-      amount: formData.amount,                                                    // ✅ Convert to number
-      bankAccountId: formData.bankAccountId,                                       // ✅ Optional number
-      status: formData.status,                                                    // ✅ Required field
-    },
-  },
-})
+export const transformAPInvoiceToAPI = (formData: APInvoiceForm) =>
+  toResource('ap-invoices', pickAttributes(
+    { currency: 'MXN', purchaseOrderId: null, ...formData } as Record<string, unknown>,
+    AP_INVOICE_KEYS,
+    AP_INVOICE_NUMERIC
+  ))
 
-export const transformARInvoiceToAPI = (formData: ARInvoiceForm) => ({
-  data: {
-    type: 'a-r-invoices',
-    attributes: {
-      contact_id: formData.contactId,
-      invoice_number: formData.invoiceNumber,
-      invoice_date: formData.invoiceDate,
-      due_date: formData.dueDate,
-      sales_order_id: formData.salesOrderId || null,
-      currency: formData.currency || 'MXN',
-      subtotal: formData.subtotal,
-      tax_amount: formData.taxAmount,
-      total_amount: formData.totalAmount,
-      status: formData.status,
-      notes: formData.notes || null,
-      metadata: formData.metadata || {},
-      // FI-M002: Early Payment Discount fields
-      discount_percent: formData.discountPercent ?? null,
-      discount_days: formData.discountDays ?? null,
-      discount_date: formData.discountDate ?? null,
-      discount_amount: formData.discountAmount ?? null,
-      discount_applied: formData.discountApplied ?? false,
-      discount_applied_amount: formData.discountAppliedAmount ?? null,
-      discount_applied_date: formData.discountAppliedDate ?? null,
-    },
-  },
-})
+export const transformAPInvoiceUpdateToAPI = (id: string, data: Partial<APInvoiceForm>) =>
+  toResource('ap-invoices', pickAttributes(data as Record<string, unknown>, AP_INVOICE_KEYS, AP_INVOICE_NUMERIC), id)
 
-export const transformARReceiptToAPI = (formData: ARReceiptForm) => ({
-  data: {
-    type: 'a-r-receipts',
-    attributes: {
-      contactId: formData.contactId,                                              // ✅ Updated field
-      receiptDate: formData.receiptDate,                                          // ✅ YYYY-MM-DD format
-      paymentMethod: formData.paymentMethod,                                      // ✅ Required field
-      currency: formData.currency,                                                // ✅ Required field
-      amount: formData.amount,                                                    // ✅ Convert to number
-      bankAccountId: formData.bankAccountId,                                       // ✅ Optional number
-      status: formData.status,                                                    // ✅ Required field
-    },
-  },
-})
+export const transformARInvoiceToAPI = (formData: ARInvoiceForm) =>
+  toResource('ar-invoices', pickAttributes(
+    { currency: 'MXN', salesOrderId: null, ...formData } as Record<string, unknown>,
+    AR_INVOICE_KEYS,
+    AR_INVOICE_NUMERIC
+  ))
+
+export const transformARInvoiceUpdateToAPI = (id: string, data: Partial<ARInvoiceForm>) =>
+  toResource('ar-invoices', pickAttributes(data as Record<string, unknown>, AR_INVOICE_KEYS, AR_INVOICE_NUMERIC), id)
+
+// Pagos a proveedor y cobros a cliente: mismo recurso `payments`. Un pago
+// nuevo nace sin aplicar: todo su monto queda en unappliedAmount.
+export const transformPaymentToAPI = (formData: APPaymentForm) => {
+  const amount = Number(formData.amount)
+  // Folio opcional: si viene vacio el backend genera PAY-000001
+  const paymentNumber = formData.paymentNumber?.trim() || undefined
+  return toResource('payments', pickAttributes(
+    {
+      currency: 'MXN',
+      status: 'unapplied',
+      appliedAmount: 0,
+      unappliedAmount: amount,
+      ...formData,
+      paymentNumber,
+      amount,
+    } as Record<string, unknown>,
+    PAYMENT_KEYS,
+    PAYMENT_NUMERIC
+  ))
+}
+
+export const transformPaymentUpdateToAPI = (id: string, data: Partial<APPaymentForm>) =>
+  toResource('payments', pickAttributes(data as Record<string, unknown>, PAYMENT_KEYS, PAYMENT_NUMERIC), id)
+
+export const transformAPPaymentToAPI = transformPaymentToAPI
+export const transformARReceiptToAPI = transformPaymentToAPI
+
+export const transformBankAccountToAPI = (formData: BankAccountForm) =>
+  toResource('bank-accounts', pickAttributes(
+    { openingBalance: 0, ...formData } as Record<string, unknown>,
+    BANK_ACCOUNT_KEYS,
+    BANK_ACCOUNT_NUMERIC
+  ))
+
+export const transformBankAccountUpdateToAPI = (id: string, data: Partial<BankAccountForm>) =>
+  toResource('bank-accounts', pickAttributes(data as Record<string, unknown>, BANK_ACCOUNT_KEYS, BANK_ACCOUNT_NUMERIC), id)
 
 // ===== BATCH TRANSFORMERS =====
 
@@ -438,8 +496,7 @@ export const transformPaymentApplicationFromAPI = (apiData: Record<string, unkno
   let invoiceNumber: string | undefined
   if (includedData) {
     const invoice = includedData.find((item: Record<string, unknown>) =>
-      (item.type === 'ar-invoices' && item.id === String(attributes.arInvoiceId)) ||
-      (item.type === 'ap-invoices' && item.id === String(attributes.apInvoiceId))
+      item.type === 'ar-invoices' && item.id === String(attributes.arInvoiceId)
     )
     if (invoice && invoice.attributes) {
       const invoiceAttrs = invoice.attributes as Record<string, unknown>
@@ -463,18 +520,16 @@ export const transformPaymentApplicationFromAPI = (apiData: Record<string, unkno
     id: apiData.id as string,
     paymentId: Number(attributes.paymentId || attributes.payment_id || 0),
     arInvoiceId: attributes.arInvoiceId != null ? Number(attributes.arInvoiceId) : (attributes.ar_invoice_id != null ? Number(attributes.ar_invoice_id) : null),
-    apInvoiceId: attributes.apInvoiceId != null ? Number(attributes.apInvoiceId) : (attributes.ap_invoice_id != null ? Number(attributes.ap_invoice_id) : null),
-    appliedAmount: Number(attributes.amount || attributes.appliedAmount || attributes.applied_amount || 0),
+    amount: Number(attributes.amount || 0),
+    applicationDate: (attributes.applicationDate || attributes.application_date || null) as string | null,
     notes: (attributes.notes ?? null) as string | null,
+    isActive: (attributes.isActive ?? attributes.is_active ?? true) as boolean,
     metadata: (attributes.metadata ?? null) as Record<string, unknown> | null,
     createdAt: (attributes.createdAt || attributes.created_at || '') as string,
     updatedAt: (attributes.updatedAt || attributes.updated_at || '') as string,
     // Resolved from includes
     invoiceNumber,
     paymentNumber,
-    // Legacy fields
-    applicationDate: (attributes.applicationDate || attributes.application_date || attributes.createdAt || '') as string,
-    amount: String(attributes.amount || attributes.appliedAmount || attributes.applied_amount || 0),
   }
 }
 
@@ -489,20 +544,19 @@ export const transformPaymentApplicationsFromAPI = (apiResponse: Record<string, 
   )
 }
 
-export const transformPaymentApplicationToAPI = (data: PaymentApplicationForm) => {
-  return {
-    data: {
-      type: 'payment-applications',
-      attributes: {
-        paymentId: data.paymentId,
-        arInvoiceId: data.arInvoiceId || null,
-        amount: data.appliedAmount,
-        notes: data.notes || null,
-        metadata: data.metadata || null,
-      },
-    },
-  }
-}
+export const transformPaymentApplicationToAPI = (data: PaymentApplicationForm) =>
+  toResource('payment-applications', pickAttributes(
+    data as unknown as Record<string, unknown>,
+    PAYMENT_APPLICATION_KEYS,
+    PAYMENT_APPLICATION_NUMERIC
+  ))
+
+export const transformPaymentApplicationUpdateToAPI = (id: string, data: Partial<PaymentApplicationForm>) =>
+  toResource('payment-applications', pickAttributes(
+    data as Record<string, unknown>,
+    PAYMENT_APPLICATION_KEYS,
+    PAYMENT_APPLICATION_NUMERIC
+  ), id)
 
 // ===== PAYMENT METHODS TRANSFORMERS =====
 
@@ -644,16 +698,16 @@ export const transformBankTransactionToAPI = (data: CreateBankTransactionRequest
     data: {
       type: 'bank-transactions',
       attributes: {
-        bank_account_id: data.bankAccountId,
-        transaction_date: data.transactionDate,
-        amount: data.amount,
-        transaction_type: data.transactionType,
+        bankAccountId: Number(data.bankAccountId),
+        transactionDate: data.transactionDate,
+        amount: Number(data.amount),
+        transactionType: data.transactionType,
         reference: data.reference || null,
         description: data.description || null,
-        reconciliation_status: data.reconciliationStatus || 'unreconciled',
-        statement_number: data.statementNumber || null,
-        running_balance: data.runningBalance ?? null,
-        is_active: data.isActive ?? true,
+        reconciliationStatus: data.reconciliationStatus || 'unreconciled',
+        statementNumber: data.statementNumber || null,
+        runningBalance: data.runningBalance != null ? Number(data.runningBalance) : null,
+        isActive: data.isActive ?? true,
       },
     },
   }
@@ -662,19 +716,19 @@ export const transformBankTransactionToAPI = (data: CreateBankTransactionRequest
 export const transformBankTransactionUpdateToAPI = (id: string, data: UpdateBankTransactionRequest) => {
   const attributes: Record<string, unknown> = {}
 
-  if (data.bankAccountId !== undefined) attributes.bank_account_id = data.bankAccountId
-  if (data.transactionDate !== undefined) attributes.transaction_date = data.transactionDate
-  if (data.amount !== undefined) attributes.amount = data.amount
-  if (data.transactionType !== undefined) attributes.transaction_type = data.transactionType
+  if (data.bankAccountId !== undefined) attributes.bankAccountId = Number(data.bankAccountId)
+  if (data.transactionDate !== undefined) attributes.transactionDate = data.transactionDate
+  if (data.amount !== undefined) attributes.amount = Number(data.amount)
+  if (data.transactionType !== undefined) attributes.transactionType = data.transactionType
   if (data.reference !== undefined) attributes.reference = data.reference
   if (data.description !== undefined) attributes.description = data.description
-  if (data.reconciliationStatus !== undefined) attributes.reconciliation_status = data.reconciliationStatus
-  if (data.reconciledById !== undefined) attributes.reconciled_by_id = data.reconciledById
-  if (data.reconciledAt !== undefined) attributes.reconciled_at = data.reconciledAt
-  if (data.reconciliationNotes !== undefined) attributes.reconciliation_notes = data.reconciliationNotes
-  if (data.statementNumber !== undefined) attributes.statement_number = data.statementNumber
-  if (data.runningBalance !== undefined) attributes.running_balance = data.runningBalance
-  if (data.isActive !== undefined) attributes.is_active = data.isActive
+  if (data.reconciliationStatus !== undefined) attributes.reconciliationStatus = data.reconciliationStatus
+  if (data.reconciledById !== undefined) attributes.reconciledById = data.reconciledById
+  if (data.reconciledAt !== undefined) attributes.reconciledAt = data.reconciledAt
+  if (data.reconciliationNotes !== undefined) attributes.reconciliationNotes = data.reconciliationNotes
+  if (data.statementNumber !== undefined) attributes.statementNumber = data.statementNumber
+  if (data.runningBalance !== undefined) attributes.runningBalance = data.runningBalance
+  if (data.isActive !== undefined) attributes.isActive = data.isActive
 
   return {
     data: {
@@ -693,6 +747,7 @@ import type {
 } from '../types'
 
 import { EARLY_PAYMENT_TERM_CONFIG } from '../types'
+import { addDaysDateOnly, compareDateOnly, dateToInput, diffDaysDateOnly } from '@lwm/ui'
 
 /**
  * Calculate discount amount based on total and percentage
@@ -705,9 +760,8 @@ export const calculateDiscountAmount = (totalAmount: number, discountPercent: nu
  * Calculate the discount date based on invoice date and discount days
  */
 export const calculateDiscountDate = (invoiceDate: string, discountDays: number): string => {
-  const date = new Date(invoiceDate)
-  date.setDate(date.getDate() + discountDays)
-  return date.toISOString().split('T')[0]
+  // Fechas sin hora: se suma sobre el dia de calendario, sin zona
+  return addDaysDateOnly(invoiceDate, discountDays)
 }
 
 /**
@@ -733,9 +787,9 @@ export const qualifiesForDiscount = (
     return false
   }
 
+  // Vale hasta el final del dia de discountDate (fecha local de checkDate)
   const checkDate = asOfDate || new Date()
-  const deadline = new Date(discountDate)
-  return checkDate <= deadline
+  return compareDateOnly(dateToInput(checkDate), discountDate) <= 0
 }
 
 /**
@@ -747,8 +801,7 @@ export const getEffectiveAmountDue = (invoice: ARInvoice, asOfDate?: Date): Earl
 
   if (qualifiesForDiscount(invoice.discountDate, invoice.discountApplied, checkDate) && invoice.discountAmount) {
     const discountedRemaining = remaining - invoice.discountAmount
-    const deadline = new Date(invoice.discountDate!)
-    const daysUntilDeadline = Math.ceil((deadline.getTime() - checkDate.getTime()) / (1000 * 60 * 60 * 24))
+    const daysUntilDeadline = diffDaysDateOnly(dateToInput(checkDate), invoice.discountDate)
 
     return {
       originalRemaining: remaining,
@@ -767,7 +820,7 @@ export const getEffectiveAmountDue = (invoice: ARInvoice, asOfDate?: Date): Earl
     discountedRemaining: remaining,
     discountDeadline: invoice.discountDate,
     daysUntilDeadline: invoice.discountDate
-      ? Math.ceil((new Date(invoice.discountDate).getTime() - checkDate.getTime()) / (1000 * 60 * 60 * 24))
+      ? diffDaysDateOnly(dateToInput(checkDate), invoice.discountDate)
       : null,
   }
 }
@@ -804,9 +857,7 @@ export const formatDiscountTerms = (
     return 'Sin descuento'
   }
 
-  const invoiceDateObj = new Date(invoiceDate)
-  const dueDateObj = new Date(dueDate)
-  const fullTermDays = Math.ceil((dueDateObj.getTime() - invoiceDateObj.getTime()) / (1000 * 60 * 60 * 24))
+  const fullTermDays = diffDaysDateOnly(invoiceDate, dueDate) ?? 0
 
   return `${discountPercent}/${discountDays} Net ${fullTermDays}`
 }

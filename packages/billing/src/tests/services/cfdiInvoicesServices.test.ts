@@ -21,8 +21,8 @@ vi.mock('../../lib/axiosClient');
 vi.mock('../../utils/transformers', () => ({
   transformCFDIInvoicesResponse: vi.fn((data) => data),
   transformJsonApiCFDIInvoice: vi.fn((data) => data),
-  transformCFDIInvoiceFormToJsonApi: vi.fn((data) => ({ type: 'cfdi_invoices', attributes: data })),
-  transformCFDIItemFormToJsonApi: vi.fn((data) => ({ type: 'cfdi_items', attributes: data })),
+  transformCFDIInvoiceFormToJsonApi: vi.fn((data) => ({ type: 'cfdi-invoices', attributes: data })),
+  transformCFDIItemFormToJsonApi: vi.fn((data) => ({ type: 'cfdi-items', attributes: data })),
 }));
 
 describe('CFDI Invoices Services', () => {
@@ -49,7 +49,7 @@ describe('CFDI Invoices Services', () => {
             status: inv.status,
           },
         })),
-        'cfdi_invoices'
+        'cfdi-invoices'
       );
       vi.mocked(axiosClient.get).mockResolvedValue({ data: mockResponse });
 
@@ -68,7 +68,7 @@ describe('CFDI Invoices Services', () => {
       const mockInvoices = [createMockCFDIInvoice()];
       const mockResponse = createMockAPICollectionResponse(
         mockInvoices.map(inv => ({ id: inv.id, attributes: { status: inv.status } })),
-        'cfdi_invoices'
+        'cfdi-invoices'
       );
       vi.mocked(axiosClient.get).mockResolvedValue({ data: mockResponse });
 
@@ -144,7 +144,7 @@ describe('CFDI Invoices Services', () => {
         '/api/v1/cfdi-invoices',
         expect.objectContaining({
           data: expect.objectContaining({
-            type: 'cfdi_invoices',
+            type: 'cfdi-invoices',
           }),
         })
       );
@@ -199,18 +199,25 @@ describe('CFDI Invoices Services', () => {
       // Act
       const result = await cfdiInvoicesService.createWithItems(data);
 
-      // Assert
-      expect(axiosClient.post).toHaveBeenCalledWith(
+      // Assert: primero la factura (sin conceptos anidados), luego cada cfdi-item
+      expect(axiosClient.post).toHaveBeenNthCalledWith(
+        1,
         '/api/v1/cfdi-invoices',
-        expect.objectContaining({
-          data: expect.objectContaining({
-            type: 'cfdi_invoices',
-            relationships: expect.objectContaining({
-              items: expect.any(Object),
-            }),
-          }),
-        })
+        { data: expect.objectContaining({ type: 'cfdi-invoices' }) }
       );
+      const invoicePayload = vi.mocked(axiosClient.post).mock.calls[0][1] as { data: Record<string, unknown> };
+      expect(invoicePayload.data.relationships).toBeUndefined();
+      expect(axiosClient.post).toHaveBeenNthCalledWith(
+        2,
+        '/api/v1/cfdi-items',
+        {
+          data: {
+            type: 'cfdi-items',
+            attributes: expect.objectContaining({ cfdiInvoiceId: 1, numeroLinea: 1 }),
+          },
+        }
+      );
+      expect(axiosClient.post).toHaveBeenCalledTimes(2);
       expect(result).toEqual(mockInvoice);
     });
   });
@@ -274,119 +281,86 @@ describe('CFDI Invoices Services', () => {
   // ==========================================================================
 
   describe('generateXML', () => {
-    it('should generate XML for CFDI invoice', async () => {
-      // Arrange
+    it('lee la respuesta real de generate-xml ({ message, xml, invoice_id })', async () => {
       vi.mocked(axiosClient.post).mockResolvedValue({
-        data: {
-          data: {
-            id: '1',
-            attributes: {
-              xml_path: '/storage/cfdi/A-001.xml',
-              status: 'generated',
-            },
-          },
-        },
+        data: { message: 'XML CFDI generado correctamente', xml: '<cfdi/>', invoice_id: 1 },
       });
 
-      // Act
       const result = await cfdiInvoicesService.generateXML('1');
 
-      // Assert
       expect(axiosClient.post).toHaveBeenCalledWith('/api/v1/cfdi-invoices/1/generate-xml');
-      expect(result).toEqual({
-        cfdiId: '1',
-        xmlPath: '/storage/cfdi/A-001.xml',
-        status: 'generated',
-      });
+      expect(result).toEqual({ cfdiId: '1', message: 'XML CFDI generado correctamente' });
     });
   });
 
   describe('generatePDF', () => {
-    it('should generate PDF for CFDI invoice', async () => {
-      // Arrange
+    it('lee la respuesta real de generate-pdf ({ message, pdf_path, pdf_url, invoice_id })', async () => {
       vi.mocked(axiosClient.post).mockResolvedValue({
         data: {
-          data: {
-            id: '1',
-            attributes: {
-              pdf_path: '/storage/cfdi/A-001.pdf',
-              status: 'generated',
-            },
-          },
+          message: 'PDF CFDI generado correctamente',
+          pdf_path: 'cfdi/A-001.pdf',
+          pdf_url: 'https://api.test/storage/cfdi/A-001.pdf',
+          invoice_id: 1,
         },
       });
 
-      // Act
       const result = await cfdiInvoicesService.generatePDF('1');
 
-      // Assert
       expect(axiosClient.post).toHaveBeenCalledWith('/api/v1/cfdi-invoices/1/generate-pdf');
       expect(result).toEqual({
         cfdiId: '1',
-        pdfPath: '/storage/cfdi/A-001.pdf',
-        status: 'generated',
+        message: 'PDF CFDI generado correctamente',
+        pdfPath: 'cfdi/A-001.pdf',
+        pdfUrl: 'https://api.test/storage/cfdi/A-001.pdf',
       });
     });
   });
 
   describe('stamp', () => {
-    it('should stamp CFDI invoice with PAC', async () => {
-      // Arrange
+    it('lee data plano de stamp (sin attributes)', async () => {
       const mockResponse = createMockStampResponse();
       vi.mocked(axiosClient.post).mockResolvedValue({
         data: {
+          message: 'CFDI timbrado correctamente',
           data: {
-            id: '1',
-            attributes: {
-              uuid: mockResponse.uuid,
-              fecha_timbrado: mockResponse.fechaTimbrado,
-              status: 'valid',
-            },
+            id: 1,
+            uuid: mockResponse.uuid,
+            fecha_timbrado: mockResponse.fechaTimbrado,
+            status: 'valid',
+            folio_completo: 'A-1',
           },
         },
       });
 
-      // Act
       const result = await cfdiInvoicesService.stamp('1');
 
-      // Assert
       expect(axiosClient.post).toHaveBeenCalledWith('/api/v1/cfdi-invoices/1/stamp');
       expect(result).toEqual(mockResponse);
     });
   });
 
   describe('cancel', () => {
-    it('should cancel CFDI invoice', async () => {
-      // Arrange
+    it('manda motivo_cancelacion / uuid_sustitucion y lee data plano', async () => {
       const mockResponse = createMockCancelResponse();
       vi.mocked(axiosClient.post).mockResolvedValue({
         data: {
+          message: 'CFDI cancelado correctamente',
           data: {
-            id: '1',
-            attributes: {
-              status: 'cancelled',
-              fecha_cancelacion: mockResponse.fechaCancelacion,
-            },
+            id: 1,
+            uuid: 'ABCD',
+            status: 'cancelled',
+            fecha_cancelacion: mockResponse.fechaCancelacion,
+            motivo: '02',
           },
         },
       });
 
-      const cancelRequest = {
-        motivo: '01',
-        uuidReemplazo: undefined,
-      };
+      const result = await cfdiInvoicesService.cancel('1', { motivo: '02', uuidReemplazo: undefined });
 
-      // Act
-      const result = await cfdiInvoicesService.cancel('1', cancelRequest);
-
-      // Assert
-      expect(axiosClient.post).toHaveBeenCalledWith(
-        '/api/v1/cfdi-invoices/1/cancel',
-        expect.objectContaining({
-          motivo_cancelacion: '01',
-          uuid_sustitucion: null,
-        })
-      );
+      expect(axiosClient.post).toHaveBeenCalledWith('/api/v1/cfdi-invoices/1/cancel', {
+        motivo_cancelacion: '02',
+        uuid_sustitucion: null,
+      });
       expect(result).toEqual(mockResponse);
     });
   });
@@ -462,41 +436,52 @@ describe('CFDI Invoices Services', () => {
   // ==========================================================================
 
   describe('validateSAT', () => {
-    it('should validate CFDI status with SAT', async () => {
-      // Arrange
-      const mockResult = {
-        valid: true,
-        uuid: 'ABCD-1234',
-        status: 'Vigente' as const,
-        fechaEmision: '2025-01-15T10:00:00Z',
-        rfcEmisor: 'AAA010101AAA',
-        rfcReceptor: 'XAXX010101000',
-      };
-      vi.mocked(axiosClient.get).mockResolvedValue({ data: mockResult });
+    it('desenvuelve data y traduce estado del PAC', async () => {
+      vi.mocked(axiosClient.get).mockResolvedValue({
+        data: {
+          message: 'Validación completada',
+          data: {
+            status: 'S - Comprobante obtenido satisfactoriamente.',
+            es_cancelable: 'Cancelable sin aceptación',
+            estado: 'Vigente',
+            validacion_efos: '200',
+          },
+        },
+      });
 
-      // Act
       const result = await cfdiInvoicesService.validateSAT('1');
 
-      // Assert
       expect(axiosClient.get).toHaveBeenCalledWith('/api/v1/cfdi-invoices/1/validate-sat');
-      expect(result).toEqual(mockResult);
+      expect(result).toEqual({
+        valid: true,
+        uuid: '',
+        status: 'Vigente',
+        fechaEmision: '',
+        rfcEmisor: '',
+        rfcReceptor: '',
+      });
+    });
+
+    it('estado Cancelado no es valido', async () => {
+      vi.mocked(axiosClient.get).mockResolvedValue({ data: { data: { estado: 'Cancelado' } } });
+
+      const result = await cfdiInvoicesService.validateSAT('1');
+
+      expect(result.valid).toBe(false);
+      expect(result.status).toBe('Cancelado');
     });
   });
 
   describe('getCancellationStatus', () => {
-    it('should fetch cancellation status', async () => {
-      // Arrange
-      const mockResult = {
-        status: 'cancellation_pending' as const,
-      };
-      vi.mocked(axiosClient.get).mockResolvedValue({ data: mockResult });
+    it('desenvuelve data', async () => {
+      vi.mocked(axiosClient.get).mockResolvedValue({
+        data: { message: 'Estatus de cancelación obtenido', data: { status: 'cancellation_pending' } },
+      });
 
-      // Act
       const result = await cfdiInvoicesService.getCancellationStatus('1');
 
-      // Assert
       expect(axiosClient.get).toHaveBeenCalledWith('/api/v1/cfdi-invoices/1/cancellation-status');
-      expect(result).toEqual(mockResult);
+      expect(result).toEqual({ status: 'cancellation_pending', fechaCancelacion: undefined, acuse: undefined });
     });
   });
 
@@ -572,12 +557,16 @@ describe('CFDI Invoices Services', () => {
       vi.mocked(axiosClient.post).mockResolvedValue({ data: mockBlob });
 
       // Act
-      await cfdiInvoicesService.prefacturaFromOrder('5', { receptorRfc: 'XAXX010101000' });
+      await cfdiInvoicesService.prefacturaFromOrder('5', {
+        receptorRfc: 'XAXX010101000',
+        metodoPago: 'PPD',
+        formaPago: '99',
+      });
 
-      // Assert
+      // Assert: el endpoint valida llaves snake_case
       expect(axiosClient.post).toHaveBeenCalledWith(
         '/api/v1/sales-orders/5/prefactura',
-        { receptorRfc: 'XAXX010101000' },
+        { receptor_rfc: 'XAXX010101000', metodo_pago: 'PPD', forma_pago: '99' },
         expect.objectContaining({ responseType: 'blob' })
       );
     });
@@ -586,7 +575,7 @@ describe('CFDI Invoices Services', () => {
   describe('createFromOrder', () => {
     it('should create CFDI invoice from a sales order', async () => {
       // Arrange
-      const mockResponse = { data: { id: '10', type: 'cfdi_invoices', attributes: { series: 'A', folio: 1 } } };
+      const mockResponse = { data: { id: '10', type: 'cfdi-invoices', attributes: { series: 'A', folio: 1 } } };
       vi.mocked(axiosClient.post).mockResolvedValue({ data: mockResponse });
 
       // Act

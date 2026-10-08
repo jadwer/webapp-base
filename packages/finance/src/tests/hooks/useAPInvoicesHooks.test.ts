@@ -20,7 +20,6 @@ vi.mock('../../services', () => ({
     create: vi.fn(),
     update: vi.fn(),
     delete: vi.fn(),
-    post: vi.fn()
   }
 }))
 
@@ -158,11 +157,10 @@ describe('AP Invoices Hooks', () => {
       expect(result.current).toHaveProperty('createAPInvoice')
       expect(result.current).toHaveProperty('updateAPInvoice')
       expect(result.current).toHaveProperty('deleteAPInvoice')
-      expect(result.current).toHaveProperty('postAPInvoice')
+      expect(result.current).not.toHaveProperty('postAPInvoice')
       expect(typeof result.current.createAPInvoice).toBe('function')
       expect(typeof result.current.updateAPInvoice).toBe('function')
       expect(typeof result.current.deleteAPInvoice).toBe('function')
-      expect(typeof result.current.postAPInvoice).toBe('function')
     })
 
     it('should call create service on createAPInvoice', async () => {
@@ -212,16 +210,5 @@ describe('AP Invoices Hooks', () => {
       expect(apInvoicesService.delete).toHaveBeenCalledWith('1')
     })
 
-    it('should call post service on postAPInvoice', async () => {
-      // Arrange
-      vi.mocked(apInvoicesService.post).mockResolvedValue({ data: { id: '1' } } as any)
-
-      // Act
-      const { result } = renderHook(() => useAPInvoiceMutations())
-      await result.current.postAPInvoice('1')
-
-      // Assert
-      expect(apInvoicesService.post).toHaveBeenCalledWith('1')
-    })
   })
 })

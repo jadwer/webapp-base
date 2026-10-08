@@ -227,6 +227,7 @@ export const PaymentMethodsAdminPage: React.FC<PaymentMethodsAdminPageProps> = (
                           <div className="btn-group btn-group-sm float-end">
                             {onView && (
                               <button
+                                aria-label="Ver detalles"
                                 className="btn btn-outline-primary"
                                 onClick={() => onView(method)}
                                 title="Ver detalles"
@@ -236,6 +237,7 @@ export const PaymentMethodsAdminPage: React.FC<PaymentMethodsAdminPageProps> = (
                             )}
                             {onEdit && (
                               <button
+                                aria-label="Editar"
                                 className="btn btn-outline-secondary"
                                 onClick={() => onEdit(method)}
                                 title="Editar"
@@ -244,6 +246,7 @@ export const PaymentMethodsAdminPage: React.FC<PaymentMethodsAdminPageProps> = (
                               </button>
                             )}
                             <button
+                              aria-label="Eliminar"
                               className="btn btn-outline-danger"
                               onClick={() => handleDeleteClick(method)}
                               title="Eliminar"

@@ -4,7 +4,8 @@
 
 import React, { useState } from 'react'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
-import { useBankAccountMutations } from '@/modules/finance'
+import { useBankAccountMutations, getFinanceErrorMessage } from '@/modules/finance'
+import { usePostableAccounts } from '@/modules/accounting'
 import { Button } from '@/ui/components/base/Button'
 import type { BankAccountForm } from '@/modules/finance'
 
@@ -14,33 +15,55 @@ export default function CreateBankAccountPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const [formData, setFormData] = useState<BankAccountForm>({
+  // Cuenta contable (GL) de la cuenta bancaria: NOT NULL en bank_accounts.
+  const { postableAccounts, isLoading: accountsLoading } = usePostableAccounts({
+    'page[size]': 500,
+    sort: 'code',
+  })
+
+  const [formData, setFormData] = useState({
+    accountName: '',
     bankName: '',
     accountNumber: '',
-    clabe: '',
     currency: 'MXN',
-    accountType: 'checking',
-    openingBalance: '0.00',
+    glAccountId: '',
+    openingBalance: '0',
     status: 'active'
   })
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setIsLoading(true)
     setError(null)
-    
-    try {
-      // Validate required fields
-      if (!formData.bankName || !formData.accountNumber) {
-        throw new Error('El nombre del banco y el número de cuenta son requeridos')
-      }
 
-      const response = await createBankAccount(formData)
-      console.log('✅ [BankAccountCreate] Bank account created successfully:', response)
+    // NOT NULL en bank_accounts; el backend responde 422 si faltan
+    if (!formData.accountName.trim() || !formData.bankName.trim() ||
+        !formData.accountNumber.trim() || !formData.glAccountId) {
+      setError('El nombre de la cuenta, el banco, el número de cuenta y la cuenta contable son obligatorios')
+      return
+    }
+    const openingBalance = formData.openingBalance === '' ? 0 : Number(formData.openingBalance)
+    if (!Number.isFinite(openingBalance)) {
+      setError('El saldo de apertura debe ser un número')
+      return
+    }
+
+    const payload: BankAccountForm = {
+      accountName: formData.accountName.trim(),
+      bankName: formData.bankName.trim(),
+      accountNumber: formData.accountNumber.trim(),
+      currency: formData.currency,
+      glAccountId: Number(formData.glAccountId),
+      openingBalance,
+      currentBalance: openingBalance,
+      status: formData.status,
+    }
+
+    setIsLoading(true)
+    try {
+      await createBankAccount(payload)
       navigation.push('/dashboard/finance/bank-accounts')
     } catch (err) {
-      console.error('❌ [BankAccountCreate] Error creating bank account:', err)
-      setError(err instanceof Error ? err.message : 'Error al crear la cuenta bancaria')
+      setError(getFinanceErrorMessage(err, 'Error al crear la cuenta bancaria'))
     } finally {
       setIsLoading(false)
     }
@@ -70,6 +93,21 @@ export default function CreateBankAccountPage() {
 
               <form onSubmit={handleSubmit}>
                 <div className="row g-3">
+                  <div className="col-md-6">
+                    <label htmlFor="accountName" className="form-label">
+                      Nombre de la Cuenta <span className="text-danger">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      id="accountName"
+                      value={formData.accountName}
+                      onChange={(e) => setFormData(prev => ({ ...prev, accountName: e.target.value }))}
+                      required
+                      maxLength={255}
+                      placeholder="Ej. Cuenta operativa MXN"
+                    />
+                  </div>
                   <div className="col-md-6">
                     <label htmlFor="bankName" className="form-label">
                       Nombre del Banco <span className="text-danger">*</span>
@@ -113,21 +151,27 @@ export default function CreateBankAccountPage() {
                     />
                   </div>
                   <div className="col-md-6">
-                    <label htmlFor="accountType" className="form-label">
-                      Tipo de Cuenta <span className="text-danger">*</span>
+                    <label htmlFor="glAccountId" className="form-label">
+                      Cuenta Contable <span className="text-danger">*</span>
                     </label>
                     <select
                       className="form-select"
-                      id="accountType"
-                      value={formData.accountType}
-                      onChange={(e) => setFormData(prev => ({ ...prev, accountType: e.target.value }))}
+                      id="glAccountId"
+                      value={formData.glAccountId}
+                      onChange={(e) => setFormData(prev => ({ ...prev, glAccountId: e.target.value }))}
+                      disabled={accountsLoading || isLoading}
                       required
                     >
-                      <option value="checking">Cuenta Corriente</option>
-                      <option value="savings">Cuenta de Ahorros</option>
-                      <option value="investment">Cuenta de Inversión</option>
-                      <option value="credit">Línea de Crédito</option>
+                      <option value="">Seleccionar cuenta contable...</option>
+                      {postableAccounts?.map((account) => (
+                        <option key={account.id} value={account.id}>
+                          {account.code} - {account.name}
+                        </option>
+                      ))}
                     </select>
+                    {accountsLoading && (
+                      <div className="form-text text-muted">Cargando catálogo de cuentas...</div>
+                    )}
                   </div>
                   <div className="col-md-6">
                     <label htmlFor="currency" className="form-label">
@@ -153,26 +197,12 @@ export default function CreateBankAccountPage() {
                       className="form-select"
                       id="status"
                       value={formData.status}
-                      onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value as 'active' | 'inactive' | 'closed' }))}
+                      onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value }))}
                     >
                       <option value="active">Activa</option>
                       <option value="inactive">Inactiva</option>
                       <option value="closed">Cerrada</option>
                     </select>
-                  </div>
-                  <div className="col-md-12">
-                    <label htmlFor="clabe" className="form-label">
-                      CLABE / IBAN
-                    </label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      id="clabe"
-                      value={formData.clabe}
-                      onChange={(e) => setFormData(prev => ({ ...prev, clabe: e.target.value }))}
-                      maxLength={255}
-                      placeholder="Clave Bancaria Estandarizada (18 dígitos) o IBAN internacional"
-                    />
                   </div>
                 </div>
                 
@@ -224,10 +254,8 @@ export default function CreateBankAccountPage() {
                 <small>
                   <strong>Campos importantes:</strong>
                   <ul className="mb-0 mt-2">
-                    <li><strong>CLABE:</strong> Para transferencias SPEI en México (18 dígitos)</li>
-                    <li><strong>IBAN:</strong> Para transferencias internacionales</li>
+                    <li><strong>Cuenta contable:</strong> Cuenta del catálogo donde se registran los movimientos del banco</li>
                     <li><strong>Saldo apertura:</strong> Saldo inicial de la cuenta</li>
-                    <li><strong>Tipo de cuenta:</strong> Define el comportamiento contable</li>
                     <li><strong>Estado:</strong> Solo cuentas activas permiten movimientos</li>
                   </ul>
                 </small>

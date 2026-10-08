@@ -289,6 +289,22 @@ export const usePayrollPeriodsMutations = () => {
     deletePayrollPeriod: useCallback(async (id: string) => {
       return await payrollPeriodsService.delete(id)
     }, []),
+
+    processPayrollPeriod: useCallback(async (id: string) => {
+      return await payrollPeriodsService.process(id)
+    }, []),
+
+    markPayrollPeriodAsPaid: useCallback(async (id: string) => {
+      return await payrollPeriodsService.markAsPaid(id)
+    }, []),
+
+    closePayrollPeriod: useCallback(async (id: string) => {
+      return await payrollPeriodsService.close(id)
+    }, []),
+
+    reopenPayrollPeriod: useCallback(async (id: string) => {
+      return await payrollPeriodsService.reopen(id)
+    }, []),
   }
 }
 

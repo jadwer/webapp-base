@@ -7,7 +7,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { Button } from '@lwm/ui'
+import { Button, compareDateOnly, toDateInput } from '@lwm/ui'
 import { Input } from '@lwm/ui'
 import type { DiscountRuleFormData, DiscountType, DiscountAppliesTo } from '../types'
 import { DISCOUNT_TYPE_OPTIONS, APPLIES_TO_OPTIONS } from '../types'
@@ -44,8 +44,8 @@ export const DiscountRuleForm: React.FC<DiscountRuleFormProps> = ({
     categoryIds: initialData?.categoryIds || [],
     customerIds: initialData?.customerIds || [],
     customerClassifications: initialData?.customerClassifications || [],
-    startDate: initialData?.startDate || '',
-    endDate: initialData?.endDate || '',
+    startDate: toDateInput(initialData?.startDate),
+    endDate: toDateInput(initialData?.endDate),
     usageLimit: initialData?.usageLimit,
     usagePerCustomer: initialData?.usagePerCustomer,
     priority: initialData?.priority || 0,
@@ -115,7 +115,9 @@ export const DiscountRuleForm: React.FC<DiscountRuleFormProps> = ({
       appliesTo: newAppliesTo,
       // Reset specific fields based on applies_to
       productIds: newAppliesTo === 'product' ? prev.productIds : [],
-      categoryIds: newAppliesTo === 'category' ? prev.categoryIds : []
+      categoryIds: newAppliesTo === 'category' ? prev.categoryIds : [],
+      customerIds: newAppliesTo === 'customer' ? prev.customerIds : [],
+      customerClassifications: newAppliesTo === 'customer' ? prev.customerClassifications : []
     }))
   }
 
@@ -161,7 +163,7 @@ export const DiscountRuleForm: React.FC<DiscountRuleFormProps> = ({
     }
 
     if (formData.startDate && formData.endDate) {
-      if (new Date(formData.startDate) > new Date(formData.endDate)) {
+      if (compareDateOnly(formData.startDate, formData.endDate) > 0) {
         newErrors.endDate = 'La fecha de fin debe ser posterior a la fecha de inicio'
       }
     }
@@ -264,7 +266,7 @@ export const DiscountRuleForm: React.FC<DiscountRuleFormProps> = ({
           {errors.discountType && <div className="invalid-feedback">{errors.discountType}</div>}
         </div>
 
-        {/* Discount Value (for percentage and fixed) */}
+        {/* Discount Value (for percentage and fixed_amount) */}
         {!isBuyXGetY && (
           <div className="col-md-4">
             <Input

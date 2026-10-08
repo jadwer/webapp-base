@@ -346,6 +346,7 @@ export default function ProductDetailPage({
                   {/* Quantity Selector */}
                   <div className="input-group" style={{ width: '140px' }}>
                     <button
+                      aria-label="Disminuir cantidad"
                       className="btn btn-outline-secondary"
                       type="button"
                       onClick={() => handleQuantityChange(-1)}
@@ -361,6 +362,7 @@ export default function ProductDetailPage({
                       min="1"
                     />
                     <button
+                      aria-label="Aumentar cantidad"
                       className="btn btn-outline-secondary"
                       type="button"
                       onClick={() => handleQuantityChange(1)}

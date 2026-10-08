@@ -90,6 +90,7 @@ export const MovementsTableSimple = ({ movements = [], isLoading = false }: Move
               <td>
                 <div className="btn-group btn-group-sm" role="group">
                   <Link
+                    aria-label="Ver detalle"
                     href={`/dashboard/inventory/movements/${movement.id}`}
                     className="btn btn-outline-primary"
                     title="Ver detalle"
@@ -97,6 +98,7 @@ export const MovementsTableSimple = ({ movements = [], isLoading = false }: Move
                     <i className="bi bi-eye" />
                   </Link>
                   <Link
+                    aria-label="Editar"
                     href={`/dashboard/inventory/movements/${movement.id}/edit`}
                     className="btn btn-outline-secondary"
                     title="Editar"

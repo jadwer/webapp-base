@@ -249,6 +249,7 @@ export const ContactAddresses: React.FC<ContactAddressesProps> = ({
           </div>
           <div className="btn-group btn-group-sm">
             <button
+              aria-label="Editar"
               type="button"
               className="btn btn-primary btn-sm"
               onClick={() => handleEdit(address)}
@@ -258,6 +259,7 @@ export const ContactAddresses: React.FC<ContactAddressesProps> = ({
               <i className="bi bi-pencil"></i>
             </button>
             <button
+              aria-label="Eliminar"
               type="button"
               className="btn btn-outline-danger btn-sm"
               onClick={() => onDeleteAddress(address.id)}

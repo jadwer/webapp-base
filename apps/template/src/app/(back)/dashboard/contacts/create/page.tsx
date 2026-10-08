@@ -77,6 +77,7 @@ export default function CreateContactPage() {
           {/* Header */}
           <div className="d-flex align-items-center mb-4">
             <button
+              aria-label="Volver"
               className="btn btn-link text-muted p-0 me-3"
               onClick={handleCancel}
               disabled={isLoading}

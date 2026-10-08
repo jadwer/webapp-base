@@ -36,6 +36,7 @@ export default function PermissionModal({
               {permission ? 'Editar Permiso' : 'Crear Nuevo Permiso'}
             </h5>
             <button
+              aria-label="Cerrar"
               type="button"
               className="btn-close"
               onClick={onClose}

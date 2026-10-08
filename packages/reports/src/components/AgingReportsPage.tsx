@@ -6,10 +6,11 @@
 
 import React, { useState } from 'react'
 import { useARAgingReport, useAPAgingReport } from '../hooks'
+import { todayDateInput } from '@lwm/ui'
 
 export const AgingReportsPage = () => {
   // Today's date for defaults
-  const today = new Date().toISOString().split('T')[0]
+  const today = todayDateInput()
 
   // Filters
   const [asOfDate, setAsOfDate] = useState(today)

@@ -8,7 +8,7 @@
 
 import React, { useState, useRef } from 'react'
 import clsx from 'clsx'
-import { Button } from '@lwm/ui'
+import { Button, formatDateOnly } from '@lwm/ui'
 import { ConfirmModal } from '@lwm/ui'
 import type { ConfirmModalHandle } from '@lwm/ui'
 import { DiscountRuleStatusBadge } from './DiscountRuleStatusBadge'
@@ -27,15 +27,8 @@ interface DiscountRulesTableProps {
 
 const formatDate = (dateString: string | null | undefined): string => {
   if (!dateString) return '-'
-  try {
-    return new Date(dateString).toLocaleDateString('es-MX', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    })
-  } catch {
-    return dateString
-  }
+  // fecha sin hora
+  return formatDateOnly(dateString, 'es-MX', { year: 'numeric', month: 'short', day: 'numeric' })
 }
 
 export const DiscountRulesTable: React.FC<DiscountRulesTableProps> = ({
@@ -218,6 +211,7 @@ export const DiscountRulesTable: React.FC<DiscountRulesTableProps> = ({
                     <div className="d-flex justify-content-end gap-1">
                       {onToggleActive && (
                         <Button
+                          aria-label={rule.isActive ? 'Desactivar' : 'Activar'}
                           size="small"
                           variant={rule.isActive ? 'warning' : 'success'}
                           buttonStyle="outline"
@@ -231,6 +225,7 @@ export const DiscountRulesTable: React.FC<DiscountRulesTableProps> = ({
 
                       {onView && (
                         <Button
+                          aria-label="Ver regla"
                           size="small"
                           variant="secondary"
                           buttonStyle="outline"
@@ -244,6 +239,7 @@ export const DiscountRulesTable: React.FC<DiscountRulesTableProps> = ({
 
                       {onEdit && (
                         <Button
+                          aria-label="Editar regla"
                           size="small"
                           variant="primary"
                           buttonStyle="outline"
@@ -257,6 +253,7 @@ export const DiscountRulesTable: React.FC<DiscountRulesTableProps> = ({
 
                       {onDelete && (
                         <Button
+                          aria-label="Eliminar regla"
                           size="small"
                           variant="danger"
                           buttonStyle="outline"

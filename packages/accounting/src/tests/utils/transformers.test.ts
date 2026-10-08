@@ -578,10 +578,27 @@ describe('Journal Line Transformers', () => {
 
       // Assert
       expect(result.data.type).toBe('journal-lines')
-      expect(result.data.attributes.accountId).toBe('5')
-      expect(result.data.attributes.debit).toBe('1000.00')
-      expect(result.data.attributes.credit).toBe('0.00')
-      expect(result.data.attributes.memo).toBe('Test line')
+      expect(result.data.attributes).toEqual({
+        journalEntryId: 1,
+        accountId: 5,
+        debit: 1000,
+        credit: 0,
+        description: 'Test line',
+      })
+      expect(result.data.attributes).not.toHaveProperty('memo')
+    })
+
+    it('manda contactId en camelCase (nunca contact_id)', () => {
+      const result = transformJournalLineToAPI({
+        journalEntryId: '1',
+        accountId: '5',
+        debit: '10',
+        credit: '0',
+        contactId: '7',
+      })
+
+      expect(result.data.attributes.contactId).toBe(7)
+      expect(result.data.attributes).not.toHaveProperty('contact_id')
     })
 
     it('should handle credit line', () => {
@@ -597,8 +614,8 @@ describe('Journal Line Transformers', () => {
       const result = transformJournalLineToAPI(formData)
 
       // Assert
-      expect(result.data.attributes.debit).toBe('0.00')
-      expect(result.data.attributes.credit).toBe('1000.00')
+      expect(result.data.attributes.debit).toBe(0)
+      expect(result.data.attributes.credit).toBe(1000)
     })
   })
 

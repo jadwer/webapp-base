@@ -127,9 +127,8 @@ export const useInventoryMovementsMutations = () => {
     try {
       await inventoryMovementsService.delete(id)
       
-      // Invalidar cache
-      mutate(['inventory-movements', id])
-      mutate(key => Array.isArray(key) && key[0] === 'inventory-movements')
+      // No se revalida la llave de detalle del id borrado: el detalle montado pediria un 404
+      mutate(key => Array.isArray(key) && key[0] === 'inventory-movements' && key[1] !== id)
       
     } catch (error) {
 

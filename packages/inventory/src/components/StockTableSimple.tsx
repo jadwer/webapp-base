@@ -123,6 +123,7 @@ export const StockTableSimple = ({ stock = [], isLoading = false }: StockTableSi
                 <td>
                   <div className="btn-group btn-group-sm" role="group">
                     <Link
+                      aria-label="Ver detalle"
                       href={`/dashboard/inventory/stock/${item.id}`}
                       className="btn btn-outline-primary"
                       title="Ver detalle"
@@ -130,13 +131,14 @@ export const StockTableSimple = ({ stock = [], isLoading = false }: StockTableSi
                       <i className="bi bi-eye" />
                     </Link>
                     <Link
+                      aria-label="Editar"
                       href={`/dashboard/inventory/stock/${item.id}/edit`}
                       className="btn btn-outline-secondary"
                       title="Editar"
                     >
                       <i className="bi bi-pencil" />
                     </Link>
-                    <Link href={stockAdjustHref(item)} className="btn btn-outline-warning" title="Ajustar">
+                    <Link aria-label="Ajustar" href={stockAdjustHref(item)} className="btn btn-outline-warning" title="Ajustar">
                       <i className="bi bi-sliders" />
                     </Link>
                   </div>

@@ -101,6 +101,7 @@ export const PipelineStagesTableSimple = ({
                   <div className="btn-group btn-group-sm" role="group">
                     {onView && (
                       <button
+                        aria-label="Ver detalle"
                         type="button"
                         className="btn btn-outline-primary"
                         onClick={() => onView(stage)}
@@ -111,6 +112,7 @@ export const PipelineStagesTableSimple = ({
                     )}
                     {onEdit && (
                       <button
+                        aria-label="Editar"
                         type="button"
                         className="btn btn-outline-secondary"
                         onClick={() => onEdit(stage)}
@@ -121,6 +123,7 @@ export const PipelineStagesTableSimple = ({
                     )}
                     {onDelete && (
                       <button
+                        aria-label="Eliminar"
                         type="button"
                         className="btn btn-outline-danger"
                         onClick={() => onDelete(stage)}

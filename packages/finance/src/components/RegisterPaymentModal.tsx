@@ -4,17 +4,21 @@
  *
  * Backend: POST /api/v1/ar-invoices/{id}/register-payment
  * body: { payment_date, amount, forma_pago, reference?, comments? }
- * -> 200 { message, invoice: { id, total_amount, paid_amount, balance, status } }
- * -> 422 sobrepago / forma de pago invalida / factura cancelada
+ * -> 200 { message, payment: { id, payment_number },
+ *          invoice: { id, total_amount, paid_amount, balance, status } }
+ *    (arInvoicesService.registerPayment lo entrega en camelCase)
+ * -> 422 sobrepago / forma de pago invalida / factura cancelada ({ message, errors }
+ *    o { error } cuando falla la contabilidad)
  */
 
 'use client'
 
 import React, { useState } from 'react'
-import { Modal } from '@lwm/ui'
+import { Modal, todayDateInput } from '@lwm/ui'
 import { Button } from '@lwm/ui'
 import { useFormaPagoOptions, useRegisterARPayment } from '../hooks'
 import type { ARInvoice, RegisterARPaymentForm } from '../types'
+import { getFinanceErrorMessage } from '../utils/errors'
 
 interface RegisterPaymentModalProps {
   isOpen: boolean
@@ -23,29 +27,7 @@ interface RegisterPaymentModalProps {
   onSuccess: (result: { id: string; totalAmount: number; paidAmount: number; balance: number; status: string }) => void
 }
 
-interface AxiosLikeError {
-  response?: {
-    status?: number
-    data?: {
-      message?: string
-      errors?: Array<{ detail?: string; title?: string }>
-    }
-  }
-  message?: string
-}
-
-const extractErrorMessage = (error: unknown, fallback: string): string => {
-  if (error && typeof error === 'object' && 'response' in error) {
-    const axiosError = error as AxiosLikeError
-    const data = axiosError.response?.data
-    if (data?.message) return data.message
-    if (data?.errors && data.errors.length > 0) {
-      return data.errors[0].detail || data.errors[0].title || fallback
-    }
-  }
-  if (error instanceof Error) return error.message
-  return fallback
-}
+const extractErrorMessage = getFinanceErrorMessage
 
 export const RegisterPaymentModal = ({
   isOpen,
@@ -57,7 +39,7 @@ export const RegisterPaymentModal = ({
   const { registerPayment } = useRegisterARPayment()
 
   const balance = arInvoice ? arInvoice.totalAmount - arInvoice.paidAmount : 0
-  const today = new Date().toISOString().split('T')[0]
+  const today = todayDateInput()
 
   const [formData, setFormData] = useState<RegisterARPaymentForm>({
     paymentDate: today,

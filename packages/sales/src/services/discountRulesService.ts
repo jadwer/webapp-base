@@ -16,6 +16,7 @@ import type {
   DiscountRuleFilters,
   DiscountRuleSortOptions
 } from '../types'
+import { formatDateOnly } from '@lwm/ui'
 
 // JSON:API resource type
 const RESOURCE_TYPE = 'discount-rules'
@@ -198,7 +199,7 @@ function getDiscountDisplay(rule: ParsedDiscountRule): string {
   switch (rule.discountType) {
     case 'percentage':
       return `${rule.discountValue}%`
-    case 'fixed':
+    case 'fixed_amount':
       return `$${rule.discountValue.toFixed(2)}`
     case 'buy_x_get_y':
       return `Compra ${rule.buyQuantity || 0} Lleva ${rule.getQuantity || 0}`
@@ -219,8 +220,7 @@ function getStatusLabel(rule: ParsedDiscountRule): string {
 function getValidityLabel(rule: ParsedDiscountRule): string {
   if (rule.isExpired) return 'Expirado'
   if (rule.endDate) {
-    const endDate = new Date(rule.endDate)
-    return `Valido hasta ${endDate.toLocaleDateString('es-MX')}`
+    return `Valido hasta ${formatDateOnly(rule.endDate)}`
   }
   return 'Sin fecha de expiracion'
 }
@@ -255,19 +255,9 @@ function buildQueryParams(
   }
   params['page[size]'] = pageSize.toString()
 
-  // Sorting - convert camelCase to snake_case for backend
+  // Sorting: el Schema declara los campos ordenables en camelCase
   if (sort?.field) {
-    const fieldMap: Record<string, string> = {
-      name: 'name',
-      code: 'code',
-      priority: 'priority',
-      startDate: 'start_date',
-      endDate: 'end_date',
-      createdAt: 'created_at',
-      currentUsage: 'current_usage'
-    }
-    const sortField = fieldMap[sort.field] || sort.field
-    params.sort = sort.direction === 'desc' ? `-${sortField}` : sortField
+    params.sort = sort.direction === 'desc' ? `-${sort.field}` : sort.field
   }
 
   // Filters
@@ -277,23 +267,19 @@ function buildQueryParams(
     }
 
     if (filters.discountType) {
-      params['filter[discount_type]'] = filters.discountType
+      params['filter[discountType]'] = filters.discountType
     }
 
     if (filters.appliesTo) {
-      params['filter[applies_to]'] = filters.appliesTo
+      params['filter[appliesTo]'] = filters.appliesTo
     }
 
     if (filters.isActive !== undefined) {
-      params['filter[is_active]'] = filters.isActive ? '1' : '0'
+      params['filter[isActive]'] = filters.isActive ? '1' : '0'
     }
 
     if (filters.code) {
       params['filter[code]'] = filters.code
-    }
-
-    if (filters.validOnly) {
-      params['filter[valid]'] = 'true'
     }
   }
 
@@ -329,11 +315,13 @@ export const discountRulesService = {
     })
 
 
-    const discountRules = response.data.data.map(item =>
+    const parsed = response.data.data.map(item =>
       parseDiscountRule(
         item as unknown as { id: string; attributes: Record<string, unknown> }
       )
     )
+    // filter[valid] no existe en DiscountRuleSchema: la vigencia se filtra aqui
+    const discountRules = filters?.validOnly ? parsed.filter(rule => rule.isValid) : parsed
 
     return {
       data: discountRules,

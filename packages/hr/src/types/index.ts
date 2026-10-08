@@ -56,7 +56,17 @@ export interface PositionFormData {
 // EMPLOYEE
 // ============================================================================
 
-export type EmployeeStatus = 'active' | 'inactive' | 'terminated'
+// Espejo de api-base Modules/HR/app/JsonApi/V1/Employees/EmployeeRequest.php (status)
+export type EmployeeStatus = 'active' | 'on_leave' | 'suspended' | 'terminated'
+
+export const EMPLOYEE_STATUS_LABELS: Record<EmployeeStatus, string> = {
+  active: 'Activo',
+  on_leave: 'Con licencia',
+  suspended: 'Suspendido',
+  terminated: 'Terminado',
+}
+
+export const EMPLOYEE_STATUSES = Object.keys(EMPLOYEE_STATUS_LABELS) as EmployeeStatus[]
 
 export interface Employee {
   id: string
@@ -116,7 +126,8 @@ export interface EmployeeFormData {
 // ATTENDANCE
 // ============================================================================
 
-export type AttendanceStatus = 'present' | 'absent' | 'late' | 'half_day'
+// Espejo de api-base Modules/HR/app/JsonApi/V1/Attendances/AttendanceRequest.php (status)
+export type AttendanceStatus = 'present' | 'absent' | 'late' | 'half_day' | 'on_leave'
 
 export interface Attendance {
   id: string
@@ -215,7 +226,9 @@ export interface LeaveFormData {
 // ============================================================================
 
 export type PeriodType = 'weekly' | 'biweekly' | 'monthly'
-export type PayrollStatus = 'draft' | 'processing' | 'approved' | 'paid' | 'closed'
+// Espejo de api-base Modules/HR/app/JsonApi/V1/PayrollPeriods/PayrollPeriodRequest.php (status).
+// Flujo real (PayrollService): draft -> processing (process) -> paid (mark-as-paid) -> closed (close); closed -> processing (reopen)
+export type PayrollStatus = 'draft' | 'processing' | 'paid' | 'closed'
 
 export interface PayrollPeriod {
   id: string
@@ -294,7 +307,8 @@ export interface PayrollItemFormData {
 // PERFORMANCE REVIEW
 // ============================================================================
 
-export type ReviewStatus = 'draft' | 'pending' | 'completed'
+// Espejo de api-base Modules/HR/app/JsonApi/V1/PerformanceReviews/PerformanceReviewRequest.php (status)
+export type ReviewStatus = 'draft' | 'submitted' | 'reviewed' | 'acknowledged'
 
 export interface PerformanceReview {
   id: string

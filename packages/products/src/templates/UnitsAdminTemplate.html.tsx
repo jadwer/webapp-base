@@ -223,6 +223,7 @@ export const UnitsAdminTemplate: React.FC<UnitsAdminTemplateProps> = ({
           <div className="d-flex align-items-center gap-2">
             {hasUnits && (
               <Button
+                aria-label="Actualizar lista"
                 size="small"
                 variant="secondary"
                 buttonStyle="outline"

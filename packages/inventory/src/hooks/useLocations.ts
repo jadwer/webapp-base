@@ -144,9 +144,8 @@ export const useLocationsMutations = () => {
     try {
       await locationsService.delete(id)
       
-      // Invalidar cache
-      mutate(['warehouse-locations', id])
-      mutate(key => Array.isArray(key) && key[0] === 'warehouse-locations')
+      // No se revalida la llave de detalle del id borrado: el detalle montado pediria un 404
+      mutate(key => Array.isArray(key) && key[0] === 'warehouse-locations' && key[1] !== id)
       
     } catch (error) {
 

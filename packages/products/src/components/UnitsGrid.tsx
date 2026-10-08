@@ -151,6 +151,7 @@ export const UnitsGrid = React.memo<UnitsGridProps>(({
                 )}
                 {onDelete && (
                   <Button
+                    aria-label="Eliminar"
                     size="small"
                     variant="danger"
                     buttonStyle="outline"

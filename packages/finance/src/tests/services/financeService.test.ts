@@ -107,23 +107,21 @@ describe('Finance Service', () => {
       const result = await financeService.createAPInvoice(invoiceData)
 
       // Assert
-      // Service uses transformer with snake_case attributes for AP Invoices
+      // Tipo ap-invoices y atributos camelCase de APInvoiceSchema
       expect(mockAxios.post).toHaveBeenCalledWith('/api/v1/ap-invoices', {
         data: {
-          type: 'a-p-invoices',
+          type: 'ap-invoices',
           attributes: {
-            contact_id: 1,
-            invoice_number: 'FACT-TEST',
-            invoice_date: '2025-08-20',
-            due_date: '2025-09-20',
-            purchase_order_id: null,
+            invoiceNumber: 'FACT-TEST',
+            invoiceDate: '2025-08-20',
+            dueDate: '2025-09-20',
+            contactId: 1,
+            purchaseOrderId: null,
             currency: 'MXN',
             subtotal: 1000.00,
-            tax_amount: 160.00,
-            total_amount: 1160.00,
+            taxAmount: 160.00,
+            totalAmount: 1160.00,
             status: 'draft',
-            notes: null,
-            metadata: {}
           }
         }
       })
@@ -132,22 +130,25 @@ describe('Finance Service', () => {
 
     it('should update AP invoice successfully', async () => {
       // Arrange
-      const updateData = { status: 'sent' as const }
-      const mockResponse = createMockAPInvoice({ ...updateData, id: '1' })
-      mockAxios.patch.mockResolvedValue({ data: { data: mockResponse } })
+      // Llaves que no son atributo (paidDate, contactName) no viajan; numeros como number
+      const updateData = { status: 'posted' as const, totalAmount: '1500' as unknown as number, contactName: 'X' }
+      mockAxios.patch.mockResolvedValue({
+        data: { data: { id: '1', type: 'ap-invoices', attributes: { status: 'posted', totalAmount: 1500 } } }
+      })
 
       // Act
-      const result = await financeService.updateAPInvoice('1', updateData as any)
+      const result = await financeService.updateAPInvoice('1', updateData as never)
 
       // Assert
       expect(mockAxios.patch).toHaveBeenCalledWith('/api/v1/ap-invoices/1', {
         data: {
           type: 'ap-invoices',
           id: '1',
-          attributes: updateData
+          attributes: { totalAmount: 1500, status: 'posted' }
         }
       })
-      expect(result).toEqual(mockResponse)
+      expect(result.status).toBe('posted')
+      expect(result.totalAmount).toBe(1500)
     })
 
     it('should delete AP invoice successfully', async () => {
@@ -212,32 +213,21 @@ describe('Finance Service', () => {
       const result = await financeService.createARInvoice(invoiceData)
 
       // Assert
-      // Service uses transformer with snake_case attributes for AR Invoices
-      // FI-M002: Includes early payment discount fields
+      // Tipo ar-invoices y atributos camelCase de ARInvoiceSchema
       expect(mockAxios.post).toHaveBeenCalledWith('/api/v1/ar-invoices', {
         data: {
-          type: 'a-r-invoices',
+          type: 'ar-invoices',
           attributes: {
-            contact_id: 10,
-            invoice_number: 'INV-TEST',
-            invoice_date: '2025-08-20',
-            due_date: '2025-09-20',
-            sales_order_id: null,
+            invoiceNumber: 'INV-TEST',
+            invoiceDate: '2025-08-20',
+            dueDate: '2025-09-20',
+            contactId: 10,
+            salesOrderId: null,
             currency: 'MXN',
             subtotal: 2000.00,
-            tax_amount: 320.00,
-            total_amount: 2320.00,
+            taxAmount: 320.00,
+            totalAmount: 2320.00,
             status: 'draft',
-            notes: null,
-            metadata: {},
-            // FI-M002: Early Payment Discount fields
-            discount_percent: null,
-            discount_days: null,
-            discount_date: null,
-            discount_amount: null,
-            discount_applied: false,
-            discount_applied_amount: null,
-            discount_applied_date: null
           }
         }
       })
@@ -264,20 +254,20 @@ describe('Finance Service', () => {
       const result = await financeService.getAPPayments()
 
       // Assert
-      expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/payments', { params: {} })
+      expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/payments', { params: { 'filter[direction]': 'ap' } })
       expect(result.data).toHaveLength(2)
     })
 
-    it('should create AP payment with proper validation', async () => {
-      // Arrange
+    it('should create AP payment as a payments resource', async () => {
+      // Arrange: valores como llegan de un formulario (string) se envian como number
       const paymentData = {
-        contactId: 1,
+        paymentNumber: 'PAG-001',
+        contactId: '1' as unknown as number,
         paymentDate: '2025-08-20',
-        paymentMethod: 'transfer',
+        paymentMethodId: '4' as unknown as number,
         currency: 'MXN',
-        amount: 500.00,
+        amount: '500.00' as unknown as number,
         bankAccountId: 1,
-        status: 'draft' as const
       }
       const mockPayment = createMockAPPayment(paymentData)
       const mockResponse = {
@@ -293,18 +283,20 @@ describe('Finance Service', () => {
       const result = await financeService.createAPPayment(paymentData)
 
       // Assert
-      // Service uses transformer with camelCase attributes and type 'a-p-payments'
       expect(mockAxios.post).toHaveBeenCalledWith('/api/v1/payments', {
         data: {
-          type: 'a-p-payments',
+          type: 'payments',
           attributes: {
-            contactId: 1,
+            paymentNumber: 'PAG-001',
             paymentDate: '2025-08-20',
-            paymentMethod: 'transfer',
-            currency: 'MXN',
-            amount: 500.00,
+            contactId: 1,
             bankAccountId: 1,
-            status: 'draft'
+            paymentMethodId: 4,
+            amount: 500,
+            currency: 'MXN',
+            appliedAmount: 0,
+            unappliedAmount: 500,
+            status: 'unapplied',
           }
         }
       })
@@ -331,20 +323,21 @@ describe('Finance Service', () => {
       const result = await financeService.getARReceipts()
 
       // Assert
-      expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/payments', { params: {} })
+      expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/payments', { params: { 'filter[direction]': 'ar' } })
       expect(result.data).toHaveLength(2)
     })
 
-    it('should create AR receipt with receiptDate field', async () => {
+    it('should create AR receipt as a payments resource with paymentDate', async () => {
       // Arrange
       const receiptData = {
+        paymentNumber: 'REC-001',
         contactId: 1,
-        receiptDate: '2025-08-20', // Key field per documentation
-        paymentMethod: 'transfer',
+        paymentDate: '2025-08-20',
+        paymentMethodId: 2,
         currency: 'MXN',
         amount: 1000.00,
         bankAccountId: 1,
-        status: 'draft' as const
+        reference: 'SPEI-123',
       }
       const mockReceipt = createMockARReceipt(receiptData)
       const mockResponse = {
@@ -360,22 +353,25 @@ describe('Finance Service', () => {
       const result = await financeService.createARReceipt(receiptData)
 
       // Assert
-      // Service uses transformer with camelCase attributes and type 'a-r-receipts'
       expect(mockAxios.post).toHaveBeenCalledWith('/api/v1/payments', {
         data: {
-          type: 'a-r-receipts',
+          type: 'payments',
           attributes: {
+            paymentNumber: 'REC-001',
+            paymentDate: '2025-08-20',
             contactId: 1,
-            receiptDate: '2025-08-20',
-            paymentMethod: 'transfer',
-            currency: 'MXN',
-            amount: 1000.00,
             bankAccountId: 1,
-            status: 'draft'
+            paymentMethodId: 2,
+            amount: 1000,
+            currency: 'MXN',
+            appliedAmount: 0,
+            unappliedAmount: 1000,
+            status: 'unapplied',
+            reference: 'SPEI-123',
           }
         }
       })
-      expect(result.receiptDate).toBe('2025-08-20')
+      expect(result.paymentDate).toBe('2025-08-20')
     })
   })
 
@@ -408,10 +404,9 @@ describe('Finance Service', () => {
         accountName: 'HSBC Savings Account',
         bankName: 'HSBC',
         accountNumber: '987654321098',
-        clabe: '021180009876543210',
         currency: 'MXN',
-        accountType: 'savings',
-        openingBalance: '25000.00',
+        glAccountId: '12' as unknown as number,
+        openingBalance: '25000.00' as unknown as number,
         status: 'active' as const
       }
       const mockAccount = createMockBankAccount(accountData)
@@ -428,9 +423,22 @@ describe('Finance Service', () => {
       const result = await financeService.createBankAccount(accountData)
 
       // Assert
+      expect(mockAxios.post).toHaveBeenCalledWith('/api/v1/bank-accounts', {
+        data: {
+          type: 'bank-accounts',
+          attributes: {
+            accountNumber: '987654321098',
+            accountName: 'HSBC Savings Account',
+            bankName: 'HSBC',
+            currency: 'MXN',
+            glAccountId: 12,
+            openingBalance: 25000,
+            status: 'active',
+          }
+        }
+      })
       expect(result.bankName).toBe('HSBC')
-      expect(result.accountType).toBe('savings')
-      expect(result.openingBalance).toBe('25000.00')
+      expect(result.openingBalance).toBe(25000)
     })
   })
 
@@ -463,7 +471,7 @@ describe('Finance Service', () => {
   describe('Query Parameters', () => {
     it('should handle filters and pagination correctly', async () => {
       // Arrange
-      const filters = { status: 'sent', contactId: 5 }
+      const filters = { status: 'posted', contact_id: 5 }
       const pagination = { page: 2, size: 10 }
       mockAxios.get.mockResolvedValue({ data: createMockAPIResponse([]) })
 
@@ -473,8 +481,8 @@ describe('Finance Service', () => {
       // Assert
       expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/ap-invoices', {
         params: {
-          'filter[status]': 'sent',
-          'filter[contactId]': 5,
+          'filter[status]': 'posted',
+          'filter[contact_id]': 5,
           'page[number]': 2,
           'page[size]': 10
         }

@@ -9,7 +9,7 @@
 
 import React, { useState } from 'react'
 import Image from 'next/image'
-import { Button } from '@lwm/ui'
+import { Button, formatDateOnly } from '@lwm/ui'
 import { useNavigationProgress } from '@lwm/ui'
 import { OrderStatusBadge } from './OrderStatusBadge'
 import type { EcommerceOrder, EcommerceOrderItem } from '../types'
@@ -36,18 +36,9 @@ export const OrderViewTabs = React.memo<OrderViewTabsProps>(({
     }).format(amount)
   }
 
-  // Format date
-  const formatDate = (dateString?: string) => {
-    if (!dateString) return '-'
-    const date = new Date(dateString)
-    return new Intl.DateTimeFormat('es-MX', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    }).format(date)
-  }
+  // orderDate y completedDate son fechas sin hora: no llevan hora que mostrar
+  const formatDate = (dateString?: string) =>
+    formatDateOnly(dateString, 'es-MX', { year: 'numeric', month: 'long', day: 'numeric' })
 
   return (
     <div className="container-fluid py-4">

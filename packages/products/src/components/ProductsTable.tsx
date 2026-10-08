@@ -187,6 +187,7 @@ export const ProductsTable: React.FC<ProductsTableProps> = ({
                     <div className="d-flex justify-content-end gap-1">
                       {onView && (
                         <Button
+                          aria-label="Ver producto"
                           size="small"
                           variant="secondary"
                           buttonStyle="outline"
@@ -200,6 +201,7 @@ export const ProductsTable: React.FC<ProductsTableProps> = ({
                       
                       {onEdit && (
                         <Button
+                          aria-label="Editar producto"
                           size="small"
                           variant="primary"
                           buttonStyle="outline"
@@ -213,6 +215,7 @@ export const ProductsTable: React.FC<ProductsTableProps> = ({
                       
                       {onDuplicate && (
                         <Button
+                          aria-label="Duplicar producto"
                           size="small"
                           variant="secondary"
                           buttonStyle="outline"
@@ -227,6 +230,7 @@ export const ProductsTable: React.FC<ProductsTableProps> = ({
                       
                       {onDelete && (
                         <Button
+                          aria-label="Eliminar producto"
                           size="small"
                           variant="danger"
                           buttonStyle="outline"

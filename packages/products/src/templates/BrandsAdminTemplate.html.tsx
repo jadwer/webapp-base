@@ -204,6 +204,7 @@ export const BrandsAdminTemplate: React.FC<BrandsAdminTemplateProps> = ({
           <div className="d-flex align-items-center gap-2">
             {hasBrands && (
               <Button
+                aria-label="Actualizar lista"
                 size="small"
                 variant="secondary"
                 buttonStyle="outline"

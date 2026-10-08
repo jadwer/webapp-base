@@ -7,7 +7,7 @@
 'use client'
 
 import React from 'react'
-import { Button } from '@lwm/ui'
+import { Button, formatDateOnly } from '@lwm/ui'
 import { OrderStatusBadge } from './OrderStatusBadge'
 import type { EcommerceOrder } from '../types'
 
@@ -63,13 +63,8 @@ export const OrdersTable = React.memo<OrdersTableProps>(({
 
   // Format date
   const formatDate = (dateString?: string) => {
-    if (!dateString) return '-'
-    const date = new Date(dateString)
-    return new Intl.DateTimeFormat('es-MX', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    }).format(date)
+    // orderDate es fecha sin hora
+    return formatDateOnly(dateString, 'es-MX', { year: 'numeric', month: 'short', day: 'numeric' })
   }
 
   return (
@@ -133,6 +128,7 @@ export const OrdersTable = React.memo<OrdersTableProps>(({
                 <td className="text-end">
                   <div className="btn-group btn-group-sm" role="group">
                     <Button
+                      aria-label="Ver detalles"
                       variant="primary"
                       buttonStyle="outline"
                       size="small"
@@ -142,6 +138,7 @@ export const OrdersTable = React.memo<OrdersTableProps>(({
                       <i className="bi bi-eye" />
                     </Button>
                     <Button
+                      aria-label="Editar"
                       variant="secondary"
                       buttonStyle="outline"
                       size="small"
@@ -151,6 +148,7 @@ export const OrdersTable = React.memo<OrdersTableProps>(({
                       <i className="bi bi-pencil" />
                     </Button>
                     <Button
+                      aria-label="Eliminar"
                       variant="danger"
                       buttonStyle="outline"
                       size="small"

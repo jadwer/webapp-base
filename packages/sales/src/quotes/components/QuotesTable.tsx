@@ -12,7 +12,7 @@ import { quoteService, quoteItemService } from '../services'
 import { salesService } from '../../services'
 import { OperationsMenu, type OperationsMenuItem } from '../../components/OperationsMenu'
 import { exportQuoteItemsCsv } from '../../utils/exportCsv'
-import { toast } from '@lwm/ui'
+import { toast, isPastDateOnly } from '@lwm/ui'
 import { ConfirmModal, ConfirmModalHandle } from '@lwm/ui'
 import { formatDateOnly } from '../../utils/dates'
 
@@ -301,7 +301,7 @@ export function QuotesTable({ quotes, isLoading, onQuoteUpdated }: QuotesTablePr
           </thead>
           <tbody>
             {quotes.map((quote) => {
-              const isExpired = quote.validUntil && new Date(quote.validUntil) < new Date()
+              const isExpired = quote.validUntil && isPastDateOnly(quote.validUntil)
 
               return (
                 <tr key={quote.id}>

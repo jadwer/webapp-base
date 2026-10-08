@@ -121,7 +121,7 @@ describe('ecommerceService', () => {
       // Assert
       expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/sales-orders/1', {
         params: {
-          include: 'items,items.product,customer',
+          include: 'items,items.product,contact',
         },
       });
       expect(result.id).toBe('1');
@@ -215,10 +215,11 @@ describe('ecommerceService', () => {
   });
 
   describe('orders.updateStatus', () => {
-    it('should update order status', async () => {
+    it('should change status through OrderStatusService endpoint, not PATCH', async () => {
       // Arrange
       const updatedOrder = createMockEcommerceOrder({ status: 'processing' });
-      mockAxios.patch.mockResolvedValue({
+      mockAxios.post.mockResolvedValue({ data: { message: 'ok' } });
+      mockAxios.get.mockResolvedValue({
         data: createMockEcommerceOrderAPIResponse(updatedOrder),
       });
 
@@ -226,39 +227,60 @@ describe('ecommerceService', () => {
       const result = await ecommerceService.orders.updateStatus('1', 'processing');
 
       // Assert
+      expect(mockAxios.post).toHaveBeenCalledWith('/api/v1/orders/1/status', { status: 'processing' });
+      expect(mockAxios.patch).not.toHaveBeenCalled();
       expect(result.status).toBe('processing');
     });
-  });
 
-  describe('orders.updatePaymentStatus', () => {
-    it('should update payment status', async () => {
-      // Arrange
-      const updatedOrder = createMockEcommerceOrder({ paymentStatus: 'completed' });
-      mockAxios.patch.mockResolvedValue({
-        data: createMockEcommerceOrderAPIResponse(updatedOrder),
+    it('should cancel with the reason as notes', async () => {
+      mockAxios.post.mockResolvedValue({ data: {} });
+      mockAxios.get.mockResolvedValue({
+        data: createMockEcommerceOrderAPIResponse(createMockEcommerceOrder({ status: 'cancelled' })),
       });
 
-      // Act
-      const result = await ecommerceService.orders.updatePaymentStatus('1', 'completed');
+      await ecommerceService.orders.cancel('1', 'Cliente desistio');
 
-      // Assert
-      expect(result.paymentStatus).toBe('completed');
+      expect(mockAxios.post).toHaveBeenCalledWith('/api/v1/orders/1/status', {
+        status: 'cancelled',
+        notes: 'Cliente desistio',
+      });
     });
   });
 
-  describe('orders.updateShippingStatus', () => {
-    it('should update shipping status', async () => {
-      // Arrange
-      const updatedOrder = createMockEcommerceOrder({ shippingStatus: 'shipped' });
+  describe('orders.update payload (solo atributos del SalesOrderSchema)', () => {
+    it('should send address hash and notes, never readOnly or unknown attributes', async () => {
       mockAxios.patch.mockResolvedValue({
-        data: createMockEcommerceOrderAPIResponse(updatedOrder),
+        data: createMockEcommerceOrderAPIResponse(createMockEcommerceOrder()),
       });
 
-      // Act
-      const result = await ecommerceService.orders.updateShippingStatus('1', 'shipped');
+      await ecommerceService.orders.update('1', {
+        customerEmail: 'x@example.com',
+        customerName: 'X',
+        status: 'confirmed',
+        paymentStatus: 'paid',
+        shippingStatus: 'shipped',
+        shippingAddressLine1: 'Calle 1',
+        shippingCity: 'CDMX',
+        shippingState: 'CDMX',
+        shippingPostalCode: '01000',
+        shippingCountry: 'MX',
+        shippingAddressData: { name: 'Recibe', line1: 'Vieja' },
+        notes: 'Nota',
+      });
 
-      // Assert
-      expect(result.shippingStatus).toBe('shipped');
+      const attributes = mockAxios.patch.mock.calls[0][1].data.attributes;
+      expect(attributes).toEqual({
+        notes: 'Nota',
+        shippingAddress: {
+          name: 'Recibe',
+          line1: 'Calle 1',
+          line2: null,
+          city: 'CDMX',
+          state: 'CDMX',
+          postal_code: '01000',
+          country: 'MX',
+        },
+      });
     });
   });
 
@@ -275,9 +297,7 @@ describe('ecommerceService', () => {
 
       // Act
       const result = await ecommerceService.orders.updateTotals('1', {
-        subtotalAmount: 1500.00,
         taxAmount: 160.00,
-        shippingAmount: 50.00,
         totalAmount: 1710.00,
       });
 
@@ -307,26 +327,6 @@ describe('ecommerceService', () => {
 
       // Act & Assert
       await expect(ecommerceService.orders.delete('999')).rejects.toThrow();
-    });
-  });
-
-  describe('orders.cancel', () => {
-    it('should cancel an order with reason', async () => {
-      // Arrange
-      const cancelledOrder = createMockEcommerceOrder({
-        status: 'cancelled',
-        notes: 'Customer request',
-      });
-      mockAxios.patch.mockResolvedValue({
-        data: createMockEcommerceOrderAPIResponse(cancelledOrder),
-      });
-
-      // Act
-      const result = await ecommerceService.orders.cancel('1', 'Customer request');
-
-      // Assert
-      expect(result.status).toBe('cancelled');
-      expect(result.notes).toBe('Customer request');
     });
   });
 
@@ -368,7 +368,7 @@ describe('ecommerceService', () => {
       // Assert
       expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/sales-order-items', {
         params: {
-          'filter[sales_order_id]': 1,
+          'filter[salesOrderId]': 1,
         },
       });
     });

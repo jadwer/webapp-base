@@ -7,7 +7,7 @@
 'use client'
 
 import React, { useState, useCallback, useRef } from 'react'
-import { Button, ConfirmModal } from '@lwm/ui'
+import { Button, ConfirmModal, todayDateInput, formatDateOnly, toDateInput } from '@lwm/ui'
 import type { ConfirmModalHandle } from '@lwm/ui'
 import { useLeaves, useLeavesMutations, useEmployees, useLeaveTypes } from '../hooks'
 import type { Leave, LeaveFormData, LeavesFilters as FiltersType, LeaveStatus } from '../types'
@@ -33,8 +33,8 @@ export const LeavesAdminPageReal: React.FC = () => {
   const [showCreateModal, setShowCreateModal] = useState(false)
   const confirmModalRef = useRef<ConfirmModalHandle>(null)
   const [formData, setFormData] = useState<LeaveFormData>({
-    startDate: new Date().toISOString().split('T')[0],
-    endDate: new Date().toISOString().split('T')[0],
+    startDate: todayDateInput(),
+    endDate: todayDateInput(),
     status: 'pending',
     reason: '',
     notes: '',
@@ -61,8 +61,8 @@ export const LeavesAdminPageReal: React.FC = () => {
   const handleApprove = useCallback(async (leave: Leave) => {
     try {
       const leaveData: LeaveFormData = {
-        startDate: leave.startDate,
-        endDate: leave.endDate,
+        startDate: toDateInput(leave.startDate),
+        endDate: toDateInput(leave.endDate),
         status: 'approved',
         reason: leave.reason,
         notes: leave.notes,
@@ -80,8 +80,8 @@ export const LeavesAdminPageReal: React.FC = () => {
   const handleReject = useCallback(async (leave: Leave) => {
     try {
       const leaveData: LeaveFormData = {
-        startDate: leave.startDate,
-        endDate: leave.endDate,
+        startDate: toDateInput(leave.startDate),
+        endDate: toDateInput(leave.endDate),
         status: 'rejected',
         reason: leave.reason,
         notes: leave.notes,
@@ -200,8 +200,8 @@ export const LeavesAdminPageReal: React.FC = () => {
                     <tr key={leave.id}>
                       <td>{leave.employee ? `${leave.employee.firstName} ${leave.employee.lastName}` : '-'}</td>
                       <td><span className="badge bg-primary bg-opacity-10 text-primary">{leave.leaveType?.name || '-'}</span></td>
-                      <td>{new Date(leave.startDate).toLocaleDateString('es-MX')}</td>
-                      <td>{new Date(leave.endDate).toLocaleDateString('es-MX')}</td>
+                      <td>{formatDateOnly(leave.startDate)}</td>
+                      <td>{formatDateOnly(leave.endDate)}</td>
                       <td><strong>{leave.daysRequested}</strong> días</td>
                       <td><small className="text-muted">{leave.reason}</small></td>
                       <td><LeaveStatusBadge status={leave.status} /></td>
@@ -209,15 +209,15 @@ export const LeavesAdminPageReal: React.FC = () => {
                         <div className="d-flex justify-content-end gap-2">
                           {leave.status === 'pending' && (
                             <>
-                              <Button size="small" variant="success" buttonStyle="outline" onClick={() => handleApprove(leave)} title="Aprobar">
+                              <Button aria-label="Aprobar" size="small" variant="success" buttonStyle="outline" onClick={() => handleApprove(leave)} title="Aprobar">
                                 <i className="bi bi-check-lg" />
                               </Button>
-                              <Button size="small" variant="danger" buttonStyle="outline" onClick={() => handleReject(leave)} title="Rechazar">
+                              <Button aria-label="Rechazar" size="small" variant="danger" buttonStyle="outline" onClick={() => handleReject(leave)} title="Rechazar">
                                 <i className="bi bi-x-lg" />
                               </Button>
                             </>
                           )}
-                          <Button size="small" variant="danger" buttonStyle="outline" onClick={() => handleDelete(leave)}>
+                          <Button aria-label="Eliminar" size="small" variant="danger" buttonStyle="outline" onClick={() => handleDelete(leave)}>
                             <i className="bi bi-trash" />
                           </Button>
                         </div>
@@ -238,7 +238,7 @@ export const LeavesAdminPageReal: React.FC = () => {
             <div className="modal-content">
               <div className="modal-header">
                 <h5 className="modal-title">Nueva Solicitud de Permiso</h5>
-                <button type="button" className="btn-close" onClick={() => setShowCreateModal(false)} />
+                <button aria-label="Cerrar" type="button" className="btn-close" onClick={() => setShowCreateModal(false)} />
               </div>
               <div className="modal-body">
                 <div className="mb-3">

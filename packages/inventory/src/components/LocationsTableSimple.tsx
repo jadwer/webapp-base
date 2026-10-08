@@ -6,7 +6,7 @@
 'use client'
 
 import Link from 'next/link'
-import { EmptyState, StatusBadge } from '@lwm/ui'
+import { EmptyState, RowActions, StatusBadge } from '@lwm/ui'
 import { LOCATION_TYPE } from '../utils/labels'
 import type { WarehouseLocationParsed } from '../types'
 
@@ -87,32 +87,12 @@ export const LocationsTableSimple = ({
                 </span>
               </td>
               <td>
-                <div className="btn-group btn-group-sm" role="group">
-                  <Link
-                    href={`/dashboard/inventory/locations/${location.id}`}
-                    className="btn btn-outline-primary"
-                    title="Ver detalle"
-                  >
-                    <i className="bi bi-eye" />
-                  </Link>
-                  <Link
-                    href={`/dashboard/inventory/locations/${location.id}/edit`}
-                    className="btn btn-outline-secondary"
-                    title="Editar"
-                  >
-                    <i className="bi bi-pencil" />
-                  </Link>
-                  {onDelete && (
-                    <button
-                      type="button"
-                      className="btn btn-outline-danger"
-                      onClick={() => onDelete(location)}
-                      title="Eliminar"
-                    >
-                      <i className="bi bi-trash" />
-                    </button>
-                  )}
-                </div>
+                <RowActions
+                  viewHref={`/dashboard/inventory/locations/${location.id}`}
+                  editHref={`/dashboard/inventory/locations/${location.id}/edit`}
+                  onDelete={onDelete ? () => onDelete(location) : undefined}
+                  labels={{ view: 'Ver detalle' }}
+                />
               </td>
             </tr>
           ))}

@@ -12,6 +12,7 @@ import Link from 'next/link'
 import { useAuth } from '@/modules/auth'
 import { usePublicSettings } from '@/modules/app-config'
 import { myOrdersService } from '@/modules/sales'
+import { formatDateOnly } from '@lwm/ui'
 
 interface SalesOrder {
   id: string
@@ -342,7 +343,7 @@ export default function MyOrderDetailPage({ params }: MyOrderDetailPageProps) {
                 {order.expectedDeliveryDate && (
                   <div className="mt-3">
                     <h6 className="text-muted small mb-2">Fecha estimada de entrega:</h6>
-                    <p className="mb-0 fw-bold">{formatDate(order.expectedDeliveryDate)}</p>
+                    <p className="mb-0 fw-bold">{formatDateOnly(order.expectedDeliveryDate, 'es-MX', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
                   </div>
                 )}
               </div>

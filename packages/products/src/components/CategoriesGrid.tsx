@@ -156,6 +156,7 @@ export const CategoriesGrid = React.memo<CategoriesGridProps>(({
                 )}
                 {onDelete && (
                   <Button
+                    aria-label="Eliminar"
                     size="small"
                     variant="danger"
                     buttonStyle="outline"

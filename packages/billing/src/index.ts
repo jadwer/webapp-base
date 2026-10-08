@@ -70,6 +70,8 @@ export {
   useSalesOrderBillingMutations,
   // Payment complement (REP) hooks
   usePaymentComplements,
+  // Catalogos SAT del backend (uso CFDI, regimen fiscal, forma de pago)
+  useSatCfdiCatalogs,
 } from './hooks'
 
 // ============================================================================

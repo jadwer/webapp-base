@@ -44,7 +44,7 @@ export default function SendTestDialog({ isOpen, onClose, onSend, title = 'Envia
               <i className="bi bi-send me-2"></i>
               {title}
             </h5>
-            <button type="button" className="btn-close" onClick={onClose} disabled={sending}></button>
+            <button aria-label="Cerrar" type="button" className="btn-close" onClick={onClose} disabled={sending}></button>
           </div>
           <div className="modal-body">
             <p className="text-muted small mb-3">

@@ -93,7 +93,7 @@ export const usePaymentApplication = (id: string | null, includes: string[] = []
  */
 export const usePaymentApplicationsByPayment = (paymentId: string | null) => {
   const { applications, isLoading, error, mutate } = usePaymentApplications({
-    filters: paymentId ? { paymentId } : undefined,
+    filters: paymentId ? { payment_id: paymentId } : undefined,
     enabled: !!paymentId,
   })
 
@@ -110,25 +110,8 @@ export const usePaymentApplicationsByPayment = (paymentId: string | null) => {
  */
 export const usePaymentApplicationsByARInvoice = (arInvoiceId: string | null) => {
   const { applications, isLoading, error, mutate } = usePaymentApplications({
-    filters: arInvoiceId ? { arInvoiceId } : undefined,
+    filters: arInvoiceId ? { ar_invoice_id: arInvoiceId } : undefined,
     enabled: !!arInvoiceId,
-  })
-
-  return {
-    applicationsByInvoice: applications,
-    isLoading,
-    error,
-    mutate,
-  }
-}
-
-/**
- * Fetch payment applications for a specific AP invoice
- */
-export const usePaymentApplicationsByAPInvoice = (apInvoiceId: string | null) => {
-  const { applications, isLoading, error, mutate } = usePaymentApplications({
-    filters: apInvoiceId ? { apInvoiceId } : undefined,
-    enabled: !!apInvoiceId,
   })
 
   return {

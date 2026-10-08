@@ -5,7 +5,7 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { journalLinesService } from '../../services'
+import { journalLinesService, journalEntryService } from '../../services'
 import axiosClient from '../../lib/axiosClient'
 import { createMockJournalLine, createMockAPIResponse } from '../utils/test-utils'
 import type { JournalLineForm } from '../../types'
@@ -121,8 +121,42 @@ describe('Journal Lines Service', () => {
       const result = await journalLinesService.create(formData)
 
       // Assert
-      expect(mockAxios.post).toHaveBeenCalledWith('/api/v1/journal-lines', expect.any(Object))
+      expect(mockAxios.post).toHaveBeenCalledWith('/api/v1/journal-lines', {
+        data: {
+          type: 'journal-lines',
+          attributes: { accountId: 1001, debit: 1000, credit: 0, description: 'Test line' },
+        },
+      })
       expect(result.data).toEqual(mockLine)
+    })
+  })
+
+  describe('journalEntryService.createWithLines', () => {
+    it('crea las lineas con journalEntryId y contactId camelCase', async () => {
+      mockAxios.post.mockImplementation((url: string) =>
+        Promise.resolve({ data: { data: url === '/api/v1/journal-entries' ? { id: '50' } : createMockJournalLine() } })
+      )
+      mockAxios.get.mockResolvedValue({ data: { data: { id: '50', type: 'journal-entries', attributes: {} } } })
+
+      await journalEntryService.createWithLines({
+        journalId: '1',
+        date: '2026-10-08',
+        reference: 'POL-1',
+        description: 'Asiento',
+        lines: [
+          { accountId: 5, debit: 100, credit: 0, contactId: 7, description: 'Cargo' },
+          { accountId: 6, debit: 0, credit: 100, description: 'Abono' },
+        ],
+      } as never)
+
+      const lineCalls = mockAxios.post.mock.calls.filter(([url]) => url === '/api/v1/journal-lines')
+      expect(lineCalls).toHaveLength(2)
+      expect(lineCalls[0][1].data.attributes).toEqual({
+        journalEntryId: 50, accountId: 5, contactId: 7, debit: 100, credit: 0, description: 'Cargo',
+      })
+      expect(lineCalls[1][1].data.attributes).not.toHaveProperty('contactId')
+      expect(lineCalls[1][1].data.attributes).not.toHaveProperty('contact_id')
+      expect(lineCalls[1][1].data.attributes.journalEntryId).toBe(50)
     })
   })
 

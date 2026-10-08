@@ -102,6 +102,7 @@ export const UnitsTable: React.FC<UnitsTableProps> = ({
                     <div className="d-flex justify-content-end gap-1">
                       {onView && (
                         <Button
+                          aria-label="Ver unidad"
                           size="small"
                           variant="secondary"
                           buttonStyle="outline"
@@ -115,6 +116,7 @@ export const UnitsTable: React.FC<UnitsTableProps> = ({
                       
                       {onEdit && (
                         <Button
+                          aria-label="Editar unidad"
                           size="small"
                           variant="primary"
                           buttonStyle="outline"
@@ -128,6 +130,7 @@ export const UnitsTable: React.FC<UnitsTableProps> = ({
                       
                       {onDelete && (
                         <Button
+                          aria-label="Eliminar unidad"
                           size="small"
                           variant="danger"
                           buttonStyle="outline"

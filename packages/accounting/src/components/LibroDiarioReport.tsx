@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useCashFlow } from '../hooks/useReports'
+import { formatDateOnly } from '@lwm/ui'
 
 export function LibroDiarioReport() {
   const [filters, setFilters] = useState({
@@ -225,7 +226,7 @@ export function LibroDiarioReport() {
                         <tr key={index}>
                           <td>
                             <span className="badge bg-light text-dark">
-                              {new Date(entry.entry_date).toLocaleDateString('es-MX')}
+                              {formatDateOnly(entry.entry_date)}
                             </span>
                           </td>
                           <td>
@@ -287,6 +288,7 @@ export function LibroDiarioReport() {
               <ul className="pagination justify-content-center">
                 <li className={`page-item ${filters.page === 1 ? 'disabled' : ''}`}>
                   <button
+                    aria-label="Página anterior"
                     className="page-link"
                     onClick={() => handlePageChange(filters.page - 1)}
                     disabled={filters.page === 1}
@@ -301,6 +303,7 @@ export function LibroDiarioReport() {
                 </li>
                 <li className="page-item">
                   <button
+                    aria-label="Página siguiente"
                     className="page-link"
                     onClick={() => handlePageChange(filters.page + 1)}
                   >

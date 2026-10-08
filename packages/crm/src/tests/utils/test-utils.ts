@@ -178,7 +178,7 @@ export const createMockActivity = (overrides?: Partial<Activity>): Activity => (
  */
 export const createMockActivities = (count: number = 3): Activity[] => {
   const types: ActivityType[] = ['call', 'email', 'meeting', 'note', 'task'];
-  const statuses: ActivityStatus[] = ['pending', 'in_progress', 'completed'];
+  const statuses: ActivityStatus[] = ['scheduled', 'pending', 'completed'];
   const priorities: ActivityPriority[] = ['low', 'medium', 'high'];
   const subjects = [
     'Follow-up call',

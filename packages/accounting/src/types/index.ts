@@ -260,7 +260,10 @@ export interface JournalLineForm {
   accountId: string
   debit: string
   credit: string
-  memo?: string
+  memo?: string // Se manda como description (memo no existe en la API)
+  description?: string | null
+  reference?: string | null
+  contactId?: string | number | null
   journalEntryId?: string
 }
 

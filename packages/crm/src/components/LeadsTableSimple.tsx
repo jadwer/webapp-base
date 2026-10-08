@@ -28,12 +28,10 @@ const getStatusBadge = (status: string) => {
     new: { class: 'bg-primary', label: 'Nuevo' },
     contacted: { class: 'bg-info', label: 'Contactado' },
     qualified: { class: 'bg-warning', label: 'Calificado' },
-    proposal: { class: 'bg-purple', label: 'Propuesta' },
-    negotiation: { class: 'bg-orange', label: 'Negociación' },
+    unqualified: { class: 'bg-secondary', label: 'No Calificado' },
     converted: { class: 'bg-success', label: 'Convertido' },
-    lost: { class: 'bg-danger', label: 'Perdido' },
   }
-  return badges[status as keyof typeof badges] || badges.new
+  return badges[status as keyof typeof badges] || { class: 'bg-secondary', label: status }
 }
 
 export const LeadsTableSimple = ({
@@ -135,6 +133,7 @@ export const LeadsTableSimple = ({
                     <div className="btn-group btn-group-sm" role="group">
                       {onView && (
                         <button
+                          aria-label="Ver detalle"
                           type="button"
                           className="btn btn-outline-primary"
                           onClick={() => onView(lead)}
@@ -145,6 +144,7 @@ export const LeadsTableSimple = ({
                       )}
                       {onEdit && (
                         <button
+                          aria-label="Editar"
                           type="button"
                           className="btn btn-outline-secondary"
                           onClick={() => onEdit(lead)}
@@ -155,6 +155,7 @@ export const LeadsTableSimple = ({
                       )}
                       {onDelete && (
                         <button
+                          aria-label="Eliminar"
                           type="button"
                           className="btn btn-outline-danger"
                           onClick={() => onDelete(lead)}

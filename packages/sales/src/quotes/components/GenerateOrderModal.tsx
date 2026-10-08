@@ -184,7 +184,7 @@ export function GenerateOrderModal({ quote, isOpen, onClose, onConverted }: Gene
               <i className="bi bi-clipboard-check me-2"></i>
               Generar pedido - {quote.quoteNumber}
             </h5>
-            <button type="button" className="btn-close" onClick={onClose} disabled={isBusy}></button>
+            <button aria-label="Cerrar" type="button" className="btn-close" onClick={onClose} disabled={isBusy}></button>
           </div>
 
           <div className="modal-body">

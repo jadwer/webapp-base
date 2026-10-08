@@ -4,17 +4,26 @@
 
 import React from 'react'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
-import { useAPInvoiceMutations } from '@/modules/finance'
+import { useAPInvoiceMutations, getFinanceErrorMessage } from '@/modules/finance'
+import type { APInvoiceForm } from '@/modules/finance'
+import { useContacts } from '@/modules/contacts'
 import { Button } from '@/ui/components/base/Button'
+import { todayDateInput } from '@lwm/ui'
 
 export default function CreateAPInvoicePage() {
   const navigation = useNavigationProgress()
   const { createAPInvoice } = useAPInvoiceMutations()
   const [isLoading, setIsLoading] = React.useState(false)
+  const [error, setError] = React.useState<string | null>(null)
+
+  // APInvoiceRequest exige un contacto con is_supplier = true.
+  const { contacts, isLoading: contactsLoading } = useContacts({
+    filters: { isSupplier: true }
+  })
   const [formData, setFormData] = React.useState<Record<string, unknown>>({
     contactId: '',
     invoiceNumber: '',
-    invoiceDate: new Date().toISOString().split('T')[0],
+    invoiceDate: todayDateInput(),
     dueDate: '',
     currency: 'MXN',
     subtotal: '0.00',
@@ -26,14 +35,27 @@ export default function CreateAPInvoicePage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
-    
+    setError(null)
+
     try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await createAPInvoice(formData as any)
+      if (!formData.contactId || !formData.invoiceNumber || !formData.invoiceDate || !formData.dueDate) {
+        throw new Error('Todos los campos requeridos deben estar completos')
+      }
+      const payload: APInvoiceForm = {
+        contactId: Number(formData.contactId),
+        invoiceNumber: String(formData.invoiceNumber).trim(),
+        invoiceDate: formData.invoiceDate as string,
+        dueDate: formData.dueDate as string,
+        currency: formData.currency as string,
+        subtotal: Number(formData.subtotal) || 0,
+        taxAmount: Number(formData.taxTotal) || 0,
+        totalAmount: Number(formData.total) || 0,
+        status: formData.status as APInvoiceForm['status'],
+      }
+      await createAPInvoice(payload)
       navigation.push('/dashboard/finance/ap-invoices')
-    } catch (error) {
-      console.error('Error creating AP invoice:', error)
-      // TODO: Show error message to user
+    } catch (err) {
+      setError(getFinanceErrorMessage(err, 'Error al crear la factura por pagar'))
     } finally {
       setIsLoading(false)
     }
@@ -63,21 +85,33 @@ export default function CreateAPInvoicePage() {
               </h5>
             </div>
             <div className="card-body">
+              {error && (
+                <div className="alert alert-danger">
+                  <strong>Error:</strong> {error}
+                </div>
+              )}
+
               <form onSubmit={handleSubmit}>
                 <div className="row g-3">
                   <div className="col-md-6">
                     <label htmlFor="contactId" className="form-label">
                       Proveedor <span className="text-danger">*</span>
                     </label>
-                    <input
-                      type="text"
-                      className="form-control"
+                    <select
+                      className="form-select"
                       id="contactId"
-                      value={formData.contactId}
+                      value={formData.contactId as string}
                       onChange={(e) => setFormData(prev => ({ ...prev, contactId: e.target.value }))}
                       required
-                      placeholder="ID del proveedor"
-                    />
+                      disabled={contactsLoading || isLoading}
+                    >
+                      <option value="">Seleccionar proveedor...</option>
+                      {contacts?.map((contact) => (
+                        <option key={contact.id} value={contact.id}>
+                          {contact.name || `Proveedor ID: ${contact.id}`}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                   <div className="col-md-6">
                     <label htmlFor="invoiceNumber" className="form-label">

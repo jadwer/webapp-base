@@ -174,7 +174,7 @@ export const createMockGenerateResponse = (
   cfdiId: '1',
   xmlPath: '/storage/cfdi/A-001.xml',
   pdfPath: '/storage/cfdi/A-001.pdf',
-  status: 'generated',
+  status: 'draft',
   ...overrides,
 })
 

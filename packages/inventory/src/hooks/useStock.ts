@@ -122,9 +122,8 @@ export const useStockMutations = () => {
     try {
       await stockService.delete(id)
       
-      // Invalidar cache
-      mutate(['stocks', id])
-      mutate(key => Array.isArray(key) && key[0] === 'stocks')
+      // No se revalida la llave de detalle del id borrado: el detalle montado pediria un 404
+      mutate(key => Array.isArray(key) && key[0] === 'stocks' && key[1] !== id)
       
     } catch (error) {
 

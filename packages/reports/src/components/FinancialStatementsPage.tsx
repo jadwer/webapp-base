@@ -6,11 +6,12 @@
 
 import React, { useState } from 'react'
 import { useBalanceSheet, useIncomeStatement, useCashFlow, useTrialBalance } from '../hooks'
+import { todayDateInput, dateToInput } from '@lwm/ui'
 
 export const FinancialStatementsPage = () => {
   // Today's date for defaults
-  const today = new Date().toISOString().split('T')[0]
-  const firstDayOfYear = new Date(new Date().getFullYear(), 0, 1).toISOString().split('T')[0]
+  const today = todayDateInput()
+  const firstDayOfYear = dateToInput(new Date(new Date().getFullYear(), 0, 1))
 
   // Filters
   const [asOfDate, setAsOfDate] = useState(today)

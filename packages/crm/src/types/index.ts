@@ -38,12 +38,23 @@ export interface PipelineStageFormData {
 // LEAD
 // ============================================================================
 
+// Espejo de api-base Modules/CRM/app/JsonApi/V1/Leads/LeadRequest.php (status)
 export type LeadStatus =
   | 'new'
   | 'contacted'
   | 'qualified'
   | 'unqualified'
   | 'converted';
+
+export const LEAD_STATUS_LABELS: Record<LeadStatus, string> = {
+  new: 'Nuevo',
+  contacted: 'Contactado',
+  qualified: 'Calificado',
+  unqualified: 'No Calificado',
+  converted: 'Convertido',
+};
+
+export const LEAD_STATUSES = Object.keys(LEAD_STATUS_LABELS) as LeadStatus[];
 
 export type LeadRating = 'hot' | 'warm' | 'cold';
 
@@ -164,7 +175,8 @@ export interface CampaignFormData {
 
 export type ActivityType = 'call' | 'email' | 'meeting' | 'note' | 'task';
 
-export type ActivityStatus = 'pending' | 'in_progress' | 'completed' | 'cancelled';
+// Espejo de api-base Modules/CRM/app/JsonApi/V1/Activities/ActivityRequest.php (status)
+export type ActivityStatus = 'scheduled' | 'pending' | 'completed' | 'cancelled';
 
 export type ActivityPriority = 'low' | 'medium' | 'high';
 

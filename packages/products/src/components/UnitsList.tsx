@@ -116,6 +116,7 @@ export const UnitsList = React.memo<UnitsListProps>(({
                   <div className="d-flex gap-1 ms-3">
                     {onView && (
                       <Button
+                        aria-label="Ver detalles"
                         size="small"
                         variant="primary"
                         buttonStyle="outline"
@@ -127,6 +128,7 @@ export const UnitsList = React.memo<UnitsListProps>(({
                     )}
                     {onEdit && (
                       <Button
+                        aria-label="Editar unidad"
                         size="small"
                         variant="warning"
                         buttonStyle="outline"
@@ -138,6 +140,7 @@ export const UnitsList = React.memo<UnitsListProps>(({
                     )}
                     {onDelete && (
                       <Button
+                        aria-label="Eliminar unidad"
                         size="small"
                         variant="danger"
                         buttonStyle="outline"

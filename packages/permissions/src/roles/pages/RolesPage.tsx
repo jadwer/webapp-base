@@ -117,6 +117,7 @@ export default function RolesPage() {
               <div className="card-header d-flex justify-content-between align-items-center">
                 <h6 className="card-title mb-0">Detalles del rol</h6>
                 <button
+                  aria-label="Cerrar detalles"
                   className="btn btn-sm btn-outline-secondary"
                   onClick={() => setSelectedRole(null)}
                 >
@@ -170,6 +171,7 @@ export default function RolesPage() {
               <div className="modal-header">
                 <h5 className="modal-title">Crear nuevo rol</h5>
                 <button
+                  aria-label="Cerrar"
                   type="button"
                   className="btn-close"
                   onClick={() => setShowCreateForm(false)}

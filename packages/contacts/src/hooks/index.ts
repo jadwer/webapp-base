@@ -156,7 +156,8 @@ export const useContactMutations = () => {
   const deleteContact = useCallback(async (id: string) => {
     await contactsService.delete(id)
     const { mutate } = await import('swr')
-    mutate(key => Array.isArray(key) && (key[0] === 'contacts' || (key[0] === 'contact' && key[1] === id)))
+    // Solo listas: revalidar ['contact', id] del contacto borrado daria 404 en el detalle montado
+    mutate(key => Array.isArray(key) && key[0] === 'contacts')
   }, [])
 
   return {

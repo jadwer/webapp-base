@@ -25,6 +25,7 @@ import { toast } from '@/lib/toast'
 import { ConfirmModal, ConfirmModalHandle } from '@/ui/components/base'
 import { useAuth } from '@/modules/auth'
 import { isAdmin } from '@/lib/permissions'
+import { isPastDateOnly } from '@lwm/ui'
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -277,7 +278,7 @@ export default function QuoteDetailPage({ params }: PageProps) {
   }
 
   const statusConfig = QUOTE_STATUS_CONFIG[quote.status]
-  const isExpired = quote.validUntil && new Date(quote.validUntil) < new Date()
+  const isExpired = quote.validUntil && isPastDateOnly(quote.validUntil)
 
   // Menu Operaciones (Fase A): agrupa las acciones de documento
   const operationsItems: OperationsMenuItem[] = [
@@ -344,6 +345,7 @@ export default function QuoteDetailPage({ params }: PageProps) {
       <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4">
         <div className="d-flex align-items-center gap-3 mb-3 mb-md-0">
           <button
+            aria-label="Volver"
             className="btn btn-outline-secondary"
             onClick={() => router.push('/dashboard/quotes')}
           >
@@ -743,7 +745,7 @@ export default function QuoteDetailPage({ params }: PageProps) {
           <div className="modal-content">
             <div className="modal-header">
               <h5 className="modal-title">Rechazar Cotizacion</h5>
-              <button type="button" className="btn-close" data-bs-dismiss="modal"></button>
+              <button aria-label="Cerrar" type="button" className="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div className="modal-body">
               <p className="text-muted">
@@ -801,6 +803,7 @@ export default function QuoteDetailPage({ params }: PageProps) {
                   Generar Orden de Compra
                 </h5>
                 <button
+                  aria-label="Cerrar"
                   type="button"
                   className="btn-close"
                   onClick={() => setPoModalOpen(false)}

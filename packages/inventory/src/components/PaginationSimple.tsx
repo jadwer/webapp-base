@@ -51,6 +51,7 @@ export const PaginationSimple = ({
       {/* Controles de paginación */}
       <div className="d-flex gap-1">
         <Button
+          aria-label="Página anterior"
           variant="secondary"
           size="small"
           onClick={() => onPageChange(safeCurrentPage - 1)}
@@ -64,6 +65,7 @@ export const PaginationSimple = ({
         {renderPageNumbers(safeCurrentPage, safeTotalPages, onPageChange, isLoading)}
 
         <Button
+          aria-label="Página siguiente"
           variant="secondary"
           size="small"
           onClick={() => onPageChange(safeCurrentPage + 1)}

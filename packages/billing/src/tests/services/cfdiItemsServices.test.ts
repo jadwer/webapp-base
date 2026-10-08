@@ -19,7 +19,7 @@ vi.mock('../../lib/axiosClient');
 vi.mock('../../utils/transformers', () => ({
   transformCFDIItemsResponse: vi.fn((data) => data),
   transformJsonApiCFDIItem: vi.fn((data) => data),
-  transformCFDIItemFormToJsonApi: vi.fn((data) => ({ type: 'cfdi_items', attributes: data })),
+  transformCFDIItemFormToJsonApi: vi.fn((data) => ({ type: 'cfdi-items', attributes: data })),
 }));
 
 describe('CFDI Items Services', () => {
@@ -41,7 +41,7 @@ describe('CFDI Items Services', () => {
             cantidad: item.cantidad,
           },
         })),
-        'cfdi_items'
+        'cfdi-items'
       );
       vi.mocked(axiosClient.get).mockResolvedValue({ data: mockResponse });
 
@@ -58,7 +58,7 @@ describe('CFDI Items Services', () => {
       const mockItems = [createMockCFDIItem()];
       const mockResponse = createMockAPICollectionResponse(
         mockItems.map(item => ({ id: item.id, attributes: { descripcion: item.descripcion } })),
-        'cfdi_items'
+        'cfdi-items'
       );
       vi.mocked(axiosClient.get).mockResolvedValue({ data: mockResponse });
 
@@ -116,7 +116,7 @@ describe('CFDI Items Services', () => {
         '/api/v1/cfdi-items',
         expect.objectContaining({
           data: expect.objectContaining({
-            type: 'cfdi_items',
+            type: 'cfdi-items',
           }),
         })
       );

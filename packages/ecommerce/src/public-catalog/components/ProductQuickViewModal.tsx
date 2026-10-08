@@ -74,6 +74,7 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
           <div className="modal-header">
             <h5 className="modal-title">{displayProduct.displayName}</h5>
             <button
+              aria-label="Cerrar"
               type="button"
               className="btn-close"
               onClick={onClose}

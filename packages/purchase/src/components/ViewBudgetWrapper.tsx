@@ -10,7 +10,7 @@ import React from 'react'
 import Link from 'next/link'
 import { useBudget } from '../hooks'
 import { BudgetStatusBadge } from './BudgetStatusBadge'
-import { Button } from '@lwm/ui'
+import { Button, formatDateOnly, formatDateTime } from '@lwm/ui'
 import { Alert } from '@lwm/ui'
 import { useNavigationProgress } from '@lwm/ui'
 import { BUDGET_TYPE_CONFIG, BUDGET_PERIOD_TYPE_CONFIG } from '../types'
@@ -22,15 +22,8 @@ interface ViewBudgetWrapperProps {
 
 const formatDate = (dateString: string | null | undefined): string => {
   if (!dateString) return '-'
-  try {
-    return new Date(dateString).toLocaleDateString('es-MX', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    })
-  } catch {
-    return dateString
-  }
+  // fecha sin hora
+  return formatDateOnly(dateString, 'es-MX', { year: 'numeric', month: 'long', day: 'numeric' })
 }
 
 export const ViewBudgetWrapper: React.FC<ViewBudgetWrapperProps> = ({ budgetId }) => {
@@ -309,10 +302,10 @@ export const ViewBudgetWrapper: React.FC<ViewBudgetWrapperProps> = ({ budgetId }
             <div className="card-body">
               <dl className="mb-0">
                 <dt className="text-muted small">Creado</dt>
-                <dd>{formatDate(budget.createdAt)}</dd>
+                <dd>{formatDateTime(budget.createdAt)}</dd>
 
                 <dt className="text-muted small mt-3">Actualizado</dt>
-                <dd>{formatDate(budget.updatedAt)}</dd>
+                <dd>{formatDateTime(budget.updatedAt)}</dd>
 
                 <dt className="text-muted small mt-3">ID</dt>
                 <dd className="font-monospace">{budget.id}</dd>

@@ -14,6 +14,7 @@ import { cfdiInvoicesService } from '@/modules/billing'
 import { AddItemModal } from '@/modules/sales'
 import { StockAvailabilityPanel } from '@/modules/sales'
 import ConfirmModal, { ConfirmModalHandle } from '@/ui/components/base/ConfirmModal'
+import { formatDateOnly } from '@lwm/ui'
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -372,11 +373,7 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
                       <tr>
                         <td><strong>Fecha de Orden:</strong></td>
                         <td>
-                          {salesOrder.orderDate ? new Date(salesOrder.orderDate).toLocaleDateString('es-ES', {
-                            day: '2-digit',
-                            month: '2-digit',
-                            year: 'numeric'
-                          }) : 'Sin fecha'}
+                          {salesOrder.orderDate ? formatDateOnly(salesOrder.orderDate) : 'Sin fecha'}
                         </td>
                       </tr>
                       <tr>
@@ -538,7 +535,7 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
                             </td>
                             <td>
                               {rem.remissionDate
-                                ? new Date(rem.remissionDate).toLocaleDateString('es-ES')
+                                ? formatDateOnly(rem.remissionDate)
                                 : rem.createdAt
                                   ? new Date(rem.createdAt).toLocaleDateString('es-ES')
                                   : 'N/A'}
@@ -548,6 +545,7 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
                               <div className="d-flex gap-1">
                                 {rem.status === 'draft' && (
                                   <button
+                                    aria-label="Imprimir (genera PDF)"
                                     className="btn btn-sm btn-outline-primary"
                                     onClick={() => handlePrintRemission(rem.id)}
                                     disabled={actionLoading === `print-${rem.id}`}
@@ -558,6 +556,7 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
                                 )}
                                 {rem.status === 'printed' && (
                                   <button
+                                    aria-label="Marcar como entregada"
                                     className="btn btn-sm btn-outline-success"
                                     onClick={() => handleDeliverRemission(rem.id)}
                                     disabled={actionLoading === `deliver-${rem.id}`}
@@ -568,6 +567,7 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
                                 )}
                                 {(rem.status === 'printed' || rem.status === 'delivered') && (
                                   <button
+                                    aria-label="Descargar PDF"
                                     className="btn btn-sm btn-outline-secondary"
                                     onClick={() => handleDownloadRemissionPdf(rem.id)}
                                     title="Descargar PDF"
@@ -577,6 +577,7 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
                                 )}
                                 {rem.status !== 'delivered' && rem.status !== 'cancelled' && (
                                   <button
+                                    aria-label="Cancelar"
                                     className="btn btn-sm btn-outline-danger"
                                     onClick={() => handleCancelRemission(rem.id)}
                                     disabled={actionLoading === `cancel-${rem.id}`}

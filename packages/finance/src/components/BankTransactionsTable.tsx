@@ -8,7 +8,7 @@
 
 import React, { useState, useRef } from 'react'
 import clsx from 'clsx'
-import { Button } from '@lwm/ui'
+import { Button, formatDateOnly } from '@lwm/ui'
 import { ConfirmModal } from '@lwm/ui'
 import type { ConfirmModalHandle } from '@lwm/ui'
 import { BankTransactionStatusBadge } from './BankTransactionStatusBadge'
@@ -28,15 +28,8 @@ interface BankTransactionsTableProps {
 
 const formatDate = (dateString: string | null | undefined): string => {
   if (!dateString) return '-'
-  try {
-    return new Date(dateString).toLocaleDateString('es-MX', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    })
-  } catch {
-    return dateString
-  }
+  // transactionDate es fecha sin hora
+  return formatDateOnly(dateString, 'es-MX', { year: 'numeric', month: 'short', day: 'numeric' })
 }
 
 const formatCurrency = (amount: number): string => {
@@ -229,6 +222,7 @@ export const BankTransactionsTable: React.FC<BankTransactionsTableProps> = ({
                     <div className="d-flex justify-content-end gap-1">
                       {transaction.reconciliationStatus === 'unreconciled' && onReconcile && (
                         <Button
+                          aria-label="Conciliar"
                           size="small"
                           variant="success"
                           buttonStyle="outline"
@@ -242,6 +236,7 @@ export const BankTransactionsTable: React.FC<BankTransactionsTableProps> = ({
 
                       {transaction.reconciliationStatus === 'reconciled' && onUnreconcile && (
                         <Button
+                          aria-label="Deshacer conciliacion"
                           size="small"
                           variant="warning"
                           buttonStyle="outline"
@@ -255,6 +250,7 @@ export const BankTransactionsTable: React.FC<BankTransactionsTableProps> = ({
 
                       {onView && (
                         <Button
+                          aria-label="Ver transaccion"
                           size="small"
                           variant="secondary"
                           buttonStyle="outline"
@@ -268,6 +264,7 @@ export const BankTransactionsTable: React.FC<BankTransactionsTableProps> = ({
 
                       {onEdit && (
                         <Button
+                          aria-label="Editar transaccion"
                           size="small"
                           variant="primary"
                           buttonStyle="outline"
@@ -281,6 +278,7 @@ export const BankTransactionsTable: React.FC<BankTransactionsTableProps> = ({
 
                       {onDelete && (
                         <Button
+                          aria-label="Eliminar transaccion"
                           size="small"
                           variant="danger"
                           buttonStyle="outline"

@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useCallback } from 'react'
-import { Button, Input } from '@lwm/ui'
+import { Button, Input, todayDateInput, toDateInput } from '@lwm/ui'
 import { useSalesContacts } from '../hooks'
 import ItemsManager from './ItemsManager'
 import type { SalesOrder, SalesOrderFormData, OrderStatus } from '../types'
@@ -42,7 +42,7 @@ export const SalesOrderForm: React.FC<SalesOrderFormProps> = ({
   const [formData, setFormData] = useState({
     contactId: salesOrder?.contactId?.toString() || '',
     orderNumber: salesOrder?.orderNumber || '',
-    orderDate: salesOrder?.orderDate || new Date().toISOString().split('T')[0],
+    orderDate: toDateInput(salesOrder?.orderDate) || todayDateInput(),
     status: (salesOrder?.status || 'draft') as OrderStatus,
     notes: salesOrder?.notes || '',
     invoicingNotes: salesOrder?.invoicingNotes || ''
@@ -60,7 +60,7 @@ export const SalesOrderForm: React.FC<SalesOrderFormProps> = ({
       setFormData({
         contactId: salesOrder.contactId?.toString() || '',
         orderNumber: salesOrder.orderNumber || '',
-        orderDate: salesOrder.orderDate || new Date().toISOString().split('T')[0],
+        orderDate: toDateInput(salesOrder.orderDate) || todayDateInput(),
         status: salesOrder.status || 'draft',
         notes: salesOrder.notes || '',
         invoicingNotes: salesOrder.invoicingNotes || ''
@@ -137,9 +137,6 @@ export const SalesOrderForm: React.FC<SalesOrderFormProps> = ({
         unitPrice: item.unitPrice,
         discount: item.discount,
         total: item.total,
-        arInvoiceLineId: null,
-        invoicedQuantity: null,
-        invoicedAmount: null,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       }))

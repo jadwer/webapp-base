@@ -68,6 +68,7 @@ export type {
   TopProduct,
   TopCustomer,
 } from './types';
+export { ORDER_STATUSES, ORDER_STATUS_LABELS } from './types';
 
 // ============================================
 // Services

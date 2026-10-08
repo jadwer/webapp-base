@@ -145,17 +145,17 @@ export const ProductsTableVirtualized = React.memo<ProductsTableVirtualizedProps
                       <td style={{ width: COL_WIDTHS[5] }}>
                         <div className="d-flex gap-1">
                           {onView && (
-                            <Button size="small" variant="primary" buttonStyle="ghost" onClick={() => onView(product)} title="Ver detalles">
+                            <Button aria-label="Ver detalles" size="small" variant="primary" buttonStyle="ghost" onClick={() => onView(product)} title="Ver detalles">
                               <i className="bi bi-eye" />
                             </Button>
                           )}
                           {onEdit && (
-                            <Button size="small" variant="warning" buttonStyle="ghost" onClick={() => onEdit(product)} title="Editar">
+                            <Button aria-label="Editar" size="small" variant="warning" buttonStyle="ghost" onClick={() => onEdit(product)} title="Editar">
                               <i className="bi bi-pencil" />
                             </Button>
                           )}
                           {onDelete && (
-                            <Button size="small" variant="danger" buttonStyle="ghost" onClick={() => onDelete(product.id)} title="Eliminar">
+                            <Button aria-label="Eliminar" size="small" variant="danger" buttonStyle="ghost" onClick={() => onDelete(product.id)} title="Eliminar">
                               <i className="bi bi-trash" />
                             </Button>
                           )}

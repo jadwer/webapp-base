@@ -96,6 +96,7 @@ export default function PermissionsTable({
               <td>
                 <div className="btn-group btn-group-sm" role="group">
                   <button
+                    aria-label="Editar permiso"
                     type="button"
                     className="btn btn-outline-primary"
                     onClick={() => onEdit(permission)}
@@ -104,6 +105,7 @@ export default function PermissionsTable({
                     <i className="bi bi-pencil"></i>
                   </button>
                   <button
+                    aria-label="Eliminar permiso"
                     type="button"
                     className="btn btn-outline-danger"
                     onClick={() => onDelete(permission)}

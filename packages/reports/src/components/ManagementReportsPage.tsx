@@ -6,11 +6,12 @@
 
 import React, { useState } from 'react'
 import { useSalesByCustomer, useSalesByProduct, usePurchaseBySupplier, usePurchaseByProduct } from '../hooks'
+import { todayDateInput, dateToInput } from '@lwm/ui'
 
 export const ManagementReportsPage = () => {
   // Default dates (first day of year to today)
-  const today = new Date().toISOString().split('T')[0]
-  const firstDayOfYear = new Date(new Date().getFullYear(), 0, 1).toISOString().split('T')[0]
+  const today = todayDateInput()
+  const firstDayOfYear = dateToInput(new Date(new Date().getFullYear(), 0, 1))
 
   // Filters
   const [startDate, setStartDate] = useState(firstDayOfYear)

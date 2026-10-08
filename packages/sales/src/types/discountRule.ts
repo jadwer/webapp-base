@@ -8,11 +8,11 @@
  * API: /api/v1/discount-rules
  */
 
-// Discount type enum
-export type DiscountType = 'percentage' | 'fixed' | 'buy_x_get_y'
+// Valores validados por api-base Modules/Sales/app/JsonApi/V1/DiscountRules/DiscountRuleRequest.php
+// (constantes TYPE_* y APPLIES_TO_* de Modules/Sales/app/Models/DiscountRule.php)
+export type DiscountType = 'percentage' | 'fixed_amount' | 'buy_x_get_y'
 
-// Applies to enum
-export type DiscountAppliesTo = 'order' | 'product' | 'category'
+export type DiscountAppliesTo = 'order' | 'product' | 'category' | 'customer'
 
 // Base DiscountRule interface (API response)
 export interface DiscountRule {
@@ -115,12 +115,13 @@ export interface DiscountRuleFilters {
   appliesTo?: DiscountAppliesTo
   isActive?: boolean
   code?: string
-  validOnly?: boolean // Filter for currently valid rules
+  // El backend no declara filter[valid]: se filtra en cliente con isValid
+  validOnly?: boolean
 }
 
 // Sort options
 export interface DiscountRuleSortOptions {
-  field: 'name' | 'code' | 'priority' | 'startDate' | 'endDate' | 'createdAt' | 'currentUsage'
+  field: 'name' | 'code' | 'priority' | 'startDate' | 'endDate' | 'createdAt'
   direction: 'asc' | 'desc'
 }
 
@@ -237,7 +238,7 @@ export const DISCOUNT_TYPE_CONFIG: Record<DiscountType, DiscountTypeConfig> = {
     description: 'Descuento porcentual sobre el total',
     requiresBuyGetFields: false
   },
-  fixed: {
+  fixed_amount: {
     label: 'Monto Fijo',
     icon: 'bi-currency-dollar',
     badgeClass: 'bg-success',
@@ -265,20 +266,26 @@ export const APPLIES_TO_CONFIG: Record<DiscountAppliesTo, AppliesToConfig> = {
     description: 'El descuento se aplica solo a productos seleccionados'
   },
   category: {
-    label: 'Categorias',
+    label: 'Categorías',
     badgeClass: 'bg-dark',
-    description: 'El descuento se aplica a categorias de productos'
+    description: 'El descuento se aplica a categorías de productos'
+  },
+  customer: {
+    label: 'Clientes',
+    badgeClass: 'bg-info text-dark',
+    description: 'El descuento se aplica a clientes o clasificaciones de cliente'
   }
 }
 
 export const DISCOUNT_TYPE_OPTIONS = [
   { value: 'percentage', label: 'Porcentaje (%)' },
-  { value: 'fixed', label: 'Monto Fijo ($)' },
+  { value: 'fixed_amount', label: 'Monto Fijo ($)' },
   { value: 'buy_x_get_y', label: 'Compra X Lleva Y' }
 ]
 
 export const APPLIES_TO_OPTIONS = [
   { value: 'order', label: 'Orden Completa' },
   { value: 'product', label: 'Productos Especificos' },
-  { value: 'category', label: 'Categorias' }
+  { value: 'category', label: 'Categorías' },
+  { value: 'customer', label: 'Clientes' }
 ]

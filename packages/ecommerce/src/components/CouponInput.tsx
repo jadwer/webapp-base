@@ -96,6 +96,7 @@ export function CouponInput({
               </span>
             </div>
             <button
+              aria-label="Quitar cupón"
               className="btn btn-sm btn-outline-danger"
               onClick={handleRemove}
               disabled={isRemoving}

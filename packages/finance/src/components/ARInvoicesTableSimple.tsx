@@ -8,6 +8,8 @@
 
 import React from 'react'
 import type { ARInvoice } from '../types'
+import { isInvoiceClosed, isInvoiceOverdue } from '../utils/invoiceStatus'
+import { formatDateOnly, diffDaysDateOnly, todayDateInput } from '@lwm/ui'
 
 interface ARInvoicesTableSimpleProps {
   arInvoices?: ARInvoice[]
@@ -26,11 +28,8 @@ export const ARInvoicesTableSimple = ({
 }: ARInvoicesTableSimpleProps) => {
   const formatDate = (dateString?: string) => {
     if (!dateString) return '-'
-    try {
-      return new Date(dateString).toLocaleDateString('es-ES')
-    } catch {
-      return '-'
-    }
+    // invoiceDate y dueDate son fechas sin hora
+    return formatDateOnly(dateString)
   }
 
   const formatCurrency = (amount?: string | number) => {
@@ -43,29 +42,22 @@ export const ARInvoicesTableSimple = ({
     }).format(numAmount)
   }
 
-  const isOverdue = (dueDate: string, status: string) => {
-    if (status === 'paid' || status === 'cancelled' || status === 'void') return false
-    const due = new Date(dueDate)
-    const today = new Date()
-    return due.getTime() < today.getTime()
-  }
-
   const getStatusBadge = (invoice: ARInvoice) => {
-    const { status, dueDate } = invoice
+    const { status } = invoice
 
-    if (status !== 'paid' && status !== 'cancelled' && status !== 'void' && isOverdue(dueDate, status)) {
+    if (isInvoiceOverdue(invoice)) {
       return <span className="badge bg-danger">Vencida</span>
     }
 
     const statusConfig = {
       draft: { class: 'badge bg-secondary', text: 'Borrador' },
       pending: { class: 'badge bg-info text-dark', text: 'Pendiente' },
-      sent: { class: 'badge bg-primary', text: 'Enviada' },
+      posted: { class: 'badge bg-primary', text: 'Contabilizada' },
       partial: { class: 'badge bg-warning text-dark', text: 'Parcial' },
       paid: { class: 'badge bg-success', text: 'Cobrada' },
-      overdue: { class: 'badge bg-danger', text: 'Vencida' },
       cancelled: { class: 'badge bg-light text-dark', text: 'Cancelada' },
       void: { class: 'badge bg-light text-dark', text: 'Anulada' },
+      voided: { class: 'badge bg-light text-dark', text: 'Anulada' },
     }
 
     const config = statusConfig[status as keyof typeof statusConfig] ||
@@ -79,11 +71,9 @@ export const ARInvoicesTableSimple = ({
   }
 
   const getPriorityBadge = (dueDate: string, status: string) => {
-    if (status === 'paid' || status === 'cancelled' || status === 'void') return null
+    if (status === 'draft' || isInvoiceClosed(status)) return null
 
-    const due = new Date(dueDate)
-    const today = new Date()
-    const diffDays = Math.ceil((due.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+    const diffDays = diffDaysDateOnly(todayDateInput(), dueDate) ?? 0
 
     if (diffDays < 0) {
       return <span className="badge bg-danger ms-1">Vencida</span>
@@ -192,6 +182,7 @@ export const ARInvoicesTableSimple = ({
                   <div className="btn-group btn-group-sm">
                     {onView && (
                       <button
+                        aria-label="Ver factura"
                         type="button"
                         className="btn btn-outline-primary"
                         onClick={() => onView?.(invoice.id)}
@@ -202,6 +193,7 @@ export const ARInvoicesTableSimple = ({
                     )}
                     {onEdit && invoice.status === 'draft' && (
                       <button
+                        aria-label="Editar factura"
                         type="button"
                         className="btn btn-outline-secondary"
                         onClick={() => onEdit(invoice.id)}
@@ -212,10 +204,10 @@ export const ARInvoicesTableSimple = ({
                     )}
                     {onRegisterPayment &&
                       invoice.status !== 'draft' &&
-                      invoice.status !== 'cancelled' &&
-                      invoice.status !== 'void' &&
+                      !isInvoiceClosed(invoice.status) &&
                       (invoice.totalAmount - invoice.paidAmount) > 0 && (
                       <button
+                        aria-label="Registrar pago"
                         type="button"
                         className="btn btn-outline-success"
                         onClick={() => onRegisterPayment(invoice)}

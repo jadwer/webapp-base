@@ -174,7 +174,7 @@ export const StockDetail = ({ stockId }: StockDetailProps) => {
 
           <DetailSection title="Último movimiento" icon="bi-clock-history">
             <dl className="row mb-0">
-              <Field label="Fecha">{stock.lastMovementDate ? formatDate(stock.lastMovementDate, { withTime: true }) : null}</Field>
+              <Field label="Fecha">{stock.lastMovementDate ? formatDate(stock.lastMovementDate) : null}</Field>
               <Field label="Tipo">
                 {stock.lastMovementType ? LAST_MOVEMENT_LABELS[stock.lastMovementType] || stock.lastMovementType : null}
               </Field>

@@ -754,7 +754,7 @@ export default function DesignSystemPage() {
                   >
                     Descargar
                   </Button>
-                  <Button 
+                  <Button aria-label="Eliminar" 
                     variant="danger"
                     buttonStyle="outline"
                     iconOnly

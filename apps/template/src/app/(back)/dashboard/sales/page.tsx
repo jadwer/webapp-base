@@ -17,22 +17,34 @@ export default function SalesPage() {
     branchId: branchId || undefined
   })
 
+  // Estados de SalesOrderRequest (api-base); el backend no tiene 'approved'
   const getStatusBadgeClass = (status: string) => {
     switch (status) {
-      case 'completed': return 'bg-success'
-      case 'approved': return 'bg-primary'
+      case 'completed':
+      case 'delivered': return 'bg-success'
+      case 'confirmed':
+      case 'processing':
+      case 'shipped': return 'bg-primary'
       case 'pending': return 'bg-warning'
-      case 'cancelled': return 'bg-danger'
+      case 'cancelled':
+      case 'returned':
+      case 'refunded': return 'bg-danger'
       default: return 'bg-secondary'
     }
   }
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case 'completed': return 'Completada'
-      case 'approved': return 'Aprobada'
+      case 'draft': return 'Borrador'
       case 'pending': return 'Pendiente'
+      case 'confirmed': return 'Confirmada'
+      case 'processing': return 'En proceso'
+      case 'shipped': return 'Enviada'
+      case 'delivered': return 'Entregada'
+      case 'completed': return 'Completada'
       case 'cancelled': return 'Cancelada'
+      case 'returned': return 'Devuelta'
+      case 'refunded': return 'Reembolsada'
       default: return status
     }
   }
@@ -288,7 +300,7 @@ export default function SalesPage() {
                   <div className="flex-grow-1">
                     <h6 className="text-white-50">Pendientes</h6>
                     <h4 className="mb-0">
-                      {salesOrders.filter((o) => ['pending', 'approved'].includes(o.status)).length}
+                      {salesOrders.filter((o) => ['pending', 'confirmed'].includes(o.status)).length}
                     </h4>
                   </div>
                   <i className="bi bi-clock display-6"></i>

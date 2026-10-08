@@ -269,6 +269,7 @@ export const CategoriesTableVirtualized = React.memo<CategoriesTableVirtualizedP
                         <div className="d-flex gap-1">
                           {onView && (
                             <Button
+                              aria-label="Ver detalles"
                               size="small"
                               variant="primary"
                               buttonStyle="ghost"
@@ -280,6 +281,7 @@ export const CategoriesTableVirtualized = React.memo<CategoriesTableVirtualizedP
                           )}
                           {onEdit && (
                             <Button
+                              aria-label="Editar categoría"
                               size="small"
                               variant="warning"
                               buttonStyle="ghost"
@@ -291,6 +293,7 @@ export const CategoriesTableVirtualized = React.memo<CategoriesTableVirtualizedP
                           )}
                           {onDelete && (
                             <Button
+                              aria-label="Eliminar categoría"
                               size="small"
                               variant="danger"
                               buttonStyle="ghost"

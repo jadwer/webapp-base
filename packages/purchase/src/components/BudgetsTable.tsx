@@ -8,7 +8,7 @@
 
 import React, { useState, useRef } from 'react'
 import clsx from 'clsx'
-import { Button } from '@lwm/ui'
+import { Button, formatDateOnly } from '@lwm/ui'
 import { ConfirmModal } from '@lwm/ui'
 import type { ConfirmModalHandle } from '@lwm/ui'
 import { BudgetStatusBadge } from './BudgetStatusBadge'
@@ -26,15 +26,8 @@ interface BudgetsTableProps {
 
 const formatDate = (dateString: string | null | undefined): string => {
   if (!dateString) return '-'
-  try {
-    return new Date(dateString).toLocaleDateString('es-MX', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    })
-  } catch {
-    return dateString
-  }
+  // fecha sin hora
+  return formatDateOnly(dateString, 'es-MX', { year: 'numeric', month: 'short', day: 'numeric' })
 }
 
 export const BudgetsTable: React.FC<BudgetsTableProps> = ({
@@ -162,6 +155,7 @@ export const BudgetsTable: React.FC<BudgetsTableProps> = ({
                     <div className="d-flex justify-content-end gap-1">
                       {onView && (
                         <Button
+                          aria-label="Ver presupuesto"
                           size="small"
                           variant="secondary"
                           buttonStyle="outline"
@@ -175,6 +169,7 @@ export const BudgetsTable: React.FC<BudgetsTableProps> = ({
 
                       {onEdit && (
                         <Button
+                          aria-label="Editar presupuesto"
                           size="small"
                           variant="primary"
                           buttonStyle="outline"
@@ -188,6 +183,7 @@ export const BudgetsTable: React.FC<BudgetsTableProps> = ({
 
                       {onDelete && (
                         <Button
+                          aria-label="Eliminar presupuesto"
                           size="small"
                           variant="danger"
                           buttonStyle="outline"

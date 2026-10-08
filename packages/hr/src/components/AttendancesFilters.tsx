@@ -115,6 +115,7 @@ export const AttendancesFilters: React.FC<AttendancesFiltersProps> = ({
               <option value="absent">Ausente</option>
               <option value="late">Tarde</option>
               <option value="half_day">Medio Día</option>
+              <option value="on_leave">Con licencia</option>
             </select>
           </div>
 

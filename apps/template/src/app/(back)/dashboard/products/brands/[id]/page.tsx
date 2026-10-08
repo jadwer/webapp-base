@@ -29,6 +29,7 @@ export default function BrandViewPage({ params }: BrandViewPageProps) {
           {/* Header */}
           <div className="d-flex align-items-center mb-4">
             <button
+              aria-label="Volver a marcas"
               type="button"
               onClick={handleBack}
               className="btn btn-link p-0 me-3 text-decoration-none"

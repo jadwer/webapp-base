@@ -218,6 +218,7 @@ export default function Sidebar({ navigationConfig }: SidebarProps) {
       <NavigationProgress />
 
       <button
+        aria-label="Mostrar u ocultar menú"
         className={styles.toggleButton}
         onClick={() => setOpen(!open)}
       >

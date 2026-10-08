@@ -7,8 +7,9 @@
 'use client'
 
 import React, { useState, useRef } from 'react'
-import { Button } from '@lwm/ui'
+import { Button, formatDateOnly } from '@lwm/ui'
 import { formatPhone } from '../utils/phones'
+import { contactDocumentTypeLabel } from '../utils/documentTypes'
 import { ConfirmModal, type ConfirmModalHandle } from '@lwm/ui'
 import { useUsers } from '@lwm/permissions'
 import type { 
@@ -470,7 +471,7 @@ export const ContactViewTabs: React.FC<ContactViewTabsProps> = ({
                         <i className="bi bi-file-earmark-text me-2"></i>
                         {document.originalFilename}
                       </h6>
-                      <small className="text-muted">{document.documentType}</small>
+                      <small className="text-muted">{contactDocumentTypeLabel(document.documentType)}</small>
                     </div>
                     <div>
                       {document.verifiedAt ? (
@@ -495,13 +496,13 @@ export const ContactViewTabs: React.FC<ContactViewTabsProps> = ({
                       {document.verifiedAt && (
                         <div className="text-success mt-1">
                           <i className="bi bi-check-circle me-1"></i>
-                          Verificado el {new Date(document.verifiedAt).toLocaleDateString()}
+                          Verificado el {formatDateOnly(document.verifiedAt)}
                         </div>
                       )}
                       {document.expiresAt && (
                         <div className="text-warning mt-1">
                           <i className="bi bi-calendar-x me-1"></i>
-                          Expira: {new Date(document.expiresAt).toLocaleDateString()}
+                          Expira: {formatDateOnly(document.expiresAt)}
                         </div>
                       )}
                     </div>

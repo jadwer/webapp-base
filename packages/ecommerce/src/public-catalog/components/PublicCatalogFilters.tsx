@@ -294,6 +294,7 @@ export const PublicCatalogFilters: React.FC<PublicCatalogFiltersProps> = ({
               ))}
             </select>
             <button
+              aria-label={`Ordenar ${sortDirection === 'asc' ? 'descendente' : 'ascendente'}`}
               type="button"
               className="btn btn-outline-secondary btn-sm"
               onClick={() => onSortChange(sortField, sortDirection === 'asc' ? 'desc' : 'asc')}

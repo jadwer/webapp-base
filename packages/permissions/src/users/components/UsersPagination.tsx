@@ -74,6 +74,7 @@ export const UsersPagination: React.FC<UsersPaginationProps> = ({
 
       <div className="d-flex align-items-center gap-1">
         <button
+          aria-label="Página anterior"
           className="btn btn-sm btn-outline-secondary"
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage <= 1 || isLoading}
@@ -105,6 +106,7 @@ export const UsersPagination: React.FC<UsersPaginationProps> = ({
         })}
 
         <button
+          aria-label="Página siguiente"
           className="btn btn-sm btn-outline-secondary"
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage >= totalPages || isLoading}

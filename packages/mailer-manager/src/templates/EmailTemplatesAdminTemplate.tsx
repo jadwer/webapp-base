@@ -160,6 +160,7 @@ export default function EmailTemplatesAdminTemplate() {
                     <td className="text-end">
                       <div className="btn-group btn-group-sm">
                         <button
+                          aria-label="Vista previa"
                           className="btn btn-outline-info"
                           title="Vista previa"
                           onClick={() => handlePreview(tpl)}
@@ -168,6 +169,7 @@ export default function EmailTemplatesAdminTemplate() {
                           <i className="bi bi-eye"></i>
                         </button>
                         <button
+                          aria-label="Enviar prueba"
                           className="btn btn-outline-primary"
                           title="Enviar prueba"
                           onClick={() => setSendTestTarget(tpl)}
@@ -175,6 +177,7 @@ export default function EmailTemplatesAdminTemplate() {
                           <i className="bi bi-send"></i>
                         </button>
                         <button
+                          aria-label="Editar"
                           className="btn btn-outline-secondary"
                           title="Editar"
                           onClick={() => router.push(`/dashboard/mailer-manager/${tpl.id}/edit`)}
@@ -182,6 +185,7 @@ export default function EmailTemplatesAdminTemplate() {
                           <i className="bi bi-pencil"></i>
                         </button>
                         <button
+                          aria-label="Eliminar"
                           className="btn btn-outline-danger"
                           title="Eliminar"
                           onClick={() => handleDelete(tpl)}

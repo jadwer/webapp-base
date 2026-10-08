@@ -20,7 +20,7 @@ vi.mock('../../utils/transformers', () => ({
   transformCompanySettingsResponse: vi.fn((data) => data),
   transformJsonApiCompanySetting: vi.fn((data) => data),
   transformCompanySettingFormToJsonApi: vi.fn((data) => ({
-    type: 'company_settings',
+    type: 'company-settings',
     attributes: data,
   })),
 }));
@@ -45,7 +45,7 @@ describe('Company Settings Services', () => {
             is_active: setting.isActive,
           },
         })),
-        'company_settings'
+        'company-settings'
       );
       vi.mocked(axiosClient.get).mockResolvedValue({ data: mockResponse });
 
@@ -126,8 +126,6 @@ describe('Company Settings Services', () => {
         pacUsername: 'test@example.com',
         pacPassword: 'password123',
         pacProductionMode: false,
-        certificateFile: '/path/to/cert.cer',
-        keyFile: '/path/to/key.key',
         isActive: true,
       };
 
@@ -139,7 +137,7 @@ describe('Company Settings Services', () => {
         '/api/v1/company-settings',
         expect.objectContaining({
           data: expect.objectContaining({
-            type: 'company_settings',
+            type: 'company-settings',
           }),
         })
       );
@@ -167,8 +165,6 @@ describe('Company Settings Services', () => {
         pacUsername: 'updated@example.com',
         pacPassword: 'newpassword',
         pacProductionMode: false,
-        certificateFile: '/path/to/cert.cer',
-        keyFile: '/path/to/key.key',
         isActive: true,
       };
 

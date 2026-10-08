@@ -156,6 +156,7 @@ export const LocalCartPage: React.FC<LocalCartPageProps> = ({
           <div className="col-4 col-md-2 mt-3 mt-md-0">
             <div className="d-flex align-items-center justify-content-center">
               <button
+                aria-label="Disminuir cantidad"
                 type="button"
                 className="btn btn-outline-secondary btn-sm"
                 onClick={() => decrementQuantity(item.productId)}
@@ -177,6 +178,7 @@ export const LocalCartPage: React.FC<LocalCartPageProps> = ({
                 }}
               />
               <button
+                aria-label="Aumentar cantidad"
                 type="button"
                 className="btn btn-outline-secondary btn-sm"
                 onClick={() => incrementQuantity(item.productId)}
@@ -196,6 +198,7 @@ export const LocalCartPage: React.FC<LocalCartPageProps> = ({
           {/* Remove Button */}
           <div className="col-1 text-end mt-3 mt-md-0">
             <button
+              aria-label="Eliminar producto"
               type="button"
               className="btn btn-link text-danger p-0"
               onClick={() => removeFromCart(item.productId)}

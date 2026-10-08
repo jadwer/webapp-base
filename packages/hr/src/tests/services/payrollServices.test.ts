@@ -154,5 +154,20 @@ describe('HR Payroll Services', () => {
       await expect(payrollPeriodsService.getAll()).rejects.toThrow();
       // console.error removed in Audit V2 - services rethrow without logging
     });
+
+    it.each([
+      ['process', 'process'],
+      ['markAsPaid', 'mark-as-paid'],
+      ['close', 'close'],
+      ['reopen', 'reopen'],
+    ] as const)('%s usa el endpoint de negocio /%s (no PATCH de status)', async (method, path) => {
+      vi.mocked(axiosClient.post).mockResolvedValue({ data: { message: 'ok' } });
+
+      const result = await payrollPeriodsService[method]('7');
+
+      expect(axiosClient.post).toHaveBeenCalledWith(`/api/v1/payroll-periods/7/${path}`);
+      expect(axiosClient.patch).not.toHaveBeenCalled();
+      expect(result).toEqual({ message: 'ok' });
+    });
   });
 });

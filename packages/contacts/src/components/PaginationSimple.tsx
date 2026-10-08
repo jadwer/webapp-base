@@ -93,6 +93,7 @@ export const PaginationSimple: React.FC<PaginationSimpleProps> = ({
       <div className="d-flex align-items-center gap-1">
         {/* Previous button */}
         <button
+          aria-label="Página anterior"
           className="btn btn-sm btn-outline-secondary"
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage <= 1 || isLoading}
@@ -132,6 +133,7 @@ export const PaginationSimple: React.FC<PaginationSimpleProps> = ({
 
         {/* Next button */}
         <button
+          aria-label="Página siguiente"
           className="btn btn-sm btn-outline-secondary"
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage >= totalPages || isLoading}

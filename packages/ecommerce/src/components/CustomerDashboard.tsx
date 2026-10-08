@@ -489,6 +489,7 @@ export default function CustomerDashboard() {
                           )}
                         </div>
                         <button
+                          aria-label="Copiar codigo"
                           className="btn btn-sm btn-outline-secondary"
                           onClick={() => handleCopyCoupon(coupon.code)}
                           title="Copiar codigo"

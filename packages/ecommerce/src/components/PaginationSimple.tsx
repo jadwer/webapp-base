@@ -85,6 +85,7 @@ export const PaginationSimple = React.memo<PaginationSimpleProps>(({
                 {/* Previous button */}
                 <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
                   <Button
+                    aria-label="Página anterior"
                     variant="secondary"
                     buttonStyle="outline"
                     size="small"
@@ -123,6 +124,7 @@ export const PaginationSimple = React.memo<PaginationSimpleProps>(({
                 {/* Next button */}
                 <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
                   <Button
+                    aria-label="Página siguiente"
                     variant="secondary"
                     buttonStyle="outline"
                     size="small"

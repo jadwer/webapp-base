@@ -8,7 +8,7 @@
 
 import React, { useState } from 'react'
 import { useBalanceGeneral } from '../hooks/useReports'
-import { Button } from '@lwm/ui'
+import { Button, formatDateOnly } from '@lwm/ui'
 import type { BalanceGeneralAccount } from '../services/reportsService'
 
 export const BalanceGeneralReport = () => {
@@ -22,13 +22,9 @@ export const BalanceGeneralReport = () => {
     }).format(amount)
   }
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('es-ES', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    })
-  }
+  // report_date es fecha sin hora
+  const formatDate = (dateString: string) =>
+    formatDateOnly(dateString, 'es-MX', { year: 'numeric', month: 'long', day: 'numeric' })
 
   const AccountSection = ({ title, accounts, total, type }: {
     title: string;

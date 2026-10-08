@@ -67,8 +67,8 @@ describe('discountRulesService', () => {
       expect(axios.get).toHaveBeenCalledWith('/api/v1/discount-rules', {
         params: expect.objectContaining({
           'filter[search]': 'summer',
-          'filter[discount_type]': 'percentage',
-          'filter[is_active]': '1',
+          'filter[discountType]': 'percentage',
+          'filter[isActive]': '1',
           'page[size]': '10',
           sort: '-priority'
         })
@@ -324,7 +324,7 @@ describe('discountRulesService', () => {
   })
 
   describe('getActiveRules', () => {
-    it('should fetch only active and valid rules sorted by priority', async () => {
+    it('should fetch active rules sorted by priority without the undeclared filter[valid]', async () => {
       const rules = [mockDiscountRule()]
       const mockResponse = mockJsonApiDiscountRulesResponse(rules)
 
@@ -332,13 +332,41 @@ describe('discountRulesService', () => {
 
       await discountRulesService.getActiveRules()
 
-      expect(axios.get).toHaveBeenCalledWith('/api/v1/discount-rules', {
-        params: expect.objectContaining({
-          'filter[is_active]': '1',
-          'filter[valid]': 'true',
-          sort: 'priority'
-        })
-      })
+      const call = vi.mocked(axios.get).mock.calls[0]
+      const params = (call[1] as { params: Record<string, string> }).params
+      expect(call[0]).toBe('/api/v1/discount-rules')
+      expect(params['filter[isActive]']).toBe('1')
+      expect(params.sort).toBe('priority')
+      expect(params).not.toHaveProperty('filter[valid]')
+    })
+
+    it('should keep only rules that the backend reports as valid', async () => {
+      const valid = mockDiscountRule({ id: '1', isValid: true })
+      const invalid = mockDiscountRule({ id: '2', isValid: false })
+      const mockResponse = mockJsonApiDiscountRulesResponse([valid, invalid])
+
+      vi.mocked(axios.get).mockResolvedValueOnce({ data: mockResponse })
+
+      const result = await discountRulesService.getActiveRules()
+
+      expect(result.data.map(r => r.id)).toEqual(['1'])
+    })
+  })
+
+  describe('filters and sorting use the Schema keys', () => {
+    it('should send appliesTo and camelCase sort fields', async () => {
+      vi.mocked(axios.get).mockResolvedValueOnce({ data: mockJsonApiDiscountRulesResponse([]) })
+
+      await discountRulesService.getAll(
+        { appliesTo: 'customer', discountType: 'fixed_amount', isActive: false },
+        { field: 'endDate', direction: 'asc' }
+      )
+
+      const params = (vi.mocked(axios.get).mock.calls[0][1] as { params: Record<string, string> }).params
+      expect(params['filter[appliesTo]']).toBe('customer')
+      expect(params['filter[discountType]']).toBe('fixed_amount')
+      expect(params['filter[isActive]']).toBe('0')
+      expect(params.sort).toBe('endDate')
     })
   })
 

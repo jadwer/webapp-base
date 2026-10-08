@@ -58,7 +58,7 @@ export const mockSalesOrder = (overrides?: Partial<SalesOrder>): SalesOrder => (
   paymentMethod: null,
   creditDays: null,
   arInvoiceId: null,
-  invoicingStatus: 'pending',
+  invoicingStatus: 'not_invoiced',
   invoicingNotes: null,
   // Paquete B (r260831): el transformer expone estos campos; sin ellos
   // el toEqual de los hooks falla (paidAt null no equivale a ausente).
@@ -107,9 +107,6 @@ export const mockSalesOrderItem = (overrides?: Partial<SalesOrderItem>): SalesOr
     discount: 0,
     total: 1000.00,
     totalPrice: 1000.00,
-    arInvoiceLineId: null,
-    invoicedQuantity: null,
-    invoicedAmount: null,
     createdAt: '2025-01-01T00:00:00.000Z',
     updatedAt: '2025-01-01T00:00:00.000Z',
     ...overrides,
@@ -267,9 +264,6 @@ export const mockJsonApiSalesOrderItemsResponse = (items: SalesOrderItem[]) => {
         total: item.total,
         total_price: item.totalPrice,
         discount: item.discount,
-        ar_invoice_line_id: item.arInvoiceLineId,
-        invoiced_quantity: item.invoicedQuantity,
-        invoiced_amount: item.invoicedAmount,
         created_at: item.createdAt,
         updated_at: item.updatedAt,
       },
@@ -440,8 +434,8 @@ export const mockParsedDiscountRule = (overrides?: Partial<ParsedDiscountRule>):
  * Creates a list of mock discount rules
  */
 export const mockDiscountRules = (count: number = 3): ParsedDiscountRule[] => {
-  const types = ['percentage', 'fixed', 'buy_x_get_y'] as const
-  const appliesTo = ['order', 'product', 'category'] as const
+  const types = ['percentage', 'fixed_amount', 'buy_x_get_y'] as const
+  const appliesTo = ['order', 'product', 'category', 'customer'] as const
 
   return Array.from({ length: count }, (_, index) => {
     const type = types[index % 3]
@@ -453,10 +447,10 @@ export const mockDiscountRules = (count: number = 3): ParsedDiscountRule[] => {
       discountValue: type === 'buy_x_get_y' ? 0 : (index + 1) * 5,
       buyQuantity: type === 'buy_x_get_y' ? 2 : null,
       getQuantity: type === 'buy_x_get_y' ? 1 : null,
-      appliesTo: appliesTo[index % 3],
+      appliesTo: appliesTo[index % 4],
       priority: index + 1,
       discountDisplay: type === 'percentage' ? `${(index + 1) * 5}%` :
-        type === 'fixed' ? `$${(index + 1) * 5}.00` :
+        type === 'fixed_amount' ? `$${(index + 1) * 5}.00` :
           `Compra 2 Lleva 1`,
     })
   })

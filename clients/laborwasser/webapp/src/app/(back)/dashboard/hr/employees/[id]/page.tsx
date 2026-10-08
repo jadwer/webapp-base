@@ -3,6 +3,7 @@
 import React from 'react'
 import { useRouter } from 'next/navigation'
 import { useEmployee } from '@/modules/hr'
+import { formatDateOnly } from '@lwm/ui'
 
 interface EmployeeViewPageProps {
   params: Promise<{
@@ -65,6 +66,7 @@ export default function EmployeeViewPage({ params }: EmployeeViewPageProps) {
           {/* Header */}
           <div className="d-flex align-items-center mb-4">
             <button
+              aria-label="Volver a empleados"
               type="button"
               onClick={handleBack}
               className="btn btn-link p-0 me-3 text-decoration-none"
@@ -140,7 +142,7 @@ export default function EmployeeViewPage({ params }: EmployeeViewPageProps) {
                     {employee.hireDate && (
                       <div className="col-md-6">
                         <h6 className="text-muted mb-1">Fecha de Contratacion</h6>
-                        <p className="fs-5 mb-0">{new Date(employee.hireDate).toLocaleDateString()}</p>
+                        <p className="fs-5 mb-0">{formatDateOnly(employee.hireDate)}</p>
                       </div>
                     )}
                     {employee.salary && (

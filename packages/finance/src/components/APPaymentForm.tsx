@@ -8,7 +8,8 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Button } from '@lwm/ui'
+import { Button, todayDateInput } from '@lwm/ui'
+import { useActivePaymentMethods } from '../hooks/usePaymentMethods'
 import type { APPaymentForm, APInvoice, BankAccount } from '../types'
 
 interface APPaymentFormProps {
@@ -26,14 +27,18 @@ export const APPaymentFormComponent = ({
   isLoading = false,
   bankAccounts = []
 }: APPaymentFormProps) => {
+  const remainingBalance = apInvoice.totalAmount - apInvoice.paidAmount
+
+  const { activePaymentMethods } = useActivePaymentMethods()
   const [formData, setFormData] = useState<APPaymentForm>({
-    contactId: apInvoice.contactId,
-    paymentDate: new Date().toISOString().split('T')[0],
-    paymentMethod: 'transfer',
+    paymentNumber: '',
+    contactId: Number(apInvoice.contactId),
+    paymentDate: todayDateInput(),
+    paymentMethodId: 0,
     currency: apInvoice.currency || 'MXN',
-    amount: apInvoice.totalAmount - apInvoice.paidAmount,
-    bankAccountId: null,
-    status: 'draft',
+    amount: remainingBalance,
+    bankAccountId: 0,
+    status: 'unapplied',
   })
 
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -50,18 +55,21 @@ export const APPaymentFormComponent = ({
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {}
 
+    if (!formData.paymentMethodId) {
+      newErrors.paymentMethodId = 'Debe seleccionar un método de pago'
+    }
     if (!formData.bankAccountId) {
       newErrors.bankAccountId = 'Debe seleccionar una cuenta bancaria'
     }
     if (!formData.paymentDate) {
       newErrors.paymentDate = 'La fecha de pago es obligatoria'
     }
-    const amountNum = parseFloat(formData.amount)
+    const amountNum = Number(formData.amount)
     if (isNaN(amountNum) || amountNum <= 0) {
       newErrors.amount = 'El monto debe ser mayor a cero'
     }
-    if (amountNum > apInvoice.remainingBalance) {
-      newErrors.amount = `El monto no puede ser mayor al saldo pendiente (${apInvoice.remainingBalance})`
+    if (amountNum > remainingBalance) {
+      newErrors.amount = `El monto no puede ser mayor al saldo pendiente (${remainingBalance})`
     }
 
     setErrors(newErrors)
@@ -72,7 +80,13 @@ export const APPaymentFormComponent = ({
     e.preventDefault()
     
     if (validateForm()) {
-      onSubmit(formData)
+      onSubmit({
+        ...formData,
+        contactId: Number(formData.contactId),
+        bankAccountId: Number(formData.bankAccountId),
+        paymentMethodId: Number(formData.paymentMethodId),
+        amount: Number(formData.amount),
+      })
     }
   }
 
@@ -97,16 +111,37 @@ export const APPaymentFormComponent = ({
           <div className="row">
             <div className="col-md-6">
               <strong>Factura:</strong> {apInvoice.invoiceNumber}<br />
-              <strong>Total:</strong> {formatCurrency(typeof apInvoice.total === 'string' ? parseFloat(apInvoice.total) : apInvoice.total)}
+              <strong>Total:</strong> {formatCurrency(apInvoice.totalAmount)}
             </div>
             <div className="col-md-6">
               <strong>Pagado:</strong> {formatCurrency(apInvoice.paidAmount)}<br />
-              <strong>Saldo pendiente:</strong> <span className="text-danger fw-bold">{formatCurrency(apInvoice.remainingBalance)}</span>
+              <strong>Saldo pendiente:</strong> <span className="text-danger fw-bold">{formatCurrency(remainingBalance)}</span>
             </div>
           </div>
         </div>
 
         <form onSubmit={handleSubmit} className="row g-3">
+          {/* Payment Number */}
+          <div className="col-md-6">
+            <label htmlFor="paymentNumber" className="form-label">
+              Número de Pago
+            </label>
+            <input
+              type="text"
+              id="paymentNumber"
+              className={`form-control ${errors.paymentNumber ? 'is-invalid' : ''}`}
+              value={formData.paymentNumber}
+              onChange={(e) => handleInputChange('paymentNumber', e.target.value)}
+              maxLength={255}
+              placeholder="Automático (PAY-000001)"
+              disabled={isLoading}
+            />
+            <div className="form-text">Déjalo vacío para que el sistema asigne el folio.</div>
+            {errors.paymentNumber && (
+              <div className="invalid-feedback">{errors.paymentNumber}</div>
+            )}
+          </div>
+
           {/* Bank Account Selection */}
           <div className="col-md-6">
             <label htmlFor="bankAccountId" className="form-label">
@@ -116,7 +151,7 @@ export const APPaymentFormComponent = ({
               id="bankAccountId"
               className={`form-select ${errors.bankAccountId ? 'is-invalid' : ''}`}
               value={formData.bankAccountId || ''}
-              onChange={(e) => setFormData(prev => ({ ...prev, bankAccountId: e.target.value || null }))}
+              onChange={(e) => setFormData(prev => ({ ...prev, bankAccountId: Number(e.target.value) || 0 }))}
               disabled={isLoading}
             >
               <option value="">Seleccionar cuenta...</option>
@@ -161,7 +196,7 @@ export const APPaymentFormComponent = ({
                 id="amount"
                 className={`form-control ${errors.amount ? 'is-invalid' : ''}`}
                 value={formData.amount}
-                onChange={(e) => handleInputChange('amount', e.target.value)}
+                onChange={(e) => setFormData(prev => ({ ...prev, amount: e.target.value === '' ? 0 : Number(e.target.value) }))}
                 disabled={isLoading}
                 min="0"
                 step="0.01"
@@ -171,7 +206,7 @@ export const APPaymentFormComponent = ({
               )}
             </div>
             <div className="form-text">
-              Máximo: {formatCurrency(apInvoice.remainingBalance)}
+              Máximo: {formatCurrency(remainingBalance)}
             </div>
           </div>
 
@@ -195,21 +230,26 @@ export const APPaymentFormComponent = ({
 
           {/* Payment Method */}
           <div className="col-md-4">
-            <label htmlFor="paymentMethod" className="form-label">
-              Método de Pago
+            <label htmlFor="paymentMethodId" className="form-label">
+              Método de Pago <span className="text-danger">*</span>
             </label>
             <select
-              id="paymentMethod"
-              className="form-select"
-              value={formData.paymentMethod}
-              onChange={(e) => handleInputChange('paymentMethod', e.target.value)}
+              id="paymentMethodId"
+              className={`form-select ${errors.paymentMethodId ? 'is-invalid' : ''}`}
+              value={formData.paymentMethodId || ''}
+              onChange={(e) => setFormData(prev => ({ ...prev, paymentMethodId: Number(e.target.value) || 0 }))}
               disabled={isLoading}
             >
-              <option value="transfer">Transferencia Bancaria</option>
-              <option value="check">Cheque</option>
-              <option value="cash">Efectivo</option>
-              <option value="card">Tarjeta</option>
+              <option value="">Seleccionar método...</option>
+              {activePaymentMethods.map((method) => (
+                <option key={method.id} value={method.id}>
+                  {method.name}
+                </option>
+              ))}
             </select>
+            {errors.paymentMethodId && (
+              <div className="invalid-feedback">{errors.paymentMethodId}</div>
+            )}
           </div>
 
           {/* Form Actions */}

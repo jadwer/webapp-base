@@ -11,7 +11,7 @@ import React, { useState, useCallback, useRef } from 'react'
 import { useDiscountRules } from '../hooks/useDiscountRules'
 import { useDiscountRuleMutations } from '../hooks/useDiscountRuleMutations'
 import { DiscountRulesTable } from './DiscountRulesTable'
-import { Button } from '@lwm/ui'
+import { Button, diffDaysDateOnly, todayDateInput } from '@lwm/ui'
 import { Alert } from '@lwm/ui'
 import { ConfirmModal } from '@lwm/ui'
 import type { ConfirmModalHandle } from '@lwm/ui'
@@ -52,7 +52,7 @@ export const DiscountRulesAdminPage = () => {
 
   // Calculate metrics dynamically
   const ruleMetrics = React.useMemo(() => {
-    const now = new Date()
+    const today = todayDateInput()
 
     return {
       total: discountRules.length,
@@ -60,12 +60,11 @@ export const DiscountRulesAdminPage = () => {
       inactive: discountRules.filter(r => !r.isActive).length,
       expired: discountRules.filter(r => r.isExpired).length,
       percentage: discountRules.filter(r => r.discountType === 'percentage').length,
-      fixed: discountRules.filter(r => r.discountType === 'fixed').length,
+      fixed: discountRules.filter(r => r.discountType === 'fixed_amount').length,
       buyXGetY: discountRules.filter(r => r.discountType === 'buy_x_get_y').length,
       expiringSoon: discountRules.filter(r => {
         if (!r.endDate || r.isExpired) return false
-        const endDate = new Date(r.endDate)
-        const daysUntilExpiry = Math.ceil((endDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+        const daysUntilExpiry = diffDaysDateOnly(today, r.endDate) ?? 0
         return daysUntilExpiry <= 7 && daysUntilExpiry > 0
       }).length
     }
@@ -287,9 +286,9 @@ export const DiscountRulesAdminPage = () => {
                   Porcentaje
                 </Button>
                 <Button
-                  variant={typeFilter === 'fixed' ? 'primary' : 'secondary'}
+                  variant={typeFilter === 'fixed_amount' ? 'primary' : 'secondary'}
                   size="small"
-                  onClick={() => handleTypeFilter(typeFilter === 'fixed' ? null : 'fixed')}
+                  onClick={() => handleTypeFilter(typeFilter === 'fixed_amount' ? null : 'fixed_amount')}
                 >
                   <i className="bi bi-currency-dollar me-1" />
                   Monto Fijo

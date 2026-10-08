@@ -8,7 +8,7 @@
 
 import React from 'react'
 import { useDiscountRule } from '../hooks/useDiscountRule'
-import { useNavigationProgress } from '@lwm/ui'
+import { useNavigationProgress, formatDateOnly, formatDateTime } from '@lwm/ui'
 import { Alert } from '@lwm/ui'
 import { Button } from '@lwm/ui'
 import { DiscountRuleStatusBadge } from './DiscountRuleStatusBadge'
@@ -21,15 +21,8 @@ interface ViewDiscountRuleWrapperProps {
 
 const formatDate = (dateString: string | null | undefined): string => {
   if (!dateString) return '-'
-  try {
-    return new Date(dateString).toLocaleDateString('es-MX', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    })
-  } catch {
-    return dateString
-  }
+  // fecha sin hora
+  return formatDateOnly(dateString, 'es-MX', { year: 'numeric', month: 'long', day: 'numeric' })
 }
 
 const formatCurrency = (amount: number | null | undefined): string => {
@@ -92,6 +85,7 @@ export const ViewDiscountRuleWrapper: React.FC<ViewDiscountRuleWrapperProps> = (
           <div className="d-flex justify-content-between align-items-start mb-4">
             <div className="d-flex align-items-center">
               <button
+                aria-label="Volver"
                 type="button"
                 className="btn btn-link text-muted p-0 me-3"
                 onClick={handleBack}
@@ -317,12 +311,12 @@ export const ViewDiscountRuleWrapper: React.FC<ViewDiscountRuleWrapperProps> = (
               <div className="row g-4">
                 <div className="col-md-6">
                   <label className="form-label text-muted small">Fecha de Creacion</label>
-                  <div>{formatDate(discountRule.createdAt)}</div>
+                  <div>{formatDateTime(discountRule.createdAt)}</div>
                 </div>
 
                 <div className="col-md-6">
                   <label className="form-label text-muted small">Ultima Actualizacion</label>
-                  <div>{formatDate(discountRule.updatedAt)}</div>
+                  <div>{formatDateTime(discountRule.updatedAt)}</div>
                 </div>
               </div>
             </div>

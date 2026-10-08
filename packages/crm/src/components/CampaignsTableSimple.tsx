@@ -6,6 +6,7 @@
 
 import React from 'react'
 import type { Campaign } from '../types'
+import { formatDateOnly } from '@lwm/ui'
 
 interface CampaignsTableSimpleProps {
   campaigns: Campaign[]
@@ -42,9 +43,9 @@ const calculateROI = (revenue: number, cost: number): number => {
   return ((revenue - cost) / cost) * 100
 }
 
+// startDate y endDate son fechas sin hora
 const formatDate = (dateString: string) => {
-  const date = new Date(dateString)
-  return date.toLocaleDateString('es-MX', { year: 'numeric', month: 'short', day: 'numeric' })
+  return formatDateOnly(dateString, 'es-MX', { year: 'numeric', month: 'short', day: 'numeric' })
 }
 
 export const CampaignsTableSimple = ({
@@ -163,6 +164,7 @@ export const CampaignsTableSimple = ({
                     <div className="btn-group btn-group-sm" role="group">
                       {onView && (
                         <button
+                          aria-label="Ver detalle"
                           type="button"
                           className="btn btn-outline-primary"
                           onClick={() => onView(campaign)}
@@ -173,6 +175,7 @@ export const CampaignsTableSimple = ({
                       )}
                       {onEdit && (
                         <button
+                          aria-label="Editar"
                           type="button"
                           className="btn btn-outline-secondary"
                           onClick={() => onEdit(campaign)}
@@ -183,6 +186,7 @@ export const CampaignsTableSimple = ({
                       )}
                       {onDelete && (
                         <button
+                          aria-label="Eliminar"
                           type="button"
                           className="btn btn-outline-danger"
                           onClick={() => onDelete(campaign)}

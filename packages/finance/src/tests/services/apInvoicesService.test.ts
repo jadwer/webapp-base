@@ -20,12 +20,15 @@ vi.mock('../../lib/axiosClient', () => ({
   }
 }))
 
-// Mock transformers
-vi.mock('../../utils/transformers', () => ({
-  transformAPInvoicesFromAPI: vi.fn((data) => data.data || []),
-  transformAPInvoiceFromAPI: vi.fn((data) => data),
-  transformAPInvoiceToAPI: vi.fn((data) => ({ data: { type: 'ap-invoices', attributes: data } }))
-}))
+// FromAPI mockeados; los ToAPI son los reales para asertar el payload exacto
+vi.mock('../../utils/transformers', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../../utils/transformers')>()
+  return {
+    ...actual,
+    transformAPInvoicesFromAPI: vi.fn((data) => data.data || []),
+    transformAPInvoiceFromAPI: vi.fn((data) => data),
+  }
+})
 
 const mockAxios = axiosClient as any
 
@@ -120,14 +123,24 @@ describe('AP Invoices Service', () => {
       const result = await apInvoicesService.create(formData)
 
       // Assert
-      expect(mockAxios.post).toHaveBeenCalledWith(
-        '/api/v1/ap-invoices',
-        expect.objectContaining({
-          data: expect.objectContaining({
-            type: 'ap-invoices'
-          })
-        })
-      )
+      // Tipo y atributos exactos de APInvoiceSchema (camelCase, numeros como number)
+      expect(mockAxios.post).toHaveBeenCalledWith('/api/v1/ap-invoices', {
+        data: {
+          type: 'ap-invoices',
+          attributes: {
+            invoiceNumber: 'AP-001',
+            invoiceDate: '2025-01-15',
+            dueDate: '2025-02-15',
+            contactId: 1,
+            purchaseOrderId: null,
+            currency: 'MXN',
+            subtotal: 862.07,
+            taxAmount: 137.93,
+            totalAmount: 1000,
+            status: 'pending',
+          },
+        },
+      })
       expect(result.data).toBeDefined()
     })
   })
@@ -172,20 +185,4 @@ describe('AP Invoices Service', () => {
     })
   })
 
-  describe('post', () => {
-    it('should post AP invoice', async () => {
-      // Arrange
-      const mockInvoice = createMockAPInvoice({ status: 'sent' })
-      mockAxios.post.mockResolvedValue({
-        data: { data: mockInvoice }
-      })
-
-      // Act
-      const result = await apInvoicesService.post('1')
-
-      // Assert
-      expect(mockAxios.post).toHaveBeenCalledWith('/api/v1/ap-invoices/1/post')
-      expect(result.data).toBeDefined()
-    })
-  })
 })

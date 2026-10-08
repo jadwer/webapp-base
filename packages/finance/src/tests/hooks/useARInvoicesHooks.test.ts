@@ -20,7 +20,6 @@ vi.mock('../../services', () => ({
     create: vi.fn(),
     update: vi.fn(),
     delete: vi.fn(),
-    post: vi.fn()
   }
 }))
 
@@ -124,7 +123,7 @@ describe('AR Invoices Hooks', () => {
       expect(result.current).toHaveProperty('createARInvoice')
       expect(result.current).toHaveProperty('updateARInvoice')
       expect(result.current).toHaveProperty('deleteARInvoice')
-      expect(result.current).toHaveProperty('postARInvoice')
+      expect(result.current).not.toHaveProperty('postARInvoice')
     })
 
     it('should call create service on createARInvoice', async () => {
@@ -174,16 +173,5 @@ describe('AR Invoices Hooks', () => {
       expect(arInvoicesService.delete).toHaveBeenCalledWith('1')
     })
 
-    it('should call post service on postARInvoice', async () => {
-      // Arrange
-      vi.mocked(arInvoicesService.post).mockResolvedValue({ data: { id: '1' } } as any)
-
-      // Act
-      const { result } = renderHook(() => useARInvoiceMutations())
-      await result.current.postARInvoice('1')
-
-      // Assert
-      expect(arInvoicesService.post).toHaveBeenCalledWith('1')
-    })
   })
 })

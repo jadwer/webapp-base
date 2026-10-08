@@ -14,8 +14,6 @@ import type {
   EcommerceOrderItemsResponse,
   EcommerceOrderFilters,
   OrderStatus,
-  PaymentStatus,
-  ShippingStatus,
 } from '../types';
 import {
   ecommerceOrderFromAPI,
@@ -76,16 +74,25 @@ const ordersService = {
    * Uses sales-orders endpoint
    */
   async getById(id: string): Promise<EcommerceOrder> {
-    const response = await axiosClient.get<EcommerceOrderResponse>(
+    // includePaths de SalesOrderSchema: contact (no customer), items, items.product
+    const response = await axiosClient.get<EcommerceOrderResponse & { included?: Array<Record<string, unknown>> }>(
       `/api/v1/sales-orders/${id}`,
       {
         params: {
-          include: 'items,items.product,customer',
+          include: 'items,items.product,contact',
         },
       }
     );
 
-    return ecommerceOrderFromAPI(response.data.data as unknown as Record<string, unknown>);
+    const order = ecommerceOrderFromAPI(response.data.data as unknown as Record<string, unknown>);
+    const contact = (response.data.included || []).find(resource => resource.type === 'contacts');
+    if (contact) {
+      const attrs = (contact.attributes || {}) as Record<string, unknown>;
+      order.customerName = order.customerName || ((attrs.name as string) ?? '');
+      order.customerEmail = order.customerEmail || ((attrs.email as string) ?? '');
+      order.customerPhone = order.customerPhone || ((attrs.phone as string | undefined) ?? undefined);
+    }
+    return order;
   },
 
   /**
@@ -96,10 +103,8 @@ const ordersService = {
     const payload = {
       data: {
         type: 'sales-orders',
-        attributes: {
-          ...ecommerceOrderToAPI(order),
-          order_type: 'ecommerce',
-        },
+        // orderType es readOnly en el Schema (lo fija el backend)
+        attributes: ecommerceOrderToAPI(order, 'create'),
       },
     };
 
@@ -120,7 +125,7 @@ const ordersService = {
       data: {
         type: 'sales-orders',
         id,
-        attributes: ecommerceOrderToAPI(order),
+        attributes: ecommerceOrderToAPI(order, 'update'),
       },
     };
 
@@ -133,44 +138,34 @@ const ordersService = {
   },
 
   /**
-   * Update order status
+   * Cambia el estado por OrderStatusService (POST /api/v1/orders/{id}/status,
+   * OrderTrackingController::updateStatus). Un PATCH de status se ignora
+   * (readOnlyOnUpdate en SalesOrderSchema).
    */
   async updateStatus(
     id: string,
-    status: OrderStatus
+    status: OrderStatus,
+    notes?: string
   ): Promise<EcommerceOrder> {
-    return this.update(id, { status });
+    await axiosClient.post(`/api/v1/orders/${id}/status`, {
+      status,
+      ...(notes ? { notes } : {}),
+    });
+    return this.getById(id);
   },
 
-  /**
-   * Update payment status
-   */
-  async updatePaymentStatus(
-    id: string,
-    paymentStatus: PaymentStatus
-  ): Promise<EcommerceOrder> {
-    return this.update(id, { paymentStatus });
-  },
+  // paymentStatus lo escriben solo los listeners de pago y shippingStatus no
+  // existe en sales_orders: no hay metodos para editarlos.
 
   /**
-   * Update shipping status
-   */
-  async updateShippingStatus(
-    id: string,
-    shippingStatus: ShippingStatus
-  ): Promise<EcommerceOrder> {
-    return this.update(id, { shippingStatus });
-  },
-
-  /**
-   * Update order totals
+   * Update order totals: impuestos, descuento y total. El envio no existe en
+   * sales-orders; subtotalAmount si es escribible (regla desde B3) pero este
+   * flujo no lo toca.
    */
   async updateTotals(
     id: string,
     totals: {
-      subtotalAmount: number;
       taxAmount: number;
-      shippingAmount?: number;
       discountAmount?: number;
       totalAmount: number;
     }
@@ -190,10 +185,7 @@ const ordersService = {
    * Cancel an order
    */
   async cancel(id: string, reason?: string): Promise<EcommerceOrder> {
-    return this.update(id, {
-      status: 'cancelled',
-      notes: reason,
-    });
+    return this.updateStatus(id, 'cancelled', reason);
   },
 };
 
@@ -210,7 +202,8 @@ const itemsService = {
     const params: Record<string, string | number> = {};
 
     if (salesOrderId) {
-      params['filter[sales_order_id]'] = salesOrderId;
+      // Clave declarada en SalesOrderItemSchema::filters()
+      params['filter[salesOrderId]'] = salesOrderId;
     }
 
     const response = await axiosClient.get<EcommerceOrderItemsResponse>(

@@ -12,7 +12,7 @@ import React, { useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useAuth, hasAnyRole } from '@lwm/auth'
 import { useUsers } from '@lwm/permissions'
-import { formatCurrency, DATE_PRESETS, getPresetDates } from '@lwm/ui'
+import { formatCurrency, DATE_PRESETS, getPresetDates, todayDateInput } from '@lwm/ui'
 import { useCommissionsByPeriod, useCommissionMutations } from '../hooks'
 import { CommissionStatusBadge } from './CommissionStatusBadge'
 import { CommissionsSettingsCard } from './CommissionsSettingsCard'
@@ -39,7 +39,7 @@ export const CommissionsPage: React.FC = () => {
 
   const { startDate, endDate } = useMemo(() => {
     if (datePreset === 'custom') {
-      const today = new Date().toISOString().split('T')[0]
+      const today = todayDateInput()
       return {
         startDate: customStartDate || today,
         endDate: customEndDate || today,
@@ -375,6 +375,7 @@ export const CommissionsPage: React.FC = () => {
                       <td className="text-center">
                         {row.status === 'earned' && (
                           <button
+                            aria-label="Marcar como pagada"
                             className="btn btn-sm btn-outline-success"
                             onClick={() => openIndividualPay(row.id)}
                             title="Marcar como pagada"

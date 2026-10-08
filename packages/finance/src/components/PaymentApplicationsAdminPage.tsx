@@ -9,7 +9,7 @@
 import React, { useState, useRef } from 'react'
 import { usePaymentApplications, usePaymentApplicationMutations } from '../hooks'
 import { PaymentApplication } from '../types'
-import { ConfirmModal, type ConfirmModalHandle } from '@lwm/ui'
+import { ConfirmModal, type ConfirmModalHandle, formatDateOnly } from '@lwm/ui'
 
 interface PaymentApplicationsAdminPageProps {
   onEdit?: (application: PaymentApplication) => void
@@ -20,21 +20,16 @@ export const PaymentApplicationsAdminPage: React.FC<PaymentApplicationsAdminPage
   onEdit,
   onView
 }) => {
-  const [search, setSearch] = useState('')
   const [filterPaymentId, setFilterPaymentId] = useState('')
   const [filterInvoiceId, setFilterInvoiceId] = useState('')
   const [page, setPage] = useState(1)
   const confirmModalRef = useRef<ConfirmModalHandle>(null)
 
   // Build filters
+  // Filtros declarados en PaymentApplicationSchema (no hay filtro search).
   const filters: Record<string, unknown> = {}
-  if (search) filters.search = search
-  if (filterPaymentId) filters.paymentId = filterPaymentId
-  if (filterInvoiceId) {
-    // Could be AR or AP invoice
-    filters.arInvoiceId = filterInvoiceId
-    filters.apInvoiceId = filterInvoiceId
-  }
+  if (filterPaymentId) filters.payment_id = filterPaymentId
+  if (filterInvoiceId) filters.ar_invoice_id = filterInvoiceId
 
   // Fetch data
   const { applications, isLoading, error, meta } = usePaymentApplications({
@@ -84,14 +79,9 @@ export const PaymentApplicationsAdminPage: React.FC<PaymentApplicationsAdminPage
     }).format(parseFloat(amount))
   }
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString)
-    return date.toLocaleDateString('es-MX', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    })
-  }
+  // applicationDate es fecha sin hora
+  const formatDate = (dateString: string) =>
+    formatDateOnly(dateString, 'es-MX', { year: 'numeric', month: 'short', day: 'numeric' })
 
   return (
     <div className="container-fluid py-4">
@@ -116,20 +106,7 @@ export const PaymentApplicationsAdminPage: React.FC<PaymentApplicationsAdminPage
       <div className="card mb-4">
         <div className="card-body">
           <div className="row g-3">
-            <div className="col-md-4">
-              <label className="form-label">Buscar</label>
-              <input
-                type="text"
-                className="form-control"
-                placeholder="Número de factura o pago..."
-                value={search}
-                onChange={(e) => {
-                  setSearch(e.target.value)
-                  setPage(1)
-                }}
-              />
-            </div>
-            <div className="col-md-3">
+            <div className="col-md-5">
               <label className="form-label">ID de Pago</label>
               <input
                 type="text"
@@ -142,12 +119,12 @@ export const PaymentApplicationsAdminPage: React.FC<PaymentApplicationsAdminPage
                 }}
               />
             </div>
-            <div className="col-md-3">
+            <div className="col-md-5">
               <label className="form-label">ID de Factura</label>
               <input
                 type="text"
                 className="form-control"
-                placeholder="ID de factura AR/AP"
+                placeholder="ID de factura por cobrar"
                 value={filterInvoiceId}
                 onChange={(e) => {
                   setFilterInvoiceId(e.target.value)
@@ -159,7 +136,6 @@ export const PaymentApplicationsAdminPage: React.FC<PaymentApplicationsAdminPage
               <button
                 className="btn btn-outline-secondary w-100"
                 onClick={() => {
-                  setSearch('')
                   setFilterPaymentId('')
                   setFilterInvoiceId('')
                   setPage(1)
@@ -222,29 +198,23 @@ export const PaymentApplicationsAdminPage: React.FC<PaymentApplicationsAdminPage
                         <td>
                           <code className="text-dark">
                             {application.invoiceNumber ||
-                             (application.arInvoiceId ? `AR #${application.arInvoiceId}` : `AP #${application.apInvoiceId}`)}
+                             `AR #${application.arInvoiceId}`}
                           </code>
                         </td>
                         <td>
-                          {application.arInvoiceId ? (
-                            <span className="badge bg-success">
-                              <i className="bi bi-arrow-down-circle me-1"></i>
-                              Cobro (AR)
-                            </span>
-                          ) : (
-                            <span className="badge bg-warning text-dark">
-                              <i className="bi bi-arrow-up-circle me-1"></i>
-                              Pago (AP)
-                            </span>
-                          )}
+                          <span className="badge bg-success">
+                            <i className="bi bi-arrow-down-circle me-1"></i>
+                            Cobro (AR)
+                          </span>
                         </td>
                         <td>
-                          <strong>{formatCurrency(String(application.appliedAmount || application.amount || 0))}</strong>
+                          <strong>{formatCurrency(String(application.amount || 0))}</strong>
                         </td>
                         <td>
                           <div className="btn-group btn-group-sm float-end">
                             {onView && (
                               <button
+                                aria-label="Ver detalles"
                                 className="btn btn-outline-primary"
                                 onClick={() => onView(application)}
                                 title="Ver detalles"
@@ -254,6 +224,7 @@ export const PaymentApplicationsAdminPage: React.FC<PaymentApplicationsAdminPage
                             )}
                             {onEdit && (
                               <button
+                                aria-label="Editar"
                                 className="btn btn-outline-secondary"
                                 onClick={() => onEdit(application)}
                                 title="Editar"
@@ -262,6 +233,7 @@ export const PaymentApplicationsAdminPage: React.FC<PaymentApplicationsAdminPage
                               </button>
                             )}
                             <button
+                              aria-label="Eliminar"
                               className="btn btn-outline-danger"
                               onClick={() => handleDeleteClick(application)}
                               title="Eliminar"

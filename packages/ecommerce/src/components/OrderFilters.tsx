@@ -8,6 +8,7 @@
 
 import React from 'react'
 import { Input } from '@lwm/ui'
+import { ORDER_STATUSES, ORDER_STATUS_LABELS, type OrderStatus } from '../types'
 
 interface OrderFiltersProps {
   searchTerm: string
@@ -57,13 +58,9 @@ export const OrderFilters = React.memo<OrderFiltersProps>(({
               onChange={(e) => onStatusChange(e.target.value)}
             >
               <option value="">Todos los estados</option>
-              <option value="pending">Pendiente</option>
-              <option value="confirmed">Confirmado</option>
-              <option value="processing">Procesando</option>
-              <option value="shipped">Enviado</option>
-              <option value="delivered">Entregado</option>
-              <option value="cancelled">Cancelado</option>
-              <option value="refunded">Reembolsado</option>
+              {ORDER_STATUSES.map(status => (
+                <option key={status} value={status}>{ORDER_STATUS_LABELS[status]}</option>
+              ))}
             </select>
           </div>
 
@@ -98,7 +95,7 @@ export const OrderFilters = React.memo<OrderFiltersProps>(({
               )}
               {statusFilter && (
                 <span className="badge bg-info">
-                  Estado: {statusFilter}
+                  Estado: {ORDER_STATUS_LABELS[statusFilter as OrderStatus] ?? statusFilter}
                 </span>
               )}
               {paymentStatusFilter && (

@@ -1,15 +1,16 @@
 'use client'
 
-import { useAPPayments } from '@/modules/finance'
+import { useAPPayments, PAYMENT_STATUS_LABELS } from '@/modules/finance'
 import { Button } from '@/ui/components/base/Button'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
+import { formatDateOnly } from '@lwm/ui'
 
 export default function APPaymentsPage() {
   const navigation = useNavigationProgress()
   
   // Include contacts to resolve supplier names
   const { apPayments, isLoading, error } = useAPPayments({
-    include: ['contact']
+    include: ['contact', 'paymentMethod']
   })
 
   if (isLoading) {
@@ -83,7 +84,7 @@ export default function APPaymentsPage() {
                       <tr>
                         <th>Fecha</th>
                         <th>Proveedor</th>
-                        <th>Factura</th>
+                        <th>Folio</th>
                         <th>Monto</th>
                         <th>Método</th>
                         <th>Referencia</th>
@@ -94,11 +95,8 @@ export default function APPaymentsPage() {
                       {apPayments.map((payment) => {
                         const formatDate = (dateString?: string) => {
                           if (!dateString) return '-'
-                          try {
-                            return new Date(dateString).toLocaleDateString('es-ES')
-                          } catch {
-                            return '-'
-                          }
+                          // paymentDate es fecha sin hora
+                          return formatDateOnly(dateString)
                         }
 
                         const formatCurrency = (amount?: string | number) => {
@@ -120,27 +118,21 @@ export default function APPaymentsPage() {
                               </span>
                             </td>
                             <td>
-                              {payment.apInvoiceId ? (
-                                <span className="text-primary">
-                                  Factura #{payment.apInvoiceId}
-                                </span>
-                              ) : (
-                                <span className="text-muted">Sin factura</span>
-                              )}
+                              <code className="text-dark">{payment.paymentNumber || '-'}</code>
                             </td>
                             <td>
                               <strong>{formatCurrency(payment.amount)}</strong>
                               <div className="small text-muted">{payment.currency}</div>
                             </td>
-                            <td>{payment.paymentMethod}</td>
+                            <td>{payment.paymentMethodName || '-'}</td>
                             <td>
                               <code className="bg-light px-2 py-1 rounded">
                                 {payment.reference || '-'}
                               </code>
                             </td>
                             <td>
-                              <span className={`badge ${payment.status === 'posted' ? 'bg-success' : 'bg-warning'}`}>
-                                {payment.status === 'posted' ? 'Procesado' : 'Borrador'}
+                              <span className={`badge ${['applied', 'fully_applied'].includes(payment.status) ? 'bg-success' : payment.status === 'draft' ? 'bg-secondary' : 'bg-warning text-dark'}`}>
+                                {PAYMENT_STATUS_LABELS[payment.status] || payment.status}
                               </span>
                             </td>
                           </tr>

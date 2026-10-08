@@ -1,5 +1,6 @@
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
+import { parseDateOnly } from '@lwm/ui'
 
 export function formatPrice(
   price: number | null | undefined,
@@ -32,6 +33,8 @@ export function formatNumber(
   }).format(value)
 }
 
+const DATE_ONLY_VALUE = /^\d{4}-\d{2}-\d{2}(T00:00:00(\.0+)?Z)?$/
+
 export function formatDate(
   dateString: string | null | undefined,
   formatString: string = 'dd/MM/yyyy HH:mm'
@@ -39,7 +42,12 @@ export function formatDate(
   if (!dateString) return 'N/A'
   
   try {
-    const date = new Date(dateString)
+    // Fecha sin hora (Y-m-d o ISO medianoche UTC): se toma el dia de calendario
+    // como fecha local para que date-fns no la corra al dia anterior
+    const dateOnly = DATE_ONLY_VALUE.test(dateString) ? parseDateOnly(dateString) : null
+    const date = dateOnly
+      ? new Date(dateOnly.getUTCFullYear(), dateOnly.getUTCMonth(), dateOnly.getUTCDate())
+      : new Date(dateString)
     if (isNaN(date.getTime())) return 'Fecha inválida'
     return format(date, formatString, { locale: es })
   } catch {

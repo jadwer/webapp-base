@@ -46,6 +46,17 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     },
     ref
   ) => {
+    // Un boton de solo icono necesita nombre accesible: si no trae aria-label se toma de title
+    const ariaLabel =
+      props['aria-label'] ?? (iconOnly && typeof props.title === 'string' ? props.title : undefined)
+    if (
+      iconOnly &&
+      !ariaLabel &&
+      !props['aria-labelledby'] &&
+      process.env.NODE_ENV !== 'production'
+    ) {
+      console.warn('[Button] iconOnly sin aria-label ni title: el boton queda sin nombre accesible')
+    }
     // isLoading is an alias for loading
     const isLoadingState = loading || isLoading
     const buttonClassName = clsx(
@@ -68,6 +79,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         className={buttonClassName}
         disabled={disabled || isLoadingState}
         {...props}
+        aria-label={ariaLabel}
       >
         {startIcon && !isLoadingState && (
           <span className={styles.icon}>{startIcon}</span>

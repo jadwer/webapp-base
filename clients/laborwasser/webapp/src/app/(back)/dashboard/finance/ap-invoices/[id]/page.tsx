@@ -3,8 +3,9 @@
 import React from 'react'
 import { useParams } from 'next/navigation'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
-import { useAPInvoice } from '@/modules/finance'
+import { useAPInvoice, INVOICE_STATUS_LABELS } from '@/modules/finance'
 import { Button } from '@/ui/components/base/Button'
+import { formatDateOnly } from '@lwm/ui'
 
 export default function ViewAPInvoicePage() {
   const params = useParams()
@@ -37,7 +38,7 @@ export default function ViewAPInvoicePage() {
       case 'paid':
         return <span className="badge bg-success">Pagada</span>
       default:
-        return <span className="badge bg-light text-dark">{status}</span>
+        return <span className="badge bg-light text-dark">{(INVOICE_STATUS_LABELS as Record<string, string>)[status] || status}</span>
     }
   }
 
@@ -158,11 +159,11 @@ export default function ViewAPInvoicePage() {
                 </div>
                 <div className="col-md-6">
                   <label className="form-label text-muted">Fecha de Factura</label>
-                  <div>{formatDate(apInvoice.invoiceDate)}</div>
+                  <div>{formatDateOnly(apInvoice.invoiceDate)}</div>
                 </div>
                 <div className="col-md-6">
                   <label className="form-label text-muted">Fecha de Vencimiento</label>
-                  <div>{formatDate(apInvoice.dueDate)}</div>
+                  <div>{formatDateOnly(apInvoice.dueDate)}</div>
                 </div>
                 <div className="col-md-6">
                   <label className="form-label text-muted">Moneda</label>

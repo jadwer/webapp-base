@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { Button, Input } from '@lwm/ui'
+import { Button, Input, todayDateInput, toDateInput } from '@lwm/ui'
 import type { JournalEntry, JournalEntryWithLines, JournalLineForm } from '../types'
 import { usePostableAccounts } from '../hooks'
 
@@ -21,7 +21,7 @@ export const JournalEntryForm: React.FC<JournalEntryFormProps> = ({
   const { postableAccounts } = usePostableAccounts()
 
   const [formData, setFormData] = useState({
-    date: journalEntry?.date || new Date().toISOString().split('T')[0],
+    date: toDateInput(journalEntry?.date) || todayDateInput(),
     description: journalEntry?.description || '',
     reference: journalEntry?.reference || '',
     currency: journalEntry?.currency || 'MXN',
@@ -39,7 +39,7 @@ export const JournalEntryForm: React.FC<JournalEntryFormProps> = ({
   useEffect(() => {
     if (journalEntry) {
       setFormData({
-        date: journalEntry.date,
+        date: toDateInput(journalEntry.date),
         description: journalEntry.description,
         reference: journalEntry.reference || '',
         currency: journalEntry.currency || 'MXN',
@@ -307,6 +307,7 @@ export const JournalEntryForm: React.FC<JournalEntryFormProps> = ({
                         <td className="text-center">
                           {lines.length > 2 && (
                             <button
+                              aria-label="Eliminar línea"
                               type="button"
                               className="btn btn-sm btn-outline-danger"
                               onClick={() => removeLine(index)}

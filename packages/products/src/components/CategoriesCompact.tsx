@@ -96,17 +96,17 @@ export const CategoriesCompact = React.memo<CategoriesCompactProps>(({ categorie
               {/* Actions */}
               <div className="d-flex gap-1 ms-2">
                 {onView && (
-                  <Button size="small" variant="primary" buttonStyle="ghost" onClick={() => onView(category)} className="p-1" title="Ver detalles">
+                  <Button aria-label="Ver detalles" size="small" variant="primary" buttonStyle="ghost" onClick={() => onView(category)} className="p-1" title="Ver detalles">
                     <i className="bi bi-eye" />
                   </Button>
                 )}
                 {onEdit && (
-                  <Button size="small" variant="warning" buttonStyle="ghost" onClick={() => onEdit(category)} className="p-1" title="Editar">
+                  <Button aria-label="Editar" size="small" variant="warning" buttonStyle="ghost" onClick={() => onEdit(category)} className="p-1" title="Editar">
                     <i className="bi bi-pencil" />
                   </Button>
                 )}
                 {onDelete && (
-                  <Button size="small" variant="danger" buttonStyle="ghost" onClick={() => onDelete(category.id)} className="p-1" title="Eliminar">
+                  <Button aria-label="Eliminar" size="small" variant="danger" buttonStyle="ghost" onClick={() => onDelete(category.id)} className="p-1" title="Eliminar">
                     <i className="bi bi-trash" />
                   </Button>
                 )}

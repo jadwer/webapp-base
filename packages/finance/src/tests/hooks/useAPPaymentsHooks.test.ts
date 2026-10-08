@@ -20,7 +20,6 @@ vi.mock('../../services', () => ({
     create: vi.fn(),
     update: vi.fn(),
     delete: vi.fn(),
-    post: vi.fn()
   }
 }))
 
@@ -75,7 +74,7 @@ describe('AP Payments Hooks', () => {
     it('should accept filters parameter', () => {
       // Act
       const params = {
-        filters: { status: 'completed' }
+        filters: { status: 'applied' }
       }
       renderHook(() => useAPPayments(params))
 
@@ -158,24 +157,23 @@ describe('AP Payments Hooks', () => {
       expect(result.current).toHaveProperty('createAPPayment')
       expect(result.current).toHaveProperty('updateAPPayment')
       expect(result.current).toHaveProperty('deleteAPPayment')
-      expect(result.current).toHaveProperty('postAPPayment')
+      expect(result.current).not.toHaveProperty('postAPPayment')
       expect(typeof result.current.createAPPayment).toBe('function')
       expect(typeof result.current.updateAPPayment).toBe('function')
       expect(typeof result.current.deleteAPPayment).toBe('function')
-      expect(typeof result.current.postAPPayment).toBe('function')
     })
 
     it('should call create service on createAPPayment', async () => {
       // Arrange
       const mockPayment = {
+        paymentNumber: 'PAG-001',
         contactId: 1,
-        apInvoiceId: 1,
         paymentMethodId: 1,
+        bankAccountId: 1,
         paymentDate: '2025-01-15',
         currency: 'MXN',
         amount: 1000,
         reference: 'PAY-001',
-        status: 'pending'
       }
       vi.mocked(apPaymentsService.create).mockResolvedValue({ data: { id: '1' } } as any)
 
@@ -189,7 +187,7 @@ describe('AP Payments Hooks', () => {
 
     it('should call update service on updateAPPayment', async () => {
       // Arrange
-      const mockUpdate = { status: 'completed' as const }
+      const mockUpdate = { status: 'applied' as const }
       vi.mocked(apPaymentsService.update).mockResolvedValue({ data: { id: '1' } } as any)
 
       // Act
@@ -212,16 +210,5 @@ describe('AP Payments Hooks', () => {
       expect(apPaymentsService.delete).toHaveBeenCalledWith('1')
     })
 
-    it('should call post service on postAPPayment', async () => {
-      // Arrange
-      vi.mocked(apPaymentsService.post).mockResolvedValue({ data: { id: '1' } } as any)
-
-      // Act
-      const { result } = renderHook(() => useAPPaymentMutations())
-      await result.current.postAPPayment('1')
-
-      // Assert
-      expect(apPaymentsService.post).toHaveBeenCalledWith('1')
-    })
   })
 })

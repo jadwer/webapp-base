@@ -50,7 +50,7 @@ export const mockPurchaseOrder = (overrides?: Partial<PurchaseOrder>): PurchaseO
   notes: 'Test purchase order notes',
   // Finance integration fields
   apInvoiceId: null,
-  invoicingStatus: 'pending',
+  invoicingStatus: 'not_invoiced',
   invoicingNotes: null,
   createdAt: '2025-01-01T00:00:00.000Z',
   updatedAt: '2025-01-01T00:00:00.000Z',

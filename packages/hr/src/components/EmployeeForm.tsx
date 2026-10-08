@@ -7,9 +7,10 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Input, Button } from '@lwm/ui'
+import { Input, Button, todayDateInput, toDateInput } from '@lwm/ui'
 import { useDepartments, usePositions } from '../hooks'
 import type { EmployeeFormData, EmployeeStatus } from '../types'
+import { EMPLOYEE_STATUSES, EMPLOYEE_STATUS_LABELS } from '../types'
 
 interface EmployeeFormProps {
   initialData?: EmployeeFormData
@@ -33,11 +34,11 @@ export const EmployeeForm: React.FC<EmployeeFormProps> = ({
     lastName: initialData?.lastName || '',
     email: initialData?.email || '',
     phone: initialData?.phone || '',
-    hireDate: initialData?.hireDate || new Date().toISOString().split('T')[0],
-    birthDate: initialData?.birthDate || '',
+    hireDate: toDateInput(initialData?.hireDate) || todayDateInput(),
+    birthDate: toDateInput(initialData?.birthDate),
     salary: initialData?.salary || 0,
     status: initialData?.status || 'active',
-    terminationDate: initialData?.terminationDate || '',
+    terminationDate: toDateInput(initialData?.terminationDate),
     terminationReason: initialData?.terminationReason || '',
     address: initialData?.address || '',
     emergencyContactName: initialData?.emergencyContactName || '',
@@ -129,9 +130,9 @@ export const EmployeeForm: React.FC<EmployeeFormProps> = ({
             value={formData.status}
             onChange={(e) => handleChange('status', e.target.value as EmployeeStatus)}
           >
-            <option value="active">Activo</option>
-            <option value="inactive">Inactivo</option>
-            <option value="terminated">Terminado</option>
+            {EMPLOYEE_STATUSES.map(status => (
+              <option key={status} value={status}>{EMPLOYEE_STATUS_LABELS[status]}</option>
+            ))}
           </select>
         </div>
 

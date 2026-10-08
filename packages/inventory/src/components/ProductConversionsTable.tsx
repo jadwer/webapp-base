@@ -87,6 +87,7 @@ export const ProductConversionsTable = ({
               <td>
                 <div className="btn-group btn-group-sm" role="group">
                   <Link
+                    aria-label="Editar"
                     href={`/dashboard/inventory/product-conversions/${conversion.id}/edit`}
                     className="btn btn-outline-secondary"
                     title="Editar"
@@ -95,6 +96,7 @@ export const ProductConversionsTable = ({
                   </Link>
                   {onDelete && (
                     <button
+                      aria-label="Eliminar"
                       type="button"
                       className="btn btn-outline-danger"
                       onClick={() => onDelete(conversion)}

@@ -21,3 +21,6 @@ export type { TabNavProps, TabNavItem } from './TabNav'
 
 export { DetailSection } from './DetailSection'
 export type { DetailSectionProps } from './DetailSection'
+
+export { RowActions } from './RowActions'
+export type { RowActionsProps, RowActionsLabels } from './RowActions'

@@ -7,7 +7,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { Button } from '@lwm/ui'
+import { Button, todayDateInput } from '@lwm/ui'
 import { Input } from '@lwm/ui'
 import { useWarehouses } from '../hooks/useWarehouses'
 import { useLocations } from '../hooks/useLocations'
@@ -36,7 +36,7 @@ export const CycleCountForm: React.FC<CycleCountFormProps> = ({
   const [formData, setFormData] = useState<CycleCountFormData>({
     warehouseId: initialData?.warehouseId || '',
     productId: initialData?.productId || '',
-    scheduledDate: initialData?.scheduledDate || new Date().toISOString().split('T')[0],
+    scheduledDate: initialData?.scheduledDate || todayDateInput(),
     status: initialData?.status || 'scheduled',
     warehouseLocationId: initialData?.warehouseLocationId,
     systemQuantity: initialData?.systemQuantity,

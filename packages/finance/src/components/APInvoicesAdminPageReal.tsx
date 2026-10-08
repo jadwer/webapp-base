@@ -13,6 +13,7 @@ import { FilterBar } from './FilterBar'
 import { PaginationSimple } from './PaginationSimple'
 import { Button } from '@lwm/ui'
 import { Alert } from '@lwm/ui'
+import { INVOICE_STATUS_FILTER_OPTIONS, isInvoiceOpen } from '../utils/invoiceStatus'
 import { useNavigationProgress } from '@lwm/ui'
 
 export const APInvoicesAdminPageReal = () => {
@@ -96,9 +97,7 @@ export const APInvoicesAdminPageReal = () => {
         onStatusFilterChange={handleStatusFilterChange}
         statusOptions={[
           { value: '', label: 'Todos los estados' },
-          { value: 'draft', label: 'Borrador' },
-          { value: 'sent', label: 'Enviada' },
-          { value: 'paid', label: 'Pagada' },
+          ...INVOICE_STATUS_FILTER_OPTIONS,
         ]}
         placeholder="Buscar por número de factura, proveedor..."
       />
@@ -120,7 +119,7 @@ export const APInvoicesAdminPageReal = () => {
         <div className="bg-white p-4 rounded-lg border">
           <div className="text-sm text-gray-600">Pendientes</div>
           <div className="text-2xl font-bold text-blue-600">
-            {apInvoices?.filter(inv => inv.status === 'sent' && (inv.totalAmount - inv.paidAmount) > 0).length || 0}
+            {apInvoices?.filter(inv => isInvoiceOpen(inv)).length || 0}
           </div>
         </div>
         <div className="bg-white p-4 rounded-lg border">

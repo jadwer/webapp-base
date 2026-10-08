@@ -238,15 +238,15 @@ export default function FoliosSettingsPage() {
                         <td>
                           {isEditing ? (
                             <div className="d-flex gap-1">
-                              <button className="btn btn-sm btn-success" onClick={handleSave} disabled={saving}>
+                              <button aria-label="Guardar" className="btn btn-sm btn-success" onClick={handleSave} disabled={saving}>
                                 {saving ? <span className="spinner-border spinner-border-sm" /> : <i className="bi bi-check" />}
                               </button>
-                              <button className="btn btn-sm btn-outline-secondary" onClick={handleCancel} disabled={saving}>
+                              <button aria-label="Cancelar" className="btn btn-sm btn-outline-secondary" onClick={handleCancel} disabled={saving}>
                                 <i className="bi bi-x" />
                               </button>
                             </div>
                           ) : (
-                            <button className="btn btn-sm btn-outline-primary" onClick={() => handleEdit(seq)}>
+                            <button aria-label="Editar" className="btn btn-sm btn-outline-primary" onClick={() => handleEdit(seq)}>
                               <i className="bi bi-pencil" />
                             </button>
                           )}

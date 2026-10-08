@@ -26,6 +26,10 @@ describe('formatDate', () => {
     expect(formatDate('2026-10-07')).toBe('07/10/2026')
   })
 
+  it('ISO medianoche UTC conserva el dia guardado', () => {
+    expect(formatDate('2026-10-25T00:00:00.000000Z')).toBe('25/10/2026')
+  })
+
   it('formatea ISO con hora local', () => {
     const local = new Date(2026, 0, 5, 14, 30)
     expect(formatDate(local)).toBe('05/01/2026')

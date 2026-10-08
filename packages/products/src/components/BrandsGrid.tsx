@@ -86,7 +86,7 @@ export const BrandsGrid = React.memo<BrandsGridProps>(({ brands, isLoading = fal
               <div className="d-flex gap-2 mt-3 pt-3 border-top">
                 {onView && <Button size="small" variant="primary" buttonStyle="outline" onClick={() => onView(brand)} className="flex-fill"><i className="bi bi-eye me-1" />Ver</Button>}
                 {onEdit && <Button size="small" variant="warning" buttonStyle="outline" onClick={() => onEdit(brand)} className="flex-fill"><i className="bi bi-pencil me-1" />Editar</Button>}
-                {onDelete && <Button size="small" variant="danger" buttonStyle="outline" onClick={() => onDelete(brand.id)}><i className="bi bi-trash" /></Button>}
+                {onDelete && <Button aria-label="Eliminar" size="small" variant="danger" buttonStyle="outline" onClick={() => onDelete(brand.id)}><i className="bi bi-trash" /></Button>}
               </div>
             </div>
           </div>

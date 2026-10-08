@@ -4,9 +4,11 @@
 
 import React, { useState } from 'react'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
-import { useARInvoiceMutations } from '@/modules/finance'
+import { useARInvoiceMutations, getFinanceErrorMessage } from '@/modules/finance'
+import type { ARInvoiceForm } from '@/modules/finance'
 import { useContacts } from '@/modules/contacts'
 import { Button } from '@/ui/components/base/Button'
+import { todayDateInput } from '@lwm/ui'
 
 export default function CreateARInvoicePage() {
   const navigation = useNavigationProgress()
@@ -14,14 +16,14 @@ export default function CreateARInvoicePage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // Load contacts for customer selection (only customers, not suppliers)
+  // ARInvoiceRequest exige un contacto con is_customer = true.
   const { contacts, isLoading: contactsLoading } = useContacts({
-    filters: { isSupplier: false }
+    filters: { isCustomer: true }
   })
   const [formData, setFormData] = useState<Record<string, unknown>>({
     contactId: '',
     invoiceNumber: '',
-    invoiceDate: new Date().toISOString().split('T')[0],
+    invoiceDate: todayDateInput(),
     dueDate: '',
     currency: 'MXN',
     subtotal: '0.00',
@@ -41,13 +43,21 @@ export default function CreateARInvoicePage() {
         throw new Error('Todos los campos requeridos deben estar completos')
       }
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const response = await createARInvoice(formData as any)
-      console.log('✅ [ARInvoiceCreate] Invoice created successfully:', response)
+      const payload: ARInvoiceForm = {
+        contactId: Number(formData.contactId),
+        invoiceNumber: String(formData.invoiceNumber).trim(),
+        invoiceDate: formData.invoiceDate,
+        dueDate: formData.dueDate,
+        currency: formData.currency,
+        subtotal: Number(formData.subtotal) || 0,
+        taxAmount: Number(formData.taxTotal) || 0,
+        totalAmount: Number(formData.total) || 0,
+        status: formData.status,
+      }
+      await createARInvoice(payload)
       navigation.push('/dashboard/finance/ar-invoices')
     } catch (err) {
-      console.error('❌ [ARInvoiceCreate] Error creating AR invoice:', err)
-      setError(err instanceof Error ? err.message : 'Error al crear la factura por cobrar')
+      setError(getFinanceErrorMessage(err, 'Error al crear la factura por cobrar'))
     } finally {
       setIsLoading(false)
     }

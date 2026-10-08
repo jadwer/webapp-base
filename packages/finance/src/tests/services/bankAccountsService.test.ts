@@ -20,12 +20,15 @@ vi.mock('../../lib/axiosClient', () => ({
   }
 }))
 
-// Mock transformers
-vi.mock('../../utils/transformers', () => ({
-  transformBankAccountsFromAPI: vi.fn((data) => data.data || []),
-  transformBankAccountFromAPI: vi.fn((data) => data),
-  transformBankAccountToAPI: vi.fn((data) => ({ data: { type: 'bank-accounts', attributes: data } }))
-}))
+// FromAPI mockeados; los ToAPI son los reales para asertar el payload exacto
+vi.mock('../../utils/transformers', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../../utils/transformers')>()
+  return {
+    ...actual,
+    transformBankAccountsFromAPI: vi.fn((data) => data.data || []),
+    transformBankAccountFromAPI: vi.fn((data) => data),
+  }
+})
 
 const mockAxios = axiosClient as any
 
@@ -91,8 +94,9 @@ describe('Bank Accounts Service', () => {
         accountName: 'Test Operations Account',
         bankName: 'Test Bank',
         accountNumber: '1234567890',
-        accountType: 'checking',
         currency: 'USD',
+        glAccountId: 15,
+        openingBalance: 10000,
         currentBalance: 10000,
         isActive: true
       }
@@ -105,14 +109,22 @@ describe('Bank Accounts Service', () => {
       const result = await bankAccountsService.create(formData)
 
       // Assert
-      expect(mockAxios.post).toHaveBeenCalledWith(
-        '/api/v1/bank-accounts',
-        expect.objectContaining({
-          data: expect.objectContaining({
-            type: 'bank-accounts'
-          })
-        })
-      )
+      // Sin accountType ni clabe (no son atributos); saldos como number
+      expect(mockAxios.post).toHaveBeenCalledWith('/api/v1/bank-accounts', {
+        data: {
+          type: 'bank-accounts',
+          attributes: {
+            accountNumber: '1234567890',
+            accountName: 'Test Operations Account',
+            bankName: 'Test Bank',
+            currency: 'USD',
+            glAccountId: 15,
+            currentBalance: 10000,
+            openingBalance: 10000,
+            isActive: true,
+          },
+        },
+      })
       expect(result.data).toBeDefined()
     })
   })

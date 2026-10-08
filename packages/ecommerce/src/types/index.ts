@@ -9,14 +9,33 @@
 // Ecommerce Order Types
 // ============================================
 
+// Espejo de api-base Modules/Sales/app/JsonApi/V1/SalesOrders/SalesOrderRequest.php (status)
 export type OrderStatus =
+  | 'draft'
   | 'pending'
   | 'confirmed'
   | 'processing'
   | 'shipped'
   | 'delivered'
+  | 'completed'
   | 'cancelled'
+  | 'returned'
   | 'refunded';
+
+export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
+  draft: 'Borrador',
+  pending: 'Pendiente',
+  confirmed: 'Confirmado',
+  processing: 'Procesando',
+  shipped: 'Enviado',
+  delivered: 'Entregado',
+  completed: 'Completado',
+  cancelled: 'Cancelado',
+  returned: 'Devuelto',
+  refunded: 'Reembolsado',
+};
+
+export const ORDER_STATUSES = Object.keys(ORDER_STATUS_LABELS) as OrderStatus[];
 
 export type PaymentStatus =
   // Paquete A: valores REALES de sales_orders.payment_status (los escriben los
@@ -66,6 +85,8 @@ export interface EcommerceOrder {
   shippingState: string;
   shippingPostalCode: string;
   shippingCountry: string;
+  // Hash shippingAddress tal como lo guarda el backend (conserva llaves extra al editar)
+  shippingAddressData?: Record<string, unknown>;
 
   // Billing information
   billingAddressLine1?: string;
@@ -95,8 +116,9 @@ export interface EcommerceOrder {
 }
 
 export interface EcommerceOrderFormData {
-  customerEmail: string;
-  customerName: string;
+  // Solo en alta: en edicion los datos del cliente viven en el contacto
+  customerEmail?: string;
+  customerName?: string;
   customerPhone?: string;
   shippingAddressLine1: string;
   shippingAddressLine2?: string;
@@ -104,6 +126,7 @@ export interface EcommerceOrderFormData {
   shippingState: string;
   shippingPostalCode: string;
   shippingCountry: string;
+  shippingAddressData?: Record<string, unknown>;
   notes?: string;
 }
 
@@ -270,8 +293,9 @@ export interface CartItemFormData {
 // Checkout Session Types
 // ============================================
 
-export type CheckoutStatus = 'pending' | 'processing' | 'completed' | 'failed' | 'expired';
-export type CheckoutStep = 'cart' | 'shipping' | 'payment' | 'confirmation';
+// Enum de la tabla checkout_sessions (CheckoutSession::STATUSES / STEPS en el backend)
+export type CheckoutStatus = 'initiated' | 'payment_pending' | 'payment_confirmed' | 'completed' | 'failed' | 'expired';
+export type CheckoutStep = 'address' | 'shipping' | 'payment' | 'confirmation';
 
 export interface Address {
   street: string;

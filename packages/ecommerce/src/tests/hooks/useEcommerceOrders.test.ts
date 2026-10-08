@@ -38,8 +38,6 @@ vi.mock('../../services', () => ({
       create: vi.fn(),
       update: vi.fn(),
       updateStatus: vi.fn(),
-      updatePaymentStatus: vi.fn(),
-      updateShippingStatus: vi.fn(),
       updateTotals: vi.fn(),
       delete: vi.fn(),
       cancel: vi.fn(),
@@ -209,44 +207,11 @@ describe('useEcommerceOrders', () => {
       expect(order.status).toBe('processing');
     });
 
-    it('should provide updatePaymentStatus function', async () => {
-      // Arrange
-      const mockOrder = createMockEcommerceOrder({ paymentStatus: 'completed' });
-      vi.mocked(ecommerceService.orders.updatePaymentStatus).mockResolvedValue(
-        mockOrder
-      );
-
+    it('should not expose payment or shipping status mutations (not writable in sales-orders)', () => {
       const { result } = renderHook(() => useEcommerceOrderMutations());
 
-      // Act
-      const order = await result.current.updatePaymentStatus('1', 'completed');
-
-      // Assert
-      expect(ecommerceService.orders.updatePaymentStatus).toHaveBeenCalledWith(
-        '1',
-        'completed'
-      );
-      expect(order.paymentStatus).toBe('completed');
-    });
-
-    it('should provide updateShippingStatus function', async () => {
-      // Arrange
-      const mockOrder = createMockEcommerceOrder({ shippingStatus: 'shipped' });
-      vi.mocked(ecommerceService.orders.updateShippingStatus).mockResolvedValue(
-        mockOrder
-      );
-
-      const { result } = renderHook(() => useEcommerceOrderMutations());
-
-      // Act
-      const order = await result.current.updateShippingStatus('1', 'shipped');
-
-      // Assert
-      expect(ecommerceService.orders.updateShippingStatus).toHaveBeenCalledWith(
-        '1',
-        'shipped'
-      );
-      expect(order.shippingStatus).toBe('shipped');
+      expect(result.current).not.toHaveProperty('updatePaymentStatus');
+      expect(result.current).not.toHaveProperty('updateShippingStatus');
     });
 
     it('should provide updateEcommerceOrderTotals function', async () => {
@@ -258,7 +223,6 @@ describe('useEcommerceOrders', () => {
 
       // Act
       const totals = {
-        subtotalAmount: 1400.0,
         taxAmount: 100.0,
         totalAmount: 1500.0,
       };

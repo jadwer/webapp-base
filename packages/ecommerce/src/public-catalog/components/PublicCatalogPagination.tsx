@@ -132,6 +132,7 @@ export const PublicCatalogPagination: React.FC<PublicCatalogPaginationProps> = (
     return (
       <div className={`d-flex justify-content-center align-items-center gap-2 ${className}`}>
         <button
+          aria-label="Página anterior"
           type="button"
           className="btn btn-sm btn-outline-secondary"
           onClick={() => onPageChange(currentPage - 1)}
@@ -145,6 +146,7 @@ export const PublicCatalogPagination: React.FC<PublicCatalogPaginationProps> = (
         </span>
         
         <button
+          aria-label="Página siguiente"
           type="button"
           className="btn btn-sm btn-outline-secondary"
           onClick={() => onPageChange(currentPage + 1)}

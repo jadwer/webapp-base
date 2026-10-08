@@ -8,7 +8,7 @@
 
 import React, { useMemo, useState } from 'react'
 import Link from 'next/link'
-import { formatCurrency, DATE_PRESETS, getPresetDates } from '@lwm/ui'
+import { formatCurrency, DATE_PRESETS, getPresetDates, todayDateInput } from '@lwm/ui'
 import { useCommissionsByEmployee } from '../hooks'
 
 export const CommissionsByEmployeePage: React.FC = () => {
@@ -18,7 +18,7 @@ export const CommissionsByEmployeePage: React.FC = () => {
 
   const { startDate, endDate } = useMemo(() => {
     if (datePreset === 'custom') {
-      const today = new Date().toISOString().split('T')[0]
+      const today = todayDateInput()
       return {
         startDate: customStartDate || today,
         endDate: customEndDate || today,

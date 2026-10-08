@@ -151,6 +151,7 @@ export function RolesTable({ onRoleSelect, selectedRole }: RolesTableProps) {
                             </button>
                           )}
                           <button
+                            aria-label="Editar rol"
                             className="btn btn-outline-primary"
                             onClick={(e) => {
                               e.stopPropagation()
@@ -161,6 +162,7 @@ export function RolesTable({ onRoleSelect, selectedRole }: RolesTableProps) {
                             <i className="bi bi-pencil"></i>
                           </button>
                           <button
+                            aria-label="Eliminar rol"
                             className="btn btn-outline-danger"
                             onClick={(e) => {
                               e.stopPropagation()
@@ -191,6 +193,7 @@ export function RolesTable({ onRoleSelect, selectedRole }: RolesTableProps) {
               <div className="modal-header">
                 <h5 className="modal-title">Editar rol</h5>
                 <button
+                  aria-label="Cerrar"
                   type="button"
                   className="btn-close"
                   onClick={() => setEditModal({ isOpen: false, role: null })}

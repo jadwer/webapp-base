@@ -66,6 +66,7 @@ const ProductCompactRow = React.memo<{
     <div className="d-flex gap-1" style={{ width: '90px' }}>
       {onView && (
         <Button
+          aria-label="Ver detalles"
           size="small"
           variant="primary"
           buttonStyle="outline"
@@ -77,6 +78,7 @@ const ProductCompactRow = React.memo<{
       )}
       {onEdit && (
         <Button
+          aria-label="Editar"
           size="small"
           variant="secondary"
           buttonStyle="outline"
@@ -88,6 +90,7 @@ const ProductCompactRow = React.memo<{
       )}
       {onDelete && (
         <Button
+          aria-label="Eliminar"
           size="small"
           variant="danger"
           buttonStyle="outline"

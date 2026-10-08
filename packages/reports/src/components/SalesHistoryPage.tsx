@@ -16,7 +16,7 @@ import { useContacts } from '@lwm/contacts'
 import { useProducts, useCategories, useBrands } from '@lwm/products'
 import { OrderStatusBadge, type OrderStatus } from '@lwm/ecommerce'
 import { useUsers } from '@lwm/permissions'
-import { formatCurrency } from '@lwm/ui'
+import { formatCurrency, todayDateInput } from '@lwm/ui'
 import { useSalesHistory } from '../hooks'
 import { DATE_PRESETS, getPresetDates } from '@lwm/ui'
 import { ReportExportButton } from './ReportExportButton'
@@ -86,7 +86,7 @@ export const SalesHistoryPage = () => {
 
   const { startDate, endDate } = useMemo(() => {
     if (datePreset === 'custom') {
-      const today = new Date().toISOString().split('T')[0]
+      const today = todayDateInput()
       return {
         startDate: customStartDate || today,
         endDate: customEndDate || today,

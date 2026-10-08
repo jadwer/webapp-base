@@ -18,6 +18,7 @@ import type {
   CycleCountSortOptions,
   JsonApiResponse
 } from '../types'
+import { todayDateInput } from '@lwm/ui'
 
 // JSON:API resource type
 const RESOURCE_TYPE = 'cycle-counts'
@@ -445,7 +446,7 @@ export const cycleCountsService = {
     return this.update(id, {
       status: 'completed',
       countedQuantity,
-      completedDate: new Date().toISOString().split('T')[0],
+      completedDate: todayDateInput(),
       ...(notes && { notes })
     })
   },
@@ -464,7 +465,7 @@ export const cycleCountsService = {
    * Get counts due today
    */
   async getDueToday(warehouseId?: string) {
-    const today = new Date().toISOString().split('T')[0]
+    const today = todayDateInput()
     return this.getAll(
       {
         status: ['scheduled'],

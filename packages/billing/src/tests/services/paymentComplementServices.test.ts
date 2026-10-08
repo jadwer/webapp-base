@@ -19,8 +19,8 @@ vi.mock('../../lib/axiosClient')
 vi.mock('../../utils/transformers', () => ({
   transformCFDIInvoicesResponse: vi.fn((data) => data),
   transformJsonApiCFDIInvoice: vi.fn((data) => data),
-  transformCFDIInvoiceFormToJsonApi: vi.fn((data) => ({ type: 'cfdi_invoices', attributes: data })),
-  transformCFDIItemFormToJsonApi: vi.fn((data) => ({ type: 'cfdi_items', attributes: data })),
+  transformCFDIInvoiceFormToJsonApi: vi.fn((data) => ({ type: 'cfdi-invoices', attributes: data })),
+  transformCFDIItemFormToJsonApi: vi.fn((data) => ({ type: 'cfdi-items', attributes: data })),
 }))
 
 describe('Payment Complement (REP) Services', () => {

@@ -85,9 +85,9 @@ export const CategoriesList = React.memo<CategoriesListProps>(({ categories, isL
                   
                   {/* Actions */}
                   <div className="d-flex gap-1 ms-3">
-                    {onView && <Button size="small" variant="primary" buttonStyle="outline" onClick={() => onView(category)} title="Ver detalles"><i className="bi bi-eye" /></Button>}
-                    {onEdit && <Button size="small" variant="warning" buttonStyle="outline" onClick={() => onEdit(category)} title="Editar categoría"><i className="bi bi-pencil" /></Button>}
-                    {onDelete && <Button size="small" variant="danger" buttonStyle="outline" onClick={() => onDelete(category.id)} title="Eliminar categoría"><i className="bi bi-trash" /></Button>}
+                    {onView && <Button aria-label="Ver detalles" size="small" variant="primary" buttonStyle="outline" onClick={() => onView(category)} title="Ver detalles"><i className="bi bi-eye" /></Button>}
+                    {onEdit && <Button aria-label="Editar categoría" size="small" variant="warning" buttonStyle="outline" onClick={() => onEdit(category)} title="Editar categoría"><i className="bi bi-pencil" /></Button>}
+                    {onDelete && <Button aria-label="Eliminar categoría" size="small" variant="danger" buttonStyle="outline" onClick={() => onDelete(category.id)} title="Eliminar categoría"><i className="bi bi-trash" /></Button>}
                   </div>
                 </div>
 

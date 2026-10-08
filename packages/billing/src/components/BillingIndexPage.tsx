@@ -11,10 +11,10 @@ export function BillingIndexPage() {
   const totalInvoices = invoices.length
   const draftInvoices = invoices.filter((inv) => inv.status === 'draft').length
   const stampedInvoices = invoices.filter(
-    (inv) => inv.status === 'stamped' || inv.status === 'valid'
+    (inv) => inv.status === 'valid'
   ).length
   const totalAmount = invoices
-    .filter((inv) => inv.status === 'stamped' || inv.status === 'valid')
+    .filter((inv) => inv.status === 'valid')
     .reduce((sum, inv) => sum + inv.total, 0)
 
   const formatCurrency = (amount: number) => {

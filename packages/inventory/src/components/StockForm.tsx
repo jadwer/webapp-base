@@ -7,7 +7,7 @@
 'use client'
 
 import React, { memo, useCallback, useState } from 'react'
-import { DetailSection, PageHeader } from '@lwm/ui'
+import { DetailSection, PageHeader, toDateInput } from '@lwm/ui'
 import { ProductSearchSelect } from '@lwm/products'
 import { useWarehouseLocationOptions, useWarehouses } from '../hooks'
 import { STOCK_STATUS } from '../utils/labels'
@@ -37,13 +37,6 @@ const toJsonText = (value: unknown) =>
   value && typeof value === 'object' && Object.keys(value).length > 0 ? JSON.stringify(value, null, 2) : ''
 const parseJson = (value: string) => (value.trim() ? JSON.parse(value) : undefined)
 
-const toLocalDateTime = (value?: string) => {
-  if (!value) return ''
-  const date = new Date(value)
-  if (Number.isNaN(date.getTime())) return ''
-  return new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 16)
-}
-
 export const StockForm = memo<StockFormProps>(({
   stock,
   onSubmit,
@@ -64,7 +57,7 @@ export const StockForm = memo<StockFormProps>(({
     reorderPoint: numberText(stock?.reorderPoint),
     unitCost: numberText(stock?.unitCost),
     status: stock?.status && stock.status in STOCK_STATUS ? stock.status : 'active',
-    lastMovementDate: toLocalDateTime(stock?.lastMovementDate),
+    lastMovementDate: toDateInput(stock?.lastMovementDate),
     lastMovementType: stock?.lastMovementType || '',
     batchInfo: toJsonText(stock?.batchInfo),
     metadata: toJsonText(stock?.metadata),
@@ -323,7 +316,7 @@ export const StockForm = memo<StockFormProps>(({
                   <label htmlFor="stock-lastMovementDate" className="form-label">Último movimiento</label>
                   <input
                     id="stock-lastMovementDate"
-                    type="datetime-local"
+                    type="date"
                     className="form-control"
                     value={formData.lastMovementDate}
                     onChange={(e) => setField('lastMovementDate', e.target.value)}

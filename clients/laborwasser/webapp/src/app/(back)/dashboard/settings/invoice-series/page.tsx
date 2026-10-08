@@ -221,7 +221,7 @@ export default function InvoiceSeriesSettingsPage() {
         <div className="card mb-4 border-primary">
           <div className="card-header bg-primary text-white d-flex justify-content-between">
             <span>Nueva Serie de Facturacion</span>
-            <button className="btn btn-sm btn-outline-light" onClick={() => setShowCreate(false)}>
+            <button aria-label="Cerrar" className="btn btn-sm btn-outline-light" onClick={() => setShowCreate(false)}>
               <i className="bi bi-x" />
             </button>
           </div>
@@ -475,24 +475,24 @@ export default function InvoiceSeriesSettingsPage() {
                         <td>
                           {isEditing ? (
                             <div className="d-flex gap-1">
-                              <button className="btn btn-sm btn-success" onClick={handleSaveEdit} disabled={saving}>
+                              <button aria-label="Guardar" className="btn btn-sm btn-success" onClick={handleSaveEdit} disabled={saving}>
                                 {saving ? <span className="spinner-border spinner-border-sm" /> : <i className="bi bi-check" />}
                               </button>
-                              <button className="btn btn-sm btn-outline-secondary" onClick={() => { setEditingId(null); setEditForm({}) }} disabled={saving}>
+                              <button aria-label="Cancelar" className="btn btn-sm btn-outline-secondary" onClick={() => { setEditingId(null); setEditForm({}) }} disabled={saving}>
                                 <i className="bi bi-x" />
                               </button>
                             </div>
                           ) : (
                             <div className="d-flex gap-1">
-                              <button className="btn btn-sm btn-outline-primary" onClick={() => handleEdit(s)} title="Editar">
+                              <button aria-label="Editar" className="btn btn-sm btn-outline-primary" onClick={() => handleEdit(s)} title="Editar">
                                 <i className="bi bi-pencil" />
                               </button>
                               {!s.isDefault && (
-                                <button className="btn btn-sm btn-outline-success" onClick={() => handleSetDefault(s.id)} title="Marcar como predeterminada">
+                                <button aria-label="Marcar como predeterminada" className="btn btn-sm btn-outline-success" onClick={() => handleSetDefault(s.id)} title="Marcar como predeterminada">
                                   <i className="bi bi-star" />
                                 </button>
                               )}
-                              <button className="btn btn-sm btn-outline-danger" onClick={() => handleDelete(s.id, s.code)} title="Eliminar">
+                              <button aria-label="Eliminar" className="btn btn-sm btn-outline-danger" onClick={() => handleDelete(s.id, s.code)} title="Eliminar">
                                 <i className="bi bi-trash" />
                               </button>
                             </div>

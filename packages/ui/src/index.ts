@@ -43,6 +43,18 @@ export { toast } from './utils/toast'
 export { singleEmailError, splitEmails, normalizeEmails } from './utils/emails'
 export { formatCurrency, formatQuantity, getCurrentCurrency, getCurrentLocale } from './utils/formatters'
 export { DATE_PRESETS, getPresetDates } from './utils/datePresets'
+export {
+  parseDateOnly,
+  formatDateOnly,
+  toDateInput,
+  todayDateInput,
+  dateToInput,
+  compareDateOnly,
+  isPastDateOnly,
+  diffDaysDateOnly,
+  addDaysDateOnly,
+  formatDateTime,
+} from './utils/dates'
 
 // Primitivas de layout para paginas del dashboard (Bootstrap puro)
 export * from './components/patterns'

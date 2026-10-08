@@ -8,6 +8,7 @@ import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
 import { ItemsManager } from '@/modules/sales'
 import { formatCurrency } from '@/lib/formatters'
 import { BranchSelect } from '@lwm/auth'
+import { todayDateInput } from '@lwm/ui'
 
 interface OrderItem {
   tempId: string
@@ -27,8 +28,9 @@ export default function CreateSalesOrderPage() {
   const [formData, setFormData] = useState({
     contactId: '',
     orderNumber: '',
-    orderDate: new Date().toISOString().split('T')[0],
-    status: 'pending' as 'pending' | 'approved' | 'completed' | 'cancelled',
+    orderDate: todayDateInput(),
+    // Estado inicial: valores de SalesOrderRequest (api-base); 'approved' no existe
+    status: 'pending' as 'pending' | 'confirmed' | 'completed' | 'cancelled',
     notes: '',
     branchId: ''
   })
@@ -241,7 +243,7 @@ export default function CreateSalesOrderPage() {
                       required
                     >
                       <option value="pending">Pendiente</option>
-                      <option value="approved">Aprobada</option>
+                      <option value="confirmed">Confirmada</option>
                       <option value="completed">Completada</option>
                       <option value="cancelled">Cancelada</option>
                     </select>

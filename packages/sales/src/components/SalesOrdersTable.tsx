@@ -5,6 +5,7 @@ import clsx from 'clsx'
 import { Button } from '@lwm/ui'
 import { ConfirmModal, type ConfirmModalHandle } from '@lwm/ui'
 import type { SalesOrder, OrderStatus } from '../types'
+import { INVOICING_STATUS_CONFIG } from '../types'
 import { formatDateOnly } from '../utils/dates'
 
 interface SalesOrdersTableProps {
@@ -163,16 +164,8 @@ export const SalesOrdersTable: React.FC<SalesOrdersTableProps> = ({
                     {getStatusBadge(order.status)}
                   </td>
                   <td>
-                    <span className={clsx('badge', {
-                      'bg-warning text-dark': order.invoicingStatus === 'pending',
-                      'bg-info': order.invoicingStatus === 'partial',
-                      'bg-success': order.invoicingStatus === 'invoiced',
-                      'bg-secondary': order.invoicingStatus === 'not_required'
-                    })}>
-                      {order.invoicingStatus === 'pending' && 'Pendiente'}
-                      {order.invoicingStatus === 'partial' && 'Parcial'}
-                      {order.invoicingStatus === 'invoiced' && 'Facturada'}
-                      {order.invoicingStatus === 'not_required' && 'No Requerida'}
+                    <span className={clsx('badge', INVOICING_STATUS_CONFIG[order.invoicingStatus]?.badgeClass ?? 'bg-secondary')}>
+                      {INVOICING_STATUS_CONFIG[order.invoicingStatus]?.label ?? order.invoicingStatus}
                     </span>
                   </td>
                   <td className="text-end">
@@ -189,6 +182,7 @@ export const SalesOrdersTable: React.FC<SalesOrdersTableProps> = ({
                     <div className="d-flex justify-content-end gap-1">
                       {onView && (
                         <Button
+                          aria-label="Ver orden"
                           size="small"
                           variant="secondary"
                           buttonStyle="outline"
@@ -202,6 +196,7 @@ export const SalesOrdersTable: React.FC<SalesOrdersTableProps> = ({
 
                       {onEdit && (
                         <Button
+                          aria-label="Editar orden"
                           size="small"
                           variant="primary"
                           buttonStyle="outline"
@@ -215,6 +210,7 @@ export const SalesOrdersTable: React.FC<SalesOrdersTableProps> = ({
 
                       {onDelete && (
                         <Button
+                          aria-label="Eliminar orden"
                           size="small"
                           variant="danger"
                           buttonStyle="outline"

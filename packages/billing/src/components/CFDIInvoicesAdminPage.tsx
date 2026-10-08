@@ -19,7 +19,7 @@ export function CFDIInvoicesAdminPage() {
   const totalInvoices = invoices.length
   const draftInvoices = invoices.filter((inv) => inv.status === 'draft').length
   const stampedInvoices = invoices.filter(
-    (inv) => inv.status === 'stamped' || inv.status === 'valid'
+    (inv) => inv.status === 'valid'
   ).length
   const cancelledInvoices = invoices.filter((inv) => inv.status === 'cancelled').length
 
@@ -141,9 +141,6 @@ export function CFDIInvoicesAdminPage() {
     switch (status) {
       case 'draft':
         return 'badge bg-secondary'
-      case 'generated':
-        return 'badge bg-info'
-      case 'stamped':
       case 'valid':
         return 'badge bg-success'
       case 'cancelled':
@@ -275,8 +272,6 @@ export function CFDIInvoicesAdminPage() {
               >
                 <option value="">Todos los estados</option>
                 <option value="draft">Borrador</option>
-                <option value="generated">Generado</option>
-                <option value="stamped">Timbrado</option>
                 <option value="valid">Válido</option>
                 <option value="cancelled">Cancelado</option>
                 <option value="error">Error</option>
@@ -403,9 +398,10 @@ export function CFDIInvoicesAdminPage() {
                               'generated' -> jamas se mostraba y el CFDI no se podia timbrar
                               desde el dashboard. Ahora en 'draft' se ofrecen Generar XML,
                               Generar PDF y Timbrar (stamp() genera el XML si hace falta). */}
-                          {(invoice.status === 'draft' || invoice.status === 'generated') && (
+                          {invoice.status === 'draft' && (
                             <>
                               <button
+                                aria-label="Generar XML"
                                 className="btn btn-outline-primary"
                                 onClick={() => handleGenerateXML(invoice.id)}
                                 title="Generar XML"
@@ -413,6 +409,7 @@ export function CFDIInvoicesAdminPage() {
                                 <i className="bi bi-file-earmark-code" />
                               </button>
                               <button
+                                aria-label="Generar PDF"
                                 className="btn btn-outline-primary"
                                 onClick={() => handleGeneratePDF(invoice.id)}
                                 title="Generar PDF"
@@ -420,6 +417,7 @@ export function CFDIInvoicesAdminPage() {
                                 <i className="bi bi-file-earmark-pdf" />
                               </button>
                               <button
+                                aria-label="Timbrar"
                                 className="btn btn-outline-success"
                                 onClick={() => handleStamp(invoice.id)}
                                 title="Timbrar"
@@ -428,7 +426,7 @@ export function CFDIInvoicesAdminPage() {
                               </button>
                             </>
                           )}
-                          {(invoice.status === 'stamped' || invoice.status === 'valid') && (
+                          {(invoice.status === 'valid') && (
                             <>
                               <button
                                 className="btn btn-outline-primary"
@@ -445,6 +443,7 @@ export function CFDIInvoicesAdminPage() {
                                 <i className="bi bi-download" /> PDF
                               </button>
                               <button
+                                aria-label="Cancelar"
                                 className="btn btn-outline-danger"
                                 onClick={() => handleCancel(invoice.id)}
                                 title="Cancelar"
@@ -454,6 +453,7 @@ export function CFDIInvoicesAdminPage() {
                             </>
                           )}
                           <button
+                            aria-label="Eliminar"
                             className="btn btn-outline-danger"
                             onClick={() => handleDelete(invoice.id)}
                             title="Eliminar"

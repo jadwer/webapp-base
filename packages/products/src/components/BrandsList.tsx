@@ -72,9 +72,9 @@ export const BrandsList = React.memo<BrandsListProps>(({ brands, isLoading = fal
                   </div>
                   
                   <div className="d-flex gap-1 ms-3">
-                    {onView && <Button size="small" variant="primary" buttonStyle="outline" onClick={() => onView(brand)} title="Ver detalles"><i className="bi bi-eye" /></Button>}
-                    {onEdit && <Button size="small" variant="warning" buttonStyle="outline" onClick={() => onEdit(brand)} title="Editar marca"><i className="bi bi-pencil" /></Button>}
-                    {onDelete && <Button size="small" variant="danger" buttonStyle="outline" onClick={() => onDelete(brand.id)} title="Eliminar marca"><i className="bi bi-trash" /></Button>}
+                    {onView && <Button aria-label="Ver detalles" size="small" variant="primary" buttonStyle="outline" onClick={() => onView(brand)} title="Ver detalles"><i className="bi bi-eye" /></Button>}
+                    {onEdit && <Button aria-label="Editar marca" size="small" variant="warning" buttonStyle="outline" onClick={() => onEdit(brand)} title="Editar marca"><i className="bi bi-pencil" /></Button>}
+                    {onDelete && <Button aria-label="Eliminar marca" size="small" variant="danger" buttonStyle="outline" onClick={() => onDelete(brand.id)} title="Eliminar marca"><i className="bi bi-trash" /></Button>}
                   </div>
                 </div>
 

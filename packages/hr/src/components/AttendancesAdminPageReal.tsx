@@ -7,7 +7,7 @@
 'use client'
 
 import React, { useState, useCallback, useRef } from 'react'
-import { Button, ConfirmModal } from '@lwm/ui'
+import { Button, ConfirmModal, formatDateOnly } from '@lwm/ui'
 import type { ConfirmModalHandle } from '@lwm/ui'
 import { useAttendances, useAttendancesMutations } from '../hooks'
 import { AttendanceForm } from './AttendanceForm'
@@ -53,7 +53,7 @@ export const AttendancesAdminPageReal: React.FC = () => {
   // Delete Attendance
   const handleDelete = useCallback(async (attendance: Attendance) => {
     const confirmed = await confirmModalRef.current?.confirm(
-      `¿Estás seguro de que deseas eliminar el registro de asistencia del ${new Date(attendance.date).toLocaleDateString('es-MX')}? Esta acción no se puede deshacer.`,
+      `¿Estás seguro de que deseas eliminar el registro de asistencia del ${formatDateOnly(attendance.date)}? Esta acción no se puede deshacer.`,
       {
         title: 'Confirmar Eliminación',
         confirmText: 'Eliminar',
@@ -257,6 +257,7 @@ export const AttendancesAdminPageReal: React.FC = () => {
                   Registrar Asistencia
                 </h5>
                 <button
+                  aria-label="Cerrar"
                   type="button"
                   className="btn-close"
                   onClick={() => setShowCreateModal(false)}
@@ -284,6 +285,7 @@ export const AttendancesAdminPageReal: React.FC = () => {
                   Editar Asistencia
                 </h5>
                 <button
+                  aria-label="Cerrar"
                   type="button"
                   className="btn-close"
                   onClick={() => setEditingAttendance(null)}

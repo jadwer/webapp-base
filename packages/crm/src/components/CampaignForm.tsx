@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Button, Input } from '@lwm/ui'
+import { Button, Input, todayDateInput, toDateInput } from '@lwm/ui'
 import type { CampaignFormData, CampaignType, CampaignStatus } from '../types'
 
 interface CampaignFormProps {
@@ -32,8 +32,6 @@ export default function CampaignForm({ initialData, onSubmit, onCancel }: Campai
     name: '',
     type: 'email',
     status: 'planning',
-    startDate: new Date().toISOString().split('T')[0],
-    endDate: '',
     budget: 0,
     actualCost: 0,
     expectedRevenue: 0,
@@ -42,6 +40,9 @@ export default function CampaignForm({ initialData, onSubmit, onCancel }: Campai
     description: '',
     userId: 1,
     ...initialData,
+    // El API puede mandar ISO; el input date solo acepta YYYY-MM-DD
+    startDate: initialData?.startDate ? toDateInput(initialData.startDate) : todayDateInput(),
+    endDate: toDateInput(initialData?.endDate),
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})

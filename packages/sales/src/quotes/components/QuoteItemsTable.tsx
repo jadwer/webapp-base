@@ -636,6 +636,7 @@ export function QuoteItemsTable({
                     {isEditing ? (
                       <div className="btn-group btn-group-sm">
                         <button
+                          aria-label="Guardar"
                           className="btn btn-outline-success"
                           onClick={() => handleSaveEdit(item.id)}
                           disabled={mutations.update.isPending}
@@ -644,6 +645,7 @@ export function QuoteItemsTable({
                           <i className="bi bi-check"></i>
                         </button>
                         <button
+                          aria-label="Cancelar"
                           className="btn btn-outline-secondary"
                           onClick={handleCancelEdit}
                           title="Cancelar"
@@ -654,6 +656,7 @@ export function QuoteItemsTable({
                     ) : (
                       <div className="btn-group btn-group-sm">
                         <button
+                          aria-label="Editar"
                           className="btn btn-outline-primary"
                           onClick={() => handleStartEdit(item)}
                           title="Editar"
@@ -661,6 +664,7 @@ export function QuoteItemsTable({
                           <i className="bi bi-pencil"></i>
                         </button>
                         <button
+                          aria-label="Eliminar"
                           className="btn btn-outline-danger"
                           onClick={() => handleDelete(item.id)}
                           disabled={mutations.delete.isPending}

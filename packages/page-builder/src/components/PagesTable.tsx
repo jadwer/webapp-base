@@ -139,6 +139,7 @@ export const PagesTable: React.FC<PagesTableProps> = ({
                     <div className="d-flex justify-content-end gap-1">
                       {onViewPage && (
                         <Button
+                          aria-label="Ver página"
                           size="small"
                           variant="secondary"
                           buttonStyle="outline"
@@ -152,6 +153,7 @@ export const PagesTable: React.FC<PagesTableProps> = ({
                       
                       {onEdit && (
                         <Button
+                          aria-label="Editar página"
                           size="small"
                           variant="primary"
                           buttonStyle="outline"
@@ -165,6 +167,7 @@ export const PagesTable: React.FC<PagesTableProps> = ({
                       
                       {onDuplicate && (
                         <Button
+                          aria-label="Duplicar página"
                           size="small"
                           variant="secondary"
                           buttonStyle="outline"
@@ -179,6 +182,7 @@ export const PagesTable: React.FC<PagesTableProps> = ({
                       
                       {onDelete && (
                         <Button
+                          aria-label="Eliminar página"
                           size="small"
                           variant="danger"
                           buttonStyle="outline"

@@ -64,6 +64,7 @@ export default function SimpleToast({
         <i className={`bi ${getIcon()} me-2`}></i>
         <div className="flex-grow-1">{message}</div>
         <button
+          aria-label="Cerrar"
           type="button"
           className="btn-close btn-close-white"
           onClick={onClose}

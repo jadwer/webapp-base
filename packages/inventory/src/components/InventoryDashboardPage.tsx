@@ -185,7 +185,7 @@ export const InventoryDashboardPage: React.FC = () => {
                       <div className="text-end">
                         <StatusBadge status={movement.movementType} map={MOVEMENT_TYPE} />
                         <div>
-                          <small className="text-muted">{formatDate(movement.movementDate)}</small>
+                          <small className="text-muted">{formatDate(movement.movementDate, { withTime: true })}</small>
                         </div>
                       </div>
                     </div>

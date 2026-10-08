@@ -8,6 +8,8 @@ import {
   transformAccountToAPI,
   transformJournalEntriesFromAPI,
   transformJournalEntryFromAPI,
+  transformJournalLineToAPI,
+  journalLineAttributesToAPI,
 } from '../utils/transformers';
 import type {
   Account,
@@ -155,12 +157,7 @@ export const journalLinesService = {
   },
 
   async create(data: JournalLineForm): Promise<{ data: JournalLine }> {
-    const response = await axiosClient.post('/api/v1/journal-lines', {
-      data: {
-        type: 'journal-lines',
-        attributes: data,
-      },
-    });
+    const response = await axiosClient.post('/api/v1/journal-lines', transformJournalLineToAPI(data));
     return response.data;
   },
 
@@ -169,7 +166,7 @@ export const journalLinesService = {
       data: {
         type: 'journal-lines',
         id,
-        attributes: data,
+        attributes: journalLineAttributesToAPI(data),
       },
     });
     return response.data;
@@ -197,13 +194,17 @@ export const journalEntryService = {
     const { lines, ...entryData } = data;
     const entryResult = await journalEntriesService.create(entryData);
 
-    // Then create the lines - convert accountId to string if needed
+    // Las lineas exigen journalEntryId; contactId viaja si la linea lo trae
     const linePromises = lines.map(line =>
       journalLinesService.create({
+        journalEntryId: String(entryResult.data.id),
         accountId: String(line.accountId),
         debit: String(line.debit),
         credit: String(line.credit),
-        memo: 'memo' in line ? line.memo : ('description' in line ? String(line.description) : undefined),
+        ...('contactId' in line && line.contactId != null ? { contactId: line.contactId } : {}),
+        description: 'description' in line && line.description != null
+          ? String(line.description)
+          : ('memo' in line ? line.memo : undefined),
       })
     );
 

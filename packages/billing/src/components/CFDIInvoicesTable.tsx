@@ -23,8 +23,6 @@ interface CFDIInvoicesTableProps {
 
 const STATUS_BADGES: Record<CFDIStatus, { className: string; label: string }> = {
   draft: { className: 'bg-secondary', label: 'Borrador' },
-  generated: { className: 'bg-info', label: 'Generado' },
-  stamped: { className: 'bg-success', label: 'Timbrado' },
   valid: { className: 'bg-success', label: 'Valido' },
   cancelled: { className: 'bg-danger', label: 'Cancelado' },
   error: { className: 'bg-warning text-dark', label: 'Error' },
@@ -208,6 +206,7 @@ export const CFDIInvoicesTable: React.FC<CFDIInvoicesTableProps> = ({
                       {/* View button - always available */}
                       {onView && (
                         <Button
+                          aria-label="Ver factura"
                           size="small"
                           variant="secondary"
                           buttonStyle="outline"
@@ -224,6 +223,7 @@ export const CFDIInvoicesTable: React.FC<CFDIInvoicesTableProps> = ({
                         <>
                           {onEdit && (
                             <Button
+                              aria-label="Editar"
                               size="small"
                               variant="primary"
                               buttonStyle="outline"
@@ -236,6 +236,7 @@ export const CFDIInvoicesTable: React.FC<CFDIInvoicesTableProps> = ({
                           )}
                           {onGenerateXML && (
                             <Button
+                              aria-label="Generar XML"
                               size="small"
                               variant="primary"
                               buttonStyle="outline"
@@ -249,11 +250,12 @@ export const CFDIInvoicesTable: React.FC<CFDIInvoicesTableProps> = ({
                         </>
                       )}
 
-                      {/* Generated status actions */}
-                      {invoice.status === 'generated' && (
+                      {/* El backend nunca usa 'generated': PDF y Timbrar se ofrecen en draft */}
+                      {invoice.status === 'draft' && (
                         <>
                           {onGeneratePDF && (
                             <Button
+                              aria-label="Generar PDF"
                               size="small"
                               variant="primary"
                               buttonStyle="outline"
@@ -266,6 +268,7 @@ export const CFDIInvoicesTable: React.FC<CFDIInvoicesTableProps> = ({
                           )}
                           {onStamp && (
                             <Button
+                              aria-label="Timbrar"
                               size="small"
                               variant="success"
                               buttonStyle="outline"
@@ -279,8 +282,8 @@ export const CFDIInvoicesTable: React.FC<CFDIInvoicesTableProps> = ({
                         </>
                       )}
 
-                      {/* Stamped/Valid status actions */}
-                      {(invoice.status === 'stamped' || invoice.status === 'valid') && (
+                      {/* Timbrada (valid) */}
+                      {invoice.status === 'valid' && (
                         <>
                           {onDownloadXML && (
                             <Button
@@ -308,6 +311,7 @@ export const CFDIInvoicesTable: React.FC<CFDIInvoicesTableProps> = ({
                           )}
                           {onCancel && (
                             <Button
+                              aria-label="Cancelar CFDI"
                               size="small"
                               variant="warning"
                               buttonStyle="outline"
@@ -324,6 +328,7 @@ export const CFDIInvoicesTable: React.FC<CFDIInvoicesTableProps> = ({
                       {/* Delete button - only for draft/error */}
                       {(invoice.status === 'draft' || invoice.status === 'error') && onDelete && (
                         <Button
+                          aria-label="Eliminar"
                           size="small"
                           variant="danger"
                           buttonStyle="outline"

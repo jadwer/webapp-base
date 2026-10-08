@@ -2,9 +2,10 @@
 
 import React, { useState, useRef } from 'react'
 import clsx from 'clsx'
-import { Button } from '@lwm/ui'
+import { Button, formatDateOnly } from '@lwm/ui'
 import { ConfirmModal, type ConfirmModalHandle } from '@lwm/ui'
-import type { PurchaseOrder, PurchaseOrderStatus } from '../types'
+import type { PurchaseOrder, PurchaseOrderStatus, InvoicingStatus } from '../types'
+import { INVOICING_STATUS_CONFIG } from '../types'
 
 interface PurchaseOrdersTableProps {
   purchaseOrders: PurchaseOrder[]
@@ -26,15 +27,8 @@ const STATUS_BADGES: Record<PurchaseOrderStatus, { className: string; label: str
 
 const formatDate = (dateString: string | null | undefined): string => {
   if (!dateString) return '-'
-  try {
-    return new Date(dateString).toLocaleDateString('es-MX', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    })
-  } catch {
-    return dateString
-  }
+  // fecha sin hora
+  return formatDateOnly(dateString, 'es-MX', { year: 'numeric', month: 'short', day: 'numeric' })
 }
 
 const formatCurrency = (amount: number | null | undefined): string => {
@@ -151,16 +145,8 @@ export const PurchaseOrdersTable: React.FC<PurchaseOrdersTableProps> = ({
                     {getStatusBadge(order.status)}
                   </td>
                   <td>
-                    <span className={clsx('badge', {
-                      'bg-warning text-dark': order.invoicingStatus === 'pending',
-                      'bg-info': order.invoicingStatus === 'partial',
-                      'bg-success': order.invoicingStatus === 'invoiced',
-                      'bg-secondary': order.invoicingStatus === 'not_required' || !order.invoicingStatus
-                    })}>
-                      {order.invoicingStatus === 'pending' && 'Pendiente'}
-                      {order.invoicingStatus === 'partial' && 'Parcial'}
-                      {order.invoicingStatus === 'invoiced' && 'Facturada'}
-                      {(order.invoicingStatus === 'not_required' || !order.invoicingStatus) && 'No Requerida'}
+                    <span className={clsx('badge', INVOICING_STATUS_CONFIG[(order.invoicingStatus || 'not_invoiced') as InvoicingStatus]?.badgeClass ?? 'bg-secondary')}>
+                      {INVOICING_STATUS_CONFIG[(order.invoicingStatus || 'not_invoiced') as InvoicingStatus]?.label ?? order.invoicingStatus}
                     </span>
                   </td>
                   <td className="text-end">
@@ -177,6 +163,7 @@ export const PurchaseOrdersTable: React.FC<PurchaseOrdersTableProps> = ({
                     <div className="d-flex justify-content-end gap-1">
                       {onView && (
                         <Button
+                          aria-label="Ver orden"
                           size="small"
                           variant="secondary"
                           buttonStyle="outline"
@@ -190,6 +177,7 @@ export const PurchaseOrdersTable: React.FC<PurchaseOrdersTableProps> = ({
 
                       {onEdit && (
                         <Button
+                          aria-label="Editar orden"
                           size="small"
                           variant="primary"
                           buttonStyle="outline"
@@ -203,6 +191,7 @@ export const PurchaseOrdersTable: React.FC<PurchaseOrdersTableProps> = ({
 
                       {onDelete && (
                         <Button
+                          aria-label="Eliminar orden"
                           size="small"
                           variant="danger"
                           buttonStyle="outline"

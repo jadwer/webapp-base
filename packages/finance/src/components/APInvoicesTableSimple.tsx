@@ -8,6 +8,9 @@
 
 import React from 'react'
 import type { APInvoice } from '../types'
+import { INVOICE_STATUS_LABELS } from '../types'
+import { isInvoiceClosed, isInvoiceOpen } from '../utils/invoiceStatus'
+import { formatDateOnly, diffDaysDateOnly, todayDateInput } from '@lwm/ui'
 
 interface APInvoicesTableSimpleProps {
   apInvoices?: APInvoice[]
@@ -24,11 +27,8 @@ export const APInvoicesTableSimple = ({
 }: APInvoicesTableSimpleProps) => {
   const formatDate = (dateString?: string) => {
     if (!dateString) return '-'
-    try {
-      return new Date(dateString).toLocaleDateString('es-ES')
-    } catch {
-      return '-'
-    }
+    // invoiceDate y dueDate son fechas sin hora
+    return formatDateOnly(dateString)
   }
 
   const formatCurrency = (amount?: string | number) => {
@@ -42,14 +42,17 @@ export const APInvoicesTableSimple = ({
   }
 
   const getStatusBadge = (status: string) => {
-    const statusConfig = {
-      draft: { class: 'badge bg-secondary', text: 'Borrador' },
-      sent: { class: 'badge bg-primary', text: 'Enviada' },
-      paid: { class: 'badge bg-success', text: 'Pagada' }
+    const badgeClass: Record<string, string> = {
+      draft: 'badge bg-secondary',
+      pending: 'badge bg-info text-dark',
+      posted: 'badge bg-primary',
+      partial: 'badge bg-warning text-dark',
+      paid: 'badge bg-success',
     }
-    
-    const config = statusConfig[status as keyof typeof statusConfig] || 
-                   { class: 'badge bg-light text-dark', text: status }
+    const config = {
+      class: badgeClass[status] || 'badge bg-light text-dark',
+      text: INVOICE_STATUS_LABELS[status as keyof typeof INVOICE_STATUS_LABELS] || status,
+    }
     
     return (
       <span className={config.class}>
@@ -59,11 +62,9 @@ export const APInvoicesTableSimple = ({
   }
 
   const getPriorityBadge = (dueDate: string, status: string) => {
-    if (status === 'paid') return null
+    if (status === 'draft' || isInvoiceClosed(status)) return null
     
-    const due = new Date(dueDate)
-    const today = new Date()
-    const diffDays = Math.ceil((due.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+    const diffDays = diffDaysDateOnly(todayDateInput(), dueDate) ?? 0
     
     if (diffDays < 0) {
       return <span className="badge bg-danger ms-1">Vencida</span>
@@ -148,6 +149,7 @@ export const APInvoicesTableSimple = ({
                 <div className="btn-group btn-group-sm">
                   {onView && (
                     <button
+                      aria-label="Ver factura"
                       type="button"
                       className="btn btn-outline-primary"
                       onClick={() => onView(invoice.id)}
@@ -158,6 +160,7 @@ export const APInvoicesTableSimple = ({
                   )}
                   {onEdit && invoice.status === 'draft' && (
                     <button
+                      aria-label="Editar factura"
                       type="button"
                       className="btn btn-outline-secondary"
                       onClick={() => onEdit(invoice.id)}
@@ -166,8 +169,9 @@ export const APInvoicesTableSimple = ({
                       <i className="bi bi-pencil"></i>
                     </button>
                   )}
-                  {invoice.status === 'sent' && (invoice.totalAmount - invoice.paidAmount) > 0 && (
+                  {isInvoiceOpen(invoice) && (
                     <button
+                      aria-label="Pagar factura"
                       type="button"
                       className="btn btn-outline-success"
                       onClick={() => onView?.(invoice.id)}

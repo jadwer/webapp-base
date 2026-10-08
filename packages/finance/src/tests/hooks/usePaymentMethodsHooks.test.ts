@@ -67,7 +67,7 @@ describe('Payment Methods Hooks', () => {
     it('should accept filters parameter', () => {
       // Act
       const options = {
-        filters: { isActive: true }
+        filters: { is_active: true }
       }
       renderHook(() => usePaymentMethods(options))
 

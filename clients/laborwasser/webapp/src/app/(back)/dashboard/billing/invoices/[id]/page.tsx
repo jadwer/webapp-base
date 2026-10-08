@@ -13,8 +13,6 @@ interface InvoiceViewPageProps {
 
 const STATUS_BADGES: Record<string, { class: string; label: string }> = {
   draft: { class: 'bg-secondary', label: 'Borrador' },
-  generated: { class: 'bg-info', label: 'Generado' },
-  stamped: { class: 'bg-success', label: 'Timbrado' },
   valid: { class: 'bg-success', label: 'Vigente' },
   cancelled: { class: 'bg-danger', label: 'Cancelado' },
   error: { class: 'bg-warning', label: 'Error' },
@@ -158,6 +156,7 @@ export default function InvoiceViewPage({ params }: InvoiceViewPageProps) {
           {/* Header */}
           <div className="d-flex align-items-center mb-4">
             <button
+              aria-label="Volver a facturas"
               type="button"
               onClick={handleBack}
               className="btn btn-link p-0 me-3 text-decoration-none"
@@ -194,6 +193,7 @@ export default function InvoiceViewPage({ params }: InvoiceViewPageProps) {
                 Prefactura
               </button>
               <button
+                aria-label="Descargar prefactura en PDF"
                 className="btn btn-outline-secondary"
                 onClick={handleDownloadPrefactura}
                 disabled={prefacturaLoading === 'download'}
@@ -206,7 +206,7 @@ export default function InvoiceViewPage({ params }: InvoiceViewPageProps) {
                 )}
               </button>
             </div>
-            {(invoice.status === 'stamped' || invoice.status === 'valid' || invoice.status === 'cancelled') && (
+            {(invoice.status === 'valid' || invoice.status === 'cancelled') && (
               <button
                 className="btn btn-outline-primary me-2"
                 onClick={handleValidateSAT}
@@ -255,7 +255,7 @@ export default function InvoiceViewPage({ params }: InvoiceViewPageProps) {
                       <strong>Validacion SAT: {satValidation.status}</strong>
                       <br />
                       <small>
-                        UUID {satValidation.uuid} - Emision {satValidation.fechaEmision} - Emisor {satValidation.rfcEmisor} - Receptor {satValidation.rfcReceptor}
+                        UUID {satValidation.uuid || invoice.uuid || '-'} - Emisor {satValidation.rfcEmisor || invoice.companySetting?.rfc || '-'} - Receptor {satValidation.rfcReceptor || invoice.receptorRfc}
                       </small>
                     </div>
                   </div>
@@ -371,8 +371,7 @@ export default function InvoiceViewPage({ params }: InvoiceViewPageProps) {
 
               {/* Complementos de pago (REP) - solo para facturas PPD timbradas */}
               {invoice.metodoPago === 'PPD' &&
-                (invoice.status === 'stamped' ||
-                  invoice.status === 'valid' ||
+                (invoice.status === 'valid' ||
                   invoice.status === 'cancelled') && (
                   <PaymentComplementsSection invoice={invoice} />
                 )}

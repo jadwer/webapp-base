@@ -109,6 +109,7 @@ export const BrandsTable: React.FC<BrandsTableProps> = ({
                     <div className="d-flex justify-content-end gap-1">
                       {onView && (
                         <Button
+                          aria-label="Ver marca"
                           size="small"
                           variant="secondary"
                           buttonStyle="outline"
@@ -122,6 +123,7 @@ export const BrandsTable: React.FC<BrandsTableProps> = ({
                       
                       {onEdit && (
                         <Button
+                          aria-label="Editar marca"
                           size="small"
                           variant="primary"
                           buttonStyle="outline"
@@ -135,6 +137,7 @@ export const BrandsTable: React.FC<BrandsTableProps> = ({
                       
                       {onDelete && (
                         <Button
+                          aria-label="Eliminar marca"
                           size="small"
                           variant="danger"
                           buttonStyle="outline"

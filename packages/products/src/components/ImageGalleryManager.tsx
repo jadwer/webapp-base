@@ -218,6 +218,7 @@ export const ImageGalleryManager: React.FC<ImageGalleryManagerProps> = ({ produc
               {/* Set primary button */}
               {!image.isPrimary && (
                 <button
+                  aria-label="Establecer como principal"
                   type="button"
                   className="btn btn-sm btn-light"
                   style={{ padding: '0 4px', fontSize: '0.75rem', lineHeight: 1.5 }}
@@ -238,6 +239,7 @@ export const ImageGalleryManager: React.FC<ImageGalleryManagerProps> = ({ produc
 
               {/* Delete button */}
               <button
+                aria-label="Eliminar imagen"
                 type="button"
                 className="btn btn-sm btn-danger"
                 style={{ padding: '0 4px', fontSize: '0.75rem', lineHeight: 1.5 }}

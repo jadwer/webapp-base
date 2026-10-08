@@ -8,6 +8,7 @@
 
 import React from 'react'
 import type { JournalEntry } from '../types'
+import { formatDateOnly } from '@lwm/ui'
 
 interface JournalEntriesTableSimpleProps {
   journalEntries?: JournalEntry[]
@@ -139,7 +140,7 @@ export const JournalEntriesTableSimple = ({
                   )}
                 </td>
                 <td>
-                  {formatDate(entry.date)}
+                  {formatDateOnly(entry.date)}
                   {entry.postedAt && entry.status === 'posted' && (
                     <div className="small text-muted">
                       Contabilizado: {formatDate(entry.postedAt)}
@@ -187,6 +188,7 @@ export const JournalEntriesTableSimple = ({
                   <div className="btn-group btn-group-sm">
                     {onView && (
                       <button
+                        aria-label="Ver asiento"
                         type="button"
                         className="btn btn-outline-primary"
                         onClick={() => onView(entry.id)}
@@ -197,6 +199,7 @@ export const JournalEntriesTableSimple = ({
                     )}
                     {onEdit && entry.status === 'draft' && (
                       <button
+                        aria-label="Editar asiento"
                         type="button"
                         className="btn btn-outline-secondary"
                         onClick={() => onEdit(entry.id)}
@@ -207,6 +210,7 @@ export const JournalEntriesTableSimple = ({
                     )}
                     {entry.status === 'draft' && balanced && onView && (
                       <button
+                        aria-label="Contabilizar asiento"
                         type="button"
                         className="btn btn-outline-success"
                         onClick={() => onView(entry.id)}

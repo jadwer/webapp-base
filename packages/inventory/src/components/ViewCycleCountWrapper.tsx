@@ -110,7 +110,7 @@ export const ViewCycleCountWrapper: React.FC<ViewCycleCountWrapperProps> = ({ id
     <div className="container-fluid py-4">
       {/* Header */}
       <div className="d-flex align-items-center mb-4">
-        <button type="button" className="btn btn-link text-decoration-none p-0 me-3" onClick={handleBack}>
+        <button aria-label="Volver" type="button" className="btn btn-link text-decoration-none p-0 me-3" onClick={handleBack}>
           <i className="bi bi-arrow-left fs-4" />
         </button>
         <div>

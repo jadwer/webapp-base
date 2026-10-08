@@ -109,22 +109,23 @@ export const cfdiInvoicesService = {
   },
 
   /**
-   * Create CFDI invoice with items in one request
+   * Create CFDI invoice and then its items.
+   * La API no acepta conceptos anidados (items es readOnly en el Schema):
+   * se crea la factura y despues cada cfdi-item con cfdiInvoiceId y numeroLinea.
    */
   createWithItems: async (data: CreateCFDIInvoiceData) => {
-    const payload = {
-      data: {
-        type: 'cfdi_invoices',
-        attributes: transformCFDIInvoiceFormToJsonApi(data.invoice).attributes,
-        relationships: {
-          items: {
-            data: data.items.map((item) => transformCFDIItemFormToJsonApi(item)),
-          },
-        },
-      },
+    const invoice = await cfdiInvoicesService.create(data.invoice)
+    const cfdiInvoiceId = Number(invoice.id)
+    for (const [index, item] of data.items.entries()) {
+      await axiosClient.post('/api/v1/cfdi-items', {
+        data: transformCFDIItemFormToJsonApi({
+          ...item,
+          cfdiInvoiceId,
+          numeroLinea: item.numeroLinea ?? index + 1,
+        }),
+      })
     }
-    const response = await axiosClient.post('/api/v1/cfdi-invoices', payload)
-    return transformJsonApiCFDIInvoice(response.data.data, response.data.included)
+    return invoice
   },
 
   /**
@@ -157,60 +158,65 @@ export const cfdiInvoicesService = {
    * Workflow: draft → generated
    */
   generateXML: async (id: string): Promise<CFDIGenerateResponse> => {
+    // Endpoint propio: { message, xml, invoice_id }
     const response = await axiosClient.post(`/api/v1/cfdi-invoices/${id}/generate-xml`)
+    const body = (response.data || {}) as Record<string, unknown>
     return {
-      cfdiId: response.data.data.id,
-      xmlPath: response.data.data.attributes.xml_path,
-      status: response.data.data.attributes.status,
+      cfdiId: String(body.invoice_id ?? id),
+      message: body.message as string | undefined,
     }
   },
 
   /**
    * Generate PDF for CFDI invoice
-   * Workflow: generated → generated (with PDF)
    */
   generatePDF: async (id: string): Promise<CFDIGenerateResponse> => {
+    // Endpoint propio: { message, pdf_path, pdf_url, invoice_id }
     const response = await axiosClient.post(`/api/v1/cfdi-invoices/${id}/generate-pdf`)
+    const body = (response.data || {}) as Record<string, unknown>
     return {
-      cfdiId: response.data.data.id,
-      pdfPath: response.data.data.attributes.pdf_path,
-      status: response.data.data.attributes.status,
+      cfdiId: String(body.invoice_id ?? id),
+      message: body.message as string | undefined,
+      pdfPath: (body.pdf_path as string | null | undefined) || undefined,
+      pdfUrl: (body.pdf_url as string | null | undefined) || undefined,
     }
   },
 
   /**
    * Stamp CFDI with PAC (SW)
-   * Workflow: generated → stamped → valid
-   * This sends the XML to SW (Smarter Web) for certification
+   * Workflow: draft -> valid
    */
   stamp: async (id: string): Promise<CFDIStampResponse> => {
+    // Endpoint propio: { message, data: { id, uuid, fecha_timbrado, status, folio_completo } }
     const response = await axiosClient.post(`/api/v1/cfdi-invoices/${id}/stamp`)
+    const data = response.data.data as Record<string, unknown>
     return {
-      cfdiId: response.data.data.id,
-      uuid: response.data.data.attributes.uuid,
-      fechaTimbrado: response.data.data.attributes.fecha_timbrado,
-      status: response.data.data.attributes.status,
+      cfdiId: String(data.id),
+      uuid: data.uuid as string,
+      fechaTimbrado: data.fecha_timbrado as string,
+      status: data.status as CFDIStampResponse['status'],
     }
   },
 
   /**
    * Cancel CFDI invoice with SAT
-   * Workflow: valid → cancelled
+   * Workflow: valid -> cancelled
    */
   cancel: async (
     id: string,
     cancelRequest: CFDICancelRequest
   ): Promise<CFDICancelResponse> => {
-    // Refactor ciclo (5a): el backend valida motivo_cancelacion (01-04) y
-    // uuid_sustitucion. Antes el FE mandaba motivo/uuid_reemplazo -> 422 siempre.
+    // El backend valida motivo_cancelacion (01-04) y uuid_sustitucion
     const response = await axiosClient.post(`/api/v1/cfdi-invoices/${id}/cancel`, {
       motivo_cancelacion: cancelRequest.motivo,
       uuid_sustitucion: cancelRequest.uuidReemplazo || null,
     })
+    // Respuesta: { message, data: { id, uuid, fecha_cancelacion, status, motivo } }
+    const data = response.data.data as Record<string, unknown>
     return {
-      cfdiId: response.data.data.id,
-      status: response.data.data.attributes.status,
-      fechaCancelacion: response.data.data.attributes.fecha_cancelacion,
+      cfdiId: String(data.id),
+      status: data.status as CFDICancelResponse['status'],
+      fechaCancelacion: data.fecha_cancelacion as string,
     }
   },
 
@@ -265,8 +271,18 @@ export const cfdiInvoicesService = {
     rfcEmisor: string
     rfcReceptor: string
   }> => {
+    // Endpoint propio: { message, data: { status, es_cancelable, estado, validacion_efos } }
     const response = await axiosClient.get(`/api/v1/cfdi-invoices/${id}/validate-sat`)
-    return response.data
+    const data = ((response.data?.data ?? response.data) || {}) as Record<string, unknown>
+    const estado = String(data.estado ?? data.status ?? '')
+    return {
+      valid: data.valid !== undefined ? Boolean(data.valid) : estado === 'Vigente',
+      uuid: String(data.uuid ?? ''),
+      status: estado as 'Vigente' | 'Cancelado',
+      fechaEmision: String(data.fechaEmision ?? data.fecha_emision ?? ''),
+      rfcEmisor: String(data.rfcEmisor ?? data.rfc_emisor ?? ''),
+      rfcReceptor: String(data.rfcReceptor ?? data.rfc_receptor ?? ''),
+    }
   },
 
   /**
@@ -277,8 +293,14 @@ export const cfdiInvoicesService = {
     fechaCancelacion?: string
     acuse?: string
   }> => {
+    // Endpoint propio: { message, data: <respuesta del PAC> }
     const response = await axiosClient.get(`/api/v1/cfdi-invoices/${id}/cancellation-status`)
-    return response.data
+    const data = ((response.data?.data ?? response.data) || {}) as Record<string, unknown>
+    return {
+      status: data.status as 'cancellation_pending' | 'cancelled',
+      fechaCancelacion: (data.fechaCancelacion ?? data.fecha_cancelacion) as string | undefined,
+      acuse: data.acuse as string | undefined,
+    }
   },
 
   // ============================================================================
@@ -322,7 +344,16 @@ export const cfdiInvoicesService = {
     formaPago?: string
     series?: string
   }): Promise<Blob> => {
-    const response = await axiosClient.post(`/api/v1/sales-orders/${orderId}/prefactura`, options ?? {}, {
+    // Endpoint propio: valida llaves snake_case (receptor_rfc, metodo_pago, ...)
+    const body: Record<string, string> = {}
+    if (options?.receptorRfc) body.receptor_rfc = options.receptorRfc
+    if (options?.receptorUsoCfdi) body.receptor_uso_cfdi = options.receptorUsoCfdi
+    if (options?.receptorRegimenFiscal) body.receptor_regimen_fiscal = options.receptorRegimenFiscal
+    if (options?.receptorDomicilioFiscal) body.receptor_domicilio_fiscal = options.receptorDomicilioFiscal
+    if (options?.metodoPago) body.metodo_pago = options.metodoPago
+    if (options?.formaPago) body.forma_pago = options.formaPago
+    if (options?.series) body.series = options.series
+    const response = await axiosClient.post(`/api/v1/sales-orders/${orderId}/prefactura`, body, {
       responseType: 'blob',
     })
     return response.data
@@ -334,7 +365,9 @@ export const cfdiInvoicesService = {
   createFromOrder: async (orderId: string) => {
     const response = await axiosClient.post(`/api/v1/sales-orders/${orderId}/facturar`)
     return response.data
-  },  // ============================================================================
+  },
+
+  // ============================================================================
   // COMPLEMENTO DE PAGOS 2.0 (REP)
   // ============================================================================
 
@@ -561,262 +594,5 @@ export const companySettingsService = {
   },
 }
 
-// ============================================================================
-// SAT CATALOGS SERVICE
-// NOTE: These endpoints DO NOT EXIST in the backend.
-// Backend needs to implement GET /api/v1/sat-catalogs/* endpoints
-// For now, we provide static fallback data for essential catalogs.
-// ============================================================================
-
-export interface SATCatalogItem {
-  code: string
-  description: string
-}
-
-// Static fallback data for essential SAT catalogs
-// These are the most commonly used values in Mexico
-const FALLBACK_REGIMENES: SATCatalogItem[] = [
-  { code: '601', description: 'General de Ley Personas Morales' },
-  { code: '603', description: 'Personas Morales con Fines no Lucrativos' },
-  { code: '605', description: 'Sueldos y Salarios e Ingresos Asimilados a Salarios' },
-  { code: '606', description: 'Arrendamiento' },
-  { code: '607', description: 'Régimen de Enajenación o Adquisición de Bienes' },
-  { code: '608', description: 'Demás ingresos' },
-  { code: '610', description: 'Residentes en el Extranjero sin Establecimiento Permanente en México' },
-  { code: '611', description: 'Ingresos por Dividendos (socios y accionistas)' },
-  { code: '612', description: 'Personas Físicas con Actividades Empresariales y Profesionales' },
-  { code: '614', description: 'Ingresos por intereses' },
-  { code: '615', description: 'Régimen de los ingresos por obtención de premios' },
-  { code: '616', description: 'Sin obligaciones fiscales' },
-  { code: '620', description: 'Sociedades Cooperativas de Producción que optan por diferir sus ingresos' },
-  { code: '621', description: 'Incorporación Fiscal' },
-  { code: '622', description: 'Actividades Agrícolas, Ganaderas, Silvícolas y Pesqueras' },
-  { code: '623', description: 'Opcional para Grupos de Sociedades' },
-  { code: '624', description: 'Coordinados' },
-  { code: '625', description: 'Régimen de las Actividades Empresariales con ingresos a través de Plataformas Tecnológicas' },
-  { code: '626', description: 'Régimen Simplificado de Confianza' },
-]
-
-const FALLBACK_FORMAS_PAGO: SATCatalogItem[] = [
-  { code: '01', description: 'Efectivo' },
-  { code: '02', description: 'Cheque nominativo' },
-  { code: '03', description: 'Transferencia electrónica de fondos' },
-  { code: '04', description: 'Tarjeta de crédito' },
-  { code: '05', description: 'Monedero electrónico' },
-  { code: '06', description: 'Dinero electrónico' },
-  { code: '08', description: 'Vales de despensa' },
-  { code: '12', description: 'Dación en pago' },
-  { code: '13', description: 'Pago por subrogación' },
-  { code: '14', description: 'Pago por consignación' },
-  { code: '15', description: 'Condonación' },
-  { code: '17', description: 'Compensación' },
-  { code: '23', description: 'Novación' },
-  { code: '24', description: 'Confusión' },
-  { code: '25', description: 'Remisión de deuda' },
-  { code: '26', description: 'Prescripción o caducidad' },
-  { code: '27', description: 'A satisfacción del acreedor' },
-  { code: '28', description: 'Tarjeta de débito' },
-  { code: '29', description: 'Tarjeta de servicios' },
-  { code: '30', description: 'Aplicación de anticipos' },
-  { code: '31', description: 'Intermediario pagos' },
-  { code: '99', description: 'Por definir' },
-]
-
-const FALLBACK_USO_CFDI: SATCatalogItem[] = [
-  { code: 'G01', description: 'Adquisición de mercancías' },
-  { code: 'G02', description: 'Devoluciones, descuentos o bonificaciones' },
-  { code: 'G03', description: 'Gastos en general' },
-  { code: 'I01', description: 'Construcciones' },
-  { code: 'I02', description: 'Mobiliario y equipo de oficina por inversiones' },
-  { code: 'I03', description: 'Equipo de transporte' },
-  { code: 'I04', description: 'Equipo de computo y accesorios' },
-  { code: 'I05', description: 'Dados, troqueles, moldes, matrices y herramental' },
-  { code: 'I06', description: 'Comunicaciones telefónicas' },
-  { code: 'I07', description: 'Comunicaciones satelitales' },
-  { code: 'I08', description: 'Otra maquinaria y equipo' },
-  { code: 'D01', description: 'Honorarios médicos, dentales y gastos hospitalarios' },
-  { code: 'D02', description: 'Gastos médicos por incapacidad o discapacidad' },
-  { code: 'D03', description: 'Gastos funerales' },
-  { code: 'D04', description: 'Donativos' },
-  { code: 'D05', description: 'Intereses reales efectivamente pagados por créditos hipotecarios (casa habitación)' },
-  { code: 'D06', description: 'Aportaciones voluntarias al SAR' },
-  { code: 'D07', description: 'Primas por seguros de gastos médicos' },
-  { code: 'D08', description: 'Gastos de transportación escolar obligatoria' },
-  { code: 'D09', description: 'Depósitos en cuentas para el ahorro, primas que tengan como base planes de pensiones' },
-  { code: 'D10', description: 'Pagos por servicios educativos (colegiaturas)' },
-  { code: 'S01', description: 'Sin efectos fiscales' },
-  { code: 'CP01', description: 'Pagos' },
-  { code: 'CN01', description: 'Nómina' },
-]
-
-export const satCatalogsService = {
-  /**
-   * Search product codes (ClaveProdServ)
-   * NOTE: Backend endpoint not implemented. Returns empty array.
-   * Backend needs: GET /api/v1/sat-catalogs/productos?search=
-   */
-  searchProducts: async (search: string): Promise<SATCatalogItem[]> => {
-    void search // Backend endpoint pending - SAT product catalog has 50,000+ entries
-    return []
-  },
-
-  /**
-   * Search unit codes (ClaveUnidad)
-   * NOTE: Backend endpoint not implemented. Returns empty array.
-   * Backend needs: GET /api/v1/sat-catalogs/unidades?search=
-   */
-  searchUnits: async (search: string): Promise<SATCatalogItem[]> => {
-    void search // Backend endpoint pending - SAT units catalog
-    return []
-  },
-
-  /**
-   * Get tax regimes
-   * Uses static fallback since backend endpoint not implemented.
-   * Backend needs: GET /api/v1/sat-catalogs/regimenes
-   */
-  getRegimenes: async (): Promise<SATCatalogItem[]> => {
-    // Using static fallback data
-    return FALLBACK_REGIMENES
-  },
-
-  /**
-   * Get payment forms
-   * Uses static fallback since backend endpoint not implemented.
-   * Backend needs: GET /api/v1/sat-catalogs/formas-pago
-   */
-  getFormasPago: async (): Promise<SATCatalogItem[]> => {
-    // Using static fallback data
-    return FALLBACK_FORMAS_PAGO
-  },
-
-  /**
-   * Get CFDI usage types
-   * Uses static fallback since backend endpoint not implemented.
-   * Backend needs: GET /api/v1/sat-catalogs/uso-cfdi
-   */
-  getUsoCfdi: async (): Promise<SATCatalogItem[]> => {
-    // Using static fallback data
-    return FALLBACK_USO_CFDI
-  },
-}
-
-// ============================================================================
-// INVOICE SERIES SERVICE
-// ============================================================================
-
-export const invoiceSeriesService = {
-  /**
-   * Get all invoice series
-   */
-  getAll: async () => {
-    const response = await axiosClient.get('/api/v1/invoice-series')
-    return response.data
-  },
-
-  /**
-   * Get single invoice series by ID
-   */
-  getById: async (id: string) => {
-    const response = await axiosClient.get(`/api/v1/invoice-series/${id}`)
-    return response.data
-  },
-
-  /**
-   * Create new invoice series
-   */
-  create: async (data: { prefix: string; description?: string; tipoComprobante?: string; currentNumber?: number; padding?: number; separator?: string; yearlyReset?: boolean }) => {
-    const response = await axiosClient.post('/api/v1/invoice-series', {
-      data: {
-        type: 'invoice-series',
-        attributes: {
-          prefix: data.prefix,
-          description: data.description,
-          tipo_comprobante: data.tipoComprobante,
-          current_number: data.currentNumber ?? 0,
-          padding: data.padding ?? 6,
-          separator: data.separator ?? '-',
-          yearly_reset: data.yearlyReset ?? false,
-        },
-      },
-    })
-    return response.data
-  },
-
-  /**
-   * Update invoice series
-   */
-  update: async (id: string, data: { prefix?: string; description?: string; tipoComprobante?: string; padding?: number; separator?: string; yearlyReset?: boolean }) => {
-    const response = await axiosClient.patch(`/api/v1/invoice-series/${id}`, {
-      data: {
-        type: 'invoice-series',
-        id,
-        attributes: {
-          ...(data.prefix !== undefined && { prefix: data.prefix }),
-          ...(data.description !== undefined && { description: data.description }),
-          ...(data.tipoComprobante !== undefined && { tipo_comprobante: data.tipoComprobante }),
-          ...(data.padding !== undefined && { padding: data.padding }),
-          ...(data.separator !== undefined && { separator: data.separator }),
-          ...(data.yearlyReset !== undefined && { yearly_reset: data.yearlyReset }),
-        },
-      },
-    })
-    return response.data
-  },
-
-  /**
-   * Delete invoice series
-   */
-  delete: async (id: string) => {
-    await axiosClient.delete(`/api/v1/invoice-series/${id}`)
-  },
-
-  /**
-   * Get available series for a tipo de comprobante
-   */
-  getAvailable: async (tipoComprobante?: string) => {
-    const params = tipoComprobante ? `?filter[tipoComprobante]=${tipoComprobante}` : ''
-    const response = await axiosClient.get(`/api/v1/invoice-series/available${params}`)
-    return response.data
-  },
-
-  /**
-   * Get summary of all series with next folio numbers
-   */
-  getSummary: async () => {
-    const response = await axiosClient.get('/api/v1/invoice-series/summary')
-    return response.data
-  },
-
-  /**
-   * Initialize default series (FAC, FAC-W, N, etc.)
-   */
-  initializeDefaults: async () => {
-    const response = await axiosClient.post('/api/v1/invoice-series/initialize-defaults')
-    return response.data
-  },
-
-  /**
-   * Preview next folio without incrementing
-   */
-  previewNextFolio: async (id: string) => {
-    const response = await axiosClient.get(`/api/v1/invoice-series/${id}/preview-next-folio`)
-    return response.data
-  },
-
-  /**
-   * Set initial folio number for a series
-   */
-  setInitialFolio: async (id: string, folio: number) => {
-    const response = await axiosClient.post(`/api/v1/invoice-series/${id}/set-initial-folio`, { folio })
-    return response.data
-  },
-
-  /**
-   * Set series as default
-   */
-  setAsDefault: async (id: string) => {
-    const response = await axiosClient.post(`/api/v1/invoice-series/${id}/set-as-default`)
-    return response.data
-  },
-}
+// Catalogos SAT (uso CFDI, regimen fiscal, forma de pago): ver satCfdiCatalogsService.ts,
+// que los lee del backend. La copia estatica que vivia aqui no tenia consumidores.

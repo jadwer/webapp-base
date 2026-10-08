@@ -208,6 +208,7 @@ export const ContactsTableSimple: React.FC<ContactsTableSimpleProps> = ({
                 <div className="d-flex gap-1">
                   {onView && (
                     <button
+                      aria-label="Ver detalles"
                       className="btn btn-sm btn-primary"
                       onClick={() => onView(contact)}
                       title="Ver detalles"
@@ -217,6 +218,7 @@ export const ContactsTableSimple: React.FC<ContactsTableSimpleProps> = ({
                   )}
                   {onEdit && (
                     <button
+                      aria-label="Editar"
                       className="btn btn-sm btn-outline-secondary"
                       onClick={() => onEdit(contact)}
                       title="Editar"
@@ -226,6 +228,7 @@ export const ContactsTableSimple: React.FC<ContactsTableSimpleProps> = ({
                   )}
                   {onDelete && (
                     <button
+                      aria-label="Eliminar"
                       className="btn btn-sm btn-outline-danger"
                       onClick={() => onDelete(contact)}
                       title="Eliminar"

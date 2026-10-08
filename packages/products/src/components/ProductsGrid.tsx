@@ -78,6 +78,7 @@ const ProductCard = React.memo<{
             <div className="btn-group btn-group-sm" role="group">
               {onView && (
                 <Button
+                  aria-label="Ver detalles"
                   size="small"
                   variant="primary"
                   buttonStyle="outline"
@@ -89,6 +90,7 @@ const ProductCard = React.memo<{
               )}
               {onEdit && (
                 <Button
+                  aria-label="Editar"
                   size="small"
                   variant="secondary"
                   buttonStyle="outline"
@@ -100,6 +102,7 @@ const ProductCard = React.memo<{
               )}
               {onDelete && (
                 <Button
+                  aria-label="Eliminar"
                   size="small"
                   variant="danger"
                   buttonStyle="outline"

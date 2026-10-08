@@ -74,16 +74,25 @@ function toCamelCase(key: string): string {
   return key.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase())
 }
 
-function parseInvoiceSeries(resource: JsonApiResource): InvoiceSeries {
+// Acepta el recurso JSON:API (attributes camelCase) y tambien los objetos
+// planos snake_case de los endpoints propios (initialize-defaults, available)
+function parseInvoiceSeries(resource: JsonApiResource | Record<string, unknown>): InvoiceSeries {
+  const source = ((resource as JsonApiResource).attributes ?? resource) as Record<string, unknown>
   const attrs: Record<string, unknown> = {}
-  for (const [key, value] of Object.entries(resource.attributes)) {
+  for (const [key, value] of Object.entries(source)) {
+    if (key === 'id') continue
     attrs[toCamelCase(key)] = value
   }
-  return { id: resource.id, ...attrs } as InvoiceSeries
+  return { id: String(resource.id), ...attrs } as InvoiceSeries
 }
 
-function toSnakeCase(key: string): string {
-  return key.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`)
+// InvoiceSeriesRequest valida las llaves camelCase del Schema
+function toAttributes(data: object): Record<string, unknown> {
+  const attributes: Record<string, unknown> = {}
+  for (const [key, value] of Object.entries(data)) {
+    if (value !== undefined) attributes[key] = value
+  }
+  return attributes
 }
 
 export const invoiceSeriesService = {
@@ -109,12 +118,7 @@ export const invoiceSeriesService = {
    */
   async create(data: CreateInvoiceSeriesRequest): Promise<InvoiceSeries> {
     const { companySettingId, ...rest } = data
-    const attributes: Record<string, unknown> = {}
-    for (const [key, value] of Object.entries(rest)) {
-      if (value !== undefined) {
-        attributes[toSnakeCase(key)] = value
-      }
-    }
+    const attributes = toAttributes(rest)
 
     const payload = {
       data: {
@@ -136,12 +140,7 @@ export const invoiceSeriesService = {
    * Update invoice series
    */
   async update(id: string, data: UpdateInvoiceSeriesRequest): Promise<InvoiceSeries> {
-    const attributes: Record<string, unknown> = {}
-    for (const [key, value] of Object.entries(data)) {
-      if (value !== undefined) {
-        attributes[toSnakeCase(key)] = value
-      }
-    }
+    const attributes = toAttributes(data)
 
     const payload = {
       data: {
@@ -198,7 +197,7 @@ export const invoiceSeriesService = {
     })
     return {
       message: response.data.message,
-      series: (response.data.data || []).map((r: JsonApiResource) => parseInvoiceSeries(r)),
+      series: (response.data.data || []).map((r: Record<string, unknown>) => parseInvoiceSeries(r)),
     }
   },
 

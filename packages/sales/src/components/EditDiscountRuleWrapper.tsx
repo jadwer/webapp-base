@@ -10,7 +10,7 @@ import React, { useState } from 'react'
 import { DiscountRuleForm } from './DiscountRuleForm'
 import { useDiscountRule } from '../hooks/useDiscountRule'
 import { useDiscountRuleMutations } from '../hooks/useDiscountRuleMutations'
-import { useNavigationProgress } from '@lwm/ui'
+import { useNavigationProgress, toDateInput } from '@lwm/ui'
 import { Alert } from '@lwm/ui'
 import type { DiscountRuleFormData } from '../types'
 
@@ -84,8 +84,8 @@ export const EditDiscountRuleWrapper: React.FC<EditDiscountRuleWrapperProps> = (
     categoryIds: discountRule.categoryIds || [],
     customerIds: discountRule.customerIds || [],
     customerClassifications: discountRule.customerClassifications || [],
-    startDate: discountRule.startDate || '',
-    endDate: discountRule.endDate || '',
+    startDate: toDateInput(discountRule.startDate),
+    endDate: toDateInput(discountRule.endDate),
     usageLimit: discountRule.usageLimit ?? undefined,
     usagePerCustomer: discountRule.usagePerCustomer ?? undefined,
     priority: discountRule.priority,
@@ -100,6 +100,7 @@ export const EditDiscountRuleWrapper: React.FC<EditDiscountRuleWrapperProps> = (
           {/* Header */}
           <div className="d-flex align-items-center mb-4">
             <button
+              aria-label="Volver"
               type="button"
               className="btn btn-link text-muted p-0 me-3"
               onClick={handleCancel}

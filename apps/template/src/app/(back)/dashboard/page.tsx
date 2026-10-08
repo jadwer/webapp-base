@@ -135,10 +135,10 @@ function AdminDashboard() {
   // Calculate billing metrics
   const totalInvoices = invoices?.length || 0
   const stampedInvoices = invoices?.filter(
-    (inv) => inv.status === 'stamped' || inv.status === 'valid'
+    (inv) => inv.status === 'valid'
   ).length || 0
   const totalInvoicedAmount = invoices
-    ?.filter((inv) => inv.status === 'stamped' || inv.status === 'valid')
+    ?.filter((inv) => inv.status === 'valid')
     .reduce((sum, inv) => sum + (inv.total || 0), 0) || 0
 
   // Calculate CRM metrics
