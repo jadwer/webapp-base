@@ -66,6 +66,10 @@ export default function Sidebar({ navigationConfig }: SidebarProps) {
     </>
   )
 
+  const isSubItemActive = (item: NavigationItem): boolean =>
+    pathname === item.href ||
+    (item.activePathPrefixes ?? []).some(prefix => pathname?.startsWith(prefix) ?? false)
+
   const renderItemLink = (
     item: NavigationItem,
     className: string,
@@ -160,7 +164,7 @@ export default function Sidebar({ navigationConfig }: SidebarProps) {
               <div style={{ flex: 1 }}>
                 {renderItemLink(
                   item,
-                  `${styles.subNavLink} ${pathname === item.href ? styles.active : ''}`,
+                  `${styles.subNavLink} ${isSubItemActive(item) ? styles.active : ''}`,
                   styles.subNavIcon,
                 )}
               </div>

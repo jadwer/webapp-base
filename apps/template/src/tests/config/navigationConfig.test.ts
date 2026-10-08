@@ -168,3 +168,28 @@ describe('bloque Usuarios (2026-09-24)', () => {
     expect(allHrefs).not.toContain('/dashboard/permissions')
   })
 })
+
+describe('bloque Inventario (2026-10-07)', () => {
+  it('tiene 6 entradas; ubicaciones y conversiones viven como pestanas', () => {
+    const group = adminNavigation.groups.find((g) => g.key === 'inventory')
+    const hrefs = group?.items.map((i) => i.href) ?? []
+    expect(hrefs).toEqual([
+      '/dashboard/inventory',
+      '/dashboard/inventory/stock',
+      '/dashboard/inventory/movements',
+      '/dashboard/inventory/warehouses',
+      '/dashboard/inventory/product-batch',
+      '/dashboard/inventory/fraccionamiento',
+    ])
+    expect(hrefs).not.toContain('/dashboard/inventory/locations')
+    expect(hrefs).not.toContain('/dashboard/inventory/product-conversions')
+    expect(group?.activePathPrefixes).toEqual(['/dashboard/inventory'])
+  })
+
+  it('Almacenes y Fraccionamiento se resaltan en sus sub-rutas', () => {
+    const items = adminNavigation.groups.find((g) => g.key === 'inventory')?.items ?? []
+    const byHref = (href: string) => items.find((i) => i.href === href)
+    expect(byHref('/dashboard/inventory/warehouses')?.activePathPrefixes).toEqual(['/dashboard/inventory/locations'])
+    expect(byHref('/dashboard/inventory/fraccionamiento')?.activePathPrefixes).toEqual(['/dashboard/inventory/product-conversions'])
+  })
+})

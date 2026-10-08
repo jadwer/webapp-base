@@ -71,13 +71,12 @@ export const adminNavigation: NavigationSection = {
       permissions: [],
       items: [
         { href: '/dashboard/inventory', label: 'Dashboard', icon: 'bi-speedometer2', permissions: ['stocks.index'] },
-        { href: '/dashboard/inventory/warehouses', label: 'Almacenes', icon: 'bi-building', permissions: ['warehouses.index'] },
-        { href: '/dashboard/inventory/locations', label: 'Ubicaciones', icon: 'bi-geo-alt', permissions: ['locations.index'] },
         { href: '/dashboard/inventory/stock', label: 'Control de Stock', icon: 'bi-boxes', permissions: ['stocks.index'] },
         { href: '/dashboard/inventory/movements', label: 'Movimientos', icon: 'bi-arrow-left-right', permissions: ['stock-movements.index'] },
-        { href: '/dashboard/inventory/product-batch', label: 'Lotes de Productos', icon: 'bi-calendar-check', permissions: ['product-batches.index'] },
-        { href: '/dashboard/inventory/product-conversions', label: 'Conversiones', icon: 'bi-arrow-repeat', permissions: ['product-conversions.index'] },
-        { href: '/dashboard/inventory/fraccionamiento', label: 'Fraccionamiento', icon: 'bi-scissors', permissions: ['fractionations.index'] },
+        // Ubicaciones vive como pestana de Almacenes; Conversiones, de Fraccionamiento
+        { href: '/dashboard/inventory/warehouses', label: 'Almacenes', icon: 'bi-building', permissions: ['warehouses.index'], activePathPrefixes: ['/dashboard/inventory/locations'] },
+        { href: '/dashboard/inventory/product-batch', label: 'Lotes', icon: 'bi-calendar-check', permissions: ['product-batches.index'] },
+        { href: '/dashboard/inventory/fraccionamiento', label: 'Fraccionamiento', icon: 'bi-scissors', permissions: ['fractionations.index'], activePathPrefixes: ['/dashboard/inventory/product-conversions'] },
       ],
     },
 

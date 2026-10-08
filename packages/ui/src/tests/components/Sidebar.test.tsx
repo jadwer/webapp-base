@@ -117,3 +117,58 @@ describe('Sidebar - acordeon de grupos', () => {
     expect(groupButton('Contactos')).toHaveAttribute('aria-expanded', 'false')
   })
 })
+
+describe('Sidebar - resaltado de items', () => {
+  const inventoryConfig: NavigationConfig = {
+    ...config,
+    admin: {
+      ...config.admin,
+      groups: [
+        {
+          key: 'inventory',
+          label: 'Inventario',
+          icon: 'bi-box-seam',
+          activePathPrefixes: ['/dashboard/inventory'],
+          permissions: [],
+          items: [
+            { href: '/dashboard/inventory', label: 'Dashboard', icon: 'bi-speedometer2', permissions: [] },
+            {
+              href: '/dashboard/inventory/warehouses',
+              label: 'Almacenes',
+              icon: 'bi-building',
+              permissions: [],
+              activePathPrefixes: ['/dashboard/inventory/locations'],
+            },
+          ],
+        },
+      ],
+    },
+  }
+
+  const linkClass = (label: string) =>
+    screen.getByRole('link', { name: new RegExp(label) }).className
+
+  it('marca activo el item cuyo prefijo extra coincide con el pathname', () => {
+    // Arrange - ubicaciones no tiene entrada propia; resalta Almacenes
+    mockUsePathname.mockReturnValue('/dashboard/inventory/locations/5')
+
+    // Act
+    render(<Sidebar navigationConfig={inventoryConfig} />)
+
+    // Assert
+    expect(linkClass('Almacenes')).toMatch(/active/)
+    expect(linkClass('Dashboard')).not.toMatch(/active/)
+  })
+
+  it('sin prefijos extra solo cuenta el href exacto', () => {
+    // Arrange
+    mockUsePathname.mockReturnValue('/dashboard/inventory')
+
+    // Act
+    render(<Sidebar navigationConfig={inventoryConfig} />)
+
+    // Assert
+    expect(linkClass('Dashboard')).toMatch(/active/)
+    expect(linkClass('Almacenes')).not.toMatch(/active/)
+  })
+})

@@ -31,6 +31,12 @@ export interface NavigationItem {
    * (e.g. `/dashboard/users/create`).
    */
   quickCreateHref?: string
+  /**
+   * Prefijos extra que marcan el item como activo (ademas de su href exacto).
+   * Sirve para rutas sin entrada propia en el menu, p. ej. Almacenes activo
+   * en `/dashboard/inventory/locations`.
+   */
+  activePathPrefixes?: string[]
 }
 
 export interface NavigationGroup {
