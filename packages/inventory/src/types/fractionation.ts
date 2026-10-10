@@ -24,19 +24,47 @@ interface WarehouseBasic {
   name: string
 }
 
+interface BatchBasic {
+  id: string
+  batchNumber: string
+  lotNumber?: string | null
+  expirationDate?: string | null
+  currentQuantity?: number
+  unitCost?: number
+}
+
+interface MovementBasic {
+  id: string
+  movementType: string
+  quantity: number
+  unitCost: number
+  totalValue: number
+  movementDate?: string
+  glPostingStatus?: string | null
+}
+
 export interface Fractionation {
   id: string
   folioNumber: string
+  idempotencyKey?: string | null
   sourceProductId: number
   destinationProductId: number
   productConversionId?: number
   warehouseId: number
+  warehouseLocationId?: number | null
+  sourceBatchId?: number | null
+  destinationBatchId?: number | null
   userId: number
+  /** Lo que salio del origen (con piezas enteras puede ser menor a lo pedido) */
   sourceQuantity: number
+  requestedQuantity?: number | null
   producedQuantity: number
   wastePercentage: number
   wasteQuantity: number
   conversionFactorUsed: number
+  sourceUnitCost?: number
+  destinationUnitCost?: number
+  totalCost?: number
   exitMovementId?: number
   entryMovementId?: number
   status: 'pending' | 'completed' | 'cancelled'
@@ -49,7 +77,12 @@ export interface Fractionation {
   sourceProduct?: ProductBasic
   destinationProduct?: ProductBasic
   warehouse?: WarehouseBasic
+  warehouseLocation?: { id: string; name: string; code?: string }
   user?: { id: string; name: string; email: string }
+  sourceBatch?: BatchBasic
+  destinationBatch?: BatchBasic
+  exitMovement?: MovementBasic
+  entryMovement?: MovementBasic
 }
 
 export interface FractionationFilters {
@@ -72,20 +105,68 @@ export interface FractionationCalculateRequest {
   destination_product_id: number
   source_quantity: number
   warehouse_id: number
+  warehouse_location_id?: number
+  product_batch_id?: number
+}
+
+export interface FractionationLocationOption {
+  warehouse_location_id: number | null
+  name: string | null
+  code: string | null
+  quantity: number
+  available: number
+}
+
+export interface FractionationBatchOption {
+  id: number
+  batch_number: string
+  lot_number: string | null
+  expiration_date: string | null
+  warehouse_location_id: number | null
+  available_quantity: number
+  unit_cost: number
+  is_expired: boolean
+  is_expiring_soon: boolean
+}
+
+export interface FractionationPreview {
+  source_product: ProductWithUnit
+  destination_product: ProductWithUnit
+  /** Igual a requested_quantity (se conserva por compatibilidad) */
+  source_quantity: number
+  requested_quantity?: number
+  /** Lo que realmente sale del origen (piezas enteras: lo estrictamente necesario) */
+  consumed_quantity?: number
+  /** Sobrante que se queda en el granel con piezas enteras */
+  leftover_quantity?: number
+  conversion_factor: number
+  waste_percentage: number
+  whole_units?: boolean
+  produced_quantity: number
+  waste_quantity: number
+  /** Existencia menos reservado */
+  available_stock: number
+  on_hand_stock?: number
+  reserved_stock?: number
+  has_enough_stock: boolean
+  source_unit_cost?: number
+  destination_unit_cost?: number
+  total_cost?: number
+  has_cost?: boolean
+  location_required?: boolean
+  warehouse_location_id?: number | null
+  locations?: FractionationLocationOption[]
+  batch_required?: boolean
+  batches?: FractionationBatchOption[]
+  suggested_batch_id?: number | null
+  product_batch_id?: number | null
+  batch_available?: number | null
+  can_execute?: boolean
+  warnings?: string[]
 }
 
 export interface FractionationCalculateResponse {
-  data: {
-    source_product: ProductWithUnit
-    destination_product: ProductWithUnit
-    source_quantity: number
-    conversion_factor: number
-    waste_percentage: number
-    produced_quantity: number
-    waste_quantity: number
-    available_stock: number
-    has_enough_stock: boolean
-  }
+  data: FractionationPreview
 }
 
 export interface FractionationExecuteRequest {
@@ -93,7 +174,11 @@ export interface FractionationExecuteRequest {
   destination_product_id: number
   source_quantity: number
   warehouse_id: number
+  warehouse_location_id?: number
+  product_batch_id?: number
   notes?: string
+  /** Clave del formulario: el mismo POST repetido no fracciona dos veces */
+  idempotency_key?: string
 }
 
 export interface FractionationExecuteResponse {
@@ -103,15 +188,25 @@ export interface FractionationExecuteResponse {
     sourceProductId: number
     destinationProductId: number
     sourceQuantity: number
+    requestedQuantity?: number | null
     producedQuantity: number
     wastePercentage: number
     wasteQuantity: number
     conversionFactorUsed: number
+    sourceUnitCost?: number
+    destinationUnitCost?: number
+    totalCost?: number
+    sourceBatchId?: number | null
+    destinationBatchId?: number | null
     status: string
     executedAt: string
     sourceProduct: ProductBasic | null
     destinationProduct: ProductBasic | null
     warehouse: WarehouseBasic | null
+  }
+  meta?: {
+    replayed?: boolean
+    warnings?: string[]
   }
   message: string
 }

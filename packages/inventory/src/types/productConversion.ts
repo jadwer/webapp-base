@@ -15,6 +15,8 @@ export interface ProductConversion {
   destinationProductId: number
   conversionFactor: number
   wastePercentage: number
+  /** Solo piezas completas: lo producido se redondea hacia abajo */
+  wholeUnits?: boolean
   isActive: boolean
   notes?: string
   createdAt: string
@@ -30,6 +32,7 @@ export interface CreateProductConversionData {
   destinationProductId: number
   conversionFactor: number
   wastePercentage?: number
+  wholeUnits?: boolean
   isActive?: boolean
   notes?: string
 }
@@ -39,6 +42,7 @@ export interface UpdateProductConversionData {
   destinationProductId?: number
   conversionFactor?: number
   wastePercentage?: number
+  wholeUnits?: boolean
   isActive?: boolean
   notes?: string
 }

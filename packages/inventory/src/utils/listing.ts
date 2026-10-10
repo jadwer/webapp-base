@@ -28,19 +28,33 @@ interface ApiErrorShape {
     status?: number
     data?: {
       message?: string
-      errors?: Array<{ detail?: string; title?: string }>
+      /** Controladores propios viejos responden { error: '...' } */
+      error?: string
+      errors?: Array<{ detail?: string; title?: string }> | Record<string, string[]>
     }
   }
 }
 
-/** Mensaje legible de un error de axios/JSON:API */
+type ErrorItem = { detail?: string; title?: string }
+
+/** errors[] JSON:API; el formato de validacion de Laravel (objeto por campo) no es lista */
+const errorItems = (data: NonNullable<ApiErrorShape['response']>['data']): ErrorItem[] =>
+  Array.isArray(data?.errors) ? data.errors : []
+
+/**
+ * Mensaje legible de un error de axios/JSON:API. Orden: errors[0].detail,
+ * errors[0].title, message, error (controladores propios) y por ultimo el
+ * mensaje de axios.
+ */
 export const apiErrorMessage = (error: unknown, fallback: string): string => {
   const e = error as ApiErrorShape | undefined
   const data = e?.response?.data
+  const first = errorItems(data)[0]
   return (
-    data?.errors?.[0]?.detail ||
-    data?.errors?.[0]?.title ||
+    first?.detail ||
+    first?.title ||
     data?.message ||
+    (typeof data?.error === 'string' ? data.error : undefined) ||
     e?.message ||
     fallback
   )
@@ -58,7 +72,7 @@ export const deleteErrorMessage = (error: unknown, entity: string): string => {
 /** Todos los mensajes de un error JSON:API (422 trae uno por campo) */
 export const apiErrorList = (error: unknown, fallback: string): string[] => {
   const e = error as ApiErrorShape | undefined
-  const list = (e?.response?.data?.errors || [])
+  const list = errorItems(e?.response?.data)
     .map((item) => item.detail || item.title)
     .filter((msg): msg is string => Boolean(msg))
   return list.length > 0 ? Array.from(new Set(list)) : [apiErrorMessage(error, fallback)]

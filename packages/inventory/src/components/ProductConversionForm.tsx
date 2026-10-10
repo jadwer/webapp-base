@@ -7,6 +7,8 @@ import { ProductSearchSelect } from '@lwm/products'
 import { useProductConversionsMutations, useProductConversion } from '../hooks/useProductConversions'
 import { FormStateCard } from './FormStateCard'
 import { apiErrorList } from '../utils/listing'
+import { useProductUnit } from '../hooks/useProductUnit'
+import { SOURCE_UNIT, contentUnitOptions, factorFromContent, roundFactor } from '../utils/fractionation'
 import type { CreateProductConversionData, UpdateProductConversionData } from '../types/productConversion'
 
 interface ProductConversionFormProps {
@@ -29,9 +31,15 @@ export const ProductConversionForm = ({ conversionId }: ProductConversionFormPro
     destinationProductId: '',
     conversionFactor: '',
     wastePercentage: '0',
+    wholeUnits: false,
     isActive: true,
     notes: '',
   })
+  // Ayudante "contenido por pieza": calcula el factor sin hacer la division a mano
+  const [content, setContent] = useState('')
+  const [contentUnit, setContentUnit] = useState(SOURCE_UNIT)
+  const { unit: sourceUnit } = useProductUnit(formData.sourceProductId || null)
+  const { unit: destinationUnit } = useProductUnit(formData.destinationProductId || null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errors, setErrors] = useState<string[]>([])
 
@@ -43,6 +51,7 @@ export const ProductConversionForm = ({ conversionId }: ProductConversionFormPro
         destinationProductId: String(conversion.destinationProductId || ''),
         conversionFactor: String(conversion.conversionFactor || ''),
         wastePercentage: String(conversion.wastePercentage || '0'),
+        wholeUnits: conversion.wholeUnits === true,
         isActive: conversion.isActive !== false,
         notes: conversion.notes || '',
       })
@@ -58,6 +67,9 @@ export const ProductConversionForm = ({ conversionId }: ProductConversionFormPro
       missing.push('El producto destino debe ser distinto al origen')
     }
     if (!(Number(formData.conversionFactor) > 0)) missing.push('El factor de conversión debe ser mayor a cero')
+    else if (roundFactor(Number(formData.conversionFactor)) !== Number(formData.conversionFactor)) {
+      missing.push('El factor de conversión admite hasta 6 decimales')
+    }
     const waste = Number(formData.wastePercentage)
     if (Number.isNaN(waste) || waste < 0 || waste > 100) missing.push('La merma debe estar entre 0 y 100')
     setErrors(missing)
@@ -71,6 +83,7 @@ export const ProductConversionForm = ({ conversionId }: ProductConversionFormPro
           destinationProductId: Number(formData.destinationProductId),
           conversionFactor: Number(formData.conversionFactor),
           wastePercentage: Number(formData.wastePercentage),
+          wholeUnits: formData.wholeUnits,
           isActive: formData.isActive,
           notes: formData.notes || undefined,
         }
@@ -82,6 +95,7 @@ export const ProductConversionForm = ({ conversionId }: ProductConversionFormPro
           destinationProductId: Number(formData.destinationProductId),
           conversionFactor: Number(formData.conversionFactor),
           wastePercentage: Number(formData.wastePercentage),
+          wholeUnits: formData.wholeUnits,
           isActive: formData.isActive,
           notes: formData.notes || undefined,
         }
@@ -108,6 +122,10 @@ export const ProductConversionForm = ({ conversionId }: ProductConversionFormPro
 
   const factor = Number(formData.conversionFactor)
   const wastePct = Number(formData.wastePercentage)
+  const sourceUnitLabel = sourceUnit?.name || 'unidad origen'
+  const destinationUnitLabel = destinationUnit?.name || 'unidades destino'
+  const unitOptions = contentUnitOptions(sourceUnit)
+  const helperFactor = factorFromContent(Number(content), contentUnit, sourceUnit?.code)
   const sourceInitial = conversion?.sourceProduct
     ? { id: String(conversion.sourceProduct.id), name: conversion.sourceProduct.name, sku: conversion.sourceProduct.sku }
     : null
@@ -149,6 +167,11 @@ export const ProductConversionForm = ({ conversionId }: ProductConversionFormPro
                     required
                     disabled={isSubmitting}
                   />
+                  {sourceUnit && (
+                    <div className="form-text" data-testid="source-unit">
+                      Unidad: {sourceUnit.name} ({sourceUnit.code})
+                    </div>
+                  )}
                 </div>
                 <div className="col-md-6">
                   <ProductSearchSelect
@@ -162,6 +185,11 @@ export const ProductConversionForm = ({ conversionId }: ProductConversionFormPro
                     required
                     disabled={isSubmitting}
                   />
+                  {destinationUnit && (
+                    <div className="form-text" data-testid="destination-unit">
+                      Unidad: {destinationUnit.name} ({destinationUnit.code})
+                    </div>
+                  )}
                 </div>
               </div>
             </DetailSection>
@@ -178,12 +206,14 @@ export const ProductConversionForm = ({ conversionId }: ProductConversionFormPro
                     className="form-control"
                     value={formData.conversionFactor}
                     onChange={(e) => setFormData((prev) => ({ ...prev, conversionFactor: e.target.value }))}
-                    step="0.0001"
-                    min="0.0001"
+                    step="0.000001"
+                    min="0.000001"
                     placeholder="10"
                     disabled={isSubmitting}
                   />
-                  <div className="form-text">Unidades destino por cada unidad origen</div>
+                  <div className="form-text">
+                    {destinationUnitLabel} por cada {sourceUnitLabel} (hasta 6 decimales)
+                  </div>
                 </div>
                 <div className="col-md-4">
                   <label htmlFor="conversion-waste" className="form-label">Merma</label>
@@ -219,11 +249,81 @@ export const ProductConversionForm = ({ conversionId }: ProductConversionFormPro
                     </label>
                   </div>
                 </div>
+                <div className="col-12">
+                  <div className="border rounded p-3" data-testid="content-helper">
+                    <div className="fw-semibold mb-2">
+                      <i className="bi bi-magic me-1" />
+                      Calcular el factor por contenido de cada pieza
+                    </div>
+                    <div className="row g-2 align-items-end">
+                      <div className="col-sm-4">
+                        <label htmlFor="conversion-content" className="form-label small mb-1">Contenido por pieza</label>
+                        <input
+                          id="conversion-content"
+                          type="number"
+                          className="form-control"
+                          value={content}
+                          onChange={(e) => setContent(e.target.value)}
+                          min="0"
+                          step="any"
+                          placeholder="25"
+                          disabled={isSubmitting}
+                        />
+                      </div>
+                      <div className="col-sm-4">
+                        <label htmlFor="conversion-content-unit" className="form-label small mb-1">Unidad del contenido</label>
+                        <select
+                          id="conversion-content-unit"
+                          className="form-select"
+                          value={contentUnit}
+                          onChange={(e) => setContentUnit(e.target.value)}
+                          disabled={isSubmitting}
+                        >
+                          {unitOptions.map((o) => (
+                            <option key={o.code} value={o.code}>{o.label}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="col-sm-4">
+                        <button
+                          type="button"
+                          className="btn btn-outline-primary w-100"
+                          disabled={isSubmitting || helperFactor === null}
+                          onClick={() => helperFactor !== null && setFormData((prev) => ({ ...prev, conversionFactor: String(helperFactor) }))}
+                        >
+                          {helperFactor !== null ? `Usar factor ${helperFactor}` : 'Usar factor'}
+                        </button>
+                      </div>
+                    </div>
+                    <div className="form-text">
+                      Ejemplo: granel en litros y pieza de 25 ml da factor 40. Si capturas en la unidad del origen
+                      (por ejemplo 3.785 L por galón) se usa el inverso.
+                    </div>
+                  </div>
+                </div>
+                <div className="col-12">
+                  <div className="form-check form-switch">
+                    <input
+                      className="form-check-input"
+                      type="checkbox"
+                      checked={formData.wholeUnits}
+                      onChange={(e) => setFormData((prev) => ({ ...prev, wholeUnits: e.target.checked }))}
+                      id="conversion-wholeUnits"
+                      disabled={isSubmitting}
+                    />
+                    <label className="form-check-label" htmlFor="conversion-wholeUnits">
+                      Solo piezas completas
+                    </label>
+                  </div>
+                  <div className="form-text">
+                    Redondea lo producido hacia abajo y solo saca del granel lo necesario para esas piezas; el sobrante se queda en el granel.
+                  </div>
+                </div>
                 {factor > 0 && (
                   <div className="col-12">
                     <div className="alert alert-info mb-0">
                       <i className="bi bi-calculator me-2" />
-                      1 unidad origen = {factor} unidades destino
+                      1 {sourceUnitLabel} = {factor} {destinationUnitLabel}
                       {wastePct > 0 && (
                         <> (producción neta {(factor * (1 - wastePct / 100)).toFixed(4)}, merma {(factor * wastePct / 100).toFixed(4)})</>
                       )}

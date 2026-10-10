@@ -32,3 +32,12 @@ export {
   LOCATION_TYPE,
 } from './utils/labels'
 export type { InventoryLabelMap } from './utils/labels'
+export {
+  newIdempotencyKey,
+  factorFromContent,
+  contentUnitOptions,
+  roundFactor,
+  UNIT_SCALES,
+  SOURCE_UNIT,
+} from './utils/fractionation'
+export type { ContentUnitOption } from './utils/fractionation'

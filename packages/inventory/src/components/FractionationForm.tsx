@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { DetailSection, PageHeader, toast } from '@lwm/ui'
@@ -10,9 +10,20 @@ import { useFractionationMutations } from '../hooks/useFractionations'
 import { useWarehouses } from '../hooks'
 import { FractionationCalculator } from './FractionationCalculator'
 import { apiErrorMessage } from '../utils/listing'
-import type { FractionationCalculateResponse } from '../types/fractionation'
+import { newIdempotencyKey } from '../utils/fractionation'
+import { formatDate, formatQty } from '../utils/format'
+import type { FractionationPreview, FractionationBatchOption } from '../types/fractionation'
 
 const LIST_HREF = '/dashboard/inventory/fraccionamiento'
+
+const batchLabel = (b: FractionationBatchOption): string => {
+  const parts = [b.batch_number]
+  if (b.lot_number) parts.push(`lote ${b.lot_number}`)
+  parts.push(b.expiration_date ? `caduca ${formatDate(b.expiration_date)}` : 'sin caducidad')
+  parts.push(`disponible ${formatQty(b.available_quantity)}`)
+  if (b.is_expired) parts.push('CADUCADO')
+  return parts.join(' · ')
+}
 
 export const FractionationForm = () => {
   const router = useRouter()
@@ -25,33 +36,47 @@ export const FractionationForm = () => {
   const [sourceProductId, setSourceProductId] = useState('')
   const [destinationProductId, setDestinationProductId] = useState('')
   const [warehouseId, setWarehouseId] = useState('')
+  const [warehouseLocationId, setWarehouseLocationId] = useState('')
+  const [productBatchId, setProductBatchId] = useState('')
   const [sourceQuantity, setSourceQuantity] = useState('')
   const [notes, setNotes] = useState('')
 
-  const [preview, setPreview] = useState<FractionationCalculateResponse['data'] | null>(null)
+  const [preview, setPreview] = useState<FractionationPreview | null>(null)
   const [isCalculating, setIsCalculating] = useState(false)
   const [isExecuting, setIsExecuting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // Get available conversions for selected source product
+  // Una clave por formulario abierto: cada reintento (doble clic, red caida)
+  // manda la misma y el backend no fracciona dos veces.
+  const idempotencyKeyRef = useRef<string>(newIdempotencyKey())
+  // El lote lo elige FEFO hasta que el usuario lo cambie a mano
+  const batchTouchedRef = useRef(false)
+
   const { conversions } = useConversionsBySourceProduct(
     sourceProductId || null,
     ['destinationProduct']
   )
 
-  // Reset destination when source changes
+  // Origen distinto = destino, ubicacion y lote se reinician
   useEffect(() => {
     setDestinationProductId('')
+    setWarehouseLocationId('')
+    setProductBatchId('')
+    batchTouchedRef.current = false
     setPreview(null)
   }, [sourceProductId])
 
-  // Auto-calculate preview
+  useEffect(() => {
+    setWarehouseLocationId('')
+    setProductBatchId('')
+    batchTouchedRef.current = false
+  }, [warehouseId])
+
   const handleCalculate = useCallback(async () => {
     if (!sourceProductId || !destinationProductId || !warehouseId || !sourceQuantity) return
 
     setIsCalculating(true)
     setError(null)
-    setPreview(null)
 
     try {
       const result = await calculate({
@@ -59,27 +84,38 @@ export const FractionationForm = () => {
         destination_product_id: Number(destinationProductId),
         source_quantity: Number(sourceQuantity),
         warehouse_id: Number(warehouseId),
+        ...(warehouseLocationId && { warehouse_location_id: Number(warehouseLocationId) }),
+        ...(productBatchId && { product_batch_id: Number(productBatchId) }),
       })
-      setPreview(result.data)
+      const data = result.data
+      setPreview(data)
+      // FEFO preseleccionado: el lote sugerido mientras el usuario no elija otro
+      if (!batchTouchedRef.current && !productBatchId && data.suggested_batch_id) {
+        setProductBatchId(String(data.suggested_batch_id))
+      }
     } catch (err) {
+      setPreview(null)
       setError(apiErrorMessage(err, 'Error al calcular el fraccionamiento'))
     } finally {
       setIsCalculating(false)
     }
-  }, [sourceProductId, destinationProductId, warehouseId, sourceQuantity, calculate])
+  }, [sourceProductId, destinationProductId, warehouseId, warehouseLocationId, productBatchId, sourceQuantity, calculate])
 
-  // Trigger calculation when all fields are filled
   useEffect(() => {
     if (sourceProductId && destinationProductId && warehouseId && sourceQuantity && Number(sourceQuantity) > 0) {
       const timer = setTimeout(handleCalculate, 500)
       return () => clearTimeout(timer)
-    } else {
-      setPreview(null)
     }
+    setPreview(null)
+    return undefined
   }, [sourceProductId, destinationProductId, warehouseId, sourceQuantity, handleCalculate])
 
+  const canExecute = Boolean(preview && (preview.can_execute ?? preview.has_enough_stock))
+  const batchMissing = Boolean(preview?.batch_required && !productBatchId)
+  const locationMissing = Boolean(preview?.location_required && !warehouseLocationId)
+
   const handleExecute = async () => {
-    if (!preview?.has_enough_stock) return
+    if (!canExecute || batchMissing || locationMissing) return
 
     setIsExecuting(true)
     setError(null)
@@ -90,9 +126,17 @@ export const FractionationForm = () => {
         destination_product_id: Number(destinationProductId),
         source_quantity: Number(sourceQuantity),
         warehouse_id: Number(warehouseId),
+        ...(warehouseLocationId && { warehouse_location_id: Number(warehouseLocationId) }),
+        ...(productBatchId && { product_batch_id: Number(productBatchId) }),
         notes: notes || undefined,
+        idempotency_key: idempotencyKeyRef.current,
       })
-      toast.success(result.message)
+      if (result.meta?.replayed) {
+        toast.info(result.message)
+      } else {
+        toast.success(result.message)
+      }
+      result.meta?.warnings?.forEach((w) => toast.warning(w))
       router.push(`${LIST_HREF}/${result.data.id}`)
     } catch (err) {
       const message = apiErrorMessage(err, 'Error al ejecutar el fraccionamiento')
@@ -103,14 +147,18 @@ export const FractionationForm = () => {
     }
   }
 
-  // Destination products from available conversions
   const destinationOptions = conversions.map((c) => ({
     id: String(c.destinationProductId),
     name: c.destinationProduct?.name || `Producto ${c.destinationProductId}`,
     sku: c.destinationProduct?.sku || '',
     factor: c.conversionFactor,
     waste: c.wastePercentage,
+    wholeUnits: c.wholeUnits === true,
   }))
+
+  const batches = preview?.batches ?? []
+  const locations = preview?.locations ?? []
+  const showLocations = locations.length > 1 || Boolean(warehouseLocationId)
 
   return (
     <div className="container-fluid py-4">
@@ -165,17 +213,22 @@ export const FractionationForm = () => {
                 <label htmlFor="fractionation-quantity" className="form-label">
                   Cantidad a fraccionar <span className="text-danger">*</span>
                 </label>
-                <input
-                  id="fractionation-quantity"
-                  type="number"
-                  className="form-control"
-                  value={sourceQuantity}
-                  onChange={(e) => setSourceQuantity(e.target.value)}
-                  min="0.0001"
-                  step="0.0001"
-                  placeholder="Cantidad del producto origen"
-                  disabled={isExecuting}
-                />
+                <div className="input-group">
+                  <input
+                    id="fractionation-quantity"
+                    type="number"
+                    className="form-control"
+                    value={sourceQuantity}
+                    onChange={(e) => setSourceQuantity(e.target.value)}
+                    min="0.0001"
+                    step="0.0001"
+                    placeholder="Cantidad del producto origen"
+                    disabled={isExecuting}
+                  />
+                  {preview?.source_product.unit && (
+                    <span className="input-group-text">{preview.source_product.unit.name}</span>
+                  )}
+                </div>
               </div>
               <div className="col-12">
                 <label htmlFor="fractionation-destination" className="form-label">
@@ -197,7 +250,7 @@ export const FractionationForm = () => {
                   </option>
                   {destinationOptions.map((d) => (
                     <option key={d.id} value={d.id}>
-                      {d.sku ? `${d.sku} - ` : ''}{d.name} (factor {d.factor}x, merma {d.waste}%)
+                      {d.sku ? `${d.sku} - ` : ''}{d.name} (factor {d.factor}x, merma {d.waste}%{d.wholeUnits ? ', piezas completas' : ''})
                     </option>
                   ))}
                 </select>
@@ -211,6 +264,69 @@ export const FractionationForm = () => {
                   </div>
                 )}
               </div>
+
+              {showLocations && (
+                <div className="col-md-6">
+                  <label htmlFor="fractionation-location" className="form-label">
+                    Ubicación {preview?.location_required && <span className="text-danger">*</span>}
+                  </label>
+                  <select
+                    id="fractionation-location"
+                    className={`form-select ${locationMissing ? 'is-invalid' : ''}`}
+                    value={warehouseLocationId}
+                    onChange={(e) => setWarehouseLocationId(e.target.value)}
+                    disabled={isExecuting}
+                  >
+                    <option value="">Elegir ubicación...</option>
+                    {locations
+                      .filter((l) => l.warehouse_location_id !== null)
+                      .map((l) => (
+                        <option key={String(l.warehouse_location_id)} value={String(l.warehouse_location_id)}>
+                          {l.name || `Ubicación ${l.warehouse_location_id}`}{l.code ? ` (${l.code})` : ''} · disponible {formatQty(l.available)}
+                        </option>
+                      ))}
+                  </select>
+                  {locationMissing && (
+                    <div className="invalid-feedback d-block">
+                      El producto origen está en varias ubicaciones de este almacén: elige de cuál se fracciona.
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {(batches.length > 0 || preview?.batch_required) && (
+                <div className={showLocations ? 'col-md-6' : 'col-12'}>
+                  <label htmlFor="fractionation-batch" className="form-label">
+                    Lote de origen {preview?.batch_required && <span className="text-danger">*</span>}
+                  </label>
+                  <select
+                    id="fractionation-batch"
+                    className={`form-select ${batchMissing ? 'is-invalid' : ''}`}
+                    value={productBatchId}
+                    onChange={(e) => {
+                      batchTouchedRef.current = true
+                      setProductBatchId(e.target.value)
+                    }}
+                    disabled={isExecuting}
+                  >
+                    <option value="">Elegir lote...</option>
+                    {batches.map((b) => (
+                      <option key={b.id} value={String(b.id)} disabled={b.is_expired}>
+                        {batchLabel(b)}{preview?.suggested_batch_id === b.id ? ' (sugerido FEFO)' : ''}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="form-text">
+                    Se sugiere el lote que caduca primero (FEFO). El lote destino hereda el lote y la caducidad.
+                  </div>
+                  {batchMissing && (
+                    <div className="invalid-feedback d-block">
+                      El producto origen maneja lotes: elige el lote que se fracciona.
+                    </div>
+                  )}
+                </div>
+              )}
+
               <div className="col-12">
                 <label htmlFor="fractionation-notes" className="form-label">Notas</label>
                 <textarea
@@ -240,7 +356,7 @@ export const FractionationForm = () => {
               type="button"
               className="btn btn-primary"
               onClick={handleExecute}
-              disabled={!preview?.has_enough_stock || isExecuting || isCalculating}
+              disabled={!canExecute || batchMissing || locationMissing || isExecuting || isCalculating}
             >
               {isExecuting ? (
                 <span className="spinner-border spinner-border-sm me-2" role="status" />

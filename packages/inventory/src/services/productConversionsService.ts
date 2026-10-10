@@ -79,6 +79,7 @@ export const productConversionsService = {
           destinationProductId: Number(data.destinationProductId),
           conversionFactor: Number(data.conversionFactor),
           wastePercentage: data.wastePercentage !== undefined ? Number(data.wastePercentage) : 0,
+          wholeUnits: data.wholeUnits === true,
           isActive: data.isActive !== undefined ? data.isActive : true,
           notes: data.notes || undefined,
         }
@@ -99,6 +100,7 @@ export const productConversionsService = {
     if (data.destinationProductId !== undefined) attributes.destinationProductId = Number(data.destinationProductId)
     if (data.conversionFactor !== undefined) attributes.conversionFactor = Number(data.conversionFactor)
     if (data.wastePercentage !== undefined) attributes.wastePercentage = Number(data.wastePercentage)
+    if (data.wholeUnits !== undefined) attributes.wholeUnits = data.wholeUnits
     if (data.isActive !== undefined) attributes.isActive = data.isActive
     if (data.notes !== undefined) attributes.notes = data.notes
 

@@ -94,3 +94,6 @@ export {
   useFractionation,
   useFractionationMutations
 } from './useFractionations'
+
+// Unidad de un producto (conversiones, P3 granel)
+export { useProductUnit, fetchProductUnit, type ProductUnitInfo } from './useProductUnit'
