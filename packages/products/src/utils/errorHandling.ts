@@ -340,3 +340,47 @@ export function getRelationshipErrorDetails(error: unknown): {
   
   return { hasDetails: false }
 }
+/**
+ * Mensaje legible de un error de API para mostrar al usuario (regla 7: nunca
+ * un toast generico ni un catch mudo). Entiende errores JSON:API
+ * ({errors:[{detail,title}]}), validacion de Laravel ({message,
+ * errors:{campo:[...]}}), controladores propios ({error}) y Error plano. Si no
+ * hay texto util, usa `fallback` y agrega el codigo HTTP para poder rastrearlo.
+ */
+export function extractApiErrorMessage(err: unknown, fallback: string): string {
+  if (typeof err === 'object' && err !== null) {
+    const e = err as {
+      response?: {
+        status?: number
+        data?: {
+          errors?: Array<{ detail?: string; title?: string }> | Record<string, string[]>
+          message?: string
+          error?: string
+        }
+      }
+      message?: string
+    }
+    const status = e.response?.status
+    const data = e.response?.data
+    if (data) {
+      if (Array.isArray(data.errors) && data.errors[0]) {
+        const first = data.errors[0]
+        const text = first.detail || first.title
+        if (text) return text
+      }
+      if (data.errors && typeof data.errors === 'object' && !Array.isArray(data.errors)) {
+        const firstField = Object.values(data.errors)[0]
+        if (Array.isArray(firstField) && firstField[0]) return firstField[0]
+      }
+      if (data.message) return data.message
+      if (typeof data.error === 'string' && data.error) {
+        return status === 403 ? `Sin permiso para esta accion (403: ${data.error})` : `${data.error}${status ? ` (${status})` : ''}`
+      }
+    }
+    if (status === 403) return 'Sin permiso para esta accion (403)'
+    if (status === 401) return 'La sesion expiro; vuelve a iniciar sesion (401)'
+    if (status) return `${fallback} (${status})`
+    if (e.message) return `${fallback}: ${e.message}`
+  }
+  return fallback
+}

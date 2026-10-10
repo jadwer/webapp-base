@@ -11,6 +11,8 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { Button, Modal } from '@lwm/ui'
 import type { LocalCartItem } from '../hooks/useLocalCart'
+import { isPendingPriceItem } from '../utils/pendingPrice'
+import { QUOTE_ONLY_SHORT_LABEL } from '@lwm/products/pricing'
 import { useLocalCartPageController } from '../hooks/useLocalCartPageController'
 import { usePublicSettings } from '@lwm/app-config'
 import { taxHintLabel } from '../../utils/taxHint'
@@ -50,6 +52,8 @@ export const LocalCartPage: React.FC<LocalCartPageProps> = ({
     handleOpenQuoteModal,
     handleRequestQuote,
     handleProceedToCheckout,
+    canCheckout,
+    checkoutBlockedReason,
   } = useLocalCartPageController({ checkoutUrl, onCheckout })
 
   // Format price
@@ -143,13 +147,22 @@ export const LocalCartPage: React.FC<LocalCartPageProps> = ({
 
           {/* Price */}
           <div className="col-4 col-md-2 text-center mt-3 mt-md-0">
-            <div className="fw-semibold" style={{ whiteSpace: 'nowrap' }}>{formatPrice(item.price)}</div>
-            {item.unitName && (
-              <small className="text-muted">/ {item.unitName}</small>
+            {isPendingPriceItem(item) ? (
+              <span className="badge bg-info text-dark" data-testid="cart-item-quote-only">
+                <i className="bi bi-chat-square-quote me-1" aria-hidden="true" />
+                {QUOTE_ONLY_SHORT_LABEL}
+              </span>
+            ) : (
+              <>
+                <div className="fw-semibold" style={{ whiteSpace: 'nowrap' }}>{formatPrice(item.price)}</div>
+                {item.unitName && (
+                  <small className="text-muted">/ {item.unitName}</small>
+                )}
+                <small className={item.iva ? 'text-success' : 'text-muted'}>
+                  {taxHintLabel(item.iva, pricesIncludeTax)}
+                </small>
+              </>
             )}
-            <small className={item.iva ? 'text-success' : 'text-muted'}>
-              {taxHintLabel(item.iva, pricesIncludeTax)}
-            </small>
           </div>
 
           {/* Quantity Controls */}
@@ -190,9 +203,13 @@ export const LocalCartPage: React.FC<LocalCartPageProps> = ({
 
           {/* Subtotal */}
           <div className="col-3 col-md-2 text-end mt-3 mt-md-0">
-            <div className="fw-bold text-primary" style={{ whiteSpace: 'nowrap' }}>
-              {formatPrice(item.price * item.quantity)}
-            </div>
+            {isPendingPriceItem(item) ? (
+              <small className="text-muted fst-italic">Por confirmar</small>
+            ) : (
+              <div className="fw-bold text-primary" style={{ whiteSpace: 'nowrap' }}>
+                {formatPrice(item.price * item.quantity)}
+              </div>
+            )}
           </div>
 
           {/* Remove Button */}
@@ -285,6 +302,13 @@ export const LocalCartPage: React.FC<LocalCartPageProps> = ({
 
               <hr />
 
+              {!canCheckout && (
+                <div className="alert alert-warning small py-2" role="status" data-testid="cart-pending-price-notice">
+                  <i className="bi bi-info-circle me-2" />
+                  El total no incluye los productos con precio sujeto a cotización.
+                </div>
+              )}
+
               <div className="d-flex justify-content-between mb-4">
                 <span className="fw-bold fs-5">Total</span>
                 <span className="fw-bold fs-5 text-primary">
@@ -318,7 +342,8 @@ export const LocalCartPage: React.FC<LocalCartPageProps> = ({
                 size="large"
                 className="w-100"
                 onClick={handleProceedToCheckout}
-                disabled={isSyncingToCheckout || authLoading}
+                disabled={isSyncingToCheckout || authLoading || !canCheckout}
+                title={checkoutBlockedReason ?? undefined}
               >
                 {isSyncingToCheckout ? (
                   <>
@@ -332,6 +357,12 @@ export const LocalCartPage: React.FC<LocalCartPageProps> = ({
                   </>
                 )}
               </Button>
+
+              {checkoutBlockedReason && (
+                <div className="small text-danger mt-2" data-testid="checkout-blocked-reason">
+                  {checkoutBlockedReason}
+                </div>
+              )}
 
               <div className="text-center mt-3">
                 <small className="text-muted">

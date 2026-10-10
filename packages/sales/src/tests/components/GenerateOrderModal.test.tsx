@@ -221,4 +221,36 @@ describe('GenerateOrderModal', () => {
     )
     expect(onConverted).not.toHaveBeenCalled()
   })
+
+  it('blocks the CTA and lists lines with price pending (P2 granel)', () => {
+    setup({ items: [createMockQuoteItem({ id: '9', productName: 'Alcohol granel', productSku: 'GR-9', pricePending: true, product: createMockProductRef({ id: '9' }) })] })
+
+    expect(screen.getByTestId('convert-price-pending')).toHaveTextContent('Alcohol granel (GR-9)')
+    expect(screen.getByRole('button', { name: /generar pedido/i })).toBeDisabled()
+  })
+
+  it('renders the price_pending 422 per product instead of [object Object]', async () => {
+    mockConvert.mockRejectedValue({
+      response: {
+        status: 422,
+        data: {
+          message: 'Captura el precio de los productos sujetos a cotizacion antes de convertir: Alcohol granel.',
+          errors: [{
+            status: '422', code: 'price_pending', title: 'Precio por confirmar',
+            detail: 'Captura el precio de Alcohol granel antes de convertir.',
+            meta: { quote_item_id: 1, product_id: 1, product_name: 'Alcohol granel', product_sku: 'GR-9' },
+          }],
+        },
+      },
+    })
+    setup()
+
+    fireEvent.change(screen.getByLabelText(/orden de compra que emitió el cliente/i), {
+      target: { value: 'OC-1' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: /generar pedido/i }))
+
+    expect(await screen.findByTestId('convert-price-pending')).toHaveTextContent('Alcohol granel (GR-9)')
+    expect(toast.error).not.toHaveBeenCalled()
+  })
 })

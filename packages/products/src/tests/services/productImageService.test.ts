@@ -141,6 +141,29 @@ describe('productImageService', () => {
     })
   })
 
+  describe('update filePath (Reemplazar, P1 granel)', () => {
+    it('manda solo filePath cuando se reemplaza el archivo', async () => {
+      vi.mocked(axios.patch).mockResolvedValue({ data: { data: mockJsonApiImage('4', { filePath: 'products/new.jpg' }) } })
+
+      const result = await productImageService.update('4', { filePath: 'products/new.jpg' })
+
+      expect(axios.patch).toHaveBeenCalledWith('/api/v1/product-images/4', {
+        data: { type: 'product-images', id: '4', attributes: { filePath: 'products/new.jpg' } },
+      })
+      expect(result.filePath).toBe('products/new.jpg')
+    })
+
+    it('altText null limpia el texto alternativo', async () => {
+      vi.mocked(axios.patch).mockResolvedValue({ data: { data: mockJsonApiImage('4') } })
+
+      await productImageService.update('4', { altText: null })
+
+      expect(axios.patch).toHaveBeenCalledWith('/api/v1/product-images/4', {
+        data: { type: 'product-images', id: '4', attributes: { altText: null } },
+      })
+    })
+  })
+
   describe('transform handles snake_case fallback', () => {
     it('should use camelCase attributes when available', async () => {
       const image = {

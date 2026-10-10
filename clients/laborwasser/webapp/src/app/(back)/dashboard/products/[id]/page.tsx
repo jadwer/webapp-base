@@ -4,7 +4,7 @@ import React, { use } from 'react'
 import Image from 'next/image'
 import { Card, Button } from '@/ui/components/base'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
-import { useProduct, StatusBadge, formatDate, formatPrice } from '@/modules/products'
+import { useProduct, StatusBadge, formatDate, formatPrice, PricingTypeBadge, isQuoteOnly } from '@/modules/products'
 
 export default function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
@@ -151,7 +151,8 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                   <div className="mb-3">
                     <label className="form-label fw-bold">Precio de venta:</label>
                     <div className="fs-4 text-primary fw-bold">
-                      {formatPrice(product.price)}
+                      {/* P2 granel: sin precio de lista, se cotiza */}
+                      {isQuoteOnly(product) ? <PricingTypeBadge className="fs-6" /> : formatPrice(product.price)}
                     </div>
                   </div>
                   <div className="mb-3">

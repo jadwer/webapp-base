@@ -12,6 +12,7 @@ import Image from 'next/image'
 import { Button, Input } from '@lwm/ui'
 import { useNavigationProgress } from '@lwm/ui'
 import { toast } from '@lwm/ui'
+import { getQuoteOnlyCheckoutItems, quoteOnlyCheckoutMessage, type QuoteOnlyCheckoutItem } from '../utils/quoteOnlyCheckoutError'
 import { useShoppingCart, useShoppingCartItems, useShoppingCartMutations } from '../hooks'
 import { paymentService } from '../services/paymentService'
 import { shoppingCartService } from '../services'
@@ -192,6 +193,8 @@ export const CheckoutPage = React.memo<CheckoutPageProps>(({ cartId }) => {
     available: number
   }
   const [stockShortage, setStockShortage] = useState<StockShortageItem[] | null>(null)
+  // P2 granel: 422 por productos con precio sujeto a cotizacion en el carrito.
+  const [quoteOnlyItems, setQuoteOnlyItems] = useState<QuoteOnlyCheckoutItem[] | null>(null)
 
   const getStockShortage = (error: unknown): StockShortageItem[] | null => {
     if (typeof error === 'object' && error !== null && 'response' in error) {
@@ -271,12 +274,19 @@ export const CheckoutPage = React.memo<CheckoutPageProps>(({ cartId }) => {
       }
 
       setStockShortage(null)
+      setQuoteOnlyItems(null)
       const order = await checkoutCart(orderData)
       const orderResponse = order.data as { id: string }
       setOrderId(orderResponse.id)
       setCurrentStep('payment')
     } catch (error) {
       console.error('Error creating order:', error)
+      const quoteOnly = getQuoteOnlyCheckoutItems(error)
+      if (quoteOnly) {
+        setQuoteOnlyItems(quoteOnly)
+        toast.error(quoteOnlyCheckoutMessage(quoteOnly))
+        return
+      }
       const shortage = getStockShortage(error)
       if (shortage) {
         setStockShortage(shortage)
@@ -476,6 +486,32 @@ export const CheckoutPage = React.memo<CheckoutPageProps>(({ cartId }) => {
         <div className="col-lg-7">
           {currentStep === 'info' && (
             <>
+              {quoteOnlyItems && (
+                <div className="alert alert-warning border-0 shadow-sm mb-4" role="alert" data-testid="checkout-quote-only">
+                  <h6 className="alert-heading">
+                    <i className="bi bi-chat-square-quote me-2" />
+                    Productos con precio sujeto a cotización
+                  </h6>
+                  <p className="mb-2">No se pueden pagar en línea; te enviamos el precio en una cotización:</p>
+                  <ul className="mb-2">
+                    {quoteOnlyItems.map((item) => (
+                      <li key={item.product_id}>
+                        {item.product_name || `Producto ${item.product_id}`}
+                        {item.product_sku ? ` (${item.product_sku})` : ''}
+                      </li>
+                    ))}
+                  </ul>
+                  <Button
+                    variant="primary"
+                    size="small"
+                    onClick={() => navigation.push('/cart?action=quote')}
+                  >
+                    <i className="bi bi-file-earmark-text me-2" />
+                    Solicitar cotización
+                  </Button>
+                </div>
+              )}
+
               {stockShortage && (
                 <div className="alert alert-warning border-0 shadow-sm mb-4" role="alert">
                   <h6 className="alert-heading">

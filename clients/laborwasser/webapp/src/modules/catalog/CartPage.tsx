@@ -25,7 +25,8 @@
 
 import React, { Suspense, useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
-import { useLocalCartPageController, useSaleProducts, type EnhancedPublicProduct, type LocalCartItem } from '@lwm/ecommerce'
+import { useLocalCartPageController, useSaleProducts, isPendingPriceItem, type EnhancedPublicProduct, type LocalCartItem } from '@lwm/ecommerce'
+import { QUOTE_ONLY_SHORT_LABEL } from '@lwm/products/pricing'
 import { Modal, toast } from '@lwm/ui'
 import { useAuth } from '@lwm/auth'
 import { quoteService, type Quote } from '@lwm/sales'
@@ -84,8 +85,21 @@ const CartItemRow: React.FC<{
       </label>
     </div>
     <div className={styles.itemPriceCol}>
-      <span className={styles.itemPrice}>{formatMoney(item.price * item.quantity)}</span>
-      <span className={styles.itemPriceMeta}>MXN/Pieza {item.iva ? '+ IVA' : 'IVA 0%'}</span>
+      {isPendingPriceItem(item) ? (
+        <>
+          {/* P2 granel: precio sujeto a cotizacion, no suma al total */}
+          <span className="badge bg-info text-dark" data-testid="cart-item-quote-only">
+            <i className="bi bi-chat-square-quote me-1" aria-hidden="true" />
+            {QUOTE_ONLY_SHORT_LABEL}
+          </span>
+          <span className={styles.itemPriceMeta}>Precio por confirmar</span>
+        </>
+      ) : (
+        <>
+          <span className={styles.itemPrice}>{formatMoney(item.price * item.quantity)}</span>
+          <span className={styles.itemPriceMeta}>MXN/Pieza {item.iva ? '+ IVA' : 'IVA 0%'}</span>
+        </>
+      )}
       <button type="button" className={styles.itemRemove} onClick={onRemove} aria-label={`Quitar ${item.name}`}>
         <i className="bi bi-trash" aria-hidden="true" />
       </button>
@@ -176,6 +190,8 @@ const CartContent: React.FC = () => {
     handleOpenQuoteModal,
     handleRequestQuote,
     handleProceedToCheckout,
+    canCheckout,
+    checkoutBlockedReason,
   } = controller
 
   const [tab, setTab] = useState<'cart' | 'quotes'>('cart')
@@ -295,6 +311,12 @@ const CartContent: React.FC = () => {
                 <div><dt>Envío</dt><dd>Por calcular</dd></div>
                 <div className={styles.summaryTotal}><dt>Total</dt><dd>{formatMoney(summary.total)}</dd></div>
               </dl>
+              {!canCheckout && (
+                <p className={styles.summaryNote} data-testid="cart-pending-price-notice">
+                  <i className="bi bi-exclamation-circle" aria-hidden="true" />
+                  El total no incluye los productos con precio sujeto a cotización.
+                </p>
+              )}
               <p className={styles.summaryNote}>
                 <i className="bi bi-info-circle" aria-hidden="true" />
                 Al generar tu cotización te contactaremos con precios especiales y tiempos de entrega.
@@ -311,10 +333,14 @@ const CartContent: React.FC = () => {
                 type="button"
                 className="btn lw-btn lw-btn-accent w-100"
                 onClick={guardPartial(handleProceedToCheckout)}
-                disabled={isSyncingToCheckout}
+                disabled={isSyncingToCheckout || !canCheckout}
+                title={checkoutBlockedReason ?? undefined}
               >
                 {isSyncingToCheckout ? 'Preparando...' : 'Continuar con el pago'}
               </button>
+              {checkoutBlockedReason && (
+                <p className="small text-danger mt-2 mb-0" data-testid="checkout-blocked-reason">{checkoutBlockedReason}</p>
+              )}
             </aside>
           </div>
         )}

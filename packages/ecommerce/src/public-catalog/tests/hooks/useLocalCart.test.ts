@@ -996,3 +996,38 @@ describe('useLocalCartCount', () => {
     })
   })
 })
+
+describe('useLocalCart precio sujeto a cotizacion (P2 granel)', () => {
+  beforeEach(() => localStorage.clear())
+  afterEach(() => localStorage.clear())
+
+  it('guarda el tipo de precio, no suma la linea y cuenta los pendientes', async () => {
+    const { result } = renderHook(() => useLocalCart())
+    await waitFor(() => expect(result.current.isInitialized).toBe(true))
+
+    const granel = createMockProduct('9')
+    granel.attributes.price = null
+    granel.attributes.pricingType = 'quote_only'
+
+    act(() => {
+      result.current.addToCart(createMockProduct('1'), 1)
+      result.current.addToCart(granel, 3)
+    })
+
+    const item = result.current.items.find(i => i.productId === '9')
+    expect(item?.pricingType).toBe('quote_only')
+    expect(item?.price).toBe(0)
+    expect(result.current.totals.pendingPriceCount).toBe(1)
+    expect(result.current.totals.subtotal).toBe(100)
+  })
+
+  it('carritos guardados antes del campo no cuentan como pendientes', async () => {
+    localStorage.setItem(CART_STORAGE_KEY, JSON.stringify({
+      items: [{ id: 'x', productId: '5', name: 'Viejo', price: 10, quantity: 1, iva: true, imageUrl: null, sku: null, unitName: null, categoryName: null, brandName: null, addedAt: '' }],
+      createdAt: '', updatedAt: '',
+    }))
+    const { result } = renderHook(() => useLocalCart())
+    await waitFor(() => expect(result.current.isInitialized).toBe(true))
+    expect(result.current.totals.pendingPriceCount).toBe(0)
+  })
+})

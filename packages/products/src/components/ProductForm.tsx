@@ -7,6 +7,8 @@ import { FileUploader } from './FileUploader'
 import { ImageGalleryManager } from './ImageGalleryManager'
 import { SatKeyCombobox } from './SatKeyCombobox'
 import { productService } from '../services/productService'
+import { extractApiErrorMessage } from '../utils/errorHandling'
+import { PRICING_TYPES, PRICING_TYPE_LABELS, normalizePricingType, type PricingType } from '../utils/pricingType'
 import type { Product, CreateProductData, UpdateProductData, ProductType } from '../types'
 
 // Tasas de IVA fijas ofrecidas por el select. 'Exento' mapea a null,
@@ -33,6 +35,10 @@ export function selectValueToTaxRate(selectValue: string): number | null {
   return Number(selectValue)
 }
 
+// Opciones del tipo de precio: la lista sale de PRICING_TYPES, fijada contra
+// el backend por test (regla 7: nada de listas escritas a mano aqui).
+const PRICING_TYPE_OPTIONS = PRICING_TYPES.map(value => ({ value, label: PRICING_TYPE_LABELS[value] }))
+
 const PRODUCT_TYPE_OPTIONS: { value: string; label: string }[] = [
   { value: '', label: 'Sin definir' },
   { value: 'finished', label: 'Terminado' },
@@ -40,33 +46,8 @@ const PRODUCT_TYPE_OPTIONS: { value: string; label: string }[] = [
   { value: 'both', label: 'Ambos' }
 ]
 
-/**
- * Extract a human-readable message from an upload error. The backend may
- * return JSON:API errors ({errors:[{detail}]}), a Laravel validation
- * payload ({message, errors:{field:[...]}}), or a plain Error. Falls back
- * to the provided generic message so the UI is never blank.
- */
-function extractUploadError(err: unknown, fallback: string): string {
-  if (typeof err === 'object' && err !== null) {
-    const e = err as {
-      response?: { data?: { errors?: Array<{ detail?: string }> | Record<string, string[]>; message?: string } }
-      message?: string
-    }
-    const data = e.response?.data
-    if (data) {
-      if (Array.isArray(data.errors) && data.errors[0]?.detail) {
-        return data.errors[0].detail
-      }
-      if (data.errors && typeof data.errors === 'object' && !Array.isArray(data.errors)) {
-        const firstField = Object.values(data.errors)[0]
-        if (Array.isArray(firstField) && firstField[0]) return firstField[0]
-      }
-      if (data.message) return data.message
-    }
-    if (e.message) return e.message
-  }
-  return fallback
-}
+// Errores del backend con detalle (regla 7): helper compartido con la galeria.
+const extractUploadError = extractApiErrorMessage
 
 interface ProductFormProps {
   product?: Product
@@ -87,6 +68,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     description: product?.description || '',
     fullDescription: product?.fullDescription || '',
     price: product?.price?.toString() || '',
+    pricingType: normalizePricingType(product?.pricingType) as PricingType,
     cost: product?.cost?.toString() || '',
     iva: product?.iva || false,
     // isPublic default true (marcado). false = producto interno.
@@ -172,6 +154,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         description: product.description || '',
         fullDescription: product.fullDescription || '',
         price: product.price?.toString() || '',
+        pricingType: normalizePricingType(product.pricingType),
         cost: product.cost?.toString() || '',
         iva: product.iva || false,
         isPublic: product.isPublic ?? true,
@@ -231,8 +214,16 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       newErrors.brandId = 'La marca es requerida'
     }
 
-    if (formData.price && isNaN(Number(formData.price))) {
-      newErrors.price = 'El precio debe ser un número válido'
+    // P2 granel: el precio es obligatorio solo con precio fijo (igual que el
+    // backend); con "Precio sujeto a cotización" no se captura.
+    if (formData.pricingType === 'fixed') {
+      if (!String(formData.price).trim()) {
+        newErrors.price = 'El precio de venta es obligatorio con precio fijo. Si el precio cambia en cada venta, elige "Precio sujeto a cotización".'
+      } else if (isNaN(Number(formData.price))) {
+        newErrors.price = 'El precio debe ser un número válido'
+      } else if (Number(formData.price) < 0) {
+        newErrors.price = 'El precio no puede ser negativo'
+      }
     }
 
     if (formData.cost && isNaN(Number(formData.cost))) {
@@ -267,6 +258,8 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       return { ...prev, [field]: true }
     })
   }, [])
+
+  const isQuoteOnlyPrice = formData.pricingType === 'quote_only'
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -312,13 +305,16 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       ...(formData.sku && { sku: formData.sku }),
       description: formData.description,
       fullDescription: formData.fullDescription,
-      ...(formData.price && { price: Number(formData.price) }),
+      // P2 granel: quote_only manda price null explicito y sin oferta (el
+      // backend rechaza isOnSale=true con precio sujeto a cotizacion).
+      pricingType: formData.pricingType,
+      price: isQuoteOnlyPrice ? null : Number(formData.price),
       ...(formData.cost && { cost: Number(formData.cost) }),
       iva: formData.iva,
       isPublic: formData.isPublic,
       // Oferta. Las fechas y el badge viajan como null cuando se limpian, para
       // poder quitar una vigencia (undefined no llegaria al backend).
-      isOnSale: formData.isOnSale,
+      isOnSale: isQuoteOnlyPrice ? false : formData.isOnSale,
       saleStartsAt: formData.saleStartsAt || null,
       saleEndsAt: formData.saleEndsAt || null,
       saleBadge: formData.saleBadge || null,
@@ -370,7 +366,11 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           {/* Imagen del producto */}
           <div className="mb-3">
             {product?.id ? (
-              <ImageGalleryManager productId={product.id} />
+              <ImageGalleryManager
+                productId={product.id}
+                legacyImgPath={product.imgPath ?? null}
+                legacyImgUrl={product.imgUrl ?? null}
+              />
             ) : (
               <>
                 <FileUploader
@@ -455,23 +455,43 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         <div className="col-md-4">
           <div className="mb-3">
             <Input
-              label="Precio de venta"
-              type="number"
-              value={formData.price}
-              onChange={(e) => handleInputChange('price', e.target.value)}
-              onBlur={() => handleBlur('price')}
-              errorText={touched.price ? errors.price : ''}
-              placeholder="0.00"
-              step="0.01"
-              min="0"
-              leftIcon="bi-currency-dollar"
+              label="Tipo de precio"
+              type="select"
+              value={formData.pricingType}
+              onChange={(e) => handleInputChange('pricingType', e.target.value)}
               disabled={isSubmitting}
+              options={PRICING_TYPE_OPTIONS}
+              helpText={isQuoteOnlyPrice
+                ? 'No se muestra precio ni se compra en línea: el cliente solicita cotización y el vendedor captura el precio en la cotización.'
+                : undefined}
             />
           </div>
 
+          {!isQuoteOnlyPrice && (
+            <div className="mb-3">
+              <Input
+                label="Precio de venta"
+                type="number"
+                value={formData.price}
+                onChange={(e) => handleInputChange('price', e.target.value)}
+                onBlur={() => handleBlur('price')}
+                errorText={touched.price ? errors.price : ''}
+                placeholder="0.00"
+                step="0.01"
+                min="0"
+                leftIcon="bi-currency-dollar"
+                disabled={isSubmitting}
+                required
+              />
+            </div>
+          )}
+
           <div className="mb-3">
             <Input
-              label="Costo"
+              label={isQuoteOnlyPrice ? 'Costo (recomendado)' : 'Costo'}
+              helpText={isQuoteOnlyPrice
+                ? 'Se usa para valuar inventario y calcular el costo de las presentaciones.'
+                : undefined}
               type="number"
               value={formData.cost}
               onChange={(e) => handleInputChange('cost', e.target.value)}
@@ -520,7 +540,9 @@ export const ProductForm: React.FC<ProductFormProps> = ({
             </div>
           </div>
 
-          {/* Oferta: alimenta la seccion "Ofertas del Mes" del sitio publico. */}
+          {/* Oferta: alimenta la seccion "Ofertas del Mes" del sitio publico.
+              Un producto sujeto a cotizacion no tiene precio que ofertar. */}
+          {!isQuoteOnlyPrice && (
           <div className="mb-3">
             <div className="form-check">
               <input
@@ -540,7 +562,9 @@ export const ProductForm: React.FC<ProductFormProps> = ({
             </div>
           </div>
 
-          {formData.isOnSale && (
+          )}
+
+          {formData.isOnSale && !isQuoteOnlyPrice && (
             <div className="mb-3 ps-4 border-start">
               <div className="row g-2">
                 <div className="col-md-6">

@@ -4,7 +4,7 @@ import { useState, useCallback } from 'react'
 import type { QuoteItem, UpdateQuoteItemRequest } from '../types'
 import { getQuoteItemStockStatus } from '../utils/stock'
 import { useQuoteItemMutations } from '../hooks'
-import { productService } from '@lwm/products'
+import { productService, isQuoteOnly, PricingTypeBadge, extractApiErrorMessage } from '@lwm/products'
 import { toast } from '@lwm/ui'
 
 interface Product {
@@ -12,6 +12,8 @@ interface Product {
   name: string
   sku: string
   price: number
+  /** P2 granel: quote_only = sin precio de lista; el vendedor lo captura. */
+  pricingType?: 'fixed' | 'quote_only'
   iva?: boolean
   // taxRate: null = Exento (0% IVA); number = tasa en % (16, 8, 0, custom).
   // undefined = el backend aun no trae este campo para este producto.
@@ -87,6 +89,7 @@ export function QuoteItemsTable({
         name: p.name || '',
         sku: p.sku || '',
         price: p.price || 0,
+        pricingType: p.pricingType,
         iva: p.iva ?? true,
         taxRate: p.taxRate
       }))
@@ -100,7 +103,9 @@ export function QuoteItemsTable({
 
   const handleSelectProduct = (product: Product) => {
     setSelectedProduct(product)
-    setAddPrice(String(product.price))
+    // Sujeto a cotizacion: sin precio de lista, el vendedor lo captura (vacio
+    // = queda "por confirmar" y se puede enviar con leyenda, decision D1).
+    setAddPrice(isQuoteOnly(product) ? '' : String(product.price))
     setAddQuantity('1')
     // Default de IVA: prioriza taxRate (dato fiscal SAT real del producto)
     // sobre el flag legado iva. taxRate null = Exento -> 0% en la cotizacion
@@ -117,7 +122,9 @@ export function QuoteItemsTable({
     if (!selectedProduct) return
 
     const quantity = parseDraftNumber(addQuantity)
-    const price = parseDraftNumber(addPrice)
+    const selectedQuoteOnly = isQuoteOnly(selectedProduct)
+    // Sujeto a cotizacion sin precio capturado = 0 (precio pendiente).
+    const price = selectedQuoteOnly && addPrice.trim() === '' ? 0 : parseDraftNumber(addPrice)
     const taxRate = parseDraftNumber(addTaxRate)
 
     const errors: Record<string, string> = {}
@@ -141,7 +148,8 @@ export function QuoteItemsTable({
         quoteId: parseInt(quoteId),
         productId: parseInt(selectedProduct.id),
         quantity: quantity!,
-        unitPrice: selectedProduct.price,
+        // Sin precio de lista en quote_only: el original queda en 0.
+        unitPrice: selectedQuoteOnly ? 0 : selectedProduct.price,
         quotedPrice: price!,
         taxRate: taxRate!,
         productName: selectedProduct.name,
@@ -155,8 +163,8 @@ export function QuoteItemsTable({
       setAddPrice('0')
       setAddTaxRate('16')
       onItemsChanged?.()
-    } catch {
-      toast.error('Error al agregar el producto')
+    } catch (err) {
+      toast.error(extractApiErrorMessage(err, 'Error al agregar el producto'))
     }
   }
 
@@ -179,7 +187,8 @@ export function QuoteItemsTable({
     setEditingId(item.id)
     setEditErrors({})
     setEditValues({
-      quotedPrice: String(item.quotedPrice),
+      // Precio pendiente: el campo arranca vacio para capturarlo.
+      quotedPrice: item.pricePending ? '' : String(item.quotedPrice),
       quantity: String(item.quantity),
       discountMode: 'percent',
       discountValue: String(item.discountPercentage),
@@ -218,7 +227,11 @@ export function QuoteItemsTable({
     if (!editValues) return
 
     const quantity = parseDraftNumber(editValues.quantity)
-    const quotedPrice = parseDraftNumber(editValues.quotedPrice)
+    const editedItem = items.find((i) => i.id === itemId)
+    // Dejarlo vacio en una linea pendiente la mantiene "por confirmar" (0).
+    const quotedPrice = editedItem?.pricePending && editValues.quotedPrice.trim() === ''
+      ? 0
+      : parseDraftNumber(editValues.quotedPrice)
     const discountValue = parseDraftNumber(editValues.discountValue)
     const taxRate = parseDraftNumber(editValues.taxRate)
 
@@ -262,8 +275,8 @@ export function QuoteItemsTable({
       setEditValues(null)
       setEditErrors({})
       onItemsChanged?.()
-    } catch {
-      toast.error('Error al actualizar el item')
+    } catch (err) {
+      toast.error(extractApiErrorMessage(err, 'Error al actualizar el item'))
     }
   }
 
@@ -272,8 +285,8 @@ export function QuoteItemsTable({
       await mutations.delete.mutateAsync(itemId)
       toast.success('Item eliminado')
       onItemsChanged?.()
-    } catch {
-      toast.error('Error al eliminar el item')
+    } catch (err) {
+      toast.error(extractApiErrorMessage(err, 'Error al eliminar el item'))
     }
   }
 
@@ -282,6 +295,7 @@ export function QuoteItemsTable({
   const totalDiscount = items.reduce((sum, item) => sum + item.discountAmount, 0)
   const totalTax = items.reduce((sum, item) => sum + item.taxAmount, 0)
   const grandTotal = items.reduce((sum, item) => sum + item.total, 0)
+  const pendingCount = items.filter((item) => item.pricePending).length
 
   if (items.length === 0 && !isAddingProduct) {
     return (
@@ -349,7 +363,13 @@ export function QuoteItemsTable({
                         onClick={() => handleSelectProduct(p)}
                       >
                         <div className="fw-medium">{p.name}</div>
-                        <small className="text-muted">{p.sku} - ${p.price.toFixed(2)}</small>
+                        {isQuoteOnly(p) ? (
+                          <small className="text-muted">
+                            {p.sku} <PricingTypeBadge short className="ms-1" />
+                          </small>
+                        ) : (
+                          <small className="text-muted">{p.sku} - ${p.price.toFixed(2)}</small>
+                        )}
                       </button>
                     ))}
                   </div>
@@ -371,15 +391,20 @@ export function QuoteItemsTable({
               )}
             </div>
             <div className="col-md-2">
-              <label className="form-label small">Precio Cotizado</label>
+              <label className="form-label small" htmlFor="quote-add-price">Precio Cotizado</label>
               <input
+                id="quote-add-price"
                 type="number"
                 className={`form-control form-control-sm${addErrors.price ? ' is-invalid' : ''}`}
                 value={addPrice}
                 onChange={(e) => setAddPrice(e.target.value)}
+                placeholder={isQuoteOnly(selectedProduct) ? 'Captura el precio' : undefined}
                 min={0}
                 step={0.01}
               />
+              {isQuoteOnly(selectedProduct) && !addErrors.price && (
+                <div className="form-text small">Precio sujeto a cotización: vacío queda por confirmar.</div>
+              )}
               {addErrors.price && (
                 <div className="invalid-feedback d-block small">{addErrors.price}</div>
               )}
@@ -451,11 +476,18 @@ export function QuoteItemsTable({
           {items.map((item) => {
             const isEditing = editingId === item.id
             const stockStatus = getStockStatus(item)
+            const itemQuoteOnly = Boolean(item.pricePending) || isQuoteOnly(item.product)
 
             return (
-              <tr key={item.id}>
+              <tr key={item.id} className={item.pricePending ? 'table-warning' : undefined} data-price-pending={item.pricePending ? 'true' : undefined}>
                 <td className="fw-medium">
                   <div>{item.productName || `Producto #${item.productId}`}</div>
+                  {item.pricePending && (
+                    <span className="badge bg-warning text-dark mt-1" data-testid="quote-item-price-pending">
+                      <i className="bi bi-hourglass-split me-1" aria-hidden="true" />
+                      Precio por confirmar
+                    </span>
+                  )}
                   {isEditing ? (
                     <input
                       type="text"
@@ -520,7 +552,7 @@ export function QuoteItemsTable({
                   )}
                 </td>
                 <td className="text-end text-muted">
-                  {formatCurrency(item.unitPrice)}
+                  {itemQuoteOnly && !item.unitPrice ? <PricingTypeBadge short /> : formatCurrency(item.unitPrice)}
                 </td>
                 <td className="text-end">
                   {isEditing ? (
@@ -530,6 +562,7 @@ export function QuoteItemsTable({
                         className={`form-control form-control-sm text-end${editErrors.quotedPrice ? ' is-invalid' : ''}`}
                         style={{ width: '100px' }}
                         aria-label="Precio cotizado"
+                        placeholder={item.pricePending ? 'Captura el precio' : undefined}
                         value={editValues?.quotedPrice ?? ''}
                         onChange={(e) =>
                           setEditValues((prev) => ({
@@ -544,6 +577,8 @@ export function QuoteItemsTable({
                         <div className="invalid-feedback d-block small text-nowrap">{editErrors.quotedPrice}</div>
                       )}
                     </div>
+                  ) : item.pricePending ? (
+                    <span className="fw-semibold text-warning-emphasis fst-italic">Por confirmar</span>
                   ) : (
                     <span
                       className={
@@ -710,6 +745,13 @@ export function QuoteItemsTable({
         </tfoot>
       </table>
     </div>
+    {pendingCount > 0 && (
+      <div className="alert alert-warning small m-3 mb-0" role="status" data-testid="quote-items-pending-notice">
+        <i className="bi bi-info-circle me-2" />
+        {pendingCount === 1 ? 'Una línea tiene' : `${pendingCount} líneas tienen`} precio por confirmar: el total no
+        las incluye. Puedes enviar la cotización con la leyenda; para convertirla a pedido o venta captura el precio.
+      </div>
+    )}
     </div>
   )
 }

@@ -4,6 +4,8 @@ import { useEffect, useMemo, useState } from 'react'
 import { toast } from '@lwm/ui'
 import { useQuoteItems, useQuoteMutations } from '../hooks'
 import { getQuoteItemStockStatus } from '../utils/stock'
+import { getPricePendingErrors, pendingPriceItems, type PricePendingError } from '../utils/pricePending'
+import { PricePendingAlert } from './PricePendingAlert'
 import { salesService } from '../../services'
 import { ACCEPTANCE_CHANNEL_LABELS, type AcceptanceChannel, type Quote, type StockShortageItem } from '../types'
 import type { PaymentMethod } from '../../types'
@@ -48,6 +50,7 @@ export function GenerateOrderModal({ quote, isOpen, onClose, onConverted }: Gene
   const [creditDays, setCreditDays] = useState('30')
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [isUploading, setIsUploading] = useState(false)
+  const [pendingErrors, setPendingErrors] = useState<PricePendingError[]>([])
 
   useEffect(() => {
     if (isOpen) {
@@ -57,8 +60,14 @@ export function GenerateOrderModal({ quote, isOpen, onClose, onConverted }: Gene
       setPaymentMethod(quote.paymentMethod ?? 'PPD')
       setCreditDays(String(quote.creditDays ?? 30))
       setErrors({})
+      setPendingErrors([])
     }
   }, [isOpen, quote.paymentMethod, quote.creditDays])
+
+  const pendingItems = useMemo(() => pendingPriceItems(items), [items])
+  const pendingAlertProducts = pendingErrors.length > 0
+    ? pendingErrors.map((e, i) => ({ key: String(e.quoteItemId ?? i), name: e.productName, sku: e.productSku }))
+    : pendingItems.map((item) => ({ key: item.id, name: item.productName || `Producto #${item.productId}`, sku: item.productSku }))
 
   // Informativo (no bloquea): items sin stock suficiente requeriran compra
   const itemsRequiringPurchase = useMemo(
@@ -158,8 +167,20 @@ export function GenerateOrderModal({ quote, isOpen, onClose, onConverted }: Gene
       const error = err as {
         response?: { status?: number; data?: { message?: string; error?: string; errors?: Record<string, string[]> } }
       }
+      const pending = getPricePendingErrors(err)
+      if (pending) {
+        setPendingErrors(pending)
+        return
+      }
       if (error.response?.status === 422) {
-        const details = error.response.data?.errors ? Object.values(error.response.data.errors).flat() : []
+        // errors puede ser {campo: [mensajes]} (validacion) o una lista de
+        // objetos con detail; nunca se imprime "[object Object]".
+        const rawErrors = error.response.data?.errors as unknown
+        const details = Array.isArray(rawErrors)
+          ? rawErrors.map((e) => (typeof e === 'string' ? e : (e as { detail?: string })?.detail)).filter((d): d is string => Boolean(d))
+          : rawErrors && typeof rawErrors === 'object'
+            ? Object.values(rawErrors as Record<string, string[]>).flat()
+            : []
         toast.error(
           details.length > 0
             ? details.join(' ')
@@ -193,6 +214,9 @@ export function GenerateOrderModal({ quote, isOpen, onClose, onConverted }: Gene
               faltante, logística). La orden nace pendiente. Registra cómo autorizó el cliente
               para dejar constancia.
             </p>
+
+            {/* P2 granel: lineas con precio por confirmar (aviso previo o 422) */}
+            <PricePendingAlert target="pedido" products={pendingAlertProducts} />
 
             {/* Lista informativa: faltantes que requeriran compra (no bloquea) */}
             {!itemsLoading && itemsRequiringPurchase.length > 0 && (
@@ -321,7 +345,7 @@ export function GenerateOrderModal({ quote, isOpen, onClose, onConverted }: Gene
               type="button"
               className="btn btn-primary"
               onClick={handleSubmit}
-              disabled={isBusy || itemsLoading}
+              disabled={isBusy || itemsLoading || pendingItems.length > 0}
             >
               {isBusy ? (
                 <>

@@ -34,8 +34,8 @@ describe('fetchPublicCatalogServer', () => {
     const page = await fetchPublicCatalogServer(query, { backendUrl: 'https://api.test/', revalidate: 300, fetchImpl })
 
     const [url, init] = fetchImpl.mock.calls[0]
-    expect(url).toBe('https://api.test/api/public/v1/public-products?filter%5Bsearch%5D=acido&filter%5Bcategories%5D=1&sort=name&page%5Bnumber%5D=1&page%5Bsize%5D=24&include=unit%2Ccategory%2Cbrand%2Cimages%2Ccurrency')
-    expect((init as { next: { revalidate: number } }).next).toEqual({ revalidate: 300 })
+    expect(url).toBe('https://api.test/api/public/v1/public-products?filter%5Bsearch%5D=acido&filter%5Bcategories%5D=1&sort=name&page%5Bnumber%5D=1&page%5Bsize%5D=24&include=unit%2Ccategory%2Cbrand%2Ccurrency')
+    expect((init as { next: { revalidate: number } }).next).toEqual({ revalidate: 300, tags: ['public-catalog'] })
     expect(page.products[0].displayName).toBe('P')
     expect(page.meta.total).toBe(1)
   })
@@ -68,6 +68,8 @@ describe('fetchPublicProductServer', () => {
     const [url, init] = fetchImpl.mock.calls[0]
     expect(url).toBe('https://api.test/api/public/v1/public-products/604?include=unit%2Ccategory%2Cbrand%2Cimages%2Ccurrency')
     expect((init as { next: { revalidate: number } }).next.revalidate).toBe(3600)
+    // Tags para revalidateTag desde /api/revalidate (P1 granel, D5)
+    expect((init as { next: { tags: string[] } }).next.tags).toEqual(['public-products', 'public-product:604'])
     expect(result?.displayName).toBe('P')
   })
 

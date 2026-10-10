@@ -86,6 +86,9 @@ export {
   migrateLegacyCartStorage
 } from './hooks'
 
+// P2 granel: linea del carrito local con precio sujeto a cotizacion
+export { isPendingPriceItem } from './utils/pendingPrice'
+
 // SEO Bloque 1: consulta inicial y claves de cache para prerender en servidor
 export { catalogInitialQuery, normalizePage, CATALOG_PRODUCTS_INCLUDE } from './services/catalogQuery'
 export type { CatalogInitialQueryOptions, CatalogQuery } from './services/catalogQuery'

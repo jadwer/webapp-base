@@ -18,7 +18,9 @@ export interface CreateProductImageData {
 }
 
 export interface UpdateProductImageData {
-  altText?: string
+  /** Reemplazar: ruta devuelta por upload-image. */
+  filePath?: string
+  altText?: string | null
   sortOrder?: number
   isPrimary?: boolean
 }

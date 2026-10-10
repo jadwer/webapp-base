@@ -3,6 +3,10 @@
 import { useState, useEffect } from 'react'
 import { useSalesProducts, useSalesOrderItemMutations } from '../hooks'
 import { formatCurrency } from '@lwm/ui'
+import { QUOTE_ONLY_SHORT_LABEL, isQuoteOnly } from '@lwm/products'
+
+const productIsQuoteOnly = (product: Record<string, unknown> | undefined): boolean =>
+  isQuoteOnly((product?.attributes as { pricingType?: string } | undefined) ?? null)
 
 interface AddItemModalProps {
   salesOrderId: string
@@ -28,6 +32,10 @@ export default function AddItemModal({ salesOrderId, isOpen, onClose, onSuccess 
 
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  const selectedIsQuoteOnly = productIsQuoteOnly(
+    products.find((p: Record<string, unknown>) => p.id === formData.productId) as Record<string, unknown> | undefined
+  )
 
   // Calcular total
   const total = (formData.quantity * formData.unitPrice) - formData.discount
@@ -62,9 +70,11 @@ export default function AddItemModal({ salesOrderId, isOpen, onClose, onSuccess 
     if (productId) {
       const selectedProduct = products.find((p: Record<string, unknown>) => p.id === productId)
       if (selectedProduct) {
-        // Use product price if available
+        // Use product price if available. P2 granel: sujeto a cotizacion no
+        // trae precio de lista; queda en 0 y el boton Agregar exige capturarlo
+        // (un pedido nunca lleva precio pendiente).
         const attributes = selectedProduct.attributes as Record<string, unknown> | undefined
-        const price = attributes?.price || attributes?.unit_price || 0
+        const price = productIsQuoteOnly(selectedProduct) ? 0 : (attributes?.price || attributes?.unit_price || 0)
         setFormData(prev => ({ ...prev, unitPrice: parseFloat(price.toString()) || 0 }))
       }
     }
@@ -157,7 +167,9 @@ export default function AddItemModal({ salesOrderId, isOpen, onClose, onSuccess 
                         <option key={product.id as string} value={product.id as string}>
                           {(attributes?.name as string) || `Producto #${product.id}`}
                           {attributes?.sku ? ` (SKU: ${String(attributes.sku)})` : ''}
-                          {attributes?.price ? ` - ${formatCurrency(attributes.price as number)}` : ''}
+                          {productIsQuoteOnly(product)
+                            ? ` - ${QUOTE_ONLY_SHORT_LABEL}`
+                            : attributes?.price ? ` - ${formatCurrency(attributes.price as number)}` : ''}
                         </option>
                       )
                     })}
@@ -194,6 +206,11 @@ export default function AddItemModal({ salesOrderId, isOpen, onClose, onSuccess 
                     required
                     disabled={isSubmitting}
                   />
+                  {selectedIsQuoteOnly && (
+                    <div className="form-text" data-testid="add-item-quote-only-hint">
+                      Precio sujeto a cotización: captura el precio acordado con el cliente.
+                    </div>
+                  )}
                 </div>
 
                 <div className="col-md-4">

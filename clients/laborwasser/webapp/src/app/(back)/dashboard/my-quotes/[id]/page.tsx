@@ -228,17 +228,29 @@ export default function MyQuoteDetailPage({ params }: MyQuoteDetailPageProps) {
                         <td className="text-center">
                           {item.quantity} pz
                         </td>
+                        {/* P2 granel: precio sujeto a cotizacion aun sin capturar */}
                         <td className="text-end">
-                          {formatPrice(item.quotedPrice || item.unitPrice)}
+                          {item.pricePending
+                            ? <span className="fst-italic text-warning-emphasis">Por confirmar</span>
+                            : formatPrice(item.quotedPrice || item.unitPrice)}
                         </td>
                         <td className="text-end">
-                          <strong>{formatPrice(item.total || (item.quantity * (item.quotedPrice || item.unitPrice)))}</strong>
+                          {item.pricePending
+                            ? <span className="fst-italic text-warning-emphasis">Por confirmar</span>
+                            : <strong>{formatPrice(item.total || (item.quantity * (item.quotedPrice || item.unitPrice)))}</strong>}
                         </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
+              {items.some((item) => item.pricePending) && (
+                <div className="alert alert-warning small m-3" role="status" data-testid="my-quote-price-pending">
+                  <i className="bi bi-info-circle me-2"></i>
+                  Precio sujeto a cotización: los productos marcados &quot;Por confirmar&quot; no están incluidos en el total.
+                  Te confirmaremos el precio antes de procesar tu pedido.
+                </div>
+              )}
             </div>
           </div>
 

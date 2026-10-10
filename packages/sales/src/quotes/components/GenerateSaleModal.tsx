@@ -4,6 +4,8 @@ import { useEffect, useMemo, useState } from 'react'
 import { toast } from '@lwm/ui'
 import { useQuoteItems, useQuoteMutations } from '../hooks'
 import { getQuoteItemStockStatus } from '../utils/stock'
+import { getPricePendingErrors, pendingPriceItems, type PricePendingError } from '../utils/pricePending'
+import { PricePendingAlert } from './PricePendingAlert'
 import type { Quote, StockShortageItem } from '../types'
 import type { PaymentMethod } from '../../types'
 
@@ -37,6 +39,7 @@ export function GenerateSaleModal({ quote, isOpen, onClose, onConverted }: Gener
   const [creditDays, setCreditDays] = useState('30')
   const [shortages, setShortages] = useState<StockShortageItem[]>([])
   const [formError, setFormError] = useState<string | null>(null)
+  const [pendingErrors, setPendingErrors] = useState<PricePendingError[]>([])
 
   // Prefill al abrir: condiciones de pago de la quote (venta directa
   // default PUE, pago en una exhibicion)
@@ -46,8 +49,14 @@ export function GenerateSaleModal({ quote, isOpen, onClose, onConverted }: Gener
       setCreditDays(String(quote.creditDays ?? 30))
       setShortages([])
       setFormError(null)
+      setPendingErrors([])
     }
   }, [isOpen, quote.paymentMethod, quote.creditDays])
+
+  const pendingItems = useMemo(() => pendingPriceItems(items), [items])
+  const pendingAlertProducts = pendingErrors.length > 0
+    ? pendingErrors.map((e, i) => ({ key: String(e.quoteItemId ?? i), name: e.productName, sku: e.productSku }))
+    : pendingItems.map((item) => ({ key: item.id, name: item.productName || `Producto #${item.productId}`, sku: item.productSku }))
 
   const stockByItem = useMemo(
     () => items.map((item) => ({ item, status: getQuoteItemStockStatus(item) })),
@@ -91,6 +100,11 @@ export function GenerateSaleModal({ quote, isOpen, onClose, onConverted }: Gener
           data?: { message?: string; error?: string; errors?: StockShortageItem[] }
         }
       }
+      const pending = getPricePendingErrors(err)
+      if (pending) {
+        setPendingErrors(pending)
+        return
+      }
       if (error.response?.status === 422) {
         const backendShortages = error.response.data?.errors
         if (Array.isArray(backendShortages) && backendShortages.length > 0 && backendShortages[0]?.product_id !== undefined) {
@@ -127,6 +141,9 @@ export function GenerateSaleModal({ quote, isOpen, onClose, onConverted }: Gener
               Venta directa (mostrador/inmediata). Requiere stock disponible de todos los
               items; la orden nace confirmada.
             </p>
+
+            {/* P2 granel: lineas con precio por confirmar (aviso previo o 422) */}
+            <PricePendingAlert target="venta" products={pendingAlertProducts} />
 
             {/* 422 del backend: faltantes detectados al convertir */}
             {shortages.length > 0 && (
@@ -246,7 +263,7 @@ export function GenerateSaleModal({ quote, isOpen, onClose, onConverted }: Gener
               type="button"
               className="btn btn-success"
               onClick={handleSubmit}
-              disabled={convert.isPending || itemsLoading || !allSufficient}
+              disabled={convert.isPending || itemsLoading || !allSufficient || pendingItems.length > 0}
               title={!allSufficient ? 'Hay items sin stock suficiente' : undefined}
             >
               {convert.isPending ? (

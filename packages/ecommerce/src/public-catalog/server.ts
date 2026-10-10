@@ -33,8 +33,11 @@ import type {
   PublicProductsResponse,
   SinglePublicProductResponse
 } from './types/publicProduct'
+import { STOREFRONT_TAGS } from './revalidate'
 
 export type { PublicProductsPage, PublicCategorySummary, EnhancedPublicProduct }
+export { STOREFRONT_TAGS, createRevalidateHandler } from './revalidate'
+export type { RevalidateHandlerDeps, RevalidateRequestBody } from './revalidate'
 export { productPath, isNumericProductSegment } from './utils/productPath'
 // La consulta inicial del catalogo se importa desde aqui en server
 // components (el index del package arrastra modulos 'use client').
@@ -48,6 +51,8 @@ export interface PublicCatalogServerOptions {
   revalidate?: number
   /** Inyectable para tests. */
   fetchImpl?: typeof fetch
+  /** Tags de la cache de datos de Next (revalidateTag desde /api/revalidate). */
+  tags?: string[]
 }
 
 export interface PublicCatalogQuery {
@@ -74,7 +79,7 @@ async function getJson<T>(url: string, options: PublicCatalogServerOptions): Pro
   const fetchImpl = options.fetchImpl ?? fetch
   const init = {
     headers: { Accept: 'application/vnd.api+json' },
-    next: { revalidate: options.revalidate ?? 300 }
+    next: { revalidate: options.revalidate ?? 300, ...(options.tags?.length ? { tags: options.tags } : {}) }
   } as RequestInit
   const response = await fetchImpl(url, init)
   if (!response.ok) return { status: response.status, body: null }
@@ -88,7 +93,7 @@ export async function fetchPublicCatalogServer(
 ): Promise<PublicProductsPage> {
   const qs = buildPublicProductsQueryString(query.filters, query.sort, query.pagination, query.include)
   const url = `${resolveBackendUrl(options.backendUrl)}${PUBLIC_PRODUCTS_PATH}${qs ? `?${qs}` : ''}`
-  const { status, body } = await getJson<PublicProductsResponse>(url, options)
+  const { status, body } = await getJson<PublicProductsResponse>(url, { tags: [STOREFRONT_TAGS.catalog], ...options })
   if (!body) throw new PublicCatalogServerError(status, url)
   return enhancePublicProductsResponse(body)
 }
@@ -101,7 +106,11 @@ export async function fetchPublicProductServer(
 ): Promise<EnhancedPublicProduct | null> {
   if (!/^\d+$/.test(id)) return null
   const url = `${resolveBackendUrl(options.backendUrl)}${PUBLIC_PRODUCTS_PATH}/${id}?include=${encodeURIComponent(include)}`
-  const { status, body } = await getJson<SinglePublicProductResponse>(url, { revalidate: 3600, ...options })
+  const { status, body } = await getJson<SinglePublicProductResponse>(url, {
+    revalidate: 3600,
+    tags: [STOREFRONT_TAGS.products, STOREFRONT_TAGS.product(id)],
+    ...options
+  })
   if (status === 404) return null
   if (!body) throw new PublicCatalogServerError(status, url)
   return enhancePublicProductResponse(body)
@@ -120,7 +129,11 @@ export async function fetchPublicProductBySlugServer(
   if (!clean || clean.length > 191 || !/^[a-z0-9-]+$/.test(clean)) return null
   const qs = buildPublicProductsQueryString({ sku: undefined }, undefined, { page: 1, size: 1 }, include)
   const url = `${resolveBackendUrl(options.backendUrl)}${PUBLIC_PRODUCTS_PATH}?filter%5Bslug%5D=${encodeURIComponent(clean)}&${qs}`
-  const { status, body } = await getJson<PublicProductsResponse>(url, { revalidate: 3600, ...options })
+  const { status, body } = await getJson<PublicProductsResponse>(url, {
+    revalidate: 3600,
+    tags: [STOREFRONT_TAGS.products, STOREFRONT_TAGS.productSlug(clean)],
+    ...options
+  })
   if (!body) throw new PublicCatalogServerError(status, url)
   const page = enhancePublicProductsResponse(body)
   return page.products[0] ?? null

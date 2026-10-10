@@ -2,6 +2,7 @@ import { Unit } from './unit'
 import { Category } from './category'
 import { Brand } from './brand'
 import { ProductImage } from './productImage'
+import type { PricingType } from '../utils/pricingType'
 
 export interface ProductCurrency {
   id: string
@@ -22,7 +23,10 @@ export interface Product {
   sku?: string
   description?: string
   fullDescription?: string
-  price?: number
+  // null = sin precio de lista (pricingType quote_only)
+  price?: number | null
+  // fixed | quote_only ("Precio sujeto a cotizacion"); ver utils/pricingType.ts
+  pricingType?: PricingType
   cost?: number
   iva: boolean
   isActive: boolean
@@ -71,7 +75,8 @@ export interface CreateProductData {
   sku?: string
   description?: string
   fullDescription?: string
-  price?: number
+  price?: number | null
+  pricingType?: PricingType
   cost?: number
   iva?: boolean
   isActive?: boolean
@@ -80,7 +85,7 @@ export interface CreateProductData {
   saleStartsAt?: string | null
   saleEndsAt?: string | null
   saleBadge?: string | null
-  imgPath?: string
+  imgPath?: string | null
   datasheetPath?: string | null
   unitId: string
   categoryId?: string | null
@@ -100,6 +105,7 @@ export interface ProductFilters {
   isActive?: boolean
   isPublic?: boolean
   isOnSale?: boolean
+  pricingType?: PricingType
   unitId?: string
   categoryId?: string
   brandId?: string

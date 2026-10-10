@@ -16,6 +16,12 @@ export interface PublicProduct {
     description: string | null
     fullDescription: string | null
     price: number | null
+    /**
+     * fixed | quote_only (P2 granel). quote_only = "Precio sujeto a cotizacion":
+     * sin precio ni "Agregar al carrito", solo "Solicitar cotizacion".
+     * Opcional: respuestas cacheadas previas al campo se leen como fixed.
+     */
+    pricingType?: 'fixed' | 'quote_only'
     cost: number | null
     compareAtPrice: number | null
     isOnSale: boolean
@@ -296,6 +302,8 @@ export interface EnhancedPublicProduct extends PublicProduct {
   // Computed display properties
   displayName: string
   displayPrice: string
+  /** Producto sin precio de lista: no se compra directo, solo se cotiza. */
+  isQuoteOnly?: boolean
   displayCurrency: string
   displayCategory: string
   displayBrand: string

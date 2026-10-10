@@ -3,6 +3,7 @@
 import React, { useState } from 'react'
 import { Modal, Button } from '@lwm/ui'
 import { productBulkService } from '../services/productService'
+import { extractApiErrorMessage } from '../utils/errorHandling'
 import type { Brand } from '../types'
 
 interface BulkPriceUpdateDialogProps {
@@ -43,7 +44,13 @@ export const BulkPriceUpdateDialog = React.memo<BulkPriceUpdateDialogProps>(({
         percentageNum,
         operation
       )
-      setResult(`${res.affected_count} producto(s) actualizados (${operation === 'increase' ? '+' : '-'}${percentageNum}%)`)
+      // Los productos con precio sujeto a cotizacion no tienen precio de
+      // lista: el backend los omite y los reporta en skipped_count.
+      const skipped = res.skipped_count ?? 0
+      setResult(
+        `${res.affected_count} producto(s) actualizados (${operation === 'increase' ? '+' : '-'}${percentageNum}%)` +
+          (skipped > 0 ? `; ${skipped} omitido(s) por tener precio sujeto a cotización o sin precio` : '')
+      )
       onSuccess?.()
       setTimeout(() => {
         onHide()
@@ -52,8 +59,8 @@ export const BulkPriceUpdateDialog = React.memo<BulkPriceUpdateDialogProps>(({
         setPercentage('')
         setOperation('increase')
       }, 2000)
-    } catch {
-      setError('Error al actualizar precios. Verifique los datos e intente de nuevo.')
+    } catch (err) {
+      setError(extractApiErrorMessage(err, 'Error al actualizar precios. Verifique los datos e intente de nuevo.'))
     } finally {
       setIsSubmitting(false)
     }

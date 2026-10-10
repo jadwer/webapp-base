@@ -7,6 +7,8 @@ import { Button } from '@lwm/ui'
 import { ConfirmModal, type ConfirmModalHandle } from '@lwm/ui'
 import { formatDate, formatPrice } from '../utils'
 import type { Product } from '../types'
+import { PricingTypeBadge } from './PricingTypeBadge'
+import { isQuoteOnly } from '../utils/pricingType'
 
 interface ProductsTableProps {
   products: Product[]
@@ -159,7 +161,9 @@ export const ProductsTable: React.FC<ProductsTableProps> = ({
                     )}
                   </td>
                   <td>
-                    <div className="fw-medium">{formatPrice(product.price, product.currency?.code || 'MXN')} {product.currency?.code || 'MXN'}</div>
+                    {isQuoteOnly(product)
+                      ? <PricingTypeBadge short />
+                      : <div className="fw-medium">{formatPrice(product.price, product.currency?.code || 'MXN')} {product.currency?.code || 'MXN'}</div>}
                     {product.cost && (
                       <small className="text-muted">Costo: {formatPrice(product.cost, product.currency?.code || 'MXN')}</small>
                     )}

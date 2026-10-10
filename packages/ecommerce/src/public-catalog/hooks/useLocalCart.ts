@@ -18,6 +18,10 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import type { EnhancedPublicProduct } from '../types/publicProduct'
+import { isQuoteOnly } from '@lwm/products/pricing'
+import { isPendingPriceItem } from '../utils/pendingPrice'
+
+export { isPendingPriceItem }
 
 // ============================================
 // Types
@@ -28,6 +32,12 @@ export interface LocalCartItem {
   productId: string
   name: string
   price: number
+  /**
+   * P2 granel: quote_only = "Precio sujeto a cotizacion" (price queda en 0 y
+   * no suma). Carritos guardados antes del campo lo traen undefined (= fixed);
+   * el backend rechaza el pago de todos modos si el producto es quote_only.
+   */
+  pricingType?: 'fixed' | 'quote_only'
   quantity: number
   iva: boolean
   imageUrl: string | null
@@ -50,6 +60,8 @@ export interface CartTotals {
   total: number
   itemCount: number
   uniqueItems: number
+  /** Lineas sujetas a cotizacion: bloquean "Proceder al Pago". */
+  pendingPriceCount: number
 }
 
 // ============================================
@@ -170,12 +182,17 @@ function saveCartToStorage(cart: LocalCart): void {
   }
 }
 
+function quoteOnlyProduct(product: EnhancedPublicProduct): boolean {
+  return Boolean(product.isQuoteOnly) || isQuoteOnly(product.attributes)
+}
+
 function productToCartItem(product: EnhancedPublicProduct, quantity: number = 1): LocalCartItem {
   return {
     id: `item_${product.id}_${Date.now()}`,
     productId: product.id,
     name: product.attributes.name,
-    price: product.attributes.price ?? 0,
+    price: quoteOnlyProduct(product) ? 0 : (product.attributes.price ?? 0),
+    pricingType: quoteOnlyProduct(product) ? 'quote_only' : 'fixed',
     quantity,
     iva: product.attributes.iva ?? true,
     imageUrl: product.attributes.imageUrl,
@@ -230,8 +247,9 @@ export function useLocalCart() {
     const total = subtotal + taxAmount
     const itemCount = cart.items.reduce((sum, item) => sum + item.quantity, 0)
     const uniqueItems = cart.items.length
+    const pendingPriceCount = cart.items.filter(isPendingPriceItem).length
 
-    return { subtotal, taxAmount, total, itemCount, uniqueItems }
+    return { subtotal, taxAmount, total, itemCount, uniqueItems, pendingPriceCount }
   }, [cart.items])
 
   // Add product to cart
@@ -247,6 +265,9 @@ export function useLocalCart() {
         newItems = [...prevCart.items]
         newItems[existingIndex] = {
           ...newItems[existingIndex],
+          // El tipo de precio puede haber cambiado desde que se agrego.
+          pricingType: quoteOnlyProduct(product) ? 'quote_only' : 'fixed',
+          ...(quoteOnlyProduct(product) && { price: 0 }),
           quantity: newItems[existingIndex].quantity + quantity
         }
       } else {

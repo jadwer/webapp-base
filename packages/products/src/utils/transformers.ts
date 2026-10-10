@@ -1,3 +1,4 @@
+import { normalizePricingType } from './pricingType'
 import { Product, ProductCurrency, Unit, Category, Brand } from '../types'
 
 export interface JsonApiResource {
@@ -95,7 +96,8 @@ export function transformJsonApiProduct(
     sku: resource.attributes.sku as string | undefined,
     description: resource.attributes.description as string | undefined,
     fullDescription: resource.attributes.fullDescription as string | undefined,
-    price: resource.attributes.price as number | undefined,
+    price: resource.attributes.price as number | null | undefined,
+    pricingType: normalizePricingType(resource.attributes.pricingType),
     cost: resource.attributes.cost as number | undefined,
     iva: Boolean(resource.attributes.iva),
     isActive: Boolean(resource.attributes.isActive ?? true),

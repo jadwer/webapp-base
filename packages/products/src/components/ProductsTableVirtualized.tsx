@@ -6,6 +6,8 @@ import { useVirtualizer } from '@tanstack/react-virtual'
 import { Button } from '@lwm/ui'
 import { formatPrice } from '../utils/formatting'
 import type { Product } from '../types'
+import { PricingTypeBadge } from './PricingTypeBadge'
+import { isQuoteOnly } from '../utils/pricingType'
 
 const COL_WIDTHS = ['70px', 'auto', '150px', '90px', '100px', '140px'] as const
 
@@ -124,10 +126,14 @@ export const ProductsTableVirtualized = React.memo<ProductsTableVirtualizedProps
                       </td>
 
                       <td style={{ width: COL_WIDTHS[2] }} className="text-end">
-                        <div className="fw-bold text-success">
-                          {formatPrice(product.price, product.currency?.code || 'MXN')} {product.currency?.code || 'MXN'}
-                          {product.iva && <span className="small text-muted ms-1">+IVA</span>}
-                        </div>
+                        {isQuoteOnly(product) ? (
+                          <PricingTypeBadge short />
+                        ) : (
+                          <div className="fw-bold text-success">
+                            {formatPrice(product.price, product.currency?.code || 'MXN')} {product.currency?.code || 'MXN'}
+                            {product.iva && <span className="small text-muted ms-1">+IVA</span>}
+                          </div>
+                        )}
                         {product.cost != null && (
                           <div className="small text-muted">Costo: {formatPrice(product.cost, product.currency?.code || 'MXN')}</div>
                         )}

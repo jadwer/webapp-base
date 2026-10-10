@@ -6,6 +6,8 @@ import { useVirtualizer } from '@tanstack/react-virtual'
 import { Button } from '@lwm/ui'
 import { formatPrice } from '../utils/formatting'
 import type { Product } from '../types'
+import { PricingTypeBadge } from './PricingTypeBadge'
+import { isQuoteOnly } from '../utils/pricingType'
 
 interface ProductsListProps {
   products: Product[]
@@ -62,8 +64,14 @@ const ProductListItem = React.memo<{
           <div className="d-flex justify-content-between">
             <span className="text-muted small">Precio:</span>
             <div>
-              <span className="fw-bold text-success">{formatPrice(product.price, product.currency?.code || 'MXN')}</span>
-              <small className="text-muted ms-1">{product.currency?.code || 'MXN'}{product.iva ? ' +IVA' : ''}</small>
+              {isQuoteOnly(product) ? (
+                <PricingTypeBadge short />
+              ) : (
+                <>
+                  <span className="fw-bold text-success">{formatPrice(product.price, product.currency?.code || 'MXN')}</span>
+                  <small className="text-muted ms-1">{product.currency?.code || 'MXN'}{product.iva ? ' +IVA' : ''}</small>
+                </>
+              )}
             </div>
           </div>
         </div>

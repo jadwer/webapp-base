@@ -55,6 +55,8 @@ export const productService = {
       if (params.filters.isOnSale !== undefined) {
         queryParams['filter[is_on_sale]'] = params.filters.isOnSale ? '1' : '0'
       }
+      // P2 granel: tipo de precio (fixed | quote_only), filtro del ProductSchema.
+      if (params.filters.pricingType) queryParams['filter[pricing_type]'] = params.filters.pricingType
     }
     
     if (params?.sort) {
@@ -125,6 +127,9 @@ export const productService = {
           // the field; coerce undefined/null to '' so MySQL gets a value.
           description: data.description ?? '',
           fullDescription: data.fullDescription ?? '',
+          // P2 granel: quote_only manda price null explicito (el backend lo
+          // descarta de todos modos; asi el payload dice lo que se guarda).
+          ...(data.pricingType !== undefined && { pricingType: data.pricingType }),
           ...(data.price !== undefined && { price: data.price }),
           ...(data.cost !== undefined && { cost: data.cost }),
           iva: data.iva ?? false,
@@ -185,6 +190,7 @@ export const productService = {
     // textarea (which yields null in some controlled-input flows).
     if (data.description !== undefined) attributes.description = data.description ?? ''
     if (data.fullDescription !== undefined) attributes.fullDescription = data.fullDescription ?? ''
+    if (data.pricingType !== undefined) attributes.pricingType = data.pricingType
     if (data.price !== undefined) attributes.price = data.price
     if (data.cost !== undefined) attributes.cost = data.cost
     if (data.iva !== undefined) attributes.iva = data.iva
@@ -241,6 +247,7 @@ export const productService = {
       sku: undefined,
       description: productData.description,
       fullDescription: productData.fullDescription,
+      pricingType: productData.pricingType,
       price: productData.price,
       cost: productData.cost,
       iva: productData.iva,
@@ -307,6 +314,8 @@ export interface BulkToggleResponse {
 export interface BulkPriceUpdateResponse {
   message: string
   affected_count: number
+  /** Productos sujetos a cotizacion o sin precio que el backend no toco. */
+  skipped_count?: number
   operation: 'increase' | 'decrease'
   percentage: number
 }

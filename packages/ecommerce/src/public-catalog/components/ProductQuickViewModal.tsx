@@ -13,6 +13,7 @@ import { usePublicProduct } from '../hooks/usePublicProducts'
 import { usePublicSettings } from '@lwm/app-config'
 import { taxHintLabel } from '../../utils/taxHint'
 import { productPath } from '../utils/productPath'
+import { QUOTE_ONLY_LABEL, isQuoteOnly } from '@lwm/products/pricing'
 import type { EnhancedPublicProduct } from '../types/publicProduct'
 
 interface ProductQuickViewModalProps {
@@ -24,13 +25,19 @@ interface ProductQuickViewModalProps {
   onAddToCart: (product: EnhancedPublicProduct) => void
   /** Whether to show "Ver Detalles Completos" link button */
   showDetailsLink?: boolean
+  /**
+   * P2 granel: "Solicitar cotizacion" para productos sujetos a cotizacion.
+   * Sin el, el boton lleva a la ficha, que tiene la accion.
+   */
+  onRequestQuote?: (product: EnhancedPublicProduct) => void
 }
 
 export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
   product,
   onClose,
   onAddToCart,
-  showDetailsLink = false
+  showDetailsLink = false,
+  onRequestQuote
 }) => {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0)
   const [imageError, setImageError] = useState(false)
@@ -44,6 +51,7 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
 
   // Use full product data if available, fallback to list product
   const displayProduct = fullProduct ?? product
+  const quoteOnly = displayProduct.isQuoteOnly || isQuoteOnly(displayProduct.attributes)
 
   // Reset image index when product changes
   useEffect(() => {
@@ -151,13 +159,20 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
                   {displayProduct.attributes.sku && (
                     <li><strong>SKU:</strong> {displayProduct.attributes.sku}</li>
                   )}
-                  <li>
-                    <strong>Precio:</strong> {displayProduct.displayPrice} {displayProduct.displayCurrency}
-                    {' '}
-                    <small className={displayProduct.attributes.iva ? 'text-success' : 'text-muted'}>
-                      ({taxHintLabel(displayProduct.attributes.iva, pricesIncludeTax)})
-                    </small>
-                  </li>
+                  {quoteOnly ? (
+                    <li>
+                      <strong>Precio:</strong>{' '}
+                      <span className="badge bg-info text-dark" data-testid="quote-only-badge">{QUOTE_ONLY_LABEL}</span>
+                    </li>
+                  ) : (
+                    <li>
+                      <strong>Precio:</strong> {displayProduct.displayPrice} {displayProduct.displayCurrency}
+                      {' '}
+                      <small className={displayProduct.attributes.iva ? 'text-success' : 'text-muted'}>
+                        ({taxHintLabel(displayProduct.attributes.iva, pricesIncludeTax)})
+                      </small>
+                    </li>
+                  )}
                 </ul>
                 {displayProduct.attributes.description && (
                   <>
@@ -176,14 +191,30 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
             >
               Cerrar
             </button>
-            <button
-              type="button"
-              className="btn btn-success"
-              onClick={() => onAddToCart(displayProduct)}
-            >
-              <i className="bi bi-cart-plus me-1"></i>
-              Agregar al Carrito
-            </button>
+            {!quoteOnly ? (
+              <button
+                type="button"
+                className="btn btn-success"
+                onClick={() => onAddToCart(displayProduct)}
+              >
+                <i className="bi bi-cart-plus me-1"></i>
+                Agregar al Carrito
+              </button>
+            ) : onRequestQuote ? (
+              <button
+                type="button"
+                className="btn btn-success"
+                onClick={() => onRequestQuote(displayProduct)}
+              >
+                <i className="bi bi-file-earmark-text me-1"></i>
+                Solicitar cotización
+              </button>
+            ) : (
+              <Link href={productPath(displayProduct)} className="btn btn-success">
+                <i className="bi bi-file-earmark-text me-1"></i>
+                Solicitar cotización
+              </Link>
+            )}
             {showDetailsLink && (
               <Link
                 href={productPath(displayProduct)}

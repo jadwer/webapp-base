@@ -3,11 +3,16 @@
 import React, { useEffect, useId, useRef, useState } from 'react'
 import { productService } from '../services/productService'
 import type { Product } from '../types/product'
+import { isQuoteOnly, type PricingType } from '../utils/pricingType'
+import { PricingTypeBadge } from './PricingTypeBadge'
 
 export interface ProductSearchOption {
   id: string
   name: string
   sku?: string
+  /** P2 granel: quote_only pinta la etiqueta "Sujeto a cotizacion". */
+  pricingType?: PricingType
+  price?: number | null
 }
 
 export interface ProductSearchSelectProps {
@@ -37,7 +42,13 @@ export interface ProductSearchSelectProps {
 const PAGE_SIZE = 20
 
 function toOption(product: Product | ProductSearchOption): ProductSearchOption {
-  return { id: String(product.id), name: product.name, sku: product.sku || undefined }
+  return {
+    id: String(product.id),
+    name: product.name,
+    sku: product.sku || undefined,
+    ...(product.pricingType && { pricingType: product.pricingType }),
+    ...(product.price !== undefined && product.price !== null && { price: product.price }),
+  }
 }
 
 /**
@@ -203,6 +214,7 @@ export const ProductSearchSelect: React.FC<ProductSearchSelectProps> = ({
               <>
                 <strong>{selected?.name}</strong>
                 {selected?.sku && <span className="text-muted ms-2">{selected.sku}</span>}
+                {isQuoteOnly(selected) && <PricingTypeBadge short className="ms-2" />}
               </>
             )}
           </div>
@@ -276,6 +288,7 @@ export const ProductSearchSelect: React.FC<ProductSearchSelectProps> = ({
                   >
                     <div className="fw-medium text-body">{option.name}</div>
                     {option.sku && <small className="text-muted">{option.sku}</small>}
+                    {isQuoteOnly(option) && <PricingTypeBadge short className="ms-2" />}
                   </button>
                 ))
               )}

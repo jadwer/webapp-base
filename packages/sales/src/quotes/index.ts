@@ -39,5 +39,8 @@ export {
 } from './components'
 
 // Stock helpers (semaforo de stock de items de cotizacion)
+export { PricePendingAlert } from './components/PricePendingAlert'
 export { getTotalAvailableStock, getQuoteItemStockStatus } from './utils/stock'
 export type { QuoteItemStockStatus } from './utils/stock'
+export { getPricePendingErrors, pendingPriceItems } from './utils/pricePending'
+export type { PricePendingError } from './utils/pricePending'

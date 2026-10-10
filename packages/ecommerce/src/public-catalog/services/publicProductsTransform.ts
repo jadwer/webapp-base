@@ -8,6 +8,7 @@
  * enriquece un producto, cambia AQUI y ambos lados lo heredan.
  */
 
+import { QUOTE_ONLY_LABEL, isQuoteOnly } from '@lwm/products/pricing'
 import type {
   PublicProduct,
   PublicProductFilters,
@@ -148,10 +149,12 @@ export function formatPublicPrice(price: number | null | undefined, currencyCode
  * Resolve relationships from included resources
  */
 export function enhancePublicProduct(product: PublicProduct, included?: PublicIncluded): EnhancedPublicProduct {
+  const quoteOnly = isQuoteOnly(product.attributes)
   const enhanced: EnhancedPublicProduct = {
     ...product,
     displayName: product.attributes.name,
-    displayPrice: formatPublicPrice(product.attributes.price),
+    displayPrice: quoteOnly ? QUOTE_ONLY_LABEL : formatPublicPrice(product.attributes.price),
+    isQuoteOnly: quoteOnly,
     displayCurrency: 'MXN',
     displayCategory: 'Sin categoría',
     displayBrand: 'Sin marca',
@@ -168,7 +171,9 @@ export function enhancePublicProduct(product: PublicProduct, included?: PublicIn
     if (curr) {
       enhanced.currency = curr
       enhanced.displayCurrency = curr.attributes.code
-      enhanced.displayPrice = formatPublicPrice(product.attributes.price, curr.attributes.code)
+      if (!quoteOnly) {
+        enhanced.displayPrice = formatPublicPrice(product.attributes.price, curr.attributes.code)
+      }
     }
   }
 
@@ -209,7 +214,15 @@ export function enhancePublicProduct(product: PublicProduct, included?: PublicIn
     const imageIds = new Set(product.relationships.images.data.map(r => r.id))
     const images = included
       .filter((item): item is PublicProductImage => item.type === 'product-images' && imageIds.has(item.id))
-      .sort((a, b) => (a.attributes.sortOrder ?? 0) - (b.attributes.sortOrder ?? 0))
+      // Primaria primero (la ficha abre con gallery[0]) y luego sortOrder.
+      // set-primary del backend ya la mueve a sortOrder 0, pero hay datos
+      // previos con la primaria en otra posicion (P1 granel, 2026-10-10).
+      .sort((a, b) => {
+        const pa = a.attributes.isPrimary ? 1 : 0
+        const pb = b.attributes.isPrimary ? 1 : 0
+        if (pa !== pb) return pb - pa
+        return (a.attributes.sortOrder ?? 0) - (b.attributes.sortOrder ?? 0)
+      })
     if (images.length > 0) {
       enhanced.galleryImages = images
     }

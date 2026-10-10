@@ -66,3 +66,21 @@ describe('transformers isActive', () => {
     })
   })
 })
+
+describe('transformJsonApiProduct pricingType (P2 granel)', () => {
+  it('lee quote_only con price null y normaliza ausente a fixed', async () => {
+    const { transformJsonApiProduct } = await import('../../utils/transformers')
+    const quoteOnly = transformJsonApiProduct({
+      id: '9', type: 'products',
+      attributes: { name: 'Granel', price: null, pricingType: 'quote_only', iva: true, createdAt: '', updatedAt: '' },
+    })
+    expect(quoteOnly.pricingType).toBe('quote_only')
+    expect(quoteOnly.price).toBeNull()
+
+    const legacy = transformJsonApiProduct({
+      id: '10', type: 'products',
+      attributes: { name: 'Frasco', price: 10, iva: true, createdAt: '', updatedAt: '' },
+    })
+    expect(legacy.pricingType).toBe('fixed')
+  })
+})

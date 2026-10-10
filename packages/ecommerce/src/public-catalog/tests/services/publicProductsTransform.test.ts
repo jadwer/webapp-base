@@ -104,6 +104,18 @@ describe('enhancePublicProduct', () => {
     expect(enhanced.galleryImages?.map((i) => i.id)).toEqual(['8', '9'])
   })
 
+  it('la primaria va primero aunque su sortOrder sea mayor (la ficha abre con gallery[0])', () => {
+    const withPrimaryLast: PublicProductsResponse['included'] = [
+      { id: '8', type: 'product-images', attributes: { filePath: 'a', imageUrl: 'https://api.test/a', altText: null, sortOrder: 0, isPrimary: false } },
+      { id: '9', type: 'product-images', attributes: { filePath: 'b', imageUrl: 'https://api.test/b', altText: null, sortOrder: 2, isPrimary: true } },
+      { id: '10', type: 'product-images', attributes: { filePath: 'c', imageUrl: 'https://api.test/c', altText: null, sortOrder: 1, isPrimary: false } }
+    ]
+    const product = rawProduct()
+    product.relationships.images = { data: [{ id: '8', type: 'product-images' }, { id: '9', type: 'product-images' }, { id: '10', type: 'product-images' }] }
+    const enhanced = enhancePublicProduct(product, withPrimaryLast)
+    expect(enhanced.galleryImages?.map((i) => i.id)).toEqual(['9', '8', '10'])
+  })
+
   it('sin included usa los textos por defecto', () => {
     const enhanced = enhancePublicProduct(rawProduct())
     expect(enhanced.displayCategory).toBe('Sin categoría')
@@ -140,5 +152,26 @@ describe('respuestas completas', () => {
   it('enhancePublicProductResponse enriquece la ficha', () => {
     const product = enhancePublicProductResponse({ data: rawProduct(), included })
     expect(product.brand?.attributes.name).toBe('Hach')
+  })
+})
+
+describe('precio sujeto a cotizacion (P2 granel)', () => {
+  it('quote_only muestra la etiqueta estandar en lugar del precio', () => {
+    const product = rawProduct()
+    product.attributes.price = null
+    product.attributes.pricingType = 'quote_only'
+
+    const enhanced = enhancePublicProduct(product, [
+      { id: '1', type: 'currencies', attributes: { code: 'USD', name: 'Dolar', symbol: '$' } } as never,
+    ])
+
+    expect(enhanced.isQuoteOnly).toBe(true)
+    expect(enhanced.displayPrice).toBe('Precio sujeto a cotización')
+  })
+
+  it('sin pricingType (respuesta previa al campo) se trata como precio fijo', () => {
+    const enhanced = enhancePublicProduct(rawProduct())
+    expect(enhanced.isQuoteOnly).toBe(false)
+    expect(enhanced.displayPrice).not.toBe('Precio sujeto a cotización')
   })
 })

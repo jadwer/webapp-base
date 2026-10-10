@@ -17,6 +17,7 @@
 import React from 'react'
 import Link from 'next/link'
 import { productPath, type EnhancedPublicProduct } from '@lwm/ecommerce'
+import { QUOTE_ONLY_LABEL, isQuoteOnly } from '@lwm/products/pricing'
 import { optimizedImage, optimizedSrcSet } from '@/lib/images'
 import styles from './LandingProductCard.module.scss'
 
@@ -40,6 +41,8 @@ export interface LandingProductCardProps {
  * si NO es MXN (para el mercado local es ruido).
  */
 export function formatLandingPrice(product: EnhancedPublicProduct): string | null {
+  // P2 granel: sujeto a cotizacion nunca muestra precio.
+  if (product.isQuoteOnly || isQuoteOnly(product.attributes)) return null
   const price = product.attributes.price
   if (price === null || price === undefined) return null
   const hasCents = Math.round(price * 100) % 100 !== 0
@@ -72,7 +75,9 @@ export const LandingProductCard: React.FC<LandingProductCardProps> = ({
   const showBadge = !isCatalog || product.attributes.isOnSale
   // Regla de acciones del catalogo: comprable (tiene precio) = Cotizar
   // outline + Agregar solido; sin precio = Ver detalles + Cotizar
-  const purchasable = product.attributes.price !== null && product.attributes.price !== undefined
+  // P2 granel: "Precio sujeto a cotizacion" = sin precio ni compra directa.
+  const quoteOnly = Boolean(product.isQuoteOnly) || isQuoteOnly(product.attributes)
+  const purchasable = !quoteOnly && product.attributes.price !== null && product.attributes.price !== undefined
 
   return (
     <article
@@ -130,6 +135,12 @@ export const LandingProductCard: React.FC<LandingProductCardProps> = ({
             {sku ? <>Modelo: {sku}</> : <>&nbsp;</>}
           </span>
           {price && <span className={styles.price}>{price}</span>}
+          {quoteOnly && (
+            <span className="badge bg-info text-dark" data-testid="quote-only-badge">
+              <i className="bi bi-chat-square-quote me-1" aria-hidden="true" />
+              {QUOTE_ONLY_LABEL}
+            </span>
+          )}
         </div>
 
         <div className={`${styles.actions} ${isOffer ? styles.actionsCenter : ''}`}>
@@ -165,9 +176,19 @@ export const LandingProductCard: React.FC<LandingProductCardProps> = ({
                   onClick={() => onRequestQuote?.(product)}
                   disabled={!onRequestQuote}
                 >
-                  Cotizar
+                  {quoteOnly ? 'Solicitar cotización' : 'Cotizar'}
                 </button>
               </>
+            )
+          ) : isOffer && quoteOnly ? (
+            onRequestQuote ? (
+              <button type="button" className="btn lw-btn lw-btn-accent" onClick={() => onRequestQuote(product)}>
+                Solicitar cotización
+              </button>
+            ) : (
+              <Link href={detailHref} className="btn lw-btn lw-btn-accent">
+                Solicitar cotización
+              </Link>
             )
           ) : isOffer ? (
             <button

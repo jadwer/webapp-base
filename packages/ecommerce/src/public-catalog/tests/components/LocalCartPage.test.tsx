@@ -593,6 +593,30 @@ describe('LocalCartPage', () => {
     })
   })
 
+  describe('Precio sujeto a cotización (P2 granel)', () => {
+    it('marca la linea, avisa en el total y deshabilita el pago con la explicacion', async () => {
+      mockIsAuthenticated.mockReturnValue(true)
+      const items = [
+        createMockCartItem(),
+        createMockCartItem({ id: 'item_9', productId: '9', name: 'Alcohol granel', price: 0, pricingType: 'quote_only' }),
+      ]
+      mockUseLocalCart.mockReturnValue(mockCartWithItems(items))
+
+      render(<LocalCartPage />)
+
+      expect(screen.getByTestId('cart-item-quote-only')).toHaveTextContent('Sujeto a cotización')
+      expect(screen.getByText('Por confirmar')).toBeInTheDocument()
+      expect(screen.getByTestId('cart-pending-price-notice')).toBeInTheDocument()
+      expect(screen.getByTestId('checkout-blocked-reason')).toHaveTextContent('Alcohol granel')
+
+      const checkout = screen.getByText('Proceder al Pago').closest('button') as HTMLButtonElement
+      expect(checkout).toBeDisabled()
+      // "Generar Cotización" sigue disponible
+      expect(screen.getByText('Generar Cotización').closest('button')).not.toBeDisabled()
+      expect(mockCartSync.syncLocalCartToAPI).not.toHaveBeenCalled()
+    })
+  })
+
   describe('Checkout Button', () => {
     it('should show checkout button with correct text', () => {
       const items = [createMockCartItem()]

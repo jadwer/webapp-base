@@ -18,6 +18,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useLocalCart } from './useLocalCart'
+import { isPendingPriceItem } from '../utils/pendingPrice'
 import { useAuth } from '@lwm/auth'
 import { toast } from '@lwm/ui'
 import { quoteServices as quoteServiceModule } from '@lwm/sales'
@@ -46,6 +47,15 @@ export function useLocalCartPageController({
 
   const cart = useLocalCart()
   const { items, isInitialized, clearCart } = cart
+
+  // P2 granel: lineas con precio sujeto a cotizacion. Mientras haya alguna
+  // no se puede pagar en linea (el backend tambien lo rechaza con 422);
+  // la cotizacion sigue disponible.
+  const pendingPriceItems = items.filter(isPendingPriceItem)
+  const canCheckout = pendingPriceItems.length === 0
+  const checkoutBlockedReason = canCheckout
+    ? null
+    : `Tu carrito tiene ${pendingPriceItems.length === 1 ? 'un producto' : `${pendingPriceItems.length} productos`} con precio sujeto a cotización (${pendingPriceItems.map(i => i.name).join(', ')}). Solicita una cotización o quítalos del carrito para pagar en línea.`
 
   // action=quote: autenticado reabre el modal (retorno del login o boton
   // Cotizar de la ficha); anonimo descarga directo el PDF informativo
@@ -146,6 +156,10 @@ export function useLocalCartPageController({
       toast.error('El carrito está vacío')
       return
     }
+    if (checkoutBlockedReason) {
+      toast.error(checkoutBlockedReason)
+      return
+    }
     setIsSyncingToCheckout(true)
     try {
       if (!isAuthenticated) {
@@ -169,7 +183,7 @@ export function useLocalCartPageController({
       toast.error('Error al preparar el carrito. Por favor intenta de nuevo.')
       setIsSyncingToCheckout(false)
     }
-  }, [items, isAuthenticated, onCheckout, checkoutUrl, router])
+  }, [items, isAuthenticated, onCheckout, checkoutUrl, router, checkoutBlockedReason])
 
   // Auto-checkout al volver del login (action=checkout)
   useEffect(() => {
@@ -193,6 +207,10 @@ export function useLocalCartPageController({
   return {
     // Carrito local completo (items, totals, updateQuantity, removeFromCart...)
     ...cart,
+    // P2 granel: pago en linea bloqueado por productos sujetos a cotizacion
+    pendingPriceItems,
+    canCheckout,
+    checkoutBlockedReason,
     // Sesion
     isAuthenticated,
     authLoading,

@@ -18,7 +18,9 @@ vi.mock('../../quotes/hooks', () => ({
   useQuoteItemMutations: vi.fn(),
 }))
 
-vi.mock('@lwm/products', () => ({
+vi.mock('@lwm/products', async () => ({
+  // Parcial: helpers reales del tipo de precio, badge y errores (P2 granel).
+  ...(await vi.importActual<typeof import('@lwm/products')>('@lwm/products')),
   productService: {
     getProducts: vi.fn().mockResolvedValue({ data: [] }),
   },
@@ -144,5 +146,26 @@ describe('QuoteItemsTable inline edit', () => {
 
     expect(await screen.findByText('IVA entre 0 y 100')).toBeInTheDocument()
     expect(mockUpdate).not.toHaveBeenCalled()
+  })
+
+  it('resalta la linea con precio por confirmar y abre la edicion con el precio vacio (P2 granel)', async () => {
+    const item = createMockQuoteItem({ unitPrice: 0, quotedPrice: 0, total: 0, pricePending: true, productName: 'Alcohol granel' })
+    const { container } = render(<QuoteItemsTable items={[item]} quoteId="1" editable onItemsChanged={vi.fn()} />)
+
+    expect(screen.getByTestId('quote-item-price-pending')).toHaveTextContent('Precio por confirmar')
+    expect(container.querySelector('tr[data-price-pending="true"]')).toHaveClass('table-warning')
+    expect(screen.getByText('Por confirmar')).toBeInTheDocument()
+    expect(screen.getByTestId('pricing-type-badge')).toHaveTextContent('Sujeto a cotización')
+    expect(screen.getByTestId('quote-items-pending-notice')).toBeInTheDocument()
+
+    fireEvent.click(screen.getByTitle('Editar'))
+    const priceInput = screen.getByLabelText('Precio cotizado') as HTMLInputElement
+    expect(priceInput.value).toBe('')
+    expect(priceInput.placeholder).toBe('Captura el precio')
+
+    fireEvent.change(priceInput, { target: { value: '18.75' } })
+    fireEvent.click(screen.getByTitle('Guardar'))
+    await waitFor(() => expect(mockUpdate).toHaveBeenCalled())
+    expect(mockUpdate.mock.calls[0][0].data.quotedPrice).toBe(18.75)
   })
 })

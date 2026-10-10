@@ -11,6 +11,7 @@ import Image from 'next/image'
 import { Button } from '@lwm/ui'
 import { usePublicSettings } from '@lwm/app-config'
 import { taxHintLabel } from '../../utils/taxHint'
+import { QUOTE_ONLY_LABEL, isQuoteOnly } from '@lwm/products/pricing'
 import type { EnhancedPublicProduct, ProductDisplayProps } from '../types/publicProduct'
 
 interface PublicProductCardProps {
@@ -49,6 +50,10 @@ export const PublicProductCard: React.FC<PublicProductCardProps> = ({
   } = displayProps
 
   const cardLayout = propLayout === 'horizontal' || layout === 'list' ? 'horizontal' : 'vertical'
+
+  // P2 granel: sujeto a cotizacion = sin precio ni compra directa, solo cotizar.
+  const quoteOnly = product.isQuoteOnly || isQuoteOnly(product.attributes)
+  const canBuy = !quoteOnly && product.attributes.price !== null
 
   // Image size classes
   const imageSizeClasses = {
@@ -162,7 +167,12 @@ export const PublicProductCard: React.FC<PublicProductCardProps> = ({
       <div className="d-flex justify-content-between align-items-center mb-3">
         {showPrice && (
           <div>
-            {product.attributes.price !== null ? (
+            {quoteOnly ? (
+              <span className="badge bg-info text-dark" data-testid="quote-only-badge">
+                <i className="bi bi-chat-square-quote me-1" aria-hidden="true" />
+                {QUOTE_ONLY_LABEL}
+              </span>
+            ) : product.attributes.price !== null ? (
               <>
                 <span className={`fw-bold ${layout === 'showcase' ? 'fs-4 text-primary' : 'fs-5'}`}>
                   {product.displayPrice}
@@ -201,7 +211,7 @@ export const PublicProductCard: React.FC<PublicProductCardProps> = ({
       {showActions && layout !== 'compact' && (
         <div className="d-flex flex-column gap-2">
           <div className="d-flex gap-2">
-            {onAddToCart && product.attributes.price !== null && (
+            {onAddToCart && canBuy && (
               <Button
                 variant="primary"
                 size={layout === 'showcase' ? 'medium' : 'small'}
@@ -235,7 +245,7 @@ export const PublicProductCard: React.FC<PublicProductCardProps> = ({
               className="w-100"
               startIcon={<i className="bi bi-file-earmark-text" />}
             >
-              Cotizar
+              {quoteOnly ? 'Solicitar cotización' : 'Cotizar'}
             </Button>
           )}
         </div>

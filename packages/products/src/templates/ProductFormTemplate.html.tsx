@@ -6,7 +6,6 @@ import { Card, Button } from '@lwm/ui'
 import { useNavigationProgress } from '@lwm/ui'
 import { useProduct, useProductMutations } from '../hooks'
 import ProductForm from '../components/ProductForm'
-import { productImageService } from '../services/productImageService'
 import type { CreateProductData, UpdateProductData } from '../types'
 import { parseJsonApiErrors } from '../utils/errorHandling'
 
@@ -46,28 +45,9 @@ export const ProductFormTemplate: React.FC<ProductFormTemplateProps> = ({
       } else {
         result = await createProduct(data as CreateProductData)
 
-        // CREATE flow uploads the image to /upload-image and persists the
-        // returned path on Product.img_path, but never creates the matching
-        // row in `product_images`. That leaves the edit view showing the
-        // thumbnail in the header (from img_path) while the gallery section
-        // below renders empty — and the operator cannot replace or delete
-        // the image. Mirror the asset into the gallery here so subsequent
-        // edits go through the normal ImageGalleryManager flow.
-        if (data.imgPath) {
-          try {
-            await productImageService.create({
-              productId: result.data.id,
-              filePath: data.imgPath,
-              sortOrder: 0,
-              isPrimary: true,
-            })
-          } catch (err) {
-            // Non-fatal: product was created with img_path set, the operator
-            // can still re-upload from the gallery later. Surface to console
-            // so we notice if this becomes a recurring problem.
-            console.warn('Failed to mirror initial image into product gallery:', err)
-          }
-        }
+        // La fila primaria de la galeria la crea el backend al guardar el
+        // producto con imgPath (ProductObserver, P1 granel 2026-10-10). Antes
+        // se espejaba aqui con un catch mudo y, con el observer, duplicaria la fila.
       }
 
       if (onSuccess) {

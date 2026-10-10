@@ -84,6 +84,12 @@ export interface QuoteItem {
   subtotalAfterDiscount?: number
   priceVariance?: number
   effectiveDiscountPercentage?: number
+  /**
+   * P2 granel (solo lectura): producto con precio sujeto a cotizacion cuyo
+   * precio aun no se captura (quotedPrice 0). Bloquea convertir a pedido o
+   * venta; la cotizacion si se puede enviar.
+   */
+  pricePending?: boolean
   // Relationships
   product?: ProductRef
   quote?: Quote
@@ -120,7 +126,9 @@ export interface ProductRef {
   id: string
   name: string
   sku: string
-  price: number
+  price: number | null
+  /** fixed | quote_only ("Precio sujeto a cotizacion") */
+  pricingType?: 'fixed' | 'quote_only'
   stock?: StockRef[]
 }
 

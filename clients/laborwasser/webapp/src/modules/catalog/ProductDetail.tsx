@@ -25,6 +25,7 @@ import {
 } from '@lwm/ecommerce'
 import { useTrackProductView } from '@lwm/ecommerce'
 import { useToast } from '@lwm/ui'
+import { QUOTE_ONLY_LABEL, isQuoteOnly } from '@lwm/products/pricing'
 import { LandingProductCard } from '../landing/components/LandingProductCard'
 import { optimizedImage } from '@/lib/images'
 import { categoryPath } from '@/lib/seo/categoryPath'
@@ -33,6 +34,8 @@ import styles from './ProductDetail.module.scss'
 const BACKEND = process.env.NEXT_PUBLIC_BACKEND_URL || ''
 
 function formatDetailPrice(product: EnhancedPublicProduct): string | null {
+  // P2 granel: sujeto a cotizacion no muestra precio aunque llegara alguno.
+  if (product.isQuoteOnly || isQuoteOnly(product.attributes)) return null
   const price = product.attributes.price
   if (price === null || price === undefined) return null
   return `$${price.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
@@ -104,6 +107,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, initial
     : product.attributes.imageUrl
   const category = product.category
   const purchasable = price !== null
+  const quoteOnly = Boolean(product.isQuoteOnly) || isQuoteOnly(product.attributes)
 
   return (
     <>
@@ -173,7 +177,17 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, initial
               </p>
             )}
 
-            {purchasable && (
+            {quoteOnly && (
+              <p className={styles.priceRow}>
+                <span className="badge bg-info text-dark" data-testid="quote-only-badge">
+                  <i className="bi bi-chat-square-quote me-1" aria-hidden="true" />
+                  {QUOTE_ONLY_LABEL}
+                </span>
+                <span className={styles.priceMeta}>Solicita una cotización y te enviamos el precio vigente.</span>
+              </p>
+            )}
+
+            {(purchasable || quoteOnly) && (
               <div className={styles.qty}>
                 <span className={styles.qtyLabel}>Cantidad:</span>
                 <label className={styles.qtySelectWrap}>
@@ -239,7 +253,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, initial
                 </>
               ) : (
                 <button type="button" className="btn lw-btn lw-btn-accent" onClick={handleQuote}>
-                  Cotizar
+                  {quoteOnly ? 'Solicitar cotización' : 'Cotizar'}
                 </button>
               )}
             </div>

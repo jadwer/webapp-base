@@ -6,6 +6,8 @@ import { useVirtualizer } from '@tanstack/react-virtual'
 import { Button } from '@lwm/ui'
 import { formatPrice } from '../utils/formatting'
 import type { Product } from '../types'
+import { PricingTypeBadge } from './PricingTypeBadge'
+import { isQuoteOnly } from '../utils/pricingType'
 
 interface ProductsGridProps {
   products: Product[]
@@ -58,10 +60,16 @@ const ProductCard = React.memo<{
         <div className="row g-2 mb-3">
           <div className="col-6">
             <div className="text-center">
-              <div className="fw-bold text-success">
-                {formatPrice(product.price, product.currency?.code || 'MXN')}
-              </div>
-              <small className="text-muted">{product.currency?.code || 'MXN'}{product.iva ? ' +IVA' : ''}</small>
+              {isQuoteOnly(product) ? (
+                <PricingTypeBadge short />
+              ) : (
+                <>
+                  <div className="fw-bold text-success">
+                    {formatPrice(product.price, product.currency?.code || 'MXN')}
+                  </div>
+                  <small className="text-muted">{product.currency?.code || 'MXN'}{product.iva ? ' +IVA' : ''}</small>
+                </>
+              )}
             </div>
           </div>
           <div className="col-6">

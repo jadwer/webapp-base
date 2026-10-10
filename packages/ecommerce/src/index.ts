@@ -141,6 +141,8 @@ export {
 } from './utils/transformers';
 
 export { taxHintLabel } from './utils/taxHint';
+export { getQuoteOnlyCheckoutItems, quoteOnlyCheckoutMessage } from './utils/quoteOnlyCheckoutError';
+export type { QuoteOnlyCheckoutItem } from './utils/quoteOnlyCheckoutError';
 
 // ============================================
 // Components

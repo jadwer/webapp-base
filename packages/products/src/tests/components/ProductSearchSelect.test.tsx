@@ -150,4 +150,22 @@ describe('ProductSearchSelect', () => {
     render(<ProductSearchSelect value="" onChange={vi.fn()} errorText="El producto es obligatorio" />)
     expect(screen.getByText('El producto es obligatorio')).toBeInTheDocument()
   })
+
+  it('marca los productos con precio sujeto a cotizacion en la opcion y en la seleccion', async () => {
+    getProducts.mockResolvedValue({
+      data: [{ id: '9', name: 'Alcohol granel', sku: 'GR-9', isActive: true, iva: true, pricingType: 'quote_only', price: null }],
+    } as never)
+    const onChange = vi.fn()
+    render(<ProductSearchSelect value="" onChange={onChange} />)
+
+    fireEvent.change(screen.getByRole('combobox'), { target: { value: 'alc' } })
+    await act(async () => {
+      vi.advanceTimersByTime(300)
+    })
+    await flush()
+
+    expect(screen.getByTestId('pricing-type-badge')).toHaveTextContent('Sujeto a cotización')
+    fireEvent.click(screen.getByText('Alcohol granel'))
+    expect(onChange).toHaveBeenCalledWith('9', { id: '9', name: 'Alcohol granel', sku: 'GR-9', pricingType: 'quote_only' })
+  })
 })

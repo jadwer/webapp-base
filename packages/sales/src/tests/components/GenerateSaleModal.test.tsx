@@ -195,4 +195,33 @@ describe('GenerateSaleModal', () => {
       expect(toast.error).toHaveBeenCalledWith('La cotizacion no esta aceptada')
     )
   })
+
+  it('blocks the CTA and lists lines with price pending (P2 granel)', () => {
+    setup({ items: [{ ...sufficientItem, id: '9', productName: 'Alcohol granel', productSku: 'GR-9', pricePending: true }] })
+
+    expect(screen.getByTestId('convert-price-pending')).toHaveTextContent('Alcohol granel (GR-9)')
+    expect(screen.getByRole('button', { name: /generar venta/i })).toBeDisabled()
+  })
+
+  it('renders the price_pending 422 per product', async () => {
+    mockConvert.mockRejectedValue({
+      response: {
+        status: 422,
+        data: {
+          message: 'Captura el precio de los productos sujetos a cotizacion antes de convertir: Alcohol granel.',
+          errors: [{
+            status: '422', code: 'price_pending', title: 'Precio por confirmar',
+            detail: 'Captura el precio de Alcohol granel antes de convertir.',
+            meta: { quote_item_id: 1, product_id: 1, product_name: 'Alcohol granel', product_sku: 'GR-9' },
+          }],
+        },
+      },
+    })
+    setup()
+
+    fireEvent.click(screen.getByRole('button', { name: /generar venta/i }))
+
+    expect(await screen.findByTestId('convert-price-pending')).toHaveTextContent('Alcohol granel')
+    expect(toast.error).not.toHaveBeenCalled()
+  })
 })

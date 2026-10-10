@@ -5,6 +5,7 @@ import { Button, Input, Select } from '@lwm/ui'
 import { useUnits, useCategories, useBrands } from '../hooks'
 import { useProductsUIStore, useProductsFilters } from '../store/productsUIStore'
 import type { ProductFilters } from '../types'
+import { PRICING_TYPES, PRICING_TYPE_LABELS, type PricingType } from '../utils/pricingType'
 
 const useDebounce = (value: string, delay: number) => {
   const [debouncedValue, setDebouncedValue] = useState(value)
@@ -40,6 +41,7 @@ export const ProductsFiltersSimple = React.memo(() => {
   const [selectedCategory, setSelectedCategory] = useState(() => asStr(persistedFilters.categoryId))
   const [selectedBrand, setSelectedBrand] = useState(() => asStr(persistedFilters.brandId))
   const [selectedUnit, setSelectedUnit] = useState(() => asStr(persistedFilters.unitId))
+  const [selectedPricingType, setSelectedPricingType] = useState(() => asStr(persistedFilters.pricingType))
   
   // Input refs for focus preservation
   const searchInputRef = useRef<HTMLInputElement>(null)
@@ -72,15 +74,19 @@ export const ProductsFiltersSimple = React.memo(() => {
     if (selectedUnit) {
       newFilters.unitId = selectedUnit
     }
+    if (selectedPricingType) {
+      newFilters.pricingType = selectedPricingType as PricingType
+    }
     
     setFilters(newFilters)
-  }, [debouncedSearchTerm, selectedCategory, selectedBrand, selectedUnit, setFilters])
+  }, [debouncedSearchTerm, selectedCategory, selectedBrand, selectedUnit, selectedPricingType, setFilters])
 
   const handleClearAll = () => {
     setSearchTerm('')
     setSelectedCategory('')
     setSelectedBrand('')
     setSelectedUnit('')
+    setSelectedPricingType('')
     clearFilters()
     
     // Keep focus on search input
@@ -89,7 +95,7 @@ export const ProductsFiltersSimple = React.memo(() => {
     }, 0)
   }
 
-  const hasFilters = searchTerm || selectedCategory || selectedBrand || selectedUnit
+  const hasFilters = searchTerm || selectedCategory || selectedBrand || selectedUnit || selectedPricingType
 
   return (
     <div className="card border-0 shadow-sm mb-4">
@@ -155,6 +161,23 @@ export const ProductsFiltersSimple = React.memo(() => {
             </Select>
           </div>
 
+          {/* Tipo de precio (P2 granel): opciones de PRICING_TYPES, fijadas
+              contra el backend por test. */}
+          <div className="col-md-2">
+            <Select
+              label="Tipo de precio"
+              value={selectedPricingType}
+              onChange={(e) => setSelectedPricingType(e.target.value)}
+            >
+              <option value="">Todos</option>
+              {PRICING_TYPES.map(type => (
+                <option key={type} value={type}>
+                  {PRICING_TYPE_LABELS[type]}
+                </option>
+              ))}
+            </Select>
+          </div>
+
           {/* Actions */}
           <div className="col-md-2">
             {hasFilters ? (
@@ -189,6 +212,13 @@ export const ProductsFiltersSimple = React.memo(() => {
                 </span>
               )}
               
+              {selectedPricingType && (
+                <span className="badge bg-info text-dark">
+                  <i className="bi bi-chat-square-quote me-1" />
+                  {PRICING_TYPE_LABELS[selectedPricingType as PricingType] ?? selectedPricingType}
+                </span>
+              )}
+
               {selectedCategory && (
                 <span className="badge bg-info">
                   <i className="bi bi-tag me-1" />

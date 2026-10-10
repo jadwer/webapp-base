@@ -6,6 +6,8 @@ import { useVirtualizer } from '@tanstack/react-virtual'
 import { Button } from '@lwm/ui'
 import { formatPrice } from '../utils/formatting'
 import type { Product } from '../types'
+import { PricingTypeBadge } from './PricingTypeBadge'
+import { isQuoteOnly } from '../utils/pricingType'
 
 interface ProductsCompactProps {
   products: Product[]
@@ -50,10 +52,16 @@ const ProductCompactRow = React.memo<{
 
     {/* Price */}
     <div className="text-end me-2" style={{ width: '100px' }}>
-      <div className="fw-bold text-success small">
-        {formatPrice(product.price, product.currency?.code || 'MXN')}
-      </div>
-      <small className="text-muted">{product.currency?.code || 'MXN'}{product.iva ? ' +IVA' : ''}</small>
+      {isQuoteOnly(product) ? (
+        <PricingTypeBadge short />
+      ) : (
+        <>
+          <div className="fw-bold text-success small">
+            {formatPrice(product.price, product.currency?.code || 'MXN')}
+          </div>
+          <small className="text-muted">{product.currency?.code || 'MXN'}{product.iva ? ' +IVA' : ''}</small>
+        </>
+      )}
     </div>
 
     {/* Stock */}

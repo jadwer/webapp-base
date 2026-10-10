@@ -60,6 +60,7 @@ export const productImageService = {
 
   async update(id: string, data: UpdateProductImageData): Promise<ProductImage> {
     const attributes: Record<string, unknown> = {}
+    if (data.filePath !== undefined) attributes.filePath = data.filePath
     if (data.altText !== undefined) attributes.altText = data.altText
     if (data.sortOrder !== undefined) attributes.sortOrder = data.sortOrder
     if (data.isPrimary !== undefined) attributes.isPrimary = data.isPrimary

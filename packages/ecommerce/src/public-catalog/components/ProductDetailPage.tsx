@@ -16,6 +16,7 @@ import { useTrackProductView } from '@lwm/ecommerce'
 import { usePublicSettings } from '@lwm/app-config'
 import { taxHintLabel } from '../../utils/taxHint'
 import { productPath } from '../utils/productPath'
+import { QUOTE_ONLY_LABEL, isQuoteOnly } from '@lwm/products/pricing'
 import type { EnhancedPublicProduct } from '../types/publicProduct'
 
 interface ProductDetailPageProps {
@@ -140,6 +141,7 @@ export default function ProductDetailPage({
 
   const inCart = isInCart(product.id)
   const cartQuantity = getQuantity(product.id)
+  const quoteOnly = product.isQuoteOnly || isQuoteOnly(product.attributes)
 
   const gallery = product.galleryImages
   const mainImageUrl = gallery && gallery.length > 0
@@ -256,18 +258,34 @@ export default function ProductDetailPage({
               {/* Name */}
               <h1 className="h2 mb-3">{product.displayName}</h1>
 
-              {/* Price */}
+              {/* Price (P2 granel: sujeto a cotizacion no muestra precio) */}
               <div className="mb-4">
-                <span className="display-5 fw-bold text-primary">
-                  {product.displayPrice}
-                </span>
-                <span className="text-muted ms-2">
-                  {product.displayCurrency}{product.unit ? ` / ${product.displayUnit}` : ''}
-                </span>
+                {quoteOnly ? (
+                  <>
+                    <span className="badge bg-info text-dark fs-6" data-testid="quote-only-badge">
+                      <i className="bi bi-chat-square-quote me-1" aria-hidden="true" />
+                      {QUOTE_ONLY_LABEL}
+                    </span>
+                    <div className="mt-2">
+                      <small className="text-muted">
+                        El precio de este producto varía; solicita una cotización y te enviamos el precio vigente.
+                      </small>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <span className="display-5 fw-bold text-primary">
+                      {product.displayPrice}
+                    </span>
+                    <span className="text-muted ms-2">
+                      {product.displayCurrency}{product.unit ? ` / ${product.displayUnit}` : ''}
+                    </span>
+                  </>
+                )}
                 {/* Tax hint reflects the tenant's pricing.prices_include_tax
                     setting: net prices (default) show "+ 16% IVA" added on
                     top; tax-included tenants show "IVA incluido" instead. */}
-                {product.attributes.price !== null && (
+                {!quoteOnly && product.attributes.price !== null && (
                   <div className="mt-1">
                     <small className={product.attributes.iva ? 'text-muted' : 'text-success'}>
                       {taxHintLabel(product.attributes.iva, pricesIncludeTax)}
@@ -371,14 +389,16 @@ export default function ProductDetailPage({
                     </button>
                   </div>
 
-                  {/* Add to Cart Button */}
-                  <button
-                    className="btn btn-primary btn-lg flex-grow-1"
-                    onClick={handleAddToCart}
-                  >
-                    <i className="bi bi-cart-plus me-2"></i>
-                    Agregar al Carrito
-                  </button>
+                  {/* Add to Cart Button (no aplica a sujeto a cotizacion) */}
+                  {!quoteOnly && (
+                    <button
+                      className="btn btn-primary btn-lg flex-grow-1"
+                      onClick={handleAddToCart}
+                    >
+                      <i className="bi bi-cart-plus me-2"></i>
+                      Agregar al Carrito
+                    </button>
+                  )}
                 </div>
 
                 {/* Request Quote Button */}

@@ -133,7 +133,9 @@ export const CartPage = React.memo<CartPageProps>(({ sessionId, contactId }) => 
       toast.success(response.message || 'Cotizacion creada exitosamente')
       navigation.push(`/dashboard/quotes/${response.data.id}`)
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Error al crear cotizacion'
+      // Regla 7: el detalle del backend, no el mensaje generico de axios.
+      const data = (error as { response?: { data?: { error?: string; message?: string } } })?.response?.data
+      const errorMessage = data?.message || data?.error || (error instanceof Error ? error.message : 'Error al crear cotizacion')
       toast.error(errorMessage)
     } finally {
       setIsRequestingQuote(false)

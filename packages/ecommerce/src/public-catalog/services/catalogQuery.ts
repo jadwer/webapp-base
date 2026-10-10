@@ -18,8 +18,12 @@ import type {
   SortDirection
 } from '../types/publicProduct'
 
-/** Include fijo del listado del catalogo (productos con galeria y moneda). */
-export const CATALOG_PRODUCTS_INCLUDE: PublicProductInclude = 'unit,category,brand,images,currency'
+/**
+ * Include fijo del listado del catalogo. Sin `images`: la tarjeta usa
+ * imageUrl (img_path = primaria) y la galeria solo la pide la ficha (G8 de
+ * P1 granel, 2026-10-10; era payload de mas en cada pagina del listado).
+ */
+export const CATALOG_PRODUCTS_INCLUDE: PublicProductInclude = 'unit,category,brand,currency'
 
 export interface CatalogInitialQueryOptions {
   initialFilters?: Partial<PublicProductFilters>

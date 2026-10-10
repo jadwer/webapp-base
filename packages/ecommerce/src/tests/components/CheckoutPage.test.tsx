@@ -188,6 +188,34 @@ describe('CheckoutPage - order of operations', () => {
     expect(clearCartIdMock).not.toHaveBeenCalled()
   })
 
+  it('lists the quote-only products when the backend rejects the checkout (P2 granel)', async () => {
+    checkoutMock.mockImplementation(async () => {
+      const error = new Error('Request failed with status code 422') as Error & {
+        response: { status: number; data: Record<string, unknown> }
+      }
+      error.response = {
+        status: 422,
+        data: {
+          error: 'Tu carrito tiene productos con precio sujeto a cotizacion',
+          quote_only_items: [{ product_id: 9, product_name: 'Alcohol granel', product_sku: 'GR-9' }],
+          quote_cta: true,
+        },
+      }
+      throw error
+    })
+
+    render(<CheckoutPage cartId="9" />)
+    fillInfoForm()
+    fireEvent.click(screen.getByRole('button', { name: /Continuar al Pago/i }))
+
+    expect(await screen.findByTestId('checkout-quote-only')).toHaveTextContent('Alcohol granel (GR-9)')
+    expect(toastMock.error).toHaveBeenCalledWith(expect.stringContaining('Alcohol granel'))
+    expect(initiatePaymentMock).not.toHaveBeenCalled()
+
+    fireEvent.click(screen.getByRole('button', { name: /Solicitar cotización/i }))
+    expect(pushMock).toHaveBeenCalledWith('/cart?action=quote')
+  })
+
   it('clears the cart and redirects only after successful payment, without a second checkout', async () => {
     render(<CheckoutPage cartId="9" />)
 
