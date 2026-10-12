@@ -227,7 +227,7 @@ export default function ProductDetailPage({
                     >
                       <Image
                         src={img.attributes.imageUrl || `/storage/${img.attributes.filePath}`}
-                        alt={img.attributes.altText || `Imagen ${index + 1}`}
+                        alt={img.attributes.altText || `${product.displayName}, imagen ${index + 1}`}
                         width={64}
                         height={64}
                         style={{ objectFit: 'cover', width: '100%', height: '100%' }}

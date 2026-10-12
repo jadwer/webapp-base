@@ -17,6 +17,7 @@ import type { Quote, QuoteItem } from '@/modules/quotes'
 import { formatDateOnly } from '@/modules/quotes'
 import {
   isQuoteItemPricePending,
+  formatQuoteItemQuantity,
   getPricePendingErrors,
   ACCEPT_PRICE_PENDING_MESSAGE,
   type PricePendingError,
@@ -56,7 +57,7 @@ export default function MyQuoteDetailPage({ params }: MyQuoteDetailPageProps) {
         const itemsData = await quoteItemService.getByQuoteId(id)
         setItems(itemsData)
       } catch {
-        setError('Error al cargar la cotizacion')
+        setError('Error al cargar la cotización')
       } finally {
         setIsLoading(false)
       }
@@ -72,7 +73,7 @@ export default function MyQuoteDetailPage({ params }: MyQuoteDetailPageProps) {
     setAcceptError(null)
     try {
       await quoteService.accept(quote.id)
-      toast.success('Cotizacion aceptada exitosamente')
+      toast.success('Cotización aceptada exitosamente')
       // Refresh quote data
       const updatedQuote = await quoteService.getById(id)
       setQuote(updatedQuote)
@@ -125,7 +126,7 @@ export default function MyQuoteDetailPage({ params }: MyQuoteDetailPageProps) {
       <div className="container-fluid py-4">
         <div className="text-center py-5">
           <span className="spinner-border text-primary" role="status"></span>
-          <p className="mt-3 text-muted">Cargando cotizacion...</p>
+          <p className="mt-3 text-muted">Cargando cotización...</p>
         </div>
       </div>
     )
@@ -136,7 +137,7 @@ export default function MyQuoteDetailPage({ params }: MyQuoteDetailPageProps) {
       <div className="container-fluid py-4">
         <div className="alert alert-danger">
           <i className="bi bi-exclamation-triangle me-2"></i>
-          {error || 'Cotizacion no encontrada'}
+          {error || 'Cotización no encontrada'}
         </div>
         <Link href="/dashboard/my-quotes" className="btn btn-outline-primary">
           <i className="bi bi-arrow-left me-2"></i>
@@ -162,7 +163,7 @@ export default function MyQuoteDetailPage({ params }: MyQuoteDetailPageProps) {
             Mis Cotizaciones
           </Link>
           <h1 className="h3 mb-1">
-            Cotizacion {quote.quoteNumber || `#${quote.id}`}
+            Cotización {quote.quoteNumber || `#${quote.id}`}
           </h1>
           <div className="d-flex align-items-center gap-3">
             <QuoteStatusBadge status={quote.status} />
@@ -201,7 +202,7 @@ export default function MyQuoteDetailPage({ params }: MyQuoteDetailPageProps) {
               ) : (
                 <>
                   <i className="bi bi-check-circle me-2"></i>
-                  Aceptar Cotizacion
+                  Aceptar cotización
                 </>
               )}
             </button>
@@ -274,7 +275,7 @@ export default function MyQuoteDetailPage({ params }: MyQuoteDetailPageProps) {
                           </div>
                         </td>
                         <td className="text-center">
-                          {item.quantity} pz
+                          {formatQuoteItemQuantity(item)}
                         </td>
                         {/* P2 granel: precio sujeto a cotizacion aun sin capturar */}
                         <td className="text-end">
@@ -401,7 +402,7 @@ export default function MyQuoteDetailPage({ params }: MyQuoteDetailPageProps) {
                 Tienes dudas?
               </h6>
               <p className="small text-muted mb-2">
-                Si tienes preguntas sobre esta cotizacion, contactanos:
+                Si tienes preguntas sobre esta cotización, contáctanos:
               </p>
               <a href={`mailto:${get('company.email')}`} className="btn btn-sm btn-outline-primary w-100">
                 <i className="bi bi-envelope me-2"></i>

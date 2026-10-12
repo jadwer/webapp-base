@@ -25,8 +25,12 @@ vi.mock('@/modules/quotes', async () => {
   const pricePending = await vi.importActual<typeof import('../../../../../packages/sales/src/quotes/utils/pricePending')>(
     '../../../../../packages/sales/src/quotes/utils/pricePending'
   )
+  const quantity = await vi.importActual<typeof import('../../../../../packages/sales/src/quotes/utils/quantity')>(
+    '../../../../../packages/sales/src/quotes/utils/quantity'
+  )
   return {
     ...pricePending,
+    ...quantity,
     QuoteStatusBadge: ({ status }: { status: string }) => <span>{status}</span>,
     formatDateOnly: (v: string) => v,
     quoteService: { getById: mocks.getById, accept: mocks.accept, downloadPdf: vi.fn() },
@@ -64,13 +68,26 @@ async function renderPage() {
       </Suspense>
     )
   })
-  await screen.findByText(/Cotizacion COT-015/)
+  await screen.findByText(/Cotización COT-015/)
 }
 
 describe('Portal: aceptar cotizacion (D9)', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mocks.getById.mockResolvedValue(quote)
+  })
+
+  it('muestra la unidad real del producto junto a la cantidad, nunca "pz" fijo', async () => {
+    mocks.getById.mockResolvedValue(quote)
+    mocks.getItems.mockResolvedValue([
+      item({ id: '1', quantity: 20, product: { id: '9', name: 'Alcohol', sku: 'A-1', price: 10, unitName: 'Litro' } }),
+      item({ id: '2', quantity: 3, productName: 'Guantes', product: undefined }),
+    ])
+    await renderPage()
+
+    expect(screen.getByText('20 Litro')).toBeInTheDocument()
+    const rows = screen.getAllByRole('row')
+    expect(rows.some((r) => /\bpz\b/.test(r.textContent ?? ''))).toBe(false)
   })
 
   it('con precios por confirmar deshabilita Aceptar y explica por que', async () => {

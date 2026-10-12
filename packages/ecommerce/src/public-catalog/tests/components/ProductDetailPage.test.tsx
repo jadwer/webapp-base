@@ -76,3 +76,26 @@ describe('ProductDetailPage precio sujeto a cotización', () => {
     expect(screen.queryByTestId('quote-only-badge')).not.toBeInTheDocument()
   })
 })
+
+describe('ProductDetailPage texto alternativo de la galeria', () => {
+  const image = (id: string, altText: string | null, sortOrder: number) => ({
+    id,
+    type: 'product-images' as const,
+    attributes: { filePath: `p/${id}.jpg`, imageUrl: `https://cdn.test/${id}.jpg`, altText, sortOrder, isPrimary: sortOrder === 0 },
+  })
+
+  it('la imagen principal y las miniaturas usan altText; sin altText, el nombre del producto', () => {
+    const p = product('fixed', 250)
+    p.attributes.imageUrl = 'https://cdn.test/a.jpg'
+    p.galleryImages = [image('a', 'Garrafa de 20 L vista frontal', 0), image('b', null, 1)]
+    state.product = p
+    render(<ProductDetailPage productId="9" />)
+
+    expect(screen.getAllByAltText('Garrafa de 20 L vista frontal')).toHaveLength(2)
+    expect(screen.getByAltText('Alcohol isopropilico, imagen 2')).toBeInTheDocument()
+    expect(screen.queryByAltText(/^Imagen \d/)).not.toBeInTheDocument()
+
+    fireEvent.click(screen.getByAltText('Alcohol isopropilico, imagen 2').closest('button') as HTMLButtonElement)
+    expect(screen.getAllByAltText('Alcohol isopropilico')).toHaveLength(1)
+  })
+})

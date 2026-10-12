@@ -157,6 +157,24 @@ describe('FractionationForm', () => {
     expect(screen.getByTestId('fractionation-blocked-batches')).toHaveTextContent('L-CUAR (el lote está en cuarentena)')
   })
 
+  it('lista deshabilitados los lotes retirados o en cuarentena por estado aunque el lote no sea obligatorio', async () => {
+    const batches = [
+      { id: 8, batch_number: 'L-RET', lot_number: null, expiration_date: null, warehouse_location_id: null, available_quantity: 30, unit_cost: 30, is_expired: false, is_expiring_soon: false, quality_status: 'passed', is_usable: false, unavailable_reason: 'el lote fue retirado' },
+      { id: 9, batch_number: 'L-EST', lot_number: null, expiration_date: '2027-01-01', warehouse_location_id: null, available_quantity: 40, unit_cost: 30, is_expired: false, is_expiring_soon: false, quality_status: 'passed', is_usable: false, unavailable_reason: 'el lote está en cuarentena' },
+    ]
+    mocks.calculate.mockResolvedValue({
+      data: basePreview({ batch_required: false, batches, suggested_batch_id: null, product_batch_id: null }),
+    })
+
+    render(<FractionationForm />)
+    fillForm()
+
+    await screen.findByLabelText(/Lote de origen/, {}, { timeout: 2000 })
+    expect((screen.getByRole('option', { name: /L-RET.*NO DISPONIBLE: el lote fue retirado/ }) as HTMLOptionElement).disabled).toBe(true)
+    expect((screen.getByRole('option', { name: /L-EST.*NO DISPONIBLE: el lote está en cuarentena/ }) as HTMLOptionElement).disabled).toBe(true)
+    expect(screen.getByTestId('fractionation-blocked-batches')).toHaveTextContent('L-RET (el lote fue retirado)')
+  })
+
   it('pide la ubicacion cuando el origen esta en varias', async () => {
     mocks.calculate.mockResolvedValue({
       data: basePreview({

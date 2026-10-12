@@ -142,10 +142,10 @@ export const ProductFormTemplate: React.FC<ProductFormTemplateProps> = ({
             return errors.length > 0 ? (
               <ul className="mb-0 mt-2">
                 {errors.map((err, i) => (
-                  <li key={i}>
-                    {err.field && <strong>{err.field}: </strong>}
-                    {err.message}
-                  </li>
+                  // Solo el detail del backend: ya nombra el campo en espanol.
+                  // El pointer (price, sku) es el atributo de la API y no se
+                  // muestra al usuario (regla 9).
+                  <li key={i}>{err.message}</li>
                 ))}
               </ul>
             ) : (

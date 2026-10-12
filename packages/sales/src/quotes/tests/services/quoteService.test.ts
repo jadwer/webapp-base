@@ -750,11 +750,39 @@ describe('quoteItemService', () => {
       expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/quote-items', {
         params: {
           'filter[quote]': '1',
-          include: 'product,product.stock',
+          include: 'product,product.stock,product.unit',
         },
       });
       expect(result).toHaveLength(2);
       expect(result[0].quoteId).toBe(1);
+    });
+
+    it('resuelve la unidad del producto desde included (portal sin "pz" fijo)', async () => {
+      mockAxios.get.mockResolvedValue({
+        data: {
+          data: [
+            {
+              type: 'quote-items',
+              id: '1',
+              attributes: { quote_id: 1, product_id: 10, quantity: 5 },
+              relationships: { product: { data: { type: 'products', id: '10' } } },
+            },
+          ],
+          included: [
+            {
+              type: 'products',
+              id: '10',
+              attributes: { name: 'Alcohol granel', sku: 'ALC-G', price: null },
+              relationships: { unit: { data: { type: 'units', id: '3' } } },
+            },
+            { type: 'units', id: '3', attributes: { name: 'Litro', code: 'LTR' } },
+          ],
+        },
+      });
+
+      const result = await quoteItemService.getByQuoteId('1');
+
+      expect(result[0].product?.unitName).toBe('Litro');
     });
   });
 

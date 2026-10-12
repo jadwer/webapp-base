@@ -105,6 +105,8 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, initial
   const mainImage = gallery.length > 0
     ? gallery[selectedImage]?.attributes.imageUrl || product.attributes.imageUrl
     : product.attributes.imageUrl
+  // Texto alternativo capturado en la galeria; si no hay, el nombre del producto
+  const mainImageAlt = gallery[selectedImage]?.attributes.altText || product.displayName
   const category = product.category
   const purchasable = price !== null
   const quoteOnly = Boolean(product.isQuoteOnly) || requiresQuote(product.attributes)
@@ -141,7 +143,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, initial
               )}
               {mainImage ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={optimizedImage(mainImage, 1080) ?? mainImage} alt={product.displayName} className={styles.image} fetchPriority="high" decoding="async" />
+                <img src={optimizedImage(mainImage, 1080) ?? mainImage} alt={mainImageAlt} className={styles.image} fetchPriority="high" decoding="async" />
               ) : (
                 <div className={styles.placeholder}><i className="bi bi-box-seam" aria-hidden="true" /></div>
               )}
@@ -154,10 +156,10 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, initial
                     type="button"
                     className={`${styles.thumb} ${i === selectedImage ? styles.thumbActive : ''}`}
                     onClick={() => setSelectedImage(i)}
-                    aria-label={`Imagen ${i + 1}`}
+                    aria-pressed={i === selectedImage}
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={img.attributes.imageUrl || ''} alt="" />
+                    <img src={img.attributes.imageUrl || ''} alt={img.attributes.altText || `${product.displayName}, imagen ${i + 1}`} />
                   </button>
                 ))}
               </div>

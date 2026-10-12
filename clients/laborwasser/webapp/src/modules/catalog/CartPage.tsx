@@ -97,7 +97,10 @@ const CartItemRow: React.FC<{
       ) : (
         <>
           <span className={styles.itemPrice}>{formatMoney(item.price * item.quantity)}</span>
-          <span className={styles.itemPriceMeta}>MXN/Pieza {item.iva ? '+ IVA' : 'IVA 0%'}</span>
+          <span className={styles.itemPriceMeta}>
+            {/* Unidad real del producto (un granel no se vende por pieza) */}
+            MXN{item.unitName ? `/${item.unitName}` : ''} {item.iva ? '+ IVA' : 'IVA 0%'}
+          </span>
         </>
       )}
       <button type="button" className={styles.itemRemove} onClick={onRemove} aria-label={`Quitar ${item.name}`}>

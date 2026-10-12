@@ -174,11 +174,19 @@ function resolveQuoteItemProduct(
       ...transformToCamelCase(s.attributes)
     })) as StockRef[]
 
+  // Unidad (include product.unit): el portal la muestra junto a la cantidad
+  const unitRel = productResource.relationships?.unit as
+    | { data?: { type: string; id: string } | null }
+    | undefined
+  const unitResource = unitRel?.data ? includedMap.get(`${unitRel.data.type}:${unitRel.data.id}`) : undefined
+  const unitName = (unitResource?.attributes?.name as string | undefined) || null
+
   return {
     id: productResource.id,
     name: (productAttrs.name as string) || '',
     sku: (productAttrs.sku as string) || '',
     price: (productAttrs.price as number) || 0,
+    unitName,
     stock
   }
 }
@@ -614,7 +622,7 @@ export const quoteItemService = {
     const response = await axios.get<JsonApiResponse<JsonApiResource[]>>(QUOTE_ITEMS_BASE_URL, {
       params: {
         'filter[quote]': quoteId,
-        include: 'product,product.stock'
+        include: 'product,product.stock,product.unit'
       }
     })
 
