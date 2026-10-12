@@ -4,6 +4,8 @@
  * partir del contenido de cada pieza.
  */
 
+import { formatDate } from './format'
+
 /**
  * Clave unica para una operacion de fraccionamiento. Se genera al abrir el
  * formulario y se reusa en cada reintento: el backend responde el mismo
@@ -92,3 +94,40 @@ export const factorFromContent = (
 
 /** Redondea a 6 decimales (la columna conversion_factor es decimal 15,6) */
 export const roundFactor = (value: number): number => Math.round(value * 1e6) / 1e6
+
+/** Estados de lote (ProductBatchRequest) en texto para la razon de bloqueo. */
+const BATCH_STATUS_TEXT: Record<string, string> = {
+  expired: 'vencido',
+  quarantine: 'en cuarentena',
+  recalled: 'retirado',
+  consumed: 'consumido',
+}
+
+/**
+ * D10: por que un lote de la vista previa NO se puede fraccionar, o null si
+ * se puede. Manda el backend (`is_usable` + `unavailable_reason`, ya en
+ * espanol); como respaldo se deriva en el mismo orden que
+ * FractionationService::assertBatchUsable: estado, calidad y caducidad (con
+ * fecha dd/mm/aaaa).
+ */
+export const batchUnavailableReason = (batch: {
+  status?: string | null
+  quality_status?: string | null
+  is_expired?: boolean
+  expiration_date?: string | null
+  is_usable?: boolean
+  unavailable_reason?: string | null
+}): string | null => {
+  if (batch.is_usable === true) return null
+  if (batch.unavailable_reason) return batch.unavailable_reason
+  if (batch.status && batch.status !== 'active') {
+    return `lote inactivo (${BATCH_STATUS_TEXT[batch.status] ?? batch.status})`
+  }
+  if (batch.quality_status === 'quarantine') return 'en cuarentena por calidad'
+  if (batch.quality_status === 'failed') return 'calidad rechazada'
+  if (batch.is_expired) {
+    return batch.expiration_date ? `caducado el ${formatDate(batch.expiration_date)}` : 'caducado'
+  }
+  if (batch.is_usable === false) return 'el lote no está disponible'
+  return null
+}

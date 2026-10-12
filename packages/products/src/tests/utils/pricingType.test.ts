@@ -5,6 +5,7 @@ import {
   QUOTE_ONLY_LABEL,
   isQuoteOnly,
   normalizePricingType,
+  requiresQuote,
 } from '../../utils/pricingType'
 
 // Lista literal del backend (Product::PRICING_TYPES y la regla Rule::in de
@@ -29,5 +30,27 @@ describe('PRICING_TYPES', () => {
     expect(isQuoteOnly({ pricingType: 'quote_only' })).toBe(true)
     expect(isQuoteOnly({ pricingType: null })).toBe(false)
     expect(isQuoteOnly(null)).toBe(false)
+  })
+})
+
+describe('requiresQuote (P2b D8: producto sin precio de venta)', () => {
+  it('sujeto a cotizacion, sin precio o con precio <= 0 se cotiza', () => {
+    expect(requiresQuote({ pricingType: 'quote_only', price: 100 })).toBe(true)
+    expect(requiresQuote({ pricingType: 'fixed', price: null })).toBe(true)
+    expect(requiresQuote({ pricingType: 'fixed', price: 0 })).toBe(true)
+    expect(requiresQuote({ pricingType: 'fixed', price: -5 })).toBe(true)
+    expect(requiresQuote({ pricingType: 'fixed', price: '0.00' })).toBe(true)
+    expect(requiresQuote({ price: '' })).toBe(true)
+  })
+
+  it('con precio positivo se vende', () => {
+    expect(requiresQuote({ pricingType: 'fixed', price: 10 })).toBe(false)
+    expect(requiresQuote({ price: '12.50' })).toBe(false)
+  })
+
+  it('price ausente (referencia parcial) no cuenta como sin precio', () => {
+    expect(requiresQuote({ pricingType: 'fixed' })).toBe(false)
+    expect(requiresQuote({ pricingType: 'fixed', price: undefined })).toBe(false)
+    expect(requiresQuote(null)).toBe(false)
   })
 })

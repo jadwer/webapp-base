@@ -16,7 +16,7 @@ import { useTrackProductView } from '@lwm/ecommerce'
 import { usePublicSettings } from '@lwm/app-config'
 import { taxHintLabel } from '../../utils/taxHint'
 import { productPath } from '../utils/productPath'
-import { QUOTE_ONLY_LABEL, isQuoteOnly } from '@lwm/products/pricing'
+import { QUOTE_ONLY_LABEL, requiresQuote } from '@lwm/products/pricing'
 import type { EnhancedPublicProduct } from '../types/publicProduct'
 
 interface ProductDetailPageProps {
@@ -141,7 +141,7 @@ export default function ProductDetailPage({
 
   const inCart = isInCart(product.id)
   const cartQuantity = getQuantity(product.id)
-  const quoteOnly = product.isQuoteOnly || isQuoteOnly(product.attributes)
+  const quoteOnly = product.isQuoteOnly || requiresQuote(product.attributes)
 
   const gallery = product.galleryImages
   const mainImageUrl = gallery && gallery.length > 0

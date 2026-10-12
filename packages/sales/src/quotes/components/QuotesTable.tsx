@@ -13,6 +13,7 @@ import { salesService } from '../../services'
 import { OperationsMenu, type OperationsMenuItem } from '../../components/OperationsMenu'
 import { exportQuoteItemsCsv } from '../../utils/exportCsv'
 import { toast, isPastDateOnly } from '@lwm/ui'
+import { extractApiErrorMessage } from '@lwm/products'
 import { ConfirmModal, ConfirmModalHandle } from '@lwm/ui'
 import { formatDateOnly } from '../../utils/dates'
 
@@ -71,8 +72,9 @@ export function QuotesTable({ quotes, isLoading, onQuoteUpdated }: QuotesTablePr
           break
       }
       onQuoteUpdated?.()
-    } catch {
-      toast.error('Error al ejecutar la accion')
+    } catch (err) {
+      // Regla 7: el rechazo del backend (p. ej. precio por confirmar) con su detalle
+      toast.error(extractApiErrorMessage(err, 'Error al ejecutar la acción'))
     } finally {
       setActionLoading(null)
     }

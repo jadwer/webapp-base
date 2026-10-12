@@ -19,9 +19,14 @@ const { callLog, pushMock, toastMock } = vi.hoisted(() => ({
   toastMock: { error: vi.fn(), success: vi.fn() },
 }))
 
-const { checkoutMock } = vi.hoisted(() => ({
+const { checkoutMock, cartItemsState } = vi.hoisted(() => ({
   checkoutMock: vi.fn(),
+  cartItemsState: { items: [] as Array<Record<string, unknown>> },
 }))
+
+const DEFAULT_CART_ITEMS = [
+  { id: '1', productName: 'Producto X', quantity: 1, totalPrice: 116 },
+]
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 vi.mock('@lwm/ui', () => ({
@@ -54,9 +59,7 @@ vi.mock('../../hooks', () => ({
     isLoading: false,
   }),
   useShoppingCartItems: () => ({
-    cartItems: [
-      { id: '1', productName: 'Producto X', quantity: 1, totalPrice: 116 },
-    ],
+    cartItems: cartItemsState.items,
     isLoading: false,
   }),
   useShoppingCartMutations: () => ({
@@ -121,6 +124,7 @@ describe('CheckoutPage - order of operations', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     callLog.length = 0
+    cartItemsState.items = DEFAULT_CART_ITEMS
 
     checkoutMock.mockImplementation(async () => {
       callLog.push('checkout')
@@ -214,6 +218,22 @@ describe('CheckoutPage - order of operations', () => {
 
     fireEvent.click(screen.getByRole('button', { name: /Solicitar cotización/i }))
     expect(pushMock).toHaveBeenCalledWith('/cart?action=quote')
+  })
+
+  it('P2b D8: lineas en $0 del carrito se avisan antes de crear la orden', async () => {
+    cartItemsState.items = [
+      { id: '1', productId: '9', productName: 'Alcohol granel', productSku: 'GR-9', quantity: 2, unitPrice: 0, totalPrice: 0 },
+    ]
+
+    render(<CheckoutPage cartId="9" />)
+    expect(screen.getByTestId('checkout-quote-only')).toHaveTextContent('Alcohol granel (GR-9)')
+
+    fillInfoForm()
+    fireEvent.click(screen.getByRole('button', { name: /Continuar al Pago/i }))
+
+    await waitFor(() => expect(toastMock.error).toHaveBeenCalledWith(expect.stringContaining('Alcohol granel')))
+    expect(checkoutMock).not.toHaveBeenCalled()
+    expect(initiatePaymentMock).not.toHaveBeenCalled()
   })
 
   it('clears the cart and redirects only after successful payment, without a second checkout', async () => {

@@ -374,12 +374,16 @@ export function extractApiErrorMessage(err: unknown, fallback: string): string {
       }
       if (data.message) return data.message
       if (typeof data.error === 'string' && data.error) {
-        return status === 403 ? `Sin permiso para esta accion (403: ${data.error})` : `${data.error}${status ? ` (${status})` : ''}`
+        return status === 403 ? `Sin permiso para esta acción (403: ${data.error})` : `${data.error}${status ? ` (${status})` : ''}`
       }
     }
-    if (status === 403) return 'Sin permiso para esta accion (403)'
-    if (status === 401) return 'La sesion expiro; vuelve a iniciar sesion (401)'
+    if (status === 403) return 'Sin permiso para esta acción (403)'
+    if (status === 401) return 'La sesión expiró; vuelve a iniciar sesión (401)'
     if (status) return `${fallback} (${status})`
+    // Regla 9: el mensaje generico de axios va en ingles; sin respuesta del
+    // servidor se explica en espanol.
+    if (e.message === 'Network Error') return `${fallback}: no hay conexión con el servidor`
+    if (e.message && /^timeout of \d+ms exceeded$/.test(e.message)) return `${fallback}: el servidor tardó demasiado en responder`
     if (e.message) return `${fallback}: ${e.message}`
   }
   return fallback

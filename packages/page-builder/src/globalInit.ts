@@ -31,7 +31,7 @@ export function ensureGrapeJSGlobalInit(): Promise<void> {
         }
         
         link.onerror = () => {
-          reject(new Error('Failed to load GrapeJS CSS'))
+          reject(new Error('No se pudieron cargar los estilos del editor'))
         }
         
         // Fallback timeout

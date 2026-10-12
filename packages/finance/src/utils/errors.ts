@@ -7,12 +7,9 @@ export const getFinanceErrorMessage = (error: unknown, fallback: string): string
       const errors = data.errors
       if (Array.isArray(errors) && errors.length > 0) {
         return errors
-          .map((e: Record<string, unknown>) => {
-            const pointer = (e.source as Record<string, unknown> | undefined)?.pointer as string | undefined
-            const field = pointer ? pointer.split('/').pop() : undefined
-            const text = (e.detail || e.title || '') as string
-            return field && !text.includes(field) ? `${field}: ${text}` : text
-          })
+          // Regla 9: el detalle llega en espanol con el nombre del campo; se
+          // muestra tal cual, sin anteponer el puntero (atributo en ingles).
+          .map((e: Record<string, unknown>) => (e.detail || e.title || '') as string)
           .filter(Boolean)
           .join(' | ') || fallback
       }

@@ -1,6 +1,7 @@
 // src/lib/axiosClient.ts
 
 import Axios from "axios";
+import { localizeHttpErrorMessage } from "./localizeHttpError";
 
 const axios = Axios.create({
   baseURL: process.env.NEXT_PUBLIC_BACKEND_URL,
@@ -49,6 +50,20 @@ axios.interceptors.response.use(
 
       if (typeof window !== 'undefined') {
         localStorage.removeItem('access_token');
+      }
+    }
+
+    // Regla 9: el mensaje generico de axios (en ingles) se cambia por el
+    // detalle del backend o un texto en espanol; los catch que muestran
+    // error.message quedan en espanol sin tocarlos uno por uno.
+    if (error && typeof error === "object") {
+      const localized = localizeHttpErrorMessage(error);
+      if (localized) {
+        try {
+          error.message = localized;
+        } catch {
+          // message de solo lectura: se deja el original
+        }
       }
     }
 

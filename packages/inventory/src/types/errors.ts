@@ -57,7 +57,8 @@ export function getErrorMessage(error: unknown): string {
   }
   
   if (isApiError(error)) {
-    return error.response?.data?.message || 'API Error occurred'
+    const first = error.response?.data?.errors?.[0]
+    return first?.detail || first?.title || error.response?.data?.message || 'Ocurrió un error en el servidor'
   }
   
   if (isError(error)) {
@@ -68,7 +69,7 @@ export function getErrorMessage(error: unknown): string {
     return error.message
   }
   
-  return 'An unknown error occurred'
+  return 'Ocurrió un error inesperado'
 }
 
 // Form validation error type
@@ -90,8 +91,8 @@ export function handleComponentError(error: unknown): ErrorHandlerResult {
     const isValidationError = error.response.status === 422 || error.response.status === 400
     
     return {
-      message: response.message || 'Server error occurred',
-      details: response.errors?.map(err => err.detail || err.title || 'Unknown error'),
+      message: response.errors?.[0]?.detail || response.message || 'Ocurrió un error en el servidor',
+      details: response.errors?.map(err => err.detail || err.title || 'Error desconocido'),
       isValidationError,
       status: error.response.status
     }

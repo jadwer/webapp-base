@@ -427,19 +427,19 @@ export function useCFDIWorkflow() {
       // Step 1: Generate XML
       const xmlResult = await generateXML(id)
       if (xmlResult.status === 'error') {
-        throw new Error('Failed to generate XML')
+        throw new Error('No se pudo generar el XML')
       }
 
       // Step 2: Generate PDF
       const pdfResult = await generatePDF(id)
       if (pdfResult.status === 'error') {
-        throw new Error('Failed to generate PDF')
+        throw new Error('No se pudo generar el PDF')
       }
 
       // Step 3: Stamp with PAC
       const stampResult = await stampInvoice(id)
       if (stampResult.status === 'error') {
-        throw new Error('Failed to stamp invoice')
+        throw new Error('No se pudo timbrar la factura')
       }
 
       return stampResult

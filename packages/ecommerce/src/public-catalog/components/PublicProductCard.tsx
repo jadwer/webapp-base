@@ -11,7 +11,7 @@ import Image from 'next/image'
 import { Button } from '@lwm/ui'
 import { usePublicSettings } from '@lwm/app-config'
 import { taxHintLabel } from '../../utils/taxHint'
-import { QUOTE_ONLY_LABEL, isQuoteOnly } from '@lwm/products/pricing'
+import { QUOTE_ONLY_LABEL, requiresQuote } from '@lwm/products/pricing'
 import type { EnhancedPublicProduct, ProductDisplayProps } from '../types/publicProduct'
 
 interface PublicProductCardProps {
@@ -52,7 +52,7 @@ export const PublicProductCard: React.FC<PublicProductCardProps> = ({
   const cardLayout = propLayout === 'horizontal' || layout === 'list' ? 'horizontal' : 'vertical'
 
   // P2 granel: sujeto a cotizacion = sin precio ni compra directa, solo cotizar.
-  const quoteOnly = product.isQuoteOnly || isQuoteOnly(product.attributes)
+  const quoteOnly = product.isQuoteOnly || requiresQuote(product.attributes)
   const canBuy = !quoteOnly && product.attributes.price !== null
 
   // Image size classes

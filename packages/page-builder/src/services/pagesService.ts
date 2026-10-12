@@ -388,7 +388,7 @@ export class PagesService {
     const page = await this.getPage(id)
     
     if (page.status !== 'deleted') {
-      throw new Error('Page is not deleted')
+      throw new Error('La página no está en la papelera')
     }
     
     // Extract original slug from deleted slug or use provided slug
@@ -496,7 +496,7 @@ export class PagesService {
     const page = await this.getPage(id)
     
     if (page.status !== 'deleted') {
-      throw new Error('Page must be soft deleted first')
+      throw new Error('Primero envía la página a la papelera')
     }
     
     await axios.delete(`${API_BASE}/${id}`)

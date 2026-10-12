@@ -94,7 +94,7 @@ export function useShoppingCartMutations() {
       const result = await shoppingCartService.cart.create(cart);
       return result;
     } catch (err) {
-      const error = err instanceof Error ? err : new Error('Failed to create cart');
+      const error = err instanceof Error ? err : new Error('No se pudo crear el carrito');
       setError(error);
       throw error;
     } finally {
@@ -119,7 +119,7 @@ export function useShoppingCartMutations() {
       const result = await shoppingCartService.cart.updateTotals(id, totals);
       return result;
     } catch (err) {
-      const error = err instanceof Error ? err : new Error('Failed to update cart');
+      const error = err instanceof Error ? err : new Error('No se pudo actualizar el carrito');
       setError(error);
       throw error;
     } finally {
@@ -136,7 +136,7 @@ export function useShoppingCartMutations() {
     try {
       await shoppingCartService.cart.clear(id);
     } catch (err) {
-      const error = err instanceof Error ? err : new Error('Failed to clear cart');
+      const error = err instanceof Error ? err : new Error('No se pudo vaciar el carrito');
       setError(error);
       throw error;
     } finally {
@@ -153,7 +153,7 @@ export function useShoppingCartMutations() {
     try {
       await shoppingCartService.cart.delete(id);
     } catch (err) {
-      const error = err instanceof Error ? err : new Error('Failed to delete cart');
+      const error = err instanceof Error ? err : new Error('No se pudo eliminar el carrito');
       setError(error);
       throw error;
     } finally {
@@ -171,7 +171,7 @@ export function useShoppingCartMutations() {
       const result = await shoppingCartService.cart.checkout(id, orderData);
       return result;
     } catch (err) {
-      const error = err instanceof Error ? err : new Error('Failed to checkout');
+      const error = err instanceof Error ? err : new Error('No se pudo completar la compra');
       setError(error);
       throw error;
     } finally {
@@ -220,7 +220,7 @@ export function useShoppingCartItemMutations() {
       );
       return result;
     } catch (err) {
-      const error = err instanceof Error ? err : new Error('Failed to add item');
+      const error = err instanceof Error ? err : new Error('No se pudo agregar el producto');
       setError(error);
       throw error;
     } finally {
@@ -241,7 +241,7 @@ export function useShoppingCartItemMutations() {
       const result = await shoppingCartService.items.updateQuantity(id, quantity);
       return result;
     } catch (err) {
-      const error = err instanceof Error ? err : new Error('Failed to update quantity');
+      const error = err instanceof Error ? err : new Error('No se pudo actualizar la cantidad');
       setError(error);
       throw error;
     } finally {
@@ -262,7 +262,7 @@ export function useShoppingCartItemMutations() {
       const result = await shoppingCartService.items.update(id, item);
       return result;
     } catch (err) {
-      const error = err instanceof Error ? err : new Error('Failed to update item');
+      const error = err instanceof Error ? err : new Error('No se pudo actualizar el producto');
       setError(error);
       throw error;
     } finally {
@@ -279,7 +279,7 @@ export function useShoppingCartItemMutations() {
     try {
       await shoppingCartService.items.remove(id);
     } catch (err) {
-      const error = err instanceof Error ? err : new Error('Failed to remove item');
+      const error = err instanceof Error ? err : new Error('No se pudo quitar el producto');
       setError(error);
       throw error;
     } finally {
@@ -398,7 +398,7 @@ export function useCart(filters?: ShoppingCartFilters) {
         await mutateCart();
         return result;
       }
-      throw new Error('No cart available');
+      throw new Error('No hay un carrito disponible');
     },
     [cart, cartMutations, mutateCart]
   );

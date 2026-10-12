@@ -10,6 +10,7 @@ import {
   factorFromContent,
   newIdempotencyKey,
   roundFactor,
+  batchUnavailableReason,
 } from '../../utils/fractionation'
 import { apiErrorList, apiErrorMessage } from '../../utils/listing'
 
@@ -80,5 +81,23 @@ describe('apiErrorMessage', () => {
     const err = { response: { data: { message: 'Elige el almacén.', errors: { warehouse_id: ['Elige el almacén.'] } } } }
     expect(apiErrorMessage(err, 'fallback')).toBe('Elige el almacén.')
     expect(apiErrorList(err, 'fallback')).toEqual(['Elige el almacén.'])
+  })
+})
+
+describe('batchUnavailableReason (D10)', () => {
+  const base = { is_expired: false, expiration_date: '2027-01-01' }
+
+  it('usa la razon del backend cuando llega', () => {
+    expect(batchUnavailableReason({ ...base, is_usable: false, unavailable_reason: 'el lote no pasó el control de calidad' }))
+      .toBe('el lote no pasó el control de calidad')
+    expect(batchUnavailableReason({ ...base, is_expired: true, is_usable: true })).toBeNull()
+  })
+
+  it('respaldo local: estado, calidad y caducidad con fecha dd/mm/aaaa', () => {
+    expect(batchUnavailableReason({ ...base, status: 'recalled' })).toBe('lote inactivo (retirado)')
+    expect(batchUnavailableReason({ ...base, quality_status: 'quarantine' })).toBe('en cuarentena por calidad')
+    expect(batchUnavailableReason({ ...base, quality_status: 'failed' })).toBe('calidad rechazada')
+    expect(batchUnavailableReason({ is_expired: true, expiration_date: '2026-10-05' })).toBe('caducado el 05/10/2026')
+    expect(batchUnavailableReason({ ...base, status: 'active', quality_status: 'passed' })).toBeNull()
   })
 })

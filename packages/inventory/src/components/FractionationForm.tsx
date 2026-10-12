@@ -10,7 +10,7 @@ import { useFractionationMutations } from '../hooks/useFractionations'
 import { useWarehouses } from '../hooks'
 import { FractionationCalculator } from './FractionationCalculator'
 import { apiErrorMessage } from '../utils/listing'
-import { newIdempotencyKey } from '../utils/fractionation'
+import { newIdempotencyKey, batchUnavailableReason } from '../utils/fractionation'
 import { formatDate, formatQty } from '../utils/format'
 import type { FractionationPreview, FractionationBatchOption } from '../types/fractionation'
 
@@ -21,7 +21,9 @@ const batchLabel = (b: FractionationBatchOption): string => {
   if (b.lot_number) parts.push(`lote ${b.lot_number}`)
   parts.push(b.expiration_date ? `caduca ${formatDate(b.expiration_date)}` : 'sin caducidad')
   parts.push(`disponible ${formatQty(b.available_quantity)}`)
-  if (b.is_expired) parts.push('CADUCADO')
+  // D10: el lote bloqueado dice por que (caducado el dd/mm/aaaa, cuarentena, ...)
+  const reason = batchUnavailableReason(b)
+  if (reason) parts.push(`NO DISPONIBLE: ${reason}`)
   return parts.join(' · ')
 }
 
@@ -115,7 +117,7 @@ export const FractionationForm = () => {
   const locationMissing = Boolean(preview?.location_required && !warehouseLocationId)
 
   const handleExecute = async () => {
-    if (!canExecute || batchMissing || locationMissing) return
+    if (!canExecute || batchMissing || locationMissing || selectedBatchReason) return
 
     setIsExecuting(true)
     setError(null)
@@ -157,6 +159,12 @@ export const FractionationForm = () => {
   }))
 
   const batches = preview?.batches ?? []
+  const blockedBatches = batches
+    .map((batch) => ({ batch, reason: batchUnavailableReason(batch) }))
+    .filter((entry): entry is { batch: FractionationBatchOption; reason: string } => entry.reason !== null)
+  const selectedBatchReason = productBatchId
+    ? blockedBatches.find((entry) => String(entry.batch.id) === productBatchId)?.reason ?? null
+    : null
   const locations = preview?.locations ?? []
   const showLocations = locations.length > 1 || Boolean(warehouseLocationId)
 
@@ -311,7 +319,7 @@ export const FractionationForm = () => {
                   >
                     <option value="">Elegir lote...</option>
                     {batches.map((b) => (
-                      <option key={b.id} value={String(b.id)} disabled={b.is_expired}>
+                      <option key={b.id} value={String(b.id)} disabled={batchUnavailableReason(b) !== null}>
                         {batchLabel(b)}{preview?.suggested_batch_id === b.id ? ' (sugerido FEFO)' : ''}
                       </option>
                     ))}
@@ -319,6 +327,18 @@ export const FractionationForm = () => {
                   <div className="form-text">
                     Se sugiere el lote que caduca primero (FEFO). El lote destino hereda el lote y la caducidad.
                   </div>
+                  {blockedBatches.length > 0 && (
+                    <div className="form-text text-warning-emphasis" data-testid="fractionation-blocked-batches">
+                      <i className="bi bi-slash-circle me-1" aria-hidden="true"></i>
+                      No se pueden fraccionar:{' '}
+                      {blockedBatches.map(({ batch, reason }) => `${batch.batch_number} (${reason})`).join('; ')}.
+                    </div>
+                  )}
+                  {selectedBatchReason && (
+                    <div className="invalid-feedback d-block" data-testid="fractionation-selected-batch-blocked">
+                      El lote elegido no se puede fraccionar: {selectedBatchReason}. Elige otro lote.
+                    </div>
+                  )}
                   {batchMissing && (
                     <div className="invalid-feedback d-block">
                       El producto origen maneja lotes: elige el lote que se fracciona.
@@ -356,7 +376,7 @@ export const FractionationForm = () => {
               type="button"
               className="btn btn-primary"
               onClick={handleExecute}
-              disabled={!canExecute || batchMissing || locationMissing || isExecuting || isCalculating}
+              disabled={!canExecute || batchMissing || locationMissing || Boolean(selectedBatchReason) || isExecuting || isCalculating}
             >
               {isExecuting ? (
                 <span className="spinner-border spinner-border-sm me-2" role="status" />

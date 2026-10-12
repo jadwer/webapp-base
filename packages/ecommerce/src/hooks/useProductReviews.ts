@@ -149,7 +149,7 @@ export function useProductReviewsWithSummary(productId?: number) {
   const mutations = useReviewMutations()
 
   const submitReview = useCallback(async (data: Omit<CreateReviewRequest, 'productId'>) => {
-    if (!productId) throw new Error('Product ID required')
+    if (!productId) throw new Error('Falta el producto')
     await mutations.createReview({ ...data, productId })
     await Promise.all([mutateReviews(), mutateSummary()])
   }, [productId, mutations, mutateReviews, mutateSummary])

@@ -52,6 +52,7 @@ export { handleApiErrors } from './lib/handleApiErrors'
 // axiosClient lives here because @lwm/auth owns the Bearer token interceptor.
 // Other packages import it as: import axiosClient from '@lwm/auth'
 export { default as axiosClient } from './lib/axiosClient'
+export { localizeHttpErrorMessage, isGenericHttpClientMessage, httpStatusMessage } from './lib/localizeHttpError'
 
 // ============================================
 // PERMISSION HELPERS

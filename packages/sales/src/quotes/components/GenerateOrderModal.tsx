@@ -9,6 +9,7 @@ import { PricePendingAlert } from './PricePendingAlert'
 import { salesService } from '../../services'
 import { ACCEPTANCE_CHANNEL_LABELS, type AcceptanceChannel, type Quote, type StockShortageItem } from '../types'
 import type { PaymentMethod } from '../../types'
+import { extractApiErrorMessage } from '@lwm/products'
 
 const MAX_EVIDENCE_SIZE = 10 * 1024 * 1024 // 10MB
 const EVIDENCE_TYPES = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp']
@@ -187,7 +188,7 @@ export function GenerateOrderModal({ quote, isOpen, onClose, onConverted }: Gene
             : error.response.data?.message || error.response.data?.error || 'La cotizacion no se puede convertir en pedido'
         )
       } else {
-        toast.error('Error al generar el pedido')
+        toast.error(extractApiErrorMessage(err, 'Error al generar el pedido'))
       }
     }
   }

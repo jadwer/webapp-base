@@ -15,6 +15,13 @@ import { QuoteStatusBadge } from '@/modules/quotes'
 import { quoteService, quoteItemService } from '@/modules/quotes'
 import type { Quote, QuoteItem } from '@/modules/quotes'
 import { formatDateOnly } from '@/modules/quotes'
+import {
+  isQuoteItemPricePending,
+  getPricePendingErrors,
+  ACCEPT_PRICE_PENDING_MESSAGE,
+  type PricePendingError,
+} from '@/modules/quotes'
+import { extractApiErrorMessage } from '@/modules/products'
 import { toast } from '@/lib/toast'
 import { isPastDateOnly } from '@lwm/ui'
 
@@ -31,6 +38,8 @@ export default function MyQuoteDetailPage({ params }: MyQuoteDetailPageProps) {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [isAccepting, setIsAccepting] = useState(false)
+  // D9: rechazo del backend al aceptar (422 price_pending u otro error)
+  const [acceptError, setAcceptError] = useState<{ message: string; pending: PricePendingError[] } | null>(null)
 
   useEffect(() => {
     if (authLoading) return
@@ -60,14 +69,22 @@ export default function MyQuoteDetailPage({ params }: MyQuoteDetailPageProps) {
     if (!quote) return
 
     setIsAccepting(true)
+    setAcceptError(null)
     try {
       await quoteService.accept(quote.id)
       toast.success('Cotizacion aceptada exitosamente')
       // Refresh quote data
       const updatedQuote = await quoteService.getById(id)
       setQuote(updatedQuote)
-    } catch {
-      toast.error('Error al aceptar la cotizacion')
+    } catch (err) {
+      // Regla 7: el 422 price_pending se muestra con el detalle por producto
+      const pending = getPricePendingErrors(err) ?? []
+      const backendMessage = (err as { response?: { data?: { message?: unknown } } })?.response?.data?.message
+      const message = pending.length > 0
+        ? (typeof backendMessage === 'string' && backendMessage ? backendMessage : ACCEPT_PRICE_PENDING_MESSAGE)
+        : extractApiErrorMessage(err, 'No se pudo aceptar la cotización')
+      setAcceptError({ message, pending })
+      toast.error(message)
     } finally {
       setIsAccepting(false)
     }
@@ -131,6 +148,9 @@ export default function MyQuoteDetailPage({ params }: MyQuoteDetailPageProps) {
 
   const canAccept = quote.status === 'sent'
   const isExpired = quote.validUntil && isPastDateOnly(quote.validUntil)
+  // D9: con precios por confirmar el cliente no puede aceptar todavia
+  const hasPendingPrices = items.some(isQuoteItemPricePending)
+  const showAcceptButton = canAccept && !isExpired
 
   return (
     <div className="container-fluid py-4">
@@ -164,11 +184,14 @@ export default function MyQuoteDetailPage({ params }: MyQuoteDetailPageProps) {
             Descargar PDF
           </button>
 
-          {canAccept && !isExpired && (
+          {showAcceptButton && (
             <button
               className="btn btn-success"
               onClick={handleAcceptQuote}
-              disabled={isAccepting}
+              disabled={isAccepting || hasPendingPrices}
+              title={hasPendingPrices ? ACCEPT_PRICE_PENDING_MESSAGE : undefined}
+              aria-describedby={hasPendingPrices ? 'my-quote-accept-blocked' : undefined}
+              data-testid="my-quote-accept"
             >
               {isAccepting ? (
                 <>
@@ -185,6 +208,31 @@ export default function MyQuoteDetailPage({ params }: MyQuoteDetailPageProps) {
           )}
         </div>
       </div>
+
+      {showAcceptButton && hasPendingPrices && (
+        <div id="my-quote-accept-blocked" className="alert alert-info" role="status" data-testid="my-quote-accept-blocked">
+          <i className="bi bi-hourglass-split me-2" aria-hidden="true"></i>
+          {ACCEPT_PRICE_PENDING_MESSAGE}
+        </div>
+      )}
+
+      {acceptError && (
+        <div className="alert alert-danger" role="alert" data-testid="my-quote-accept-error">
+          <i className="bi bi-exclamation-triangle me-2" aria-hidden="true"></i>
+          {acceptError.message}
+          {acceptError.pending.length > 0 && (
+            <ul className="mb-0 mt-2">
+              {acceptError.pending.map((p) => (
+                <li key={p.quoteItemId ?? p.productName}>
+                  <strong>{p.productName}</strong>
+                  {p.productSku ? ` (${p.productSku})` : ''}
+                  {p.detail ? `: ${p.detail}` : ''}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
 
       <div className="row">
         {/* Quote Details */}
@@ -230,12 +278,12 @@ export default function MyQuoteDetailPage({ params }: MyQuoteDetailPageProps) {
                         </td>
                         {/* P2 granel: precio sujeto a cotizacion aun sin capturar */}
                         <td className="text-end">
-                          {item.pricePending
+                          {isQuoteItemPricePending(item)
                             ? <span className="fst-italic text-warning-emphasis">Por confirmar</span>
                             : formatPrice(item.quotedPrice || item.unitPrice)}
                         </td>
                         <td className="text-end">
-                          {item.pricePending
+                          {isQuoteItemPricePending(item)
                             ? <span className="fst-italic text-warning-emphasis">Por confirmar</span>
                             : <strong>{formatPrice(item.total || (item.quantity * (item.quotedPrice || item.unitPrice)))}</strong>}
                         </td>
@@ -244,7 +292,7 @@ export default function MyQuoteDetailPage({ params }: MyQuoteDetailPageProps) {
                   </tbody>
                 </table>
               </div>
-              {items.some((item) => item.pricePending) && (
+              {hasPendingPrices && (
                 <div className="alert alert-warning small m-3" role="status" data-testid="my-quote-price-pending">
                   <i className="bi bi-info-circle me-2"></i>
                   Precio sujeto a cotización: los productos marcados &quot;Por confirmar&quot; no están incluidos en el total.

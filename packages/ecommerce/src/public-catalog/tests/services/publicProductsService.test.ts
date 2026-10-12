@@ -501,7 +501,7 @@ describe('publicProductsService', () => {
       expect(result.products[0].displayPrice).toMatch(/\$100/)
     })
 
-    it('should handle null price', async () => {
+    it('should handle null price (P2b D8: sin precio = sujeto a cotizacion)', async () => {
       const mockResponse = {
         data: {
           data: [{
@@ -547,7 +547,8 @@ describe('publicProductsService', () => {
 
       const result = await publicProductsService.getPublicProducts()
 
-      expect(result.products[0].displayPrice).toBe('Precio no disponible')
+      expect(result.products[0].displayPrice).toBe('Precio sujeto a cotización')
+      expect(result.products[0].isQuoteOnly).toBe(true)
     })
   })
 })

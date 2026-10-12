@@ -90,7 +90,7 @@ export function useCheckoutFlow(cartId?: number) {
 
   const startCheckout = useCallback(async (shippingAddressId?: number) => {
     if (!cartId) {
-      setError('No cart available')
+      setError('No hay un carrito disponible')
       return null
     }
 
@@ -104,14 +104,14 @@ export function useCheckoutFlow(cartId?: number) {
       setCurrentStep('payment')
       return newSession
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to start checkout')
+      setError(err instanceof Error ? err.message : 'No se pudo iniciar el pago')
       return null
     }
   }, [cartId, mutations])
 
   const updateShippingAddress = useCallback(async (shippingAddressId: number) => {
     if (!sessionId) {
-      setError('No checkout session')
+      setError('No hay una sesión de pago activa')
       return null
     }
 
@@ -121,14 +121,14 @@ export function useCheckoutFlow(cartId?: number) {
       await mutateSession()
       return updated
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update shipping')
+      setError(err instanceof Error ? err.message : 'No se pudo actualizar el envío')
       return null
     }
   }, [sessionId, mutations, mutateSession])
 
   const updateBillingAddress = useCallback(async (billingAddressId: number) => {
     if (!sessionId) {
-      setError('No checkout session')
+      setError('No hay una sesión de pago activa')
       return null
     }
 
@@ -138,14 +138,14 @@ export function useCheckoutFlow(cartId?: number) {
       await mutateSession()
       return updated
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update billing')
+      setError(err instanceof Error ? err.message : 'No se pudo actualizar la facturación')
       return null
     }
   }, [sessionId, mutations, mutateSession])
 
   const setShippingMethod = useCallback(async (shippingMethod: string, shippingAmount: number) => {
     if (!sessionId) {
-      setError('No checkout session')
+      setError('No hay una sesión de pago activa')
       return null
     }
 
@@ -156,7 +156,7 @@ export function useCheckoutFlow(cartId?: number) {
       setCurrentStep('review')
       return updated
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to set shipping method')
+      setError(err instanceof Error ? err.message : 'No se pudo elegir el método de envío')
       return null
     }
   }, [sessionId, mutations, mutateSession])

@@ -7,7 +7,7 @@ import { Button } from '@lwm/ui'
 import { formatPrice } from '../utils/formatting'
 import type { Product } from '../types'
 import { PricingTypeBadge } from './PricingTypeBadge'
-import { isQuoteOnly } from '../utils/pricingType'
+import { requiresQuote } from '../utils/pricingType'
 
 interface ProductsShowcaseProps {
   products: Product[]
@@ -75,7 +75,7 @@ const ProductShowcaseCard = React.memo<{
 
         {/* Pricing Showcase */}
         <div className="mb-4 p-3 bg-light rounded">
-          {isQuoteOnly(product) ? (
+          {requiresQuote(product) ? (
             <div className="mb-2"><PricingTypeBadge className="fs-6" /></div>
           ) : (
             <div className="display-5 fw-bold text-primary mb-2">

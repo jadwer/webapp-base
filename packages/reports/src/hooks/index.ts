@@ -416,7 +416,7 @@ export const useReportExport = () => {
       const blob = await reportExportService.export(reportType, params, format)
       reportExportService.download(blob, filename)
     } catch (err) {
-      setError(err instanceof Error ? err : new Error('Export failed'))
+      setError(err instanceof Error ? err : new Error('No se pudo exportar'))
       throw err
     } finally {
       setIsExporting(false)

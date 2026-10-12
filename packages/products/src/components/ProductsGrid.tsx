@@ -7,7 +7,7 @@ import { Button } from '@lwm/ui'
 import { formatPrice } from '../utils/formatting'
 import type { Product } from '../types'
 import { PricingTypeBadge } from './PricingTypeBadge'
-import { isQuoteOnly } from '../utils/pricingType'
+import { requiresQuote } from '../utils/pricingType'
 
 interface ProductsGridProps {
   products: Product[]
@@ -60,7 +60,7 @@ const ProductCard = React.memo<{
         <div className="row g-2 mb-3">
           <div className="col-6">
             <div className="text-center">
-              {isQuoteOnly(product) ? (
+              {requiresQuote(product) ? (
                 <PricingTypeBadge short />
               ) : (
                 <>

@@ -157,7 +157,7 @@ export function useCartCoupon(cartId?: string) {
   }, [])
 
   const applyCoupon = useCallback(async (code: string) => {
-    if (!cartId) throw new Error('Cart ID required')
+    if (!cartId) throw new Error('Falta el carrito')
     setIsApplying(true)
     try {
       const result = await couponsService.applyToCart(cartId, code)
@@ -168,7 +168,7 @@ export function useCartCoupon(cartId?: string) {
   }, [cartId])
 
   const removeCoupon = useCallback(async () => {
-    if (!cartId) throw new Error('Cart ID required')
+    if (!cartId) throw new Error('Falta el carrito')
     setIsRemoving(true)
     try {
       await couponsService.removeFromCart(cartId)

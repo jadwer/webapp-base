@@ -7,7 +7,7 @@ import { Button } from '@lwm/ui'
 import { formatPrice } from '../utils/formatting'
 import type { Product } from '../types'
 import { PricingTypeBadge } from './PricingTypeBadge'
-import { isQuoteOnly } from '../utils/pricingType'
+import { requiresQuote } from '../utils/pricingType'
 
 interface ProductsCompactProps {
   products: Product[]
@@ -52,7 +52,7 @@ const ProductCompactRow = React.memo<{
 
     {/* Price */}
     <div className="text-end me-2" style={{ width: '100px' }}>
-      {isQuoteOnly(product) ? (
+      {requiresQuote(product) ? (
         <PricingTypeBadge short />
       ) : (
         <>

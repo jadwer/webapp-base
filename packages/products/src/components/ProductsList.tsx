@@ -7,7 +7,7 @@ import { Button } from '@lwm/ui'
 import { formatPrice } from '../utils/formatting'
 import type { Product } from '../types'
 import { PricingTypeBadge } from './PricingTypeBadge'
-import { isQuoteOnly } from '../utils/pricingType'
+import { requiresQuote } from '../utils/pricingType'
 
 interface ProductsListProps {
   products: Product[]
@@ -64,7 +64,7 @@ const ProductListItem = React.memo<{
           <div className="d-flex justify-content-between">
             <span className="text-muted small">Precio:</span>
             <div>
-              {isQuoteOnly(product) ? (
+              {requiresQuote(product) ? (
                 <PricingTypeBadge short />
               ) : (
                 <>

@@ -148,8 +148,8 @@ describe('ImageGalleryManager', () => {
 
     await waitFor(() => expect(toast.error).toHaveBeenCalledTimes(2))
     expect(toast.error).toHaveBeenCalledWith('The file field must be an image.')
-    expect(toast.error).toHaveBeenCalledWith('Sin permiso para esta accion (403: Forbidden)')
-    expect(screen.getByRole('alert')).toHaveTextContent('Sin permiso para esta accion (403: Forbidden)')
+    expect(toast.error).toHaveBeenCalledWith('Sin permiso para esta acción (403: Forbidden)')
+    expect(screen.getByRole('alert')).toHaveTextContent('Sin permiso para esta acción (403: Forbidden)')
   })
 
   it('error al marcar principal muestra el detalle de JSON:API', async () => {

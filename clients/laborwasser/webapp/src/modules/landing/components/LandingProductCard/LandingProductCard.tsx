@@ -17,7 +17,7 @@
 import React from 'react'
 import Link from 'next/link'
 import { productPath, type EnhancedPublicProduct } from '@lwm/ecommerce'
-import { QUOTE_ONLY_LABEL, isQuoteOnly } from '@lwm/products/pricing'
+import { QUOTE_ONLY_LABEL, requiresQuote } from '@lwm/products/pricing'
 import { optimizedImage, optimizedSrcSet } from '@/lib/images'
 import styles from './LandingProductCard.module.scss'
 
@@ -42,7 +42,7 @@ export interface LandingProductCardProps {
  */
 export function formatLandingPrice(product: EnhancedPublicProduct): string | null {
   // P2 granel: sujeto a cotizacion nunca muestra precio.
-  if (product.isQuoteOnly || isQuoteOnly(product.attributes)) return null
+  if (product.isQuoteOnly || requiresQuote(product.attributes)) return null
   const price = product.attributes.price
   if (price === null || price === undefined) return null
   const hasCents = Math.round(price * 100) % 100 !== 0
@@ -76,7 +76,7 @@ export const LandingProductCard: React.FC<LandingProductCardProps> = ({
   // Regla de acciones del catalogo: comprable (tiene precio) = Cotizar
   // outline + Agregar solido; sin precio = Ver detalles + Cotizar
   // P2 granel: "Precio sujeto a cotizacion" = sin precio ni compra directa.
-  const quoteOnly = Boolean(product.isQuoteOnly) || isQuoteOnly(product.attributes)
+  const quoteOnly = Boolean(product.isQuoteOnly) || requiresQuote(product.attributes)
   const purchasable = !quoteOnly && product.attributes.price !== null && product.attributes.price !== undefined
 
   return (

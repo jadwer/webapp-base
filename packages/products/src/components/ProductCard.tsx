@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { Button, Card } from '@lwm/ui'
 import type { Product } from '../types'
 import { PricingTypeBadge } from './PricingTypeBadge'
-import { isQuoteOnly } from '../utils/pricingType'
+import { requiresQuote } from '../utils/pricingType'
 
 interface ProductCardProps {
   product: Product
@@ -76,7 +76,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
         <div className="row mb-3">
           <div className="col-6">
-            {isQuoteOnly(product)
+            {requiresQuote(product)
               ? <PricingTypeBadge short />
               : <div className="fw-bold text-primary">{formatPrice(product.price)} {currencyCode}</div>}
             {product.cost && (

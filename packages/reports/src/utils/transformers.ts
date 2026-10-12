@@ -60,7 +60,7 @@ export function transformJsonApiBalanceSheet(resource: Record<string, unknown>):
 
 export function transformBalanceSheetResponse(response: Record<string, unknown>): ReportResponse<BalanceSheet> {
   if (!response?.data) {
-    throw new Error('Invalid balance sheet response')
+    throw new Error('Respuesta inválida del reporte del balance general')
   }
 
   return {
@@ -113,7 +113,7 @@ export function transformJsonApiIncomeStatement(resource: Record<string, unknown
 
 export function transformIncomeStatementResponse(response: Record<string, unknown>): ReportResponse<IncomeStatement> {
   if (!response?.data) {
-    throw new Error('Invalid income statement response')
+    throw new Error('Respuesta inválida del reporte del estado de resultados')
   }
 
   return {
@@ -166,7 +166,7 @@ export function transformJsonApiCashFlow(resource: Record<string, unknown>): Cas
 
 export function transformCashFlowResponse(response: Record<string, unknown>): ReportResponse<CashFlow> {
   if (!response?.data) {
-    throw new Error('Invalid cash flow response')
+    throw new Error('Respuesta inválida del reporte del flujo de efectivo')
   }
 
   return {
@@ -206,7 +206,7 @@ export function transformJsonApiTrialBalance(resource: Record<string, unknown>):
 
 export function transformTrialBalanceResponse(response: Record<string, unknown>): ReportResponse<TrialBalance> {
   if (!response?.data) {
-    throw new Error('Invalid trial balance response')
+    throw new Error('Respuesta inválida del reporte de la balanza de comprobación')
   }
 
   return {
@@ -258,7 +258,7 @@ export function transformJsonApiARAgingReport(resource: Record<string, unknown>)
 
 export function transformARAgingReportResponse(response: Record<string, unknown>): ReportResponse<ARAgingReport> {
   if (!response?.data) {
-    throw new Error('Invalid AR aging report response')
+    throw new Error('Respuesta inválida del reporte de antigüedad de saldos por cobrar')
   }
 
   return {
@@ -310,7 +310,7 @@ export function transformJsonApiAPAgingReport(resource: Record<string, unknown>)
 
 export function transformAPAgingReportResponse(response: Record<string, unknown>): ReportResponse<APAgingReport> {
   if (!response?.data) {
-    throw new Error('Invalid AP aging report response')
+    throw new Error('Respuesta inválida del reporte de antigüedad de saldos por pagar')
   }
 
   return {
@@ -355,7 +355,7 @@ export function transformJsonApiSalesByCustomer(resource: Record<string, unknown
 
 export function transformSalesByCustomerResponse(response: Record<string, unknown>): ReportResponse<SalesByCustomer> {
   if (!response?.data) {
-    throw new Error('Invalid sales by customer response')
+    throw new Error('Respuesta inválida del reporte de ventas por cliente')
   }
 
   return {
@@ -400,7 +400,7 @@ export function transformJsonApiSalesByProduct(resource: Record<string, unknown>
 
 export function transformSalesByProductResponse(response: Record<string, unknown>): ReportResponse<SalesByProduct> {
   if (!response?.data) {
-    throw new Error('Invalid sales by product response')
+    throw new Error('Respuesta inválida del reporte de ventas por producto')
   }
 
   return {
@@ -445,7 +445,7 @@ export function transformJsonApiPurchaseBySupplier(resource: Record<string, unkn
 
 export function transformPurchaseBySupplierResponse(response: Record<string, unknown>): ReportResponse<PurchaseBySupplier> {
   if (!response?.data) {
-    throw new Error('Invalid purchase by supplier response')
+    throw new Error('Respuesta inválida del reporte de compras por proveedor')
   }
 
   return {
@@ -490,7 +490,7 @@ export function transformJsonApiPurchaseByProduct(resource: Record<string, unkno
 
 export function transformPurchaseByProductResponse(response: Record<string, unknown>): ReportResponse<PurchaseByProduct> {
   if (!response?.data) {
-    throw new Error('Invalid purchase by product response')
+    throw new Error('Respuesta inválida del reporte de compras por producto')
   }
 
   return {

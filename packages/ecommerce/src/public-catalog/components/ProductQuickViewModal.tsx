@@ -13,7 +13,7 @@ import { usePublicProduct } from '../hooks/usePublicProducts'
 import { usePublicSettings } from '@lwm/app-config'
 import { taxHintLabel } from '../../utils/taxHint'
 import { productPath } from '../utils/productPath'
-import { QUOTE_ONLY_LABEL, isQuoteOnly } from '@lwm/products/pricing'
+import { QUOTE_ONLY_LABEL, requiresQuote } from '@lwm/products/pricing'
 import type { EnhancedPublicProduct } from '../types/publicProduct'
 
 interface ProductQuickViewModalProps {
@@ -51,7 +51,7 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
 
   // Use full product data if available, fallback to list product
   const displayProduct = fullProduct ?? product
-  const quoteOnly = displayProduct.isQuoteOnly || isQuoteOnly(displayProduct.attributes)
+  const quoteOnly = displayProduct.isQuoteOnly || requiresQuote(displayProduct.attributes)
 
   // Reset image index when product changes
   useEffect(() => {

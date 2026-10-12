@@ -58,22 +58,22 @@ describe('getValidationErrorMessages', () => {
     expect(messages[1]).toContain('RFC:')
   })
 
-  it('conserva el detalle original si no hay patron conocido', () => {
+  it('regla 9: el detalle en espanol se muestra tal cual, sin anteponer el puntero', () => {
     const messages = getValidationErrorMessages(
       axios422([
-        { detail: 'Some unexpected backend message.', source: { pointer: '/data/attributes/taxId' } },
+        { detail: 'El campo RFC no tiene un formato válido.', source: { pointer: '/data/attributes/taxId' } },
       ])
     )
-    expect(messages).toEqual(['RFC: Some unexpected backend message.'])
+    expect(messages).toEqual(['El campo RFC no tiene un formato válido.'])
   })
 
-  it('usa el atributo crudo cuando no hay etiqueta mapeada', () => {
+  it('nunca antepone el atributo en ingles cuando no hay etiqueta mapeada', () => {
     const messages = getValidationErrorMessages(
       axios422([
         { detail: 'The foo field is required.', source: { pointer: '/data/attributes/foo' } },
       ])
     )
-    expect(messages).toEqual(['foo: es obligatorio'])
+    expect(messages).toEqual(['Dato: es obligatorio'])
   })
 
   it('devuelve [] para errores que no son 422', () => {

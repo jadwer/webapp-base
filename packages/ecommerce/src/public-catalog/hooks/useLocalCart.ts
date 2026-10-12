@@ -18,7 +18,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import type { EnhancedPublicProduct } from '../types/publicProduct'
-import { isQuoteOnly } from '@lwm/products/pricing'
+import { requiresQuote } from '@lwm/products/pricing'
 import { isPendingPriceItem } from '../utils/pendingPrice'
 
 export { isPendingPriceItem }
@@ -183,7 +183,7 @@ function saveCartToStorage(cart: LocalCart): void {
 }
 
 function quoteOnlyProduct(product: EnhancedPublicProduct): boolean {
-  return Boolean(product.isQuoteOnly) || isQuoteOnly(product.attributes)
+  return Boolean(product.isQuoteOnly) || requiresQuote(product.attributes)
 }
 
 function productToCartItem(product: EnhancedPublicProduct, quantity: number = 1): LocalCartItem {

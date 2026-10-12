@@ -111,7 +111,7 @@ export class JsonApiTransformer {
    * Transforma una respuesta de un solo rol
    */
   static transformSingleRoleResponse(jsonApiResponse: JsonApiSingleResponse): Role {
-    if (!jsonApiResponse?.data) throw new Error('Invalid role response')
+    if (!jsonApiResponse?.data) throw new Error('Respuesta de rol inválida')
 
     const { data, included = [] } = jsonApiResponse
 

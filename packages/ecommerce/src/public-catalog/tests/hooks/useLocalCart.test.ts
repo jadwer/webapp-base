@@ -1030,4 +1030,34 @@ describe('useLocalCart precio sujeto a cotizacion (P2 granel)', () => {
     await waitFor(() => expect(result.current.isInitialized).toBe(true))
     expect(result.current.totals.pendingPriceCount).toBe(0)
   })
+
+  it('P2b D8: producto fijo sin precio o en $0 tambien queda pendiente', async () => {
+    const { result } = renderHook(() => useLocalCart())
+    await waitFor(() => expect(result.current.isInitialized).toBe(true))
+
+    const sinPrecio = createMockProduct('7')
+    sinPrecio.attributes.price = null
+    sinPrecio.attributes.pricingType = 'fixed'
+    const enCero = createMockProduct('8')
+    enCero.attributes.price = 0
+
+    act(() => {
+      result.current.addToCart(sinPrecio, 1)
+      result.current.addToCart(enCero, 2)
+    })
+
+    expect(result.current.items.every(i => i.pricingType === 'quote_only' && i.price === 0)).toBe(true)
+    expect(result.current.totals.pendingPriceCount).toBe(2)
+    expect(result.current.totals.subtotal).toBe(0)
+  })
+
+  it('P2b D8: un carrito viejo con linea fija en $0 cuenta como pendiente', async () => {
+    localStorage.setItem(CART_STORAGE_KEY, JSON.stringify({
+      items: [{ id: 'x', productId: '5', name: 'Viejo sin precio', price: 0, pricingType: 'fixed', quantity: 1, iva: true, imageUrl: null, sku: null, unitName: null, categoryName: null, brandName: null, addedAt: '' }],
+      createdAt: '', updatedAt: '',
+    }))
+    const { result } = renderHook(() => useLocalCart())
+    await waitFor(() => expect(result.current.isInitialized).toBe(true))
+    expect(result.current.totals.pendingPriceCount).toBe(1)
+  })
 })

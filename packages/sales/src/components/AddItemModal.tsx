@@ -3,10 +3,10 @@
 import { useState, useEffect } from 'react'
 import { useSalesProducts, useSalesOrderItemMutations } from '../hooks'
 import { formatCurrency } from '@lwm/ui'
-import { QUOTE_ONLY_SHORT_LABEL, isQuoteOnly } from '@lwm/products'
+import { QUOTE_ONLY_SHORT_LABEL, requiresQuote, extractApiErrorMessage } from '@lwm/products'
 
 const productIsQuoteOnly = (product: Record<string, unknown> | undefined): boolean =>
-  isQuoteOnly((product?.attributes as { pricingType?: string } | undefined) ?? null)
+  requiresQuote((product?.attributes as { pricingType?: string; price?: number | string | null } | undefined) ?? null)
 
 interface AddItemModalProps {
   salesOrderId: string
@@ -99,8 +99,8 @@ export default function AddItemModal({ salesOrderId, isOpen, onClose, onSuccess 
       onSuccess()
       onClose()
     } catch (err) {
-      const error = err as { response?: { data?: { message?: string } }; message?: string }
-      setError(error.response?.data?.message || error.message || 'Error al agregar el item')
+      // Regla 7: el 422 (p. ej. precio en cero) se muestra con su detalle
+      setError(extractApiErrorMessage(err, 'Error al agregar el item'))
     } finally {
       setIsSubmitting(false)
     }
@@ -211,6 +211,11 @@ export default function AddItemModal({ salesOrderId, isOpen, onClose, onSuccess 
                       Precio sujeto a cotización: captura el precio acordado con el cliente.
                     </div>
                   )}
+                  {formData.productId && formData.unitPrice <= 0 && (
+                    <div className="form-text text-danger" data-testid="add-item-price-required">
+                      El precio debe ser mayor a 0: un pedido no se registra con precio en cero.
+                    </div>
+                  )}
                 </div>
 
                 <div className="col-md-4">
@@ -265,7 +270,7 @@ export default function AddItemModal({ salesOrderId, isOpen, onClose, onSuccess 
               <button
                 type="submit"
                 className="btn btn-primary"
-                disabled={isSubmitting || !formData.productId || !formData.quantity || !formData.unitPrice}
+                disabled={isSubmitting || !formData.productId || !formData.quantity || !(formData.unitPrice > 0)}
               >
                 {isSubmitting ? (
                   <>

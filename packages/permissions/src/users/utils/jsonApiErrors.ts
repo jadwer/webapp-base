@@ -46,18 +46,22 @@ function fieldFromPointer(pointer?: string): string | null {
 
 function humanize(item: JsonApiErrorItem): string {
   const attr = fieldFromPointer(item.source?.pointer)
-  const label = (attr && FIELD_LABELS[attr]) || attr || 'Dato'
-  const raw = item.detail || item.title || 'valor invalido'
+  const raw = item.detail || item.title || 'Valor inválido'
 
+  // Respaldo para un backend que aun responda en ingles: se traduce y se
+  // antepone la etiqueta en espanol del campo (nunca el atributo en ingles).
   for (const [pattern, replacement] of MESSAGE_PATTERNS) {
     const match = raw.match(pattern)
     if (match) {
+      const label = (attr && FIELD_LABELS[attr]) || 'Dato'
       return `${label}: ${replacement.replace('$1', match[1] ?? '')}`
     }
   }
 
-  // Sin traduccion conocida: mostrar el detalle original (mejor que mudo).
-  return `${label}: ${raw}`
+  // Regla 9: el backend ya manda el detalle en espanol con el nombre del
+  // campo ("El campo nombre es obligatorio."); se muestra tal cual, sin
+  // anteponer el puntero.
+  return raw
 }
 
 /**

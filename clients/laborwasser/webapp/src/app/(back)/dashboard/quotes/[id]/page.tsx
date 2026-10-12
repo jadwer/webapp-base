@@ -19,6 +19,7 @@ import {
 } from '@/modules/quotes'
 import type { OperationsMenuItem, PaymentMethod } from '@/modules/quotes'
 import { quoteService } from '@/modules/quotes'
+import { extractApiErrorMessage } from '@/modules/products'
 import { useSalesOrderBillingMutations } from '@/modules/billing'
 import { useSuppliers } from '@/modules/contacts'
 import { toast } from '@/lib/toast'
@@ -98,8 +99,9 @@ export default function QuoteDetailPage({ params }: PageProps) {
           return
       }
       refetch()
-    } catch {
-      toast.error('Error al ejecutar la accion')
+    } catch (err) {
+      // Regla 7: rechazo del backend con su detalle, nunca toast generico
+      toast.error(extractApiErrorMessage(err, 'Error al ejecutar la acción'))
     }
   }
 
@@ -119,8 +121,8 @@ export default function QuoteDetailPage({ params }: PageProps) {
       toast.success('Cotizacion marcada como rechazada')
       setRejectReason('')
       refetch()
-    } catch {
-      toast.error('Error al rechazar la cotizacion')
+    } catch (err) {
+      toast.error(extractApiErrorMessage(err, 'Error al rechazar la cotización'))
     }
   }
 
@@ -139,7 +141,7 @@ export default function QuoteDetailPage({ params }: PageProps) {
     if (editingCreditDays !== '') {
       const days = Number(editingCreditDays)
       if (!Number.isFinite(days) || days < 0) {
-        toast.error('Dias de credito invalidos')
+        toast.error('Días de crédito inválidos')
         return
       }
     }
@@ -157,8 +159,8 @@ export default function QuoteDetailPage({ params }: PageProps) {
       toast.success('Cotizacion actualizada')
       setIsEditing(false)
       refetch()
-    } catch {
-      toast.error('Error al actualizar la cotizacion')
+    } catch (err) {
+      toast.error(extractApiErrorMessage(err, 'Error al actualizar la cotización'))
     }
   }
 

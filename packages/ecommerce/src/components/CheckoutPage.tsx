@@ -7,7 +7,7 @@
 
 'use client'
 
-import React, { useState, useCallback, useEffect, useRef } from 'react'
+import React, { useState, useCallback, useEffect, useRef, useMemo } from 'react'
 import Image from 'next/image'
 import { Button, Input } from '@lwm/ui'
 import { useNavigationProgress } from '@lwm/ui'
@@ -100,7 +100,7 @@ export const CheckoutPage = React.memo<CheckoutPageProps>(({ cartId }) => {
       if (cart) {
         return await cartMutations.checkout(cart.id, orderData)
       }
-      throw new Error('No cart available')
+      throw new Error('No hay un carrito disponible')
     },
     [cart, cartMutations]
   )
@@ -195,6 +195,20 @@ export const CheckoutPage = React.memo<CheckoutPageProps>(({ cartId }) => {
   const [stockShortage, setStockShortage] = useState<StockShortageItem[] | null>(null)
   // P2 granel: 422 por productos con precio sujeto a cotizacion en el carrito.
   const [quoteOnlyItems, setQuoteOnlyItems] = useState<QuoteOnlyCheckoutItem[] | null>(null)
+  // P2b (D8): lineas sin precio de venta (unitPrice <= 0) ya en el carrito del
+  // servidor; se avisan antes de crear la orden (el backend tambien responde
+  // 422 quote_only_items, que llega a la misma alerta).
+  const zeroPriceItems = useMemo<QuoteOnlyCheckoutItem[]>(
+    () => cartItems
+      .filter((item) => item.unitPrice !== undefined && !(Number(item.unitPrice) > 0))
+      .map((item) => ({
+        product_id: Number(item.productId),
+        product_name: item.productName ?? null,
+        product_sku: item.productSku ?? null,
+      })),
+    [cartItems]
+  )
+  const visibleQuoteOnlyItems = quoteOnlyItems ?? (zeroPriceItems.length > 0 ? zeroPriceItems : null)
 
   const getStockShortage = (error: unknown): StockShortageItem[] | null => {
     if (typeof error === 'object' && error !== null && 'response' in error) {
@@ -252,6 +266,12 @@ export const CheckoutPage = React.memo<CheckoutPageProps>(({ cartId }) => {
       return
     }
 
+    if (zeroPriceItems.length > 0) {
+      setQuoteOnlyItems(zeroPriceItems)
+      toast.error(quoteOnlyCheckoutMessage(zeroPriceItems))
+      return
+    }
+
     try {
       const orderData = {
         customerName,
@@ -296,7 +316,7 @@ export const CheckoutPage = React.memo<CheckoutPageProps>(({ cartId }) => {
       toast.error(getApiErrorMessage(error) || 'No se pudo crear la orden. Verifica tus datos e intenta de nuevo.')
     }
   }, [
-    validateInfoForm, orderId,
+    validateInfoForm, orderId, zeroPriceItems,
     customerName, customerEmail, customerPhone,
     shippingAddressLine1, shippingAddressLine2, shippingCity,
     shippingState, shippingPostalCode, shippingCountry,
@@ -486,7 +506,7 @@ export const CheckoutPage = React.memo<CheckoutPageProps>(({ cartId }) => {
         <div className="col-lg-7">
           {currentStep === 'info' && (
             <>
-              {quoteOnlyItems && (
+              {visibleQuoteOnlyItems && (
                 <div className="alert alert-warning border-0 shadow-sm mb-4" role="alert" data-testid="checkout-quote-only">
                   <h6 className="alert-heading">
                     <i className="bi bi-chat-square-quote me-2" />
@@ -494,7 +514,7 @@ export const CheckoutPage = React.memo<CheckoutPageProps>(({ cartId }) => {
                   </h6>
                   <p className="mb-2">No se pueden pagar en línea; te enviamos el precio en una cotización:</p>
                   <ul className="mb-2">
-                    {quoteOnlyItems.map((item) => (
+                    {visibleQuoteOnlyItems.map((item) => (
                       <li key={item.product_id}>
                         {item.product_name || `Producto ${item.product_id}`}
                         {item.product_sku ? ` (${item.product_sku})` : ''}

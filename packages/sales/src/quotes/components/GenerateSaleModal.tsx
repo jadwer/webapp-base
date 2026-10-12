@@ -8,6 +8,7 @@ import { getPricePendingErrors, pendingPriceItems, type PricePendingError } from
 import { PricePendingAlert } from './PricePendingAlert'
 import type { Quote, StockShortageItem } from '../types'
 import type { PaymentMethod } from '../../types'
+import { extractApiErrorMessage } from '@lwm/products'
 
 interface GenerateSaleModalProps {
   quote: Quote
@@ -117,7 +118,7 @@ export function GenerateSaleModal({ quote, isOpen, onClose, onConverted }: Gener
           )
         }
       } else {
-        toast.error('Error al generar la venta')
+        toast.error(extractApiErrorMessage(err, 'Error al generar la venta'))
       }
     }
   }

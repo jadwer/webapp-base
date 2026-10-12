@@ -112,7 +112,7 @@ export function useProductSearch(
       })
       .catch((err: unknown) => {
         if (currentRequest !== requestIdRef.current) return
-        setError(err instanceof Error ? err : new Error('Product search failed'))
+        setError(err instanceof Error ? err : new Error('No se pudo buscar productos'))
         setResults([])
         setLoading(false)
       })

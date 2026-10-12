@@ -3,8 +3,9 @@
 import { useState, useCallback } from 'react'
 import type { QuoteItem, UpdateQuoteItemRequest } from '../types'
 import { getQuoteItemStockStatus } from '../utils/stock'
+import { isQuoteItemPricePending } from '../utils/pricePending'
 import { useQuoteItemMutations } from '../hooks'
-import { productService, isQuoteOnly, PricingTypeBadge, extractApiErrorMessage } from '@lwm/products'
+import { productService, requiresQuote, PricingTypeBadge, extractApiErrorMessage } from '@lwm/products'
 import { toast } from '@lwm/ui'
 
 interface Product {
@@ -105,7 +106,7 @@ export function QuoteItemsTable({
     setSelectedProduct(product)
     // Sujeto a cotizacion: sin precio de lista, el vendedor lo captura (vacio
     // = queda "por confirmar" y se puede enviar con leyenda, decision D1).
-    setAddPrice(isQuoteOnly(product) ? '' : String(product.price))
+    setAddPrice(requiresQuote(product) ? '' : String(product.price))
     setAddQuantity('1')
     // Default de IVA: prioriza taxRate (dato fiscal SAT real del producto)
     // sobre el flag legado iva. taxRate null = Exento -> 0% en la cotizacion
@@ -122,7 +123,7 @@ export function QuoteItemsTable({
     if (!selectedProduct) return
 
     const quantity = parseDraftNumber(addQuantity)
-    const selectedQuoteOnly = isQuoteOnly(selectedProduct)
+    const selectedQuoteOnly = requiresQuote(selectedProduct)
     // Sujeto a cotizacion sin precio capturado = 0 (precio pendiente).
     const price = selectedQuoteOnly && addPrice.trim() === '' ? 0 : parseDraftNumber(addPrice)
     const taxRate = parseDraftNumber(addTaxRate)
@@ -188,7 +189,7 @@ export function QuoteItemsTable({
     setEditErrors({})
     setEditValues({
       // Precio pendiente: el campo arranca vacio para capturarlo.
-      quotedPrice: item.pricePending ? '' : String(item.quotedPrice),
+      quotedPrice: isQuoteItemPricePending(item) ? '' : String(item.quotedPrice),
       quantity: String(item.quantity),
       discountMode: 'percent',
       discountValue: String(item.discountPercentage),
@@ -229,7 +230,7 @@ export function QuoteItemsTable({
     const quantity = parseDraftNumber(editValues.quantity)
     const editedItem = items.find((i) => i.id === itemId)
     // Dejarlo vacio en una linea pendiente la mantiene "por confirmar" (0).
-    const quotedPrice = editedItem?.pricePending && editValues.quotedPrice.trim() === ''
+    const quotedPrice = (editedItem ? isQuoteItemPricePending(editedItem) : false) && editValues.quotedPrice.trim() === ''
       ? 0
       : parseDraftNumber(editValues.quotedPrice)
     const discountValue = parseDraftNumber(editValues.discountValue)
@@ -295,7 +296,7 @@ export function QuoteItemsTable({
   const totalDiscount = items.reduce((sum, item) => sum + item.discountAmount, 0)
   const totalTax = items.reduce((sum, item) => sum + item.taxAmount, 0)
   const grandTotal = items.reduce((sum, item) => sum + item.total, 0)
-  const pendingCount = items.filter((item) => item.pricePending).length
+  const pendingCount = items.filter(isQuoteItemPricePending).length
 
   if (items.length === 0 && !isAddingProduct) {
     return (
@@ -363,7 +364,7 @@ export function QuoteItemsTable({
                         onClick={() => handleSelectProduct(p)}
                       >
                         <div className="fw-medium">{p.name}</div>
-                        {isQuoteOnly(p) ? (
+                        {requiresQuote(p) ? (
                           <small className="text-muted">
                             {p.sku} <PricingTypeBadge short className="ms-1" />
                           </small>
@@ -398,11 +399,11 @@ export function QuoteItemsTable({
                 className={`form-control form-control-sm${addErrors.price ? ' is-invalid' : ''}`}
                 value={addPrice}
                 onChange={(e) => setAddPrice(e.target.value)}
-                placeholder={isQuoteOnly(selectedProduct) ? 'Captura el precio' : undefined}
+                placeholder={requiresQuote(selectedProduct) ? 'Captura el precio' : undefined}
                 min={0}
                 step={0.01}
               />
-              {isQuoteOnly(selectedProduct) && !addErrors.price && (
+              {requiresQuote(selectedProduct) && !addErrors.price && (
                 <div className="form-text small">Precio sujeto a cotización: vacío queda por confirmar.</div>
               )}
               {addErrors.price && (
@@ -476,13 +477,13 @@ export function QuoteItemsTable({
           {items.map((item) => {
             const isEditing = editingId === item.id
             const stockStatus = getStockStatus(item)
-            const itemQuoteOnly = Boolean(item.pricePending) || isQuoteOnly(item.product)
+            const itemQuoteOnly = isQuoteItemPricePending(item) || requiresQuote(item.product)
 
             return (
-              <tr key={item.id} className={item.pricePending ? 'table-warning' : undefined} data-price-pending={item.pricePending ? 'true' : undefined}>
+              <tr key={item.id} className={isQuoteItemPricePending(item) ? 'table-warning' : undefined} data-price-pending={isQuoteItemPricePending(item) ? 'true' : undefined}>
                 <td className="fw-medium">
                   <div>{item.productName || `Producto #${item.productId}`}</div>
-                  {item.pricePending && (
+                  {isQuoteItemPricePending(item) && (
                     <span className="badge bg-warning text-dark mt-1" data-testid="quote-item-price-pending">
                       <i className="bi bi-hourglass-split me-1" aria-hidden="true" />
                       Precio por confirmar
@@ -562,7 +563,7 @@ export function QuoteItemsTable({
                         className={`form-control form-control-sm text-end${editErrors.quotedPrice ? ' is-invalid' : ''}`}
                         style={{ width: '100px' }}
                         aria-label="Precio cotizado"
-                        placeholder={item.pricePending ? 'Captura el precio' : undefined}
+                        placeholder={isQuoteItemPricePending(item) ? 'Captura el precio' : undefined}
                         value={editValues?.quotedPrice ?? ''}
                         onChange={(e) =>
                           setEditValues((prev) => ({
@@ -577,7 +578,7 @@ export function QuoteItemsTable({
                         <div className="invalid-feedback d-block small text-nowrap">{editErrors.quotedPrice}</div>
                       )}
                     </div>
-                  ) : item.pricePending ? (
+                  ) : isQuoteItemPricePending(item) ? (
                     <span className="fw-semibold text-warning-emphasis fst-italic">Por confirmar</span>
                   ) : (
                     <span

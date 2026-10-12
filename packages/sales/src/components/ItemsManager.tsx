@@ -3,6 +3,10 @@
 import { useState, useEffect } from 'react'
 import { useSalesProducts } from '../hooks'
 import { formatCurrency } from '@lwm/ui'
+import { QUOTE_ONLY_SHORT_LABEL, requiresQuote } from '@lwm/products'
+
+const productRequiresQuote = (product: Record<string, unknown> | undefined): boolean =>
+  requiresQuote((product?.attributes as { pricingType?: string; price?: number | string | null } | undefined) ?? null)
 
 interface OrderItem {
   tempId: string
@@ -56,7 +60,9 @@ export default function ItemsManager({ items, onItemsChange, onTotalChange }: It
       const selectedProduct = products.find((p: Record<string, unknown>) => p.id === productId)
       if (selectedProduct) {
         const attributes = selectedProduct.attributes as Record<string, unknown> | undefined
-        const price = attributes?.price || attributes?.unit_price || 0
+        // P2b (D8): sin precio de venta (sujeto a cotizacion, vacio o <= 0) el
+        // precio arranca en 0 y hay que capturarlo; un pedido nunca va en $0.
+        const price = productRequiresQuote(selectedProduct) ? 0 : (attributes?.price || attributes?.unit_price || 0)
         setNewItem(prev => ({
           ...prev,
           unitPrice: parseFloat(price.toString()) || 0
@@ -70,7 +76,7 @@ export default function ItemsManager({ items, onItemsChange, onTotalChange }: It
   }
 
   const addItem = () => {
-    if (!newItem.productId || newItem.quantity <= 0 || newItem.unitPrice < 0) return
+    if (!newItem.productId || newItem.quantity <= 0 || !(newItem.unitPrice > 0)) return
 
     const selectedProduct = products.find((p: Record<string, unknown>) => p.id === newItem.productId)
     const attributes = selectedProduct?.attributes as Record<string, unknown> | undefined
@@ -171,6 +177,7 @@ export default function ItemsManager({ items, onItemsChange, onTotalChange }: It
                       <option key={product.id as string} value={product.id as string}>
                         {(attributes?.name as string) || `Producto #${product.id}`}
                         {attributes?.sku ? ` (${String(attributes.sku)})` : ''}
+                        {productRequiresQuote(product) ? ` - ${QUOTE_ONLY_SHORT_LABEL}` : ''}
                       </option>
                     )
                   })}
@@ -197,6 +204,7 @@ export default function ItemsManager({ items, onItemsChange, onTotalChange }: It
                   step="0.01"
                   value={newItem.unitPrice}
                   onChange={(e) => setNewItem(prev => ({ ...prev, unitPrice: parseFloat(e.target.value) || 0 }))}
+                  aria-describedby={newItem.productId && !(newItem.unitPrice > 0) ? 'items-manager-price-required' : undefined}
                 />
               </div>
               
@@ -219,7 +227,7 @@ export default function ItemsManager({ items, onItemsChange, onTotalChange }: It
                     type="button"
                     className="btn btn-success btn-sm"
                     onClick={addItem}
-                    disabled={!newItem.productId || newItem.quantity <= 0}
+                    disabled={!newItem.productId || newItem.quantity <= 0 || !(newItem.unitPrice > 0)}
                   >
                     <i className="bi bi-check"></i>
                   </button>
@@ -235,6 +243,16 @@ export default function ItemsManager({ items, onItemsChange, onTotalChange }: It
               </div>
             </div>
             
+            {newItem.productId && !(newItem.unitPrice > 0) && (
+              <div id="items-manager-price-required" className="small text-danger mt-2" data-testid="items-manager-price-required">
+                <i className="bi bi-exclamation-circle me-1" aria-hidden="true"></i>
+                Captura un precio mayor a 0: un pedido no se registra con precio en cero
+                {productRequiresQuote(products.find((p: Record<string, unknown>) => p.id === newItem.productId))
+                  ? ' (este producto tiene precio sujeto a cotización).'
+                  : '.'}
+              </div>
+            )}
+
             <div className="mt-2 text-end">
               <small className="text-muted">
                 Total: <strong className="text-success">

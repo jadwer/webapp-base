@@ -41,3 +41,24 @@ export function normalizePricingType(value: unknown): PricingType {
 export function isQuoteOnly(product: { pricingType?: string | null } | null | undefined): boolean {
   return normalizePricingType(product?.pricingType) === 'quote_only'
 }
+
+/**
+ * P2b (D8): "producto sin precio de venta". Misma regla que el backend
+ * (Product::requiresQuote en api-base): sujeto a cotización, sin precio o con
+ * precio <= 0. Esos productos se ven y se cotizan, pero nunca se cobran ni se
+ * muestran en $0.
+ *
+ * `price` undefined significa "no se cargó" (p. ej. una referencia parcial del
+ * producto) y no cuenta como sin precio; null, vacío, no numérico o <= 0 sí.
+ */
+export function requiresQuote(
+  product: { pricingType?: string | null; price?: number | string | null } | null | undefined,
+): boolean {
+  if (!product) return false
+  if (isQuoteOnly(product)) return true
+  if (!('price' in product) || product.price === undefined) return false
+  const price = product.price
+  if (price === null || price === '') return true
+  const amount = Number(price)
+  return !Number.isFinite(amount) || amount <= 0
+}

@@ -127,6 +127,16 @@ export interface FractionationBatchOption {
   unit_cost: number
   is_expired: boolean
   is_expiring_soon: boolean
+  /**
+   * D10: estado, calidad y disponibilidad del lote. `is_usable` y
+   * `unavailable_reason` (en espanol) los calcula el backend; si no llegan
+   * (backend anterior) el selector deriva la razon de status, quality_status
+   * e is_expired.
+   */
+  status?: string | null
+  quality_status?: string | null
+  is_usable?: boolean
+  unavailable_reason?: string | null
 }
 
 export interface FractionationPreview {

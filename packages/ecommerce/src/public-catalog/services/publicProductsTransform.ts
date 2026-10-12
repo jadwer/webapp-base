@@ -8,7 +8,7 @@
  * enriquece un producto, cambia AQUI y ambos lados lo heredan.
  */
 
-import { QUOTE_ONLY_LABEL, isQuoteOnly } from '@lwm/products/pricing'
+import { QUOTE_ONLY_LABEL, requiresQuote } from '@lwm/products/pricing'
 import type {
   PublicProduct,
   PublicProductFilters,
@@ -149,7 +149,7 @@ export function formatPublicPrice(price: number | null | undefined, currencyCode
  * Resolve relationships from included resources
  */
 export function enhancePublicProduct(product: PublicProduct, included?: PublicIncluded): EnhancedPublicProduct {
-  const quoteOnly = isQuoteOnly(product.attributes)
+  const quoteOnly = requiresQuote(product.attributes)
   const enhanced: EnhancedPublicProduct = {
     ...product,
     displayName: product.attributes.name,

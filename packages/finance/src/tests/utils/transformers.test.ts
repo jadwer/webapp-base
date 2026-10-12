@@ -289,15 +289,15 @@ describe('Estados de factura y pago', () => {
 })
 
 describe('Errores y folios', () => {
-  it('muestra el detalle del error JSON:API con el campo', () => {
+  it('regla 9: muestra el detalle JSON:API tal cual, sin anteponer el puntero', () => {
     const error = {
       response: {
         data: {
-          errors: [{ detail: 'The payment number has already been taken.', source: { pointer: '/data/attributes/paymentNumber' } }],
+          errors: [{ detail: 'El número de pago ya ha sido registrado.', source: { pointer: '/data/attributes/paymentNumber' } }],
         },
       },
     }
-    expect(getFinanceErrorMessage(error, 'fallo')).toBe('paymentNumber: The payment number has already been taken.')
+    expect(getFinanceErrorMessage(error, 'fallo')).toBe('El número de pago ya ha sido registrado.')
   })
 
   it('soporta validacion Laravel y { error } de controladores custom', () => {

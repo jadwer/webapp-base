@@ -134,6 +134,29 @@ describe('FractionationForm', () => {
     await waitFor(() => expect(mocks.execute).toHaveBeenCalledWith(expect.objectContaining({ product_batch_id: 6 })))
   })
 
+  it('D10: explica por que un lote no se puede fraccionar (cuarentena, caducado)', async () => {
+    const batches = [
+      { id: 5, batch_number: 'L-OLD', lot_number: null, expiration_date: '2026-01-05', warehouse_location_id: null, available_quantity: 50, unit_cost: 30, is_expired: true, is_expiring_soon: false },
+      { id: 7, batch_number: 'L-CUAR', lot_number: null, expiration_date: '2027-01-01', warehouse_location_id: null, available_quantity: 50, unit_cost: 30, is_expired: false, is_expiring_soon: false, quality_status: 'quarantine', is_usable: false, unavailable_reason: 'el lote está en cuarentena' },
+      { id: 6, batch_number: 'L-OK', lot_number: null, expiration_date: '2027-06-01', warehouse_location_id: null, available_quantity: 50, unit_cost: 30, is_expired: false, is_expiring_soon: false, quality_status: 'passed', is_usable: true, unavailable_reason: null },
+    ]
+    mocks.calculate.mockResolvedValue({
+      data: basePreview({ batch_required: true, batches, suggested_batch_id: 6, product_batch_id: 6, batch_available: 50 }),
+    })
+
+    render(<FractionationForm />)
+    fillForm()
+
+    await screen.findByLabelText(/Lote de origen/, {}, { timeout: 2000 })
+    const quarantine = screen.getByRole('option', { name: /L-CUAR.*NO DISPONIBLE: el lote está en cuarentena/ }) as HTMLOptionElement
+    expect(quarantine.disabled).toBe(true)
+    // formatDateOnly esta mockeado (devuelve Y-m-d); el formato dd/mm/aaaa se prueba en utils
+    const expired = screen.getByRole('option', { name: /L-OLD.*NO DISPONIBLE: caducado el 2026-01-05/ }) as HTMLOptionElement
+    expect(expired.disabled).toBe(true)
+    expect((screen.getByRole('option', { name: /L-OK/ }) as HTMLOptionElement).disabled).toBe(false)
+    expect(screen.getByTestId('fractionation-blocked-batches')).toHaveTextContent('L-CUAR (el lote está en cuarentena)')
+  })
+
   it('pide la ubicacion cuando el origen esta en varias', async () => {
     mocks.calculate.mockResolvedValue({
       data: basePreview({

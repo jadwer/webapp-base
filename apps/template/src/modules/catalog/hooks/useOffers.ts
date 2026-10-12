@@ -173,7 +173,7 @@ export function useUpdateProductOffer() {
   return {
     async updateProductPrices(productId: string, data: { price: number; cost?: number }) {
       if (data.cost === undefined) {
-        throw new Error('Cost is required to update an offer')
+        throw new Error('El costo es obligatorio para actualizar una oferta')
       }
       return updateOffer(productId, { price: data.price, cost: data.cost })
     }

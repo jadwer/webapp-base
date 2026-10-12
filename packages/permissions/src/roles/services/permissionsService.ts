@@ -14,7 +14,7 @@ export const permissionsService = {
     const response = await axios.get(`/api/v1/permissions/${id}`)
     
     if (!response.data.data) {
-      throw new Error('Permission not found')
+      throw new Error('No se encontró el permiso')
     }
     
     return JsonApiTransformer.transformPermission(response.data.data)

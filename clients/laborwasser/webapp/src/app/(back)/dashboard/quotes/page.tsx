@@ -15,6 +15,7 @@ import {
 import { formatCurrency } from '@/lib/formatters'
 import { toast } from '@/lib/toast'
 import { getValidationErrorMessages } from '@/modules/contacts'
+import { extractApiErrorMessage } from '@/modules/products'
 import { BranchFilter, useBranchName } from '@lwm/auth'
 import { isPastDateOnly } from '@lwm/ui'
 
@@ -104,9 +105,13 @@ export default function QuotesPage() {
     } catch (error) {
       // Un 422 SIEMPRE se muestra con detalle (patron r260730, P0.3)
       const details = getValidationErrorMessages(error)
-      const base = `Error al ${action === 'send' ? 'enviar' : action === 'delete' ? 'eliminar' : action} la cotización`
+      const verbs: Record<string, string> = {
+        send: 'enviar', accept: 'aceptar', reject: 'rechazar', convert: 'convertir',
+        cancel: 'cancelar', duplicate: 'duplicar', delete: 'eliminar',
+      }
+      const base = `Error al ${verbs[action] ?? 'procesar'} la cotización`
       toast.error(
-        details.length > 0 ? `${base}: ${details.join(' ')}` : base,
+        details.length > 0 ? `${base}: ${details.join(' ')}` : extractApiErrorMessage(error, base),
         details.length > 0 ? { duration: 0 } : undefined
       )
       console.error(error)

@@ -87,6 +87,12 @@ export const SalesOrderForm: React.FC<SalesOrderFormProps> = ({
       newErrors.items = 'Debe agregar al menos un item a la orden'
     }
 
+    // P2b (D8): un pedido nunca lleva lineas en $0
+    const zeroPriced = items.filter(item => !(item.unitPrice > 0))
+    if (zeroPriced.length > 0) {
+      newErrors.items = `Captura un precio mayor a 0 en: ${zeroPriced.map(item => item.productName || `Producto #${item.productId}`).join(', ')}`
+    }
+
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }

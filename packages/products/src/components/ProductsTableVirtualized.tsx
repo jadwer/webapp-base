@@ -7,7 +7,7 @@ import { Button } from '@lwm/ui'
 import { formatPrice } from '../utils/formatting'
 import type { Product } from '../types'
 import { PricingTypeBadge } from './PricingTypeBadge'
-import { isQuoteOnly } from '../utils/pricingType'
+import { requiresQuote } from '../utils/pricingType'
 
 const COL_WIDTHS = ['70px', 'auto', '150px', '90px', '100px', '140px'] as const
 
@@ -126,7 +126,7 @@ export const ProductsTableVirtualized = React.memo<ProductsTableVirtualizedProps
                       </td>
 
                       <td style={{ width: COL_WIDTHS[2] }} className="text-end">
-                        {isQuoteOnly(product) ? (
+                        {requiresQuote(product) ? (
                           <PricingTypeBadge short />
                         ) : (
                           <div className="fw-bold text-success">

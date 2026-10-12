@@ -6,6 +6,7 @@ import { useState } from 'react'
 import { useSalesOrderMutations, useSalesContacts, useSalesOrderItemMutations } from '@/modules/sales'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
 import { ItemsManager } from '@/modules/sales'
+import { extractApiErrorMessage } from '@/modules/products'
 import { formatCurrency } from '@/lib/formatters'
 import { BranchSelect } from '@lwm/auth'
 import { todayDateInput } from '@lwm/ui'
@@ -116,8 +117,8 @@ export default function CreateSalesOrderPage() {
 
     } catch (err) {
       console.error('❌ Error creating sales order:', err)
-      const error = err as { response?: { data?: { message?: string } }; message?: string }
-      setError(error.response?.data?.message || error.message || 'Error al crear la orden de venta')
+      // Regla 7: el 422 (p. ej. una linea con precio en cero) llega con su detalle
+      setError(extractApiErrorMessage(err, 'Error al crear la orden de venta'))
     } finally {
       setIsSubmitting(false)
     }

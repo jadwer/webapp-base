@@ -42,5 +42,5 @@ export {
 export { PricePendingAlert } from './components/PricePendingAlert'
 export { getTotalAvailableStock, getQuoteItemStockStatus } from './utils/stock'
 export type { QuoteItemStockStatus } from './utils/stock'
-export { getPricePendingErrors, pendingPriceItems } from './utils/pricePending'
+export { getPricePendingErrors, pendingPriceItems, isQuoteItemPricePending, ACCEPT_PRICE_PENDING_MESSAGE } from './utils/pricePending'
 export type { PricePendingError } from './utils/pricePending'
