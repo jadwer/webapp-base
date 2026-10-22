@@ -47,7 +47,7 @@
     "@lwm/auth": "workspace:*",
     "@lwm/products": "workspace:*",
     "@lwm/ui": "workspace:*",
-    "axios": "^1.10.0",
+    "axios": "^1.20.0",
     "clsx": "^2.1.0",
     "swr": "^2.0.0"
   },

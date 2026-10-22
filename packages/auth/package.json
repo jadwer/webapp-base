@@ -46,7 +46,7 @@
   "dependencies": {
     "@hookform/resolvers": "^5.0.0",
     "@lwm/primitives": "workspace:*",
-    "axios": "^1.10.0",
+    "axios": "^1.20.0",
     "react-hook-form": "^7.0.0",
     "swr": "^2.0.0",
     "zod": "^3.0.0"
