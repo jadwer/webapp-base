@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import type { QuoteItem, UpdateQuoteItemRequest } from '../types'
 import { getQuoteItemStockStatus } from '../utils/stock'
 import { isQuoteItemPricePending } from '../utils/pricePending'
@@ -74,9 +74,16 @@ export function QuoteItemsTable({
   const [addTaxRate, setAddTaxRate] = useState('16')
   const [addErrors, setAddErrors] = useState<Record<string, string>>({})
 
+  // Hallazgo Atomo 22-10: sin espera ni control de orden, una respuesta lenta
+  // pisaba los resultados del termino nuevo. Debounce + solo cuenta la ultima.
+  const searchRequestRef = useRef(0)
+  const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
   const searchProducts = useCallback(async (term: string) => {
+    const requestId = ++searchRequestRef.current
     if (term.length < 2) {
       setSearchResults([])
+      setIsSearching(false)
       return
     }
     setIsSearching(true)
@@ -94,12 +101,21 @@ export function QuoteItemsTable({
         iva: p.iva ?? true,
         taxRate: p.taxRate
       }))
-      setSearchResults(products)
+      if (requestId === searchRequestRef.current) setSearchResults(products)
     } catch {
-      setSearchResults([])
+      if (requestId === searchRequestRef.current) setSearchResults([])
     } finally {
-      setIsSearching(false)
+      if (requestId === searchRequestRef.current) setIsSearching(false)
     }
+  }, [])
+
+  const scheduleSearch = useCallback((term: string) => {
+    if (searchTimerRef.current) clearTimeout(searchTimerRef.current)
+    searchTimerRef.current = setTimeout(() => searchProducts(term.trim()), 300)
+  }, [searchProducts])
+
+  useEffect(() => () => {
+    if (searchTimerRef.current) clearTimeout(searchTimerRef.current)
   }, [])
 
   const handleSelectProduct = (product: Product) => {
@@ -345,7 +361,7 @@ export function QuoteItemsTable({
                   onChange={(e) => {
                     setProductSearch(e.target.value)
                     setSelectedProduct(null)
-                    searchProducts(e.target.value)
+                    scheduleSearch(e.target.value)
                   }}
                   autoFocus
                 />

@@ -169,3 +169,29 @@ describe('QuoteItemsTable inline edit', () => {
     expect(mockUpdate.mock.calls[0][0].data.quotedPrice).toBe(18.75)
   })
 })
+
+describe('QuoteItemsTable busqueda de productos', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    vi.mocked(useQuoteItemMutations).mockReturnValue({
+      create: { mutateAsync: vi.fn(), isPending: false },
+      update: { mutateAsync: vi.fn(), isPending: false },
+      delete: { mutateAsync: vi.fn(), isPending: false },
+    } as unknown as ReturnType<typeof useQuoteItemMutations>)
+  })
+
+  it('espera a que termines de escribir y busca solo el ultimo termino', async () => {
+    const { productService } = await import('@lwm/products')
+    render(<QuoteItemsTable items={[]} quoteId="1" editable onItemsChanged={vi.fn()} />)
+    fireEvent.click(screen.getAllByText(/Agregar Producto/)[0])
+
+    const input = screen.getByPlaceholderText('Buscar por nombre o SKU...')
+    fireEvent.change(input, { target: { value: 'ac' } })
+    fireEvent.change(input, { target: { value: 'aci' } })
+    fireEvent.change(input, { target: { value: 'acido' } })
+
+    await waitFor(() => expect(productService.getProducts).toHaveBeenCalledTimes(1))
+    expect(productService.getProducts).toHaveBeenCalledWith(expect.objectContaining({ filters: { name: 'acido' } }))
+  })
+})
+

@@ -170,7 +170,7 @@ export function registerPublicCatalogBlocks(editor: Editor) {
                     </div>
                     <div class="d-flex justify-content-between align-items-center">
                       <span class="fw-bold text-primary">$15,750.00</span>
-                      <small class="text-muted">/ Pieza</small>
+                      <small class="text-muted">/ Pieza + IVA</small>
                     </div>
                     <div class="d-flex gap-1 mt-2">
                       <button class="btn btn-primary btn-sm flex-grow-1">
@@ -384,7 +384,7 @@ export function registerPublicCatalogBlocks(editor: Editor) {
                     </p>
                     <div class="d-flex justify-content-between align-items-center mb-3">
                       <span class="fw-bold fs-5 text-primary">$28,750.00</span>
-                      <small class="text-muted">/ Pieza</small>
+                      <small class="text-muted">/ Pieza + IVA</small>
                     </div>
                     <div class="d-flex gap-2">
                       <button class="btn btn-primary btn-sm flex-grow-1">

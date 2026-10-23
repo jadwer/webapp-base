@@ -70,6 +70,8 @@ export interface Fractionation {
   status: 'pending' | 'completed' | 'cancelled'
   notes?: string
   executedAt?: string
+  cancelledAt?: string | null
+  cancellationReason?: string | null
   createdAt: string
   updatedAt: string
 

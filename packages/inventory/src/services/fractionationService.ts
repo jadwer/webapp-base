@@ -94,4 +94,9 @@ export const fractionationService = {
     const response = await axiosClient.post('/api/v1/fraccionamiento/execute', data)
     return response.data
   },
+
+  /** Reversa del fraccionamiento (G10): regresa el origen y retira lo producido. */
+  cancel: async (id: string, reason?: string): Promise<void> => {
+    await axiosClient.post(`/api/v1/fraccionamiento/${id}/cancel`, { reason: reason || null })
+  },
 }

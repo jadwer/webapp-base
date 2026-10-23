@@ -1,7 +1,9 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
-import { PageHeader, StatusBadge } from '@lwm/ui'
+import { PageHeader, StatusBadge, toast } from '@lwm/ui'
+import { fractionationService } from '../services/fractionationService'
 import { useFractionation } from '../hooks/useFractionations'
 import { FRACTIONATION_STATUS } from '../utils/labels'
 import { formatDate as formatDateOnly, formatMoney, toNumber } from '../utils/format'
@@ -83,10 +85,31 @@ const formatNumber = (value: number) => {
 }
 
 export const FractionationDetail = ({ fractionationId }: FractionationDetailProps) => {
-  const { fractionation, isLoading, error } = useFractionation(
+  const { fractionation, isLoading, error, mutate } = useFractionation(
     fractionationId,
     FRACTIONATION_DETAIL_INCLUDE
   )
+  const [confirming, setConfirming] = useState(false)
+  const [reason, setReason] = useState('')
+  const [cancelling, setCancelling] = useState(false)
+  const [cancelError, setCancelError] = useState<string | null>(null)
+
+  const handleCancel = async () => {
+    setCancelling(true)
+    setCancelError(null)
+    try {
+      await fractionationService.cancel(fractionationId, reason.trim())
+      toast.success('Fraccionamiento cancelado: el producto origen regresó al inventario')
+      setConfirming(false)
+      await mutate()
+    } catch (err) {
+      // Regla 7: el motivo del rechazo (p. ej. lo producido ya se vendió) con detalle
+      const data = (err as { response?: { data?: { message?: string; errors?: Array<{ detail?: string }> } } }).response?.data
+      setCancelError(data?.errors?.[0]?.detail || data?.message || 'No se pudo cancelar el fraccionamiento')
+    } finally {
+      setCancelling(false)
+    }
+  }
 
   if (isLoading) {
     return (
@@ -120,7 +143,52 @@ export const FractionationDetail = ({ fractionationId }: FractionationDetailProp
         badges={<StatusBadge status={fractionation.status} map={FRACTIONATION_STATUS} />}
         subtitle="Detalle del fraccionamiento"
         backHref={LIST_HREF}
+        actions={
+          fractionation.status === 'completed' && !confirming ? (
+            <button type="button" className="btn btn-outline-danger" onClick={() => setConfirming(true)}>
+              <i className="bi bi-arrow-counterclockwise me-2" />
+              Cancelar fraccionamiento
+            </button>
+          ) : undefined
+        }
       />
+
+      {confirming && (
+        <div className="alert alert-warning">
+          <h6 className="alert-heading">¿Cancelar {fractionation.folioNumber}?</h6>
+          <p className="mb-2 small">
+            Se retiran del inventario las piezas producidas y el producto origen regresa a su lote con su costo original.
+            Solo es posible si lo producido sigue completo (no se ha vendido ni movido).
+          </p>
+          <label htmlFor="fractionation-cancel-reason" className="form-label small mb-1">Motivo (opcional)</label>
+          <textarea
+            id="fractionation-cancel-reason"
+            className="form-control form-control-sm mb-2"
+            rows={2}
+            maxLength={500}
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+          />
+          {cancelError && <div className="text-danger small mb-2">{cancelError}</div>}
+          <div className="d-flex gap-2">
+            <button type="button" className="btn btn-sm btn-danger" onClick={handleCancel} disabled={cancelling}>
+              {cancelling && <span className="spinner-border spinner-border-sm me-2" />}
+              Confirmar cancelación
+            </button>
+            <button type="button" className="btn btn-sm btn-outline-secondary" onClick={() => setConfirming(false)} disabled={cancelling}>
+              No cancelar
+            </button>
+          </div>
+        </div>
+      )}
+
+      {fractionation.status === 'cancelled' && (
+        <div className="alert alert-secondary">
+          <i className="bi bi-x-circle me-2" />
+          Cancelado el {formatDate(fractionation.cancelledAt ?? undefined)}
+          {fractionation.cancellationReason ? `: ${fractionation.cancellationReason}` : ''}
+        </div>
+      )}
 
       <div className="row g-4">
         {/* Products info */}
