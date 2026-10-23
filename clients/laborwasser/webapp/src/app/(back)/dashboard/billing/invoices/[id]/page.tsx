@@ -253,6 +253,13 @@ export default function InvoiceViewPage({ params }: InvoiceViewPageProps) {
             )}
           </div>
 
+          {typeof invoice.metadata?.ar_error === 'string' && (
+            <div className="alert alert-danger">
+              <i className="bi bi-exclamation-octagon me-2" />
+              La factura se timbró, pero no se pudo crear su cuenta por cobrar: {invoice.metadata.ar_error}. Regístrala en Finanzas o avisa a soporte.
+            </div>
+          )}
+
           {/* Resultados de validacion SAT y cancelacion */}
           {(satValidation || invoice.cancellationRequestedAt) && (
             <div className="row justify-content-center mb-4">

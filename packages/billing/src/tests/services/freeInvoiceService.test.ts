@@ -4,7 +4,7 @@ import { freeInvoiceService } from '../../services/freeInvoiceService'
 import { computeLine } from '../../components/FreeInvoiceForm'
 
 vi.mock('../../lib/axiosClient', () => ({
-  default: { get: vi.fn(), post: vi.fn() },
+  default: { get: vi.fn(), post: vi.fn(), patch: vi.fn() },
 }))
 
 describe('factura libre', () => {
@@ -52,5 +52,21 @@ describe('factura libre', () => {
 
     expect(o.series[0]).toEqual({ code: 'FAC', name: 'Normal', isDefault: true, nextFolio: 'FAC-000001' })
     expect(o.metodosPago).toHaveLength(1)
+  })
+
+  it('edita un borrador con PATCH al endpoint de factura libre', async () => {
+    vi.mocked(axiosClient.patch).mockResolvedValue({
+      data: { message: 'Borrador actualizado', data: { id: 7, series: 'FAC', folio: 3, status: 'draft' } },
+    })
+
+    const result = await freeInvoiceService.update('7', {
+      contactId: '5',
+      metodoPago: 'PUE',
+      formaPago: '03',
+      items: [{ descripcion: 'Servicio', cantidad: 1, valorUnitario: 100, claveProdServ: '81111500', claveUnidad: 'E48', tasaIva: 'no_objeto' }],
+    })
+
+    expect(axiosClient.patch).toHaveBeenCalledWith('/api/v1/cfdi-invoices/free/7', expect.objectContaining({ metodo_pago: 'PUE', forma_pago: '03' }))
+    expect(result).toEqual({ id: '7', series: 'FAC', folio: 3, message: 'Borrador actualizado' })
   })
 })

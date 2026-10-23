@@ -121,30 +121,41 @@ export const freeInvoiceService = {
     }))
   },
 
-  /** Crea el borrador (CFDI + cuenta por cobrar); devuelve el id del CFDI. */
+  /** Crea el borrador (la cuenta por cobrar nace al timbrar); devuelve el id del CFDI. */
   create: async (payload: FreeInvoicePayload): Promise<{ id: string; series: string; folio: number; message: string }> => {
-    const { data } = await axiosClient.post('/api/v1/cfdi-invoices/free', {
-      contact_id: Number(payload.contactId),
-      series: payload.series || null,
-      metodo_pago: payload.metodoPago,
-      forma_pago: payload.formaPago,
-      uso_cfdi: payload.usoCfdi || null,
-      condiciones_pago: payload.condicionesPago || null,
-      notes: payload.notes || null,
-      items: payload.items.map((i) => ({
-        product_id: i.productId ? Number(i.productId) : null,
-        descripcion: i.descripcion,
-        cantidad: i.cantidad,
-        valor_unitario: i.valorUnitario,
-        descuento: i.descuento || 0,
-        clave_prod_serv: i.claveProdServ,
-        clave_unidad: i.claveUnidad,
-        unidad: i.unidad || null,
-        no_identificacion: i.noIdentificacion || null,
-        tasa_iva: i.tasaIva,
-      })),
-    })
+    const { data } = await axiosClient.post('/api/v1/cfdi-invoices/free', toApiPayload(payload))
     const d = (data?.data ?? {}) as Row
     return { id: String(d.id), series: String(d.series), folio: Number(d.folio), message: String(data?.message ?? '') }
   },
+
+  /** Edita un borrador de factura libre sin timbrar; serie y folio no cambian. */
+  update: async (id: string, payload: FreeInvoicePayload): Promise<{ id: string; series: string; folio: number; message: string }> => {
+    const { data } = await axiosClient.patch(`/api/v1/cfdi-invoices/free/${id}`, toApiPayload(payload))
+    const d = (data?.data ?? {}) as Row
+    return { id: String(d.id), series: String(d.series), folio: Number(d.folio), message: String(data?.message ?? '') }
+  },
+}
+
+function toApiPayload(payload: FreeInvoicePayload) {
+  return {
+    contact_id: Number(payload.contactId),
+    series: payload.series || null,
+    metodo_pago: payload.metodoPago,
+    forma_pago: payload.formaPago,
+    uso_cfdi: payload.usoCfdi || null,
+    condiciones_pago: payload.condicionesPago || null,
+    notes: payload.notes || null,
+    items: payload.items.map((i) => ({
+      product_id: i.productId ? Number(i.productId) : null,
+      descripcion: i.descripcion,
+      cantidad: i.cantidad,
+      valor_unitario: i.valorUnitario,
+      descuento: i.descuento || 0,
+      clave_prod_serv: i.claveProdServ,
+      clave_unidad: i.claveUnidad,
+      unidad: i.unidad || null,
+      no_identificacion: i.noIdentificacion || null,
+      tasa_iva: i.tasaIva,
+    })),
+  }
 }

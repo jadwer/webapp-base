@@ -4,7 +4,8 @@
  * Factura libre, como en Bind (junta 2026-10-08): cliente con sus datos
  * fiscales, serie con folio que asigna el sistema, conceptos con buscador de
  * productos y claves SAT, IVA por concepto y totales en vivo. Guarda un
- * borrador (CFDI + cuenta por cobrar); se timbra desde el detalle.
+ * borrador editable (sin cuenta por cobrar: esa nace al timbrar, decision
+ * Gabino 23-10); se timbra desde el detalle.
  */
 
 import React, { useEffect, useId, useMemo, useRef, useState } from 'react'
@@ -16,8 +17,11 @@ import {
   type FreeInvoiceOptions,
   type FreeInvoiceReceptor,
 } from '../services/freeInvoiceService'
+import type { CFDIInvoice } from '../types'
 
 export interface FreeInvoiceFormProps {
+  /** Borrador a editar; sin el, el formulario crea uno nuevo */
+  invoice?: CFDIInvoice
   onCreated: (cfdiId: string) => void
   onCancel: () => void
 }
@@ -71,6 +75,24 @@ const tasaFromRate = (rate?: number | null): string => {
   if (rate === 8) return '0.080000'
   if (rate === 0) return '0.000000'
   return DEFAULT_TASA
+}
+
+/** Concepto guardado (centavos e impuestos JSON del backend) a estado del formulario. */
+const lineFromItem = (item: NonNullable<CFDIInvoice['items']>[number]): LineState => {
+  const traslado = ((item.impuestos?.traslados as Array<{ tasa_o_cuota?: string | number }> | undefined) ?? [])[0]
+  return {
+    ...emptyLine(),
+    productId: item.productId ? String(item.productId) : '',
+    descripcion: item.descripcion ?? '',
+    cantidad: String(item.cantidad ?? 1),
+    valorUnitario: String((item.valorUnitario ?? 0) / 100),
+    descuento: item.descuento ? String(item.descuento / 100) : '',
+    claveProdServ: item.claveProdServ ?? '',
+    claveUnidad: item.claveUnidad ?? '',
+    unidad: item.unidad ?? '',
+    noIdentificacion: item.noIdentificacion ?? '',
+    tasaIva: item.objetoImp === '01' ? 'no_objeto' : traslado ? Number(traslado.tasa_o_cuota).toFixed(6) : DEFAULT_TASA,
+  }
 }
 
 type ApiError = { response?: { data?: { message?: string; error?: string; errors?: Record<string, string[]> } } }
@@ -169,18 +191,27 @@ function CustomerSearch({
   )
 }
 
-export const FreeInvoiceForm: React.FC<FreeInvoiceFormProps> = ({ onCreated, onCancel }) => {
+export const FreeInvoiceForm: React.FC<FreeInvoiceFormProps> = ({ invoice, onCreated, onCancel }) => {
+  const editing = Boolean(invoice)
   const [options, setOptions] = useState<FreeInvoiceOptions | null>(null)
   const [optionsError, setOptionsError] = useState<string | null>(null)
-  const [customer, setCustomer] = useState<FreeInvoiceCustomer | null>(null)
+  const [customer, setCustomer] = useState<FreeInvoiceCustomer | null>(
+    invoice
+      ? { id: String(invoice.contactId), name: invoice.receptorNombre, legalName: invoice.receptorNombre, taxId: invoice.receptorRfc }
+      : null
+  )
   const [receptor, setReceptor] = useState<FreeInvoiceReceptor | null>(null)
-  const [series, setSeries] = useState('')
-  const [metodoPago, setMetodoPago] = useState('PPD')
-  const [formaPago, setFormaPago] = useState('99')
-  const [usoCfdi, setUsoCfdi] = useState('')
-  const [condicionesPago, setCondicionesPago] = useState('')
-  const [notes, setNotes] = useState('')
-  const [lines, setLines] = useState<LineState[]>([emptyLine()])
+  const [series, setSeries] = useState(invoice?.series ?? '')
+  const [metodoPago, setMetodoPago] = useState<string>(invoice?.metodoPago ?? 'PPD')
+  const [formaPago, setFormaPago] = useState(invoice?.formaPago ?? '99')
+  const [usoCfdi, setUsoCfdi] = useState(invoice?.receptorUsoCfdi ?? '')
+  const [condicionesPago, setCondicionesPago] = useState(invoice?.condicionesPago ?? '')
+  const [notes, setNotes] = useState(String(invoice?.metadata?.notes ?? ''))
+  const [lines, setLines] = useState<LineState[]>(
+    invoice?.items?.length ? invoice.items.map(lineFromItem) : [emptyLine()]
+  )
+  // Al editar, el uso del CFDI guardado se respeta hasta que cambie el cliente
+  const keepSavedUso = useRef(editing)
   const [saving, setSaving] = useState(false)
   const [errors, setErrors] = useState<string[]>([])
 
@@ -189,7 +220,7 @@ export const FreeInvoiceForm: React.FC<FreeInvoiceFormProps> = ({ onCreated, onC
       .getOptions()
       .then((o) => {
         setOptions(o)
-        setSeries(o.series.find((s) => s.isDefault)?.code ?? o.series[0]?.code ?? '')
+        if (!editing) setSeries(o.series.find((s) => s.isDefault)?.code ?? o.series[0]?.code ?? '')
       })
       .catch(() => setOptionsError('No se pudieron cargar las opciones de facturación (series y catálogos SAT).'))
   }, [])
@@ -201,7 +232,8 @@ export const FreeInvoiceForm: React.FC<FreeInvoiceFormProps> = ({ onCreated, onC
       .getReceptor(customer.id)
       .then((r) => {
         setReceptor(r)
-        setUsoCfdi(r.usoCfdi)
+        if (keepSavedUso.current) keepSavedUso.current = false
+        else setUsoCfdi(r.usoCfdi)
       })
       .catch(() => toast.error('No se pudieron leer los datos fiscales del cliente'))
   }, [customer])
@@ -270,7 +302,7 @@ export const FreeInvoiceForm: React.FC<FreeInvoiceFormProps> = ({ onCreated, onC
 
     setSaving(true)
     try {
-      const result = await freeInvoiceService.create({
+      const payload = {
         contactId: customer.id,
         series,
         metodoPago,
@@ -290,8 +322,11 @@ export const FreeInvoiceForm: React.FC<FreeInvoiceFormProps> = ({ onCreated, onC
           noIdentificacion: l.noIdentificacion || null,
           tasaIva: l.tasaIva,
         })),
-      })
-      toast.success(`Factura ${result.series}-${result.folio} guardada como borrador`)
+      }
+      const result = invoice
+        ? await freeInvoiceService.update(invoice.id, payload)
+        : await freeInvoiceService.create(payload)
+      toast.success(`Factura ${result.series}-${result.folio} ${invoice ? 'actualizada' : 'guardada como borrador'}`)
       onCreated(result.id)
     } catch (err) {
       // Regla 7: el error del backend se muestra con detalle
@@ -373,14 +408,23 @@ export const FreeInvoiceForm: React.FC<FreeInvoiceFormProps> = ({ onCreated, onC
               <label className="form-label" htmlFor="fi-serie">
                 Serie
               </label>
-              <select id="fi-serie" className="form-select" value={series} onChange={(e) => setSeries(e.target.value)}>
-                {options.series.map((s) => (
-                  <option key={s.code} value={s.code}>
-                    {s.code} - {s.name} (siguiente: {s.nextFolio})
-                  </option>
-                ))}
-              </select>
-              <div className="form-text">El folio lo asigna el sistema al guardar.</div>
+              {editing ? (
+                <>
+                  <input id="fi-serie" className="form-control" value={`${invoice?.series}-${invoice?.folio}`} disabled />
+                  <div className="form-text">La serie y el folio ya están asignados a este borrador.</div>
+                </>
+              ) : (
+                <>
+                  <select id="fi-serie" className="form-select" value={series} onChange={(e) => setSeries(e.target.value)}>
+                    {options.series.map((s) => (
+                      <option key={s.code} value={s.code}>
+                        {s.code} - {s.name} (siguiente: {s.nextFolio})
+                      </option>
+                    ))}
+                  </select>
+                  <div className="form-text">El folio lo asigna el sistema al guardar.</div>
+                </>
+              )}
             </div>
             <div className="mb-3">
               <label className="form-label" htmlFor="fi-metodo">
@@ -598,7 +642,7 @@ export const FreeInvoiceForm: React.FC<FreeInvoiceFormProps> = ({ onCreated, onC
         </button>
         <button type="submit" className="btn btn-primary" disabled={saving}>
           {saving ? <span className="spinner-border spinner-border-sm me-2" /> : <i className="bi bi-save me-2" />}
-          Guardar borrador
+          {editing ? 'Guardar cambios' : 'Guardar borrador'}
         </button>
       </div>
     </form>
