@@ -342,7 +342,7 @@ export const FreeInvoiceForm: React.FC<FreeInvoiceFormProps> = ({ onCreated, onC
                     <span className="text-muted">Razón social:</span> {receptor.nombre}
                   </div>
                   <div className="col-sm-6">
-                    <span className="text-muted">Régimen fiscal:</span> {receptor.regimenFiscal}
+                    <span className="text-muted">Régimen fiscal:</span> {receptor.regimenFiscal || "-"}
                   </div>
                 </div>
                 {receptor.faltantes.length > 0 && (

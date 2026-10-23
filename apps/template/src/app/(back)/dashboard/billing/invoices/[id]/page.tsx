@@ -17,6 +17,15 @@ interface InvoiceViewPageProps {
   }>
 }
 
+const money = (cents?: number | null) =>
+  ((cents ?? 0) / 100).toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })
+
+/** Suma de traslados del concepto (impuestos JSON del backend, en centavos). */
+const lineIva = (impuestos: Record<string, unknown> | null | undefined): number => {
+  const traslados = (impuestos?.traslados as Array<{ importe?: number }> | undefined) ?? []
+  return traslados.reduce((sum, t) => sum + (Number(t.importe) || 0), 0)
+}
+
 const formatDateTime = (iso?: string) =>
   iso ? new Date(iso).toLocaleString('es-MX', { dateStyle: 'medium', timeStyle: 'short' }) : '-'
 
@@ -322,7 +331,7 @@ export default function InvoiceViewPage({ params }: InvoiceViewPageProps) {
                     </div>
                     <div className="col-md-4">
                       <h6 className="text-muted mb-1">Fecha</h6>
-                      <p className="fs-5 mb-0">{new Date(invoice.fechaEmision).toLocaleDateString()}</p>
+                      <p className="fs-5 mb-0">{formatDateTime(invoice.fechaEmision)}</p>
                     </div>
                     <div className="col-md-4">
                       <h6 className="text-muted mb-1">Forma de Pago</h6>
@@ -375,20 +384,76 @@ export default function InvoiceViewPage({ params }: InvoiceViewPageProps) {
                   </h5>
                 </div>
                 <div className="card-body p-4">
+                  {/* Montos guardados por el backend (centavos); el IVA no se deduce de total - subtotal
+                      porque eso ignoraba el descuento (E2E 23-10) */}
                   <div className="row g-4">
-                    <div className="col-md-4">
+                    <div className="col-md-3">
                       <h6 className="text-muted mb-1">Subtotal</h6>
-                      <p className="fs-4 mb-0">${(invoice.subtotal / 100).toFixed(2)}</p>
+                      <p className="fs-4 mb-0">{money(invoice.subtotal)}</p>
                     </div>
-                    <div className="col-md-4">
-                      <h6 className="text-muted mb-1">IVA</h6>
-                      <p className="fs-4 mb-0">${((invoice.total - invoice.subtotal) / 100).toFixed(2)}</p>
+                    <div className="col-md-3">
+                      <h6 className="text-muted mb-1">Descuento</h6>
+                      <p className="fs-4 mb-0">{invoice.descuento ? `-${money(invoice.descuento)}` : money(0)}</p>
                     </div>
-                    <div className="col-md-4">
+                    <div className="col-md-3">
+                      <h6 className="text-muted mb-1">IVA trasladado</h6>
+                      <p className="fs-4 mb-0">{money(invoice.iva)}</p>
+                    </div>
+                    <div className="col-md-3">
                       <h6 className="text-muted mb-1">Total</h6>
-                      <p className="fs-3 mb-0 fw-bold text-success">${(invoice.total / 100).toFixed(2)}</p>
+                      <p className="fs-3 mb-0 fw-bold text-success">{money(invoice.total)}</p>
                     </div>
                   </div>
+                </div>
+              </div>
+
+              {/* Conceptos */}
+              <div className="card shadow-sm border-0 mb-4">
+                <div className="card-header bg-light">
+                  <h5 className="mb-0">
+                    <i className="bi bi-list-ul me-2" />
+                    Conceptos
+                  </h5>
+                </div>
+                <div className="card-body p-0">
+                  {invoice.items && invoice.items.length > 0 ? (
+                    <div className="table-responsive">
+                      <table className="table table-striped table-hover mb-0">
+                        <thead className="table-dark">
+                          <tr>
+                            <th>Descripción</th>
+                            <th>Clave SAT</th>
+                            <th className="text-end">Cantidad</th>
+                            <th className="text-end">Precio unitario</th>
+                            <th className="text-end">Descuento</th>
+                            <th className="text-end">IVA</th>
+                            <th className="text-end">Importe</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {invoice.items.map((item) => (
+                            <tr key={item.id}>
+                              <td>
+                                {item.descripcion}
+                                {item.noIdentificacion && <small className="d-block text-muted">{item.noIdentificacion}</small>}
+                              </td>
+                              <td>
+                                {item.claveProdServ}
+                                <small className="d-block text-muted">{item.claveUnidad}{item.unidad ? ` - ${item.unidad}` : ''}</small>
+                              </td>
+                              <td className="text-end">{item.cantidad}</td>
+                              <td className="text-end">{money(item.valorUnitario)}</td>
+                              <td className="text-end">{item.descuento ? money(item.descuento) : '-'}</td>
+                              <td className="text-end">{item.objetoImp === '01' ? 'No objeto' : money(lineIva(item.impuestos))}</td>
+                              <td className="text-end">{money(item.importe - (item.descuento || 0))}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  ) : (
+                    <p className="text-muted p-4 mb-0">Sin conceptos.</p>
+                  )}
                 </div>
               </div>
 
