@@ -9,7 +9,7 @@ import HomeClient from './HomeClient'
  * to read from AppSetting at request time.
  */
 export const metadata: Metadata = {
-  title: 'WebApp Base Template',
+  title: 'Tienda en línea',
   description: '',
   robots: {
     index: false,

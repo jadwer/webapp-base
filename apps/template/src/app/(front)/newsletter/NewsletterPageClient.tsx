@@ -232,7 +232,7 @@ export const NewsletterPageClient: React.FC = () => {
 
                   <p className="text-muted small text-center mt-3 mb-0">
                     <i className="bi bi-shield-check me-1"></i>
-                    No compartimos tu informacion. Puedes cancelar en cualquier momento.
+                    No compartimos tu información. Puedes cancelar en cualquier momento.
                   </p>
                 </form>
               )}

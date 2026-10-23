@@ -2,6 +2,7 @@
 
 import React from 'react'
 import Link from 'next/link'
+import { usePublicSettings } from '@lwm/app-config'
 
 /**
  * Minimal public-site header for the template (used by `app/(front)/layout.tsx`).
@@ -20,11 +21,21 @@ export interface PublicHeaderProps {
 }
 
 export const PublicHeader: React.FC<PublicHeaderProps> = ({ search }) => {
+  // Marca desde la configuracion (company.name, company.logo_path): cada
+  // instalacion se ve con su nombre sin tocar codigo (23-10).
+  const { get } = usePublicSettings()
+  const name = get('company.name') || 'Tienda en línea'
+  const logo = get('company.logo_path')
+
   return (
     <header className="bg-white border-bottom py-3">
       <div className="container d-flex align-items-center gap-3">
-        <Link href="/" className="text-decoration-none">
-          <span className="fw-bold fs-5">WebApp Base</span>
+        <Link href="/" className="text-decoration-none d-flex align-items-center gap-2" aria-label={`${name}, inicio`}>
+          {logo && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={logo} alt="" height={36} onError={(e) => (e.currentTarget.style.display = 'none')} />
+          )}
+          <span className="fw-bold fs-5">{name}</span>
         </Link>
         {search && (
           <div className="flex-grow-1 d-flex justify-content-center">{search}</div>
@@ -32,10 +43,13 @@ export const PublicHeader: React.FC<PublicHeaderProps> = ({ search }) => {
         <nav className={search ? '' : 'ms-auto'}>
           <ul className="nav">
             <li className="nav-item">
-              <Link className="nav-link" href="/productos">Catalog</Link>
+              <Link className="nav-link" href="/productos">Productos</Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" href="/auth/login">Sign in</Link>
+              <Link className="nav-link" href="/ofertas">Ofertas</Link>
+            </li>
+            <li className="nav-item">
+              <Link className="nav-link" href="/auth/login">Iniciar sesión</Link>
             </li>
           </ul>
         </nav>

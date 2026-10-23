@@ -67,7 +67,7 @@ export function DemoLoginCards() {
   return (
     <div className="container py-4" style={{ maxWidth: 960 }}>
       <p className="text-center text-muted small mb-3">
-        Entorno de demostracion: elige un perfil para llenar el formulario y prueba el sistema.
+        Entorno de demostración: elige un perfil para llenar el formulario y prueba el sistema.
       </p>
       <div className="row g-3 justify-content-center">
         {DEMO_ACCOUNTS.map((account) => (

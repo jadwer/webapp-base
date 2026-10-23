@@ -133,7 +133,7 @@ export default function OrderConfirmationPage({ params }: OrderConfirmationPageP
           })
         })
       } catch {
-        setError('No se pudo cargar la informacion del pedido')
+        setError('No se pudo cargar la información del pedido')
       } finally {
         setIsLoading(false)
       }
@@ -310,7 +310,7 @@ export default function OrderConfirmationPage({ params }: OrderConfirmationPageP
             <div className="card-header">
               <h5 className="mb-0">
                 <i className="bi bi-signpost-2 me-2"></i>
-                Proximos pasos
+                Próximos pasos
               </h5>
             </div>
             <div className="card-body">

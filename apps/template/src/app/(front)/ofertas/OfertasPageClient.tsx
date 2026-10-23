@@ -250,7 +250,7 @@ export const OfertasPageClient: React.FC = () => {
                 No te pierdas nuestras ofertas
               </h3>
               <p className="mb-4">
-                Contactanos para recibir informacion sobre nuevas ofertas y promociones exclusivas.
+                Contáctanos para recibir información sobre nuevas ofertas y promociones exclusivas.
               </p>
               <div className="d-flex gap-3 justify-content-center flex-wrap">
                 <a

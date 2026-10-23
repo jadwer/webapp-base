@@ -103,7 +103,7 @@ export default function FoliosSettingsPage() {
                   <th>Prefijo</th>
                   <th>Formato</th>
                   <th>Secuencia Actual</th>
-                  <th>Proximo Folio</th>
+                  <th>Próximo folio</th>
                   <th>Reset Anual</th>
                   <th style={{ width: '120px' }}>Acciones</th>
                 </tr>

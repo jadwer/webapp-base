@@ -12,7 +12,7 @@ import { DemoBanner } from '@/modules/demo';
 const GA_ID = /^G-[A-Z0-9]{4,}$/.test(process.env.NEXT_PUBLIC_GA_ID ?? '') ? process.env.NEXT_PUBLIC_GA_ID : undefined
 
 export const metadata: Metadata = {
-  title: "WebApp Base Template",
+  title: "Tienda en línea",
   description: "",
   // Demo builds must never be indexed by search engines.
   ...(process.env.NEXT_PUBLIC_DEMO_MODE === 'true'

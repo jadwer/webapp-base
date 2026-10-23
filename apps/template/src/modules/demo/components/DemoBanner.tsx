@@ -56,9 +56,9 @@ export function DemoBanner() {
 
   const handleReset = async () => {
     const confirmed = await confirmModalRef.current?.confirm(
-      'Se borraran TODOS los datos del entorno de demostracion, incluyendo usuarios, carritos y sesiones activas. Tu sesion actual dejara de ser valida y tendras que volver a iniciar sesion. ¿Deseas continuar?',
+      'Se borrarán TODOS los datos del entorno de demostración, incluyendo usuarios, carritos y sesiones activas. Tu sesión actual dejará de ser válida y tendrás que volver a iniciar sesión. ¿Deseas continuar?',
       {
-        title: 'Reiniciar entorno de demostracion',
+        title: 'Reiniciar entorno de demostración',
         confirmText: 'Si, reiniciar todo',
         cancelText: 'Cancelar',
         confirmVariant: 'danger',
@@ -97,8 +97,8 @@ export function DemoBanner() {
         type="button"
         className="btn btn-warning btn-sm position-fixed rounded-circle shadow d-flex align-items-center justify-content-center"
         style={{ top: '0.5rem', right: '0.5rem', width: 36, height: 36, zIndex: 1090 }}
-        title="Entorno de demostracion (clic para expandir)"
-        aria-label="Expandir aviso de entorno de demostracion"
+        title="Entorno de demostración (clic para expandir)"
+        aria-label="Expandir aviso de entorno de demostración"
         onClick={() => toggleCollapsed(false)}
       >
         <i className="bi bi-flask" aria-hidden="true" />
@@ -112,16 +112,16 @@ export function DemoBanner() {
         className="bg-warning-subtle border-bottom border-warning sticky-top"
         style={{ zIndex: 1090 }}
         role="region"
-        aria-label="Aviso de entorno de demostracion"
+        aria-label="Aviso de entorno de demostración"
       >
         <div className="container-fluid d-flex flex-wrap align-items-center gap-2 py-2 px-3 small">
           <i className="bi bi-flask text-warning-emphasis" aria-hidden="true" />
           <span>
-            <strong>Entorno de demostracion:</strong> los datos se reinician cada lunes.
+            <strong>Entorno de demostración:</strong> los datos se reinician cada lunes.
           </span>
           {nextResetLabel && (
             <span className="text-muted d-none d-md-inline">
-              Proximo reinicio: {nextResetLabel}
+              Próximo reinicio: {nextResetLabel}
             </span>
           )}
           <div className="ms-auto d-flex align-items-center gap-2">
@@ -148,13 +148,13 @@ export function DemoBanner() {
               className="btn btn-sm btn-primary"
             >
               <i className="bi bi-envelope me-1" aria-hidden="true" />
-              ¿Te intereso? Contactanos
+              ¿Te interesó? Contáctanos
             </a>
             <button
               type="button"
               className="btn btn-sm btn-link text-body p-0 ms-1"
               title="Colapsar aviso"
-              aria-label="Colapsar aviso de entorno de demostracion"
+              aria-label="Colapsar aviso de entorno de demostración"
               onClick={() => toggleCollapsed(true)}
             >
               <i className="bi bi-pin-angle" aria-hidden="true" />
