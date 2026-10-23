@@ -3,6 +3,7 @@
 import { useState, useRef } from 'react'
 import { useCFDIInvoices, useCFDIInvoicesMutations, useCFDIWorkflow } from '../hooks'
 import type { CFDIInvoicesFilters, CFDIStatus, TipoComprobante } from '../types'
+import { CFDI_STATUS_BADGES, cfdiStatusBadge } from '../utils/status'
 import { toast } from '@lwm/ui'
 import { BranchFilter, useBranchName } from '@lwm/auth'
 import { ConfirmModal, type ConfirmModalHandle } from '@lwm/ui'
@@ -81,11 +82,14 @@ export function CFDIInvoicesAdminPage() {
     }
 
     try {
-      await cancelInvoice(id, { motivo, uuidReemplazo })
+      const result = await cancelInvoice(id, { motivo, uuidReemplazo })
       mutate()
-      toast.success('Factura cancelada correctamente')
-    } catch {
-      toast.error('Error al cancelar factura')
+      // Si el SAT pide aceptacion del receptor la factura queda "Cancelación en proceso"
+      toast.success(result.message || 'Cancelación solicitada al SAT')
+    } catch (err) {
+      // Error del PAC/SAT con detalle (regla 7: nunca toast generico)
+      const data = (err as { response?: { data?: { error?: string; message?: string } } }).response?.data
+      toast.error(data?.error || data?.message || 'Error al cancelar la factura')
     }
   }
 
@@ -134,21 +138,6 @@ export function CFDIInvoicesAdminPage() {
       toast.success('Factura eliminada')
     } catch {
       toast.error('Error al eliminar factura')
-    }
-  }
-
-  const getStatusBadgeClass = (status: CFDIStatus) => {
-    switch (status) {
-      case 'draft':
-        return 'badge bg-secondary'
-      case 'valid':
-        return 'badge bg-success'
-      case 'cancelled':
-        return 'badge bg-danger'
-      case 'error':
-        return 'badge bg-warning'
-      default:
-        return 'badge bg-secondary'
     }
   }
 
@@ -271,10 +260,9 @@ export function CFDIInvoicesAdminPage() {
                 }
               >
                 <option value="">Todos los estados</option>
-                <option value="draft">Borrador</option>
-                <option value="valid">Válido</option>
-                <option value="cancelled">Cancelado</option>
-                <option value="error">Error</option>
+                {Object.entries(CFDI_STATUS_BADGES).map(([value, { label }]) => (
+                  <option key={value} value={value}>{label}</option>
+                ))}
               </select>
             </div>
             <div className="col-12 col-md-2">
@@ -387,8 +375,8 @@ export function CFDIInvoicesAdminPage() {
                         <small>{formatDate(invoice.fechaEmision)}</small>
                       </td>
                       <td>
-                        <span className={getStatusBadgeClass(invoice.status)}>
-                          {invoice.status}
+                        <span className={`badge ${cfdiStatusBadge(invoice.status).className}`}>
+                          {cfdiStatusBadge(invoice.status).label}
                         </span>
                       </td>
                       <td>

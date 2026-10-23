@@ -212,39 +212,24 @@ describe('salesService', () => {
     })
   })
 
-  describe('orders.updateTotals', () => {
-    it('should update sales order totals', async () => {
-      // Arrange
-      const totals = {
-        totalAmount: 1500.00,
-        subtotalAmount: 1400.00,
-        taxAmount: 100.00,
-      }
-      const updatedOrder = mockSalesOrder({
-        id: '1',
-        totalAmount: totals.totalAmount,
+  describe('orders.createWithItems', () => {
+    it('crea pedido y partidas en una sola llamada; los totales vienen del servidor', async () => {
+      vi.mocked(axios.post).mockResolvedValue({
+        data: { message: 'ok', data: { id: 9, order_number: 'X-1', total_amount: 116 } },
       })
-      const apiResponse = {
-        data: updatedOrder,
-      }
-      vi.mocked(axios.patch).mockResolvedValue(apiResponse)
 
-      // Act
-      const result = await salesService.orders.updateTotals('1', totals)
-
-      // Assert
-      expect(axios.patch).toHaveBeenCalledWith('/api/v1/sales-orders/1', {
-        data: {
-          type: 'sales-orders',
-          id: '1',
-          attributes: {
-            totalAmount: 1500.00,
-            subtotalAmount: 1400.00,
-            taxAmount: 100.00,
-          },
-        },
+      const result = await salesService.orders.createWithItems({
+        contactId: '3',
+        orderDate: '2026-10-22',
+        status: 'pending',
+        items: [{ productId: '5', quantity: 2.5, unitPrice: 40 }],
       })
-      expect(result).toEqual(updatedOrder)
+
+      expect(axios.post).toHaveBeenCalledWith('/api/v1/sales-orders/with-items', expect.objectContaining({
+        contact_id: 3,
+        items: [{ product_id: 5, quantity: 2.5, unit_price: 40, discount: 0 }],
+      }))
+      expect(result).toEqual({ id: '9', orderNumber: 'X-1', totalAmount: 116 })
     })
   })
 

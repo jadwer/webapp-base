@@ -361,7 +361,38 @@ describe('CFDI Invoices Services', () => {
         motivo_cancelacion: '02',
         uuid_sustitucion: null,
       });
-      expect(result).toEqual(mockResponse);
+      expect(result).toEqual({ ...mockResponse, cancellationStatus: undefined, message: 'CFDI cancelado correctamente' });
+    });
+
+    it('cancelacion con aceptacion: queda en proceso con el estatus del SAT', async () => {
+      vi.mocked(axiosClient.post).mockResolvedValue({
+        data: {
+          message: 'Cancelación solicitada al SAT; queda en proceso hasta su confirmación',
+          data: { id: 1, uuid: 'ABCD', status: 'cancel_pending', fecha_cancelacion: null, cancellation_status: 'En proceso', motivo: '02' },
+        },
+      });
+
+      const result = await cfdiInvoicesService.cancel('1', { motivo: '02' });
+
+      expect(result.status).toBe('cancel_pending');
+      expect(result.cancellationStatus).toBe('En proceso');
+      expect(result.fechaCancelacion).toBeUndefined();
+    });
+  });
+
+  describe('getCancellationStatus', () => {
+    it('lee el resultado de la consulta al SAT', async () => {
+      vi.mocked(axiosClient.get).mockResolvedValue({
+        data: {
+          message: 'Estatus de cancelación obtenido',
+          data: { id: 1, status: 'valid', cancellation_status: 'Solicitud rechazada', cancellation_checked_at: '2026-10-22T20:00:00Z', fecha_cancelacion: null },
+        },
+      });
+
+      const result = await cfdiInvoicesService.getCancellationStatus('1');
+
+      expect(axiosClient.get).toHaveBeenCalledWith('/api/v1/cfdi-invoices/1/cancellation-status');
+      expect(result).toEqual({ status: 'valid', cancellationStatus: 'Solicitud rechazada', fechaCancelacion: undefined, checkedAt: '2026-10-22T20:00:00Z' });
     });
   });
 

@@ -70,7 +70,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     price: product?.price?.toString() || '',
     pricingType: normalizePricingType(product?.pricingType) as PricingType,
     cost: product?.cost?.toString() || '',
-    iva: product?.iva || false,
+    iva: product?.iva ?? true,
     // isPublic default true (marcado). false = producto interno.
     isPublic: product?.isPublic ?? true,
     // Oferta. Las fechas se manejan como YYYY-MM-DD para el input date.
@@ -156,7 +156,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         price: product.price?.toString() || '',
         pricingType: normalizePricingType(product.pricingType),
         cost: product.cost?.toString() || '',
-        iva: product.iva || false,
+        iva: product.iva ?? true,
         isPublic: product.isPublic ?? true,
         isOnSale: product.isOnSale ?? false,
         saleStartsAt: product.saleStartsAt?.slice(0, 10) || '',

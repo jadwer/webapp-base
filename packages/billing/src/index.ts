@@ -29,12 +29,24 @@ export type {
   CFDIStampResponse,
   CFDICancelRequest,
   CFDICancelResponse,
+  CFDICancellationStatusResult,
   CFDIGenerateResponse,
   CFDIDownloadInfo,
   CreateCFDIInvoiceData,
   // Payment complement (REP)
   PaymentComplementResponse,
 } from './types'
+
+export { CFDI_STATUS_BADGES, cfdiStatusBadge, CFDI_MOTIVOS_CANCELACION } from './utils/status'
+export { freeInvoiceService } from './services/freeInvoiceService'
+export type {
+  FreeInvoiceOptions,
+  FreeInvoiceReceptor,
+  FreeInvoicePayload,
+  FreeInvoiceLine,
+  FreeInvoiceCustomer,
+} from './services/freeInvoiceService'
+export { FreeInvoiceForm } from './components/FreeInvoiceForm'
 
 // ============================================================================
 // SERVICES

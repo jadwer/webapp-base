@@ -12,8 +12,9 @@
 
 export type TipoComprobante = 'I' | 'E' | 'T' | 'N' | 'P' // Ingreso, Egreso, Traslado, Nomina, Pago
 // Valores reales de cfdi_invoices.status (api-base Modules/Billing: CFDIInvoiceRequest y
-// CFDIStampingService): draft al crear, valid al timbrar, cancelled al cancelar, error
-export type CFDIStatus = 'draft' | 'valid' | 'cancelled' | 'error'
+// CFDIStampingService): draft al crear, valid al timbrar, cancel_pending al solicitar
+// la cancelacion (espera aceptacion del receptor o el plazo del SAT), cancelled, error
+export type CFDIStatus = 'draft' | 'valid' | 'cancel_pending' | 'cancelled' | 'error'
 export type MetodoPago = 'PUE' | 'PPD' // Pago en Una Exhibicion, Pago en Parcialidades o Diferido
 
 export interface CFDIInvoice {
@@ -77,6 +78,13 @@ export interface CFDIInvoice {
   fechaEmision: string
   fechaTimbrado?: string
   fechaCancelacion?: string
+
+  // Cancelacion (solo lectura; la escribe el backend)
+  motivoCancelacion?: string
+  uuidSustitucion?: string
+  cancellationStatus?: string
+  cancellationRequestedAt?: string
+  cancellationCheckedAt?: string
 
   // Files
   xmlPath?: string
@@ -316,7 +324,16 @@ export interface CFDICancelRequest {
 export interface CFDICancelResponse {
   cfdiId: string
   status: CFDIStatus
-  fechaCancelacion: string
+  fechaCancelacion?: string
+  cancellationStatus?: string
+  message?: string
+}
+
+export interface CFDICancellationStatusResult {
+  status: CFDIStatus
+  cancellationStatus?: string
+  fechaCancelacion?: string
+  checkedAt?: string
 }
 
 // generate-xml / generate-pdf responden { message, invoice_id, xml | pdf_path, pdf_url }

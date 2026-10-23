@@ -213,15 +213,15 @@ export const useSalesOrderMutations = () => {
     await salesService.orders.delete(id)
   }, [])
 
-  const updateSalesOrderTotals = useCallback(async (id: string, totals: { totalAmount: number, subtotalAmount?: number, taxAmount?: number }) => {
-    const response = await salesService.orders.updateTotals(id, totals)
-    return response
-  }, [])
+  const createSalesOrderWithItems = useCallback(
+    async (data: Parameters<typeof salesService.orders.createWithItems>[0]) => salesService.orders.createWithItems(data),
+    []
+  )
 
   return {
     createSalesOrder,
     updateSalesOrder,
-    updateSalesOrderTotals,
+    createSalesOrderWithItems,
     deleteSalesOrder
   }
 }

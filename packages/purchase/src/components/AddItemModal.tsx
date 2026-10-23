@@ -177,10 +177,10 @@ export default function AddItemModal({ purchaseOrderId, isOpen, onClose, onSucce
                   <input
                     type="number"
                     className="form-control"
-                    min="1"
-                    step="1"
+                    min="0.0001"
+                    step="any"
                     value={formData.quantity}
-                    onChange={(e) => setFormData(prev => ({ ...prev, quantity: parseInt(e.target.value) || 1 }))}
+                    onChange={(e) => setFormData(prev => ({ ...prev, quantity: parseFloat(e.target.value) || 1 }))}
                     required
                     disabled={isSubmitting}
                   />

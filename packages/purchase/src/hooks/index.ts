@@ -194,15 +194,15 @@ export const usePurchaseOrderMutations = () => {
     await purchaseService.orders.delete(id)
   }, [])
 
-  const updatePurchaseOrderTotals = useCallback(async (id: string, totals: { totalAmount: number }) => {
-    const response = await purchaseService.orders.updateTotals(id, totals)
-    return response
-  }, [])
+  const createPurchaseOrderWithItems = useCallback(
+    async (data: Parameters<typeof purchaseService.orders.createWithItems>[0]) => purchaseService.orders.createWithItems(data),
+    []
+  )
 
   return {
     createPurchaseOrder,
     updatePurchaseOrder,
-    updatePurchaseOrderTotals,
+    createPurchaseOrderWithItems,
     deletePurchaseOrder
   }
 }

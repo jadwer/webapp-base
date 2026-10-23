@@ -730,6 +730,9 @@ importers:
       '@lwm/auth':
         specifier: workspace:*
         version: link:../auth
+      '@lwm/products':
+        specifier: workspace:*
+        version: link:../products
       '@lwm/ui':
         specifier: workspace:*
         version: link:../ui

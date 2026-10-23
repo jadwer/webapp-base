@@ -2,7 +2,13 @@
 
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { useCFDIInvoice, useCFDIInvoicesMutations, PaymentComplementsSection } from '@/modules/billing'
+import {
+  useCFDIInvoice,
+  useCFDIInvoicesMutations,
+  PaymentComplementsSection,
+  cfdiStatusBadge,
+  CFDI_MOTIVOS_CANCELACION,
+} from '@/modules/billing'
 import { toast } from '@/lib/toast'
 
 interface InvoiceViewPageProps {
@@ -11,12 +17,8 @@ interface InvoiceViewPageProps {
   }>
 }
 
-const STATUS_BADGES: Record<string, { class: string; label: string }> = {
-  draft: { class: 'bg-secondary', label: 'Borrador' },
-  valid: { class: 'bg-success', label: 'Vigente' },
-  cancelled: { class: 'bg-danger', label: 'Cancelado' },
-  error: { class: 'bg-warning', label: 'Error' },
-}
+const formatDateTime = (iso?: string) =>
+  iso ? new Date(iso).toLocaleString('es-MX', { dateStyle: 'medium', timeStyle: 'short' }) : '-'
 
 const TIPO_LABELS: Record<string, string> = {
   I: 'Ingreso',
@@ -29,7 +31,7 @@ const TIPO_LABELS: Record<string, string> = {
 export default function InvoiceViewPage({ params }: InvoiceViewPageProps) {
   const resolvedParams = React.use(params)
   const router = useRouter()
-  const { invoice, isLoading } = useCFDIInvoice(resolvedParams.id)
+  const { invoice, isLoading, mutate } = useCFDIInvoice(resolvedParams.id)
   const { validateSAT, getCancellationStatus, downloadPrefactura, previewPrefactura } =
     useCFDIInvoicesMutations()
 
@@ -40,11 +42,6 @@ export default function InvoiceViewPage({ params }: InvoiceViewPageProps) {
     fechaEmision: string
     rfcEmisor: string
     rfcReceptor: string
-  } | null>(null)
-  const [cancellationStatus, setCancellationStatus] = useState<{
-    status: 'cancellation_pending' | 'cancelled'
-    fechaCancelacion?: string
-    acuse?: string
   } | null>(null)
   const [validatingSat, setValidatingSat] = useState(false)
   const [checkingCancellation, setCheckingCancellation] = useState(false)
@@ -77,14 +74,17 @@ export default function InvoiceViewPage({ params }: InvoiceViewPageProps) {
     setCheckingCancellation(true)
     try {
       const result = await getCancellationStatus(resolvedParams.id)
-      setCancellationStatus(result)
-      toast.success(
-        result.status === 'cancelled'
-          ? 'Cancelacion confirmada ante el SAT'
-          : 'Cancelacion en proceso ante el SAT'
-      )
-    } catch {
-      toast.error('Error al consultar el estatus de cancelacion')
+      await mutate()
+      if (result.status === 'cancelled') {
+        toast.success('El SAT confirmó la cancelación')
+      } else if (result.status === 'valid') {
+        toast.info('El receptor rechazó la cancelación; la factura sigue vigente')
+      } else {
+        toast.info(`Cancelación en proceso: ${result.cancellationStatus || 'sin respuesta del SAT'}`)
+      }
+    } catch (err) {
+      const data = (err as { response?: { data?: { error?: string; message?: string } } }).response?.data
+      toast.error(data?.error || data?.message || 'Error al consultar el estatus de cancelación')
     } finally {
       setCheckingCancellation(false)
     }
@@ -147,7 +147,7 @@ export default function InvoiceViewPage({ params }: InvoiceViewPageProps) {
     )
   }
 
-  const statusBadge = STATUS_BADGES[invoice.status] || STATUS_BADGES.draft
+  const statusBadge = cfdiStatusBadge(invoice.status)
 
   return (
     <div className="container-fluid py-4">
@@ -170,7 +170,7 @@ export default function InvoiceViewPage({ params }: InvoiceViewPageProps) {
                 Factura {invoice.series}-{invoice.folio}
               </h1>
               <p className="text-muted mb-0">
-                <span className={`badge ${statusBadge.class} me-2`}>
+                <span className={`badge ${statusBadge.className} me-2`}>
                   {statusBadge.label}
                 </span>
                 {invoice.uuid && (
@@ -206,7 +206,7 @@ export default function InvoiceViewPage({ params }: InvoiceViewPageProps) {
                 )}
               </button>
             </div>
-            {(invoice.status === 'valid' || invoice.status === 'cancelled') && (
+            {(invoice.status === 'valid' || invoice.status === 'cancel_pending' || invoice.status === 'cancelled') && (
               <button
                 className="btn btn-outline-primary me-2"
                 onClick={handleValidateSAT}
@@ -221,19 +221,19 @@ export default function InvoiceViewPage({ params }: InvoiceViewPageProps) {
                 Validar en SAT
               </button>
             )}
-            {invoice.status === 'cancelled' && (
+            {invoice.status === 'cancel_pending' && (
               <button
                 className="btn btn-outline-info me-2"
                 onClick={handleCheckCancellationStatus}
                 disabled={checkingCancellation}
-                title="Consultar estatus de cancelacion ante el SAT"
+                title="Consultar ahora el estatus de la cancelación ante el SAT"
               >
                 {checkingCancellation ? (
                   <span className="spinner-border spinner-border-sm me-2" />
                 ) : (
                   <i className="bi bi-hourglass-split me-2" />
                 )}
-                Estatus de cancelacion
+                Consultar estatus ahora
               </button>
             )}
             {invoice.status === 'draft' && (
@@ -244,15 +244,15 @@ export default function InvoiceViewPage({ params }: InvoiceViewPageProps) {
             )}
           </div>
 
-          {/* Resultados de validacion SAT / cancelacion */}
-          {(satValidation || cancellationStatus) && (
+          {/* Resultados de validacion SAT y cancelacion */}
+          {(satValidation || invoice.cancellationRequestedAt) && (
             <div className="row justify-content-center mb-4">
               <div className="col-lg-10 col-xl-8">
                 {satValidation && (
                   <div className={`alert ${satValidation.valid ? 'alert-success' : 'alert-warning'} d-flex align-items-start`}>
                     <i className={`bi ${satValidation.valid ? 'bi-patch-check-fill' : 'bi-exclamation-triangle-fill'} me-2 fs-5`} />
                     <div>
-                      <strong>Validacion SAT: {satValidation.status}</strong>
+                      <strong>Validación SAT: {satValidation.status}</strong>
                       <br />
                       <small>
                         UUID {satValidation.uuid || invoice.uuid || '-'} - Emisor {satValidation.rfcEmisor || invoice.companySetting?.rfc || '-'} - Receptor {satValidation.rfcReceptor || invoice.receptorRfc}
@@ -260,17 +260,40 @@ export default function InvoiceViewPage({ params }: InvoiceViewPageProps) {
                     </div>
                   </div>
                 )}
-                {cancellationStatus && (
-                  <div className={`alert ${cancellationStatus.status === 'cancelled' ? 'alert-success' : 'alert-info'} d-flex align-items-start`}>
-                    <i className={`bi ${cancellationStatus.status === 'cancelled' ? 'bi-check-circle-fill' : 'bi-hourglass-split'} me-2 fs-5`} />
+                {invoice.cancellationRequestedAt && (
+                  <div
+                    className={`alert ${
+                      invoice.status === 'cancelled' ? 'alert-danger' : invoice.status === 'valid' ? 'alert-secondary' : 'alert-warning'
+                    } d-flex align-items-start`}
+                  >
+                    <i
+                      className={`bi ${
+                        invoice.status === 'cancel_pending' ? 'bi-hourglass-split' : invoice.status === 'cancelled' ? 'bi-x-circle-fill' : 'bi-arrow-counterclockwise'
+                      } me-2 fs-5`}
+                    />
                     <div>
                       <strong>
-                        {cancellationStatus.status === 'cancelled' ? 'Cancelacion confirmada' : 'Cancelacion pendiente'}
+                        {invoice.status === 'cancel_pending'
+                          ? 'Se está cancelando esta factura'
+                          : invoice.status === 'cancelled'
+                            ? 'Factura cancelada ante el SAT'
+                            : 'El receptor rechazó la cancelación'}
                       </strong>
-                      {cancellationStatus.fechaCancelacion && (
+                      <br />
+                      <small>
+                        Estatus SAT: {invoice.cancellationStatus || '-'} | Motivo:{' '}
+                        {CFDI_MOTIVOS_CANCELACION[invoice.motivoCancelacion ?? ''] || invoice.motivoCancelacion || '-'}
+                        <br />
+                        Solicitada: {formatDateTime(invoice.cancellationRequestedAt)} | Última consulta:{' '}
+                        {formatDateTime(invoice.cancellationCheckedAt)}
+                        {invoice.status === 'cancelled' && <> | Cancelada: {formatDateTime(invoice.fechaCancelacion)}</>}
+                      </small>
+                      {invoice.status === 'cancel_pending' && (
                         <>
                           <br />
-                          <small>Fecha de cancelacion: {cancellationStatus.fechaCancelacion}</small>
+                          <small className="text-muted">
+                            Si el SAT requiere la aceptación del receptor, este tiene 72 horas para aceptarla o rechazarla en su buzón tributario. El sistema consulta el estatus cada dos horas.
+                          </small>
                         </>
                       )}
                     </div>

@@ -70,22 +70,30 @@ export const purchaseService = {
       }
     },
 
-    updateTotals: async (id: string, totals: { totalAmount: number }) => {
-      try {
-        const payload = {
-          data: {
-            type: 'purchase-orders',
-            id: id,
-            attributes: {
-              totalAmount: parseFloat(totals.totalAmount.toString()) // Ensure float
-            }
-          }
-        }
-        const response = await axiosClient.patch(`/api/v1/purchase-orders/${id}`, payload)
-        return response.data
-      } catch (error) {
-        throw error
-      }
+    /** Alta atomica de la orden con sus partidas; el total lo calcula el servidor (22-10). */
+    createWithItems: async (data: {
+      contactId: string
+      orderDate: string
+      status: string
+      notes?: string
+      branchId?: string
+      items: Array<{ productId: string; quantity: number; unitPrice: number; discount?: number }>
+    }): Promise<{ id: string; orderNumber: string; totalAmount: number }> => {
+      const response = await axiosClient.post('/api/v1/purchase-orders/with-items', {
+        contact_id: Number(data.contactId),
+        order_date: data.orderDate,
+        status: data.status,
+        notes: data.notes || null,
+        branch_id: data.branchId ? Number(data.branchId) : null,
+        items: data.items.map((i) => ({
+          product_id: Number(i.productId),
+          quantity: i.quantity,
+          unit_price: i.unitPrice,
+          discount: i.discount || 0,
+        })),
+      })
+      const d = response.data.data
+      return { id: String(d.id), orderNumber: d.order_number, totalAmount: Number(d.total_amount) }
     },
     
     delete: async (id: string) => {

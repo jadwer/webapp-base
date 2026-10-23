@@ -132,7 +132,8 @@ export const productService = {
           ...(data.pricingType !== undefined && { pricingType: data.pricingType }),
           ...(data.price !== undefined && { price: data.price }),
           ...(data.cost !== undefined && { cost: data.cost }),
-          iva: data.iva ?? false,
+          // Todos los productos llevan IVA 16% (Jasim 2026-10-22)
+          iva: data.iva ?? true,
           // isPublic: false = producto interno (oculto del catalogo publico).
           // Solo se envia si el formulario lo definio; si no, el backend aplica
           // su default true.

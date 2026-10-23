@@ -3,7 +3,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useSalesOrderMutations, useSalesContacts, useSalesOrderItemMutations } from '@/modules/sales'
+import { useSalesOrderMutations, useSalesContacts } from '@/modules/sales'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
 import { ItemsManager } from '@/modules/sales'
 import { extractApiErrorMessage } from '@/modules/products'
@@ -22,8 +22,7 @@ interface OrderItem {
 
 export default function CreateSalesOrderPage() {
   const navigation = useNavigationProgress()
-  const { createSalesOrder, updateSalesOrderTotals } = useSalesOrderMutations()
-  const { createSalesOrderItem } = useSalesOrderItemMutations()
+  const { createSalesOrderWithItems } = useSalesOrderMutations()
   const { contacts, isLoading: contactsLoading } = useSalesContacts()
 
   const [formData, setFormData] = useState({
@@ -62,61 +61,26 @@ export default function CreateSalesOrderPage() {
     setError(null)
 
     try {
-      // Generate order number if not provided
-      const orderNumber = formData.orderNumber || `SO-${Date.now()}`
-      
-      console.log('🚀 Starting 3-step order creation process with items:', { orderItems })
-      
-      // 🟦 STEP 1: Create order with 0 totals
-      const orderData = {
-        ...formData,
-        orderNumber,
-        contactId: parseInt(formData.contactId),
-        totalAmount: 0,
-        subtotalAmount: 0,
-        taxAmount: 0
-      }
-
-      console.log('📝 STEP 1: Creating sales order with zero totals:', orderData)
-      const orderResponse = await createSalesOrder(orderData)
-      const orderId = orderResponse.data?.id || orderResponse.id
-      console.log('✅ STEP 1 Complete: Order created with ID:', orderId)
-      
-      // 🟦 STEP 2: Create all items
-      console.log('📦 STEP 2: Creating', orderItems.length, 'items')
-      for (const item of orderItems) {
-        const itemData = {
-          salesOrderId: parseInt(orderId), // Ensure orderId is integer
-          productId: parseInt(item.productId),
+      // Alta atomica: el servidor crea pedido y partidas en una transaccion
+      // y calcula subtotal, IVA y total (hallazgo Atomo 22-10).
+      const created = await createSalesOrderWithItems({
+        contactId: formData.contactId,
+        orderNumber: formData.orderNumber || undefined,
+        orderDate: formData.orderDate,
+        status: formData.status,
+        notes: formData.notes,
+        branchId: formData.branchId,
+        items: orderItems.map((item) => ({
+          productId: item.productId,
           quantity: item.quantity,
           unitPrice: item.unitPrice,
           discount: item.discount,
-          total: item.total
-        }
-        
-        console.log('📦 Creating item:', itemData)
-        await createSalesOrderItem(itemData)
-      }
-      console.log('✅ STEP 2 Complete: All items created')
-      
-      // 🟦 STEP 3: Update order totals
-      const finalTotals = {
-        totalAmount: totalAmount,
-        subtotalAmount: totalAmount, // For now, same as total
-        taxAmount: 0 // No tax calculation for now
-      }
-      
-      console.log('💰 STEP 3: Updating order totals:', finalTotals)
-      await updateSalesOrderTotals(orderId, finalTotals)
-      console.log('✅ STEP 3 Complete: Order totals updated')
-      
-      console.log('🎉 Sales order creation completed successfully!')
-      
-      // Navigate to the created order detail page
-      navigation.push(`/dashboard/sales/${orderId}`)
+        })),
+      })
+
+      navigation.push(`/dashboard/sales/${created.id}`)
 
     } catch (err) {
-      console.error('❌ Error creating sales order:', err)
       // Regla 7: el 422 (p. ej. una linea con precio en cero) llega con su detalle
       setError(extractApiErrorMessage(err, 'Error al crear la orden de venta'))
     } finally {

@@ -189,9 +189,10 @@ export default function ItemsManager({ items, onItemsChange, onTotalChange }: It
                 <input
                   type="number"
                   className="form-control form-control-sm"
-                  min="1"
+                  min="0.0001"
+                  step="any"
                   value={newItem.quantity}
-                  onChange={(e) => setNewItem(prev => ({ ...prev, quantity: parseInt(e.target.value) || 1 }))}
+                  onChange={(e) => setNewItem(prev => ({ ...prev, quantity: parseFloat(e.target.value) || 1 }))}
                 />
               </div>
               
@@ -287,9 +288,10 @@ export default function ItemsManager({ items, onItemsChange, onTotalChange }: It
                       <input
                         type="number"
                         className="form-control form-control-sm"
-                        min="1"
+                        min="0.0001"
+                        step="any"
                         value={item.quantity}
-                        onChange={(e) => updateItemQuantity(item.tempId, parseInt(e.target.value) || 1)}
+                        onChange={(e) => updateItemQuantity(item.tempId, parseFloat(e.target.value) || 1)}
                       />
                     </td>
                     <td>

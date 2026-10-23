@@ -21,6 +21,8 @@ import type {
   CFDIStampResponse,
   CFDICancelRequest,
   CFDICancelResponse,
+  CFDICancellationStatusResult,
+  CFDIStatus,
   CFDIGenerateResponse,
   CreateCFDIInvoiceData,
 } from '../types'
@@ -200,7 +202,7 @@ export const cfdiInvoicesService = {
 
   /**
    * Cancel CFDI invoice with SAT
-   * Workflow: valid -> cancelled
+   * Workflow: valid -> cancel_pending -> cancelled (o valid si el receptor la rechaza)
    */
   cancel: async (
     id: string,
@@ -211,12 +213,14 @@ export const cfdiInvoicesService = {
       motivo_cancelacion: cancelRequest.motivo,
       uuid_sustitucion: cancelRequest.uuidReemplazo || null,
     })
-    // Respuesta: { message, data: { id, uuid, fecha_cancelacion, status, motivo } }
+    // Respuesta: { message, data: { id, uuid, fecha_cancelacion, status, cancellation_status, motivo } }
     const data = response.data.data as Record<string, unknown>
     return {
       cfdiId: String(data.id),
       status: data.status as CFDICancelResponse['status'],
-      fechaCancelacion: data.fecha_cancelacion as string,
+      fechaCancelacion: (data.fecha_cancelacion as string | null) ?? undefined,
+      cancellationStatus: (data.cancellation_status as string | null) ?? undefined,
+      message: response.data.message as string | undefined,
     }
   },
 
@@ -288,18 +292,16 @@ export const cfdiInvoicesService = {
   /**
    * Get cancellation status
    */
-  getCancellationStatus: async (id: string): Promise<{
-    status: 'cancellation_pending' | 'cancelled'
-    fechaCancelacion?: string
-    acuse?: string
-  }> => {
-    // Endpoint propio: { message, data: <respuesta del PAC> }
+  getCancellationStatus: async (id: string): Promise<CFDICancellationStatusResult> => {
+    // Con cancelacion en proceso el backend consulta al SAT y la resuelve:
+    // { message, data: { id, status, cancellation_status, cancellation_checked_at, fecha_cancelacion } }
     const response = await axiosClient.get(`/api/v1/cfdi-invoices/${id}/cancellation-status`)
     const data = ((response.data?.data ?? response.data) || {}) as Record<string, unknown>
     return {
-      status: data.status as 'cancellation_pending' | 'cancelled',
-      fechaCancelacion: (data.fechaCancelacion ?? data.fecha_cancelacion) as string | undefined,
-      acuse: data.acuse as string | undefined,
+      status: data.status as CFDIStatus,
+      cancellationStatus: ((data.cancellation_status ?? data.estatus_cancelacion) as string | null) ?? undefined,
+      fechaCancelacion: (data.fecha_cancelacion as string | null) ?? undefined,
+      checkedAt: (data.cancellation_checked_at as string | null) ?? undefined,
     }
   },
 

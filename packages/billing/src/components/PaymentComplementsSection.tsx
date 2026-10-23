@@ -16,18 +16,16 @@ import React, { useState } from 'react'
 import { toast } from '@lwm/ui'
 import { usePaymentComplements, useCFDIInvoicesMutations } from '../hooks'
 import type { CFDIInvoice } from '../types'
+import { CFDI_STATUS_BADGES } from '../utils/status'
 
 interface PaymentComplementsSectionProps {
   /** The parent PPD invoice being viewed. */
   invoice: CFDIInvoice
 }
 
-const REP_STATUS_BADGES: Record<string, { class: string; label: string }> = {
-  draft: { class: 'bg-secondary', label: 'Borrador' },
-  valid: { class: 'bg-success', label: 'Vigente' },
-  cancelled: { class: 'bg-danger', label: 'Cancelado' },
-  error: { class: 'bg-warning', label: 'Error' },
-}
+const REP_STATUS_BADGES: Record<string, { class: string; label: string }> = Object.fromEntries(
+  Object.entries(CFDI_STATUS_BADGES).map(([status, { className, label }]) => [status, { class: className, label }])
+)
 
 const formatCurrency = (cents?: number): string => {
   if (cents === undefined || cents === null) return '-'

@@ -124,7 +124,7 @@ describe('useProductSearch', () => {
       id: '1',
       path: '/productos/1',
       name: 'Product 1',
-      displayPrice: '$100.00',
+      displayPrice: '$100.00 + IVA',
       currency: 'MXN',
       imageUrl: 'https://example.com/image1.jpg',
     })

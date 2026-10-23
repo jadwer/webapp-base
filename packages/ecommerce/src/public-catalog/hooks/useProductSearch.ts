@@ -24,7 +24,7 @@ export interface ProductSearchResult {
   /** Ruta de la ficha (/productos/<slug> o /productos/<id>). */
   path: string
   name: string
-  /** Formatted price string, e.g. "$100.00" (falls back to raw when needed). */
+  /** Formatted price string, e.g. "$100.00 + IVA" (falls back to raw when needed). */
   displayPrice: string
   /** Currency code resolved from the product, defaults to MXN. */
   currency: string
@@ -43,7 +43,8 @@ function toSearchResult(product: EnhancedPublicProduct): ProductSearchResult {
     id: product.id,
     path: productPath(product),
     name: product.attributes.name,
-    displayPrice: product.displayPrice,
+    // Precios capturados sin IVA (Jasim 2026-10-22): la leyenda va en todo precio fijo
+    displayPrice: !product.isQuoteOnly && product.attributes.iva ? `${product.displayPrice} + IVA` : product.displayPrice,
     currency: product.displayCurrency,
     imageUrl: product.attributes.imageUrl
   }

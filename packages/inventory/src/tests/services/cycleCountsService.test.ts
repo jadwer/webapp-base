@@ -6,6 +6,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import axios from '../../lib/axiosClient'
 import { cycleCountsService } from '../../services'
+import { todayDateInput } from '@lwm/ui'
 
 // Mock axios client
 vi.mock('../../lib/axiosClient')
@@ -735,7 +736,8 @@ describe('cycleCountsService', () => {
       await cycleCountsService.getDueToday()
 
       // Assert
-      const today = new Date().toISOString().split('T')[0]
+      // Fecha local, como el servicio (todayDateInput); en UTC fallaba de 18:00 a 24:00 hora de Mexico
+      const today = todayDateInput()
       expect(axios.get).toHaveBeenCalledWith('/api/v1/cycle-counts', {
         params: expect.objectContaining({
           'filter[status]': 'scheduled',

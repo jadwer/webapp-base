@@ -169,6 +169,7 @@ export const OfertasPageClient: React.FC = () => {
                       <div className="d-flex align-items-center justify-content-between mb-3">
                         <span className="fs-4 fw-bold text-primary">
                           {formatPrice(product.attributes.price || 0)}
+                          {product.attributes.iva && <small className="fs-6 fw-normal text-muted ms-1">+ IVA</small>}
                         </span>
                         {product.displayUnit && (
                           <small className="text-muted">/ {product.displayUnit}</small>

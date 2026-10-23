@@ -245,22 +245,17 @@ describe('usePurchaseOrderMutations', () => {
     })
   })
 
-  describe('updatePurchaseOrderTotals', () => {
-    it('should update purchase order totals', async () => {
-      // Arrange
-      const totals = { totalAmount: 1500.00 }
-      const updatedOrder = mockPurchaseOrder({ id: '1', totalAmount: totals.totalAmount })
-      vi.mocked(purchaseService.orders.updateTotals).mockResolvedValue({
-        data: updatedOrder,
-      })
+  describe('createPurchaseOrderWithItems', () => {
+    it('delega el alta atomica al servicio', async () => {
+      const created = { id: '9', orderNumber: 'X-1', totalAmount: 116 }
+      purchaseService.orders.createWithItems = vi.fn().mockResolvedValue(created)
+      const data = { contactId: '3', orderDate: '2026-10-22', status: 'pending', items: [] }
 
-      // Act
       const { result } = renderHook(() => usePurchaseOrderMutations())
-      const updatedResult = await result.current.updatePurchaseOrderTotals('1', totals)
+      const response = await result.current.createPurchaseOrderWithItems(data)
 
-      // Assert
-      expect(updatedResult).toEqual({ data: updatedOrder })
-      expect(purchaseService.orders.updateTotals).toHaveBeenCalledWith('1', totals)
+      expect(response).toEqual(created)
+      expect(purchaseService.orders.createWithItems).toHaveBeenCalledWith(data)
     })
   })
 

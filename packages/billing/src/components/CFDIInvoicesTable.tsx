@@ -5,6 +5,7 @@ import clsx from 'clsx'
 import { Button } from '@lwm/ui'
 import { ConfirmModal, type ConfirmModalHandle } from '@lwm/ui'
 import type { CFDIInvoice, CFDIStatus, TipoComprobante } from '../types'
+import { CFDI_STATUS_BADGES } from '../utils/status'
 
 interface CFDIInvoicesTableProps {
   invoices: CFDIInvoice[]
@@ -21,12 +22,7 @@ interface CFDIInvoicesTableProps {
   className?: string
 }
 
-const STATUS_BADGES: Record<CFDIStatus, { className: string; label: string }> = {
-  draft: { className: 'bg-secondary', label: 'Borrador' },
-  valid: { className: 'bg-success', label: 'Valido' },
-  cancelled: { className: 'bg-danger', label: 'Cancelado' },
-  error: { className: 'bg-warning text-dark', label: 'Error' },
-}
+const STATUS_BADGES = CFDI_STATUS_BADGES
 
 const TIPO_COMPROBANTE_LABELS: Record<TipoComprobante, string> = {
   'I': 'Ingreso',
