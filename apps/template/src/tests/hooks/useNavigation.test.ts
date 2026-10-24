@@ -144,10 +144,13 @@ describe('useNavigation', () => {
       mockUser.mockReturnValue(makeUser({ roleName: 'guest' }))
     })
 
-    it('returns empty navigation', () => {
+    // Personal sin permisos: solo los enlaces de arriba sin permisos
+    // declarados (Inicio); ningun grupo del menu admin.
+    it('returns no groups and only open top links', () => {
       const { result } = renderHook(() => useNavigation())
-      expect(result.current.topLinks).toHaveLength(0)
+      expect(result.current.isStaff).toBe(true)
       expect(result.current.groups).toHaveLength(0)
+      expect(result.current.topLinks.every((l) => l.permissions.length === 0)).toBe(true)
     })
   })
 
