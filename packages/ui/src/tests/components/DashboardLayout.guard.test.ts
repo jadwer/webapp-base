@@ -50,3 +50,18 @@ describe('staffCanOpen', () => {
     expect(staffCanOpen('/dashboard/users', menu)).toBe(false)
   })
 })
+
+describe('staffCanOpen con el menu de administracion completo', () => {
+  const admin = {
+    topLinks: [item('/dashboard')],
+    groups: [{ items: [item('/dashboard/inventory'), item('/dashboard/inventory/stock'), item('/dashboard/inventory/fraccionamiento')] }],
+  }
+  const own = { topLinks: [item('/dashboard')], groups: [{ items: [item('/dashboard/inventory'), item('/dashboard/inventory/stock')] }] }
+
+  it('el enlace mas especifico decide', () => {
+    expect(staffCanOpen('/dashboard/inventory', own, admin)).toBe(true)
+    expect(staffCanOpen('/dashboard/inventory/stock/4', own, admin)).toBe(true)
+    expect(staffCanOpen('/dashboard/inventory/fraccionamiento', own, admin)).toBe(false)
+  })
+})
+

@@ -44,14 +44,28 @@ export function customerCanOpen(pathname: string, config: NavigationConfig): boo
 
 /**
  * El personal con rol propio abre lo que su menu filtrado por permisos le
- * muestra (y sus subrutas: detalle, alta, edicion) mas su perfil.
+ * muestra mas su perfil. Una subruta se decide por el enlace MAS ESPECIFICO
+ * del menu de administracion completo que la contiene: /dashboard/inventory
+ * (panel) no abre /dashboard/inventory/fraccionamiento si ese enlace no
+ * esta entre los suyos.
  */
-export function staffCanOpen(pathname: string, menu: { topLinks: NavLink[]; groups: { items: NavLink[] }[] }): boolean {
-  return opensUnder(pathname, [
-    { href: '/dashboard/profile' },
-    ...menu.topLinks,
-    ...menu.groups.flatMap((g) => g.items),
-  ])
+export function staffCanOpen(
+  pathname: string,
+  menu: { topLinks: NavLink[]; groups: { items: NavLink[] }[] },
+  adminSection?: { topLinks: NavLink[]; groups: { items: NavLink[] }[] }
+): boolean {
+  const own = [{ href: '/dashboard/profile' }, ...menu.topLinks, ...menu.groups.flatMap((g) => g.items)]
+  if (!adminSection) return opensUnder(pathname, own)
+  const all = [{ href: '/dashboard/profile' }, ...adminSection.topLinks, ...adminSection.groups.flatMap((g) => g.items)]
+  const matches = (h: string) =>
+    h === '/dashboard' ? pathname === '/dashboard' : pathname === h || pathname.startsWith(`${h}/`)
+  const best = all
+    .map((l) => l.href)
+    .filter((h) => h.startsWith('/dashboard') && matches(h))
+    .sort((a, b) => b.length - a.length)[0]
+  // Ruta fuera del menu de administracion: se decide por sus propios enlaces
+  if (!best) return opensUnder(pathname, own)
+  return own.some((l) => l.href === best)
 }
 
 export default function DashboardLayout({ children, navigationConfig }: DashboardLayoutProps) {
@@ -62,7 +76,7 @@ export default function DashboardLayout({ children, navigationConfig }: Dashboar
   // sus permisos) veia la pantalla de administracion con errores encima.
   const blocked =
     (nav.isCustomer && !customerCanOpen(pathname, navigationConfig)) ||
-    (nav.isStaff && !staffCanOpen(pathname, nav))
+    (nav.isStaff && !staffCanOpen(pathname, nav, navigationConfig.admin))
 
   return (
     <div className={styles.layout}>
