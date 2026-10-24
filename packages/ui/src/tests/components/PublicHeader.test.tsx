@@ -20,13 +20,14 @@ describe('PublicHeader', () => {
     rerender(<PublicHeader cart={<span data-testid="cart-slot">carrito</span>} />)
     expect(screen.getByTestId('cart-slot')).toBeInTheDocument()
   })
-  it('con logo muestra solo el logo y vuelve al nombre si no carga', () => {
-    settings['company.logo_path'] = '/images/brand/lwm-logo.webp'
-    render(<PublicHeader />)
-    const img = screen.getByRole('img', { name: 'Tu Marca' })
-    expect(screen.queryByText('Tu Marca')).not.toBeInTheDocument()
-    fireEvent.error(img)
+  it('muestra logo y nombre, y oculta el logo si no carga', () => {
+    settings['company.logo_path'] = '/images/brand/logo.png'
+    const { container } = render(<PublicHeader />)
+    const img = container.querySelector('header img') as HTMLImageElement
+    expect(img).toBeInTheDocument()
     expect(screen.getByText('Tu Marca')).toBeInTheDocument()
+    fireEvent.error(img)
+    expect(container.querySelector('header img')).not.toBeInTheDocument()
     settings['company.logo_path'] = null
   })
 })

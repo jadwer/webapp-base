@@ -28,22 +28,19 @@ export const PublicHeader: React.FC<PublicHeaderProps> = ({ search, cart }) => {
   const { get } = usePublicSettings()
   const name = get('company.name') || 'Tienda en línea'
   const logo = get('company.logo_path')
-  // Con logo se muestra solo el logo (suele traer el nombre); si no carga,
-  // vuelve el nombre en texto.
+  // Si el logo no carga se oculta y queda el nombre.
   const [logoFailed, setLogoFailed] = useState(false)
-  const showLogo = Boolean(logo) && !logoFailed
 
   return (
     <header className="bg-white border-bottom py-3">
       {/* En celular el buscador baja a su propia fila para que nada desborde. */}
       <div className="container d-flex flex-wrap align-items-center gap-2 gap-md-3">
         <Link href="/" className="text-decoration-none d-flex align-items-center gap-2" aria-label={`${name}, inicio`}>
-          {showLogo ? (
+          {logo && !logoFailed && (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={logo as string} alt={name} height={40} style={{ width: 'auto', maxWidth: 200 }} onError={() => setLogoFailed(true)} />
-          ) : (
-            <span className="fw-bold fs-5">{name}</span>
+            <img src={logo} alt="" height={36} style={{ width: 'auto' }} onError={() => setLogoFailed(true)} />
           )}
+          <span className="fw-bold fs-5">{name}</span>
         </Link>
         {search && (
           <div className="col-12 col-md order-last order-md-0 d-flex justify-content-center">{search}</div>
