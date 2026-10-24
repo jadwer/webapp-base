@@ -62,7 +62,7 @@ export * from './components/patterns'
 // ============================================
 // Layout primitives (require @lwm/auth as peer)
 // ============================================
-export { default as DashboardLayout, type DashboardLayoutProps } from './components/DashboardLayout'
+export { default as DashboardLayout, customerCanOpen, type DashboardLayoutProps } from './components/DashboardLayout'
 export { default as Sidebar, type SidebarProps } from './components/Sidebar'
 export { StaffDashboard } from './components/StaffDashboard'
 export { default as HeaderNavbar } from './components/HeaderNavbar'
