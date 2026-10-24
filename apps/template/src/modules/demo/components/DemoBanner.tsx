@@ -9,8 +9,8 @@ import { useDemoMode } from '../hooks/useDemoMode'
 import { demoService } from '../services/demoService'
 
 const CLOSED_KEY = 'demo_banner_closed'
-// La demo la vende LWM (Gabino 23-10)
-const CONTACT_EMAIL = 'direccion@laborwasserdemexico.com'
+// Contacto de quien vende el portal; se define al construir la demo.
+const CONTACT_EMAIL = process.env.NEXT_PUBLIC_DEMO_CONTACT_EMAIL ?? ''
 
 function formatNextReset(iso: string | null): string | null {
   if (!iso) return null
@@ -135,13 +135,15 @@ export function DemoBanner() {
                 </>
               )}
             </button>
-            <a
-              href={`mailto:${CONTACT_EMAIL}?subject=Me%20interesa%20el%20sistema`}
-              className="btn btn-sm btn-primary"
-            >
-              <i className="bi bi-envelope me-1" aria-hidden="true" />
-              ¿Te interesó? Contáctanos
-            </a>
+            {CONTACT_EMAIL && (
+              <a
+                href={`mailto:${CONTACT_EMAIL}?subject=Me%20interesa%20el%20sistema`}
+                className="btn btn-sm btn-primary"
+              >
+                <i className="bi bi-envelope me-1" aria-hidden="true" />
+                ¿Te interesó? Contáctanos
+              </a>
+            )}
             <button
               type="button"
               className="btn-close ms-1"
