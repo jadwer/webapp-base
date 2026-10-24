@@ -4,7 +4,9 @@ import React, { useState, useMemo, Component } from 'react'
 import type { ReactNode, ErrorInfo } from 'react'
 import Link from 'next/link'
 import { useAuth } from '@/modules/auth'
-import { isAdmin } from '@/lib/permissions'
+import { isAdmin, hasAnyRole } from '@/lib/permissions'
+import { StaffDashboard } from '@lwm/ui'
+import { adminNavigation, customerNavigation, customerExtraLinks } from '@/config/navigationConfig'
 import { CustomerDashboard } from '@/modules/ecommerce'
 import {
   useBalanceGeneral,
@@ -72,6 +74,15 @@ export default function DashboardPage() {
   }
 
   if (!isAdmin(user)) {
+    // Personal con rol propio (vendedor, tech, roles por puesto): sus modulos,
+    // no el portal de cliente ni el panel de finanzas.
+    if (!hasAnyRole(user, ['customer', 'cliente'])) {
+      return (
+        <DashboardErrorBoundary>
+          <StaffDashboard navigationConfig={{ admin: adminNavigation, customer: customerNavigation, customerExtraLinks }} />
+        </DashboardErrorBoundary>
+      )
+    }
     return (
       <DashboardErrorBoundary>
         <CustomerDashboard />

@@ -85,6 +85,8 @@ export interface UseNavigationResult {
   extraLinks: NavigationItem[]
   isCustomer: boolean
   isUserAdmin: boolean
+  /** Personal con rol propio (ni admin ni cliente): menu admin filtrado por permisos. */
+  isStaff: boolean
   title: string
 }
 
@@ -100,7 +102,9 @@ export interface UseNavigationResult {
  *
  * Admin/god roles bypass permission filtering entirely. Customer roles
  * have items filtered by `hasAnyPermission(user, item.permissions)`;
- * groups with zero visible items are dropped.
+ * groups with zero visible items are dropped. Any other role (vendedor,
+ * tech, roles por puesto) is staff: it gets the admin section filtered by
+ * its permissions, never an empty menu.
  */
 export function useNavigation(config: NavigationConfig): UseNavigationResult {
   const { user } = useAuth()
@@ -113,6 +117,7 @@ export function useNavigation(config: NavigationConfig): UseNavigationResult {
       extraLinks: [],
       isCustomer: false,
       isUserAdmin: false,
+      isStaff: false,
       title: '',
     }
 
@@ -121,7 +126,8 @@ export function useNavigation(config: NavigationConfig): UseNavigationResult {
     const userIsAdmin = isAdmin(user)
     const userIsCustomer = hasAnyRole(user, ['customer', 'cliente'])
 
-    const section = userIsAdmin ? config.admin : userIsCustomer ? config.customer : null
+    const userIsStaff = !userIsAdmin && !userIsCustomer
+    const section = userIsCustomer && !userIsAdmin ? config.customer : config.admin
     if (!section) return empty
 
     // Admin/god bypasses ALL permission checks.
@@ -133,6 +139,7 @@ export function useNavigation(config: NavigationConfig): UseNavigationResult {
         extraLinks: [],
         isCustomer: false,
         isUserAdmin: true,
+        isStaff: false,
         title: 'Menú Admin',
       }
     }
@@ -155,7 +162,8 @@ export function useNavigation(config: NavigationConfig): UseNavigationResult {
       extraLinks: userIsCustomer ? config.customerExtraLinks ?? [] : [],
       isCustomer: userIsCustomer,
       isUserAdmin: false,
-      title: 'Mi Portal',
+      isStaff: userIsStaff,
+      title: userIsStaff ? 'Menú' : 'Mi Portal',
     }
   }, [user, config])
 }

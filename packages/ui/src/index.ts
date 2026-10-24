@@ -64,6 +64,7 @@ export * from './components/patterns'
 // ============================================
 export { default as DashboardLayout, type DashboardLayoutProps } from './components/DashboardLayout'
 export { default as Sidebar, type SidebarProps } from './components/Sidebar'
+export { StaffDashboard } from './components/StaffDashboard'
 export { default as HeaderNavbar } from './components/HeaderNavbar'
 export { PublicHeader } from './components/PublicHeader'
 export { PublicFooter } from './components/PublicFooter'

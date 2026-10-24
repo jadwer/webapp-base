@@ -20,7 +20,7 @@ export interface SidebarProps {
 export default function Sidebar({ navigationConfig }: SidebarProps) {
   const pathname = usePathname()
   const { user, isLoading: authLoading } = useAuth()
-  const { topLinks, groups, disabledModules, extraLinks, isCustomer, isUserAdmin, title } = useNavigation(navigationConfig)
+  const { topLinks, groups, disabledModules, extraLinks, isCustomer, isUserAdmin, isStaff, title } = useNavigation(navigationConfig)
   const [open, setOpen] = useState(false)
 
   // Cerrar el drawer movil al navegar; si no, queda abierto tapando la
@@ -294,8 +294,8 @@ export default function Sidebar({ navigationConfig }: SidebarProps) {
               </>
             )}
 
-            {/* Admin: all groups */}
-            {isUserAdmin && (
+            {/* Admin: all groups; staff: the ones its permissions allow */}
+            {(isUserAdmin || isStaff) && (
               <>
                 {groups.map(group => renderGroup(
                   group.key,
@@ -351,7 +351,7 @@ export default function Sidebar({ navigationConfig }: SidebarProps) {
             )}
 
             {/* Fallback: user with no recognized role */}
-            {!isUserAdmin && !isCustomer && user && (
+            {!isUserAdmin && !isCustomer && user && groups.length === 0 && topLinks.length === 0 && (
               <li className={styles.navItem}>
                 <div style={{ padding: '16px', color: '#6c757d', fontSize: '13px' }}>
                   <i className="bi bi-info-circle me-2"></i>
