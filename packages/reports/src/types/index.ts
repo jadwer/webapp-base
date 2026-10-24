@@ -531,7 +531,7 @@ export interface SalesTrend {
 }
 
 // ============================================================================
-// SALES HISTORY (Historico de Ventas)
+// SALES HISTORY (Histórico de Ventas)
 // ============================================================================
 
 export type SalesHistoryGroupBy = 'none' | 'customer' | 'salesperson' | 'status' | 'day' | 'month'

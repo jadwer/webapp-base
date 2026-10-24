@@ -49,7 +49,7 @@ export default function PermissionManagerPage() {
         <div>
           <h1 className="h3 mb-0">
             <i className="bi bi-shield-fill-check me-2 text-primary"></i>
-            Permission Manager
+            Roles y permisos
           </h1>
           <p className="text-muted mb-0">
             Plantillas de permisos: al dar de alta un usuario se elige una plantilla que precarga sus permisos

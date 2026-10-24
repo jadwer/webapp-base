@@ -56,8 +56,10 @@ export default function MyQuoteDetailPage({ params }: MyQuoteDetailPageProps) {
         // Fetch items
         const itemsData = await quoteItemService.getByQuoteId(id)
         setItems(itemsData)
-      } catch {
-        setError('Error al cargar la cotización')
+      } catch (err) {
+        // Detalle del API (JSON:API errors[0].detail o message) o generico
+        const data = (err as { response?: { data?: { errors?: { detail?: string }[]; message?: string; error?: string } } })?.response?.data
+        setError(data?.errors?.[0]?.detail || data?.error || data?.message || 'Error al cargar la cotización')
       } finally {
         setIsLoading(false)
       }

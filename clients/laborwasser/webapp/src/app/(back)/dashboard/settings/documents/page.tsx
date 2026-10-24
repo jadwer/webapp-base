@@ -1,7 +1,7 @@
 'use client'
 
 /**
- * Configuracion de Documentos
+ * Configuración de Documentos
  *
  * Pantalla unificada (estilo Bind) con pestañas:
  *  - Leyendas: texto configurable por tipo de documento, impreso en el PDF
@@ -342,7 +342,7 @@ export default function DocumentsSettingsPage() {
     <div className="container-fluid py-4">
       <div className="d-flex align-items-center justify-content-between mb-3">
         <div>
-          <h1 className="h3 mb-1">Configuracion de Documentos</h1>
+          <h1 className="h3 mb-1">Configuración de Documentos</h1>
           <p className="text-muted mb-0">
             Leyendas, folios y series de los documentos que emite el sistema
           </p>

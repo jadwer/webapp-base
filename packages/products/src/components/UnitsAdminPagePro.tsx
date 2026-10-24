@@ -223,7 +223,6 @@ export const UnitsAdminPagePro = React.memo(() => {
             <div>
               <h1 className="display-5 fw-bold mb-0">
                 Gestión de Unidades
-                <span className="badge bg-success ms-3">PRO</span>
               </h1>
               <p className="text-muted lead mb-0">
                 Sistema de unidades de medida con virtualización

@@ -1,5 +1,5 @@
 /**
- * Historico de Ventas (Sales History) - v1
+ * Histórico de Ventas (Sales History) - v1
  *
  * Daily work screen for sales reporting (Bind ERP migration parity):
  * - Collapsible filter bar (date presets, customer, salesperson, product,
@@ -204,7 +204,7 @@ export const SalesHistoryPage = () => {
             <div>
               <h1 className="h3 mb-2">
                 <i className="bi bi-receipt me-3" />
-                Historico de Ventas
+                Histórico de Ventas
               </h1>
               <p className="text-muted mb-0">
                 Reporte detallado de ventas con costo, utilidad y totales del periodo

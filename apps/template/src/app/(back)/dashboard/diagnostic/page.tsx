@@ -33,7 +33,7 @@ export default function DiagnosticPage() {
 
   return (
     <div className="container mt-4">
-      <h1 className="mb-4">🔍 Diagnóstico del Sistema de Autenticación</h1>
+      <h1 className="mb-4">Diagnóstico del Sistema de Autenticación</h1>
       
       <div className="row">
         <div className="col-12">

@@ -55,7 +55,7 @@ export const adminNavigation: NavigationSection = {
       permissions: [],
       items: [
         { href: '/dashboard/users', label: 'Usuarios', icon: 'bi-people', permissions: ['users.index'] },
-        { href: '/dashboard/permission-manager', label: 'Permission Manager', icon: 'bi-layout-text-window-reverse', permissions: ['permissions.show'] },
+        { href: '/dashboard/permission-manager', label: 'Roles y permisos', icon: 'bi-layout-text-window-reverse', permissions: ['permissions.show'] },
       ],
     },
 
@@ -250,7 +250,7 @@ export const adminNavigation: NavigationSection = {
       activePathPrefixes: ['/dashboard/ecommerce'],
       permissions: [],
       items: [
-        { href: '/dashboard/ecommerce', label: 'Dashboard E-commerce', icon: 'bi-speedometer2', permissions: ['sales-orders.index'] },
+        { href: '/dashboard/ecommerce', label: 'Panel de comercio electrónico', icon: 'bi-speedometer2', permissions: ['sales-orders.index'] },
         { href: '/dashboard/ecommerce/orders', label: 'Ordenes', icon: 'bi-bag-check', permissions: ['sales-orders.index'] },
         { href: '/dashboard/ecommerce/orders/create', label: 'Nueva Orden', icon: 'bi-plus-circle', permissions: ['sales-orders.store'] },
       ],
@@ -283,10 +283,10 @@ export const adminNavigation: NavigationSection = {
       permissions: [],
       items: [
         { href: '/dashboard/settings/app-config', label: 'Configuracion General', icon: 'bi-gear', permissions: [] },
-        { href: '/dashboard/settings/documents', label: 'Configuracion de Documentos', icon: 'bi-file-earmark-text', permissions: ['sales.folio-sequences.index'] },
+        { href: '/dashboard/settings/documents', label: 'Configuración de Documentos', icon: 'bi-file-earmark-text', permissions: ['sales.folio-sequences.index'] },
         { href: '/dashboard/settings/branches', label: 'Sucursales', icon: 'bi-shop', permissions: ['branches.index'] },
         { href: '/dashboard/pages', label: 'Gestión de Páginas', icon: 'bi-brush', permissions: ['page.index'] },
-        { href: '/dashboard/pages/templates', label: 'Galería de Templates', icon: 'bi-layout-text-window-reverse', permissions: ['page.index'] },
+        { href: '/dashboard/pages/templates', label: 'Galería de plantillas', icon: 'bi-layout-text-window-reverse', permissions: ['page.index'] },
         { href: '/dashboard/mailer-manager', label: 'Plantillas de Correo', icon: 'bi-envelope', permissions: ['email-templates.index'] },
         { href: '/dashboard/mailer-manager/system-emails', label: 'Emails del Sistema', icon: 'bi-envelope-gear', permissions: ['system-emails.index'] },
       ],

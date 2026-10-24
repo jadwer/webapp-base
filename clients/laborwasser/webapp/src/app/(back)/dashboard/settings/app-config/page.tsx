@@ -217,9 +217,9 @@ export default function AppConfigPage() {
         <div className="alert alert-warning d-flex align-items-start gap-2 mb-4">
           <i className="bi bi-exclamation-triangle-fill mt-1" />
           <div>
-            <strong>Configuracion inicial requerida</strong>
+            <strong>Configuración inicial requerida</strong>
             <p className="mb-0" style={{ fontSize: '13px' }}>
-              Completa los datos basicos de tu empresa (nombre, email, telefono) para que se muestren correctamente en el sitio web.
+              Completa los datos básicos de tu empresa (nombre, correo, teléfono) para que se muestren correctamente en el sitio web.
             </p>
           </div>
         </div>

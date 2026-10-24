@@ -125,7 +125,7 @@ export const TemplateGallery: React.FC<TemplateGalleryProps> = ({
       <div className={styles.header}>
         <h2 className={styles.title}>
           <i className="bi bi-layout-text-window-reverse me-2"></i>
-          Galería de Templates
+          Galería de plantillas
         </h2>
         <p className={styles.subtitle}>
           Selecciona un template profesional para comenzar tu página

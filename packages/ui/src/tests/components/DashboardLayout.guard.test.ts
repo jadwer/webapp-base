@@ -3,7 +3,7 @@
  * a /dashboard/ecommerce/orders y veia la gestion de ordenes).
  */
 import { describe, it, expect } from 'vitest'
-import { customerCanOpen } from '../../components/DashboardLayout'
+import { customerCanOpen, staffCanOpen } from '../../components/DashboardLayout'
 import type { NavigationConfig } from '../../hooks/useNavigation'
 
 const item = (href: string) => ({ href, label: href, icon: 'bi-x', permissions: [] })
@@ -29,5 +29,24 @@ describe('customerCanOpen', () => {
     expect(customerCanOpen('/dashboard/ecommerce/orders', config)).toBe(false)
     expect(customerCanOpen('/dashboard/users', config)).toBe(false)
     expect(customerCanOpen('/dashboard/my-orders-x', config)).toBe(false)
+  })
+})
+
+describe('staffCanOpen', () => {
+  const menu = {
+    topLinks: [item('/dashboard')],
+    groups: [{ items: [item('/dashboard/quotes'), item('/dashboard/contacts')] }],
+  }
+
+  it('abre su menu, subrutas y su perfil', () => {
+    expect(staffCanOpen('/dashboard', menu)).toBe(true)
+    expect(staffCanOpen('/dashboard/quotes/create', menu)).toBe(true)
+    expect(staffCanOpen('/dashboard/contacts/7', menu)).toBe(true)
+    expect(staffCanOpen('/dashboard/profile', menu)).toBe(true)
+  })
+
+  it('no abre lo que sus permisos no cubren', () => {
+    expect(staffCanOpen('/dashboard/finance/ar-invoices', menu)).toBe(false)
+    expect(staffCanOpen('/dashboard/users', menu)).toBe(false)
   })
 })

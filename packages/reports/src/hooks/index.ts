@@ -515,7 +515,7 @@ export const useSalesTrend = (filters: SalesTrendFilters) => {
 }
 
 // ============================================================================
-// SALES HISTORY (Historico de Ventas)
+// SALES HISTORY (Histórico de Ventas)
 // ============================================================================
 
 import { salesHistoryService } from '../services'

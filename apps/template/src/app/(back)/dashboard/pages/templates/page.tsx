@@ -62,7 +62,7 @@ export default function TemplatesPage() {
   return (
     <div className="container-fluid py-4">
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <h1 className="h3">Galería de Templates</h1>
+        <h1 className="h3">Galería de plantillas</h1>
         <Button
           variant="secondary"
           onClick={handleBack}

@@ -58,7 +58,7 @@ describe('Financial Statements Services', () => {
 
       // Assert
       expect(axiosClient.get).toHaveBeenCalledWith(
-        expect.stringContaining('filter%5Bas_of_date%5D=2025-01-01')
+        expect.stringContaining('filter%5BasOfDate%5D=2025-01-01')
       );
       expect(axiosClient.get).toHaveBeenCalledWith(
         expect.stringContaining('filter%5Bcurrency%5D=MXN')
@@ -91,10 +91,10 @@ describe('Financial Statements Services', () => {
 
       // Assert
       expect(axiosClient.get).toHaveBeenCalledWith(
-        expect.stringContaining('filter%5Bstart_date%5D=2025-01-01')
+        expect.stringContaining('filter%5BstartDate%5D=2025-01-01')
       );
       expect(axiosClient.get).toHaveBeenCalledWith(
-        expect.stringContaining('filter%5Bend_date%5D=2025-12-31')
+        expect.stringContaining('filter%5BendDate%5D=2025-12-31')
       );
       expect(result).toEqual(mockResponse);
     });
@@ -152,7 +152,7 @@ describe('Financial Statements Services', () => {
         expect.stringContaining('/api/v1/reports/cash-flows')
       );
       expect(axiosClient.get).toHaveBeenCalledWith(
-        expect.stringContaining('filter%5Bstart_date%5D=2025-01-01')
+        expect.stringContaining('filter%5BstartDate%5D=2025-01-01')
       );
       expect(result).toEqual(mockResponse);
     });
@@ -201,7 +201,7 @@ describe('Financial Statements Services', () => {
 
       // Assert
       expect(axiosClient.get).toHaveBeenCalledWith(
-        expect.stringContaining('filter%5Bas_of_date%5D=2025-01-01')
+        expect.stringContaining('filter%5BasOfDate%5D=2025-01-01')
       );
       expect(result).toEqual(mockResponse);
     });

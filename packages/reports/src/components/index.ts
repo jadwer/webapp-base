@@ -10,7 +10,7 @@ export { ManagementReportsPage } from './ManagementReportsPage'
 // Phase 13: Advanced Sales Reports
 export { SalesAdvancedReportsPage } from './SalesAdvancedReportsPage'
 
-// Sales History (Historico de Ventas)
+// Sales History (Histórico de Ventas)
 export { SalesHistoryPage } from './SalesHistoryPage'
 export { PaginationSimple } from './PaginationSimple'
 

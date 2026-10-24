@@ -51,7 +51,7 @@ describe('Aging Reports Services', () => {
 
       // Assert
       expect(axiosClient.get).toHaveBeenCalledWith(
-        expect.stringContaining('filter%5Bas_of_date%5D=2025-01-01')
+        expect.stringContaining('filter%5BasOfDate%5D=2025-01-01')
       );
       expect(axiosClient.get).toHaveBeenCalledWith(
         expect.stringContaining('filter%5Bcurrency%5D=MXN')
@@ -98,7 +98,7 @@ describe('Aging Reports Services', () => {
 
       // Assert
       expect(axiosClient.get).toHaveBeenCalledWith(
-        expect.stringContaining('filter%5Bas_of_date%5D=2025-01-01')
+        expect.stringContaining('filter%5BasOfDate%5D=2025-01-01')
       );
       expect(axiosClient.get).toHaveBeenCalledWith(
         expect.stringContaining('filter%5Bcurrency%5D=USD')

@@ -258,7 +258,6 @@ export const CategoriesAdminPagePro = React.memo(() => {
             <div>
               <h1 className="display-5 fw-bold mb-0">
                 Gestión de Categorías
-                <span className="badge bg-success ms-3">PRO</span>
               </h1>
               <p className="text-muted lead mb-0">
                 Sistema de categorización con virtualización

@@ -32,6 +32,15 @@ import type {
   SalesTrend,
 } from '../types'
 
+/**
+ * Los reportes se piden por el index (GET /reports/x?filter[...]): el API
+ * responde una coleccion con un solo recurso. Leer data como objeto dejaba
+ * los atributos vacios y la pantalla decia "No hay datos" (24-10).
+ */
+function singleResource(data: unknown): Record<string, unknown> {
+  return (Array.isArray(data) ? data[0] ?? {} : data ?? {}) as Record<string, unknown>
+}
+
 // ============================================================================
 // BALANCE SHEET
 // ============================================================================
@@ -64,7 +73,7 @@ export function transformBalanceSheetResponse(response: Record<string, unknown>)
   }
 
   return {
-    data: transformJsonApiBalanceSheet(response.data as Record<string, unknown>),
+    data: transformJsonApiBalanceSheet(singleResource(response.data)),
     meta: response.meta as Record<string, unknown> | undefined,
   }
 }
@@ -117,7 +126,7 @@ export function transformIncomeStatementResponse(response: Record<string, unknow
   }
 
   return {
-    data: transformJsonApiIncomeStatement(response.data as Record<string, unknown>),
+    data: transformJsonApiIncomeStatement(singleResource(response.data)),
     meta: response.meta as Record<string, unknown> | undefined,
   }
 }
@@ -170,7 +179,7 @@ export function transformCashFlowResponse(response: Record<string, unknown>): Re
   }
 
   return {
-    data: transformJsonApiCashFlow(response.data as Record<string, unknown>),
+    data: transformJsonApiCashFlow(singleResource(response.data)),
     meta: response.meta as Record<string, unknown> | undefined,
   }
 }
@@ -210,7 +219,7 @@ export function transformTrialBalanceResponse(response: Record<string, unknown>)
   }
 
   return {
-    data: transformJsonApiTrialBalance(response.data as Record<string, unknown>),
+    data: transformJsonApiTrialBalance(singleResource(response.data)),
     meta: response.meta as Record<string, unknown> | undefined,
   }
 }
@@ -262,7 +271,7 @@ export function transformARAgingReportResponse(response: Record<string, unknown>
   }
 
   return {
-    data: transformJsonApiARAgingReport(response.data as Record<string, unknown>),
+    data: transformJsonApiARAgingReport(singleResource(response.data)),
     meta: response.meta as Record<string, unknown> | undefined,
   }
 }
@@ -314,7 +323,7 @@ export function transformAPAgingReportResponse(response: Record<string, unknown>
   }
 
   return {
-    data: transformJsonApiAPAgingReport(response.data as Record<string, unknown>),
+    data: transformJsonApiAPAgingReport(singleResource(response.data)),
     meta: response.meta as Record<string, unknown> | undefined,
   }
 }
@@ -359,7 +368,7 @@ export function transformSalesByCustomerResponse(response: Record<string, unknow
   }
 
   return {
-    data: transformJsonApiSalesByCustomer(response.data as Record<string, unknown>),
+    data: transformJsonApiSalesByCustomer(singleResource(response.data)),
     meta: response.meta as Record<string, unknown> | undefined,
   }
 }
@@ -404,7 +413,7 @@ export function transformSalesByProductResponse(response: Record<string, unknown
   }
 
   return {
-    data: transformJsonApiSalesByProduct(response.data as Record<string, unknown>),
+    data: transformJsonApiSalesByProduct(singleResource(response.data)),
     meta: response.meta as Record<string, unknown> | undefined,
   }
 }
@@ -449,7 +458,7 @@ export function transformPurchaseBySupplierResponse(response: Record<string, unk
   }
 
   return {
-    data: transformJsonApiPurchaseBySupplier(response.data as Record<string, unknown>),
+    data: transformJsonApiPurchaseBySupplier(singleResource(response.data)),
     meta: response.meta as Record<string, unknown> | undefined,
   }
 }
@@ -494,13 +503,13 @@ export function transformPurchaseByProductResponse(response: Record<string, unkn
   }
 
   return {
-    data: transformJsonApiPurchaseByProduct(response.data as Record<string, unknown>),
+    data: transformJsonApiPurchaseByProduct(singleResource(response.data)),
     meta: response.meta as Record<string, unknown> | undefined,
   }
 }
 
 // ============================================================================
-// SALES HISTORY (Historico de Ventas)
+// SALES HISTORY (Histórico de Ventas)
 // ============================================================================
 
 function toNumber(value: unknown): number {

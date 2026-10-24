@@ -24,7 +24,7 @@ export default function EcommerceDashboardPage() {
   return (
     <div className="container-fluid py-4">
       <div className="mb-4">
-        <h1 className="h3">Dashboard E-commerce</h1>
+        <h1 className="h3">Panel de comercio electrónico</h1>
         <p className="text-muted">
           Resumen general del modulo de comercio electronico
         </p>

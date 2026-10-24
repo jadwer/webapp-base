@@ -24,6 +24,19 @@ import { WAREHOUSE_TYPE } from '../utils/labels'
 import { formatDate, toNumber } from '../utils/format'
 import { deleteErrorMessage, readPageMeta } from '../utils/listing'
 
+const DAY_LABELS: Record<string, string> = {
+  'mon-fri': 'Lunes a viernes', 'mon-sat': 'Lunes a sábado', mon: 'Lunes', tue: 'Martes',
+  wed: 'Miércoles', thu: 'Jueves', fri: 'Viernes', sat: 'Sábado', sun: 'Domingo',
+}
+
+/** El horario llega como objeto por dia; pintarlo directo truena React (#31). */
+export function formatOperatingHours(hours: Record<string, string> | string | null | undefined): string | null {
+  if (!hours) return null
+  if (typeof hours === 'string') return hours
+  const parts = Object.entries(hours).map(([day, range]) => `${DAY_LABELS[day] ?? day}: ${range}`)
+  return parts.length ? parts.join(' · ') : null
+}
+
 interface WarehouseDetailProps {
   warehouseId: string
 }
@@ -191,7 +204,7 @@ export const WarehouseDetail = ({ warehouseId }: WarehouseDetailProps) => {
                   {warehouse.maxCapacity != null &&
                     `${toNumber(warehouse.maxCapacity).toLocaleString('es-MX')} ${warehouse.capacityUnit || 'unidades'}`}
                 </Field>
-                <Field label="Horario">{warehouse.operatingHours}</Field>
+                <Field label="Horario">{formatOperatingHours(warehouse.operatingHours)}</Field>
                 <Field label="Creado">{formatDate(warehouse.createdAt, { withTime: true })}</Field>
                 <Field label="Actualizado">{formatDate(warehouse.updatedAt, { withTime: true })}</Field>
               </dl>

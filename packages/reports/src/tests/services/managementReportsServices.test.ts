@@ -47,7 +47,7 @@ describe('Management Reports Services', () => {
         expect.stringContaining('/api/v1/reports/sales-by-customer-reports')
       );
       expect(axiosClient.get).toHaveBeenCalledWith(
-        expect.stringContaining('filter%5Bstart_date%5D=2025-01-01')
+        expect.stringContaining('filter%5BstartDate%5D=2025-01-01')
       );
       expect(result).toEqual(mockResponse);
     });

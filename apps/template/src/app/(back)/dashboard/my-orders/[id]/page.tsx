@@ -123,8 +123,10 @@ export default function MyOrderDetailPage({ params }: MyOrderDetailPageProps) {
             }
           })
         })
-      } catch {
-        setError('Error al cargar el pedido')
+      } catch (err) {
+        // Mensaje del API (p. ej. "No tienes acceso a este pedido.") o generico
+        const data = (err as { response?: { data?: { error?: string; message?: string } } })?.response?.data
+        setError(data?.error || data?.message || 'Error al cargar el pedido')
       } finally {
         setIsLoading(false)
       }

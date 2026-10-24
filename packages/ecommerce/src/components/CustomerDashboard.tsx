@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import Link from 'next/link'
-import { useAuth } from '@lwm/auth'
+import { useAuth, hasPermission } from '@lwm/auth'
 import { useNavigationProgress } from '@lwm/ui'
 import { useRecentlyViewed } from '../hooks/useProductViews'
 import { myOrdersService } from '@lwm/sales'
@@ -100,7 +100,11 @@ export default function CustomerDashboard() {
           { field: 'createdAt', direction: 'desc' },
           1, 5, ['contact']
         ),
-        couponsService.getAll({ isActive: true }),
+        // La lista de cupones es administrativa (ecommerce.coupons.index); al
+        // cliente sin ese permiso no se le pide (el API responde 403).
+        hasPermission(user, 'ecommerce.coupons.index')
+          ? couponsService.getAll({ isActive: true })
+          : Promise.resolve([]),
         shoppingCartService.cart.getCurrent(),
       ])
 

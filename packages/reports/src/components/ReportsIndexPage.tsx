@@ -245,7 +245,7 @@ export const ReportsIndexPage = () => {
         </div>
       </div>
 
-      {/* Sales History (Historico de Ventas) */}
+      {/* Sales History (Histórico de Ventas) */}
       <div className="row g-4 mt-2">
         <div className="col-12">
           <div className="card border-primary">

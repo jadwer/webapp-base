@@ -37,7 +37,7 @@ export const AgingReportsPage = () => {
             <div>
               <h1 className="h3 mb-2">
                 <i className="bi bi-clock-history me-3" />
-                Reportes de Antiguedad
+                Reportes de Antigüedad
               </h1>
               <p className="text-muted">
                 Analisis de Cuentas por Cobrar y Cuentas por Pagar por periodos de vencimiento

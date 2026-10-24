@@ -22,7 +22,8 @@ export interface WarehouseAttributes {
   managerName?: string
   maxCapacity?: number
   capacityUnit?: string
-  operatingHours?: string
+  /** JSON del backend: { 'mon-fri': '08:00-18:00', sat: '08:00-14:00' } */
+  operatingHours?: Record<string, string> | string | null
   metadata?: Record<string, unknown> | null
   isActive: boolean
   /** Sucursal duena del almacen (multi-sucursal 2026-09). */
