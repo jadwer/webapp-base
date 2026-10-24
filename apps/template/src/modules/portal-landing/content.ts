@@ -9,6 +9,16 @@ export interface IconItem {
   text: string
 }
 
+/** Lista corta del heroe (designboard r2, dos columnas). */
+export const HERO_CHECKS: string[] = [
+  'Buscador y filtros por categoría, marca y precio',
+  'Ofertas con precio anterior tachado',
+  'Carrito y checkout',
+  'Pago con tarjeta Stripe o pedido por cotización',
+  'Precios + IVA claros',
+  'Cotizaciones con PDF y envío por correo',
+]
+
 /** Fila 2: que es esta pagina y que vende. */
 export const ABOUT_POINTS: IconItem[] = [
   {

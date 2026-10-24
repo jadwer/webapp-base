@@ -5,7 +5,7 @@ import Link from 'next/link'
 import type { EnhancedPublicProduct } from '@lwm/ecommerce'
 import { usePublicSettings } from '@lwm/app-config'
 import { DEMO_ACCOUNTS } from '@/modules/demo/data/accounts'
-import { ABOUT_POINTS, FAQS, FLOW_STEPS, MODULE_GROUPS, STORE_FEATURES } from '../content'
+import { ABOUT_POINTS, FAQS, FLOW_STEPS, HERO_CHECKS, MODULE_GROUPS, STORE_FEATURES } from '../content'
 import s from '../PortalLanding.module.scss'
 
 interface HeroProps {
@@ -36,10 +36,10 @@ export const HeroSection: React.FC<HeroProps> = ({ products, isDemo }) => {
                 {isDemo ? 'Entrar al demo' : 'Iniciar sesión'}
               </a>
             </div>
-            <ul className={s.heroTags}>
-              <li><i className="bi bi-check2" aria-hidden="true" />Catálogo y carrito</li>
-              <li><i className="bi bi-check2" aria-hidden="true" />Factura CFDI 4.0</li>
-              <li><i className="bi bi-check2" aria-hidden="true" />Contabilidad automática</li>
+            <ul className={s.heroChecks}>
+              {HERO_CHECKS.map((item) => (
+                <li key={item}><i className="bi bi-check2" aria-hidden="true" />{item}</li>
+              ))}
             </ul>
           </div>
           <div className="col-lg-6">
@@ -76,8 +76,38 @@ export const HeroSection: React.FC<HeroProps> = ({ products, isDemo }) => {
             </div>
           </div>
         </div>
+        <QuickAccess isDemo={isDemo} />
       </div>
     </section>
+  )
+}
+
+/** Accesos rapidos bajo el heroe: comprar, ofertas y, en demo, un perfil por clic. */
+const QuickAccess: React.FC<{ isDemo: boolean }> = ({ isDemo }) => {
+  const links = [
+    { href: '/productos', icon: 'bi-cart3', label: 'Comprar en la tienda', hint: 'Catálogo con filtros' },
+    { href: '/ofertas', icon: 'bi-tags', label: 'Ofertas del mes', hint: 'Precio anterior tachado' },
+    ...(isDemo
+      ? DEMO_ACCOUNTS.map((a) => ({
+          href: `/auth/login?perfil=${a.key}`,
+          icon: a.icon,
+          label: `Demo ${a.role}`,
+          hint: 'Entra con un clic',
+        }))
+      : [{ href: '/auth/login', icon: 'bi-person', label: 'Iniciar sesión', hint: 'Portal del cliente' }]),
+  ]
+  return (
+    <nav className={s.quick} aria-label="Accesos rápidos">
+      {links.map((l) => (
+        <Link key={l.href} href={l.href} className={s.quickItem}>
+          <i className={`bi ${l.icon}`} aria-hidden="true" />
+          <span>
+            <strong>{l.label}</strong>
+            <small>{l.hint}</small>
+          </span>
+        </Link>
+      ))}
+    </nav>
   )
 }
 
@@ -136,50 +166,46 @@ export const FeaturesSection: React.FC = () => (
   </section>
 )
 
-export const ModulesSection: React.FC = () => (
-  <section className={`${s.section} ${s.sectionAlt}`} aria-labelledby="pl-modulos">
+/**
+ * Modulos y flujo lado a lado (designboard r2): a la izquierda que se puede
+ * sumar, a la derecha como corre una venta de punta a punta.
+ */
+export const OperationSection: React.FC = () => (
+  <section className={s.section} aria-label="Módulos y flujo">
     <div className="container">
-      <div className={s.sectionHeader}>
-        <div>
+      <div className={s.operation}>
+        <div className={s.opPanel} aria-labelledby="pl-modulos" role="region">
           <span className={s.eyebrow}>Detrás de la tienda</span>
           <h2 id="pl-modulos">Tu portal crece con tu empresa</h2>
-          <p>Se contrata por bloques: empiezas con la tienda y sumas módulos cuando los necesitas.</p>
-        </div>
-      </div>
-      <div className={s.moduleGrid}>
-        {MODULE_GROUPS.map((m) => (
-          <div key={m.title} className={s.module}>
-            <span className={s.iconBox}><i className={`bi ${m.icon}`} aria-hidden="true" /></span>
-            <h3>{m.title}</h3>
-            <ul>
-              {m.items.map((item) => <li key={item}>{item}</li>)}
-            </ul>
+          <p className={s.opLead}>Se contrata por bloques: empiezas con la tienda y sumas módulos cuando los necesitas.</p>
+          <div className={s.moduleGrid}>
+            {MODULE_GROUPS.map((m) => (
+              <div key={m.title} className={s.module}>
+                <h3><i className={`bi ${m.icon}`} aria-hidden="true" />{m.title}</h3>
+                <ul>
+                  {m.items.map((item) => <li key={item}>{item}</li>)}
+                </ul>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
-    </div>
-  </section>
-)
-
-export const FlowSection: React.FC = () => (
-  <section className={s.section} aria-labelledby="pl-flujo">
-    <div className="container">
-      <div className={s.sectionHeader}>
-        <div>
+        </div>
+        <div className={`${s.opPanel} ${s.opPanelFlow}`} aria-labelledby="pl-flujo" role="region">
           <span className={s.eyebrow}>De punta a punta</span>
           <h2 id="pl-flujo">Una venta, sin capturar nada dos veces</h2>
-          <p>Desde que el cliente compra hasta que la póliza queda en contabilidad.</p>
+          <p className={s.opLead}>Desde que el cliente compra hasta que la póliza queda en contabilidad.</p>
+          <ol className={s.flow}>
+            {FLOW_STEPS.map((step) => (
+              <li key={step.title} className={s.step}>
+                <i className={`bi ${step.icon}`} aria-hidden="true" />
+                <div>
+                  <h3>{step.title}</h3>
+                  <p>{step.text}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
         </div>
       </div>
-      <ol className={s.flow}>
-        {FLOW_STEPS.map((step) => (
-          <li key={step.title} className={s.step}>
-            <i className={`bi ${step.icon}`} aria-hidden="true" />
-            <h3>{step.title}</h3>
-            <p>{step.text}</p>
-          </li>
-        ))}
-      </ol>
     </div>
   </section>
 )

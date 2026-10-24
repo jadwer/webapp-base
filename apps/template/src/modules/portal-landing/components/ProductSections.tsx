@@ -49,19 +49,48 @@ interface GridProps {
   skeletons?: number
 }
 
+/**
+ * Rejilla de tarjetas centrada: con menos de cuatro productos las tarjetas se
+ * centran con ancho tope en vez de dejar columnas vacias a la derecha.
+ */
 const ProductGrid: React.FC<GridProps> = ({ products, isLoading, badge = null, skeletons = 4 }) => {
   const actions = useCardActions()
   return (
-    <div className="row g-4">
+    <div className={s.productGrid}>
       {isLoading && products.length === 0
         ? Array.from({ length: skeletons }).map((_, i) => (
-            <div key={i} className="col-6 col-lg-3"><PortalProductCardSkeleton /></div>
+            <div key={i} className={s.productCell}><PortalProductCardSkeleton /></div>
           ))
         : products.map((product) => (
-            <div key={product.id} className="col-6 col-lg-3">
+            <div key={product.id} className={s.productCell}>
               <PortalProductCard product={product} badge={badge} {...actions} />
             </div>
           ))}
+    </div>
+  )
+}
+
+interface ShowcaseProps extends GridProps {
+  intro: React.ReactNode
+  /** Variante de fondo del panel. */
+  tone?: 'paper' | 'sand'
+}
+
+/**
+ * Panel con texto y tarjetas. Con una o dos tarjetas (desktop) el texto va a
+ * la izquierda y las tarjetas a la derecha con su ancho natural, asi el panel
+ * queda lleno sin importar cuantas haya; con tres o mas el texto va arriba.
+ */
+const Showcase: React.FC<ShowcaseProps> = ({ intro, tone = 'paper', ...grid }) => {
+  const count = grid.isLoading && grid.products.length === 0 ? (grid.skeletons ?? 4) : grid.products.length
+  const split = count > 0 && count <= 2
+  return (
+    <div
+      className={`${s.showcase} ${tone === 'sand' ? s.showcaseSand : ''} ${split ? s.showcaseSplit : ''}`}
+      data-count={count}
+    >
+      <div className={s.showcaseIntro}>{intro}</div>
+      <ProductGrid {...grid} />
     </div>
   )
 }
@@ -73,17 +102,27 @@ export const OffersSection: React.FC = () => {
   if (!isLoading && (error || products.length === 0)) return null
 
   return (
-    <section className={s.section} aria-labelledby="pl-ofertas">
+    <section className={`${s.section} ${s.sectionTight}`} aria-labelledby="pl-ofertas">
       <div className="container">
-        <div className={s.sectionHeader}>
-          <div>
-            <span className={s.eyebrow}>La tienda funcionando</span>
-            <h2 id="pl-ofertas">Ofertas del mes <LiveChip /></h2>
-            <p>Precio anterior tachado y vigencia por producto; se configuran desde el sistema.</p>
-          </div>
-          <Link href="/ofertas" className={s.linkMore}>Ver todas las ofertas <i className="bi bi-arrow-right" aria-hidden="true" /></Link>
-        </div>
-        <ProductGrid products={products} isLoading={isLoading} badge="offer" />
+        <Showcase
+          products={products}
+          isLoading={isLoading}
+          badge="offer"
+          skeletons={2}
+          intro={
+            <>
+              <span className={s.eyebrow}>La tienda funcionando</span>
+              <h2 id="pl-ofertas">Ofertas del mes <LiveChip /></h2>
+              <p>Precio anterior tachado y vigencia por producto; se configuran desde el sistema.</p>
+              <ul className={s.checkList}>
+                <li><i className="bi bi-check2" aria-hidden="true" />Precio anterior tachado</li>
+                <li><i className="bi bi-check2" aria-hidden="true" />Vigencia de inicio y fin</li>
+                <li><i className="bi bi-check2" aria-hidden="true" />Precios + IVA claros</li>
+              </ul>
+              <Link href="/ofertas" className={s.linkMore}>Ver todas las ofertas <i className="bi bi-arrow-right" aria-hidden="true" /></Link>
+            </>
+          }
+        />
       </div>
     </section>
   )
@@ -165,21 +204,27 @@ export const BulkSection: React.FC<LatestProps> = ({ products, isLoading }) => {
   if (isLoading || bulk.length === 0) return null
 
   return (
-    <section className={s.section} aria-labelledby="pl-granel">
+    <section className={`${s.section} ${s.sectionAlt}`} aria-labelledby="pl-granel">
       <div className="container">
-        <div className={s.bulkBand}>
-          <div className={s.sectionHeader}>
-            <div>
+        <Showcase
+          products={bulk}
+          isLoading={false}
+          tone="sand"
+          intro={
+            <>
               <span className={s.eyebrow}>Granel</span>
               <h2 id="pl-granel">Productos a granel, por cotización</h2>
               <p>
                 Sin precio fijo: el cliente pide cotización según el volumen y el granel se
                 fracciona en presentaciones que sí se venden en la tienda.
               </p>
-            </div>
-          </div>
-          <ProductGrid products={bulk} isLoading={false} />
-        </div>
+              <ul className={s.checkList}>
+                <li><i className="bi bi-check2" aria-hidden="true" />Precio sujeto a cotización</li>
+                <li><i className="bi bi-check2" aria-hidden="true" />Fraccionamiento a presentaciones</li>
+              </ul>
+            </>
+          }
+        />
       </div>
     </section>
   )

@@ -16,9 +16,8 @@ import {
   DemoAccessSection,
   FaqSection,
   FeaturesSection,
-  FlowSection,
   HeroSection,
-  ModulesSection,
+  OperationSection,
 } from './components/StaticSections'
 import s from './PortalLanding.module.scss'
 
@@ -44,8 +43,7 @@ export const PortalLanding: React.FC = () => {
       <FeaturesSection />
       <LatestSection products={products} isLoading={isLoading} />
       <BulkSection products={products} isLoading={isLoading} />
-      <ModulesSection />
-      <FlowSection />
+      <OperationSection />
       {isDemo && <DemoAccessSection />}
       <FaqSection />
       <ClosingSection />

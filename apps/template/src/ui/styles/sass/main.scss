@@ -13,13 +13,20 @@
 //      apps/template/src/ui/styles/sass/main.scss with a different hex value
 //      (the file lives in the template, not the package — by design).
 //
-// Default placeholder color: a neutral blue. Tenants will swap this hex
+// Default placeholder color: azul marino de la marca blanca (designboard
+// 23-10, #243447). Tenants will swap this hex
 // in their own copy of main.scss.
 @use "../../../../node_modules/bootstrap/scss/bootstrap" with (
-  $primary: #2563eb
+  $primary: #243447
 );
 
 // Bootstrap Icons se importa desde CDN en layout.tsx
 //
 // Tenant brand-specific styles go in clients/<name>/webapp/src/styles/branding.scss
 // or are layered via CSS custom properties in their own SCSS partials.
+
+// Acento de las pantallas de acceso de @lwm/auth (sin esto usan su azul).
+:root {
+  --auth-primary: #243447;
+  --auth-primary-dark: #1a2636;
+}
