@@ -20,3 +20,7 @@ export { demoService } from './services/demoService'
 
 // Types
 export type { DemoStatus, DemoResetResponse } from './types'
+
+// Data
+export { DEMO_ACCOUNTS, DEMO_PASSWORD } from './data/accounts'
+export type { DemoAccount } from './data/accounts'

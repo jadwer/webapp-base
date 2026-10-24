@@ -26,7 +26,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="es">
       <head>
         {/* Bootstrap CSS is compiled from SCSS via main.css. Tenants override the primary color via the CSS custom property `--brand-primary` defined in their own branding.scss. */}
         {/* Only Bootstrap Icons loaded from CDN (icon fonts only) */}

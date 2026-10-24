@@ -18,9 +18,11 @@ import { usePublicSettings } from '@lwm/app-config'
  */
 export interface PublicHeaderProps {
   search?: React.ReactNode
+  /** Acceso al carrito (mismo motivo que `search`: ui no depende de ecommerce). */
+  cart?: React.ReactNode
 }
 
-export const PublicHeader: React.FC<PublicHeaderProps> = ({ search }) => {
+export const PublicHeader: React.FC<PublicHeaderProps> = ({ search, cart }) => {
   // Marca desde la configuracion (company.name, company.logo_path): cada
   // instalacion se ve con su nombre sin tocar codigo (23-10).
   const { get } = usePublicSettings()
@@ -29,7 +31,8 @@ export const PublicHeader: React.FC<PublicHeaderProps> = ({ search }) => {
 
   return (
     <header className="bg-white border-bottom py-3">
-      <div className="container d-flex align-items-center gap-3">
+      {/* En celular el buscador baja a su propia fila para que nada desborde. */}
+      <div className="container d-flex flex-wrap align-items-center gap-2 gap-md-3">
         <Link href="/" className="text-decoration-none d-flex align-items-center gap-2" aria-label={`${name}, inicio`}>
           {logo && (
             // eslint-disable-next-line @next/next/no-img-element
@@ -38,19 +41,20 @@ export const PublicHeader: React.FC<PublicHeaderProps> = ({ search }) => {
           <span className="fw-bold fs-5">{name}</span>
         </Link>
         {search && (
-          <div className="flex-grow-1 d-flex justify-content-center">{search}</div>
+          <div className="col-12 col-md order-last order-md-0 d-flex justify-content-center">{search}</div>
         )}
-        <nav className={search ? '' : 'ms-auto'}>
-          <ul className="nav">
+        <nav className="ms-auto">
+          <ul className="nav flex-nowrap">
             <li className="nav-item">
-              <Link className="nav-link" href="/productos">Productos</Link>
+              <Link className="nav-link px-2" href="/productos">Productos</Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" href="/ofertas">Ofertas</Link>
+              <Link className="nav-link px-2" href="/ofertas">Ofertas</Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" href="/auth/login">Iniciar sesión</Link>
+              <Link className="nav-link px-2" href="/auth/login">Iniciar sesión</Link>
             </li>
+            {cart && <li className="nav-item d-flex align-items-center">{cart}</li>}
           </ul>
         </nav>
       </div>

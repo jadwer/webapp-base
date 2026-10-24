@@ -1,31 +1,29 @@
 'use client'
 
-import dynamic from 'next/dynamic'
-
-// Load lazily to avoid SSR/hydration issues that some tenant landings (rich
-// product carousels, GrapesJS-rendered sections) require.
-const DemoLanding = dynamic(
-  () => import('@/modules/example-landing').then((mod) => ({ default: mod.DemoLanding })),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '100vh' }}>
-        <div className="text-center">
-          <div className="spinner-border text-primary mb-3" role="status">
-            <span className="visually-hidden">Loading...</span>
-          </div>
-          <p className="text-muted">Loading...</p>
-        </div>
-      </div>
-    ),
-  }
-)
+import { PublicHeader, PublicFooter } from '@lwm/ui'
+import { CustomerSidebar, ProductSearchBox } from '@/modules/ecommerce'
+import { PortalLanding, HeaderCartLink } from '@/modules/portal-landing'
 
 interface HomeClientProps {
   showFullCatalog?: boolean
   enableProductModal?: boolean
 }
 
-export default function HomeClient(props: HomeClientProps = {}) {
-  return <DemoLanding {...props} />
+/**
+ * Portada de la plantilla: landing del portal (vende el sistema y muestra la
+ * tienda viva). La home vive fuera de (front), asi que monta aqui el mismo
+ * encabezado y pie del sitio publico. Los tenants la reemplazan con la suya.
+ */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export default function HomeClient(_props: HomeClientProps = {}) {
+  return (
+    <>
+      <PublicHeader search={<ProductSearchBox />} cart={<HeaderCartLink />} />
+      <CustomerSidebar />
+      <main>
+        <PortalLanding />
+      </main>
+      <PublicFooter />
+    </>
+  )
 }
