@@ -205,9 +205,9 @@ export function transformJsonApiTrialBalance(resource: Record<string, unknown>):
     summaryByType: (attributes.summary_by_type || attributes.summaryByType) as TrialBalance['summaryByType'],
     balanced: attributes.balanced as boolean,
 
-    // Legacy fields
-    totalDebit: (attributes.total_debit || attributes.totalDebit) as number,
-    totalCredit: (attributes.total_credit || attributes.totalCredit) as number,
+    // Legacy fields (la pantalla los lee; el API los manda dentro de totals)
+    totalDebit: ((attributes.totals as { debit?: number } | undefined)?.debit ?? attributes.total_debit ?? attributes.totalDebit) as number,
+    totalCredit: ((attributes.totals as { credit?: number } | undefined)?.credit ?? attributes.total_credit ?? attributes.totalCredit) as number,
 
     generatedAt: (attributes.generated_at || attributes.generatedAt) as string,
   }
