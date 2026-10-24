@@ -25,6 +25,7 @@ const config: NavigationConfig = {
     groups: [
       { key: 'sales', label: 'Ventas', icon: 'bi-cart', permissions: [], items: [item('/dashboard/quotes', ['quotes.index'])] },
       { key: 'hr', label: 'RH', icon: 'bi-people', permissions: [], items: [item('/dashboard/hr', ['hr.employees.index'])] },
+      { key: 'system', label: 'Sistema', icon: 'bi-gear', permissions: [], items: [item('/dashboard/diagnostic', [])] },
     ],
     disabledModules: [],
   },
@@ -39,6 +40,7 @@ describe('useNavigation - personal', () => {
     expect(result.current.isUserAdmin).toBe(false)
     expect(result.current.isCustomer).toBe(false)
     expect(result.current.groups.map((g) => g.key)).toEqual(['sales'])
+    expect(result.current.topLinks.map((l) => l.href)).toEqual(['/dashboard'])
   })
 
   it('el cliente sigue con su portal', () => {

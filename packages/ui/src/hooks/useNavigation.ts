@@ -144,10 +144,12 @@ export function useNavigation(config: NavigationConfig): UseNavigationResult {
       }
     }
 
-    const filterItems = (items: NavigationItem[]): NavigationItem[] =>
-      items.filter(
-        (item) =>
-          item.permissions.length === 0 || hasAnyPermission(user, item.permissions)
+    // En la seccion admin, un item sin permisos declarados es de admins
+    // (diagnostico, configuracion general): el personal solo ve lo que sus
+    // permisos cubren. Los topLinks sin permisos (Inicio) siguen visibles.
+    const filterItems = (items: NavigationItem[], openWhenEmpty = !userIsStaff): NavigationItem[] =>
+      items.filter((item) =>
+        item.permissions.length === 0 ? openWhenEmpty : hasAnyPermission(user, item.permissions)
       )
 
     const filterGroups = (groups: NavigationGroup[]): NavigationGroup[] =>
@@ -156,7 +158,7 @@ export function useNavigation(config: NavigationConfig): UseNavigationResult {
         .filter((group) => group.items.length > 0)
 
     return {
-      topLinks: filterItems(section.topLinks),
+      topLinks: filterItems(section.topLinks, true),
       groups: filterGroups(section.groups),
       disabledModules: section.disabledModules,
       extraLinks: userIsCustomer ? config.customerExtraLinks ?? [] : [],
