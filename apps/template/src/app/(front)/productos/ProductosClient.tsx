@@ -8,9 +8,9 @@
  * como fallback de SWR solo mientras la consulta es la inicial.
  */
 
-import React, { Suspense, useState, useEffect, useCallback } from 'react'
+import React, { Suspense, useState, useEffect, useCallback, useMemo } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
-import { PublicCatalogTemplate, useLocalCart } from '@/modules/public-catalog'
+import { PublicCatalogTemplate, useLocalCart, usePublicCategories } from '@/modules/public-catalog'
 import type { EnhancedPublicProduct, PublicProductsPage } from '@/modules/public-catalog'
 import { toast } from '@/lib/toast'
 
@@ -44,6 +44,15 @@ export default function ProductosClient(props: ProductosClientProps) {
 
 function ProductosContent({ initialCatalog }: ProductosClientProps) {
   const router = useRouter()
+  // Conteos reales del backend: derivarlos de la pagina cargada los topa en
+  // 100 (AlphaLab mostraba "Grado Reactivo (100)" con 328 productos).
+  const { categories: publicCategories } = usePublicCategories({ limit: 100 })
+  const categoryOptions = useMemo(
+    () => publicCategories
+      .filter((c) => (c.productsCount ?? 0) > 0)
+      .map((c) => ({ value: String(c.id), label: c.name, count: c.productsCount })),
+    [publicCategories]
+  )
   const searchParams = useSearchParams()
   const initialSearch = searchParams.get('search') || undefined
   const initialCategoryId = searchParams.get('categoryId') || undefined
@@ -119,7 +128,7 @@ function ProductosContent({ initialCatalog }: ProductosClientProps) {
         initialViewMode="grid"
         initialPageSize={24}
 
-        categories={[]}
+        categories={categoryOptions}
         brands={[]}
         units={[]}
         priceRange={priceRange}

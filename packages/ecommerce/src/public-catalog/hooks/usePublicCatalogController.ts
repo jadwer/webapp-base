@@ -60,10 +60,16 @@ function matchesSelection(relationId: string | undefined, selectedIds: string[])
   return selectedIds.length === 0 || (!!relationId && selectedIds.includes(relationId))
 }
 
-/** Builds sorted FilterOption[] with counts from a product list. */
+/**
+ * Builds sorted FilterOption[] with counts from a product list. With a
+ * truncated sample (the facet page hit its size) the counts would be wrong
+ * (AlphaLab showed "Grado Reactivo (100)" with 328 products), so they are
+ * omitted and only the options are listed.
+ */
 function deriveOptions(
   source: EnhancedPublicProduct[],
-  pick: (product: EnhancedPublicProduct) => { id: string; attributes: { name: string } } | undefined
+  pick: (product: EnhancedPublicProduct) => { id: string; attributes: { name: string } } | undefined,
+  truncated = false
 ): FilterOption[] {
   const map = new Map<string, { label: string; count: number }>()
   for (const product of source) {
@@ -77,7 +83,7 @@ function deriveOptions(
     }
   }
   return Array.from(map.entries())
-    .map(([value, { label, count }]) => ({ value, label, count }))
+    .map(([value, { label, count }]) => ({ value, label, count: truncated ? undefined : count }))
     .sort((a, b) => a.label.localeCompare(b.label))
 }
 
@@ -197,6 +203,8 @@ export function usePublicCatalogController({
     }
   )
 
+  const facetTruncated = facetProducts.length >= facetPagination.size
+
   const selectedCategoryIds = useMemo(() => toIdList(filters.categoryId), [filters.categoryId])
   const selectedBrandIds = useMemo(() => toIdList(filters.brandId), [filters.brandId])
   const selectedUnitIds = useMemo(() => toIdList(filters.unitId), [filters.unitId])
@@ -208,8 +216,8 @@ export function usePublicCatalogController({
       matchesSelection(p.brand?.id, selectedBrandIds) &&
       matchesSelection(p.unit?.id, selectedUnitIds)
     )
-    return deriveOptions(source, p => p.category)
-  }, [categories, facetProducts, selectedBrandIds, selectedUnitIds])
+    return deriveOptions(source, p => p.category, facetTruncated)
+  }, [categories, facetProducts, selectedBrandIds, selectedUnitIds, facetTruncated])
 
   const derivedBrands = useMemo(() => {
     if (brands.length > 0) return brands
@@ -217,8 +225,8 @@ export function usePublicCatalogController({
       matchesSelection(p.category?.id, selectedCategoryIds) &&
       matchesSelection(p.unit?.id, selectedUnitIds)
     )
-    return deriveOptions(source, p => p.brand)
-  }, [brands, facetProducts, selectedCategoryIds, selectedUnitIds])
+    return deriveOptions(source, p => p.brand, facetTruncated)
+  }, [brands, facetProducts, selectedCategoryIds, selectedUnitIds, facetTruncated])
 
   const derivedUnits = useMemo(() => {
     if (units.length > 0) return units
@@ -226,8 +234,8 @@ export function usePublicCatalogController({
       matchesSelection(p.category?.id, selectedCategoryIds) &&
       matchesSelection(p.brand?.id, selectedBrandIds)
     )
-    return deriveOptions(source, p => p.unit)
-  }, [units, facetProducts, selectedCategoryIds, selectedBrandIds])
+    return deriveOptions(source, p => p.unit, facetTruncated)
+  }, [units, facetProducts, selectedCategoryIds, selectedBrandIds, facetTruncated])
 
   // Event handlers
   const handleFiltersChange = useCallback((newFilters: PublicProductFilters) => {

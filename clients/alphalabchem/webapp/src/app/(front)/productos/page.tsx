@@ -1,8 +1,8 @@
 'use client'
 
-import React, { Suspense, useState, useEffect, useCallback } from 'react'
+import React, { Suspense, useState, useEffect, useCallback, useMemo } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
-import { PublicCatalogTemplate, useLocalCart } from '@/modules/public-catalog'
+import { PublicCatalogTemplate, useLocalCart, usePublicCategories } from '@/modules/public-catalog'
 import type { EnhancedPublicProduct } from '@/modules/public-catalog'
 import { useToast } from '@/ui/hooks/useToast'
 
@@ -32,6 +32,15 @@ export default function ProductosPage() {
 function ProductosContent() {
   const toast = useToast()
   const router = useRouter()
+  // Conteos reales del backend: derivarlos de la pagina cargada los topa en
+  // 100 (AlphaLab mostraba "Grado Reactivo (100)" con 328 productos).
+  const { categories: publicCategories } = usePublicCategories({ limit: 100 })
+  const categoryOptions = useMemo(
+    () => publicCategories
+      .filter((c) => (c.productsCount ?? 0) > 0)
+      .map((c) => ({ value: String(c.id), label: c.name, count: c.productsCount })),
+    [publicCategories]
+  )
   const searchParams = useSearchParams()
   const initialSearch = searchParams.get('search') || undefined
   const initialCategoryId = searchParams.get('categoryId') || undefined
@@ -105,7 +114,7 @@ function ProductosContent() {
         initialViewMode="grid"
         initialPageSize={24}
 
-        categories={[]}
+        categories={categoryOptions}
         brands={[]}
         units={[]}
         priceRange={priceRange}
