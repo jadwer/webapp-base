@@ -244,18 +244,42 @@ importers:
       '@hookform/resolvers':
         specifier: ^5.1.1
         version: 5.2.2(react-hook-form@7.58.1(react@19.1.10))
+      '@lwm/accounting':
+        specifier: workspace:*
+        version: link:../../../packages/accounting
       '@lwm/app-config':
         specifier: workspace:*
         version: link:../../../packages/app-config
+      '@lwm/audit':
+        specifier: workspace:*
+        version: link:../../../packages/audit
       '@lwm/auth':
         specifier: workspace:*
         version: link:../../../packages/auth
+      '@lwm/billing':
+        specifier: workspace:*
+        version: link:../../../packages/billing
+      '@lwm/commissions':
+        specifier: workspace:*
+        version: link:../../../packages/commissions
       '@lwm/contacts':
         specifier: workspace:*
         version: link:../../../packages/contacts
+      '@lwm/crm':
+        specifier: workspace:*
+        version: link:../../../packages/crm
       '@lwm/ecommerce':
         specifier: workspace:*
         version: link:../../../packages/ecommerce
+      '@lwm/finance':
+        specifier: workspace:*
+        version: link:../../../packages/finance
+      '@lwm/hr':
+        specifier: workspace:*
+        version: link:../../../packages/hr
+      '@lwm/inventory':
+        specifier: workspace:*
+        version: link:../../../packages/inventory
       '@lwm/mailer-manager':
         specifier: workspace:*
         version: link:../../../packages/mailer-manager
@@ -268,9 +292,18 @@ importers:
       '@lwm/products':
         specifier: workspace:*
         version: link:../../../packages/products
+      '@lwm/purchase':
+        specifier: workspace:*
+        version: link:../../../packages/purchase
+      '@lwm/reports':
+        specifier: workspace:*
+        version: link:../../../packages/reports
       '@lwm/sales':
         specifier: workspace:*
         version: link:../../../packages/sales
+      '@lwm/system-health':
+        specifier: workspace:*
+        version: link:../../../packages/system-health
       '@lwm/ui':
         specifier: workspace:*
         version: link:../../../packages/ui
@@ -7435,7 +7468,7 @@ snapshots:
       '@typescript-eslint/parser': 8.59.2(eslint@9.39.4)(typescript@5.9.3)
       eslint: 9.39.4
       eslint-import-resolver-node: 0.3.10
-      eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import@2.32.0)(eslint@9.39.4)
+      eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.59.2(eslint@9.39.4)(typescript@5.9.3))(eslint@9.39.4))(eslint@9.39.4)
       eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.59.2(eslint@9.39.4)(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.4)
       eslint-plugin-jsx-a11y: 6.10.2(eslint@9.39.4)
       eslint-plugin-react: 7.37.5(eslint@9.39.4)
@@ -7455,7 +7488,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0)(eslint@9.39.4):
+  eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.59.2(eslint@9.39.4)(typescript@5.9.3))(eslint@9.39.4))(eslint@9.39.4):
     dependencies:
       '@nolyfill/is-core-module': 1.0.39
       debug: 4.4.3
@@ -7470,14 +7503,14 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-module-utils@2.12.1(@typescript-eslint/parser@8.59.2(eslint@9.39.4)(typescript@5.9.3))(eslint-import-resolver-node@0.3.10)(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.4):
+  eslint-module-utils@2.12.1(@typescript-eslint/parser@8.59.2(eslint@9.39.4)(typescript@5.9.3))(eslint-import-resolver-node@0.3.10)(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.59.2(eslint@9.39.4)(typescript@5.9.3))(eslint@9.39.4))(eslint@9.39.4))(eslint@9.39.4):
     dependencies:
       debug: 3.2.7
     optionalDependencies:
       '@typescript-eslint/parser': 8.59.2(eslint@9.39.4)(typescript@5.9.3)
       eslint: 9.39.4
       eslint-import-resolver-node: 0.3.10
-      eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import@2.32.0)(eslint@9.39.4)
+      eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.59.2(eslint@9.39.4)(typescript@5.9.3))(eslint@9.39.4))(eslint@9.39.4)
     transitivePeerDependencies:
       - supports-color
 
@@ -7492,7 +7525,7 @@ snapshots:
       doctrine: 2.1.0
       eslint: 9.39.4
       eslint-import-resolver-node: 0.3.10
-      eslint-module-utils: 2.12.1(@typescript-eslint/parser@8.59.2(eslint@9.39.4)(typescript@5.9.3))(eslint-import-resolver-node@0.3.10)(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.4)
+      eslint-module-utils: 2.12.1(@typescript-eslint/parser@8.59.2(eslint@9.39.4)(typescript@5.9.3))(eslint-import-resolver-node@0.3.10)(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.59.2(eslint@9.39.4)(typescript@5.9.3))(eslint@9.39.4))(eslint@9.39.4))(eslint@9.39.4)
       hasown: 2.0.3
       is-core-module: 2.16.2
       is-glob: 4.0.3

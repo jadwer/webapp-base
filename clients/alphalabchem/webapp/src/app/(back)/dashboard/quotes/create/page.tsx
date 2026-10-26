@@ -8,7 +8,9 @@ import { shoppingCartService } from '@/modules/ecommerce'
 import type { ShoppingCart } from '@/modules/ecommerce'
 import { stockService } from '@/modules/inventory'
 import { toast } from '@/lib/toast'
+import { BranchSelect } from '@lwm/auth'
 import type { LocalCartItem } from '@/modules/public-catalog'
+import { todayDateInput, dateToInput } from '@lwm/ui'
 
 interface Contact {
   id: string
@@ -54,6 +56,7 @@ export default function CreateQuotePage() {
   const [validUntil, setValidUntil] = useState<string>('')
   const [notes, setNotes] = useState<string>('')
   const [termsAndConditions, setTermsAndConditions] = useState<string>('')
+  const [branchId, setBranchId] = useState<string>('')
 
   // Data from API
   const [contacts, setContacts] = useState<Contact[]>([])
@@ -72,7 +75,7 @@ export default function CreateQuotePage() {
   useEffect(() => {
     const defaultDate = new Date()
     defaultDate.setDate(defaultDate.getDate() + 30)
-    setValidUntil(defaultDate.toISOString().split('T')[0])
+    setValidUntil(dateToInput(defaultDate))
   }, [])
 
   // Load public cart from sessionStorage if coming from public cart
@@ -241,11 +244,12 @@ export default function CreateQuotePage() {
       try {
         const result = await mutations.create.mutateAsync({
           contactId: parseInt(selectedContactId),
-          quoteDate: new Date().toISOString().split('T')[0],
+          quoteDate: todayDateInput(),
           validUntil: validUntil || undefined,
           notes: notes || undefined,
           termsAndConditions: termsAndConditions || undefined,
-          currency: 'MXN'
+          currency: 'MXN',
+          branchId: branchId ? Number(branchId) : undefined
         })
 
         toast.success('Cotización creada. Agrega los productos a continuación.')
@@ -281,7 +285,8 @@ export default function CreateQuotePage() {
         contact_id: parseInt(selectedContactId),
         valid_until: validUntil || undefined,
         notes: notes || undefined,
-        terms_and_conditions: termsAndConditions || undefined
+        terms_and_conditions: termsAndConditions || undefined,
+        branch_id: branchId ? Number(branchId) : undefined
       })
 
       toast.success('Cotización creada exitosamente')
@@ -376,6 +381,7 @@ export default function CreateQuotePage() {
           <div className="col-12">
             <div className="d-flex align-items-center">
               <button
+                aria-label="Volver"
                 className="btn btn-outline-secondary me-3"
                 onClick={() => router.push('/dashboard/quotes')}
               >
@@ -406,6 +412,7 @@ export default function CreateQuotePage() {
           <div className="col-12">
             <div className="d-flex align-items-center">
               <button
+                aria-label="Volver"
                 className="btn btn-outline-secondary me-3"
                 onClick={() => router.push('/dashboard/quotes')}
               >
@@ -440,6 +447,7 @@ export default function CreateQuotePage() {
         <div className="col-12">
           <div className="d-flex align-items-center">
             <button
+              aria-label="Volver"
               className="btn btn-outline-secondary me-3"
               onClick={() => router.push('/dashboard/quotes')}
             >
@@ -660,6 +668,10 @@ export default function CreateQuotePage() {
                       </select>
                     </div>
 
+                    <div className="mb-3">
+                      <BranchSelect id="quote-branch" value={branchId} onChange={setBranchId} />
+                    </div>
+
                     {selectedContact && (
                       <div className="border rounded p-3">
                         <p className="fw-bold mb-1">{selectedContact.name}</p>
@@ -693,7 +705,7 @@ export default function CreateQuotePage() {
                     className="form-control"
                     value={validUntil}
                     onChange={(e) => setValidUntil(e.target.value)}
-                    min={new Date().toISOString().split('T')[0]}
+                    min={todayDateInput()}
                   />
                   <div className="form-text">
                     La cotización expira automáticamente después de esta fecha

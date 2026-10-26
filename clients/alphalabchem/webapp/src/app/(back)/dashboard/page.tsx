@@ -4,7 +4,9 @@ import React, { useState, useMemo, Component } from 'react'
 import type { ReactNode, ErrorInfo } from 'react'
 import Link from 'next/link'
 import { useAuth } from '@/modules/auth'
-import { isAdmin } from '@/lib/permissions'
+import { isAdmin, hasAnyRole } from '@/lib/permissions'
+import { StaffDashboard } from '@lwm/ui'
+import { adminNavigation, customerNavigation, customerExtraLinks } from '@/config/navigationConfig'
 import { CustomerDashboard } from '@/modules/ecommerce'
 import {
   useBalanceGeneral,
@@ -12,10 +14,10 @@ import {
   useSalesReports,
   usePurchaseReports
 } from '@/modules/accounting'
-import { useCFDIInvoices } from '@/modules/billing/hooks'
-import { useLeads, useOpportunities, useCampaigns } from '@/modules/crm/hooks'
+import { useCFDIInvoices } from '@/modules/billing'
+import { useLeads, useOpportunities, useCampaigns } from '@/modules/crm'
 import { useEcommerceOrders } from '@/modules/ecommerce'
-import { useEmployees } from '@/modules/hr/hooks'
+import { useEmployees } from '@/modules/hr'
 import { useSystemHealth } from '@/modules/system-health'
 
 class DashboardErrorBoundary extends Component<
@@ -72,6 +74,15 @@ export default function DashboardPage() {
   }
 
   if (!isAdmin(user)) {
+    // Personal con rol propio (vendedor, tech, roles por puesto): sus modulos,
+    // no el portal de cliente ni el panel de finanzas.
+    if (!hasAnyRole(user, ['customer', 'cliente'])) {
+      return (
+        <DashboardErrorBoundary>
+          <StaffDashboard navigationConfig={{ admin: adminNavigation, customer: customerNavigation, customerExtraLinks }} />
+        </DashboardErrorBoundary>
+      )
+    }
     return (
       <DashboardErrorBoundary>
         <CustomerDashboard />
@@ -135,10 +146,10 @@ function AdminDashboard() {
   // Calculate billing metrics
   const totalInvoices = invoices?.length || 0
   const stampedInvoices = invoices?.filter(
-    (inv) => inv.status === 'stamped' || inv.status === 'valid'
+    (inv) => inv.status === 'valid'
   ).length || 0
   const totalInvoicedAmount = invoices
-    ?.filter((inv) => inv.status === 'stamped' || inv.status === 'valid')
+    ?.filter((inv) => inv.status === 'valid')
     .reduce((sum, inv) => sum + (inv.total || 0), 0) || 0
 
   // Calculate CRM metrics

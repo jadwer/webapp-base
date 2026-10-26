@@ -1,6 +1,6 @@
 'use client'
 
-import { EstadoResultadosReport } from '@/modules/accounting/components/EstadoResultadosReport'
+import { EstadoResultadosReport } from '@/modules/accounting'
 
 export default function EstadoResultadosPage() {
   return <EstadoResultadosReport />

@@ -202,13 +202,13 @@ export default function CatalogOffersPage() {
                             </span>
                           </td>
                           <td className="text-end">
-                            <button 
+                            <button aria-label="Ver" 
                               className="btn btn-sm btn-outline-primary me-2"
                               onClick={() => navigation.push(`/dashboard/products/${offer.id}`)}
                             >
                               <i className="bi bi-eye"></i>
                             </button>
-                            <button 
+                            <button aria-label="Editar" 
                               className="btn btn-sm btn-outline-secondary"
                               onClick={() => navigation.push(`/dashboard/products/${offer.id}/edit`)}
                             >

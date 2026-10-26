@@ -4,7 +4,7 @@ import React, { use } from 'react'
 import Image from 'next/image'
 import { Card, Button } from '@/ui/components/base'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
-import { useProduct, StatusBadge, formatDate, formatPrice } from '@/modules/products'
+import { useProduct, StatusBadge, formatDate, formatPrice, PricingTypeBadge, requiresQuote } from '@/modules/products'
 
 export default function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
@@ -151,7 +151,8 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                   <div className="mb-3">
                     <label className="form-label fw-bold">Precio de venta:</label>
                     <div className="fs-4 text-primary fw-bold">
-                      {formatPrice(product.price)}
+                      {/* P2 granel: sin precio de lista, se cotiza */}
+                      {requiresQuote(product) ? <PricingTypeBadge className="fs-6" /> : formatPrice(product.price)}
                     </div>
                   </div>
                   <div className="mb-3">
@@ -238,6 +239,57 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                     {product.unit?.name || 'Sin unidad'}
                     {product.unit?.code && ` (${product.unit.code})`}
                   </span>
+                </div>
+              </div>
+            </div>
+          </Card>
+
+          {/* Datos fiscales SAT */}
+          <Card className="mb-4">
+            <div className="card-header">
+              <h6 className="mb-0">
+                <i className="bi bi-receipt me-2" />
+                Datos fiscales (SAT)
+              </h6>
+            </div>
+            <div className="card-body">
+              <div className="mb-3">
+                <label className="form-label fw-bold small">Clave Prod/Serv:</label>
+                <div>
+                  {product.satClaveProdServ ? (
+                    <code>{product.satClaveProdServ}</code>
+                  ) : (
+                    <span className="text-muted">Sin definir</span>
+                  )}
+                </div>
+              </div>
+              <div className="mb-3">
+                <label className="form-label fw-bold small">Clave Unidad:</label>
+                <div>
+                  {product.satClaveUnidad ? (
+                    <code>{product.satClaveUnidad}</code>
+                  ) : (
+                    <span className="text-muted">Sin definir</span>
+                  )}
+                </div>
+              </div>
+              <div className="mb-3">
+                <label className="form-label fw-bold small">Tipo de producto:</label>
+                <div>
+                  {product.productType === 'finished' && <span className="badge bg-info text-dark">Terminado</span>}
+                  {product.productType === 'raw_material' && <span className="badge bg-info text-dark">Materia prima</span>}
+                  {product.productType === 'both' && <span className="badge bg-info text-dark">Ambos</span>}
+                  {!product.productType && <span className="text-muted">Sin definir</span>}
+                </div>
+              </div>
+              <div>
+                <label className="form-label fw-bold small">IVA:</label>
+                <div>
+                  {product.taxRate === null || product.taxRate === undefined ? (
+                    <span className="badge bg-secondary">Exento</span>
+                  ) : (
+                    <span className="badge bg-success">{product.taxRate}%</span>
+                  )}
                 </div>
               </div>
             </div>

@@ -3,6 +3,7 @@
 import React from 'react'
 import { useRouter } from 'next/navigation'
 import { useLead } from '@/modules/crm'
+import { formatDateOnly } from '@lwm/ui'
 
 interface LeadViewPageProps {
   params: Promise<{
@@ -73,6 +74,7 @@ export default function LeadViewPage({ params }: LeadViewPageProps) {
           {/* Header */}
           <div className="d-flex align-items-center mb-4">
             <button
+              aria-label="Volver a leads"
               type="button"
               onClick={handleBack}
               className="btn btn-link p-0 me-3 text-decoration-none"
@@ -165,7 +167,7 @@ export default function LeadViewPage({ params }: LeadViewPageProps) {
                       <div className="col-md-6">
                         <h6 className="text-muted mb-1">Fecha Estimada de Cierre</h6>
                         <p className="fs-5 mb-0">
-                          {new Date(lead.estimatedCloseDate).toLocaleDateString()}
+                          {formatDateOnly(lead.estimatedCloseDate)}
                         </p>
                       </div>
                     )}

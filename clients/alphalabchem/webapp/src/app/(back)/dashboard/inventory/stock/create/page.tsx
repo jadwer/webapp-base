@@ -1,15 +1,11 @@
-/**
- * CREATE STOCK PAGE
- * Página para crear nuevos registros de stock
- */
-
+import type { Metadata } from 'next'
 import { CreateStockWrapper } from '@/modules/inventory'
+
+export const metadata: Metadata = {
+  title: 'Nuevo registro de stock - Inventario',
+  description: 'Registrar la existencia de un producto en un almacén y ubicación',
+}
 
 export default function CreateStockPage() {
   return <CreateStockWrapper />
-}
-
-export const metadata = {
-  title: 'Crear Stock - Gestión de Inventario',
-  description: 'Crear un nuevo registro de stock en el sistema de inventario'
 }

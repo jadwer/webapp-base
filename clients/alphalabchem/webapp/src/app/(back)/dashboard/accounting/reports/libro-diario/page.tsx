@@ -1,6 +1,6 @@
 'use client'
 
-import { LibroDiarioReport } from '@/modules/accounting/components/LibroDiarioReport'
+import { LibroDiarioReport } from '@/modules/accounting'
 
 export default function LibroDiarioPage() {
   return <LibroDiarioReport />

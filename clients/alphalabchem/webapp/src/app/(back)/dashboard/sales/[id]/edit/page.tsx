@@ -5,6 +5,7 @@
 import { useState, useEffect, use } from 'react'
 import { useSalesOrder, useSalesOrderMutations, useSalesContacts } from '@/modules/sales'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
+import { toast } from '@/lib/toast'
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -22,7 +23,8 @@ export default function EditSalesOrderPage({ params }: PageProps) {
     contactId: '',
     orderNumber: '',
     orderDate: '',
-    status: 'pending' as 'pending' | 'approved' | 'completed' | 'cancelled',
+    // Valores validos del backend (SalesOrderRequest Rule::in)
+    status: 'draft' as 'draft' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled',
     notes: ''
   })
 
@@ -35,8 +37,9 @@ export default function EditSalesOrderPage({ params }: PageProps) {
       setFormData({
         contactId: salesOrder.contactId?.toString() || '',
         orderNumber: salesOrder.orderNumber || '',
-        orderDate: salesOrder.orderDate || '',
-        status: salesOrder.status || 'pending',
+        // El backend regresa ISO datetime; el input date requiere YYYY-MM-DD
+        orderDate: salesOrder.orderDate ? salesOrder.orderDate.substring(0, 10) : '',
+        status: salesOrder.status || 'draft',
         notes: salesOrder.notes || ''
       })
     }
@@ -61,17 +64,27 @@ export default function EditSalesOrderPage({ params }: PageProps) {
         contactId: parseInt(formData.contactId)
       }
 
-      console.log('🚀 Updating sales order:', orderData)
       await updateSalesOrder(resolvedParams.id, orderData)
 
+      toast.success('Orden de venta actualizada correctamente')
 
       // Navigate back to the order detail page
       navigation.push(`/dashboard/sales/${resolvedParams.id}`)
 
     } catch (err) {
-      console.error('❌ Error updating sales order:', err)
-      const error = err as { response?: { data?: { message?: string } }; message?: string }
-      setSubmitError(error.response?.data?.message || error.message || 'Error al actualizar la orden de venta')
+      console.error('Error updating sales order:', err)
+      const error = err as {
+        response?: { data?: { message?: string; errors?: Array<{ detail?: string; title?: string }> } }
+        message?: string
+      }
+      // JSON:API devuelve errors[].detail; fallback a message generico
+      const jsonApiDetail = error.response?.data?.errors
+        ?.map(e => e.detail || e.title)
+        .filter(Boolean)
+        .join('. ')
+      const message = jsonApiDetail || error.response?.data?.message || error.message || 'Error al actualizar la orden de venta'
+      setSubmitError(message)
+      toast.error(message)
     } finally {
       setIsSubmitting(false)
     }
@@ -215,9 +228,11 @@ export default function EditSalesOrderPage({ params }: PageProps) {
                       onChange={handleInputChange}
                       required
                     >
-                      <option value="pending">Pendiente</option>
-                      <option value="approved">Aprobada</option>
-                      <option value="completed">Completada</option>
+                      <option value="draft">Borrador</option>
+                      <option value="confirmed">Confirmada</option>
+                      <option value="processing">En proceso</option>
+                      <option value="shipped">Enviada</option>
+                      <option value="delivered">Entregada</option>
                       <option value="cancelled">Cancelada</option>
                     </select>
                   </div>

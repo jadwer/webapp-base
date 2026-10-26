@@ -1,21 +1,16 @@
-/**
- * EDIT MOVEMENT PAGE
- * Página para editar un movimiento de inventario existente
- */
-
+import type { Metadata } from 'next'
 import { EditMovementWrapper } from '@/modules/inventory'
 
 interface PageProps {
   params: Promise<{ id: string }>
 }
 
-export default async function EditMovementPage({ params }: PageProps) {
-  const { id } = await params
-  
-  return <EditMovementWrapper movementId={id} />
+export const metadata: Metadata = {
+  title: 'Editar movimiento - Inventario',
+  description: 'Modificar el movimiento de inventario',
 }
 
-export const metadata = {
-  title: 'Editar Movimiento - Gestión de Inventario',
-  description: 'Editar información del movimiento de inventario'
+export default async function EditMovementPage({ params }: PageProps) {
+  const { id } = await params
+  return <EditMovementWrapper movementId={id} />
 }

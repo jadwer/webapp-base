@@ -2,8 +2,7 @@
 
 import React from 'react'
 import { useRouter } from 'next/navigation'
-import { LeadForm } from '@/modules/crm/components'
-import { useLead } from '@/modules/crm'
+import { LeadForm, useLead } from '@/modules/crm'
 
 interface EditLeadPageProps {
   params: Promise<{
@@ -57,6 +56,7 @@ export default function EditLeadPage({ params }: EditLeadPageProps) {
           {/* Header */}
           <div className="d-flex align-items-center mb-4">
             <button
+              aria-label="Volver"
               type="button"
               onClick={handleCancel}
               className="btn btn-link p-0 me-3 text-decoration-none"

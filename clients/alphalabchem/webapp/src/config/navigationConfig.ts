@@ -1,5 +1,5 @@
 /**
- * AlphaLab Chemicals — Sidebar navigation config.
+ * Labor Wasser de Mexico - Sidebar navigation config.
  *
  * Each tenant repo ships its own navigationConfig because what modules
  * are visible per role is a tenant decision. The hook `useNavigation`
@@ -32,40 +32,30 @@ export type { NavigationItem, NavigationGroup, DisabledModule, NavigationSection
 // Navegación ADMIN
 // ============================================
 
+// Nombres de permiso = los que revisa el backend (Authorizers/controladores).
+// 23-10: 14 entradas usaban nombres inexistentes (cfdi-invoices.index en vez
+// de billing.cfdi-invoices.index, employees.index en vez de hr.employees.index...)
+// y escondian la seccion a todo rol que no fuera god.
 export const adminNavigation: NavigationSection = {
   audience: 'admin',
 
   topLinks: [
     { href: '/dashboard', label: 'Panel Principal', icon: 'bi-house', permissions: [] },
-    { href: '/dashboard/profile', label: 'Mi perfil', icon: 'bi-person-circle', permissions: [] },
-    { href: '/dashboard/users', label: 'Usuarios', icon: 'bi-people', permissions: ['users.index'] },
+    // Mi perfil vive en el header (avatar), fuera del sidebar (poda UX 2026-09).
   ],
 
   groups: [
-    // Page Builder
+    // Usuarios (2026-09-24): usuarios con permisos por usuario + Permission
+    // Manager (plantillas). Las pantallas legacy Roles y Permisos se retiraron.
     {
-      key: 'pageBuilder',
-      label: 'Page Builder',
-      icon: 'bi-brush',
-      activePathPrefixes: ['/dashboard/pages', '/dashboard/page-builder'],
+      key: 'users',
+      label: 'Usuarios',
+      icon: 'bi-people',
+      activePathPrefixes: ['/dashboard/users', '/dashboard/permission-manager'],
       permissions: [],
       items: [
-        { href: '/dashboard/pages', label: 'Gestión de Páginas', icon: 'bi-file-earmark-text', permissions: ['page.index'] },
-        { href: '/dashboard/pages/templates', label: 'Galería de Templates', icon: 'bi-layout-text-window-reverse', permissions: ['page.index'] },
-      ],
-    },
-
-    // Roles y Permisos
-    {
-      key: 'rcrud',
-      label: 'Roles y Permisos',
-      icon: 'bi-shield-fill-check',
-      activePathPrefixes: ['/dashboard/permission-manager', '/dashboard/roles', '/dashboard/permissions'],
-      permissions: [],
-      items: [
-        { href: '/dashboard/permission-manager', label: 'Permission Manager', icon: 'bi-layout-text-window-reverse', permissions: ['permissions.show'] },
-        { href: '/dashboard/roles', label: 'Roles', icon: 'bi-person-badge', permissions: ['roles.show'] },
-        { href: '/dashboard/permissions', label: 'Permisos', icon: 'bi-shield-lock', permissions: ['permissions.show'] },
+        { href: '/dashboard/users', label: 'Usuarios', icon: 'bi-people', permissions: ['users.index'] },
+        { href: '/dashboard/permission-manager', label: 'Roles y permisos', icon: 'bi-layout-text-window-reverse', permissions: ['permissions.show'] },
       ],
     },
 
@@ -93,13 +83,12 @@ export const adminNavigation: NavigationSection = {
       permissions: [],
       items: [
         { href: '/dashboard/inventory', label: 'Dashboard', icon: 'bi-speedometer2', permissions: ['stocks.index'] },
-        { href: '/dashboard/inventory/warehouses', label: 'Almacenes', icon: 'bi-building', permissions: ['warehouses.index'] },
-        { href: '/dashboard/inventory/locations', label: 'Ubicaciones', icon: 'bi-geo-alt', permissions: ['locations.index'] },
         { href: '/dashboard/inventory/stock', label: 'Control de Stock', icon: 'bi-boxes', permissions: ['stocks.index'] },
-        { href: '/dashboard/inventory/movements', label: 'Movimientos', icon: 'bi-arrow-left-right', permissions: ['stock-movements.index'] },
-        { href: '/dashboard/inventory/product-batch', label: 'Lotes de Productos', icon: 'bi-calendar-check', permissions: ['product-batches.index'] },
-        { href: '/dashboard/inventory/product-conversions', label: 'Conversiones', icon: 'bi-arrow-repeat', permissions: ['product-conversions.index'] },
-        { href: '/dashboard/inventory/fraccionamiento', label: 'Fraccionamiento', icon: 'bi-scissors', permissions: ['fractionations.index'] },
+        { href: '/dashboard/inventory/movements', label: 'Movimientos', icon: 'bi-arrow-left-right', permissions: ['inventory-movements.index'] },
+        // Ubicaciones vive como pestana de Almacenes; Conversiones, de Fraccionamiento
+        { href: '/dashboard/inventory/warehouses', label: 'Almacenes', icon: 'bi-building', permissions: ['warehouses.index'], activePathPrefixes: ['/dashboard/inventory/locations'] },
+        { href: '/dashboard/inventory/product-batch', label: 'Lotes', icon: 'bi-calendar-check', permissions: ['product-batches.index'] },
+        { href: '/dashboard/inventory/fraccionamiento', label: 'Fraccionamiento', icon: 'bi-scissors', permissions: ['fractionations.index'], activePathPrefixes: ['/dashboard/inventory/product-conversions'] },
       ],
     },
 
@@ -111,11 +100,10 @@ export const adminNavigation: NavigationSection = {
       activePathPrefixes: ['/dashboard/contacts'],
       permissions: [],
       items: [
-        { href: '/dashboard/contacts', label: 'Gestión', icon: 'bi-person-lines-fill', permissions: ['contacts.index'] },
-        { href: '/dashboard/contacts/customers', label: 'Clientes', icon: 'bi-person-check', permissions: ['contacts.index'] },
-        { href: '/dashboard/contacts/suppliers', label: 'Proveedores', icon: 'bi-building', permissions: ['contacts.index'] },
-        { href: '/dashboard/contacts/prospects', label: 'Prospectos', icon: 'bi-person-dash', permissions: ['contacts.index'] },
-        { href: '/dashboard/contacts/create', label: 'Crear Contacto', icon: 'bi-person-plus', permissions: ['contacts.store'] },
+        // Los terceros se gestionan en su modulo dueno (Ventas: clientes y
+        // prospectos; Compras: proveedores). Aqui queda solo el directorio
+        // completo como herramienta de administracion.
+        { href: '/dashboard/contacts', label: 'Directorio completo', icon: 'bi-person-lines-fill', permissions: ['contacts.index'], quickCreateHref: '/dashboard/contacts/create' },
       ],
     },
 
@@ -137,13 +125,19 @@ export const adminNavigation: NavigationSection = {
       key: 'sales',
       label: 'Ventas',
       icon: 'bi-cart-check',
-      activePathPrefixes: ['/dashboard/sales'],
+      activePathPrefixes: ['/dashboard/sales', '/dashboard/remissions', '/dashboard/contacts/customers', '/dashboard/contacts/prospects', '/dashboard/commissions'],
       permissions: [],
       items: [
         { href: '/dashboard/sales', label: 'Órdenes de Venta', icon: 'bi-cart-check', permissions: ['sales-orders.index'] },
         { href: '/dashboard/sales/create', label: 'Nueva Orden', icon: 'bi-plus-circle', permissions: ['sales-orders.store'] },
+        { href: '/dashboard/remissions', label: 'Remisiones', icon: 'bi-truck', permissions: ['remissions.index'] },
+        { href: '/dashboard/contacts/customers', label: 'Clientes', icon: 'bi-person-check', permissions: ['contacts.index'], quickCreateHref: '/dashboard/contacts/create?type=customer' },
+        { href: '/dashboard/contacts/prospects', label: 'Prospectos', icon: 'bi-person-dash', permissions: ['contacts.index'], quickCreateHref: '/dashboard/contacts/create?type=prospect' },
         { href: '/dashboard/sales/reports', label: 'Reportes', icon: 'bi-graph-up', permissions: ['sales-orders.index'] },
-        { href: '/dashboard/sales/customers', label: 'Clientes', icon: 'bi-person-heart', permissions: ['sales-orders.index'] },
+        // Comisiones: submodulo de Ventas (nace de la orden, se reporta por
+        // vendedor); NO va en RRHH: cero relacion en el modelo de datos.
+        { href: '/dashboard/commissions', label: 'Comisiones', icon: 'bi-percent', permissions: ['commissions.index'] },
+        { href: '/dashboard/commissions/by-employee', label: 'Comisiones por Vendedor', icon: 'bi-bar-chart', permissions: ['commissions.index'] },
       ],
     },
 
@@ -152,13 +146,13 @@ export const adminNavigation: NavigationSection = {
       key: 'purchase',
       label: 'Compras',
       icon: 'bi-cart-plus',
-      activePathPrefixes: ['/dashboard/purchase'],
+      activePathPrefixes: ['/dashboard/purchase', '/dashboard/contacts/suppliers'],
       permissions: [],
       items: [
         { href: '/dashboard/purchase', label: 'Órdenes de Compra', icon: 'bi-cart-plus', permissions: ['purchase-orders.index'] },
         { href: '/dashboard/purchase/create', label: 'Nueva Orden', icon: 'bi-plus-circle', permissions: ['purchase-orders.store'] },
+        { href: '/dashboard/contacts/suppliers', label: 'Proveedores', icon: 'bi-building', permissions: ['contacts.index'], quickCreateHref: '/dashboard/contacts/create?type=supplier' },
         { href: '/dashboard/purchase/reports', label: 'Reportes', icon: 'bi-graph-up', permissions: ['purchase-orders.index'] },
-        { href: '/dashboard/purchase/suppliers', label: 'Proveedores', icon: 'bi-building', permissions: ['purchase-orders.index'] },
       ],
     },
 
@@ -172,8 +166,8 @@ export const adminNavigation: NavigationSection = {
       items: [
         { href: '/dashboard/finance/ap-invoices', label: 'Facturas por Pagar', icon: 'bi-receipt', permissions: ['ap-invoices.index'] },
         { href: '/dashboard/finance/ar-invoices', label: 'Facturas por Cobrar', icon: 'bi-receipt-cutoff', permissions: ['ar-invoices.index'] },
-        { href: '/dashboard/finance/ap-payments', label: 'Pagos AP', icon: 'bi-credit-card', permissions: ['ap-payments.index'] },
-        { href: '/dashboard/finance/ar-receipts', label: 'Recibos de Clientes', icon: 'bi-cash-coin', permissions: ['ar-receipts.index'] },
+        { href: '/dashboard/finance/ap-payments', label: 'Pagos AP', icon: 'bi-credit-card', permissions: ['payments.index'] },
+        { href: '/dashboard/finance/ar-receipts', label: 'Recibos de Clientes', icon: 'bi-cash-coin', permissions: ['ar-payments.index'] },
         { href: '/dashboard/finance/bank-accounts', label: 'Cuentas Bancarias', icon: 'bi-bank', permissions: ['bank-accounts.index'] },
       ],
     },
@@ -201,8 +195,9 @@ export const adminNavigation: NavigationSection = {
       permissions: [],
       items: [
         { href: '/dashboard/reports', label: 'Dashboard Reportes', icon: 'bi-speedometer2', permissions: ['reports.balance-sheets.index'] },
+        { href: '/dashboard/reports/sales-history', label: 'Histórico de Ventas', icon: 'bi-receipt', permissions: ['reports.balance-sheets.index'] },
         { href: '/dashboard/reports/financial-statements', label: 'Estados Financieros', icon: 'bi-file-earmark-text', permissions: ['reports.balance-sheets.index'] },
-        { href: '/dashboard/reports/aging-reports', label: 'Antigüedad AR/AP', icon: 'bi-clock-history', permissions: ['reports.aging.index'] },
+        { href: '/dashboard/reports/aging-reports', label: 'Antigüedad AR/AP', icon: 'bi-clock-history', permissions: ['reports.ar-aging-reports.index', 'reports.ap-aging-reports.index'] },
         { href: '/dashboard/reports/management-reports', label: 'Reportes Gerenciales', icon: 'bi-graph-up', permissions: ['reports.balance-sheets.index'] },
       ],
     },
@@ -215,11 +210,11 @@ export const adminNavigation: NavigationSection = {
       activePathPrefixes: ['/dashboard/billing'],
       permissions: [],
       items: [
-        { href: '/dashboard/billing', label: 'Dashboard Facturación', icon: 'bi-speedometer2', permissions: ['cfdi-invoices.index'] },
-        { href: '/dashboard/billing/invoices', label: 'Facturas CFDI', icon: 'bi-file-earmark-text', permissions: ['cfdi-invoices.index'] },
-        { href: '/dashboard/billing/invoices/create', label: 'Nueva Factura', icon: 'bi-plus-circle', permissions: ['cfdi-invoices.store'] },
-        { href: '/dashboard/billing/settings', label: 'Configuración Fiscal', icon: 'bi-gear-fill', permissions: ['company-settings.index'] },
-        { href: '/dashboard/billing/payments', label: 'Pagos Stripe', icon: 'bi-credit-card', permissions: ['cfdi-invoices.index'] },
+        { href: '/dashboard/billing', label: 'Dashboard Facturación', icon: 'bi-speedometer2', permissions: ['billing.cfdi-invoices.index'] },
+        { href: '/dashboard/billing/invoices', label: 'Facturas CFDI', icon: 'bi-file-earmark-text', permissions: ['billing.cfdi-invoices.index'] },
+        { href: '/dashboard/billing/invoices/create', label: 'Nueva Factura', icon: 'bi-plus-circle', permissions: ['billing.cfdi-invoices.store'] },
+        { href: '/dashboard/billing/settings', label: 'Configuración Fiscal', icon: 'bi-gear-fill', permissions: ['billing.company-settings.index'] },
+        { href: '/dashboard/billing/payments', label: 'Pagos Stripe', icon: 'bi-credit-card', permissions: ['billing.cfdi-invoices.index'] },
       ],
     },
 
@@ -238,20 +233,14 @@ export const adminNavigation: NavigationSection = {
       ],
     },
 
-    // Catálogo Público
-    {
-      key: 'catalog',
-      label: 'Catálogo Público',
-      icon: 'bi-grid-3x3-gap',
-      activePathPrefixes: ['/dashboard/catalog'],
-      permissions: [],
-      items: [
-        { href: '/dashboard/catalog', label: 'Gestión', icon: 'bi-grid-3x3-gap', permissions: ['products.index'] },
-        { href: '/dashboard/catalog/featured', label: 'Productos Destacados', icon: 'bi-star', permissions: ['products.index'] },
-        { href: '/dashboard/catalog/offers', label: 'Ofertas', icon: 'bi-percent', permissions: ['products.index'] },
-        { href: '/dashboard/catalog/settings', label: 'Configuración', icon: 'bi-gear', permissions: ['products.index'] },
-      ],
-    },
+    // NOTA: la seccion "Catalogo Publico" se elimino (2026-07-16). No
+    // configuraba nada del catalogo publico: "Gestion" y "Productos Destacados"
+    // eran cascarones sin llamadas a la API, "Configuracion" un mock cuyo boton
+    // Guardar no tenia handler, y "Ofertas" derivaba las ofertas de precio>costo
+    // (margen, no oferta) y al "crear una oferta" SOBREESCRIBIA el precio y el
+    // costo reales del producto, corrompiendo el margen contable.
+    // Las ofertas ahora se marcan en la ficha del producto (campo "En oferta"
+    // con vigencia y etiqueta), que es lo que lee el sitio publico.
 
     // E-commerce
     {
@@ -261,7 +250,7 @@ export const adminNavigation: NavigationSection = {
       activePathPrefixes: ['/dashboard/ecommerce'],
       permissions: [],
       items: [
-        { href: '/dashboard/ecommerce', label: 'Dashboard E-commerce', icon: 'bi-speedometer2', permissions: ['sales-orders.index'] },
+        { href: '/dashboard/ecommerce', label: 'Panel de comercio electrónico', icon: 'bi-speedometer2', permissions: ['sales-orders.index'] },
         { href: '/dashboard/ecommerce/orders', label: 'Ordenes', icon: 'bi-bag-check', permissions: ['sales-orders.index'] },
         { href: '/dashboard/ecommerce/orders/create', label: 'Nueva Orden', icon: 'bi-plus-circle', permissions: ['sales-orders.store'] },
       ],
@@ -275,39 +264,31 @@ export const adminNavigation: NavigationSection = {
       activePathPrefixes: ['/dashboard/hr'],
       permissions: [],
       items: [
-        { href: '/dashboard/hr', label: 'Dashboard HR', icon: 'bi-speedometer2', permissions: ['employees.index'] },
-        { href: '/dashboard/hr/employees', label: 'Empleados', icon: 'bi-person-badge', permissions: ['employees.index'] },
-        { href: '/dashboard/hr/attendances', label: 'Asistencia', icon: 'bi-clock-history', permissions: ['attendances.index'] },
-        { href: '/dashboard/hr/leaves', label: 'Permisos y Vacaciones', icon: 'bi-calendar-check', permissions: ['leaves.index'] },
-        { href: '/dashboard/hr/payroll', label: 'Nómina', icon: 'bi-cash-stack', permissions: ['payroll-periods.index'] },
-        { href: '/dashboard/hr/organization', label: 'Organización', icon: 'bi-diagram-3', permissions: ['departments.index'] },
+        { href: '/dashboard/hr', label: 'Dashboard HR', icon: 'bi-speedometer2', permissions: ['hr.employees.index'] },
+        { href: '/dashboard/hr/employees', label: 'Empleados', icon: 'bi-person-badge', permissions: ['hr.employees.index'] },
+        { href: '/dashboard/hr/attendances', label: 'Asistencia', icon: 'bi-clock-history', permissions: ['hr.attendances.index'] },
+        { href: '/dashboard/hr/leaves', label: 'Permisos y Vacaciones', icon: 'bi-calendar-check', permissions: ['hr.leaves.index'] },
+        { href: '/dashboard/hr/payroll', label: 'Nómina', icon: 'bi-cash-stack', permissions: ['hr.payroll-periods.index'] },
+        { href: '/dashboard/hr/organization', label: 'Organización', icon: 'bi-diagram-3', permissions: ['hr.departments.index'] },
       ],
     },
 
-    // Correos
-    {
-      key: 'mailer-manager',
-      label: 'Correos',
-      icon: 'bi-envelope',
-      activePathPrefixes: ['/dashboard/mailer-manager'],
-      permissions: [],
-      items: [
-        { href: '/dashboard/mailer-manager', label: 'Plantillas', icon: 'bi-palette', permissions: ['email-templates.index'] },
-        { href: '/dashboard/mailer-manager/system-emails', label: 'Emails del Sistema', icon: 'bi-gear', permissions: ['system-emails.index'] },
-      ],
-    },
-
-    // Configuración
+    // Configuración (absorbe Page Builder y Correos: personalizacion e
+    // infraestructura, no operacion; poda UX 2026-09)
     {
       key: 'settings',
       label: 'Configuración',
       icon: 'bi-sliders',
-      activePathPrefixes: ['/dashboard/settings'],
+      activePathPrefixes: ['/dashboard/settings', '/dashboard/pages', '/dashboard/page-builder', '/dashboard/mailer-manager'],
       permissions: [],
       items: [
         { href: '/dashboard/settings/app-config', label: 'Configuracion General', icon: 'bi-gear', permissions: [] },
-        { href: '/dashboard/settings/folios', label: 'Folios y Consecutivos', icon: 'bi-123', permissions: ['folio-sequences.index'] },
-        { href: '/dashboard/settings/invoice-series', label: 'Series de Facturación', icon: 'bi-collection', permissions: ['invoice-series.index'] },
+        { href: '/dashboard/settings/documents', label: 'Configuración de Documentos', icon: 'bi-file-earmark-text', permissions: ['sales.folio-sequences.index'] },
+        { href: '/dashboard/settings/branches', label: 'Sucursales', icon: 'bi-shop', permissions: ['branches.index'] },
+        { href: '/dashboard/pages', label: 'Gestión de Páginas', icon: 'bi-brush', permissions: ['page.index'] },
+        { href: '/dashboard/pages/templates', label: 'Galería de plantillas', icon: 'bi-layout-text-window-reverse', permissions: ['page.index'] },
+        { href: '/dashboard/mailer-manager', label: 'Plantillas de Correo', icon: 'bi-envelope', permissions: ['email-templates.index'] },
+        { href: '/dashboard/mailer-manager/system-emails', label: 'Emails del Sistema', icon: 'bi-envelope-gear', permissions: ['system-emails.index'] },
       ],
     },
 
@@ -319,7 +300,7 @@ export const adminNavigation: NavigationSection = {
       activePathPrefixes: ['/dashboard/audit', '/dashboard/system-health', '/dashboard/diagnostic', '/dashboard/design-system'],
       permissions: [],
       items: [
-        { href: '/dashboard/audit', label: 'Auditoría', icon: 'bi-journal-text', permissions: ['audits.index'] },
+        { href: '/dashboard/audit', label: 'Auditoría', icon: 'bi-journal-text', permissions: ['audit.index'] },
         { href: '/dashboard/system-health', label: 'Estado del Sistema', icon: 'bi-heart-pulse', permissions: ['system-health.index'] },
         { href: '/dashboard/diagnostic', label: 'Diagnóstico', icon: 'bi-bug', permissions: [] },
         { href: '/dashboard/design-system', label: 'Design System', icon: 'bi-palette', permissions: [] },

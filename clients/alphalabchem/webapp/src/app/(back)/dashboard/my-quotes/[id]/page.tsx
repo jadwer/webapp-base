@@ -15,7 +15,16 @@ import { QuoteStatusBadge } from '@/modules/quotes'
 import { quoteService, quoteItemService } from '@/modules/quotes'
 import type { Quote, QuoteItem } from '@/modules/quotes'
 import { formatDateOnly } from '@/modules/quotes'
+import {
+  isQuoteItemPricePending,
+  formatQuoteItemQuantity,
+  getPricePendingErrors,
+  ACCEPT_PRICE_PENDING_MESSAGE,
+  type PricePendingError,
+} from '@/modules/quotes'
+import { extractApiErrorMessage } from '@/modules/products'
 import { toast } from '@/lib/toast'
+import { isPastDateOnly } from '@lwm/ui'
 
 interface MyQuoteDetailPageProps {
   params: Promise<{ id: string }>
@@ -30,6 +39,8 @@ export default function MyQuoteDetailPage({ params }: MyQuoteDetailPageProps) {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [isAccepting, setIsAccepting] = useState(false)
+  // D9: rechazo del backend al aceptar (422 price_pending u otro error)
+  const [acceptError, setAcceptError] = useState<{ message: string; pending: PricePendingError[] } | null>(null)
 
   useEffect(() => {
     if (authLoading) return
@@ -45,8 +56,10 @@ export default function MyQuoteDetailPage({ params }: MyQuoteDetailPageProps) {
         // Fetch items
         const itemsData = await quoteItemService.getByQuoteId(id)
         setItems(itemsData)
-      } catch {
-        setError('Error al cargar la cotizacion')
+      } catch (err) {
+        // Detalle del API (JSON:API errors[0].detail o message) o generico
+        const data = (err as { response?: { data?: { errors?: { detail?: string }[]; message?: string; error?: string } } })?.response?.data
+        setError(data?.errors?.[0]?.detail || data?.error || data?.message || 'Error al cargar la cotización')
       } finally {
         setIsLoading(false)
       }
@@ -59,14 +72,22 @@ export default function MyQuoteDetailPage({ params }: MyQuoteDetailPageProps) {
     if (!quote) return
 
     setIsAccepting(true)
+    setAcceptError(null)
     try {
       await quoteService.accept(quote.id)
-      toast.success('Cotizacion aceptada exitosamente')
+      toast.success('Cotización aceptada exitosamente')
       // Refresh quote data
       const updatedQuote = await quoteService.getById(id)
       setQuote(updatedQuote)
-    } catch {
-      toast.error('Error al aceptar la cotizacion')
+    } catch (err) {
+      // Regla 7: el 422 price_pending se muestra con el detalle por producto
+      const pending = getPricePendingErrors(err) ?? []
+      const backendMessage = (err as { response?: { data?: { message?: unknown } } })?.response?.data?.message
+      const message = pending.length > 0
+        ? (typeof backendMessage === 'string' && backendMessage ? backendMessage : ACCEPT_PRICE_PENDING_MESSAGE)
+        : extractApiErrorMessage(err, 'No se pudo aceptar la cotización')
+      setAcceptError({ message, pending })
+      toast.error(message)
     } finally {
       setIsAccepting(false)
     }
@@ -76,10 +97,12 @@ export default function MyQuoteDetailPage({ params }: MyQuoteDetailPageProps) {
     if (!quote) return
 
     try {
-      // Open PDF download in new tab
-      const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL || ''
-      window.open(`${baseUrl}/api/v1/quotes/${quote.id}/pdf/download`, '_blank')
-      toast.success('Descargando PDF...')
+      // Fix "Unauthenticated": window.open a la URL del API iba SIN el header Bearer
+      // (el token vive en localStorage, no en cookie) y el backend respondia 401 sin
+      // importar el rol. Se usa el servicio autenticado con blob, igual que la vista
+      // admin de cotizaciones.
+      await quoteService.downloadPdf(quote.id)
+      toast.success('PDF descargado')
     } catch {
       toast.error('Error al descargar el PDF')
     }
@@ -105,7 +128,7 @@ export default function MyQuoteDetailPage({ params }: MyQuoteDetailPageProps) {
       <div className="container-fluid py-4">
         <div className="text-center py-5">
           <span className="spinner-border text-primary" role="status"></span>
-          <p className="mt-3 text-muted">Cargando cotizacion...</p>
+          <p className="mt-3 text-muted">Cargando cotización...</p>
         </div>
       </div>
     )
@@ -116,7 +139,7 @@ export default function MyQuoteDetailPage({ params }: MyQuoteDetailPageProps) {
       <div className="container-fluid py-4">
         <div className="alert alert-danger">
           <i className="bi bi-exclamation-triangle me-2"></i>
-          {error || 'Cotizacion no encontrada'}
+          {error || 'Cotización no encontrada'}
         </div>
         <Link href="/dashboard/my-quotes" className="btn btn-outline-primary">
           <i className="bi bi-arrow-left me-2"></i>
@@ -127,7 +150,10 @@ export default function MyQuoteDetailPage({ params }: MyQuoteDetailPageProps) {
   }
 
   const canAccept = quote.status === 'sent'
-  const isExpired = quote.validUntil && new Date(quote.validUntil) < new Date()
+  const isExpired = quote.validUntil && isPastDateOnly(quote.validUntil)
+  // D9: con precios por confirmar el cliente no puede aceptar todavia
+  const hasPendingPrices = items.some(isQuoteItemPricePending)
+  const showAcceptButton = canAccept && !isExpired
 
   return (
     <div className="container-fluid py-4">
@@ -139,7 +165,7 @@ export default function MyQuoteDetailPage({ params }: MyQuoteDetailPageProps) {
             Mis Cotizaciones
           </Link>
           <h1 className="h3 mb-1">
-            Cotizacion {quote.quoteNumber || `#${quote.id}`}
+            Cotización {quote.quoteNumber || `#${quote.id}`}
           </h1>
           <div className="d-flex align-items-center gap-3">
             <QuoteStatusBadge status={quote.status} />
@@ -161,11 +187,14 @@ export default function MyQuoteDetailPage({ params }: MyQuoteDetailPageProps) {
             Descargar PDF
           </button>
 
-          {canAccept && !isExpired && (
+          {showAcceptButton && (
             <button
               className="btn btn-success"
               onClick={handleAcceptQuote}
-              disabled={isAccepting}
+              disabled={isAccepting || hasPendingPrices}
+              title={hasPendingPrices ? ACCEPT_PRICE_PENDING_MESSAGE : undefined}
+              aria-describedby={hasPendingPrices ? 'my-quote-accept-blocked' : undefined}
+              data-testid="my-quote-accept"
             >
               {isAccepting ? (
                 <>
@@ -175,13 +204,38 @@ export default function MyQuoteDetailPage({ params }: MyQuoteDetailPageProps) {
               ) : (
                 <>
                   <i className="bi bi-check-circle me-2"></i>
-                  Aceptar Cotizacion
+                  Aceptar cotización
                 </>
               )}
             </button>
           )}
         </div>
       </div>
+
+      {showAcceptButton && hasPendingPrices && (
+        <div id="my-quote-accept-blocked" className="alert alert-info" role="status" data-testid="my-quote-accept-blocked">
+          <i className="bi bi-hourglass-split me-2" aria-hidden="true"></i>
+          {ACCEPT_PRICE_PENDING_MESSAGE}
+        </div>
+      )}
+
+      {acceptError && (
+        <div className="alert alert-danger" role="alert" data-testid="my-quote-accept-error">
+          <i className="bi bi-exclamation-triangle me-2" aria-hidden="true"></i>
+          {acceptError.message}
+          {acceptError.pending.length > 0 && (
+            <ul className="mb-0 mt-2">
+              {acceptError.pending.map((p) => (
+                <li key={p.quoteItemId ?? p.productName}>
+                  <strong>{p.productName}</strong>
+                  {p.productSku ? ` (${p.productSku})` : ''}
+                  {p.detail ? `: ${p.detail}` : ''}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
 
       <div className="row">
         {/* Quote Details */}
@@ -223,19 +277,31 @@ export default function MyQuoteDetailPage({ params }: MyQuoteDetailPageProps) {
                           </div>
                         </td>
                         <td className="text-center">
-                          {item.quantity} pz
+                          {formatQuoteItemQuantity(item)}
+                        </td>
+                        {/* P2 granel: precio sujeto a cotizacion aun sin capturar */}
+                        <td className="text-end">
+                          {isQuoteItemPricePending(item)
+                            ? <span className="fst-italic text-warning-emphasis">Por confirmar</span>
+                            : formatPrice(item.quotedPrice || item.unitPrice)}
                         </td>
                         <td className="text-end">
-                          {formatPrice(item.quotedPrice || item.unitPrice)}
-                        </td>
-                        <td className="text-end">
-                          <strong>{formatPrice(item.total || (item.quantity * (item.quotedPrice || item.unitPrice)))}</strong>
+                          {isQuoteItemPricePending(item)
+                            ? <span className="fst-italic text-warning-emphasis">Por confirmar</span>
+                            : <strong>{formatPrice(item.total || (item.quantity * (item.quotedPrice || item.unitPrice)))}</strong>}
                         </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
+              {hasPendingPrices && (
+                <div className="alert alert-warning small m-3" role="status" data-testid="my-quote-price-pending">
+                  <i className="bi bi-info-circle me-2"></i>
+                  Precio sujeto a cotización: los productos marcados &quot;Por confirmar&quot; no están incluidos en el total.
+                  Te confirmaremos el precio antes de procesar tu pedido.
+                </div>
+              )}
             </div>
           </div>
 
@@ -338,7 +404,7 @@ export default function MyQuoteDetailPage({ params }: MyQuoteDetailPageProps) {
                 Tienes dudas?
               </h6>
               <p className="small text-muted mb-2">
-                Si tienes preguntas sobre esta cotizacion, contactanos:
+                Si tienes preguntas sobre esta cotización, contáctanos:
               </p>
               <a href={`mailto:${get('company.email')}`} className="btn btn-sm btn-outline-primary w-100">
                 <i className="bi bi-envelope me-2"></i>

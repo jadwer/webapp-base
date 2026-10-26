@@ -1,15 +1,11 @@
-/**
- * CREATE WAREHOUSE PAGE
- * Página para crear nuevos almacenes
- */
-
+import type { Metadata } from 'next'
 import { CreateWarehouseWrapper } from '@/modules/inventory'
+
+export const metadata: Metadata = {
+  title: 'Nuevo almacén - Inventario',
+  description: 'Registrar un almacén y asignarlo a una sucursal',
+}
 
 export default function CreateWarehousePage() {
   return <CreateWarehouseWrapper />
-}
-
-export const metadata = {
-  title: 'Crear Almacén - Gestión de Inventario',
-  description: 'Crear un nuevo almacén en el sistema de inventario'
 }

@@ -5,7 +5,7 @@
 
 import { Suspense } from 'react'
 import type { Metadata } from 'next'
-import { BudgetsAdminPage } from '@/modules/purchase/components'
+import { BudgetsAdminPage } from '@/modules/purchase'
 
 export const metadata: Metadata = {
   title: 'Presupuestos - Purchase',

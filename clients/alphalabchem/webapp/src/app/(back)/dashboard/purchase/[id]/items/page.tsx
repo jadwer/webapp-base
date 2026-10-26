@@ -191,10 +191,10 @@ export default function PurchaseOrderItemsPage({ params }: PageProps) {
                             </td>
                             <td>
                               <div className="btn-group btn-group-sm">
-                                <button className="btn btn-outline-primary">
+                                <button aria-label="Editar" className="btn btn-outline-primary">
                                   <i className="bi bi-pencil"></i>
                                 </button>
-                                <button className="btn btn-outline-danger">
+                                <button aria-label="Eliminar" className="btn btn-outline-danger">
                                   <i className="bi bi-trash"></i>
                                 </button>
                               </div>

@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { useRouter } from 'next/navigation'
-import { CampaignForm } from '@/modules/crm/components'
+import { CampaignForm } from '@/modules/crm'
 
 export default function CreateCampaignPage() {
   const router = useRouter()
@@ -22,6 +22,7 @@ export default function CreateCampaignPage() {
           {/* Header */}
           <div className="d-flex align-items-center mb-4">
             <button
+              aria-label="Volver"
               type="button"
               onClick={handleCancel}
               className="btn btn-link p-0 me-3 text-decoration-none"

@@ -14,6 +14,10 @@ import {
 } from '@/modules/quotes'
 import { formatCurrency } from '@/lib/formatters'
 import { toast } from '@/lib/toast'
+import { getValidationErrorMessages } from '@/modules/contacts'
+import { extractApiErrorMessage } from '@/modules/products'
+import { BranchFilter, useBranchName } from '@lwm/auth'
+import { isPastDateOnly } from '@lwm/ui'
 
 const STATUS_CONFIG: Record<QuoteStatus, { label: string; badgeClass: string }> = {
   draft: { label: 'Borrador', badgeClass: 'bg-secondary' },
@@ -34,6 +38,7 @@ export default function QuotesPage() {
   const { data: summary, isLoading: summaryLoading } = useQuoteSummary()
   const { data: expiringSoonResponse } = useExpiringSoonQuotes(7)
   const mutations = useQuoteMutations()
+  const branchName = useBranchName()
 
   const quotes = quotesResponse?.data ?? []
   const expiringSoon = expiringSoonResponse?.data ?? []
@@ -98,7 +103,17 @@ export default function QuotesPage() {
       }
       refetch()
     } catch (error) {
-      toast.error(`Error al ${action === 'send' ? 'enviar' : action === 'delete' ? 'eliminar' : action} la cotización`)
+      // Un 422 SIEMPRE se muestra con detalle (patron r260730, P0.3)
+      const details = getValidationErrorMessages(error)
+      const verbs: Record<string, string> = {
+        send: 'enviar', accept: 'aceptar', reject: 'rechazar', convert: 'convertir',
+        cancel: 'cancelar', duplicate: 'duplicar', delete: 'eliminar',
+      }
+      const base = `Error al ${verbs[action] ?? 'procesar'} la cotización`
+      toast.error(
+        details.length > 0 ? `${base}: ${details.join(' ')}` : extractApiErrorMessage(error, base),
+        details.length > 0 ? { duration: 0 } : undefined
+      )
       console.error(error)
     }
   }
@@ -256,9 +271,16 @@ export default function QuotesPage() {
             <option value="cancelled">Cancelada</option>
           </select>
         </div>
-        <div className="col-md-4">
+        <div className="col-md-2">
+          <BranchFilter
+            className="form-select"
+            value={filters.branchId ?? ''}
+            onChange={(branchId) => setFilters({ ...filters, branchId: branchId || undefined })}
+          />
+        </div>
+        <div className="col-md-2">
           <div className="d-flex gap-2 justify-content-end">
-            {(filters.search || filters.status || filters.expiringWithinDays) && (
+            {(filters.search || filters.status || filters.expiringWithinDays || filters.branchId) && (
               <button
                 className="btn btn-outline-secondary"
                 onClick={() => {
@@ -303,6 +325,7 @@ export default function QuotesPage() {
                       <tr>
                         <th>Cotización</th>
                         <th>Cliente</th>
+                        {branchName.multi && <th>Sucursal</th>}
                         <th>Fecha</th>
                         <th>Vigencia</th>
                         <th>Items</th>
@@ -314,7 +337,7 @@ export default function QuotesPage() {
                     <tbody>
                       {quotes.length === 0 ? (
                         <tr>
-                          <td colSpan={8} className="text-center text-muted py-4">
+                          <td colSpan={branchName.multi ? 9 : 8} className="text-center text-muted py-4">
                             <i className="bi bi-inbox display-4 text-muted mb-3 d-block"></i>
                             <h6>No hay cotizaciones</h6>
                             <p className="mb-0">
@@ -341,10 +364,11 @@ export default function QuotesPage() {
                                 )}
                               </div>
                             </td>
+                            {branchName.multi && <td className="small">{branchName.name(quote.branchId)}</td>}
                             <td>{formatDate(quote.quoteDate)}</td>
                             <td>
                               {quote.validUntil ? (
-                                <span className={new Date(quote.validUntil) < new Date() ? 'text-danger' : ''}>
+                                <span className={isPastDateOnly(quote.validUntil) ? 'text-danger' : ''}>
                                   {formatDate(quote.validUntil)}
                                 </span>
                               ) : '-'}
@@ -367,6 +391,7 @@ export default function QuotesPage() {
                             <td>
                               <div className="btn-group btn-group-sm">
                                 <button
+                                  aria-label="Ver detalle"
                                   className="btn btn-outline-primary"
                                   onClick={() => router.push(`/dashboard/quotes/${quote.id}`)}
                                   title="Ver detalle"
@@ -377,6 +402,7 @@ export default function QuotesPage() {
                                 {/* Dropdown for more actions */}
                                 <div className="btn-group btn-group-sm" role="group">
                                   <button
+                                    aria-label="Más acciones"
                                     type="button"
                                     className="btn btn-outline-secondary dropdown-toggle"
                                     data-bs-toggle="dropdown"
@@ -390,7 +416,7 @@ export default function QuotesPage() {
                                         <li>
                                           <button
                                             className="dropdown-item"
-                                            onClick={() => router.push(`/dashboard/quotes/${quote.id}/edit`)}
+                                            onClick={() => router.push(`/dashboard/quotes/${quote.id}`)}
                                           >
                                             <i className="bi bi-pencil me-2"></i>
                                             Editar

@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { useRouter } from 'next/navigation'
-import { EmployeeForm } from '@/modules/hr/components'
+import { EmployeeForm } from '@/modules/hr'
 
 interface EditEmployeePageProps {
   params: Promise<{
@@ -29,6 +29,7 @@ export default function EditEmployeePage({ params }: EditEmployeePageProps) {
           {/* Header */}
           <div className="d-flex align-items-center mb-4">
             <button
+              aria-label="Volver"
               type="button"
               onClick={handleCancel}
               className="btn btn-link p-0 me-3 text-decoration-none"

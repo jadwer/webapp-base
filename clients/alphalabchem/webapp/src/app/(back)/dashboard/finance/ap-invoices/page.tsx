@@ -1,7 +1,7 @@
 'use client'
 
 import { useAPInvoices } from '@/modules/finance'
-import { APInvoicesTableSimple } from '@/modules/finance/components/APInvoicesTableSimple'
+import { APInvoicesTableSimple } from '@/modules/finance'
 import { Button } from '@/ui/components/base/Button'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
 

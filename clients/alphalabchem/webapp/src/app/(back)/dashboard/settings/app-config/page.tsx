@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { appSettingsService, type AppSettingValue, type AppSettingsGrouped } from '@/modules/app-config'
+import { FaqSettingEditor, type FaqEntry } from '@/modules/app-config'
 import axiosClient from '@/lib/axiosClient'
 import { toast } from '@/lib/toast'
 
@@ -36,9 +37,38 @@ const GROUP_CONFIG: Record<string, { label: string; icon: string; description: s
     icon: 'bi-envelope',
     description: 'Configuracion del correo electronico del sistema (SMTP).',
   },
+  search: {
+    label: 'Buscador',
+    icon: 'bi-search',
+    description: 'Comportamiento del buscador del sitio publico (tolerancia a typos y numero de sugerencias).',
+  },
+  landing: {
+    label: 'Landing',
+    icon: 'bi-house-door',
+    description: 'Textos y secciones del home publico (hero, ofertas, nuevos productos, preguntas frecuentes).',
+  },
+  documents: {
+    label: 'Documentos',
+    icon: 'bi-file-earmark-text',
+    description: 'Datos del emisor que imprimen las cotizaciones, separados de la configuracion fiscal de facturacion.',
+  },
 }
 
-const GROUP_ORDER = ['company', 'branding', 'social', 'auth', 'mail']
+const GROUP_ORDER = ['company', 'documents', 'branding', 'social', 'auth', 'mail', 'landing', 'search']
+
+// documents.issuer_source se edita con un select (valores fijos del backend)
+const SELECT_KEYS: Record<string, Array<{ value: string; label: string }>> = {
+  'documents.issuer_source': [
+    { value: 'company', label: 'Datos de la empresa (Configuracion > Empresa)' },
+    { value: 'manual', label: 'Manual (los campos de esta seccion)' },
+    { value: 'billing', label: 'Configuracion fiscal de facturacion' },
+  ],
+}
+
+// Settings que se editan en un textarea (parrafos) en vez de input de una linea
+const MULTILINE_KEYS = ['landing.hero_subtitle', 'documents.quote_bank_accounts', 'documents.issuer_address']
+// Settings con editor propio (no se editan como texto)
+const FAQ_KEY = 'landing.faq'
 
 const PASSWORD_KEYS = ['mail.smtp_password']
 
@@ -104,6 +134,30 @@ export default function AppConfigPage() {
     }
   }
 
+  const handleSaveFaq = async (items: FaqEntry[]) => {
+    setSaving(true)
+    try {
+      // El backend (type json) acepta el array y lo serializa; al leer lo
+      // devuelve decodificado.
+      const updated = await appSettingsService.update(FAQ_KEY, JSON.stringify(items))
+      setSettings((prev) => {
+        const next = { ...prev }
+        for (const group of Object.keys(next)) {
+          if (next[group][FAQ_KEY]) {
+            next[group] = { ...next[group], [FAQ_KEY]: updated }
+            break
+          }
+        }
+        return next
+      })
+      toast.success('Preguntas frecuentes actualizadas')
+    } catch {
+      toast.error('Error al guardar las preguntas frecuentes')
+    } finally {
+      setSaving(false)
+    }
+  }
+
   const handleToggle = async (setting: AppSettingValue) => {
     setSaving(true)
     try {
@@ -163,9 +217,9 @@ export default function AppConfigPage() {
         <div className="alert alert-warning d-flex align-items-start gap-2 mb-4">
           <i className="bi bi-exclamation-triangle-fill mt-1" />
           <div>
-            <strong>Configuracion inicial requerida</strong>
+            <strong>Configuración inicial requerida</strong>
             <p className="mb-0" style={{ fontSize: '13px' }}>
-              Completa los datos basicos de tu empresa (nombre, email, telefono) para que se muestren correctamente en el sitio web.
+              Completa los datos básicos de tu empresa (nombre, correo, teléfono) para que se muestren correctamente en el sitio web.
             </p>
           </div>
         </div>
@@ -243,6 +297,36 @@ export default function AppConfigPage() {
                                   )}
                                 </label>
                               </div>
+                            ) : setting.key === FAQ_KEY ? (
+                              <FaqSettingEditor
+                                value={setting.value}
+                                saving={saving}
+                                onSave={handleSaveFaq}
+                              />
+                            ) : isEditing && SELECT_KEYS[setting.key] ? (
+                              <select
+                                className="form-select form-select-sm"
+                                value={String(editing.value ?? '')}
+                                onChange={(e) => setEditing({ ...editing, value: e.target.value })}
+                                autoFocus
+                              >
+                                {SELECT_KEYS[setting.key].map((opt) => (
+                                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                                ))}
+                              </select>
+                            ) : isEditing && MULTILINE_KEYS.includes(setting.key) ? (
+                              <textarea
+                                className="form-control form-control-sm"
+                                rows={4}
+                                value={String(editing.value ?? '')}
+                                onChange={(e) =>
+                                  setEditing({ ...editing, value: e.target.value })
+                                }
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Escape') handleCancel()
+                                }}
+                                autoFocus
+                              />
                             ) : isEditing ? (
                               <input
                                 type={PASSWORD_KEYS.includes(setting.key) ? 'password' : 'text'}
@@ -282,9 +366,10 @@ export default function AppConfigPage() {
                             )}
                           </td>
                           <td>
-                            {setting.type === 'boolean' ? null : isEditing ? (
+                            {setting.type === 'boolean' || setting.key === FAQ_KEY ? null : isEditing ? (
                               <div className="d-flex gap-1">
                                 <button
+                                  aria-label="Guardar"
                                   className="btn btn-sm btn-success"
                                   onClick={handleSave}
                                   disabled={saving}
@@ -296,6 +381,7 @@ export default function AppConfigPage() {
                                   )}
                                 </button>
                                 <button
+                                  aria-label="Cancelar"
                                   className="btn btn-sm btn-outline-secondary"
                                   onClick={handleCancel}
                                 >
@@ -304,6 +390,7 @@ export default function AppConfigPage() {
                               </div>
                             ) : (
                               <button
+                                aria-label="Editar"
                                 className="btn btn-sm btn-outline-primary"
                                 onClick={() => handleEdit(setting)}
                               >

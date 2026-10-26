@@ -169,6 +169,7 @@ export default function MyCartPage() {
                           <td>
                             <div className="input-group input-group-sm justify-content-center" style={{ width: '120px', margin: '0 auto' }}>
                               <button
+                                aria-label="Disminuir cantidad"
                                 className="btn btn-outline-secondary"
                                 type="button"
                                 onClick={() => handleQuantityChange(item.id, item.quantity - 1)}
@@ -188,6 +189,7 @@ export default function MyCartPage() {
                                 style={{ width: '50px' }}
                               />
                               <button
+                                aria-label="Aumentar cantidad"
                                 className="btn btn-outline-secondary"
                                 type="button"
                                 onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
@@ -205,6 +207,7 @@ export default function MyCartPage() {
                           </td>
                           <td className="text-center">
                             <button
+                              aria-label="Eliminar"
                               className="btn btn-sm btn-outline-danger border-0"
                               onClick={() => handleRemoveItem(item.id)}
                               disabled={isRemoving}

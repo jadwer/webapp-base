@@ -23,7 +23,7 @@ export default function CRMPage() {
             <div>
               <h1 className="h3 mb-2">
                 <i className="bi bi-people-fill me-3" />
-                CRM - Customer Relationship Management
+                CRM: relación con clientes
               </h1>
               <p className="text-muted">
                 Gestión de relaciones con clientes, leads y campañas

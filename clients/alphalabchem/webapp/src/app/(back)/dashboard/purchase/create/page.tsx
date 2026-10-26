@@ -1,10 +1,12 @@
 'use client'
 
 import React, { useState } from 'react'
-import { usePurchaseOrderMutations, usePurchaseContacts, usePurchaseOrderItemMutations } from '@/modules/purchase'
+import { usePurchaseOrderMutations, usePurchaseContacts } from '@/modules/purchase'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
-import ItemsManager from '@/modules/purchase/components/ItemsManager'
+import { ItemsManager } from '@/modules/purchase'
 import { formatCurrency } from '@/lib/formatters'
+import { BranchSelect } from '@lwm/auth'
+import { todayDateInput } from '@lwm/ui'
 
 interface Contact {
   id: string | number
@@ -27,30 +29,16 @@ interface OrderItem {
 
 export default function CreatePurchaseOrderPage() {
   const navigation = useNavigationProgress()
-  const { createPurchaseOrder, updatePurchaseOrderTotals } = usePurchaseOrderMutations()
-  const { createPurchaseOrderItem } = usePurchaseOrderItemMutations()
+  const { createPurchaseOrderWithItems } = usePurchaseOrderMutations()
   const { contacts, isLoading: contactsLoading } = usePurchaseContacts()
-
-  // Debug: Log available suppliers
-  React.useEffect(() => {
-    if (contacts?.length) {
-      console.log('🏭 Suppliers loaded successfully:', contacts.length)
-      console.log('📋 Available suppliers:', contacts.map((c: Contact) => ({
-        id: c.id,
-        name: c.name || c.attributes?.name,
-        isSupplier: c.isSupplier || c.attributes?.isSupplier
-      })))
-    } else if (contacts?.length === 0 && !contactsLoading) {
-      console.log('⚠️ No se encontraron suppliers con filter[isSupplier]=1')
-    }
-  }, [contacts, contactsLoading])
 
   const [formData, setFormData] = useState({
     contactId: '',
     orderNumber: '',
-    orderDate: new Date().toISOString().split('T')[0],
+    orderDate: todayDateInput(),
     status: 'pending' as 'pending' | 'approved' | 'received' | 'cancelled',
-    notes: ''
+    notes: '',
+    branchId: ''
   })
 
   const [orderItems, setOrderItems] = useState<OrderItem[]>([])
@@ -78,54 +66,25 @@ export default function CreatePurchaseOrderPage() {
     setError(null)
 
     try {
-      console.log('🚀 Starting 3-step order creation process with items:', { orderItems })
-      
-      // 🟦 STEP 1: Create order with 0 totals
-      const orderData = {
-        ...formData,
-        contactId: parseInt(formData.contactId),
-        totalAmount: 0
-      }
-
-      console.log('📝 STEP 1: Creating purchase order with zero totals:', orderData)
-      const orderResponse = await createPurchaseOrder(orderData)
-      const orderId = orderResponse.data?.id || orderResponse.id
-      console.log('✅ STEP 1 Complete: Order created with ID:', orderId)
-      
-      // 🟦 STEP 2: Create all items
-      console.log('📦 STEP 2: Creating', orderItems.length, 'items')
-      for (const item of orderItems) {
-        const itemData = {
-          purchaseOrderId: parseInt(orderId), // Ensure orderId is integer
-          productId: parseInt(item.productId),
+      // Alta atomica: el servidor crea la orden y sus partidas en una
+      // transaccion y calcula el total (hallazgo Atomo 22-10).
+      const created = await createPurchaseOrderWithItems({
+        contactId: formData.contactId,
+        orderDate: formData.orderDate,
+        status: formData.status,
+        notes: formData.notes,
+        branchId: formData.branchId,
+        items: orderItems.map((item) => ({
+          productId: item.productId,
           quantity: item.quantity,
           unitPrice: item.unitPrice,
           discount: item.discount,
-          subtotal: item.total,
-          total: item.total
-        }
-        
-        console.log('📦 Creating item:', itemData)
-        await createPurchaseOrderItem(itemData)
-      }
-      console.log('✅ STEP 2 Complete: All items created')
-      
-      // 🟦 STEP 3: Update order totals
-      const finalTotals = {
-        totalAmount: totalAmount
-      }
-      
-      console.log('💰 STEP 3: Updating order totals:', finalTotals)
-      await updatePurchaseOrderTotals(orderId, finalTotals)
-      console.log('✅ STEP 3 Complete: Order totals updated')
-      
-      console.log('🎉 Purchase order creation completed successfully!')
-      
-      // Navigate to the created order detail page
-      navigation.push(`/dashboard/purchase/${orderId}`)
+        })),
+      })
+
+      navigation.push(`/dashboard/purchase/${created.id}`)
 
     } catch (err) {
-      console.error('❌ Error creating purchase order:', err)
       const error = err as { response?: { data?: { message?: string } }; message?: string }
       setError(error.response?.data?.message || error.message || 'Error al crear la orden de compra')
     } finally {
@@ -192,8 +151,6 @@ export default function CreatePurchaseOrderPage() {
                       disabled={contactsLoading}
                     >
                       <option value="">Seleccionar proveedor...</option>
-                      {/* Opción manual según tu sugerencia */}
-                      <option value="1">Contact ID 1 (Supplier)</option>
                       {contacts?.map((contact: Contact) => (
                         <option key={contact.id} value={contact.id}>
                           {contact.name || contact.attributes?.name || `Proveedor #${contact.id}`}
@@ -255,6 +212,14 @@ export default function CreatePurchaseOrderPage() {
                       <option value="received">Recibida</option>
                       <option value="cancelled">Cancelada</option>
                     </select>
+                  </div>
+
+                  <div className="col-md-6">
+                    <BranchSelect
+                      id="branchId"
+                      value={formData.branchId}
+                      onChange={(branchId) => setFormData(prev => ({ ...prev, branchId }))}
+                    />
                   </div>
 
                   <div className="col-12">

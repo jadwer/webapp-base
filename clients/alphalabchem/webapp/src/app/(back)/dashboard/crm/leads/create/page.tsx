@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { useRouter } from 'next/navigation'
-import { LeadForm } from '@/modules/crm/components'
+import { LeadForm } from '@/modules/crm'
 
 export default function CreateLeadPage() {
   const router = useRouter()
@@ -22,6 +22,7 @@ export default function CreateLeadPage() {
           {/* Header */}
           <div className="d-flex align-items-center mb-4">
             <button
+              aria-label="Volver"
               type="button"
               onClick={handleCancel}
               className="btn btn-link p-0 me-3 text-decoration-none"

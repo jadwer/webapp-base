@@ -2,9 +2,10 @@
 
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import CFDIInvoiceForm from '@/modules/billing/components/CFDIInvoiceForm'
+import { CFDIInvoiceForm, FreeInvoiceForm } from '@/modules/billing'
+import { PageHeader } from '@lwm/ui'
 import { useCFDIInvoice, useCFDIInvoicesMutations } from '@/modules/billing'
-import type { CFDIInvoiceFormData } from '@/modules/billing/types'
+import type { CFDIInvoiceFormData } from '@/modules/billing'
 
 interface EditInvoicePageProps {
   params: Promise<{
@@ -73,6 +74,25 @@ export default function EditInvoicePage({ params }: EditInvoicePageProps) {
     )
   }
 
+  // Borrador de factura libre: se edita completo (cliente, pago y conceptos)
+  if (invoice.metadata?.source === 'free' && invoice.status === 'draft') {
+    return (
+      <div className="container-fluid py-4">
+        <PageHeader
+          title={`Editar factura ${invoice.series}-${invoice.folio}`}
+          subtitle="Borrador sin timbrar: cliente, forma de pago y conceptos."
+          icon="bi-pencil-square"
+          backHref={`/dashboard/billing/invoices/${resolvedParams.id}`}
+        />
+        <FreeInvoiceForm
+          invoice={invoice}
+          onCreated={(id) => router.push(`/dashboard/billing/invoices/${id}`)}
+          onCancel={handleCancel}
+        />
+      </div>
+    )
+  }
+
   return (
     <div className="container-fluid py-4">
       <div className="row">
@@ -80,6 +100,7 @@ export default function EditInvoicePage({ params }: EditInvoicePageProps) {
           {/* Header */}
           <div className="d-flex align-items-center mb-4">
             <button
+              aria-label="Volver"
               type="button"
               onClick={handleCancel}
               className="btn btn-link p-0 me-3 text-decoration-none"

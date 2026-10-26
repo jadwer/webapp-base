@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { usePurchaseOrders } from '@/modules/purchase'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
 import { formatCurrency } from '@/lib/formatters'
+import { formatDateOnly } from '@lwm/ui'
 
 interface PurchaseOrder {
   id: string | number
@@ -175,11 +176,7 @@ export default function PurchasePendingReceiptPage() {
                               )}
                             </td>
                             <td>
-                              {order.orderDate ? new Date(order.orderDate).toLocaleDateString('es-ES', {
-                                day: '2-digit',
-                                month: '2-digit',
-                                year: 'numeric'
-                              }) : 'Sin fecha'}
+                              {order.orderDate ? formatDateOnly(order.orderDate) : 'Sin fecha'}
                             </td>
                             <td>
                               <span className={`badge ${getStatusBadgeClass(order.status)}`}>

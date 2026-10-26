@@ -1,11 +1,12 @@
 'use client'
 
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { invoiceSeriesService, CFDI_TYPE_LABELS, SOURCE_TYPE_LABELS } from '@/modules/billing/services/invoiceSeriesService'
-import type { InvoiceSeries, CreateInvoiceSeriesRequest, UpdateInvoiceSeriesRequest } from '@/modules/billing/services/invoiceSeriesService'
-import { companySettingsService } from '@/modules/billing/services'
-import type { CompanySetting } from '@/modules/billing/types'
+import { invoiceSeriesService, CFDI_TYPE_LABELS, SOURCE_TYPE_LABELS } from '@/modules/billing'
+import type { InvoiceSeries, CreateInvoiceSeriesRequest, UpdateInvoiceSeriesRequest } from '@/modules/billing'
+import { companySettingsService } from '@/modules/billing'
+import type { CompanySetting } from '@/modules/billing'
 import { toast } from '@/lib/toast'
+import { getValidationErrorMessages } from '@/modules/contacts'
 import ConfirmModal, { ConfirmModalHandle } from '@/ui/components/base/ConfirmModal'
 
 export default function InvoiceSeriesSettingsPage() {
@@ -59,8 +60,12 @@ export default function InvoiceSeriesSettingsPage() {
       const result = await invoiceSeriesService.initializeDefaults(companySetting.id)
       toast.success(result.message || 'Series inicializadas correctamente')
       await loadData()
-    } catch {
-      toast.error('Error al inicializar series')
+    } catch (error) {
+      const details = getValidationErrorMessages(error)
+      toast.error(
+        details.length > 0 ? `No se pudo inicializar las series: ${details.join(' ')}` : 'Error al inicializar series',
+        details.length > 0 ? { duration: 0 } : undefined
+      )
     } finally {
       setInitializing(false)
     }
@@ -85,8 +90,12 @@ export default function InvoiceSeriesSettingsPage() {
       setShowCreate(false)
       setCreateForm({ cfdiType: 'I', folioPadding: 6, includeYear: false, separator: '-', isActive: true, resetYearly: false })
       await loadData()
-    } catch {
-      toast.error('Error al crear la serie')
+    } catch (error) {
+      const details = getValidationErrorMessages(error)
+      toast.error(
+        details.length > 0 ? `No se pudo crear la serie: ${details.join(' ')}` : 'Error al crear la serie',
+        details.length > 0 ? { duration: 0 } : undefined
+      )
     } finally {
       setSaving(false)
     }
@@ -122,8 +131,12 @@ export default function InvoiceSeriesSettingsPage() {
       setEditingId(null)
       setEditForm({})
       await loadData()
-    } catch {
-      toast.error('Error al actualizar la serie')
+    } catch (error) {
+      const details = getValidationErrorMessages(error)
+      toast.error(
+        details.length > 0 ? `No se pudo actualizar la serie: ${details.join(' ')}` : 'Error al actualizar la serie',
+        details.length > 0 ? { duration: 0 } : undefined
+      )
     } finally {
       setSaving(false)
     }
@@ -134,8 +147,12 @@ export default function InvoiceSeriesSettingsPage() {
       await invoiceSeriesService.setAsDefault(id)
       toast.success('Serie marcada como predeterminada')
       await loadData()
-    } catch {
-      toast.error('Error al marcar como predeterminada')
+    } catch (error) {
+      const details = getValidationErrorMessages(error)
+      toast.error(
+        details.length > 0 ? `No se pudo marcar como predeterminada: ${details.join(' ')}` : 'Error al marcar como predeterminada',
+        details.length > 0 ? { duration: 0 } : undefined
+      )
     }
   }
 
@@ -149,8 +166,12 @@ export default function InvoiceSeriesSettingsPage() {
       await invoiceSeriesService.delete(id)
       toast.success('Serie eliminada')
       await loadData()
-    } catch {
-      toast.error('Error al eliminar la serie')
+    } catch (error) {
+      const details = getValidationErrorMessages(error)
+      toast.error(
+        details.length > 0 ? `No se pudo eliminar la serie: ${details.join(' ')}` : 'Error al eliminar la serie',
+        details.length > 0 ? { duration: 0 } : undefined
+      )
     }
   }
 
@@ -200,7 +221,7 @@ export default function InvoiceSeriesSettingsPage() {
         <div className="card mb-4 border-primary">
           <div className="card-header bg-primary text-white d-flex justify-content-between">
             <span>Nueva Serie de Facturacion</span>
-            <button className="btn btn-sm btn-outline-light" onClick={() => setShowCreate(false)}>
+            <button aria-label="Cerrar" className="btn btn-sm btn-outline-light" onClick={() => setShowCreate(false)}>
               <i className="bi bi-x" />
             </button>
           </div>
@@ -454,24 +475,24 @@ export default function InvoiceSeriesSettingsPage() {
                         <td>
                           {isEditing ? (
                             <div className="d-flex gap-1">
-                              <button className="btn btn-sm btn-success" onClick={handleSaveEdit} disabled={saving}>
+                              <button aria-label="Guardar" className="btn btn-sm btn-success" onClick={handleSaveEdit} disabled={saving}>
                                 {saving ? <span className="spinner-border spinner-border-sm" /> : <i className="bi bi-check" />}
                               </button>
-                              <button className="btn btn-sm btn-outline-secondary" onClick={() => { setEditingId(null); setEditForm({}) }} disabled={saving}>
+                              <button aria-label="Cancelar" className="btn btn-sm btn-outline-secondary" onClick={() => { setEditingId(null); setEditForm({}) }} disabled={saving}>
                                 <i className="bi bi-x" />
                               </button>
                             </div>
                           ) : (
                             <div className="d-flex gap-1">
-                              <button className="btn btn-sm btn-outline-primary" onClick={() => handleEdit(s)} title="Editar">
+                              <button aria-label="Editar" className="btn btn-sm btn-outline-primary" onClick={() => handleEdit(s)} title="Editar">
                                 <i className="bi bi-pencil" />
                               </button>
                               {!s.isDefault && (
-                                <button className="btn btn-sm btn-outline-success" onClick={() => handleSetDefault(s.id)} title="Marcar como predeterminada">
+                                <button aria-label="Marcar como predeterminada" className="btn btn-sm btn-outline-success" onClick={() => handleSetDefault(s.id)} title="Marcar como predeterminada">
                                   <i className="bi bi-star" />
                                 </button>
                               )}
-                              <button className="btn btn-sm btn-outline-danger" onClick={() => handleDelete(s.id, s.code)} title="Eliminar">
+                              <button aria-label="Eliminar" className="btn btn-sm btn-outline-danger" onClick={() => handleDelete(s.id, s.code)} title="Eliminar">
                                 <i className="bi bi-trash" />
                               </button>
                             </div>

@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { useRouter } from 'next/navigation'
-import { AttendanceForm } from '@/modules/hr/components'
+import { AttendanceForm } from '@/modules/hr'
 
 export default function CreateAttendancePage() {
   const router = useRouter()
@@ -22,6 +22,7 @@ export default function CreateAttendancePage() {
           {/* Header */}
           <div className="d-flex align-items-center mb-4">
             <button
+              aria-label="Volver"
               type="button"
               onClick={handleCancel}
               className="btn btn-link p-0 me-3 text-decoration-none"

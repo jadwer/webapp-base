@@ -1,15 +1,16 @@
 'use client'
 
-import { useARReceipts } from '@/modules/finance'
+import { useARReceipts, PAYMENT_STATUS_LABELS } from '@/modules/finance'
 import { Button } from '@/ui/components/base/Button'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
+import { formatDateOnly } from '@lwm/ui'
 
 export default function ARReceiptsPage() {
   const navigation = useNavigationProgress()
   
   // Include contacts to resolve customer names
   const { arReceipts, isLoading, error } = useARReceipts({
-    include: ['contact']
+    include: ['contact', 'paymentMethod']
   })
 
   if (isLoading) {
@@ -83,7 +84,7 @@ export default function ARReceiptsPage() {
                       <tr>
                         <th>Fecha</th>
                         <th>Cliente</th>
-                        <th>Factura</th>
+                        <th>Folio</th>
                         <th>Monto</th>
                         <th>Método</th>
                         <th>Referencia</th>
@@ -94,11 +95,8 @@ export default function ARReceiptsPage() {
                       {arReceipts.map((receipt) => {
                         const formatDate = (dateString?: string) => {
                           if (!dateString) return '-'
-                          try {
-                            return new Date(dateString).toLocaleDateString('es-ES')
-                          } catch {
-                            return '-'
-                          }
+                          // paymentDate es fecha sin hora
+                          return formatDateOnly(dateString)
                         }
 
                         const formatCurrency = (amount?: string | number) => {
@@ -113,34 +111,28 @@ export default function ARReceiptsPage() {
                         
                         return (
                           <tr key={receipt.id}>
-                            <td>{formatDate(receipt.receiptDate)}</td>
+                            <td>{formatDate(receipt.paymentDate)}</td>
                             <td>
                               <span className={receipt.contactName?.startsWith('Cliente ID:') ? 'text-muted' : 'text-dark'}>
                                 {receipt.contactName || `Cliente ID: ${receipt.contactId}`}
                               </span>
                             </td>
                             <td>
-                              {receipt.arInvoiceId ? (
-                                <span className="text-primary">
-                                  Factura #{receipt.arInvoiceId}
-                                </span>
-                              ) : (
-                                <span className="text-muted">Sin factura</span>
-                              )}
+                              <code className="text-dark">{receipt.paymentNumber || '-'}</code>
                             </td>
                             <td>
                               <strong>{formatCurrency(receipt.amount)}</strong>
                               <div className="small text-muted">{receipt.currency}</div>
                             </td>
-                            <td>{receipt.paymentMethod}</td>
+                            <td>{receipt.paymentMethodName || '-'}</td>
                             <td>
                               <code className="bg-light px-2 py-1 rounded">
                                 {receipt.reference || '-'}
                               </code>
                             </td>
                             <td>
-                              <span className={`badge ${receipt.status === 'posted' ? 'bg-success' : 'bg-warning'}`}>
-                                {receipt.status === 'posted' ? 'Procesado' : 'Borrador'}
+                              <span className={`badge ${['applied', 'fully_applied'].includes(receipt.status) ? 'bg-success' : receipt.status === 'draft' ? 'bg-secondary' : 'bg-warning text-dark'}`}>
+                                {PAYMENT_STATUS_LABELS[receipt.status] || receipt.status}
                               </span>
                             </td>
                           </tr>

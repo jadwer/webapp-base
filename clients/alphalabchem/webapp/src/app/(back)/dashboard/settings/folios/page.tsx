@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { folioSequenceService, DOCUMENT_TYPE_LABELS } from '@/modules/sales'
 import type { FolioSequence, UpdateFolioSequenceRequest } from '@/modules/sales'
 import { toast } from '@/lib/toast'
+import { getValidationErrorMessages } from '@/modules/contacts'
 
 export default function FoliosSettingsPage() {
   const [sequences, setSequences] = useState<FolioSequence[]>([])
@@ -60,8 +61,13 @@ export default function FoliosSettingsPage() {
       setEditingType(null)
       setEditForm({})
       await loadSequences()
-    } catch {
-      toast.error('Error al actualizar la secuencia')
+    } catch (error) {
+      // Un 422 SIEMPRE se muestra con detalle (patron r260730, P0.3)
+      const details = getValidationErrorMessages(error)
+      toast.error(
+        details.length > 0 ? `No se pudo actualizar la secuencia: ${details.join(' ')}` : 'Error al actualizar la secuencia',
+        details.length > 0 ? { duration: 0 } : undefined
+      )
     } finally {
       setSaving(false)
     }
@@ -97,7 +103,7 @@ export default function FoliosSettingsPage() {
                   <th>Prefijo</th>
                   <th>Formato</th>
                   <th>Secuencia Actual</th>
-                  <th>Proximo Folio</th>
+                  <th>Próximo folio</th>
                   <th>Reset Anual</th>
                   <th style={{ width: '120px' }}>Acciones</th>
                 </tr>
@@ -232,15 +238,15 @@ export default function FoliosSettingsPage() {
                         <td>
                           {isEditing ? (
                             <div className="d-flex gap-1">
-                              <button className="btn btn-sm btn-success" onClick={handleSave} disabled={saving}>
+                              <button aria-label="Guardar" className="btn btn-sm btn-success" onClick={handleSave} disabled={saving}>
                                 {saving ? <span className="spinner-border spinner-border-sm" /> : <i className="bi bi-check" />}
                               </button>
-                              <button className="btn btn-sm btn-outline-secondary" onClick={handleCancel} disabled={saving}>
+                              <button aria-label="Cancelar" className="btn btn-sm btn-outline-secondary" onClick={handleCancel} disabled={saving}>
                                 <i className="bi bi-x" />
                               </button>
                             </div>
                           ) : (
-                            <button className="btn btn-sm btn-outline-primary" onClick={() => handleEdit(seq)}>
+                            <button aria-label="Editar" className="btn btn-sm btn-outline-primary" onClick={() => handleEdit(seq)}>
                               <i className="bi bi-pencil" />
                             </button>
                           )}

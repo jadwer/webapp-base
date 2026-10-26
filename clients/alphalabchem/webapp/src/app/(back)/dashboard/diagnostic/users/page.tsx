@@ -3,27 +3,21 @@
 import { useAuth } from '@/modules/auth'
 import { useIsClient } from '@/hooks/useIsClient'
 import { useState, useRef } from 'react'
-import { useUsers, useUserForm } from '@/modules/users'
+import { useUsers, useRoleOptions, useUserMutations, getUserValidationErrorMessages } from '@/modules/users'
 import type { User } from '@/modules/users'
 import ToastNotifier, { ToastNotifierHandle } from '@/ui/ToastNotifier'
 
 export default function UsersDiagnosticPage() {
   const { user, isAuthenticated, isLoading } = useAuth()
   const isClient = useIsClient()
-  const { users, loading: loadingUsers, error: usersError } = useUsers()
+  const { users, isLoading: loadingUsers, error: usersError } = useUsers({}, 1, 50)
+  const { roles } = useRoleOptions()
+  const { updateUser } = useUserMutations()
   const [selectedUser, setSelectedUser] = useState<User | null>(null)
-  const [testRole, setTestRole] = useState<string>('customer')
+  const [testRoleId, setTestRoleId] = useState<string>('')
+  const [saving, setSaving] = useState(false)
+  const [saveError, setSaveError] = useState<string | null>(null)
   const toastRef = useRef<ToastNotifierHandle>(null)
-
-  const { handleSubmit, loading: saving, error: saveError } = useUserForm({
-    onSuccess: () => {
-      toastRef.current?.show('Usuario actualizado correctamente', 'success')
-      setSelectedUser(null)
-    },
-    onError: (message) => {
-      toastRef.current?.show(message, 'error')
-    }
-  })
 
   if (!isClient || isLoading) {
     return (
@@ -41,32 +35,48 @@ export default function UsersDiagnosticPage() {
       <div className="container mt-4">
         <div className="alert alert-warning">
           <i className="bi bi-exclamation-triangle me-2"></i>
-          No hay usuario autenticado. 
+          No hay usuario autenticado.
           <a href="/auth/login" className="alert-link ms-2">Iniciar sesión</a>
         </div>
       </div>
     )
   }
 
-  const handleTestUpdate = () => {
-    if (!selectedUser) return
-    
-    const updateData = {
-      ...selectedUser,
-      role: testRole
+  const handleTestUpdate = async () => {
+    if (!selectedUser || !testRoleId) return
+
+    setSaving(true)
+    setSaveError(null)
+
+    try {
+      await updateUser(selectedUser.id, {
+        name: selectedUser.name,
+        email: selectedUser.email,
+        status: selectedUser.status,
+        roleIds: [testRoleId],
+      })
+      toastRef.current?.show('Usuario actualizado correctamente', 'success')
+      setSelectedUser(null)
+    } catch (err) {
+      const details = getUserValidationErrorMessages(err)
+      const message = details.length > 0
+        ? details.join(' | ')
+        : err instanceof Error
+          ? err.message
+          : 'Error al actualizar el usuario'
+      setSaveError(message)
+      toastRef.current?.show(message, 'error')
+    } finally {
+      setSaving(false)
     }
-    
-    console.log('🔧 Datos del usuario seleccionado:', selectedUser)
-    console.log('🔧 Datos que se van a enviar:', updateData)
-    console.log('🔧 Claves del objeto:', Object.keys(updateData))
-    
-    handleSubmit(updateData, selectedUser.id)
   }
+
+  const selectedRoleName = roles.find(r => r.id === testRoleId)?.name || ''
 
   return (
     <div className="container mt-4">
-      <h1 className="mb-4">🔧 Diagnóstico de Actualización de Usuarios</h1>
-      
+      <h1 className="mb-4">Diagnóstico de Actualización de Usuarios</h1>
+
       <ToastNotifier ref={toastRef} />
 
       <div className="row">
@@ -77,7 +87,7 @@ export default function UsersDiagnosticPage() {
               Propósito de esta página
             </h6>
             <p className="mb-0">
-              Esta página te ayuda a diagnosticar problemas al actualizar usuarios, especialmente 
+              Esta página te ayuda a diagnosticar problemas al actualizar usuarios, especialmente
               cuando cambias roles. Selecciona un usuario, cambia su rol y observa cualquier error.
             </p>
           </div>
@@ -101,7 +111,7 @@ export default function UsersDiagnosticPage() {
 
               {usersError && (
                 <div className="alert alert-danger">
-                  <strong>Error al cargar usuarios:</strong> {usersError}
+                  <strong>Error al cargar usuarios:</strong> {usersError.message || 'desconocido'}
                 </div>
               )}
 
@@ -113,29 +123,38 @@ export default function UsersDiagnosticPage() {
                         <th>ID</th>
                         <th>Nombre</th>
                         <th>Email</th>
-                        <th>Rol Actual</th>
+                        <th>Roles</th>
                         <th>Estado</th>
                         <th>Acción</th>
                       </tr>
                     </thead>
                     <tbody>
                       {users.map((userItem) => (
-                        <tr 
-                          key={userItem.id} 
+                        <tr
+                          key={userItem.id}
                           className={selectedUser?.id === userItem.id ? 'table-warning' : ''}
                         >
                           <td>{userItem.id}</td>
                           <td>{userItem.name}</td>
                           <td>{userItem.email}</td>
                           <td>
-                            <span className={`badge ${
-                              userItem.role === 'god' ? 'bg-danger' :
-                              userItem.role === 'admin' ? 'bg-warning' :
-                              userItem.role === 'tech' ? 'bg-info' :
-                              'bg-secondary'
-                            }`}>
-                              {userItem.role || 'Sin rol'}
-                            </span>
+                            {userItem.roles.length > 0 ? (
+                              userItem.roles.map((role) => (
+                                <span
+                                  key={role.id}
+                                  className={`badge me-1 ${
+                                    role.name === 'god' ? 'bg-danger' :
+                                    role.name === 'admin' ? 'bg-warning' :
+                                    role.name === 'tech' ? 'bg-info' :
+                                    'bg-secondary'
+                                  }`}
+                                >
+                                  {role.name}
+                                </span>
+                              ))
+                            ) : (
+                              <span className="badge bg-secondary">Sin rol</span>
+                            )}
                           </td>
                           <td>
                             <span className={`badge ${
@@ -179,36 +198,40 @@ export default function UsersDiagnosticPage() {
                       <li><strong>ID:</strong> {selectedUser.id}</li>
                       <li><strong>Nombre:</strong> {selectedUser.name}</li>
                       <li><strong>Email:</strong> {selectedUser.email}</li>
-                      <li><strong>Rol actual:</strong> <span className="badge bg-secondary">{selectedUser.role}</span></li>
+                      <li>
+                        <strong>Roles actuales:</strong>{' '}
+                        {selectedUser.roles.map((role) => (
+                          <span key={role.id} className="badge bg-secondary me-1">{role.name}</span>
+                        ))}
+                      </li>
                       <li><strong>Estado:</strong> <span className="badge bg-info">{selectedUser.status}</span></li>
                     </ul>
-                    
+
                     <h6 className="mt-3">Estructura Completa:</h6>
                     <pre className="bg-light p-2 rounded" style={{ fontSize: '11px', maxHeight: '200px', overflow: 'auto' }}>
                       {JSON.stringify(selectedUser, null, 2)}
                     </pre>
                   </div>
-                  
+
                   <div className="col-md-6">
                     <h6>Cambiar Rol:</h6>
                     <div className="mb-3">
-                      <select 
+                      <select
                         className="form-select"
-                        value={testRole}
-                        onChange={(e) => setTestRole(e.target.value)}
+                        value={testRoleId}
+                        onChange={(e) => setTestRoleId(e.target.value)}
                       >
-                        <option value="god">God</option>
-                        <option value="admin">Admin</option>
-                        <option value="tech">Tech</option>
-                        <option value="customer">Customer</option>
-                        <option value="guest">Guest</option>
+                        <option value="">Selecciona un rol...</option>
+                        {roles.map((role) => (
+                          <option key={role.id} value={role.id}>{role.name}</option>
+                        ))}
                       </select>
                     </div>
-                    
+
                     <button
                       className="btn btn-warning"
                       onClick={handleTestUpdate}
-                      disabled={saving}
+                      disabled={saving || !testRoleId}
                     >
                       {saving ? (
                         <>
@@ -216,7 +239,7 @@ export default function UsersDiagnosticPage() {
                           Actualizando...
                         </>
                       ) : (
-                        `Cambiar rol a "${testRole}"`
+                        `Cambiar rol a "${selectedRoleName || '...'}"`
                       )}
                     </button>
                   </div>

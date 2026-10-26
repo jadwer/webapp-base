@@ -11,7 +11,8 @@ import { useState, useEffect, use } from 'react'
 import Link from 'next/link'
 import { useAuth } from '@/modules/auth'
 import { usePublicSettings } from '@/modules/app-config'
-import { salesService } from '@/modules/sales'
+import { myOrdersService } from '@/modules/sales'
+import { formatDateOnly } from '@lwm/ui'
 
 interface SalesOrder {
   id: string
@@ -71,61 +72,61 @@ export default function MyOrderDetailPage({ params }: MyOrderDetailPageProps) {
       setError(null)
 
       try {
-        const result = await salesService.orders.getById(id)
+        // Endpoint de portal: GET /api/v1/my-orders/{id} valida ownership en backend
+        // Respuesta: { data: { order, status_history, can_cancel, available_actions } }
+        // order es un modelo Eloquent plano (snake_case) con items.product cargados
+        const result = await myOrdersService.getById(id)
+        const orderData = result.data?.order as Record<string, unknown> | undefined
 
-        // Transform JSON:API response
-        const orderData = result.data
-        const attrs = orderData.attributes
+        if (!orderData) {
+          setError('Pedido no encontrado')
+          return
+        }
 
-        // Extract items and products from included
-        const included = result.included || []
-        const includedItems = included.filter(
-          (inc: { type: string }) => inc.type === 'sales-order-items'
-        )
+        // shipping_address es objeto JSON { line1, line2, city, state, postal_code, country }
+        const shipping = (orderData.shipping_address || {}) as Record<string, unknown>
+        const shippingLine = [shipping.line1, shipping.line2].filter(Boolean).join(', ')
 
-        // Build product map from included products
-        const productMap = new Map<string, { name: string; sku: string }>()
-        included.filter((inc: { type: string }) => inc.type === 'products').forEach(
-          (prod: { id: string; attributes: Record<string, unknown> }) => {
-            productMap.set(prod.id, {
-              name: prod.attributes.name as string,
-              sku: prod.attributes.sku as string,
-            })
-          }
-        )
+        const rawItems = Array.isArray(orderData.items)
+          ? orderData.items as Array<Record<string, unknown>>
+          : []
 
         setOrder({
-          id: orderData.id,
-          orderNumber: attrs.orderNumber,
-          status: attrs.status,
-          totalAmount: attrs.totalAmount,
-          subtotalAmount: attrs.subtotal ?? attrs.subtotalAmount ?? ((attrs.finalTotal ?? attrs.totalAmount ?? 0) as number) - ((attrs.taxAmount ?? 0) as number) + ((attrs.discountTotal ?? 0) as number),
-          taxAmount: attrs.taxAmount,
-          discountAmount: attrs.discountTotal ?? 0,
-          createdAt: attrs.createdAt,
-          expectedDeliveryDate: attrs.expectedDeliveryDate,
-          shippingAddress: attrs.shippingAddress,
-          shippingCity: attrs.shippingCity,
-          shippingState: attrs.shippingState,
-          shippingPostalCode: attrs.shippingPostalCode,
-          notes: attrs.notes,
-          trackingNumber: attrs.trackingNumber,
-          items: includedItems.map((item: { id: string; attributes: Record<string, unknown>; relationships?: Record<string, { data?: { type: string; id: string } | null }> }) => {
-            const productRel = item.relationships?.product?.data
-            const product = productRel ? productMap.get(productRel.id) : null
+          id: String(orderData.id),
+          orderNumber: orderData.order_number as string,
+          status: orderData.status as string,
+          totalAmount: (orderData.total_amount ?? 0) as number,
+          subtotalAmount: (orderData.subtotal ?? 0) as number,
+          taxAmount: (orderData.tax_amount ?? 0) as number,
+          discountAmount: (orderData.discount_total ?? 0) as number,
+          createdAt: (orderData.created_at || orderData.order_date) as string,
+          expectedDeliveryDate: undefined,
+          shippingAddress: shippingLine || undefined,
+          shippingCity: shipping.city as string | undefined,
+          shippingState: shipping.state as string | undefined,
+          shippingPostalCode: shipping.postal_code as string | undefined,
+          notes: (orderData.notes ?? undefined) as string | undefined,
+          trackingNumber: undefined,
+          items: rawItems.map((item) => {
+            const product = (item.product || {}) as Record<string, unknown>
+            const quantity = (item.quantity ?? 0) as number
+            const unitPrice = (item.unit_price ?? 0) as number
+            const total = (item.total ?? quantity * unitPrice) as number
             return {
-              id: item.id,
-              productId: (item.attributes.productId as string) || productRel?.id || '',
-              productName: product?.name || (item.attributes.productName as string),
-              sku: product?.sku || (item.attributes.sku as string),
-              quantity: item.attributes.quantity as number,
-              unitPrice: item.attributes.unitPrice as number,
-              total: item.attributes.total as number,
+              id: String(item.id),
+              productId: String(item.product_id ?? product.id ?? ''),
+              productName: product.name as string | undefined,
+              sku: product.sku as string | undefined,
+              quantity,
+              unitPrice,
+              total,
             }
           })
         })
-      } catch {
-        setError('Error al cargar el pedido')
+      } catch (err) {
+        // Mensaje del API (p. ej. "No tienes acceso a este pedido.") o generico
+        const data = (err as { response?: { data?: { error?: string; message?: string } } })?.response?.data
+        setError(data?.error || data?.message || 'Error al cargar el pedido')
       } finally {
         setIsLoading(false)
       }
@@ -344,7 +345,7 @@ export default function MyOrderDetailPage({ params }: MyOrderDetailPageProps) {
                 {order.expectedDeliveryDate && (
                   <div className="mt-3">
                     <h6 className="text-muted small mb-2">Fecha estimada de entrega:</h6>
-                    <p className="mb-0 fw-bold">{formatDate(order.expectedDeliveryDate)}</p>
+                    <p className="mb-0 fw-bold">{formatDateOnly(order.expectedDeliveryDate, 'es-MX', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
                   </div>
                 )}
               </div>

@@ -289,6 +289,7 @@ export default function PaymentsPage() {
                           <div className="btn-group btn-group-sm">
                             {tx.status === 'captured' && (
                               <button
+                                aria-label="Reembolsar"
                                 className="btn btn-outline-warning"
                                 title="Reembolsar"
                                 onClick={async () => {
@@ -313,6 +314,7 @@ export default function PaymentsPage() {
                             )}
                             {(tx.status === 'pending' || tx.status === 'authorized') && (
                               <button
+                                aria-label="Cancelar"
                                 className="btn btn-outline-danger"
                                 title="Cancelar"
                                 onClick={async () => {

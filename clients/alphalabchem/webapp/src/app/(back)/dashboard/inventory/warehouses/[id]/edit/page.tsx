@@ -1,21 +1,16 @@
-/**
- * EDIT WAREHOUSE PAGE
- * Página para editar un almacén existente
- */
-
+import type { Metadata } from 'next'
 import { EditWarehouseWrapper } from '@/modules/inventory'
 
 interface PageProps {
   params: Promise<{ id: string }>
 }
 
-export default async function EditWarehousePage({ params }: PageProps) {
-  const { id } = await params
-  
-  return <EditWarehouseWrapper warehouseId={id} />
+export const metadata: Metadata = {
+  title: 'Editar almacén - Inventario',
+  description: 'Modificar los datos del almacén',
 }
 
-export const metadata = {
-  title: 'Editar Almacén - Gestión de Inventario',
-  description: 'Editar información del almacén'
+export default async function EditWarehousePage({ params }: PageProps) {
+  const { id } = await params
+  return <EditWarehouseWrapper warehouseId={id} />
 }

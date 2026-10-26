@@ -4,8 +4,11 @@ import { useState } from 'react'
 import { usePurchaseOrders } from '@/modules/purchase'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
 import { formatCurrency } from '@/lib/formatters'
+import { BranchFilter, useBranchName } from '@lwm/auth'
+import { formatDateOnly } from '@lwm/ui'
 
 interface PurchaseOrder {
+  branchId?: number | null
   id: string | number
   contactId?: string | number
   contact?: {
@@ -20,9 +23,12 @@ interface PurchaseOrder {
 export default function PurchasePage() {
   const navigation = useNavigationProgress()
   const [searchTerm, setSearchTerm] = useState('')
+  const [branchId, setBranchId] = useState('')
+  const branchName = useBranchName()
 
   const { purchaseOrders, isLoading, error } = usePurchaseOrders({
-    search: searchTerm || undefined
+    search: searchTerm || undefined,
+    branchId: branchId || undefined
   })
 
   const getStatusBadgeClass = (status: string) => {
@@ -89,7 +95,10 @@ export default function PurchasePage() {
             />
           </div>
         </div>
-        <div className="col-md-6">
+        <div className="col-md-3">
+          <BranchFilter className="form-select" value={branchId} onChange={setBranchId} />
+        </div>
+        <div className="col-md-3">
           <div className="d-flex gap-2">
             <button className="btn btn-outline-secondary btn-sm">
               <i className="bi bi-funnel"></i> Filtros
@@ -141,6 +150,7 @@ export default function PurchasePage() {
                       <tr>
                         <th>Número de Orden</th>
                         <th>Proveedor</th>
+                        {branchName.multi && <th>Sucursal</th>}
                         <th>Fecha</th>
                         <th>Estado</th>
                         <th>Total</th>
@@ -150,7 +160,7 @@ export default function PurchasePage() {
                     <tbody>
                       {purchaseOrders && purchaseOrders.length === 0 ? (
                         <tr>
-                          <td colSpan={6} className="text-center text-muted py-4">
+                          <td colSpan={branchName.multi ? 7 : 6} className="text-center text-muted py-4">
                             <i className="bi bi-inbox display-4 text-muted mb-3 d-block"></i>
                             <h6>No hay órdenes de compra</h6>
                             <p className="mb-0">
@@ -181,12 +191,9 @@ export default function PurchasePage() {
                                 </span>
                               )}
                             </td>
+                            {branchName.multi && <td className="small">{branchName.name(order.branchId)}</td>}
                             <td>
-                              {order.orderDate ? new Date(order.orderDate).toLocaleDateString('es-ES', {
-                                day: '2-digit',
-                                month: '2-digit', 
-                                year: 'numeric'
-                              }) : 'Sin fecha'}
+                              {order.orderDate ? formatDateOnly(order.orderDate) : 'Sin fecha'}
                             </td>
                             <td>
                               <span className={`badge ${getStatusBadgeClass(order.status)}`}>
