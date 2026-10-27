@@ -121,8 +121,14 @@ export const purchaseService = {
     /**
      * Approve a purchase order (requires appropriate permission)
      */
-    approve: async (id: string, notes?: string): Promise<void> => {
-      await axiosClient.post(`/api/v1/purchase-orders/${id}/approve`, { notes })
+    approve: async (id: string, notes?: string): Promise<{ allApproved: boolean; message: string; budgetWarnings: string[] }> => {
+      const response = await axiosClient.post(`/api/v1/purchase-orders/${id}/approve`, { notes })
+      const body = response?.data ?? {}
+      return {
+        allApproved: Boolean(body.data?.attributes?.all_approved),
+        message: body.meta?.message ?? 'Orden aprobada',
+        budgetWarnings: body.meta?.budget_warnings ?? [],
+      }
     },
 
     /**

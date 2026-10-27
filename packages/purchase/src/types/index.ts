@@ -27,6 +27,8 @@ export interface PurchaseOrder {
   orderNumber?: string // Frontend-generated, not in backend
   orderDate: string
   status: PurchaseOrderStatus
+  /** not_required | pending | approved | rejected (solo lectura; endpoints de aprobacion) */
+  approvalStatus?: string | null
   totalAmount: number
   notes: string | null
   // Finance integration fields

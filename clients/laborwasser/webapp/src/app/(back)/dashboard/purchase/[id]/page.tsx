@@ -40,8 +40,11 @@ export default function PurchaseOrderDetailPage({ params }: PageProps) {
     if (!confirmed) return
     setActionLoading('approve')
     try {
-      await purchaseService.orders.approve(resolvedParams.id)
-      toast.success('Orden aprobada')
+      const result = await purchaseService.orders.approve(resolvedParams.id)
+      if (result.allApproved) toast.success(result.message)
+      else toast.info(result.message)
+      // Presupuesto: solo avisa (decision 26-10), la orden queda aprobada
+      result.budgetWarnings.forEach((w) => toast.warning(w))
       await mutateOrder()
     } catch (err) {
       const e = err as { response?: { data?: { errors?: Array<{ detail?: string }> } } }
@@ -396,7 +399,14 @@ export default function PurchaseOrderDetailPage({ params }: PageProps) {
                     Aprobar Orden
                   </button>
                 )}
-                {(purchaseOrder.status === 'pending' || purchaseOrder.status === 'approved') && (
+                {purchaseOrder.approvalStatus === 'pending' && (
+                  <div className="alert alert-warning small mb-0">
+                    <i className="bi bi-hourglass-split me-1" aria-hidden="true" />
+                    Requiere aprobación antes de recibirse.
+                  </div>
+                )}
+                {(purchaseOrder.status === 'pending' || purchaseOrder.status === 'approved') &&
+                  purchaseOrder.approvalStatus !== 'pending' && purchaseOrder.approvalStatus !== 'rejected' && (
                   <button
                     className="btn btn-outline-success"
                     onClick={handleReceive}
