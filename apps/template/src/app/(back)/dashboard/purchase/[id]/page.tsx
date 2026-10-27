@@ -385,7 +385,7 @@ export default function PurchaseOrderDetailPage({ params }: PageProps) {
                   "Enviar a Proveedor": no existe backend para ellos (eran decorativos);
                   se agregan cuando exista el endpoint de PDF/email de OC. */}
               <div className="d-grid gap-2">
-                {purchaseOrder.status === 'pending' && (
+                {purchaseOrder.status === 'pending' && (purchaseOrder.approvalStatus ?? 'pending') === 'pending' && (
                   <button
                     className="btn btn-outline-warning"
                     onClick={handleApprove}
