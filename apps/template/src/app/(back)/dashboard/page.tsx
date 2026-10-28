@@ -42,8 +42,8 @@ class DashboardErrorBoundary extends Component<
       return (
         <div className="container-fluid py-5">
           <div className="alert alert-danger">
-            <h5 className="alert-heading">Error en el Dashboard</h5>
-            <p>Ocurrio un error al cargar el dashboard. Por favor, recarga la pagina.</p>
+            <h5 className="alert-heading">Error en el panel</h5>
+            <p>Ocurrió un error al cargar el panel. Recarga la página.</p>
             <button
               className="btn btn-outline-danger"
               onClick={() => this.setState({ hasError: false, error: null })}
@@ -176,7 +176,7 @@ function AdminDashboard() {
       <div className="d-flex justify-content-between align-items-center mb-4">
         <div>
           <h2 className="mb-2">Panel de Control</h2>
-          <p className="text-muted mb-0">Vista general del desempeno empresarial</p>
+          <p className="text-muted mb-0">Vista general del desempeño de la empresa</p>
         </div>
 
         {/* Period Selector */}
@@ -188,7 +188,7 @@ function AdminDashboard() {
             disabled={isLoading}
           >
             <i className="bi bi-calendar3 me-2"></i>
-            {selectedPeriod} dias
+            {selectedPeriod} días
           </button>
           {dropdownOpen && (
             <ul className="dropdown-menu show" style={{ position: 'absolute', right: 0 }}>
@@ -198,7 +198,7 @@ function AdminDashboard() {
                     className="dropdown-item"
                     onClick={() => { setSelectedPeriod(days); setDropdownOpen(false) }}
                   >
-                    {days} dias
+                    {days} días
                   </button>
                 </li>
               ))}
@@ -213,7 +213,7 @@ function AdminDashboard() {
             <div className="spinner-border text-info me-3" role="status">
               <span className="visually-hidden">Cargando...</span>
             </div>
-            <div>Cargando datos del dashboard...</div>
+            <div>Cargando datos del panel...</div>
           </div>
         </div>
       )}
@@ -253,7 +253,7 @@ function AdminDashboard() {
                     {formatCurrency(totalRevenue)}
                   </h4>
                   <small className="text-muted">
-                    <i className="bi bi-receipt"></i> {formatNumber(salesOrders)} ordenes
+                    <i className="bi bi-receipt"></i> {formatNumber(salesOrders)} órdenes
                   </small>
                 </div>
                 <div className="ms-3">
@@ -276,7 +276,7 @@ function AdminDashboard() {
                     {formatCurrency(totalPurchases)}
                   </h4>
                   <small className="text-muted">
-                    <i className="bi bi-truck"></i> {formatNumber(purchaseOrders)} ordenes
+                    <i className="bi bi-truck"></i> {formatNumber(purchaseOrders)} órdenes
                   </small>
                 </div>
                 <div className="ms-3">
@@ -300,7 +300,7 @@ function AdminDashboard() {
                   </h4>
                   <small className={netIncome >= 0 ? 'text-success' : 'text-danger'}>
                     <i className={`bi bi-arrow-${netIncome >= 0 ? 'up' : 'down'}`}></i>
-                    {netIncome >= 0 ? 'Ganancia' : 'Perdida'}
+                    {netIncome >= 0 ? 'Ganancia' : 'Pérdida'}
                   </small>
                 </div>
                 <div className="ms-3">
@@ -402,7 +402,7 @@ function AdminDashboard() {
             <div className="card-body">
               <div className="d-flex align-items-center">
                 <div className="flex-grow-1">
-                  <h6 className="text-muted mb-1">Campanas</h6>
+                  <h6 className="text-muted mb-1">Campañas</h6>
                   <h4 className="mb-0 text-warning">
                     {campaignsLoading ? (
                       <span className="spinner-border spinner-border-sm" />
@@ -524,7 +524,7 @@ function AdminDashboard() {
                     ) : (
                       systemStatus === 'healthy' ? 'Saludable' :
                       systemStatus === 'warning' ? 'Advertencia' :
-                      systemStatus === 'critical' ? 'Critico' : 'Desconocido'
+                      systemStatus === 'critical' ? 'Crítico' : 'Desconocido'
                     )}
                   </h4>
                   <small className="text-muted">
@@ -632,7 +632,7 @@ function AdminDashboard() {
         <div className="col-12">
           <h5 className="mb-3">
             <i className="bi bi-grid-3x3-gap text-primary me-2"></i>
-            Modulos del Sistema
+            Módulos del sistema
           </h5>
         </div>
       </div>
@@ -649,8 +649,8 @@ function AdminDashboard() {
                     Productos
                   </Link>
                 </h5>
-                <p className="card-text text-muted small">Gestion completa de inventario</p>
-                <span className="badge bg-info">Sistema Enterprise</span>
+                <p className="card-text text-muted small">Catálogo, precios y fichas técnicas</p>
+                <span className="badge bg-info">Catálogo</span>
               </div>
             </div>
           </div>
@@ -667,7 +667,7 @@ function AdminDashboard() {
                   </Link>
                 </h5>
                 <p className="card-text text-muted small">Clientes, proveedores y documentos</p>
-                <span className="badge bg-secondary">CRM Completo</span>
+                <span className="badge bg-secondary">Directorio</span>
               </div>
             </div>
           </div>
@@ -684,7 +684,7 @@ function AdminDashboard() {
                   </a>
                 </h5>
                 <p className="card-text text-muted small">Control de almacenes y stock</p>
-                <span className="badge bg-warning">Gestion Avanzada</span>
+                <span className="badge bg-warning">Existencias</span>
               </div>
             </div>
           </div>
@@ -703,7 +703,7 @@ function AdminDashboard() {
                     Ventas
                   </Link>
                 </h5>
-                <p className="card-text text-muted small">Ordenes de venta y clientes</p>
+                <p className="card-text text-muted small">Órdenes de venta y clientes</p>
                 <span className="badge bg-success">Con Reportes</span>
               </div>
             </div>
@@ -720,7 +720,7 @@ function AdminDashboard() {
                     Compras
                   </Link>
                 </h5>
-                <p className="card-text text-muted small">Ordenes de compra y proveedores</p>
+                <p className="card-text text-muted small">Órdenes de compra y proveedores</p>
                 <span className="badge bg-primary">Con Reportes</span>
               </div>
             </div>
@@ -738,7 +738,7 @@ function AdminDashboard() {
                   </a>
                 </h5>
                 <p className="card-text text-muted small">Plan contable y asientos</p>
-                <span className="badge bg-danger">7 Reportes APIs</span>
+                <span className="badge bg-danger">Pólizas</span>
               </div>
             </div>
           </div>
@@ -771,10 +771,10 @@ function AdminDashboard() {
               <div>
                 <h5 className="card-title mb-1">
                   <Link href="/dashboard/billing" className="text-decoration-none">
-                    Facturacion CFDI
+                    Facturación CFDI
                   </Link>
                 </h5>
-                <p className="card-text text-muted small">Facturacion electronica SAT 4.0</p>
+                <p className="card-text text-muted small">Facturación electrónica CFDI 4.0</p>
                 <span className="badge bg-primary">Timbrado PAC</span>
               </div>
             </div>
@@ -791,8 +791,8 @@ function AdminDashboard() {
                     CRM
                   </Link>
                 </h5>
-                <p className="card-text text-muted small">Leads, oportunidades, campanas</p>
-                <span className="badge bg-success">Pipeline Ventas</span>
+                <p className="card-text text-muted small">Prospectos, oportunidades y campañas</p>
+                <span className="badge bg-success">Embudo de ventas</span>
               </div>
             </div>
           </div>
@@ -811,7 +811,7 @@ function AdminDashboard() {
                     E-commerce
                   </Link>
                 </h5>
-                <p className="card-text text-muted small">Pedidos, carrito, wishlist</p>
+                <p className="card-text text-muted small">Pedidos, carrito y lista de deseos</p>
                 <span className="badge" style={{ backgroundColor: '#6f42c1' }}>Tienda Online</span>
               </div>
             </div>
@@ -828,8 +828,8 @@ function AdminDashboard() {
                     Recursos Humanos
                   </Link>
                 </h5>
-                <p className="card-text text-muted small">Empleados, asistencia, nomina</p>
-                <span className="badge bg-secondary">RRHH Completo</span>
+                <p className="card-text text-muted small">Empleados, asistencia y nómina</p>
+                <span className="badge bg-secondary">Personal</span>
               </div>
             </div>
           </div>
@@ -846,7 +846,7 @@ function AdminDashboard() {
                   </a>
                 </h5>
                 <p className="card-text text-muted small">Roles y control de acceso</p>
-                <span className="badge bg-dark">RCRUD System</span>
+                <span className="badge bg-dark">Accesos</span>
               </div>
             </div>
           </div>
@@ -866,7 +866,7 @@ function AdminDashboard() {
                   </a>
                 </h5>
                 <p className="card-text text-muted small">Editor visual de contenido</p>
-                <span className="badge bg-success">GrapeJS Pro</span>
+                <span className="badge bg-success">Contenido</span>
               </div>
             </div>
           </div>
@@ -882,8 +882,8 @@ function AdminDashboard() {
                     Estado del Sistema
                   </Link>
                 </h5>
-                <p className="card-text text-muted small">Monitoreo y diagnosticos</p>
-                <span className="badge bg-danger">Health Check</span>
+                <p className="card-text text-muted small">Monitoreo y diagnósticos</p>
+                <span className="badge bg-danger">Monitoreo</span>
               </div>
             </div>
           </div>
@@ -899,8 +899,8 @@ function AdminDashboard() {
                     Design System
                   </a>
                 </h5>
-                <p className="card-text text-muted small">Componentes UI y estilos</p>
-                <span className="badge bg-primary">ATM-UI</span>
+                <p className="card-text text-muted small">Componentes y estilos de la interfaz</p>
+                <span className="badge bg-primary">Componentes</span>
               </div>
             </div>
           </div>

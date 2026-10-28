@@ -285,6 +285,13 @@ $transition-normal: 250ms ease-in-out;
       box-shadow: 4px 0 24px rgba($neutral-900, 0.15);
     }
   }
+
+  // El boton de menu queda fijo arriba a la izquierda y se encimaba sobre el
+  // titulo del drawer abierto: el encabezado le deja su espacio.
+  .header {
+    padding-left: 4.5rem;
+    min-height: 3rem;
+  }
   
   .overlay {
     position: fixed;

@@ -142,7 +142,7 @@ export const InventoryDashboardPage: React.FC = () => {
             value={show(lots.expiringCount)}
             icon="bi-calendar-x"
             variant="warning"
-            hint={lots.expiredCount == null ? undefined : `${show(lots.expiredCount)} vencidos`}
+            hint={lots.expiredCount == null ? undefined : `${show(lots.expiredCount)} ${lots.expiredCount === 1 ? 'vencido' : 'vencidos'}`}
             isLoading={lots.isLoading}
             href={`${BASE}/product-batch`}
           />
