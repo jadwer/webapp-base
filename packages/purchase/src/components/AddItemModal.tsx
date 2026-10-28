@@ -33,7 +33,8 @@ export default function AddItemModal({ purchaseOrderId, isOpen, onClose, onSucce
     productId: '',
     quantity: 1,
     unitPrice: 0,
-    discount: 0
+    discount: 0,
+    noCharge: false
   })
 
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -57,7 +58,8 @@ export default function AddItemModal({ purchaseOrderId, isOpen, onClose, onSucce
         productId: '',
         quantity: 1,
         unitPrice: 0,
-        discount: 0
+        discount: 0,
+        noCharge: false
       })
       setProductSearch('')
       setDebouncedSearch('')
@@ -89,8 +91,9 @@ export default function AddItemModal({ purchaseOrderId, isOpen, onClose, onSucce
         purchaseOrderId,
         productId: parseInt(formData.productId),
         quantity: formData.quantity,
-        unitPrice: formData.unitPrice,
-        discount: formData.discount
+        unitPrice: formData.noCharge ? 0 : formData.unitPrice,
+        discount: formData.noCharge ? 0 : formData.discount,
+        noCharge: formData.noCharge
       }
 
       await createPurchaseOrderItem(itemData)
@@ -98,8 +101,9 @@ export default function AddItemModal({ purchaseOrderId, isOpen, onClose, onSucce
       onSuccess()
       onClose()
     } catch (err) {
-      const error = err as { response?: { data?: { message?: string } }; message?: string }
-      setError(error.response?.data?.message || error.message || 'Error al agregar el item')
+      // JSON:API devuelve el detalle en errors[0].detail (regla 7: mostrarlo completo)
+      const error = err as { response?: { data?: { message?: string; errors?: Array<{ detail?: string }> } }; message?: string }
+      setError(error.response?.data?.errors?.[0]?.detail || error.response?.data?.message || error.message || 'Error al agregar la partida')
     } finally {
       setIsSubmitting(false)
     }
@@ -198,8 +202,21 @@ export default function AddItemModal({ purchaseOrderId, isOpen, onClose, onSucce
                     value={formData.unitPrice}
                     onChange={(e) => setFormData(prev => ({ ...prev, unitPrice: parseFloat(e.target.value) || 0 }))}
                     required
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || formData.noCharge}
                   />
+                  <div className="form-check mt-1">
+                    <input
+                      className="form-check-input"
+                      type="checkbox"
+                      id="purchase-add-item-no-charge"
+                      checked={formData.noCharge}
+                      onChange={(e) => setFormData(prev => ({ ...prev, noCharge: e.target.checked, unitPrice: e.target.checked ? 0 : prev.unitPrice }))}
+                      disabled={isSubmitting}
+                    />
+                    <label className="form-check-label small" htmlFor="purchase-add-item-no-charge">
+                      Sin costo (muestra o bonificación)
+                    </label>
+                  </div>
                 </div>
 
                 <div className="col-md-4">
@@ -254,7 +271,7 @@ export default function AddItemModal({ purchaseOrderId, isOpen, onClose, onSucce
               <button
                 type="submit"
                 className="btn btn-primary"
-                disabled={isSubmitting || !formData.productId || !formData.quantity || !formData.unitPrice}
+                disabled={isSubmitting || !formData.productId || !formData.quantity || (!formData.unitPrice && !formData.noCharge)}
               >
                 {isSubmitting ? (
                   <>

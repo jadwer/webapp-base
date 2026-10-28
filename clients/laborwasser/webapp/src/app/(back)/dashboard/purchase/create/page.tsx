@@ -25,6 +25,7 @@ interface OrderItem {
   unitPrice: number
   discount: number
   total: number
+  noCharge?: boolean
 }
 
 export default function CreatePurchaseOrderPage() {
@@ -79,6 +80,7 @@ export default function CreatePurchaseOrderPage() {
           quantity: item.quantity,
           unitPrice: item.unitPrice,
           discount: item.discount,
+          noCharge: item.noCharge,
         })),
       })
 

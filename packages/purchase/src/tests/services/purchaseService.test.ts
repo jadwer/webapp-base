@@ -203,7 +203,7 @@ describe('purchaseService', () => {
 
       expect(axios.post).toHaveBeenCalledWith('/api/v1/purchase-orders/with-items', expect.objectContaining({
         contact_id: 3,
-        items: [{ product_id: 5, quantity: 2.5, unit_price: 40, discount: 0 }],
+        items: [{ product_id: 5, quantity: 2.5, unit_price: 40, discount: 0, no_charge: false }],
       }))
       expect(result).toEqual({ id: '9', orderNumber: 'X-1', totalAmount: 116 })
     })

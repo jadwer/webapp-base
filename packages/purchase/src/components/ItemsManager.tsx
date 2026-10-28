@@ -12,6 +12,7 @@ interface OrderItem {
   unitPrice: number
   discount: number
   total: number
+  noCharge?: boolean
 }
 
 interface ItemsManagerProps {
@@ -41,8 +42,12 @@ export default function ItemsManager({ items, onItemsChange, onTotalChange }: It
     productId: '',
     quantity: 1,
     unitPrice: 0,
-    discount: 0
+    discount: 0,
+    noCharge: false
   })
+
+  // Costo 0 solo marcado como sin costo (muestra o bonificacion); el backend lo exige.
+  const priceIsValid = newItem.noCharge || newItem.unitPrice > 0
 
   // Calculate total whenever items change
   useEffect(() => {
@@ -79,7 +84,7 @@ export default function ItemsManager({ items, onItemsChange, onTotalChange }: It
   }
 
   const addItem = () => {
-    if (!newItem.productId || newItem.quantity <= 0 || newItem.unitPrice < 0) return
+    if (!newItem.productId || newItem.quantity <= 0 || !priceIsValid) return
 
     const selectedProduct = products.find((p: Product) => p.id === newItem.productId)
     const total = calculateItemTotal(newItem.quantity, newItem.unitPrice, newItem.discount)
@@ -89,9 +94,10 @@ export default function ItemsManager({ items, onItemsChange, onTotalChange }: It
       productId: newItem.productId,
       productName: selectedProduct?.attributes?.name || `Producto #${newItem.productId}`,
       quantity: newItem.quantity,
-      unitPrice: newItem.unitPrice,
-      discount: newItem.discount,
-      total
+      unitPrice: newItem.noCharge ? 0 : newItem.unitPrice,
+      discount: newItem.noCharge ? 0 : newItem.discount,
+      total: newItem.noCharge ? 0 : total,
+      noCharge: newItem.noCharge
     }
 
     onItemsChange([...items, item])
@@ -101,7 +107,8 @@ export default function ItemsManager({ items, onItemsChange, onTotalChange }: It
       productId: '',
       quantity: 1,
       unitPrice: 0,
-      discount: 0
+      discount: 0,
+      noCharge: false
     })
     setShowAddForm(false)
   }
@@ -203,7 +210,20 @@ export default function ItemsManager({ items, onItemsChange, onTotalChange }: It
                   step="0.01"
                   value={newItem.unitPrice}
                   onChange={(e) => setNewItem(prev => ({ ...prev, unitPrice: parseFloat(e.target.value) || 0 }))}
+                  disabled={newItem.noCharge}
                 />
+                <div className="form-check mt-1">
+                  <input
+                    className="form-check-input"
+                    type="checkbox"
+                    id="purchase-item-no-charge"
+                    checked={newItem.noCharge}
+                    onChange={(e) => setNewItem(prev => ({ ...prev, noCharge: e.target.checked, unitPrice: e.target.checked ? 0 : prev.unitPrice }))}
+                  />
+                  <label className="form-check-label small" htmlFor="purchase-item-no-charge">
+                    Sin costo (muestra o bonificación)
+                  </label>
+                </div>
               </div>
               
               <div className="col-md-2">
@@ -225,7 +245,7 @@ export default function ItemsManager({ items, onItemsChange, onTotalChange }: It
                     type="button"
                     className="btn btn-success btn-sm"
                     onClick={addItem}
-                    disabled={!newItem.productId || newItem.quantity <= 0}
+                    disabled={!newItem.productId || newItem.quantity <= 0 || !priceIsValid}
                   >
                     <i className="bi bi-check"></i>
                   </button>

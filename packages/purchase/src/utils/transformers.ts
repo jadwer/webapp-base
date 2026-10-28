@@ -247,7 +247,7 @@ export function transformPurchaseOrderItemFormToJsonApi(data: Record<string, unk
       attributes: {
         purchaseOrderId: parseInt(String(data.purchaseOrderId)), // Convert to integer (camelCase según tu spec)
         productId: parseInt(String(data.productId)), // Convert to integer (camelCase según tu spec)
-        quantity: parseInt(String(data.quantity)), // Convert to integer
+        quantity: parseFloat(String(data.quantity)), // la columna admite fracciones (granel)
         unitPrice: parseFloat(String(data.unitPrice)), // Convert to float (camelCase según tu spec)
         discount: parseFloat(String(data.discount || 0)), // Convert to float
         subtotal: parseFloat(String(data.subtotal || calculatedTotal)), // Convert to float
@@ -256,6 +256,11 @@ export function transformPurchaseOrderItemFormToJsonApi(data: Record<string, unk
     }
   }
   
+  // Partida sin costo (muestra o bonificacion): el backend solo acepta costo 0 con esta marca.
+  if (data.noCharge) {
+    ((payload.data as Record<string, unknown>).attributes as Record<string, unknown>).metadata = { no_charge: true }
+  }
+
   if (id) {
     (payload.data as Record<string, unknown>).id = id
   }

@@ -77,7 +77,7 @@ export const purchaseService = {
       status: string
       notes?: string
       branchId?: string
-      items: Array<{ productId: string; quantity: number; unitPrice: number; discount?: number }>
+      items: Array<{ productId: string; quantity: number; unitPrice: number; discount?: number; noCharge?: boolean }>
     }): Promise<{ id: string; orderNumber: string; totalAmount: number }> => {
       const response = await axiosClient.post('/api/v1/purchase-orders/with-items', {
         contact_id: Number(data.contactId),
@@ -90,6 +90,7 @@ export const purchaseService = {
           quantity: i.quantity,
           unit_price: i.unitPrice,
           discount: i.discount || 0,
+          no_charge: i.noCharge === true,
         })),
       })
       const d = response.data.data
