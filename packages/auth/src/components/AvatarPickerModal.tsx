@@ -120,7 +120,7 @@ export function AvatarPickerModal({ show, onHide, name, current, onApplied }: Av
               <h2 id="avatar-picker-title" className="h4 text-center mb-3">Editar foto de perfil</h2>
 
               <div className="d-flex justify-content-center mb-4">
-                <UserAvatar avatar={previewValue} name={name} size={128} />
+                <UserAvatar avatar={previewValue} name={name} size={tab === 'builder' ? 96 : 128} />
               </div>
 
               <ul className="nav nav-tabs mb-3" role="tablist">
@@ -163,7 +163,7 @@ export function AvatarPickerModal({ show, onHide, name, current, onApplied }: Av
                   </div>
                 </>
               ) : (
-                <div className="mb-3" style={{ maxHeight: '40vh', overflowY: 'auto' }}>
+                <div className="mb-3" style={{ maxHeight: '32vh', overflowY: 'auto' }}>
                   <AvatarBuilder
                     value={choice?.kind === 'recipe' ? choice.value : current}
                     onChange={(value) => setChoice({ kind: 'recipe', value })}
