@@ -1,0 +1,32 @@
+#!/bin/sh
+# Validacion local antes de empujar (no hay CI: GitHub Actions apagadas por costo).
+# Estilo de los commits + paridad de tenants + vitest de los paquetes tocados.
+# SKIP_VERIFY=1 git push para docs con prisa (solo revisa el estilo).
+# Activar una vez por clon: git config core.hooksPath .githooks
+set -e
+root="$(git rev-parse --show-toplevel)"
+cd "$root"
+remote="$1"
+branch="$(git rev-parse --abbrev-ref HEAD)"
+base="$remote/$branch"
+git rev-parse --verify -q "$base" >/dev/null || base="$(git merge-base HEAD "$remote/HEAD" 2>/dev/null || git rev-list --max-parents=0 HEAD | tail -1)"
+
+msgs="$(git log --format=%B "$base..HEAD")"
+if printf '%s' "$msgs" | grep -q '—'; then echo "pre-push: guion largo en un mensaje de commit"; exit 1; fi
+if printf '%s' "$msgs" | grep -qi 'co-authored-by\|generated with claude'; then echo "pre-push: atribucion en un mensaje de commit"; exit 1; fi
+if printf '%s' "$msgs" | grep -qP '[\x{1F300}-\x{1FAFF}\x{2600}-\x{27BF}]'; then echo "pre-push: emoji en un mensaje de commit"; exit 1; fi
+[ "${SKIP_VERIFY:-}" = 1 ] && exit 0
+
+echo "pre-push: paridad de tenants"
+bash scripts/check-parity.sh
+
+files="$(git diff --name-only "$base..HEAD")"
+for pkg in $(printf '%s\n' "$files" | sed -n 's#^packages/\([^/]*\)/.*#packages/\1#p' | sort -u); do
+    [ -f "$pkg/package.json" ] || continue
+    echo "pre-push: vitest $pkg"
+    (cd "$pkg" && npx vitest run --reporter=dot)
+done
+if printf '%s\n' "$files" | grep -q '^apps/template/'; then
+    echo "pre-push: vitest apps/template"
+    (cd apps/template && npx vitest run --reporter=dot)
+fi
