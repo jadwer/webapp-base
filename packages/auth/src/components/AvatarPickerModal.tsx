@@ -2,7 +2,8 @@
 
 /**
  * "Editar foto de perfil" (diseno 2026-09-30): vista previa grande, grilla
- * de avatares ilustrados, "Subir foto" y Cancelar / Aplicar.
+ * de avatares ilustrados, "Subir foto" y Cancelar / Aplicar. Desde
+ * 2026-10-28 una segunda pestana "Arma el tuyo" con el generador por partes.
  *
  * Marcado Bootstrap propio: @lwm/ui depende de @lwm/auth, asi que usar su
  * Modal aqui crearia un ciclo de paquetes.
@@ -11,7 +12,9 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { mutate } from 'swr'
 import { AVATAR_PRESETS, avatarPresetSrc, presetNumber } from '../lib/avatar'
-import { removeAvatar, setAvatarPreset, uploadAvatar } from '../lib/profileApi'
+import { parseRecipe } from '../lib/avatarGenerator'
+import { removeAvatar, setAvatarPreset, setAvatarRecipe, uploadAvatar } from '../lib/profileApi'
+import { AvatarBuilder } from './AvatarBuilder'
 import { UserAvatar } from './UserAvatar'
 
 const MAX_BYTES = 2 * 1024 * 1024
@@ -26,7 +29,12 @@ export interface AvatarPickerModalProps {
   onApplied?: (avatar: string | null) => void
 }
 
-type Choice = { kind: 'preset'; n: number } | { kind: 'file'; file: File; preview: string } | { kind: 'none' } | null
+type Choice =
+  | { kind: 'preset'; n: number }
+  | { kind: 'recipe'; value: string }
+  | { kind: 'file'; file: File; preview: string }
+  | { kind: 'none' }
+  | null
 
 function errorMessages(err: unknown): string {
   const data = (err as { response?: { data?: { errors?: Record<string, string[]>; message?: string } } })?.response?.data
@@ -38,12 +46,14 @@ export function AvatarPickerModal({ show, onHide, name, current, onApplied }: Av
   const [choice, setChoice] = useState<Choice>(null)
   const [error, setError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
+  const [tab, setTab] = useState<'presets' | 'builder'>('presets')
   const fileRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     if (show) {
       const n = presetNumber(current)
       setChoice(n ? { kind: 'preset', n } : null)
+      setTab(parseRecipe(current) ? 'builder' : 'presets')
       setError(null)
     }
   }, [show, current])
@@ -55,7 +65,7 @@ export function AvatarPickerModal({ show, onHide, name, current, onApplied }: Av
   if (!show) return null
 
   const previewValue =
-    choice?.kind === 'preset' ? `preset:${choice.n}` : choice?.kind === 'file' ? choice.preview : choice?.kind === 'none' ? null : current
+    choice?.kind === 'preset' ? `preset:${choice.n}` : choice?.kind === 'recipe' ? choice.value : choice?.kind === 'file' ? choice.preview : choice?.kind === 'none' ? null : current
 
   const onFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -84,9 +94,11 @@ export function AvatarPickerModal({ show, onHide, name, current, onApplied }: Av
       const attrs =
         choice.kind === 'preset'
           ? await setAvatarPreset(choice.n)
-          : choice.kind === 'file'
-            ? await uploadAvatar(choice.file)
-            : await removeAvatar()
+          : choice.kind === 'recipe'
+            ? await setAvatarRecipe(choice.value)
+            : choice.kind === 'file'
+              ? await uploadAvatar(choice.file)
+              : await removeAvatar()
       const avatar = (attrs?.avatar as string | null | undefined) ?? null
       // Refresca el usuario de la sesion (header, sidebar).
       await mutate('/api/v1/profile')
@@ -111,29 +123,54 @@ export function AvatarPickerModal({ show, onHide, name, current, onApplied }: Av
                 <UserAvatar avatar={previewValue} name={name} size={128} />
               </div>
 
-              <div className="fw-semibold mb-2">Selecciona un avatar</div>
-              <div className="row g-3 mb-3" role="radiogroup" aria-label="Avatares">
-                {AVATAR_PRESETS.map((n) => {
-                  const selected = choice?.kind === 'preset' && choice.n === n
-                  return (
-                    <div key={n} className="col-3 text-center">
-                      <button
-                        type="button"
-                        role="radio"
-                        aria-checked={selected}
-                        aria-label={`Avatar ${n}`}
-                        className={`btn p-0 rounded-circle border-0 ${selected ? 'shadow' : ''}`}
-                        style={{ outline: selected ? '3px solid var(--bs-primary)' : 'none', outlineOffset: 2 }}
-                        onClick={() => setChoice({ kind: 'preset', n })}
-                        disabled={saving}
-                      >
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={avatarPresetSrc(n)} alt="" width={72} height={72} className="rounded-circle d-block" />
-                      </button>
-                    </div>
-                  )
-                })}
-              </div>
+              <ul className="nav nav-tabs mb-3" role="tablist">
+                <li className="nav-item" role="presentation">
+                  <button type="button" role="tab" aria-selected={tab === 'presets'} className={`nav-link ${tab === 'presets' ? 'active' : ''}`} onClick={() => setTab('presets')}>
+                    Ilustraciones
+                  </button>
+                </li>
+                <li className="nav-item" role="presentation">
+                  <button type="button" role="tab" aria-selected={tab === 'builder'} className={`nav-link ${tab === 'builder' ? 'active' : ''}`} onClick={() => setTab('builder')}>
+                    Arma el tuyo
+                  </button>
+                </li>
+              </ul>
+
+              {tab === 'presets' ? (
+                <>
+                  <div className="fw-semibold mb-2">Selecciona un avatar</div>
+                  <div className="row g-3 mb-3" role="radiogroup" aria-label="Avatares">
+                    {AVATAR_PRESETS.map((n) => {
+                      const selected = choice?.kind === 'preset' && choice.n === n
+                      return (
+                        <div key={n} className="col-3 text-center">
+                          <button
+                            type="button"
+                            role="radio"
+                            aria-checked={selected}
+                            aria-label={`Avatar ${n}`}
+                            className={`btn p-0 rounded-circle border-0 ${selected ? 'shadow' : ''}`}
+                            style={{ outline: selected ? '3px solid var(--bs-primary)' : 'none', outlineOffset: 2 }}
+                            onClick={() => setChoice({ kind: 'preset', n })}
+                            disabled={saving}
+                          >
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src={avatarPresetSrc(n)} alt="" width={72} height={72} className="rounded-circle d-block" />
+                          </button>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </>
+              ) : (
+                <div className="mb-3" style={{ maxHeight: '40vh', overflowY: 'auto' }}>
+                  <AvatarBuilder
+                    value={choice?.kind === 'recipe' ? choice.value : current}
+                    onChange={(value) => setChoice({ kind: 'recipe', value })}
+                    disabled={saving}
+                  />
+                </div>
+              )}
 
               <div className="d-flex justify-content-center gap-2 mb-3">
                 <input ref={fileRef} type="file" accept={ACCEPTED.join(',')} className="d-none" onChange={onFile} aria-label="Subir foto" />

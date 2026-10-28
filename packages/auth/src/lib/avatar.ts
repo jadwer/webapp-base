@@ -4,7 +4,12 @@
  *
  * Los ilustrados viven en /images/avatars/avatar-N.svg del public de cada
  * app: diseno puede reemplazar los archivos sin tocar codigo.
+ *
+ * Desde 2026-10-28 tambien "avatar:1:..." (receta del generador por partes,
+ * lib/avatarGenerator): se dibuja aqui mismo como data URI.
  */
+
+import { avatarDataUri, parseRecipe } from './avatarGenerator'
 
 export const AVATAR_PRESET_COUNT = 8
 
@@ -24,6 +29,9 @@ export function avatarSrc(avatar: string | null | undefined): string | null {
   if (!avatar) return null
   const n = presetNumber(avatar)
   if (n !== null) return n >= 1 && n <= AVATAR_PRESET_COUNT ? avatarPresetSrc(n) : null
+  const recipe = parseRecipe(avatar)
+  if (recipe) return avatarDataUri(recipe)
+  if (avatar.startsWith('avatar:')) return null
   return avatar
 }
 

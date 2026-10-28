@@ -70,6 +70,14 @@ async function setAvatarPreset(preset: number) {
 }
 
 /**
+ * Avatar armado con el generador ("avatar:1:...").
+ */
+async function setAvatarRecipe(recipe: string) {
+  const res = await axiosClient.post("/api/v1/profile/avatar", { recipe });
+  return res.data?.data?.attributes ?? null;
+}
+
+/**
  * Quitar el avatar (vuelve a las iniciales).
  */
 async function removeAvatar() {
@@ -83,5 +91,6 @@ export {
     updateProfile,
     uploadAvatar,
     setAvatarPreset,
+    setAvatarRecipe,
     removeAvatar
 };

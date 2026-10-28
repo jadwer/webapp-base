@@ -7,13 +7,14 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 
 vi.mock('../../lib/profileApi', () => ({
   setAvatarPreset: vi.fn(),
+  setAvatarRecipe: vi.fn(),
   uploadAvatar: vi.fn(),
   removeAvatar: vi.fn(),
 }))
 vi.mock('swr', () => ({ mutate: vi.fn() }))
 
 import { AvatarPickerModal } from '../../components/AvatarPickerModal'
-import { setAvatarPreset, uploadAvatar } from '../../lib/profileApi'
+import { setAvatarPreset, setAvatarRecipe, uploadAvatar } from '../../lib/profileApi'
 import { avatarSrc, initials, presetNumber } from '../../lib/avatar'
 
 describe('helpers de avatar', () => {
@@ -63,3 +64,27 @@ describe('AvatarPickerModal', () => {
     await waitFor(() => expect(screen.getByText('El avatar elegido no existe.')).toBeTruthy())
   })
 })
+
+describe('AvatarPickerModal: Arma el tuyo', () => {
+  beforeEach(() => vi.clearAllMocks())
+
+  it('arma un avatar por partes y guarda la receta', async () => {
+    vi.mocked(setAvatarRecipe).mockResolvedValue({ avatar: 'avatar:1:2.1.1.0.0.0.0' })
+    const onApplied = vi.fn()
+    render(<AvatarPickerModal show onHide={vi.fn()} name="Ana" current={null} onApplied={onApplied} />)
+
+    fireEvent.click(screen.getByRole('tab', { name: 'Arma el tuyo' }))
+    fireEvent.click(screen.getByLabelText('Morena'))
+    fireEvent.click(screen.getByText('Aplicar'))
+
+    await waitFor(() => expect(setAvatarRecipe).toHaveBeenCalledWith('avatar:1:4.1.1.0.0.0.0'))
+    expect(onApplied).toHaveBeenCalledWith('avatar:1:2.1.1.0.0.0.0')
+  })
+
+  it('abre en el generador si el avatar actual es una receta', () => {
+    render(<AvatarPickerModal show onHide={vi.fn()} name="Ana" current="avatar:1:0.3.4.5.1.3.1" />)
+    expect(screen.getByRole('tab', { name: 'Arma el tuyo' }).getAttribute('aria-selected')).toBe('true')
+    expect(screen.getByText('Tono de piel')).toBeTruthy()
+  })
+})
+
