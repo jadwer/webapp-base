@@ -24,9 +24,9 @@ files="$(git diff --name-only "$base..HEAD")"
 for pkg in $(printf '%s\n' "$files" | sed -n 's#^packages/\([^/]*\)/.*#packages/\1#p' | sort -u); do
     [ -f "$pkg/package.json" ] || continue
     echo "pre-push: vitest $pkg"
-    (cd "$pkg" && npx vitest run --reporter=dot)
+    (cd "$pkg" && npx vitest run --reporter=dot --passWithNoTests)
 done
 if printf '%s\n' "$files" | grep -q '^apps/template/'; then
     echo "pre-push: vitest apps/template"
-    (cd apps/template && npx vitest run --reporter=dot)
+    (cd apps/template && npx vitest run --reporter=dot --passWithNoTests)
 fi

@@ -30,7 +30,7 @@
     "test:e2e:debug": "playwright test --debug"
   },
   "dependencies": {
-    "@hookform/resolvers": "^5.1.1",
+    "@hookform/resolvers": "^5.9.2",
     "@lwm/accounting": "workspace:*",
     "@lwm/app-config": "workspace:*",
     "@lwm/audit": "workspace:*",
@@ -76,7 +76,7 @@
     "recharts": "^3.6.0",
     "shadcn-ui": "0.9.5",
     "swr": "2.3.3",
-    "zod": "^3.25.67",
+    "zod": "^4.6.7",
     "zustand": "5.0.6"
   },
   "devDependencies": {
@@ -89,15 +89,15 @@
     "@types/react": "19",
     "@types/react-dom": "19",
     "@vitejs/plugin-react": "^5.0.0",
-    "@vitest/coverage-v8": "^3.2.4",
-    "@vitest/ui": "^3.2.4",
+    "@vitest/coverage-v8": "^3.2.7",
+    "@vitest/ui": "^3.2.7",
     "eslint": "9",
     "eslint-config-next": "15.5.28",
-    "happy-dom": "^18.0.1",
+    "happy-dom": "^21.0.4",
     "jsdom": "^26.1.0",
     "msw": "^2.10.5",
     "sass": "1.89.2",
     "typescript": "5",
-    "vitest": "^3.2.4"
+    "vitest": "^3.2.7"
   }
 }

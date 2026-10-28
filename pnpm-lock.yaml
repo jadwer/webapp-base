@@ -19,6 +19,13 @@ overrides:
   underscore: ^1.13.8
   '@babel/core@<7.29.6': ^7.29.6
   sharp@<0.35.5: ^0.35.5
+  vite@>=7.0.0 <7.3.7: ^7.3.7
+  brace-expansion@<1.1.21: ^1.1.21
+  brace-expansion@>=2.0.0 <2.1.7: ^2.1.7
+  brace-expansion@>=5.0.0 <5.0.12: ^5.0.12
+  js-yaml@<3.15.2: ^3.15.2
+  js-yaml@>=4.0.0 <4.3.2: ^4.3.2
+  ws@>=8.0.0 <8.22.0: ^8.22.0
 
 importers:
 
@@ -37,8 +44,8 @@ importers:
   apps/template:
     dependencies:
       '@hookform/resolvers':
-        specifier: ^5.1.1
-        version: 5.2.2(react-hook-form@7.58.1(react@19.1.10))
+        specifier: ^5.9.2
+        version: 5.9.2(@standard-schema/spec@1.1.0)(react-hook-form@7.58.1(react@19.1.10))(zod@4.6.7)
       '@lwm/accounting':
         specifier: workspace:*
         version: link:../../packages/accounting
@@ -175,8 +182,8 @@ importers:
         specifier: 2.3.3
         version: 2.3.3(react@19.1.10)
       zod:
-        specifier: ^3.25.67
-        version: 3.25.76
+        specifier: ^4.6.7
+        version: 4.6.7
       zustand:
         specifier: 5.0.6
         version: 5.0.6(@types/react@19.2.14)(immer@11.1.7)(react@19.1.10)(use-sync-external-store@1.6.0(react@19.1.10))
@@ -207,13 +214,13 @@ importers:
         version: 19.2.3(@types/react@19.2.14)
       '@vitejs/plugin-react':
         specifier: ^5.0.0
-        version: 5.2.0(vite@7.3.2(@types/node@20.19.39)(sass@1.89.2))
+        version: 5.2.0(vite@7.3.7(@types/node@20.19.39)(sass@1.89.2))
       '@vitest/coverage-v8':
-        specifier: ^3.2.4
-        version: 3.2.4(vitest@3.2.4)
+        specifier: ^3.2.7
+        version: 3.2.7(vitest@3.2.7)
       '@vitest/ui':
-        specifier: ^3.2.4
-        version: 3.2.4(vitest@3.2.4)
+        specifier: ^3.2.7
+        version: 3.2.7(vitest@3.2.7)
       eslint:
         specifier: '9'
         version: 9.39.4
@@ -221,8 +228,8 @@ importers:
         specifier: 15.5.28
         version: 15.5.28(eslint@9.39.4)(typescript@5.9.3)
       happy-dom:
-        specifier: ^18.0.1
-        version: 18.0.1
+        specifier: ^21.0.4
+        version: 21.0.4
       jsdom:
         specifier: ^26.1.0
         version: 26.1.0
@@ -236,14 +243,14 @@ importers:
         specifier: '5'
         version: 5.9.3
       vitest:
-        specifier: ^3.2.4
-        version: 3.2.4(@types/node@20.19.39)(@vitest/ui@3.2.4)(happy-dom@18.0.1)(jsdom@26.1.0)(msw@2.14.3(@types/node@20.19.39)(typescript@5.9.3))(sass@1.89.2)
+        specifier: ^3.2.7
+        version: 3.2.7(@types/node@20.19.39)(@vitest/ui@3.2.7)(happy-dom@21.0.4)(jsdom@26.1.0)(msw@2.14.3(@types/node@20.19.39)(typescript@5.9.3))(sass@1.89.2)
 
   clients/alphalabchem/webapp:
     dependencies:
       '@hookform/resolvers':
-        specifier: ^5.1.1
-        version: 5.2.2(react-hook-form@7.58.1(react@19.1.10))
+        specifier: ^5.9.2
+        version: 5.9.2(@standard-schema/spec@1.1.0)(react-hook-form@7.58.1(react@19.1.10))(zod@4.6.7)
       '@lwm/accounting':
         specifier: workspace:*
         version: link:../../../packages/accounting
@@ -377,8 +384,8 @@ importers:
         specifier: 2.3.3
         version: 2.3.3(react@19.1.10)
       zod:
-        specifier: ^3.25.67
-        version: 3.25.76
+        specifier: ^4.6.7
+        version: 4.6.7
       zustand:
         specifier: 5.0.6
         version: 5.0.6(@types/react@19.2.14)(immer@11.1.7)(react@19.1.10)(use-sync-external-store@1.6.0(react@19.1.10))
@@ -414,8 +421,8 @@ importers:
   clients/laborwasser/webapp:
     dependencies:
       '@hookform/resolvers':
-        specifier: ^5.1.1
-        version: 5.2.2(react-hook-form@7.58.1(react@19.1.10))
+        specifier: ^5.9.2
+        version: 5.9.2(@standard-schema/spec@1.1.0)(react-hook-form@7.58.1(react@19.1.10))(zod@4.6.7)
       '@lwm/accounting':
         specifier: workspace:*
         version: link:../../../packages/accounting
@@ -549,8 +556,8 @@ importers:
         specifier: 2.3.3
         version: 2.3.3(react@19.1.10)
       zod:
-        specifier: ^3.25.67
-        version: 3.25.76
+        specifier: ^4.6.7
+        version: 4.6.7
       zustand:
         specifier: 5.0.6
         version: 5.0.6(@types/react@19.2.14)(immer@11.1.7)(react@19.1.10)(use-sync-external-store@1.6.0(react@19.1.10))
@@ -615,10 +622,10 @@ importers:
         version: 19.2.14
       '@vitejs/plugin-react':
         specifier: ^5.0.0
-        version: 5.2.0(vite@7.3.2(@types/node@20.19.39)(sass@1.89.2))
+        version: 5.2.0(vite@7.3.7(@types/node@20.19.39)(sass@1.89.2))
       happy-dom:
-        specifier: ^18.0.1
-        version: 18.0.1
+        specifier: ^21.0.4
+        version: 21.0.4
       tsup:
         specifier: ^8.3.5
         version: 8.5.1(postcss@8.5.31)(typescript@5.9.3)
@@ -626,8 +633,8 @@ importers:
         specifier: ^5.7.2
         version: 5.9.3
       vitest:
-        specifier: ^3.2.4
-        version: 3.2.4(@types/node@20.19.39)(@vitest/ui@3.2.4)(happy-dom@18.0.1)(jsdom@26.1.0)(msw@2.14.3(@types/node@20.19.39)(typescript@5.9.3))(sass@1.89.2)
+        specifier: ^3.2.7
+        version: 3.2.7(@types/node@20.19.39)(@vitest/ui@3.2.7)(happy-dom@21.0.4)(jsdom@26.1.0)(msw@2.14.3(@types/node@20.19.39)(typescript@5.9.3))(sass@1.89.2)
 
   packages/app-config:
     dependencies:
@@ -686,10 +693,10 @@ importers:
         version: 19.2.14
       '@vitejs/plugin-react':
         specifier: ^5.0.0
-        version: 5.2.0(vite@7.3.2(@types/node@20.19.39)(sass@1.89.2))
+        version: 5.2.0(vite@7.3.7(@types/node@20.19.39)(sass@1.89.2))
       happy-dom:
-        specifier: ^18.0.1
-        version: 18.0.1
+        specifier: ^21.0.4
+        version: 21.0.4
       tsup:
         specifier: ^8.3.5
         version: 8.5.1(postcss@8.5.31)(typescript@5.9.3)
@@ -697,14 +704,14 @@ importers:
         specifier: ^5.7.2
         version: 5.9.3
       vitest:
-        specifier: ^3.2.4
-        version: 3.2.4(@types/node@20.19.39)(@vitest/ui@3.2.4)(happy-dom@18.0.1)(jsdom@26.1.0)(msw@2.14.3(@types/node@20.19.39)(typescript@5.9.3))(sass@1.89.2)
+        specifier: ^3.2.7
+        version: 3.2.7(@types/node@20.19.39)(@vitest/ui@3.2.7)(happy-dom@21.0.4)(jsdom@26.1.0)(msw@2.14.3(@types/node@20.19.39)(typescript@5.9.3))(sass@1.89.2)
 
   packages/auth:
     dependencies:
       '@hookform/resolvers':
-        specifier: ^5.0.0
-        version: 5.2.2(react-hook-form@7.58.1(react@19.1.10))
+        specifier: ^5.9.2
+        version: 5.9.2(@standard-schema/spec@1.1.0)(react-hook-form@7.58.1(react@19.1.10))(zod@4.6.7)
       '@lwm/primitives':
         specifier: workspace:*
         version: link:../primitives
@@ -727,8 +734,8 @@ importers:
         specifier: ^2.0.0
         version: 2.3.3(react@19.1.10)
       zod:
-        specifier: ^3.0.0
-        version: 3.25.76
+        specifier: ^4.6.7
+        version: 4.6.7
     devDependencies:
       '@testing-library/jest-dom':
         specifier: ^6.7.0
@@ -744,10 +751,10 @@ importers:
         version: 19.2.14
       '@vitejs/plugin-react':
         specifier: ^5.0.0
-        version: 5.2.0(vite@7.3.2(@types/node@20.19.39)(sass@1.89.2))
+        version: 5.2.0(vite@7.3.7(@types/node@20.19.39)(sass@1.89.2))
       happy-dom:
-        specifier: ^18.0.1
-        version: 18.0.1
+        specifier: ^21.0.4
+        version: 21.0.4
       tsup:
         specifier: ^8.3.5
         version: 8.5.1(postcss@8.5.31)(typescript@5.9.3)
@@ -755,8 +762,8 @@ importers:
         specifier: ^5.7.2
         version: 5.9.3
       vitest:
-        specifier: ^3.2.4
-        version: 3.2.4(@types/node@20.19.39)(@vitest/ui@3.2.4)(happy-dom@18.0.1)(jsdom@26.1.0)(msw@2.14.3(@types/node@20.19.39)(typescript@5.9.3))(sass@1.89.2)
+        specifier: ^3.2.7
+        version: 3.2.7(@types/node@20.19.39)(@vitest/ui@3.2.7)(happy-dom@21.0.4)(jsdom@26.1.0)(msw@2.14.3(@types/node@20.19.39)(typescript@5.9.3))(sass@1.89.2)
 
   packages/billing:
     dependencies:
@@ -796,10 +803,10 @@ importers:
         version: 19.2.14
       '@vitejs/plugin-react':
         specifier: ^5.0.0
-        version: 5.2.0(vite@7.3.2(@types/node@20.19.39)(sass@1.89.2))
+        version: 5.2.0(vite@7.3.7(@types/node@20.19.39)(sass@1.89.2))
       happy-dom:
-        specifier: ^18.0.1
-        version: 18.0.1
+        specifier: ^21.0.4
+        version: 21.0.4
       tsup:
         specifier: ^8.3.5
         version: 8.5.1(postcss@8.5.31)(typescript@5.9.3)
@@ -807,8 +814,8 @@ importers:
         specifier: ^5.7.2
         version: 5.9.3
       vitest:
-        specifier: ^3.2.4
-        version: 3.2.4(@types/node@20.19.39)(@vitest/ui@3.2.4)(happy-dom@18.0.1)(jsdom@26.1.0)(msw@2.14.3(@types/node@20.19.39)(typescript@5.9.3))(sass@1.89.2)
+        specifier: ^3.2.7
+        version: 3.2.7(@types/node@20.19.39)(@vitest/ui@3.2.7)(happy-dom@21.0.4)(jsdom@26.1.0)(msw@2.14.3(@types/node@20.19.39)(typescript@5.9.3))(sass@1.89.2)
 
   packages/commissions:
     dependencies:
@@ -848,10 +855,10 @@ importers:
         version: 19.2.14
       '@vitejs/plugin-react':
         specifier: ^5.0.0
-        version: 5.2.0(vite@7.3.2(@types/node@20.19.39)(sass@1.89.2))
+        version: 5.2.0(vite@7.3.7(@types/node@20.19.39)(sass@1.89.2))
       happy-dom:
-        specifier: ^18.0.1
-        version: 18.0.1
+        specifier: ^21.0.4
+        version: 21.0.4
       tsup:
         specifier: ^8.3.5
         version: 8.5.1(postcss@8.5.31)(typescript@5.9.3)
@@ -859,8 +866,8 @@ importers:
         specifier: ^5.7.2
         version: 5.9.3
       vitest:
-        specifier: ^3.2.4
-        version: 3.2.4(@types/node@20.19.39)(@vitest/ui@3.2.4)(happy-dom@18.0.1)(jsdom@26.1.0)(msw@2.14.3(@types/node@20.19.39)(typescript@5.9.3))(sass@1.89.2)
+        specifier: ^3.2.7
+        version: 3.2.7(@types/node@20.19.39)(@vitest/ui@3.2.7)(happy-dom@21.0.4)(jsdom@26.1.0)(msw@2.14.3(@types/node@20.19.39)(typescript@5.9.3))(sass@1.89.2)
 
   packages/contacts:
     dependencies:
@@ -897,10 +904,10 @@ importers:
         version: 19.2.14
       '@vitejs/plugin-react':
         specifier: ^5.0.0
-        version: 5.2.0(vite@7.3.2(@types/node@20.19.39)(sass@1.89.2))
+        version: 5.2.0(vite@7.3.7(@types/node@20.19.39)(sass@1.89.2))
       happy-dom:
-        specifier: ^18.0.1
-        version: 18.0.1
+        specifier: ^21.0.4
+        version: 21.0.4
       tsup:
         specifier: ^8.3.5
         version: 8.5.1(postcss@8.5.31)(typescript@5.9.3)
@@ -908,8 +915,8 @@ importers:
         specifier: ^5.7.2
         version: 5.9.3
       vitest:
-        specifier: ^3.2.4
-        version: 3.2.4(@types/node@20.19.39)(@vitest/ui@3.2.4)(happy-dom@18.0.1)(jsdom@26.1.0)(msw@2.14.3(@types/node@20.19.39)(typescript@5.9.3))(sass@1.89.2)
+        specifier: ^3.2.7
+        version: 3.2.7(@types/node@20.19.39)(@vitest/ui@3.2.7)(happy-dom@21.0.4)(jsdom@26.1.0)(msw@2.14.3(@types/node@20.19.39)(typescript@5.9.3))(sass@1.89.2)
 
   packages/crm:
     dependencies:
@@ -943,10 +950,10 @@ importers:
         version: 19.2.14
       '@vitejs/plugin-react':
         specifier: ^5.0.0
-        version: 5.2.0(vite@7.3.2(@types/node@20.19.39)(sass@1.89.2))
+        version: 5.2.0(vite@7.3.7(@types/node@20.19.39)(sass@1.89.2))
       happy-dom:
-        specifier: ^18.0.1
-        version: 18.0.1
+        specifier: ^21.0.4
+        version: 21.0.4
       tsup:
         specifier: ^8.3.5
         version: 8.5.1(postcss@8.5.31)(typescript@5.9.3)
@@ -954,8 +961,8 @@ importers:
         specifier: ^5.7.2
         version: 5.9.3
       vitest:
-        specifier: ^3.2.4
-        version: 3.2.4(@types/node@20.19.39)(@vitest/ui@3.2.4)(happy-dom@18.0.1)(jsdom@26.1.0)(msw@2.14.3(@types/node@20.19.39)(typescript@5.9.3))(sass@1.89.2)
+        specifier: ^3.2.7
+        version: 3.2.7(@types/node@20.19.39)(@vitest/ui@3.2.7)(happy-dom@21.0.4)(jsdom@26.1.0)(msw@2.14.3(@types/node@20.19.39)(typescript@5.9.3))(sass@1.89.2)
 
   packages/ecommerce:
     dependencies:
@@ -1010,10 +1017,10 @@ importers:
         version: 19.2.14
       '@vitejs/plugin-react':
         specifier: ^5.0.0
-        version: 5.2.0(vite@7.3.2(@types/node@20.19.39)(sass@1.89.2))
+        version: 5.2.0(vite@7.3.7(@types/node@20.19.39)(sass@1.89.2))
       happy-dom:
-        specifier: ^18.0.1
-        version: 18.0.1
+        specifier: ^21.0.4
+        version: 21.0.4
       tsup:
         specifier: ^8.3.5
         version: 8.5.1(postcss@8.5.31)(typescript@5.9.3)
@@ -1021,8 +1028,8 @@ importers:
         specifier: ^5.7.2
         version: 5.9.3
       vitest:
-        specifier: ^3.2.4
-        version: 3.2.4(@types/node@20.19.39)(@vitest/ui@3.2.4)(happy-dom@18.0.1)(jsdom@26.1.0)(msw@2.14.3(@types/node@20.19.39)(typescript@5.9.3))(sass@1.89.2)
+        specifier: ^3.2.7
+        version: 3.2.7(@types/node@20.19.39)(@vitest/ui@3.2.7)(happy-dom@21.0.4)(jsdom@26.1.0)(msw@2.14.3(@types/node@20.19.39)(typescript@5.9.3))(sass@1.89.2)
 
   packages/finance:
     dependencies:
@@ -1059,10 +1066,10 @@ importers:
         version: 19.2.14
       '@vitejs/plugin-react':
         specifier: ^5.0.0
-        version: 5.2.0(vite@7.3.2(@types/node@20.19.39)(sass@1.89.2))
+        version: 5.2.0(vite@7.3.7(@types/node@20.19.39)(sass@1.89.2))
       happy-dom:
-        specifier: ^18.0.1
-        version: 18.0.1
+        specifier: ^21.0.4
+        version: 21.0.4
       tsup:
         specifier: ^8.3.5
         version: 8.5.1(postcss@8.5.31)(typescript@5.9.3)
@@ -1070,8 +1077,8 @@ importers:
         specifier: ^5.7.2
         version: 5.9.3
       vitest:
-        specifier: ^3.2.4
-        version: 3.2.4(@types/node@20.19.39)(@vitest/ui@3.2.4)(happy-dom@18.0.1)(jsdom@26.1.0)(msw@2.14.3(@types/node@20.19.39)(typescript@5.9.3))(sass@1.89.2)
+        specifier: ^3.2.7
+        version: 3.2.7(@types/node@20.19.39)(@vitest/ui@3.2.7)(happy-dom@21.0.4)(jsdom@26.1.0)(msw@2.14.3(@types/node@20.19.39)(typescript@5.9.3))(sass@1.89.2)
 
   packages/hr:
     dependencies:
@@ -1105,10 +1112,10 @@ importers:
         version: 19.2.14
       '@vitejs/plugin-react':
         specifier: ^5.0.0
-        version: 5.2.0(vite@7.3.2(@types/node@20.19.39)(sass@1.89.2))
+        version: 5.2.0(vite@7.3.7(@types/node@20.19.39)(sass@1.89.2))
       happy-dom:
-        specifier: ^18.0.1
-        version: 18.0.1
+        specifier: ^21.0.4
+        version: 21.0.4
       tsup:
         specifier: ^8.3.5
         version: 8.5.1(postcss@8.5.31)(typescript@5.9.3)
@@ -1116,8 +1123,8 @@ importers:
         specifier: ^5.7.2
         version: 5.9.3
       vitest:
-        specifier: ^3.2.4
-        version: 3.2.4(@types/node@20.19.39)(@vitest/ui@3.2.4)(happy-dom@18.0.1)(jsdom@26.1.0)(msw@2.14.3(@types/node@20.19.39)(typescript@5.9.3))(sass@1.89.2)
+        specifier: ^3.2.7
+        version: 3.2.7(@types/node@20.19.39)(@vitest/ui@3.2.7)(happy-dom@21.0.4)(jsdom@26.1.0)(msw@2.14.3(@types/node@20.19.39)(typescript@5.9.3))(sass@1.89.2)
 
   packages/inventory:
     dependencies:
@@ -1160,10 +1167,10 @@ importers:
         version: 19.2.14
       '@vitejs/plugin-react':
         specifier: ^5.0.0
-        version: 5.2.0(vite@7.3.2(@types/node@20.19.39)(sass@1.89.2))
+        version: 5.2.0(vite@7.3.7(@types/node@20.19.39)(sass@1.89.2))
       happy-dom:
-        specifier: ^18.0.1
-        version: 18.0.1
+        specifier: ^21.0.4
+        version: 21.0.4
       tsup:
         specifier: ^8.3.5
         version: 8.5.1(postcss@8.5.31)(typescript@5.9.3)
@@ -1171,8 +1178,8 @@ importers:
         specifier: ^5.7.2
         version: 5.9.3
       vitest:
-        specifier: ^3.2.4
-        version: 3.2.4(@types/node@20.19.39)(@vitest/ui@3.2.4)(happy-dom@18.0.1)(jsdom@26.1.0)(msw@2.14.3(@types/node@20.19.39)(typescript@5.9.3))(sass@1.89.2)
+        specifier: ^3.2.7
+        version: 3.2.7(@types/node@20.19.39)(@vitest/ui@3.2.7)(happy-dom@21.0.4)(jsdom@26.1.0)(msw@2.14.3(@types/node@20.19.39)(typescript@5.9.3))(sass@1.89.2)
 
   packages/mailer-manager:
     dependencies:
@@ -1215,10 +1222,10 @@ importers:
         version: 19.2.14
       '@vitejs/plugin-react':
         specifier: ^5.0.0
-        version: 5.2.0(vite@7.3.2(@types/node@20.19.39)(sass@1.89.2))
+        version: 5.2.0(vite@7.3.7(@types/node@20.19.39)(sass@1.89.2))
       happy-dom:
-        specifier: ^18.0.1
-        version: 18.0.1
+        specifier: ^21.0.4
+        version: 21.0.4
       tsup:
         specifier: ^8.3.5
         version: 8.5.1(postcss@8.5.31)(typescript@5.9.3)
@@ -1226,14 +1233,14 @@ importers:
         specifier: ^5.7.2
         version: 5.9.3
       vitest:
-        specifier: ^3.2.4
-        version: 3.2.4(@types/node@20.19.39)(@vitest/ui@3.2.4)(happy-dom@18.0.1)(jsdom@26.1.0)(msw@2.14.3(@types/node@20.19.39)(typescript@5.9.3))(sass@1.89.2)
+        specifier: ^3.2.7
+        version: 3.2.7(@types/node@20.19.39)(@vitest/ui@3.2.7)(happy-dom@21.0.4)(jsdom@26.1.0)(msw@2.14.3(@types/node@20.19.39)(typescript@5.9.3))(sass@1.89.2)
 
   packages/page-builder:
     dependencies:
       '@hookform/resolvers':
-        specifier: ^5.0.0
-        version: 5.2.2(react-hook-form@7.58.1(react@19.1.10))
+        specifier: ^5.9.2
+        version: 5.9.2(@standard-schema/spec@1.1.0)(react-hook-form@7.58.1(react@19.1.10))(zod@4.6.7)
       '@lwm/auth':
         specifier: workspace:*
         version: link:../auth
@@ -1277,8 +1284,8 @@ importers:
         specifier: ^2.0.0
         version: 2.3.3(react@19.1.10)
       zod:
-        specifier: ^3.0.0
-        version: 3.25.76
+        specifier: ^4.6.7
+        version: 4.6.7
     devDependencies:
       '@testing-library/jest-dom':
         specifier: ^6.7.0
@@ -1291,10 +1298,10 @@ importers:
         version: 19.2.14
       '@vitejs/plugin-react':
         specifier: ^5.0.0
-        version: 5.2.0(vite@7.3.2(@types/node@20.19.39)(sass@1.89.2))
+        version: 5.2.0(vite@7.3.7(@types/node@20.19.39)(sass@1.89.2))
       happy-dom:
-        specifier: ^18.0.1
-        version: 18.0.1
+        specifier: ^21.0.4
+        version: 21.0.4
       tsup:
         specifier: ^8.3.5
         version: 8.5.1(postcss@8.5.31)(typescript@5.9.3)
@@ -1302,8 +1309,8 @@ importers:
         specifier: ^5.7.2
         version: 5.9.3
       vitest:
-        specifier: ^3.2.4
-        version: 3.2.4(@types/node@20.19.39)(@vitest/ui@3.2.4)(happy-dom@18.0.1)(jsdom@26.1.0)(msw@2.14.3(@types/node@20.19.39)(typescript@5.9.3))(sass@1.89.2)
+        specifier: ^3.2.7
+        version: 3.2.7(@types/node@20.19.39)(@vitest/ui@3.2.7)(happy-dom@21.0.4)(jsdom@26.1.0)(msw@2.14.3(@types/node@20.19.39)(typescript@5.9.3))(sass@1.89.2)
 
   packages/permissions:
     dependencies:
@@ -1337,10 +1344,10 @@ importers:
         version: 19.2.14
       '@vitejs/plugin-react':
         specifier: ^5.0.0
-        version: 5.2.0(vite@7.3.2(@types/node@20.19.39)(sass@1.89.2))
+        version: 5.2.0(vite@7.3.7(@types/node@20.19.39)(sass@1.89.2))
       happy-dom:
-        specifier: ^18.0.1
-        version: 18.0.1
+        specifier: ^21.0.4
+        version: 21.0.4
       tsup:
         specifier: ^8.3.5
         version: 8.5.1(postcss@8.5.31)(typescript@5.9.3)
@@ -1348,8 +1355,8 @@ importers:
         specifier: ^5.7.2
         version: 5.9.3
       vitest:
-        specifier: ^3.2.4
-        version: 3.2.4(@types/node@20.19.39)(@vitest/ui@3.2.4)(happy-dom@18.0.1)(jsdom@26.1.0)(msw@2.14.3(@types/node@20.19.39)(typescript@5.9.3))(sass@1.89.2)
+        specifier: ^3.2.7
+        version: 3.2.7(@types/node@20.19.39)(@vitest/ui@3.2.7)(happy-dom@21.0.4)(jsdom@26.1.0)(msw@2.14.3(@types/node@20.19.39)(typescript@5.9.3))(sass@1.89.2)
 
   packages/primitives:
     dependencies:
@@ -1423,10 +1430,10 @@ importers:
         version: 19.2.14
       '@vitejs/plugin-react':
         specifier: ^5.0.0
-        version: 5.2.0(vite@7.3.2(@types/node@20.19.39)(sass@1.89.2))
+        version: 5.2.0(vite@7.3.7(@types/node@20.19.39)(sass@1.89.2))
       happy-dom:
-        specifier: ^18.0.1
-        version: 18.0.1
+        specifier: ^21.0.4
+        version: 21.0.4
       tsup:
         specifier: ^8.3.5
         version: 8.5.1(postcss@8.5.31)(typescript@5.9.3)
@@ -1434,8 +1441,8 @@ importers:
         specifier: ^5.7.2
         version: 5.9.3
       vitest:
-        specifier: ^3.2.4
-        version: 3.2.4(@types/node@20.19.39)(@vitest/ui@3.2.4)(happy-dom@18.0.1)(jsdom@26.1.0)(msw@2.14.3(@types/node@20.19.39)(typescript@5.9.3))(sass@1.89.2)
+        specifier: ^3.2.7
+        version: 3.2.7(@types/node@20.19.39)(@vitest/ui@3.2.7)(happy-dom@21.0.4)(jsdom@26.1.0)(msw@2.14.3(@types/node@20.19.39)(typescript@5.9.3))(sass@1.89.2)
 
   packages/purchase:
     dependencies:
@@ -1472,10 +1479,10 @@ importers:
         version: 19.2.14
       '@vitejs/plugin-react':
         specifier: ^5.0.0
-        version: 5.2.0(vite@7.3.2(@types/node@20.19.39)(sass@1.89.2))
+        version: 5.2.0(vite@7.3.7(@types/node@20.19.39)(sass@1.89.2))
       happy-dom:
-        specifier: ^18.0.1
-        version: 18.0.1
+        specifier: ^21.0.4
+        version: 21.0.4
       tsup:
         specifier: ^8.3.5
         version: 8.5.1(postcss@8.5.31)(typescript@5.9.3)
@@ -1483,8 +1490,8 @@ importers:
         specifier: ^5.7.2
         version: 5.9.3
       vitest:
-        specifier: ^3.2.4
-        version: 3.2.4(@types/node@20.19.39)(@vitest/ui@3.2.4)(happy-dom@18.0.1)(jsdom@26.1.0)(msw@2.14.3(@types/node@20.19.39)(typescript@5.9.3))(sass@1.89.2)
+        specifier: ^3.2.7
+        version: 3.2.7(@types/node@20.19.39)(@vitest/ui@3.2.7)(happy-dom@21.0.4)(jsdom@26.1.0)(msw@2.14.3(@types/node@20.19.39)(typescript@5.9.3))(sass@1.89.2)
 
   packages/reports:
     dependencies:
@@ -1533,10 +1540,10 @@ importers:
         version: 19.2.14
       '@vitejs/plugin-react':
         specifier: ^5.0.0
-        version: 5.2.0(vite@7.3.2(@types/node@20.19.39)(sass@1.89.2))
+        version: 5.2.0(vite@7.3.7(@types/node@20.19.39)(sass@1.89.2))
       happy-dom:
-        specifier: ^18.0.1
-        version: 18.0.1
+        specifier: ^21.0.4
+        version: 21.0.4
       tsup:
         specifier: ^8.3.5
         version: 8.5.1(postcss@8.5.31)(typescript@5.9.3)
@@ -1544,8 +1551,8 @@ importers:
         specifier: ^5.7.2
         version: 5.9.3
       vitest:
-        specifier: ^3.2.4
-        version: 3.2.4(@types/node@20.19.39)(@vitest/ui@3.2.4)(happy-dom@18.0.1)(jsdom@26.1.0)(msw@2.14.3(@types/node@20.19.39)(typescript@5.9.3))(sass@1.89.2)
+        specifier: ^3.2.7
+        version: 3.2.7(@types/node@20.19.39)(@vitest/ui@3.2.7)(happy-dom@21.0.4)(jsdom@26.1.0)(msw@2.14.3(@types/node@20.19.39)(typescript@5.9.3))(sass@1.89.2)
 
   packages/sales:
     dependencies:
@@ -1585,10 +1592,10 @@ importers:
         version: 19.2.14
       '@vitejs/plugin-react':
         specifier: ^5.0.0
-        version: 5.2.0(vite@7.3.2(@types/node@20.19.39)(sass@1.89.2))
+        version: 5.2.0(vite@7.3.7(@types/node@20.19.39)(sass@1.89.2))
       happy-dom:
-        specifier: ^18.0.1
-        version: 18.0.1
+        specifier: ^21.0.4
+        version: 21.0.4
       tsup:
         specifier: ^8.3.5
         version: 8.5.1(postcss@8.5.31)(typescript@5.9.3)
@@ -1596,8 +1603,8 @@ importers:
         specifier: ^5.7.2
         version: 5.9.3
       vitest:
-        specifier: ^3.2.4
-        version: 3.2.4(@types/node@20.19.39)(@vitest/ui@3.2.4)(happy-dom@18.0.1)(jsdom@26.1.0)(msw@2.14.3(@types/node@20.19.39)(typescript@5.9.3))(sass@1.89.2)
+        specifier: ^3.2.7
+        version: 3.2.7(@types/node@20.19.39)(@vitest/ui@3.2.7)(happy-dom@21.0.4)(jsdom@26.1.0)(msw@2.14.3(@types/node@20.19.39)(typescript@5.9.3))(sass@1.89.2)
 
   packages/system-health:
     dependencies:
@@ -1631,10 +1638,10 @@ importers:
         version: 19.2.14
       '@vitejs/plugin-react':
         specifier: ^5.0.0
-        version: 5.2.0(vite@7.3.2(@types/node@20.19.39)(sass@1.89.2))
+        version: 5.2.0(vite@7.3.7(@types/node@20.19.39)(sass@1.89.2))
       happy-dom:
-        specifier: ^18.0.1
-        version: 18.0.1
+        specifier: ^21.0.4
+        version: 21.0.4
       tsup:
         specifier: ^8.3.5
         version: 8.5.1(postcss@8.5.31)(typescript@5.9.3)
@@ -1642,8 +1649,8 @@ importers:
         specifier: ^5.7.2
         version: 5.9.3
       vitest:
-        specifier: ^3.2.4
-        version: 3.2.4(@types/node@20.19.39)(@vitest/ui@3.2.4)(happy-dom@18.0.1)(jsdom@26.1.0)(msw@2.14.3(@types/node@20.19.39)(typescript@5.9.3))(sass@1.89.2)
+        specifier: ^3.2.7
+        version: 3.2.7(@types/node@20.19.39)(@vitest/ui@3.2.7)(happy-dom@21.0.4)(jsdom@26.1.0)(msw@2.14.3(@types/node@20.19.39)(typescript@5.9.3))(sass@1.89.2)
 
   packages/types:
     devDependencies:
@@ -1704,10 +1711,10 @@ importers:
         version: 19.2.3(@types/react@19.2.14)
       '@vitejs/plugin-react':
         specifier: ^5.0.0
-        version: 5.2.0(vite@7.3.2(@types/node@20.19.39)(sass@1.89.2))
+        version: 5.2.0(vite@7.3.7(@types/node@20.19.39)(sass@1.89.2))
       happy-dom:
-        specifier: ^18.0.1
-        version: 18.0.1
+        specifier: ^21.0.4
+        version: 21.0.4
       tsup:
         specifier: ^8.3.5
         version: 8.5.1(postcss@8.5.31)(typescript@5.9.3)
@@ -1715,8 +1722,8 @@ importers:
         specifier: ^5.7.2
         version: 5.9.3
       vitest:
-        specifier: ^3.2.4
-        version: 3.2.4(@types/node@20.19.39)(@vitest/ui@3.2.4)(happy-dom@18.0.1)(jsdom@26.1.0)(msw@2.14.3(@types/node@20.19.39)(typescript@5.9.3))(sass@1.89.2)
+        specifier: ^3.2.7
+        version: 3.2.7(@types/node@20.19.39)(@vitest/ui@3.2.7)(happy-dom@21.0.4)(jsdom@26.1.0)(msw@2.14.3(@types/node@20.19.39)(typescript@5.9.3))(sass@1.89.2)
 
 packages:
 
@@ -2127,10 +2134,83 @@ packages:
     resolution: {integrity: sha512-43/qtrDUokr7LJqoF2c3+RInu/t4zfrpYdoSDfYyhg52rwLV6TnOvdG4fXm7IkSB3wErkcmJS9iEhjVtOSEjjA==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
-  '@hookform/resolvers@5.2.2':
-    resolution: {integrity: sha512-A/IxlMLShx3KjV/HeTcTfaMxdwy690+L/ZADoeaTltLx+CVuzkeVIPuybK3jrRfw7YZnmdKsVVHAlEPIAEUNlA==}
+  '@hookform/resolvers@5.9.2':
+    resolution: {integrity: sha512-RtjTnZqsC38s4NKp2XO3fD8IA5uyN4tB7McQ5C6uiMPcV+WWO8F+wVa3e+BXUpH2ScgxghAlwFRMVqjT9WChAQ==}
     peerDependencies:
+      '@sinclair/typebox': '>=0.25.24'
+      '@standard-schema/spec': ^1.0.0
+      '@typeschema/main': '>=0.13.7'
+      '@vinejs/vine': ^2.0.0 || ^3.0.0 || ^4.0.0
+      ajv: ^8.12.0
+      ajv-errors: ^3.0.0
+      ajv-formats: ^2.1.1
+      arktype: ^2.0.0
+      ata-validator: ^1.23.0
+      class-transformer: '>=0.4.0'
+      class-validator: '>=0.12.0'
+      computed-types: ^1.0.0
+      effect: ^3.10.3
+      fluentvalidation-ts: ^3.0.0
+      fp-ts: ^2.7.0
+      io-ts: ^2.0.0
+      joi: ^17.0.0 || ^18.0.0
+      nope-validator: '>=0.12.0'
       react-hook-form: ^7.55.0
+      superstruct: '>=0.12.0'
+      typanion: ^3.3.2
+      valibot: '>=0.31.0 || ^1.0.0-beta.4 || ^1.0.0-rc'
+      vest: '>=6.0.0'
+      yup: ^1.0.0
+      zod: ^3.25.0 || ^4.0.0
+    peerDependenciesMeta:
+      '@sinclair/typebox':
+        optional: true
+      '@standard-schema/spec':
+        optional: true
+      '@typeschema/main':
+        optional: true
+      '@vinejs/vine':
+        optional: true
+      ajv:
+        optional: true
+      ajv-errors:
+        optional: true
+      ajv-formats:
+        optional: true
+      arktype:
+        optional: true
+      ata-validator:
+        optional: true
+      class-transformer:
+        optional: true
+      class-validator:
+        optional: true
+      computed-types:
+        optional: true
+      effect:
+        optional: true
+      fluentvalidation-ts:
+        optional: true
+      fp-ts:
+        optional: true
+      io-ts:
+        optional: true
+      joi:
+        optional: true
+      nope-validator:
+        optional: true
+      superstruct:
+        optional: true
+      typanion:
+        optional: true
+      valibot:
+        optional: true
+      vest:
+        optional: true
+      yup:
+        optional: true
+      zod:
+        optional: true
 
   '@humanfs/core@0.19.2':
     resolution: {integrity: sha512-UhXNm+CFMWcbChXywFwkmhqjs3PRCmcSa/hfBgLIb7oQ5HNb1wS0icWsGtSAUNgefHeI+eBrA8I1fxmbHsGdvA==}
@@ -2949,6 +3029,9 @@ packages:
   '@types/whatwg-mimetype@3.0.2':
     resolution: {integrity: sha512-c2AKvDT8ToxLIOUlN51gTiHXflsfIFisS4pO7pDPoKouJCESkhZnEy623gwP9laCy5lnLDAw1vAzu2vM2YLOrA==}
 
+  '@types/ws@8.18.2':
+    resolution: {integrity: sha512-67MQl+fpWKVTT1NYdnmo3U4sc/xPo/zQBncVnI74qmQa0z/b+1g6iYqNmGCPbxO+zz2aklb08a0oHfegiVd0/w==}
+
   '@typescript-eslint/eslint-plugin@8.59.2':
     resolution: {integrity: sha512-j/bwmkBvHUtPNxzuWe5z6BEk3q54YRyGlBXkSsmfoih7zNrBvl5A9A98anlp/7JbyZcWIJ8KXo/3Tq/DjFLtuQ==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
@@ -3115,50 +3198,50 @@ packages:
     resolution: {integrity: sha512-YmKkfhOAi3wsB1PhJq5Scj3GXMn3WvtQ/JC0xoopuHoXSdmtdStOpFrYaT1kie2YgFBcIe64ROzMYRjCrYOdYw==}
     engines: {node: ^20.19.0 || >=22.12.0}
     peerDependencies:
-      vite: ^4.2.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0
+      vite: ^7.3.7
 
-  '@vitest/coverage-v8@3.2.4':
-    resolution: {integrity: sha512-EyF9SXU6kS5Ku/U82E259WSnvg6c8KTjppUncuNdm5QHpe17mwREHnjDzozC8x9MZ0xfBUFSaLkRv4TMA75ALQ==}
+  '@vitest/coverage-v8@3.2.7':
+    resolution: {integrity: sha512-NEGWJS2XNu2PfRLQwOO3CTKj1tTETxNBdk454vDxVBhxJYhPaA/eS0nAI0c+1El1P7a60z8+i+ZrQoGESweGKg==}
     peerDependencies:
-      '@vitest/browser': 3.2.4
-      vitest: 3.2.4
+      '@vitest/browser': 3.2.7
+      vitest: 3.2.7
     peerDependenciesMeta:
       '@vitest/browser':
         optional: true
 
-  '@vitest/expect@3.2.4':
-    resolution: {integrity: sha512-Io0yyORnB6sikFlt8QW5K7slY4OjqNX9jmJQ02QDda8lyM6B5oNgVWoSoKPac8/kgnCUzuHQKrSLtu/uOqqrig==}
+  '@vitest/expect@3.2.7':
+    resolution: {integrity: sha512-E8eBXaKibuvH2pSZErOjdVb5vF4PbKYcrnluBTYxEk1l/VhhwZg1kZQsdtjq+CsF5CFydf2Rdkz7jDHKSisi3w==}
 
-  '@vitest/mocker@3.2.4':
-    resolution: {integrity: sha512-46ryTE9RZO/rfDd7pEqFl7etuyzekzEhUbTW3BvmeO/BcCMEgq59BKhek3dXDWgAj4oMK6OZi+vRr1wPW6qjEQ==}
+  '@vitest/mocker@3.2.7':
+    resolution: {integrity: sha512-Trr0hYO9CM3Wj6ksWHRhK9IZpIY6wTMO5u/MqXurMxT57sWBaOPEtP3Oq60ihZuh5JsiagKfz95OcxdEP6dBrA==}
     peerDependencies:
       msw: ^2.4.9
-      vite: ^5.0.0 || ^6.0.0 || ^7.0.0-0
+      vite: ^7.3.7
     peerDependenciesMeta:
       msw:
         optional: true
       vite:
         optional: true
 
-  '@vitest/pretty-format@3.2.4':
-    resolution: {integrity: sha512-IVNZik8IVRJRTr9fxlitMKeJeXFFFN0JaB9PHPGQ8NKQbGpfjlTx9zO4RefN8gp7eqjNy8nyK3NZmBzOPeIxtA==}
+  '@vitest/pretty-format@3.2.7':
+    resolution: {integrity: sha512-KUHlwqVu0sRlhCdyPdQ/wBoTfRahjUky1MubOmYw9fWfIZy1gNoHpuaaQBPAaMaVYdQYHJLurzj8ECCj5OwTqA==}
 
-  '@vitest/runner@3.2.4':
-    resolution: {integrity: sha512-oukfKT9Mk41LreEW09vt45f8wx7DordoWUZMYdY/cyAk7w5TWkTRCNZYF7sX7n2wB7jyGAl74OxgwhPgKaqDMQ==}
+  '@vitest/runner@3.2.7':
+    resolution: {integrity: sha512-sB9y4ovltoQP+WaUPwmSxO9WIg9Ig694Di5PalVPsYHklAdE027mehpWF2SQSVq+k6sFgaivbTjTJwZLSHbedA==}
 
-  '@vitest/snapshot@3.2.4':
-    resolution: {integrity: sha512-dEYtS7qQP2CjU27QBC5oUOxLE/v5eLkGqPE0ZKEIDGMs4vKWe7IjgLOeauHsR0D5YuuycGRO5oSRXnwnmA78fQ==}
+  '@vitest/snapshot@3.2.7':
+    resolution: {integrity: sha512-7C+MwShwtBSI5Buwoyg3s/iY1eHL9PKAf+O1wVh/TdnjXUtkoL/9YQtre90i4MtNXM6edP1wJ2zOBpfCyhIS7g==}
 
-  '@vitest/spy@3.2.4':
-    resolution: {integrity: sha512-vAfasCOe6AIK70iP5UD11Ac4siNUNJ9i/9PZ3NKx07sG6sUxeag1LWdNrMWeKKYBLlzuK+Gn65Yd5nyL6ds+nw==}
+  '@vitest/spy@3.2.7':
+    resolution: {integrity: sha512-Q2eQGI6d2L/hBtZ0qNuKcAGid68XK6cv1xsoaIma6PaJhHPoqcEJhYpXZ/5myCMqkNgtP6UKuBhbc0nHKnrkuQ==}
 
-  '@vitest/ui@3.2.4':
-    resolution: {integrity: sha512-hGISOaP18plkzbWEcP/QvtRW1xDXF2+96HbEX6byqQhAUbiS5oH6/9JwW+QsQCIYON2bI6QZBF+2PvOmrRZ9wA==}
+  '@vitest/ui@3.2.7':
+    resolution: {integrity: sha512-eVtcpJXGhS0GjMuHROfbXLhlxooyUcuip8GNzzjDD5jzafZqzanJH4W3VGmUxHNx4fv6qQGUGJHRpGUdj+9D6Q==}
     peerDependencies:
-      vitest: 3.2.4
+      vitest: 3.2.7
 
-  '@vitest/utils@3.2.4':
-    resolution: {integrity: sha512-fB2V0JFrQSMsCo9HiSq3Ezpdv4iYaXRG1Sx8edX3MwxfyNn83mKiGzOcH+Fkxt4MHxr3y42fQi1oeAInqgX2QA==}
+  '@vitest/utils@3.2.7':
+    resolution: {integrity: sha512-x6BDOd7dyo3PFLY3I9/HJ25X/6OurhGXk2/B9gOZNPF7XDVjeBK4k01lQE5uvDpbuheErh91qYuE1E2OEjK3Rw==}
 
   acorn-jsx@5.3.2:
     resolution: {integrity: sha512-rq9s+JNhf0IChjtDXxllJ7g41oZk5SlXtp0LHwyA5cejwn7vKmKp4pPri6YEePv2PU65sAsegbXtIinmDFDXgQ==}
@@ -3324,15 +3407,15 @@ packages:
     peerDependencies:
       '@popperjs/core': ^2.11.8
 
-  brace-expansion@1.1.14:
-    resolution: {integrity: sha512-MWPGfDxnyzKU7rNOW9SP/c50vi3xrmrua/+6hfPbCS2ABNWfx24vPidzvC7krjU/RTo235sV776ymlsMtGKj8g==}
+  brace-expansion@1.1.21:
+    resolution: {integrity: sha512-9zeA+KLZNNzglF2TPKRQEDyx6Yby7daAkuy8MiPzpXPsYDWi/DRM8jmwUDxokQjYqBpv5DgPiwD4h4ZZSy1Ujw==}
 
-  brace-expansion@2.1.0:
-    resolution: {integrity: sha512-TN1kCZAgdgweJhWWpgKYrQaMNHcDULHkWwQIspdtjV4Y5aurRdZpjAqn6yX3FPqTA9ngHCc4hJxMAMgGfve85w==}
+  brace-expansion@2.1.7:
+    resolution: {integrity: sha512-uZbew1NqdmPDTMJ8ah1y+b+9QEJrfkXFk3RcTQw3X0jW/xRUvFKsg1CfQdSYGdTbXZWExtU3J3ccxtnfw1Fi0g==}
 
-  brace-expansion@5.0.5:
-    resolution: {integrity: sha512-VZznLgtwhn+Mact9tfiwx64fA9erHH/MCXEUfB/0bX/6Fz6ny5EGTXYltMocqg4xFAQZtnO3DHWWXi8RiuN7cQ==}
-    engines: {node: 18 || 20 || >=22}
+  brace-expansion@5.0.12:
+    resolution: {integrity: sha512-YovQ3rzhaLMIrDjNDMkNS01tea93qhEhG5xy8f6+R0l+dw3Ki+5sCoIoI942iuLZTHWogWktgwVDhU09iNEimQ==}
+    engines: {node: 20 || >=22}
 
   braces@3.0.3:
     resolution: {integrity: sha512-yQbXgO/OSZVD2IsiLlro+7Hf6Q18EJrKSEsdoMzKePKXct3gvD8oLcOQdIzGupr5Fj+EDe8gO/lxc1BzfMpxvA==}
@@ -3342,6 +3425,10 @@ packages:
     resolution: {integrity: sha512-2TcbbiwXEq+N0kD36tykpCfyyQigUXmuwNQbnPp4Xk4PX9JOqVIKjJlIDjpH7uY6tmRGoAd+apeT1p60T8wsdA==}
     engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
     hasBin: true
+
+  buffer-image-size@0.6.4:
+    resolution: {integrity: sha512-nEh+kZOPY1w+gcCMobZ6ETUp9WfibndnosbpwB1iJk/8Gt5ZF2bhS6+B6bPYz424KtwsR6Rflc3tCz1/ghX2dQ==}
+    engines: {node: '>=4.0'}
 
   bundle-require@5.1.0:
     resolution: {integrity: sha512-3WrrOuZiyaaZPWiEt4G3+IffISVC9HYlWueJEBWED4ZH4aIAC2PnkdnuRrR94M+w6yGWn4AglWtJtBI8YqvgoA==}
@@ -3627,6 +3714,10 @@ packages:
 
   entities@6.0.1:
     resolution: {integrity: sha512-aN97NXWF6AWBTahfVOIrB/NShkzi5H7F9r1s9mD3cDj4Ko5f2qhhVoYMibXF7GlLveb/D2ioWay8lxI97Ven3g==}
+    engines: {node: '>=0.12'}
+
+  entities@7.0.1:
+    resolution: {integrity: sha512-TWrgLOFUQTH994YUyl1yT4uyavY5nNB5muff+RtWaqNVCAK408b5ZnnbNAUEWLTCpum9w6arT70i1XdQ4UeOPA==}
     engines: {node: '>=0.12'}
 
   es-abstract@1.24.2:
@@ -4023,8 +4114,8 @@ packages:
     resolution: {integrity: sha512-BBvQ/406p+4CZbTpCbVPSxfzrZrbnuWSP1ELYgyS6B+hNeKzgrdB4JczCa5VZUBQrDa9hUngm0KnexY6pJRN5Q==}
     engines: {node: ^12.22.0 || ^14.16.0 || ^16.0.0 || >=17.0.0}
 
-  happy-dom@18.0.1:
-    resolution: {integrity: sha512-qn+rKOW7KWpVTtgIUi6RVmTBZJSe2k0Db0vh1f7CWrWclkkc7/Q+FrOfkZIb2eiErLyqu5AXEzE7XthO9JVxRA==}
+  happy-dom@21.0.4:
+    resolution: {integrity: sha512-tFm+GaLBgo6o0awHnvHaNoraVo27qJ+2tZEtZ+cIa08hXbeitrxAJajLI05hsUy/2/YTKcUjQYzHe5mCcraLBw==}
     engines: {node: '>=20.0.0'}
 
   has-bigints@1.1.0:
@@ -4298,12 +4389,12 @@ packages:
   js-tokens@9.0.1:
     resolution: {integrity: sha512-mxa9E9ITFOt0ban3j6L5MpjwegGz6lBQmM1IJkWeBZGcMxto50+eWdjC/52xDbS2vy0k7vIMK0Fe2wfL9OQSpQ==}
 
-  js-yaml@3.14.2:
-    resolution: {integrity: sha512-PMSmkqxr106Xa156c2M265Z+FTrPl+oxd/rgOQy2tijQeK5TxQ43psO1ZCwhVOSdnn+RzkzlRz/eY4BgJBYVpg==}
+  js-yaml@3.15.2:
+    resolution: {integrity: sha512-6EuL879VkRA+1Cz578mKMiKvjPNEuk6+r1JaFzoSWejZmtf7xWbIyw1e3KkxlkzTIt9Taw6JBhEppG7utc1P+w==}
     hasBin: true
 
-  js-yaml@4.1.1:
-    resolution: {integrity: sha512-qQKT4zQxXl8lLwBtHMWwaTcGfFOZviOJet3Oy/xmGk2gZH677CJM9EvtfdSkgWcATZhj/55JZ0rmy3myCT5lsA==}
+  js-yaml@4.3.2:
+    resolution: {integrity: sha512-SFNOvSJ+Dgf/9An904Yx+CgSlIPCkIpao4qo51lpee25TIRejdH3rhR4EZMGoNx3/TP3O+wzWuiTFl4sqbltzA==}
     hasBin: true
 
   jsdom@26.1.0:
@@ -5332,8 +5423,8 @@ packages:
     engines: {node: ^18.0.0 || ^20.0.0 || >=22.0.0}
     hasBin: true
 
-  vite@7.3.2:
-    resolution: {integrity: sha512-Bby3NOsna2jsjfLVOHKes8sGwgl4TT0E6vvpYgnAYDIF/tie7MRaFthmKuHx1NSXjiTueXH3do80FMQgvEktRg==}
+  vite@7.3.7:
+    resolution: {integrity: sha512-AHEzTORMbi7/7aXp7w7KZ5+DCUdSeLsJz0grY8xHpc9DHdYb0vQu6DqJfm2tOw3gDExNgPgnJTXxM6syYFHaCA==}
     engines: {node: ^20.19.0 || >=22.12.0}
     hasBin: true
     peerDependencies:
@@ -5372,16 +5463,16 @@ packages:
       yaml:
         optional: true
 
-  vitest@3.2.4:
-    resolution: {integrity: sha512-LUCP5ev3GURDysTWiP47wRRUpLKMOfPh+yKTx3kVIEiu5KOMeqzpnYNsKyOoVrULivR8tLcks4+lga33Whn90A==}
+  vitest@3.2.7:
+    resolution: {integrity: sha512-KrxIJ62Fd89gfysR4WotlgZABiz2dqFPgqGzX7s+CwsqLFomRH7777ZcrOD6+WVAh7khPQP41A+BKbpcJFrdEg==}
     engines: {node: ^18.0.0 || ^20.0.0 || >=22.0.0}
     hasBin: true
     peerDependencies:
       '@edge-runtime/vm': '*'
       '@types/debug': ^4.1.12
       '@types/node': ^18.0.0 || ^20.0.0 || >=22.0.0
-      '@vitest/browser': 3.2.4
-      '@vitest/ui': 3.2.4
+      '@vitest/browser': 3.2.7
+      '@vitest/ui': 3.2.7
       happy-dom: '*'
       jsdom: '*'
     peerDependenciesMeta:
@@ -5466,8 +5557,8 @@ packages:
     resolution: {integrity: sha512-si7QWI6zUMq56bESFvagtmzMdGOtoxfR+Sez11Mobfc7tm+VkUckk9bW2UeffTGVUbOksxmSw0AA2gs8g71NCQ==}
     engines: {node: '>=12'}
 
-  ws@8.20.0:
-    resolution: {integrity: sha512-sAt8BhgNbzCtgGbt2OxmpuryO63ZoDk/sqaB/znQm94T4fCEsy/yV+7CdC1kJhOU9lboAEU7R3kquuycDoibVA==}
+  ws@8.22.0:
+    resolution: {integrity: sha512-Ydggc987+RO0AnWtZ/7Wq9FtNvcrL1b/RO0ud9mWjUPgDrsAAwQSF51sm2hm1XofbU/4jkpGEsLFsZZxU+1DOg==}
     engines: {node: '>=10.0.0'}
     peerDependencies:
       bufferutil: ^4.0.1
@@ -5504,8 +5595,8 @@ packages:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
 
-  zod@3.25.76:
-    resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
+  zod@4.6.7:
+    resolution: {integrity: sha512-g8W2D2kU6a8untc053fX1uVBKzM7yqAxW/3zwk83+6RyF2+SKOuV+c0wBDhUwzV1PaGapmZH+rmcUzPf+3CGwg==}
 
   zustand@5.0.6:
     resolution: {integrity: sha512-ihAqNeUVhe0MAD+X8M5UzqyZ9k3FFZLBTtqo6JLPwV53cbRB/mJwBI0PxcIgqhBBHlEs8G45OTDTMq3gNcLq3A==}
@@ -5779,7 +5870,7 @@ snapshots:
   '@changesets/parse@0.4.3':
     dependencies:
       '@changesets/types': 6.1.0
-      js-yaml: 4.1.1
+      js-yaml: 4.3.2
 
   '@changesets/pre@2.0.2':
     dependencies:
@@ -5964,7 +6055,7 @@ snapshots:
       globals: 14.0.0
       ignore: 5.3.2
       import-fresh: 3.3.1
-      js-yaml: 4.1.1
+      js-yaml: 4.3.2
       minimatch: 3.1.5
       strip-json-comments: 3.1.1
     transitivePeerDependencies:
@@ -5979,10 +6070,13 @@ snapshots:
       '@eslint/core': 0.17.0
       levn: 0.4.1
 
-  '@hookform/resolvers@5.2.2(react-hook-form@7.58.1(react@19.1.10))':
+  '@hookform/resolvers@5.9.2(@standard-schema/spec@1.1.0)(react-hook-form@7.58.1(react@19.1.10))(zod@4.6.7)':
     dependencies:
       '@standard-schema/utils': 0.3.0
       react-hook-form: 7.58.1(react@19.1.10)
+    optionalDependencies:
+      '@standard-schema/spec': 1.1.0
+      zod: 4.6.7
 
   '@humanfs/core@0.19.2':
     dependencies:
@@ -6641,6 +6735,10 @@ snapshots:
 
   '@types/whatwg-mimetype@3.0.2': {}
 
+  '@types/ws@8.18.2':
+    dependencies:
+      '@types/node': 20.19.39
+
   '@typescript-eslint/eslint-plugin@8.59.2(@typescript-eslint/parser@8.59.2(eslint@9.39.4)(typescript@5.9.3))(eslint@9.39.4)(typescript@5.9.3)':
     dependencies:
       '@eslint-community/regexpp': 4.12.2
@@ -6791,7 +6889,7 @@ snapshots:
   '@unrs/resolver-binding-win32-x64-msvc@1.11.1':
     optional: true
 
-  '@vitejs/plugin-react@5.2.0(vite@7.3.2(@types/node@20.19.39)(sass@1.89.2))':
+  '@vitejs/plugin-react@5.2.0(vite@7.3.7(@types/node@20.19.39)(sass@1.89.2))':
     dependencies:
       '@babel/core': 7.29.7
       '@babel/plugin-transform-react-jsx-self': 7.27.1(@babel/core@7.29.7)
@@ -6799,11 +6897,11 @@ snapshots:
       '@rolldown/pluginutils': 1.0.0-rc.3
       '@types/babel__core': 7.20.5
       react-refresh: 0.18.0
-      vite: 7.3.2(@types/node@20.19.39)(sass@1.89.2)
+      vite: 7.3.7(@types/node@20.19.39)(sass@1.89.2)
     transitivePeerDependencies:
       - supports-color
 
-  '@vitest/coverage-v8@3.2.4(vitest@3.2.4)':
+  '@vitest/coverage-v8@3.2.7(vitest@3.2.7)':
     dependencies:
       '@ampproject/remapping': 2.3.0
       '@bcoe/v8-coverage': 1.0.2
@@ -6818,61 +6916,61 @@ snapshots:
       std-env: 3.10.0
       test-exclude: 7.0.2
       tinyrainbow: 2.0.0
-      vitest: 3.2.4(@types/node@20.19.39)(@vitest/ui@3.2.4)(happy-dom@18.0.1)(jsdom@26.1.0)(msw@2.14.3(@types/node@20.19.39)(typescript@5.9.3))(sass@1.89.2)
+      vitest: 3.2.7(@types/node@20.19.39)(@vitest/ui@3.2.7)(happy-dom@21.0.4)(jsdom@26.1.0)(msw@2.14.3(@types/node@20.19.39)(typescript@5.9.3))(sass@1.89.2)
     transitivePeerDependencies:
       - supports-color
 
-  '@vitest/expect@3.2.4':
+  '@vitest/expect@3.2.7':
     dependencies:
       '@types/chai': 5.2.3
-      '@vitest/spy': 3.2.4
-      '@vitest/utils': 3.2.4
+      '@vitest/spy': 3.2.7
+      '@vitest/utils': 3.2.7
       chai: 5.3.3
       tinyrainbow: 2.0.0
 
-  '@vitest/mocker@3.2.4(msw@2.14.3(@types/node@20.19.39)(typescript@5.9.3))(vite@7.3.2(@types/node@20.19.39)(sass@1.89.2))':
+  '@vitest/mocker@3.2.7(msw@2.14.3(@types/node@20.19.39)(typescript@5.9.3))(vite@7.3.7(@types/node@20.19.39)(sass@1.89.2))':
     dependencies:
-      '@vitest/spy': 3.2.4
+      '@vitest/spy': 3.2.7
       estree-walker: 3.0.3
       magic-string: 0.30.21
     optionalDependencies:
       msw: 2.14.3(@types/node@20.19.39)(typescript@5.9.3)
-      vite: 7.3.2(@types/node@20.19.39)(sass@1.89.2)
+      vite: 7.3.7(@types/node@20.19.39)(sass@1.89.2)
 
-  '@vitest/pretty-format@3.2.4':
+  '@vitest/pretty-format@3.2.7':
     dependencies:
       tinyrainbow: 2.0.0
 
-  '@vitest/runner@3.2.4':
+  '@vitest/runner@3.2.7':
     dependencies:
-      '@vitest/utils': 3.2.4
+      '@vitest/utils': 3.2.7
       pathe: 2.0.3
       strip-literal: 3.1.0
 
-  '@vitest/snapshot@3.2.4':
+  '@vitest/snapshot@3.2.7':
     dependencies:
-      '@vitest/pretty-format': 3.2.4
+      '@vitest/pretty-format': 3.2.7
       magic-string: 0.30.21
       pathe: 2.0.3
 
-  '@vitest/spy@3.2.4':
+  '@vitest/spy@3.2.7':
     dependencies:
       tinyspy: 4.0.4
 
-  '@vitest/ui@3.2.4(vitest@3.2.4)':
+  '@vitest/ui@3.2.7(vitest@3.2.7)':
     dependencies:
-      '@vitest/utils': 3.2.4
+      '@vitest/utils': 3.2.7
       fflate: 0.8.2
       flatted: 3.4.2
       pathe: 2.0.3
       sirv: 3.0.2
       tinyglobby: 0.2.16
       tinyrainbow: 2.0.0
-      vitest: 3.2.4(@types/node@20.19.39)(@vitest/ui@3.2.4)(happy-dom@18.0.1)(jsdom@26.1.0)(msw@2.14.3(@types/node@20.19.39)(typescript@5.9.3))(sass@1.89.2)
+      vitest: 3.2.7(@types/node@20.19.39)(@vitest/ui@3.2.7)(happy-dom@21.0.4)(jsdom@26.1.0)(msw@2.14.3(@types/node@20.19.39)(typescript@5.9.3))(sass@1.89.2)
 
-  '@vitest/utils@3.2.4':
+  '@vitest/utils@3.2.7':
     dependencies:
-      '@vitest/pretty-format': 3.2.4
+      '@vitest/pretty-format': 3.2.7
       loupe: 3.2.1
       tinyrainbow: 2.0.0
 
@@ -7055,16 +7153,16 @@ snapshots:
     dependencies:
       '@popperjs/core': 2.11.8
 
-  brace-expansion@1.1.14:
+  brace-expansion@1.1.21:
     dependencies:
       balanced-match: 1.0.2
       concat-map: 0.0.1
 
-  brace-expansion@2.1.0:
+  brace-expansion@2.1.7:
     dependencies:
       balanced-match: 1.0.2
 
-  brace-expansion@5.0.5:
+  brace-expansion@5.0.12:
     dependencies:
       balanced-match: 4.0.4
 
@@ -7079,6 +7177,10 @@ snapshots:
       electron-to-chromium: 1.5.463
       node-releases: 2.0.60
       update-browserslist-db: 1.3.4(browserslist@4.29.4)
+
+  buffer-image-size@0.6.4:
+    dependencies:
+      '@types/node': 20.19.39
 
   bundle-require@5.1.0(esbuild@0.27.7):
     dependencies:
@@ -7327,6 +7429,8 @@ snapshots:
       strip-ansi: 6.0.1
 
   entities@6.0.1: {}
+
+  entities@7.0.1: {}
 
   es-abstract@1.24.2:
     dependencies:
@@ -7896,11 +8000,18 @@ snapshots:
 
   graphql@16.14.0: {}
 
-  happy-dom@18.0.1:
+  happy-dom@21.0.4:
     dependencies:
       '@types/node': 20.19.39
       '@types/whatwg-mimetype': 3.0.2
+      '@types/ws': 8.18.2
+      buffer-image-size: 0.6.4
+      entities: 7.0.1
       whatwg-mimetype: 3.0.0
+      ws: 8.22.0
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
 
   has-bigints@1.1.0: {}
 
@@ -8175,12 +8286,12 @@ snapshots:
 
   js-tokens@9.0.1: {}
 
-  js-yaml@3.14.2:
+  js-yaml@3.15.2:
     dependencies:
       argparse: 1.0.10
       esprima: 4.0.1
 
-  js-yaml@4.1.1:
+  js-yaml@4.3.2:
     dependencies:
       argparse: 2.0.1
 
@@ -8204,7 +8315,7 @@ snapshots:
       whatwg-encoding: 3.1.1
       whatwg-mimetype: 4.0.0
       whatwg-url: 14.2.0
-      ws: 8.20.0
+      ws: 8.22.0
       xml-name-validator: 5.0.0
     transitivePeerDependencies:
       - bufferutil
@@ -8293,13 +8404,13 @@ snapshots:
 
   magicast@0.3.5:
     dependencies:
-      '@babel/parser': 7.29.3
-      '@babel/types': 7.29.0
+      '@babel/parser': 7.29.9
+      '@babel/types': 7.29.8
       source-map-js: 1.2.2
 
   make-dir@4.0.0:
     dependencies:
-      semver: 7.7.4
+      semver: 7.8.5
 
   math-intrinsics@1.1.0: {}
 
@@ -8320,15 +8431,15 @@ snapshots:
 
   minimatch@10.2.5:
     dependencies:
-      brace-expansion: 5.0.5
+      brace-expansion: 5.0.12
 
   minimatch@3.1.5:
     dependencies:
-      brace-expansion: 1.1.14
+      brace-expansion: 1.1.21
 
   minimatch@9.0.9:
     dependencies:
-      brace-expansion: 2.1.0
+      brace-expansion: 2.1.7
 
   minimist@1.2.8: {}
 
@@ -8706,7 +8817,7 @@ snapshots:
   read-yaml-file@1.1.0:
     dependencies:
       graceful-fs: 4.2.11
-      js-yaml: 3.14.2
+      js-yaml: 3.15.2
       pify: 4.0.1
       strip-bom: 3.0.0
 
@@ -8862,8 +8973,7 @@ snapshots:
 
   semver@7.7.4: {}
 
-  semver@7.8.5:
-    optional: true
+  semver@7.8.5: {}
 
   set-cookie-parser@3.1.0: {}
 
@@ -9355,7 +9465,7 @@ snapshots:
       debug: 4.4.3
       es-module-lexer: 1.7.0
       pathe: 2.0.3
-      vite: 7.3.2(@types/node@20.19.39)(sass@1.89.2)
+      vite: 7.3.7(@types/node@20.19.39)(sass@1.89.2)
     transitivePeerDependencies:
       - '@types/node'
       - jiti
@@ -9370,7 +9480,7 @@ snapshots:
       - tsx
       - yaml
 
-  vite@7.3.2(@types/node@20.19.39)(sass@1.89.2):
+  vite@7.3.7(@types/node@20.19.39)(sass@1.89.2):
     dependencies:
       esbuild: 0.27.7
       fdir: 6.5.0(picomatch@4.0.4)
@@ -9383,16 +9493,16 @@ snapshots:
       fsevents: 2.3.3
       sass: 1.89.2
 
-  vitest@3.2.4(@types/node@20.19.39)(@vitest/ui@3.2.4)(happy-dom@18.0.1)(jsdom@26.1.0)(msw@2.14.3(@types/node@20.19.39)(typescript@5.9.3))(sass@1.89.2):
+  vitest@3.2.7(@types/node@20.19.39)(@vitest/ui@3.2.7)(happy-dom@21.0.4)(jsdom@26.1.0)(msw@2.14.3(@types/node@20.19.39)(typescript@5.9.3))(sass@1.89.2):
     dependencies:
       '@types/chai': 5.2.3
-      '@vitest/expect': 3.2.4
-      '@vitest/mocker': 3.2.4(msw@2.14.3(@types/node@20.19.39)(typescript@5.9.3))(vite@7.3.2(@types/node@20.19.39)(sass@1.89.2))
-      '@vitest/pretty-format': 3.2.4
-      '@vitest/runner': 3.2.4
-      '@vitest/snapshot': 3.2.4
-      '@vitest/spy': 3.2.4
-      '@vitest/utils': 3.2.4
+      '@vitest/expect': 3.2.7
+      '@vitest/mocker': 3.2.7(msw@2.14.3(@types/node@20.19.39)(typescript@5.9.3))(vite@7.3.7(@types/node@20.19.39)(sass@1.89.2))
+      '@vitest/pretty-format': 3.2.7
+      '@vitest/runner': 3.2.7
+      '@vitest/snapshot': 3.2.7
+      '@vitest/spy': 3.2.7
+      '@vitest/utils': 3.2.7
       chai: 5.3.3
       debug: 4.4.3
       expect-type: 1.3.0
@@ -9405,13 +9515,13 @@ snapshots:
       tinyglobby: 0.2.16
       tinypool: 1.1.1
       tinyrainbow: 2.0.0
-      vite: 7.3.2(@types/node@20.19.39)(sass@1.89.2)
+      vite: 7.3.7(@types/node@20.19.39)(sass@1.89.2)
       vite-node: 3.2.4(@types/node@20.19.39)(sass@1.89.2)
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@types/node': 20.19.39
-      '@vitest/ui': 3.2.4(vitest@3.2.4)
-      happy-dom: 18.0.1
+      '@vitest/ui': 3.2.7(vitest@3.2.7)
+      happy-dom: 21.0.4
       jsdom: 26.1.0
     transitivePeerDependencies:
       - jiti
@@ -9514,7 +9624,7 @@ snapshots:
       string-width: 5.1.2
       strip-ansi: 7.2.0
 
-  ws@8.20.0: {}
+  ws@8.22.0: {}
 
   xml-name-validator@5.0.0: {}
 
@@ -9538,7 +9648,7 @@ snapshots:
 
   yocto-queue@0.1.0: {}
 
-  zod@3.25.76: {}
+  zod@4.6.7: {}
 
   zustand@5.0.6(@types/react@19.2.14)(immer@11.1.7)(react@19.1.10)(use-sync-external-store@1.6.0(react@19.1.10)):
     optionalDependencies:
