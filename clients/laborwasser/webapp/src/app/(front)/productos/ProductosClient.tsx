@@ -30,7 +30,8 @@ import {
   type PublicProductsPage,
   type PublicCategorySummary,
 } from '@/modules/public-catalog'
-import { useToast } from '@/ui/hooks/useToast'
+import { toast } from '@lwm/ui'
+import { trackAddToCart, trackEvent } from '@/lib/analytics'
 import { LandingProductCard, LandingProductCardSkeleton, PorQueComprar } from '@/modules/landing'
 import { CatalogHero, CatalogSidebar, CatalogToolbar, CatalogPagination } from '@/modules/catalog'
 import styles from './productos.module.scss'
@@ -65,7 +66,6 @@ export default function ProductosClient(props: ProductosClientProps) {
 }
 
 function ProductosContent({ initialCatalog, initialCategories, initialPage, category, basePath }: ProductosClientProps) {
-  const toast = useToast()
   const router = useRouter()
   const searchParams = useSearchParams()
   const initialSearch = searchParams.get('search') || undefined
@@ -100,19 +100,21 @@ function ProductosContent({ initialCatalog, initialCategories, initialPage, cate
   const handleAddToCart = useCallback(
     (product: EnhancedPublicProduct) => {
       addToCart(product, 1)
+      trackAddToCart(product, 1)
       toast.success(`${product.displayName} agregado al carrito`)
     },
-    [addToCart, toast]
+    [addToCart]
   )
 
   const handleRequestQuote = useCallback(
     (product: EnhancedPublicProduct) => {
       addToCart(product, 1)
+      trackEvent('quote_request', { item_id: product.attributes?.sku || product.id })
       toast.info(`${product.displayName} agregado. Redirigiendo a cotización...`)
       // Dejar que React/localStorage persistan el carrito antes de navegar
       setTimeout(() => router.push('/cart?action=quote'), 50)
     },
-    [addToCart, toast, router]
+    [addToCart, router]
   )
 
   const { products, isLoading, error, viewMode, handleRefresh } = controller

@@ -99,12 +99,12 @@ export default function FoliosSettingsPage() {
             <table className="table table-hover mb-0">
               <thead className="table-light">
                 <tr>
-                  <th>Tipo de Documento</th>
+                  <th>Tipo de documento</th>
                   <th>Prefijo</th>
                   <th>Formato</th>
-                  <th>Secuencia Actual</th>
+                  <th>Secuencia actual</th>
                   <th>Próximo folio</th>
-                  <th>Reset Anual</th>
+                  <th>Reinicio anual</th>
                   <th style={{ width: '120px' }}>Acciones</th>
                 </tr>
               </thead>
@@ -122,8 +122,6 @@ export default function FoliosSettingsPage() {
                       <tr key={seq.documentType}>
                         <td className="fw-medium">
                           {DOCUMENT_TYPE_LABELS[seq.documentType] || seq.documentType}
-                          <br />
-                          <small className="text-muted">{seq.documentType}</small>
                         </td>
 
                         <td>
@@ -151,7 +149,7 @@ export default function FoliosSettingsPage() {
                                   checked={editForm.include_year ?? false}
                                   onChange={(e) => setEditForm({ ...editForm, include_year: e.target.checked })}
                                 />
-                                <span className="form-check-label" style={{ fontSize: '13px' }}>Ano</span>
+                                <span className="form-check-label" style={{ fontSize: '13px' }}>Año</span>
                               </label>
                               {editForm.include_year && (
                                 <select
@@ -160,8 +158,8 @@ export default function FoliosSettingsPage() {
                                   value={editForm.year_format || 'y'}
                                   onChange={(e) => setEditForm({ ...editForm, year_format: e.target.value })}
                                 >
-                                  <option value="y">2 dig</option>
-                                  <option value="Y">4 dig</option>
+                                  <option value="y">2 díg.</option>
+                                  <option value="Y">4 díg.</option>
                                 </select>
                               )}
                               <input
@@ -182,15 +180,15 @@ export default function FoliosSettingsPage() {
                                 onChange={(e) => setEditForm({ ...editForm, padding: parseInt(e.target.value) || 6 })}
                                 min={1}
                                 max={10}
-                                title="Padding (ceros)"
+                                title="Dígitos del consecutivo"
                               />
                             </div>
                           ) : (
                             <span style={{ fontSize: '13px' }}>
-                              {seq.includeYear ? `Ano (${seq.yearFormat === 'Y' ? '4 dig' : '2 dig'})` : 'Sin ano'}
-                              {' | Sep: "'}
-                              {seq.separator}
-                              {'" | Pad: '}
+                              {seq.includeYear ? `Año (${seq.yearFormat === 'Y' ? '4 díg.' : '2 díg.'})` : 'Sin año'}
+                              {' | Separador: '}
+                              {seq.separator ? `"${seq.separator}"` : 'ninguno'}
+                              {' | Dígitos: '}
                               {seq.padding}
                             </span>
                           )}
@@ -228,7 +226,7 @@ export default function FoliosSettingsPage() {
                             </div>
                           ) : (
                             seq.resetYearly ? (
-                              <span className="badge bg-success">Si</span>
+                              <span className="badge bg-success">Sí</span>
                             ) : (
                               <span className="badge bg-secondary">No</span>
                             )
@@ -265,12 +263,12 @@ export default function FoliosSettingsPage() {
         <div className="card-body">
           <h6 className="card-title">Ayuda</h6>
           <ul className="mb-0" style={{ fontSize: '13px' }}>
-            <li><strong>Prefijo:</strong> El texto que precede al numero (ej: COT, OV, OC, REM).</li>
-            <li><strong>Ano:</strong> Si se incluye el ano en el folio (ej: COT-26000001 vs COT-000001).</li>
-            <li><strong>Separador:</strong> Caracter entre el prefijo/ano y el numero (generalmente &quot;-&quot;).</li>
-            <li><strong>Padding:</strong> Cantidad de ceros a la izquierda del numero (6 = 000001).</li>
-            <li><strong>Secuencia Actual:</strong> Al editar, puedes cambiar el numero desde el cual se generara el proximo folio.</li>
-            <li><strong>Reset Anual:</strong> Si esta activo, la secuencia se reinicia al iniciar un nuevo ano.</li>
+            <li><strong>Prefijo:</strong> El texto que precede al número (ej.: COT, OV, OC, REM).</li>
+            <li><strong>Año:</strong> Si se incluye el año en el folio (ej.: COT-26000001 contra COT-000001).</li>
+            <li><strong>Separador:</strong> Carácter entre el prefijo o el año y el número (generalmente &quot;-&quot;).</li>
+            <li><strong>Dígitos:</strong> Largo del consecutivo, con ceros a la izquierda (6 = 000001).</li>
+            <li><strong>Secuencia actual:</strong> Al editar, puedes cambiar el número desde el cual se generará el próximo folio.</li>
+            <li><strong>Reinicio anual:</strong> Si está activo, la secuencia vuelve a empezar al iniciar un nuevo año.</li>
           </ul>
         </div>
       </div>

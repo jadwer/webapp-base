@@ -32,6 +32,7 @@ import { useAuth } from '@lwm/auth'
 import { quoteService, type Quote } from '@lwm/sales'
 import { QuoteStatusBadge, formatDateOnly } from '@lwm/sales'
 import { LandingProductCard } from '../landing/components/LandingProductCard'
+import { trackEvent } from '@/lib/analytics'
 import styles from './CartPage.module.scss'
 
 function formatMoney(n: number): string {
@@ -181,7 +182,10 @@ const MyQuotesTab: React.FC = () => {
 }
 
 const CartContent: React.FC = () => {
-  const controller = useLocalCartPageController({ checkoutUrl: '/checkout' })
+  const controller = useLocalCartPageController({
+    checkoutUrl: '/checkout',
+    onQuoteCreated: (quoteId) => trackEvent('generate_lead', { quote_id: quoteId }),
+  })
   const {
     items,
     isInitialized,

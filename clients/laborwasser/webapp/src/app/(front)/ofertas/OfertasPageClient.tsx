@@ -4,7 +4,8 @@ import React, { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useSaleProducts, useLocalCart, productPath, type EnhancedPublicProduct } from '@/modules/public-catalog'
-import { useToast } from '@/ui/hooks/useToast'
+import { toast } from '@lwm/ui'
+import { trackAddToCart } from '@/lib/analytics'
 import { Button } from '@/ui/components/base'
 import { usePublicSettings } from '@/modules/app-config'
 import { curatedOffers } from '@/modules/landing/data/curatedOffers'
@@ -17,10 +18,10 @@ export const OfertasPageClient: React.FC = () => {
   // Ofertas reales (is_on_sale), no los primeros del catalogo a $0.00.
   const { products, isLoading, error, mutate } = useSaleProducts(limit, 'unit,category,brand')
   const { addToCart } = useLocalCart()
-  const toast = useToast()
 
   const handleAddToCart = (product: EnhancedPublicProduct) => {
     addToCart(product, 1)
+    trackAddToCart(product, 1)
     toast.success(`${product.displayName} agregado al carrito`)
   }
 

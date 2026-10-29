@@ -8,6 +8,7 @@
 import Link from 'next/link'
 import { RegisterForm } from '@/modules/auth'
 import { AuthSplitLayout } from '@/modules/auth-ui'
+import { trackEvent } from '@/lib/analytics'
 
 export default function RegisterPage() {
   return (
@@ -16,7 +17,7 @@ export default function RegisterPage() {
       subtitle="Completa tus datos y comienza a disfrutar de todos nuestros servicios."
       footer={<p>¿Ya tienes una cuenta? <Link href="/auth/login">¡Inicia sesión aquí!</Link></p>}
     >
-      <RegisterForm />
+      <RegisterForm onRegistered={() => trackEvent('sign_up', { method: 'email' })} />
     </AuthSplitLayout>
   )
 }

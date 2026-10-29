@@ -1,0 +1,53 @@
+// /catalogos: misma base que /certificados (seccion, titulo, tarjetas lw-card).
+
+.section {
+  padding: 1rem 0 3rem;
+  font-family: var(--lw-font);
+}
+
+.title {
+  font-size: clamp(1.375rem, 1.1rem + 1vw, 1.75rem);
+  margin: 0 0 1rem;
+}
+
+.list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.5rem 2rem;
+
+  @media (max-width: 991.98px) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  @media (max-width: 575.98px) { grid-template-columns: minmax(0, 1fr); }
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .75rem;
+  padding: 1.25rem 1rem 1rem;
+  text-align: center;
+
+  i { font-size: 2.5rem; color: var(--brand-primary); }
+}
+
+.empty {
+  max-width: 44rem;
+  margin: 0 auto;
+  padding: 2.5rem 2rem;
+  text-align: center;
+
+  > i { font-size: 3rem; color: var(--brand-primary); }
+  p { margin: 0 0 1.75rem; }
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+
+  > * { min-height: 2.875rem; }
+}

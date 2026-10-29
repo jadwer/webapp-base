@@ -15,7 +15,8 @@ import React, { useCallback } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useLocalCart, type EnhancedPublicProduct } from '@lwm/ecommerce'
-import { useToast } from '@lwm/ui'
+import { toast } from '@lwm/ui'
+import { trackEvent } from '@/lib/analytics'
 import { usePublicSettings } from '@lwm/app-config'
 import { useLatestProductsEnhanced } from '../../hooks'
 import { LandingProductCard, LandingProductCardSkeleton } from '../LandingProductCard'
@@ -26,15 +27,15 @@ export const UltimosProductos: React.FC = () => {
   const latestCount = Number(get('landing.latest_products_count')) || 3
   const { products, isLoading, error } = useLatestProductsEnhanced({ limit: latestCount })
   const { addToCart } = useLocalCart()
-  const toast = useToast()
   const router = useRouter()
 
   const handleRequestQuote = useCallback((product: EnhancedPublicProduct) => {
     addToCart(product, 1)
+    trackEvent('quote_request', { item_id: product.attributes?.sku || product.id })
     toast.info(`${product.displayName} agregado. Redirigiendo a cotización...`)
     // Dejar que React/localStorage persistan el carrito antes de navegar
     setTimeout(() => router.push('/cart?action=quote'), 50)
-  }, [addToCart, toast, router])
+  }, [addToCart, router])
 
   return (
     <section className={styles.section} aria-labelledby="nuevos-title">

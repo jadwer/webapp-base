@@ -79,7 +79,7 @@ export default function QuoteDetailPage({ params }: PageProps) {
     })
   }
 
-  const handleAction = async (action: 'accept' | 'cancel' | 'duplicate') => {
+  const handleAction = async (action: 'accept' | 'cancel' | 'duplicate' | 'recalculate-taxes') => {
     if (!quote) return
 
     try {
@@ -97,6 +97,11 @@ export default function QuoteDetailPage({ params }: PageProps) {
           toast.success('Cotizacion duplicada')
           router.push(`/dashboard/quotes/${result.data.id}`)
           return
+        case 'recalculate-taxes': {
+          const recalculated = await mutations.recalculateTaxes.mutateAsync(quote.id)
+          toast.success(recalculated.message)
+          break
+        }
       }
       refetch()
     } catch (err) {
@@ -325,6 +330,16 @@ export default function QuoteDetailPage({ params }: PageProps) {
       label: 'Duplicar',
       icon: 'bi-copy',
       onClick: () => handleAction('duplicate')
+    },
+    {
+      key: 'recalculate-taxes',
+      label: 'Recalcular impuestos',
+      icon: 'bi-percent',
+      onClick: () => handleAction('recalculate-taxes'),
+      disabled: quote.status !== 'draft',
+      title: quote.status === 'draft'
+        ? 'Aplica a cada partida el IVA vigente del producto'
+        : 'Solo cotizaciones en borrador'
     },
     {
       key: 'export-csv',

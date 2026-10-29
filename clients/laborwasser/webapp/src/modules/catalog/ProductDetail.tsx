@@ -24,7 +24,8 @@ import {
   type EnhancedPublicProduct,
 } from '@lwm/ecommerce'
 import { useTrackProductView } from '@lwm/ecommerce'
-import { useToast } from '@lwm/ui'
+import { toast } from '@lwm/ui'
+import { trackAddToCart, trackEvent } from '@/lib/analytics'
 import { QUOTE_ONLY_LABEL, requiresQuote } from '@lwm/products/pricing'
 import { LandingProductCard } from '../landing/components/LandingProductCard'
 import { optimizedImage } from '@/lib/images'
@@ -53,7 +54,6 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, initial
   })
   const { suggestions } = useProductSuggestions(productId, 8)
   const { addToCart } = useLocalCart()
-  const toast = useToast()
   const router = useRouter()
   const [quantity, setQuantity] = useState(1)
   const [selectedImage, setSelectedImage] = useState(0)
@@ -71,20 +71,23 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, initial
   const handleAddToCart = useCallback(() => {
     if (!product) return
     addToCart(product, quantity)
+    trackAddToCart(product, quantity)
     toast.success(`${product.displayName} agregado al carrito`)
-  }, [product, quantity, addToCart, toast])
+  }, [product, quantity, addToCart])
 
   const handleQuote = useCallback(() => {
     if (!product) return
     addToCart(product, quantity)
+    trackEvent('quote_request', { item_id: product.attributes?.sku || product.id })
     toast.info(`${product.displayName} agregado. Redirigiendo a cotización...`)
     setTimeout(() => router.push('/cart?action=quote'), 50)
-  }, [product, quantity, addToCart, toast, router])
+  }, [product, quantity, addToCart, router])
 
   const handleRelatedAdd = useCallback((p: EnhancedPublicProduct) => {
     addToCart(p, 1)
+    trackAddToCart(p, 1)
     toast.success(`${p.displayName} agregado al carrito`)
-  }, [addToCart, toast])
+  }, [addToCart])
 
   if (isLoading) {
     return (

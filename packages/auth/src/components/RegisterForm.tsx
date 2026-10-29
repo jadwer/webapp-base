@@ -13,7 +13,12 @@ import { useState } from "react";
 import { StatusMessage, Input } from '@lwm/primitives';
 import styles from '../styles/LoginForm.module.scss';
 
-export function RegisterForm() {
+export interface RegisterFormProps {
+  /** Cuenta creada (el cliente la manda a su analitica). */
+  onRegistered?: () => void
+}
+
+export function RegisterForm({ onRegistered }: RegisterFormProps = {}) {
   const { register: registerUser } = useAuth({
     middleware: "guest",
     redirectIfAuthenticated: "/dashboard",
@@ -68,6 +73,7 @@ export function RegisterForm() {
         // activa (hardening 2026-09).
         setStatus("Registro exitoso. Revisa tu correo para activar tu cuenta.");
         setStatusType("success");
+        onRegistered?.();
         setTimeout(() => router.replace("/auth/login?registered=true"), 4000);
         return; // Don't re-enable form after success
       }

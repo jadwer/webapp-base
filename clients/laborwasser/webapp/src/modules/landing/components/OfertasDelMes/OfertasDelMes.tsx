@@ -13,7 +13,8 @@ import React from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useSaleProducts, useLocalCart, type EnhancedPublicProduct } from '@lwm/ecommerce'
-import { useToast } from '@lwm/ui'
+import { toast } from '@lwm/ui'
+import { trackAddToCart } from '@/lib/analytics'
 import { usePublicSettings } from '@lwm/app-config'
 import { curatedOffers as fallbackOfertas } from '../../data/curatedOffers'
 import { LandingProductCard, LandingProductCardSkeleton } from '../LandingProductCard'
@@ -25,10 +26,10 @@ export const OfertasDelMes: React.FC = () => {
 
   const { products, isLoading, error } = useSaleProducts(offersCount, 'unit,category,brand,currency')
   const { addToCart } = useLocalCart()
-  const toast = useToast()
 
   const handleAddToCart = (product: EnhancedPublicProduct) => {
     addToCart(product, 1)
+    trackAddToCart(product, 1)
     toast.success(`${product.displayName} agregado al carrito`)
   }
 

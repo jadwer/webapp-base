@@ -29,11 +29,14 @@ import { shoppingCartService, CartSyncAuthError, cartQuotePdfService } from '@lw
 export interface LocalCartPageControllerOptions {
   checkoutUrl?: string
   onCheckout?: () => void
+  /** Cotizacion creada desde el carrito (el cliente la manda a su analitica). */
+  onQuoteCreated?: (quoteId: string) => void
 }
 
 export function useLocalCartPageController({
   checkoutUrl = '/checkout',
   onCheckout,
+  onQuoteCreated,
 }: LocalCartPageControllerOptions = {}) {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -134,6 +137,7 @@ export function useLocalCartPageController({
       setShowQuoteModal(false)
       setQuoteNote('')
       toast.success('Cotización generada')
+      onQuoteCreated?.(String(response.data.id))
       // Pedido cliente 2026-09: el PDF se descarga de inmediato; si la
       // descarga falla, la cotizacion ya existe y queda en my-quotes.
       try {
@@ -149,7 +153,7 @@ export function useLocalCartPageController({
     } finally {
       setIsRequestingQuote(false)
     }
-  }, [items, isAuthenticated, quoteNote, clearCart, router])
+  }, [items, isAuthenticated, quoteNote, clearCart, router, onQuoteCreated])
 
   const handleProceedToCheckout = useCallback(async () => {
     if (items.length === 0) {

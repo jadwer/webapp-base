@@ -31,7 +31,6 @@ import styles from './certificados.module.scss'
 // certUrl = portal oficial de certificados/SDS del fabricante (restaurado
 // del sitio pre-cutover via archive.org); sin certUrl = fallback WhatsApp.
 const BRANDS: ReadonlyArray<{ slug: string; name: string; certUrl?: string }> = [
-  { slug: 'apera-labor-wasser', name: 'Apera Instruments' },
   { slug: 'avantor-labor-wasser', name: 'Avantor', certUrl: 'https://cheminfo.avantorsciences.com/store/search/searchPartnersCertSds.jsp' },
   { slug: 'band-labor-wasser', name: 'Brand', certUrl: 'https://www.brand.de/es/servicio-de-ayuda/mi-producto' },
   { slug: 'bd-labor-wasser', name: 'BD', certUrl: 'https://regdocs.bd.com/regdocs/qcinfo' },

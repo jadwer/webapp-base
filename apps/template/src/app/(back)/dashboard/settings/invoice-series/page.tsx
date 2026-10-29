@@ -40,7 +40,7 @@ export default function InvoiceSeriesSettingsPage() {
       setSeries(seriesData)
       setCompanySetting(cs)
     } catch {
-      toast.error('Error al cargar series de facturacion')
+      toast.error('Error al cargar las series de facturación')
     } finally {
       setLoading(false)
     }
@@ -52,7 +52,7 @@ export default function InvoiceSeriesSettingsPage() {
 
   const handleInitializeDefaults = async () => {
     if (!companySetting) {
-      toast.error('No se encontro configuracion fiscal activa')
+      toast.error('No se encontró una configuración fiscal activa')
       return
     }
     setInitializing(true)
@@ -73,11 +73,11 @@ export default function InvoiceSeriesSettingsPage() {
 
   const handleCreate = async () => {
     if (!companySetting) {
-      toast.error('No se encontro configuracion fiscal activa')
+      toast.error('No se encontró una configuración fiscal activa')
       return
     }
     if (!createForm.code || !createForm.name || !createForm.cfdiType) {
-      toast.error('Completa los campos requeridos: Codigo, Nombre y Tipo CFDI')
+      toast.error('Completa los campos requeridos: Código, Nombre y Tipo CFDI')
       return
     }
     setSaving(true)
@@ -157,7 +157,7 @@ export default function InvoiceSeriesSettingsPage() {
   }
 
   const handleDelete = async (id: string, code: string) => {
-    const confirmed = await confirmModalRef.current?.confirm(`Eliminar la serie "${code}"? Esta accion no se puede deshacer.`, {
+    const confirmed = await confirmModalRef.current?.confirm(`Eliminar la serie "${code}"? Esta acción no se puede deshacer.`, {
       title: 'Confirmar',
       confirmVariant: 'danger'
     })
@@ -180,7 +180,7 @@ export default function InvoiceSeriesSettingsPage() {
       <div className="container-fluid py-4">
         <div className="text-center py-5">
           <span className="spinner-border text-primary" role="status" />
-          <p className="mt-2 text-muted">Cargando series de facturacion...</p>
+          <p className="mt-2 text-muted">Cargando series de facturación...</p>
         </div>
       </div>
     )
@@ -190,14 +190,14 @@ export default function InvoiceSeriesSettingsPage() {
     <div className="container-fluid py-4">
       <div className="d-flex justify-content-between align-items-center mb-4">
         <div>
-          <h4 className="mb-1">Series de Facturacion</h4>
-          <p className="text-muted mb-0">Administra las series CFDI para facturas, notas de credito y otros comprobantes.</p>
+          <h4 className="mb-1">Series de facturación</h4>
+          <p className="text-muted mb-0">Administra las series CFDI para facturas, notas de crédito y otros comprobantes.</p>
         </div>
         <div className="d-flex gap-2">
           {series.length === 0 && (
             <button className="btn btn-outline-success" onClick={handleInitializeDefaults} disabled={initializing}>
               {initializing ? <span className="spinner-border spinner-border-sm me-1" /> : <i className="bi bi-magic me-1" />}
-              Inicializar Defaults
+              Crear series predeterminadas
             </button>
           )}
           <button className="btn btn-primary" onClick={() => setShowCreate(true)}>
@@ -210,8 +210,8 @@ export default function InvoiceSeriesSettingsPage() {
       {!companySetting && (
         <div className="alert alert-warning">
           <i className="bi bi-exclamation-triangle me-2" />
-          No se encontro una configuracion fiscal activa. Ve a{' '}
-          <a href="/dashboard/billing/settings" className="alert-link">Configuracion Fiscal</a>{' '}
+          No se encontró una configuración fiscal activa. Ve a{' '}
+          <a href="/dashboard/billing/settings" className="alert-link">Configuración fiscal</a>{' '}
           para crear una.
         </div>
       )}
@@ -220,7 +220,7 @@ export default function InvoiceSeriesSettingsPage() {
       {showCreate && (
         <div className="card mb-4 border-primary">
           <div className="card-header bg-primary text-white d-flex justify-content-between">
-            <span>Nueva Serie de Facturacion</span>
+            <span>Nueva serie de facturación</span>
             <button aria-label="Cerrar" className="btn btn-sm btn-outline-light" onClick={() => setShowCreate(false)}>
               <i className="bi bi-x" />
             </button>
@@ -228,7 +228,7 @@ export default function InvoiceSeriesSettingsPage() {
           <div className="card-body">
             <div className="row g-3">
               <div className="col-md-3">
-                <label className="form-label fw-medium">Codigo *</label>
+                <label className="form-label fw-medium">Código *</label>
                 <input
                   type="text"
                   className="form-control"
@@ -237,7 +237,7 @@ export default function InvoiceSeriesSettingsPage() {
                   placeholder="FAC"
                   maxLength={10}
                 />
-                <small className="text-muted">Solo mayusculas, numeros y guiones</small>
+                <small className="text-muted">Solo mayúsculas, números y guiones</small>
               </div>
               <div className="col-md-4">
                 <label className="form-label fw-medium">Nombre *</label>
@@ -262,7 +262,7 @@ export default function InvoiceSeriesSettingsPage() {
                 </select>
               </div>
               <div className="col-md-3">
-                <label className="form-label fw-medium">Tipo Fuente</label>
+                <label className="form-label fw-medium">Origen</label>
                 <select
                   className="form-select"
                   value={createForm.sourceType || ''}
@@ -275,7 +275,7 @@ export default function InvoiceSeriesSettingsPage() {
                 </select>
               </div>
               <div className="col-md-5">
-                <label className="form-label fw-medium">Descripcion</label>
+                <label className="form-label fw-medium">Descripción</label>
                 <input
                   type="text"
                   className="form-control"
@@ -285,7 +285,7 @@ export default function InvoiceSeriesSettingsPage() {
                 />
               </div>
               <div className="col-md-2">
-                <label className="form-label fw-medium">Folio Inicial</label>
+                <label className="form-label fw-medium">Folio inicial</label>
                 <input
                   type="number"
                   className="form-control"
@@ -295,7 +295,7 @@ export default function InvoiceSeriesSettingsPage() {
                 />
               </div>
               <div className="col-md-2">
-                <label className="form-label fw-medium">Padding</label>
+                <label className="form-label fw-medium">Dígitos del folio</label>
                 <input
                   type="number"
                   className="form-control"
@@ -324,7 +324,7 @@ export default function InvoiceSeriesSettingsPage() {
                     onChange={(e) => setCreateForm({ ...createForm, resetYearly: e.target.checked })}
                     id="create-reset"
                   />
-                  <label className="form-check-label" htmlFor="create-reset">Reset Anual</label>
+                  <label className="form-check-label" htmlFor="create-reset">Reinicio anual</label>
                 </div>
               </div>
             </div>
@@ -346,12 +346,12 @@ export default function InvoiceSeriesSettingsPage() {
             <table className="table table-hover mb-0">
               <thead className="table-light">
                 <tr>
-                  <th>Codigo</th>
+                  <th>Código</th>
                   <th>Nombre</th>
                   <th>Tipo CFDI</th>
-                  <th>Folio Actual</th>
+                  <th>Folio actual</th>
                   <th>Formato</th>
-                  <th>Fuente</th>
+                  <th>Origen</th>
                   <th>Estado</th>
                   <th style={{ width: '150px' }}>Acciones</th>
                 </tr>
@@ -360,7 +360,7 @@ export default function InvoiceSeriesSettingsPage() {
                 {series.length === 0 ? (
                   <tr>
                     <td colSpan={8} className="text-center text-muted py-4">
-                      No hay series configuradas. Usa &quot;Inicializar Defaults&quot; para crear las series estandar.
+                      No hay series configuradas. Usa &quot;Crear series predeterminadas&quot; para crear las series estándar.
                     </td>
                   </tr>
                 ) : (
@@ -370,7 +370,7 @@ export default function InvoiceSeriesSettingsPage() {
                       <tr key={s.id}>
                         <td>
                           <span className="badge bg-primary">{s.code}</span>
-                          {s.isDefault && <span className="badge bg-success ms-1" style={{ fontSize: '10px' }}>Default</span>}
+                          {s.isDefault && <span className="badge bg-success ms-1" style={{ fontSize: '10px' }}>Predeterminada</span>}
                         </td>
                         <td>
                           {isEditing ? (
@@ -417,7 +417,7 @@ export default function InvoiceSeriesSettingsPage() {
                                 onChange={(e) => setEditForm({ ...editForm, folioPadding: parseInt(e.target.value) || 6 })}
                                 min={1}
                                 max={10}
-                                title="Padding"
+                                title="Dígitos del folio"
                               />
                               <input
                                 type="text"
@@ -430,7 +430,7 @@ export default function InvoiceSeriesSettingsPage() {
                               />
                             </div>
                           ) : (
-                            <small>Pad: {s.folioPadding} | Sep: &quot;{s.separator}&quot;</small>
+                            <small>Dígitos: {s.folioPadding} | Separador: {s.separator ? `"${s.separator}"` : 'ninguno'}</small>
                           )}
                         </td>
                         <td>
@@ -514,14 +514,14 @@ export default function InvoiceSeriesSettingsPage() {
           <div className="row" style={{ fontSize: '13px' }}>
             <div className="col-md-6">
               <ul className="mb-0">
-                <li><strong>I - Ingreso:</strong> Facturas de venta (el tipo mas comun).</li>
-                <li><strong>E - Egreso:</strong> Notas de credito y devoluciones.</li>
+                <li><strong>I - Ingreso:</strong> Facturas de venta (el tipo más común).</li>
+                <li><strong>E - Egreso:</strong> Notas de crédito y devoluciones.</li>
                 <li><strong>P - Pago:</strong> Complementos de pago (parcialidades).</li>
               </ul>
             </div>
             <div className="col-md-6">
               <ul className="mb-0">
-                <li><strong>N - Nomina:</strong> Comprobantes de nomina.</li>
+                <li><strong>N - Nómina:</strong> Comprobantes de nómina.</li>
                 <li><strong>T - Traslado:</strong> Cartas porte.</li>
               </ul>
             </div>

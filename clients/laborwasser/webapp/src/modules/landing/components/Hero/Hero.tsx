@@ -21,7 +21,7 @@ import styles from './Hero.module.scss'
 const QUICK_LINKS = [
   { href: '/nosotros', icon: 'bi-people', label: 'Conoce más de nosotros' },
   { href: '/productos', icon: 'bi-book', label: 'Conoce nuestros productos' },
-  { href: '/certificados', icon: 'bi-shield-check', label: 'Conoce nuestros Certificados' },
+  { href: '/certificados', icon: 'bi-shield-check', label: 'Búsqueda de certificados y hojas de seguridad' },
 ] as const
 
 export const Hero: React.FC = () => {

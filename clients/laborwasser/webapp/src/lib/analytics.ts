@@ -7,6 +7,8 @@
  * conversiones desde la consola sin tocar codigo.
  */
 
+import type { EnhancedPublicProduct } from '@lwm/ecommerce'
+
 export type BusinessEvent =
   | 'whatsapp_click'
   | 'phone_click'
@@ -17,6 +19,11 @@ export type BusinessEvent =
   | 'certificate_click'
   | 'quote_request'
   | 'add_to_cart'
+  // Conversiones de prospecto a cliente (junta 2026-10-30): cuenta creada,
+  // cotizacion generada y pedido confirmado. Nombres recomendados de GA4.
+  | 'sign_up'
+  | 'generate_lead'
+  | 'purchase'
 
 type Gtag = (command: 'event', name: string, params?: Record<string, unknown>) => void
 
@@ -42,4 +49,14 @@ export function classifyLink(href: string, pathname = ''): BusinessEvent | null 
   if (h.endsWith('.pdf')) return 'datasheet_download'
   if (pathname.startsWith('/certificados') && /^https?:\/\//.test(h)) return 'certificate_click'
   return null
+}
+
+/** Producto agregado al carrito (o al carrito previo a cotizar). */
+export function trackAddToCart(product: EnhancedPublicProduct, quantity = 1): void {
+  const price = product.attributes?.price ?? 0
+  trackEvent('add_to_cart', {
+    currency: 'MXN',
+    value: price * quantity,
+    items: [{ item_id: product.attributes?.sku || product.id, item_name: product.displayName, price, quantity }],
+  })
 }

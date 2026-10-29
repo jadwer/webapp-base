@@ -530,6 +530,21 @@ export const quoteService = {
   },
 
   /**
+   * Recalcula el IVA de las partidas con la tasa vigente de cada producto
+   * (solo borradores; el backend rechaza otros estados con 422).
+   */
+  async recalculateTaxes(id: string): Promise<{ data: Quote; message: string }> {
+    const response = await axios.post<{ data: JsonApiResource; message: string }>(
+      `${QUOTES_BASE_URL}/${id}/recalculate-taxes`
+    )
+
+    return {
+      data: parseQuote(response.data.data),
+      message: response.data.message
+    }
+  },
+
+  /**
    * Get quotes expiring soon
    */
   async getExpiringSoon(days: number = 7): Promise<{ data: Quote[]; meta: { count: number; days: number } }> {

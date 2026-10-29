@@ -231,13 +231,13 @@ export const CFDI_TYPE_LABELS: Record<string, string> = {
   I: 'Ingreso',
   E: 'Egreso',
   P: 'Pago',
-  N: 'Nomina',
+  N: 'Nómina',
   T: 'Traslado',
 }
 
 /** Source type labels */
 export const SOURCE_TYPE_LABELS: Record<string, string> = {
   web: 'Web',
-  pos: 'Punto de Venta',
+  pos: 'Punto de venta',
   manual: 'Manual',
 }

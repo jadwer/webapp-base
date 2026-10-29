@@ -4,7 +4,6 @@ import React from 'react'
 import Image from 'next/image'
 
 const brandLogos = [
-  { id: '1', logo: '/images/laborwasser/logos/apera-labor-wasser.webp' },
   { id: '2', logo: '/images/laborwasser/logos/avantor-labor-wasser.webp' },
   { id: '3', logo: '/images/laborwasser/logos/band-labor-wasser.webp' },
   { id: '4', logo: '/images/laborwasser/logos/bd-labor-wasser.webp' },

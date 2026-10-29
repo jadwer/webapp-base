@@ -13,6 +13,7 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from '@/modules/auth'
 import { usePublicSettings } from '@/modules/app-config'
 import axiosClient from '@/lib/axiosClient'
+import { trackEvent } from '@/lib/analytics'
 
 interface SalesOrder {
   id: string
@@ -141,6 +142,31 @@ export default function OrderConfirmationPage({ params }: OrderConfirmationPageP
 
     fetchOrder()
   }, [id, authLoading, isAuthenticated])
+
+  // Conversion GA4 'purchase' una sola vez por pedido (recargar la pagina de
+  // confirmacion no la duplica).
+  useEffect(() => {
+    if (!order) return
+    const key = `lwm_ga_purchase_${order.id}`
+    try {
+      if (localStorage.getItem(key)) return
+      localStorage.setItem(key, '1')
+    } catch {
+      // Sin almacenamiento se manda igual: GA4 deduplica por transaction_id
+    }
+    trackEvent('purchase', {
+      transaction_id: order.orderNumber || order.id,
+      currency: 'MXN',
+      value: Number(order.totalAmount) || 0,
+      tax: Number(order.taxAmount) || 0,
+      items: (order.items ?? []).map((i) => ({
+        item_id: i.sku || i.productId,
+        item_name: i.productName ?? '',
+        price: Number(i.unitPrice) || 0,
+        quantity: Number(i.quantity) || 0,
+      })),
+    })
+  }, [order])
 
   const formatDate = (dateStr: string) => {
     return new Date(dateStr).toLocaleDateString('es-MX', {

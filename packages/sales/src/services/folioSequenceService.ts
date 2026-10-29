@@ -86,11 +86,12 @@ export const folioSequenceService = {
 
 /** Human-readable labels for document types */
 export const DOCUMENT_TYPE_LABELS: Record<string, string> = {
-  quote: 'Cotizacion',
-  sales_order: 'Orden de Venta',
-  purchase_order: 'Orden de Compra',
-  remission: 'Remision',
+  quote: 'Cotización',
+  sales_order: 'Orden de venta',
+  purchase_order: 'Orden de compra',
+  remission: 'Remisión',
   invoice: 'Factura',
-  invoice_online: 'Factura Web',
-  invoice_refac: 'Refacturacion',
+  invoice_online: 'Factura web',
+  invoice_refac: 'Refacturación',
+  fractionation: 'Fraccionamiento',
 }

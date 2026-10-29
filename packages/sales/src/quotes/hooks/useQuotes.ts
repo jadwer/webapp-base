@@ -216,6 +216,18 @@ export function useQuoteMutations() {
     }
   }, [invalidateQuotes])
 
+  const recalculateTaxesMutation = useCallback(async (id: string) => {
+    setIsLoading(true)
+    try {
+      const result = await quoteService.recalculateTaxes(id)
+      mutate(quoteKeys.detail(id))
+      invalidateQuotes()
+      return result
+    } finally {
+      setIsLoading(false)
+    }
+  }, [invalidateQuotes])
+
   // Return mutations with consistent interface (mutateAsync pattern)
   return {
     create: {
@@ -256,6 +268,10 @@ export function useQuoteMutations() {
     },
     duplicate: {
       mutateAsync: duplicateMutation,
+      isPending: isLoading
+    },
+    recalculateTaxes: {
+      mutateAsync: recalculateTaxesMutation,
       isPending: isLoading
     }
   }

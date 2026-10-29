@@ -4,7 +4,7 @@ import React, { Suspense, useState, useEffect, useCallback, useMemo } from 'reac
 import { useSearchParams, useRouter } from 'next/navigation'
 import { PublicCatalogTemplate, useLocalCart, usePublicCategories } from '@/modules/public-catalog'
 import type { EnhancedPublicProduct } from '@/modules/public-catalog'
-import { useToast } from '@/ui/hooks/useToast'
+import { toast } from '@lwm/ui'
 
 // Local storage key for wishlist
 const WISHLIST_KEY = 'app_wishlist'
@@ -30,7 +30,6 @@ export default function ProductosPage() {
 }
 
 function ProductosContent() {
-  const toast = useToast()
   const router = useRouter()
   // Conteos reales del backend: derivarlos de la pagina cargada los topa en
   // 100 (AlphaLab mostraba "Grado Reactivo (100)" con 328 productos).
@@ -71,7 +70,7 @@ function ProductosContent() {
   const handleAddToCart = useCallback((product: EnhancedPublicProduct) => {
     addToCart(product, 1)
     toast.success(`${product.displayName} agregado al carrito`)
-  }, [addToCart, toast])
+  }, [addToCart])
 
   const handleAddToWishlist = useCallback((product: EnhancedPublicProduct) => {
     const productId = parseInt(product.id)
@@ -93,14 +92,14 @@ function ProductosContent() {
 
       return updated
     })
-  }, [toast])
+  }, [])
 
   const handleRequestQuote = useCallback((product: EnhancedPublicProduct) => {
     addToCart(product, 1)
     toast.info(`${product.displayName} agregado. Redirigiendo a cotización...`)
     // Use setTimeout to let React flush the state update + localStorage save
     setTimeout(() => router.push('/cart?action=quote'), 50)
-  }, [addToCart, toast, router])
+  }, [addToCart, router])
 
   return (
     <div className="container-fluid py-4">
