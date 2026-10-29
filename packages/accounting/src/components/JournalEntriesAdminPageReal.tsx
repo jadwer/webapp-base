@@ -6,12 +6,12 @@
 
 'use client'
 
-import React, { useState } from 'react'
-import { useJournalEntries } from '../hooks'
+import React, { useRef, useState } from 'react'
+import { useJournalEntries, useJournalEntryMutations } from '../hooks'
 import { JournalEntriesTableSimple } from './JournalEntriesTableSimple'
 import { FilterBar } from './FilterBar'
 import { PaginationSimple } from './PaginationSimple'
-import { Button, Alert, useNavigationProgress } from '@lwm/ui'
+import { Button, Alert, ConfirmModal, toast, useNavigationProgress, type ConfirmModalHandle } from '@lwm/ui'
 
 export const JournalEntriesAdminPageReal = () => {
   const [searchTerm, setSearchTerm] = useState('')
@@ -26,7 +26,7 @@ export const JournalEntriesAdminPageReal = () => {
   if (statusFilter) filters.status = statusFilter
 
   // Hooks with real backend pagination - Fix JSON:API format
-  const { journalEntries, isLoading, error } = useJournalEntries({
+  const { journalEntries, isLoading, error, mutate } = useJournalEntries({
     filters: Object.keys(filters).length > 0 ? filters : undefined,
     pagination: { page: currentPage, size: pageSize },
     include: ['journalLines']
@@ -57,6 +57,28 @@ export const JournalEntriesAdminPageReal = () => {
 
   const handleEditClick = (id: string) => {
     navigation.push(`/dashboard/accounting/journal-entries/${id}/edit`)
+  }
+
+  const confirmModalRef = useRef<ConfirmModalHandle>(null)
+  const { postJournalEntry } = useJournalEntryMutations()
+
+  // Contabiliza por la accion del backend, que valida cuadre, periodo abierto
+  // y cuentas y asigna folio; el error del backend se muestra tal cual.
+  const handlePostClick = async (id: string) => {
+    const confirmed = await confirmModalRef.current?.confirm(
+      'Una vez contabilizado, el asiento ya no se puede editar; solo revertir.',
+      { title: 'Contabilizar asiento', confirmText: 'Contabilizar', confirmVariant: 'success' }
+    )
+    if (!confirmed) return
+
+    try {
+      await postJournalEntry(id)
+      await mutate()
+      toast.success('Asiento contabilizado')
+    } catch (err) {
+      const message = (err as { response?: { data?: { error?: string } } })?.response?.data?.error
+      toast.error(message || 'No se pudo contabilizar el asiento')
+    }
   }
 
   if (error) {
@@ -163,8 +185,10 @@ export const JournalEntriesAdminPageReal = () => {
           isLoading={isLoading}
           onView={handleViewClick}
           onEdit={handleEditClick}
+          onPost={handlePostClick}
         />
       </div>
+      <ConfirmModal ref={confirmModalRef} />
 
       {/* Pagination */}
       {journalEntries && journalEntries.length > 0 && (

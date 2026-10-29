@@ -222,15 +222,16 @@ export default function CreateARInvoicePage() {
                     <label htmlFor="status" className="form-label">
                       Estado
                     </label>
-                    <select
-                      className="form-select"
+                    <input
+                      type="text"
+                      className="form-control"
                       id="status"
-                      value={formData.status}
-                      onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value as 'draft' | 'posted' | 'paid' }))}
-                    >
-                      <option value="draft">Borrador</option>
-                      <option value="posted">Contabilizada</option>
-                    </select>
+                      value="Borrador"
+                      readOnly
+                    />
+                    <div className="form-text">
+                      La factura se guarda en borrador; la contabilizacion la hace el sistema con su poliza.
+                    </div>
                   </div>
                 </div>
                 

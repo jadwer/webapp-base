@@ -15,13 +15,15 @@ interface JournalEntriesTableSimpleProps {
   isLoading?: boolean
   onView?: (id: string) => void
   onEdit?: (id: string) => void
+  onPost?: (id: string) => void
 }
 
 export const JournalEntriesTableSimple = ({
   journalEntries = [],
   isLoading = false,
   onView,
-  onEdit
+  onEdit,
+  onPost
 }: JournalEntriesTableSimpleProps) => {
   const formatDate = (dateString?: string) => {
     if (!dateString) return '-'
@@ -208,12 +210,12 @@ export const JournalEntriesTableSimple = ({
                         <i className="bi bi-pencil"></i>
                       </button>
                     )}
-                    {entry.status === 'draft' && balanced && onView && (
+                    {entry.status === 'draft' && balanced && onPost && (
                       <button
                         aria-label="Contabilizar asiento"
                         type="button"
                         className="btn btn-outline-success"
-                        onClick={() => onView(entry.id)}
+                        onClick={() => onPost(entry.id)}
                         title="Contabilizar asiento"
                       >
                         <i className="bi bi-check-circle"></i>
