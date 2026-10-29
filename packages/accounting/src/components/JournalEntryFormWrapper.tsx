@@ -4,7 +4,7 @@ import React from 'react'
 import { useRouter } from 'next/navigation'
 import { JournalEntryForm } from './JournalEntryForm'
 import { useJournalEntry, useJournalEntryMutations } from '../hooks'
-import { toast, Alert } from '@lwm/ui'
+import { toast, Alert, getApiErrorMessage } from '@lwm/ui'
 import type { JournalEntryWithLines } from '../types'
 
 interface JournalEntryFormWrapperProps {
@@ -20,20 +20,25 @@ export const JournalEntryFormWrapper: React.FC<JournalEntryFormWrapperProps> = (
 }) => {
   const router = useRouter()
   const { journalEntry, isLoading: journalEntryLoading, error: journalEntryError } = useJournalEntry(journalEntryId || null)
-  const { createJournalEntryWithLines } = useJournalEntryMutations()
+  const { createJournalEntryWithLines, updateJournalEntryWithLines } = useJournalEntryMutations()
 
   const handleSubmit = async (formData: JournalEntryWithLines) => {
     try {
-      await createJournalEntryWithLines(formData)
-      toast.success('Póliza creada exitosamente')
+      if (journalEntryId) {
+        await updateJournalEntryWithLines(journalEntryId, formData)
+        toast.success('Póliza actualizada')
+      } else {
+        await createJournalEntryWithLines(formData)
+        toast.success('Póliza creada exitosamente')
+      }
 
       if (onSuccess) {
         onSuccess()
       } else {
         router.push('/dashboard/accounting/journal-entries')
       }
-    } catch {
-      toast.error('Error al crear la póliza')
+    } catch (error) {
+      toast.error(getApiErrorMessage(error, journalEntryId ? 'No se pudo actualizar la póliza' : 'No se pudo crear la póliza'))
     }
   }
 

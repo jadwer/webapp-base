@@ -214,6 +214,32 @@ export const journalEntryService = {
     return journalEntriesService.getWithLines(entryResult.data.id);
   },
 
+  // Editar un borrador: encabezado y reemplazo de lineas. Antes la edicion
+  // llamaba a createWithLines y duplicaba la poliza. El backend rechaza
+  // tocar lineas de una poliza contabilizada.
+  async updateWithLines(id: string, data: JournalEntryWithLines): Promise<{ data: JournalEntry }> {
+    const { lines, ...entryData } = data;
+    await journalEntriesService.update(id, entryData);
+
+    const current = await journalLinesService.getByJournalEntry(id);
+    await Promise.all((current.data || []).map(line => journalLinesService.delete(String(line.id))));
+
+    await Promise.all(lines.map(line =>
+      journalLinesService.create({
+        journalEntryId: String(id),
+        accountId: String(line.accountId),
+        debit: String(line.debit),
+        credit: String(line.credit),
+        ...('contactId' in line && line.contactId != null ? { contactId: line.contactId } : {}),
+        description: 'description' in line && line.description != null
+          ? String(line.description)
+          : ('memo' in line ? line.memo : undefined),
+      })
+    ));
+
+    return journalEntriesService.getWithLines(id);
+  },
+
   // Validate that debits equal credits
   validateBalance(lines: JournalLineForm[]): { isValid: boolean; totalDebit: number; totalCredit: number; difference: number } {
     const totalDebit = lines.reduce((sum, line) => sum + (parseFloat(line.debit) || 0), 0);

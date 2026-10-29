@@ -171,6 +171,13 @@ export function useJournalEntryMutations() {
     return result;
   };
 
+  const updateJournalEntryWithLines = async (id: string, data: JournalEntryWithLines) => {
+    const result = await journalEntryService.updateWithLines(id, data);
+    mutate(`/api/v1/journal-entries/${id}`);
+    mutate('/api/v1/journal-entries');
+    return result;
+  };
+
   const updateJournalEntry = async (id: string, data: Partial<JournalEntryFormData>) => {
     const result = await journalEntriesService.update(id, data);
     mutate(`/api/v1/journal-entries/${id}`);
@@ -193,6 +200,7 @@ export function useJournalEntryMutations() {
   return {
     createJournalEntry,
     createJournalEntryWithLines,
+    updateJournalEntryWithLines,
     updateJournalEntry,
     deleteJournalEntry,
     postJournalEntry,

@@ -160,6 +160,41 @@ describe('Journal Lines Service', () => {
     })
   })
 
+  describe('journalEntryService.updateWithLines', () => {
+    it('edita el borrador sin crear otra poliza y reemplaza sus lineas', async () => {
+      mockAxios.patch.mockResolvedValue({ data: { data: { id: '50' } } })
+      mockAxios.get.mockImplementation((url: string) =>
+        Promise.resolve({
+          data: url === '/api/v1/journal-lines'
+            ? { data: [createMockJournalLine({ id: '901' }), createMockJournalLine({ id: '902' })] }
+            : { data: { id: '50', type: 'journal-entries', attributes: {} } },
+        })
+      )
+      mockAxios.delete.mockResolvedValue({})
+      mockAxios.post.mockResolvedValue({ data: { data: createMockJournalLine() } })
+
+      await journalEntryService.updateWithLines('50', {
+        date: '2026-10-08',
+        description: 'Asiento corregido',
+        lines: [
+          { accountId: 5, debit: 100, credit: 0, description: 'Cargo' },
+          { accountId: 6, debit: 0, credit: 100, description: 'Abono' },
+        ],
+      } as never)
+
+      expect(mockAxios.post.mock.calls.filter(([url]) => url === '/api/v1/journal-entries')).toHaveLength(0)
+      expect(mockAxios.patch).toHaveBeenCalledWith('/api/v1/journal-entries/50', expect.objectContaining({
+        data: expect.objectContaining({ attributes: { date: '2026-10-08', description: 'Asiento corregido' } }),
+      }))
+      expect(mockAxios.delete.mock.calls.map(([url]) => url).sort()).toEqual([
+        '/api/v1/journal-lines/901', '/api/v1/journal-lines/902',
+      ])
+      const lineCalls = mockAxios.post.mock.calls.filter(([url]) => url === '/api/v1/journal-lines')
+      expect(lineCalls).toHaveLength(2)
+      expect(lineCalls[0][1].data.attributes.journalEntryId).toBe(50)
+    })
+  })
+
   describe('update', () => {
     it('should update existing journal line', async () => {
       // Arrange

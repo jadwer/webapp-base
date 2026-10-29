@@ -141,8 +141,6 @@ export const JournalEntryForm: React.FC<JournalEntryFormProps> = ({
       date: formData.date,
       description: formData.description.trim(),
       ...(formData.reference && { reference: formData.reference.trim() }),
-      ...(formData.currency && { currency: formData.currency }),
-      ...(formData.exchangeRate && { exchangeRate: formData.exchangeRate }),
       lines: validLines
     }
 
