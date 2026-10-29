@@ -9,14 +9,14 @@ import type { EnhancedPublicProduct } from '../../types/publicProduct'
 
 vi.mock('next/image', () => ({
   // eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text
-  default: (props: { src: string; alt: string }) => <img src={props.src} alt={props.alt} />,
+  default: (props: { src: string; alt: string; onError?: () => void }) => <img src={props.src} alt={props.alt} onError={props.onError} />,
 }))
 vi.mock('@lwm/app-config', () => ({ usePublicSettings: () => ({ pricesIncludeTax: false }) }))
 
 import { PublicProductCard } from '../../components/PublicProductCard'
 import { enhancePublicProduct } from '../../services/publicProductsTransform'
 
-function product(pricingType: 'fixed' | 'quote_only', price: number | null): EnhancedPublicProduct {
+function product(pricingType: 'fixed' | 'quote_only', price: number | null, imageUrl: string | null = null): EnhancedPublicProduct {
   return enhancePublicProduct({
     id: '9',
     type: 'public-products',
@@ -24,7 +24,7 @@ function product(pricingType: 'fixed' | 'quote_only', price: number | null): Enh
       name: 'Alcohol isopropilico', sku: 'GR-9', description: null, fullDescription: null,
       price, pricingType, cost: null, compareAtPrice: null, isOnSale: false, saleStartsAt: null,
       saleEndsAt: null, saleBadge: null, iva: true, imgPath: null, datasheetPath: null,
-      imageUrl: null, datasheetUrl: null, createdAt: '', updatedAt: '',
+      imageUrl, datasheetUrl: null, createdAt: '', updatedAt: '',
     },
     relationships: { unit: { data: null }, category: { data: null }, brand: { data: null } },
   })
@@ -50,5 +50,15 @@ describe('PublicProductCard precio sujeto a cotización', () => {
     expect(screen.queryByTestId('quote-only-badge')).not.toBeInTheDocument()
     expect(screen.getByText('Agregar')).toBeInTheDocument()
     expect(screen.getByText('Cotizar')).toBeInTheDocument()
+  })
+})
+
+describe('PublicProductCard imagen que no carga', () => {
+  it('cambia al placeholder en lugar de dejar la imagen rota', () => {
+    render(<PublicProductCard product={product('fixed', 120, 'https://erpapi.test/storage/products/.webp')} onAddToCart={vi.fn()} onRequestQuote={vi.fn()} />)
+    const img = screen.getByAltText('Alcohol isopropilico')
+    fireEvent.error(img)
+    expect(screen.queryByAltText('Alcohol isopropilico')).not.toBeInTheDocument()
+    expect(document.querySelector('.bi-image')).toBeInTheDocument()
   })
 })

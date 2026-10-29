@@ -12,6 +12,8 @@ import { curatedOffers } from '@/modules/landing/data/curatedOffers'
 export const OfertasPageClient: React.FC = () => {
   const { get } = usePublicSettings()
   const [limit, setLimit] = useState(12)
+  // Archivos que no cargan (dato legado): caen al placeholder.
+  const [failedImages, setFailedImages] = useState<ReadonlySet<string>>(() => new Set())
   // Ofertas reales (is_on_sale), no los primeros del catalogo a $0.00.
   const { products, isLoading, error, mutate } = useSaleProducts(limit, 'unit,category,brand')
   const { addToCart } = useLocalCart()
@@ -114,13 +116,14 @@ export const OfertasPageClient: React.FC = () => {
                   {/* Product Image */}
                   <Link href={productPath(product)}>
                     <div className="position-relative" style={{ height: '200px' }}>
-                      {product.attributes.imageUrl ? (
+                      {product.attributes.imageUrl && !failedImages.has(product.attributes.imageUrl) ? (
                         <Image
                           src={product.attributes.imageUrl}
                           alt={product.displayName}
                           fill
                           className="card-img-top object-fit-contain p-2"
                           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                          onError={() => setFailedImages((prev) => new Set(prev).add(product.attributes.imageUrl as string))}
                         />
                       ) : (
                         <div className="d-flex align-items-center justify-content-center h-100 bg-light">

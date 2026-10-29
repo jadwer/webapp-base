@@ -57,6 +57,13 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, initial
   const router = useRouter()
   const [quantity, setQuantity] = useState(1)
   const [selectedImage, setSelectedImage] = useState(0)
+  // Imagenes cuyo archivo no carga (dato legado): salen de la galeria y la
+  // ficha cae al placeholder en lugar del icono roto del navegador.
+  const [brokenImages, setBrokenImages] = useState<ReadonlySet<string>>(() => new Set())
+  const markBroken = useCallback((key: string) => {
+    setBrokenImages((prev) => (prev.has(key) ? prev : new Set(prev).add(key)))
+    setSelectedImage(0)
+  }, [])
 
   // Contador de vistas (mismo endpoint de siempre)
   useTrackProductView(productId)
@@ -101,10 +108,15 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, initial
   }
 
   const price = formatDetailPrice(product)
-  const gallery = product.galleryImages || []
+  const gallery = (product.galleryImages || []).filter(
+    (img) => img.attributes.imageUrl && !brokenImages.has(img.attributes.imageUrl),
+  )
+  const fallbackImage = product.attributes.imageUrl && !brokenImages.has(product.attributes.imageUrl)
+    ? product.attributes.imageUrl
+    : null
   const mainImage = gallery.length > 0
-    ? gallery[selectedImage]?.attributes.imageUrl || product.attributes.imageUrl
-    : product.attributes.imageUrl
+    ? gallery[selectedImage]?.attributes.imageUrl || fallbackImage
+    : fallbackImage
   // Texto alternativo capturado en la galeria; si no hay, el nombre del producto
   const mainImageAlt = gallery[selectedImage]?.attributes.altText || product.displayName
   const category = product.category
@@ -143,7 +155,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, initial
               )}
               {mainImage ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={optimizedImage(mainImage, 1080) ?? mainImage} alt={mainImageAlt} className={styles.image} fetchPriority="high" decoding="async" />
+                <img key={mainImage} src={optimizedImage(mainImage, 1080) ?? mainImage} alt={mainImageAlt} className={styles.image} fetchPriority="high" decoding="async" onError={() => markBroken(mainImage)} />
               ) : (
                 <div className={styles.placeholder}><i className="bi bi-box-seam" aria-hidden="true" /></div>
               )}
@@ -159,7 +171,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, initial
                     aria-pressed={i === selectedImage}
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={img.attributes.imageUrl || ''} alt={img.attributes.altText || `${product.displayName}, imagen ${i + 1}`} />
+                    <img src={img.attributes.imageUrl || ''} alt={img.attributes.altText || `${product.displayName}, imagen ${i + 1}`} onError={() => markBroken(img.attributes.imageUrl || '')} />
                   </button>
                 ))}
               </div>

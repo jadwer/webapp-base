@@ -44,71 +44,75 @@ const CartItemRow: React.FC<{
   onToggle: () => void
   onQuantity: (q: number) => void
   onRemove: () => void
-}> = ({ item, checked, onToggle, onQuantity, onRemove }) => (
-  <div className={`lw-card ${styles.itemRow}`}>
-    <input
-      type="checkbox"
-      className={`form-check-input ${styles.itemCheck}`}
-      checked={checked}
-      onChange={onToggle}
-      aria-label={`Seleccionar ${item.name}`}
-    />
-    <div className={styles.itemMedia}>
-      {item.imageUrl ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={item.imageUrl} alt={item.name} />
-      ) : (
-        <i className="bi bi-box-seam" aria-hidden="true" />
-      )}
+}> = ({ item, checked, onToggle, onQuantity, onRemove }) => {
+  // Archivo que no carga (dato legado): cae al placeholder.
+  const [imageFailed, setImageFailed] = useState(false)
+  return (
+    <div className={`lw-card ${styles.itemRow}`}>
+      <input
+        type="checkbox"
+        className={`form-check-input ${styles.itemCheck}`}
+        checked={checked}
+        onChange={onToggle}
+        aria-label={`Seleccionar ${item.name}`}
+      />
+      <div className={styles.itemMedia}>
+        {item.imageUrl && !imageFailed ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={item.imageUrl} alt={item.name} onError={() => setImageFailed(true)} />
+        ) : (
+          <i className="bi bi-box-seam" aria-hidden="true" />
+        )}
+      </div>
+      <div className={styles.itemInfo}>
+        <h3 className={styles.itemName}>
+          <Link href={`/productos/${item.productId}`}>{item.name}</Link>
+        </h3>
+        <p className={styles.itemMeta}>
+          {item.categoryName && <span>{item.categoryName}</span>}
+          {item.sku && <span>SKU: {item.sku}</span>}
+          {item.brandName && <span>Marca: {item.brandName}</span>}
+        </p>
+        <label className={styles.itemQty}>
+          <span>Cantidad:</span>
+          {/* Cantidad libre (pedido cliente 2026-09): el stock se valida al
+              comprar, no al capturar. */}
+          <input
+            type="number"
+            inputMode="numeric"
+            min={1}
+            step={1}
+            value={item.quantity}
+            onChange={(e) => onQuantity(Math.max(1, Math.floor(Number(e.target.value)) || 1))}
+          />
+        </label>
+      </div>
+      <div className={styles.itemPriceCol}>
+        {isPendingPriceItem(item) ? (
+          <>
+            {/* P2 granel: precio sujeto a cotizacion, no suma al total */}
+            <span className="badge bg-info text-dark" data-testid="cart-item-quote-only">
+              <i className="bi bi-chat-square-quote me-1" aria-hidden="true" />
+              {QUOTE_ONLY_SHORT_LABEL}
+            </span>
+            <span className={styles.itemPriceMeta}>Precio por confirmar</span>
+          </>
+        ) : (
+          <>
+            <span className={styles.itemPrice}>{formatMoney(item.price * item.quantity)}</span>
+            <span className={styles.itemPriceMeta}>
+              {/* Unidad real del producto (un granel no se vende por pieza) */}
+              MXN{item.unitName ? `/${item.unitName}` : ''} {item.iva ? '+ IVA' : 'IVA 0%'}
+            </span>
+          </>
+        )}
+        <button type="button" className={styles.itemRemove} onClick={onRemove} aria-label={`Quitar ${item.name}`}>
+          <i className="bi bi-trash" aria-hidden="true" />
+        </button>
+      </div>
     </div>
-    <div className={styles.itemInfo}>
-      <h3 className={styles.itemName}>
-        <Link href={`/productos/${item.productId}`}>{item.name}</Link>
-      </h3>
-      <p className={styles.itemMeta}>
-        {item.categoryName && <span>{item.categoryName}</span>}
-        {item.sku && <span>SKU: {item.sku}</span>}
-        {item.brandName && <span>Marca: {item.brandName}</span>}
-      </p>
-      <label className={styles.itemQty}>
-        <span>Cantidad:</span>
-        {/* Cantidad libre (pedido cliente 2026-09): el stock se valida al
-            comprar, no al capturar. */}
-        <input
-          type="number"
-          inputMode="numeric"
-          min={1}
-          step={1}
-          value={item.quantity}
-          onChange={(e) => onQuantity(Math.max(1, Math.floor(Number(e.target.value)) || 1))}
-        />
-      </label>
-    </div>
-    <div className={styles.itemPriceCol}>
-      {isPendingPriceItem(item) ? (
-        <>
-          {/* P2 granel: precio sujeto a cotizacion, no suma al total */}
-          <span className="badge bg-info text-dark" data-testid="cart-item-quote-only">
-            <i className="bi bi-chat-square-quote me-1" aria-hidden="true" />
-            {QUOTE_ONLY_SHORT_LABEL}
-          </span>
-          <span className={styles.itemPriceMeta}>Precio por confirmar</span>
-        </>
-      ) : (
-        <>
-          <span className={styles.itemPrice}>{formatMoney(item.price * item.quantity)}</span>
-          <span className={styles.itemPriceMeta}>
-            {/* Unidad real del producto (un granel no se vende por pieza) */}
-            MXN{item.unitName ? `/${item.unitName}` : ''} {item.iva ? '+ IVA' : 'IVA 0%'}
-          </span>
-        </>
-      )}
-      <button type="button" className={styles.itemRemove} onClick={onRemove} aria-label={`Quitar ${item.name}`}>
-        <i className="bi bi-trash" aria-hidden="true" />
-      </button>
-    </div>
-  </div>
-)
+  )
+}
 
 const MyQuotesTab: React.FC = () => {
   const { user, isAuthenticated } = useAuth()

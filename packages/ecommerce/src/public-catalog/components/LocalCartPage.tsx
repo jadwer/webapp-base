@@ -6,7 +6,7 @@
 
 'use client'
 
-import React from 'react'
+import React, { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Button, Modal } from '@lwm/ui'
@@ -29,6 +29,8 @@ export const LocalCartPage: React.FC<LocalCartPageProps> = ({
   continueShoppingUrl = '/productos'
 }) => {
   const { pricesIncludeTax } = usePublicSettings()
+  // Archivos que no cargan (dato legado): caen al placeholder.
+  const [failedImages, setFailedImages] = useState<ReadonlySet<string>>(() => new Set())
 
   // Motor headless compartido (misma logica de siempre); las pieles por
   // tenant consumen este mismo hook. Ver useLocalCartPageController.
@@ -110,13 +112,14 @@ export const LocalCartPage: React.FC<LocalCartPageProps> = ({
           {/* Product Image */}
           <div className="col-3 col-md-1">
             <div className="ratio ratio-1x1 bg-light rounded overflow-hidden">
-              {item.imageUrl ? (
+              {item.imageUrl && !failedImages.has(item.imageUrl) ? (
                 <Image
                   src={item.imageUrl}
                   alt={item.name}
                   fill
                   className="object-fit-cover"
                   sizes="100px"
+                  onError={() => setFailedImages((prev) => new Set(prev).add(item.imageUrl as string))}
                 />
               ) : (
                 <div className="d-flex align-items-center justify-content-center h-100">

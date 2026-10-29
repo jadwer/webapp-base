@@ -6,7 +6,7 @@
 
 'use client'
 
-import React from 'react'
+import React, { useState } from 'react'
 import Image from 'next/image'
 import { Button } from '@lwm/ui'
 import { usePublicSettings } from '@lwm/app-config'
@@ -101,16 +101,20 @@ export const PublicProductCard: React.FC<PublicProductCardProps> = ({
     }
   }
 
+  // Archivo que no carga (dato legado): mismo placeholder que sin imagen.
+  const [imageFailed, setImageFailed] = useState(false)
+
   // Render product image
   const renderImage = () => (
     <div className={imageSizeClasses[imageSize]}>
-      {product.attributes.imageUrl ? (
+      {product.attributes.imageUrl && !imageFailed ? (
         <Image
           src={product.attributes.imageUrl}
           alt={product.attributes.name}
           fill
           className="card-img-top object-fit-cover"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          onError={() => setImageFailed(true)}
         />
       ) : (
         <div className="card-img-top d-flex align-items-center justify-content-center bg-light">
