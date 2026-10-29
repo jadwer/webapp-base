@@ -9,7 +9,7 @@
  */
 
 import React from 'react'
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest'
 import { renderHook, waitFor } from '@testing-library/react'
 import { SWRConfig } from 'swr'
 import { usePublicProducts } from '../../hooks/usePublicProducts'
@@ -21,7 +21,7 @@ vi.mock('../../services/publicProductsService', () => ({
   publicProductsService: { getPublicProducts: vi.fn() },
 }))
 
-const mockGet = publicProductsService.getPublicProducts as unknown as ReturnType<typeof vi.fn>
+const mockGet = publicProductsService.getPublicProducts as unknown as Mock
 
 function page(names: string[]): PublicProductsPage {
   return {

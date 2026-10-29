@@ -4,13 +4,13 @@
  * Testing search, status filtering, and clear functionality
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach, vi, type Mock } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { FilterBar } from '../../components/FilterBar'
 
 describe('FilterBar', () => {
-  let mockOnSearchChange: ReturnType<typeof vi.fn>
-  let mockOnStatusFilterChange: ReturnType<typeof vi.fn>
+  let mockOnSearchChange: Mock
+  let mockOnStatusFilterChange: Mock
 
   const statusOptions = [
     { value: '', label: 'Todos' },

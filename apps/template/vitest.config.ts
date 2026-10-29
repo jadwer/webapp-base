@@ -31,12 +31,10 @@ export default defineConfig({
         '**/*.spec.*'
       ],
       thresholds: {
-        global: {
-          branches: 70,
-          functions: 70,
-          lines: 70,
-          statements: 70
-        }
+        branches: 70,
+        functions: 70,
+        lines: 70,
+        statements: 70
       }
     },
     
@@ -52,11 +50,9 @@ export default defineConfig({
     // avoid double-running.
     exclude: ['node_modules/', 'src/test/setup.ts', '../../packages/**'],
     
-    // Environment matching - usar node para integration tests
-    environmentMatchGlobs: [
-      ['**/integration/**', 'node']
-    ],
-    
+    // Las pruebas de integracion piden node con `// @vitest-environment node`
+    // (vitest 4 quito environmentMatchGlobs)
+
     // Timeouts
     testTimeout: 10000,
     hookTimeout: 10000,
@@ -72,13 +68,7 @@ export default defineConfig({
     
     // Run tests in parallel
     pool: 'threads',
-    poolOptions: {
-      threads: {
-        singleThread: false,
-        minThreads: 1,
-        maxThreads: 4
-      }
-    }
+    maxWorkers: 4
   },
   
   // Resolve aliases (same as Next.js)

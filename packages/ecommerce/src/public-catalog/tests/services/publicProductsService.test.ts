@@ -3,7 +3,7 @@
  * Tests public products API service functionality
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach, vi, type Mock } from 'vitest'
 import { axiosClient } from '@lwm/auth'
 import { publicProductsService } from '../../services/publicProductsService'
 
@@ -22,7 +22,7 @@ vi.mock('@lwm/auth', async () => {
   }
 })
 
-const mockAxiosClient = axiosClient as unknown as { get: ReturnType<typeof vi.fn> }
+const mockAxiosClient = axiosClient as unknown as { get: Mock }
 
 // Mock response factory
 function createMockProductsResponse(productCount: number = 2) {

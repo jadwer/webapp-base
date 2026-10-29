@@ -5,7 +5,7 @@
  * Note: SWR data fetching hooks are tested through service tests.
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach, type Mock } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import {
   useCheckoutMutations,
@@ -32,9 +32,9 @@ vi.mock('../../services/cartService', () => ({
 }));
 
 const mockCheckoutService = checkoutSessionsService as unknown as {
-  create: ReturnType<typeof vi.fn>;
-  getById: ReturnType<typeof vi.fn>;
-  update: ReturnType<typeof vi.fn>;
+  create: Mock;
+  getById: Mock;
+  update: Mock;
 };
 
 describe('useCheckout Hooks', () => {

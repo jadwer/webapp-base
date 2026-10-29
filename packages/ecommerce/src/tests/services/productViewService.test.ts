@@ -5,7 +5,7 @@
  * (whereNumber en la ruta): ids basura no deben generar ni el request.
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest';
 import { productViewService } from '../../services/productViewService';
 
 // Mock axios client
@@ -26,8 +26,8 @@ vi.mock('@lwm/auth', async () => {
 import { axiosClient } from '@lwm/auth';
 
 const mockAxios = axiosClient as unknown as {
-  get: ReturnType<typeof vi.fn>;
-  post: ReturnType<typeof vi.fn>;
+  get: Mock;
+  post: Mock;
 };
 
 describe('productViewService.trackView', () => {

@@ -2,7 +2,7 @@
  * CSV export helpers tests (Fase A - menu Operaciones)
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach, type Mock } from 'vitest'
 import {
   buildCsv,
   downloadCsv,
@@ -81,7 +81,7 @@ describe('salesOrderItemsCsv', () => {
 })
 
 describe('downloadCsv / exportQuoteItemsCsv', () => {
-  let clickSpy: ReturnType<typeof vi.fn>
+  let clickSpy: Mock
   let createdAnchor: HTMLAnchorElement | null
 
   beforeEach(() => {

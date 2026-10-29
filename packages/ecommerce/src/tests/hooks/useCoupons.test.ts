@@ -5,7 +5,7 @@
  * Note: SWR data fetching hooks are tested through service tests.
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach, type Mock } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import {
   useCouponMutations,
@@ -29,14 +29,14 @@ vi.mock('../../services/couponsService', () => ({
 }));
 
 const mockService = couponsService as unknown as {
-  getAll: ReturnType<typeof vi.fn>;
-  getById: ReturnType<typeof vi.fn>;
-  create: ReturnType<typeof vi.fn>;
-  update: ReturnType<typeof vi.fn>;
-  delete: ReturnType<typeof vi.fn>;
-  validate: ReturnType<typeof vi.fn>;
-  applyToCart: ReturnType<typeof vi.fn>;
-  removeFromCart: ReturnType<typeof vi.fn>;
+  getAll: Mock;
+  getById: Mock;
+  create: Mock;
+  update: Mock;
+  delete: Mock;
+  validate: Mock;
+  applyToCart: Mock;
+  removeFromCart: Mock;
 };
 
 describe('useCoupons Hooks', () => {

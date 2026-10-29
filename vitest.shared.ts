@@ -27,13 +27,7 @@ export const sharedConfig: UserConfig = defineConfig({
     watch: false,
     retry: 1,
     pool: 'threads',
-    poolOptions: {
-      threads: {
-        singleThread: false,
-        minThreads: 1,
-        maxThreads: 4,
-      },
-    },
+    maxWorkers: 4,
   },
 })
 

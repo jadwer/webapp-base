@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest'
 import { systemEmailService } from '../../services/systemEmailService'
 
 vi.mock('@lwm/auth', async () => {
@@ -18,9 +18,9 @@ vi.mock('@lwm/auth', async () => {
 import { axiosClient } from '@lwm/auth'
 
 const mockAxios = axiosClient as unknown as {
-  get: ReturnType<typeof vi.fn>
-  post: ReturnType<typeof vi.fn>
-  patch: ReturnType<typeof vi.fn>
+  get: Mock
+  post: Mock
+  patch: Mock
 }
 
 const mockSystemEmail = {

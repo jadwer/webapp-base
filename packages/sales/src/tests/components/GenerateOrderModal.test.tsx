@@ -2,7 +2,7 @@
  * GenerateOrderModal Component Tests (Fase A - pedido)
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { GenerateOrderModal } from '../../quotes/components/GenerateOrderModal'
 import { useQuoteMutations, useQuoteItems } from '../../quotes/hooks'
@@ -65,7 +65,7 @@ describe('GenerateOrderModal', () => {
   const setup = (overrides?: {
     items?: ReturnType<typeof createMockQuoteItem>[]
     quote?: ReturnType<typeof createMockQuote>
-    onConverted?: ReturnType<typeof vi.fn>
+    onConverted?: Mock
   }) => {
     vi.mocked(useQuoteItems).mockReturnValue({
       data: overrides?.items ?? [itemWithStock],

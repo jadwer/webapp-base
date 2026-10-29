@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, type Mock } from 'vitest'
 import {
   absoluteUrl,
   buildSitemap,
@@ -168,7 +168,7 @@ describe('categorias', () => {
   it('fetchPublicCategoryRefs pide activas por nombre y categoryEntries apunta al filtro canonico', async () => {
     const fetchImpl = fetchByUrl()
     const refs = await fetchPublicCategoryRefs('https://api.test', fetchImpl)
-    expect((fetchImpl as ReturnType<typeof vi.fn>).mock.calls[0][0]).toBe('https://api.test/api/public/v1/public-categories?page[size]=100&sort=name')
+    expect((fetchImpl as Mock).mock.calls[0][0]).toBe('https://api.test/api/public/v1/public-categories?page[size]=100&sort=name')
     expect(refs).toEqual([
       { id: '1', slug: 'reactivos', updatedAt: '2025-08-02T23:34:41.000000Z' },
       { id: '4', slug: 'Refacciones raras', updatedAt: undefined },

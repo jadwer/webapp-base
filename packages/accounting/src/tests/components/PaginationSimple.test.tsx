@@ -4,12 +4,12 @@
  * Testing rendering, interactions, and page calculations
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach, vi, type Mock } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { PaginationSimple } from '../../components/PaginationSimple'
 
 describe('PaginationSimple', () => {
-  let mockOnPageChange: ReturnType<typeof vi.fn>
+  let mockOnPageChange: Mock
 
   beforeEach(() => {
     mockOnPageChange = vi.fn()

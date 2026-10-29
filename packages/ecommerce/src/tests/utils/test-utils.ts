@@ -4,7 +4,7 @@
  * Mock factories and test helpers for the Ecommerce module.
  */
 
-import { vi } from 'vitest';
+import { vi, type Mock } from 'vitest';
 import type {
   EcommerceOrder,
   EcommerceOrderItem,
@@ -246,7 +246,7 @@ export function createMockShoppingCartItemAPIResponse(item: ShoppingCartItem) {
 // Test Helpers
 // ============================================
 
-export function createMockAxiosClient() {
+export function createMockAxiosClient(): { get: Mock; post: Mock; patch: Mock; delete: Mock } {
   return {
     get: vi.fn(),
     post: vi.fn(),

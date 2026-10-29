@@ -3,7 +3,7 @@
  * (prerender en servidor, SEO Bloque 1) no hay fetch ni estado de carga.
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest'
 import { renderHook, waitFor } from '@testing-library/react'
 import { axiosClient } from '@lwm/auth'
 import { usePublicCategories } from '../../hooks/usePublicCategories'
@@ -13,7 +13,7 @@ vi.mock('@lwm/auth', async () => {
   return { ...actual, axiosClient: { get: vi.fn() } }
 })
 
-const mockGet = (axiosClient as unknown as { get: ReturnType<typeof vi.fn> }).get
+const mockGet = (axiosClient as unknown as { get: Mock }).get
 
 describe('usePublicCategories', () => {
   beforeEach(() => {

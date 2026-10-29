@@ -4,7 +4,7 @@
  * Testing form rendering, validation, interactions, and submissions
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach, vi, type Mock } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { JournalEntryForm } from '../../components/JournalEntryForm'
 import { createMockAccount, createMockJournalEntry } from '../utils/test-utils'
@@ -23,8 +23,8 @@ vi.mock('../../hooks', () => ({
 }))
 
 describe('JournalEntryForm', () => {
-  let mockOnSubmit: ReturnType<typeof vi.fn>
-  let mockOnCancel: ReturnType<typeof vi.fn>
+  let mockOnSubmit: Mock
+  let mockOnCancel: Mock
 
   beforeEach(() => {
     mockOnSubmit = vi.fn().mockResolvedValue(undefined)

@@ -4,7 +4,7 @@
  * Unit tests for wishlist SWR hooks.
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import {
   useWishlistMutations,
@@ -28,15 +28,15 @@ vi.mock('../../services/wishlistService', () => ({
 }));
 
 const mockService = wishlistService as unknown as {
-  getAll: ReturnType<typeof vi.fn>;
-  getById: ReturnType<typeof vi.fn>;
-  getItems: ReturnType<typeof vi.fn>;
-  create: ReturnType<typeof vi.fn>;
-  update: ReturnType<typeof vi.fn>;
-  delete: ReturnType<typeof vi.fn>;
-  addItem: ReturnType<typeof vi.fn>;
-  removeItem: ReturnType<typeof vi.fn>;
-  moveToCart: ReturnType<typeof vi.fn>;
+  getAll: Mock;
+  getById: Mock;
+  getItems: Mock;
+  create: Mock;
+  update: Mock;
+  delete: Mock;
+  addItem: Mock;
+  removeItem: Mock;
+  moveToCart: Mock;
 };
 
 describe('useWishlist Hooks', () => {

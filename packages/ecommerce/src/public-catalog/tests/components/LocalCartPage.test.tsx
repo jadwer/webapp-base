@@ -3,7 +3,7 @@
  * Tests the public shopping cart page with quote request functionality
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach, type Mock } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import type { LocalCartItem } from '../../hooks/useLocalCart'
@@ -110,19 +110,19 @@ import { cartQuotePdfService } from '@lwm/ecommerce'
 import { shoppingCartService } from '@lwm/ecommerce'
 
 const mockToast = toast as unknown as {
-  success: ReturnType<typeof vi.fn>
-  error: ReturnType<typeof vi.fn>
-  info: ReturnType<typeof vi.fn>
+  success: Mock
+  error: Mock
+  info: Mock
 }
 
 const mockQuoteService = quoteServiceModule.quotes as unknown as {
-  requestQuote: ReturnType<typeof vi.fn>
-  createFromCart: ReturnType<typeof vi.fn>
+  requestQuote: Mock
+  createFromCart: Mock
 }
 
 const mockCartSync = shoppingCartService.localSync as unknown as {
-  syncLocalCartToAPI: ReturnType<typeof vi.fn>
-  saveCartIdForCheckout: ReturnType<typeof vi.fn>
+  syncLocalCartToAPI: Mock
+  saveCartIdForCheckout: Mock
 }
 
 // Create mock cart items

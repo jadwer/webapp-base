@@ -3,7 +3,7 @@
  * Tests SWR-powered public products hooks with service mocking
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach, type Mock } from 'vitest'
 import { renderHook } from '@testing-library/react'
 import {
   usePublicProducts,
@@ -35,7 +35,7 @@ vi.mock('../../services/publicProductsService', () => ({
 
 import useSWR from 'swr/immutable'
 
-const mockUseSWR = useSWR as unknown as ReturnType<typeof vi.fn>
+const mockUseSWR = useSWR as unknown as Mock
 
 // Mock product factory
 function createMockProduct(id: string = '1', overrides: Partial<EnhancedPublicProduct> = {}): EnhancedPublicProduct {

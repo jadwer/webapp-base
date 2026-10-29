@@ -5,7 +5,7 @@
  * Note: SWR data fetching hooks are tested through service tests.
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach, type Mock } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useReviewMutations } from '../../hooks/useProductReviews';
 import { productReviewsService } from '../../services/productReviewsService';
@@ -25,13 +25,13 @@ vi.mock('../../services/productReviewsService', () => ({
 }));
 
 const mockService = productReviewsService as unknown as {
-  getByProduct: ReturnType<typeof vi.fn>;
-  getRatingSummary: ReturnType<typeof vi.fn>;
-  getRecommendations: ReturnType<typeof vi.fn>;
-  getPersonalizedRecommendations: ReturnType<typeof vi.fn>;
-  create: ReturnType<typeof vi.fn>;
-  update: ReturnType<typeof vi.fn>;
-  delete: ReturnType<typeof vi.fn>;
+  getByProduct: Mock;
+  getRatingSummary: Mock;
+  getRecommendations: Mock;
+  getPersonalizedRecommendations: Mock;
+  create: Mock;
+  update: Mock;
+  delete: Mock;
 };
 
 describe('useProductReviews Hooks', () => {

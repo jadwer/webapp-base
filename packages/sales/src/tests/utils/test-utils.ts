@@ -3,7 +3,7 @@
  * Mock factories and helper functions for testing
  */
 
-import { vi } from 'vitest'
+import { vi, type Mock } from 'vitest'
 import {
   SalesOrder,
   SalesOrderItem,
@@ -361,7 +361,17 @@ export const mock500Error = () => ({
 /**
  * Mock Router (Next.js)
  */
-export const mockRouter = () => ({
+export const mockRouter = (): {
+  push: Mock
+  replace: Mock
+  prefetch: Mock
+  back: Mock
+  forward: Mock
+  refresh: Mock
+  pathname: string
+  query: Record<string, string>
+  asPath: string
+} => ({
   push: vi.fn(),
   replace: vi.fn(),
   prefetch: vi.fn(),

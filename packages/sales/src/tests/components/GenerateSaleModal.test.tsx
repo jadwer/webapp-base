@@ -2,7 +2,7 @@
  * GenerateSaleModal Component Tests (Fase A - venta directa)
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { GenerateSaleModal } from '../../quotes/components/GenerateSaleModal'
 import { useQuoteMutations, useQuoteItems } from '../../quotes/hooks'
@@ -63,7 +63,7 @@ describe('GenerateSaleModal', () => {
   const setup = (overrides?: {
     items?: ReturnType<typeof createMockQuoteItem>[]
     quote?: ReturnType<typeof createMockQuote>
-    onConverted?: ReturnType<typeof vi.fn>
+    onConverted?: Mock
   }) => {
     vi.mocked(useQuoteItems).mockReturnValue({
       data: overrides?.items ?? [sufficientItem],

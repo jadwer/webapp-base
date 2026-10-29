@@ -59,7 +59,7 @@
     "happy-dom": "^21.0.4",
     "tsup": "^8.3.5",
     "typescript": "^5.7.2",
-    "vitest": "^3.2.7"
+    "vitest": "^4.1.12"
   },
   "peerDependencies": {
     "next": "^15.0.0",

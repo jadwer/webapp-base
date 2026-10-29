@@ -1,5 +1,5 @@
 // src/modules/auth/tests/utils/test-utils.ts
-import { vi } from 'vitest'
+import { vi, type Mock } from 'vitest'
 import type { User } from '../../types/auth.types'
 
 /**
@@ -145,7 +145,17 @@ export const mockLocalStorage = () => {
  * Mock Router (Next.js)
  * Simula useRouter de Next.js
  */
-export const mockRouter = () => ({
+export const mockRouter = (): {
+  push: Mock
+  replace: Mock
+  prefetch: Mock
+  back: Mock
+  forward: Mock
+  refresh: Mock
+  pathname: string
+  query: Record<string, string>
+  asPath: string
+} => ({
   push: vi.fn(),
   replace: vi.fn(),
   prefetch: vi.fn(),

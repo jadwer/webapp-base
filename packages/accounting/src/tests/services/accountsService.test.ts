@@ -4,7 +4,7 @@
  * Testing CRUD operations and data transformations
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach, vi, type Mock } from 'vitest'
 import { accountsService } from '../../services'
 import axiosClient from '../../lib/axiosClient'
 import { createMockAccount, createMockAPIResponse } from '../utils/test-utils'
@@ -28,10 +28,10 @@ vi.mock('../../utils/transformers', () => ({
 }))
 
 const mockAxios = axiosClient as unknown as {
-  get: ReturnType<typeof vi.fn>
-  post: ReturnType<typeof vi.fn>
-  patch: ReturnType<typeof vi.fn>
-  delete: ReturnType<typeof vi.fn>
+  get: Mock
+  post: Mock
+  patch: Mock
+  delete: Mock
 }
 
 describe('Accounts Service', () => {

@@ -3,7 +3,7 @@
  * Covers: min-length gating, debounce timing, result mapping, and query switch.
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach, type Mock } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
 import { useProductSearch } from '../../hooks/useProductSearch'
 import type { EnhancedPublicProduct } from '../../types/publicProduct'
@@ -27,7 +27,7 @@ vi.mock('@lwm/app-config', async () => {
 
 import { publicProductsService } from '../../services/publicProductsService'
 
-const mockSearch = publicProductsService.searchProducts as unknown as ReturnType<typeof vi.fn>
+const mockSearch = publicProductsService.searchProducts as unknown as Mock
 
 function createMockProduct(id: string): EnhancedPublicProduct {
   return {
