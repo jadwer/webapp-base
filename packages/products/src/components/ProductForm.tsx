@@ -403,7 +403,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                   errorText={errors.imgPath}
                 />
                 <small className="text-muted d-block mt-1">
-                  Podra agregar mas imagenes despues de guardar el producto.
+                  Podra agregar más imágenes después de guardar el producto.
                 </small>
               </>
             )}
@@ -532,10 +532,10 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                 disabled={isSubmitting}
               />
               <label className="form-check-label" htmlFor="is-public-checkbox">
-                Visible en catalogo publico
+                Visible en catálogo público
               </label>
               <div className="form-text">
-                Desactiva para productos internos: se pueden cotizar y vender pero no aparecen en la tienda publica.
+                Desactiva para productos internos: se pueden cotizar y vender pero no aparecen en la tienda pública.
               </div>
             </div>
           </div>
@@ -557,7 +557,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                 En oferta
               </label>
               <div className="form-text">
-                El producto aparece en la seccion Ofertas del sitio publico.
+                El producto aparece en la sección Ofertas del sitio público.
               </div>
             </div>
           </div>

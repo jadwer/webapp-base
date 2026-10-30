@@ -116,7 +116,7 @@ export default function MyOrdersPage() {
         <div>
           <h1 className="h3 mb-1">Mis Pedidos</h1>
           <p className="text-muted mb-0">
-            Historial de ordenes y seguimiento de envios
+            Historial de órdenes y seguimiento de envíos
           </p>
         </div>
         <Link href="/productos" className="btn btn-primary">
@@ -145,11 +145,11 @@ export default function MyOrdersPage() {
             <i className="bi bi-bag text-muted" style={{ fontSize: '3rem' }}></i>
             <h5 className="mt-3">No tienes pedidos</h5>
             <p className="text-muted">
-              Aun no has realizado ninguna compra. Explora nuestro catalogo para encontrar lo que necesitas.
+              Aun no has realizado ninguna compra. Explora nuestro catálogo para encontrar lo que necesitas.
             </p>
             <Link href="/productos" className="btn btn-primary mt-2">
               <i className="bi bi-grid-3x3-gap me-2"></i>
-              Ver Catalogo
+              Ver Catálogo
             </Link>
           </div>
         </div>

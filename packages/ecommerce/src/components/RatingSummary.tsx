@@ -81,7 +81,7 @@ export function RatingSummary({
             </div>
           </div>
           <div className="col-md-8 ps-4">
-            <h6 className="mb-3">Distribucion de calificaciones</h6>
+            <h6 className="mb-3">Distribución de calificaciones</h6>
             {[5, 4, 3, 2, 1].map(stars =>
               renderDistributionBar(stars, distribution[stars as keyof typeof distribution])
             )}

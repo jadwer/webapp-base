@@ -366,12 +366,12 @@ export const CartPage = React.memo<CartPageProps>(({ sessionId, contactId }) => 
                 {isRequestingQuote ? (
                   <>
                     <span className="spinner-border spinner-border-sm me-2" />
-                    Creando cotizacion...
+                    Creando cotización...
                   </>
                 ) : (
                   <>
                     <i className="bi bi-file-earmark-text me-2" />
-                    Solicitar Cotizacion
+                    Solicitar Cotización
                   </>
                 )}
               </Button>

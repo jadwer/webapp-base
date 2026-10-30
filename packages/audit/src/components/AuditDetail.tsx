@@ -159,7 +159,7 @@ export default function AuditDetail({ audit }: AuditDetailProps) {
                 <div className="card-body">
                   <h6 className="text-muted mb-3">
                     <i className="bi bi-person-circle me-2" />
-                    Usuario que realizo la accion
+                    Usuario que realizo la acción
                   </h6>
                   {audit.causer ? (
                     <div>
@@ -208,7 +208,7 @@ export default function AuditDetail({ audit }: AuditDetailProps) {
               <div className="col-md-6">
                 <h6 className="text-muted mb-2">
                   <i className="bi bi-globe me-1" />
-                  Direccion IP
+                  Dirección IP
                 </h6>
                 <code className="fs-6">{audit.ipAddress}</code>
               </div>
@@ -288,7 +288,7 @@ export default function AuditDetail({ audit }: AuditDetailProps) {
         <div className="card shadow-sm border-0">
           <div className="card-body text-center text-muted py-5">
             <i className="bi bi-info-circle fs-1 d-block mb-3" />
-            <p className="mb-0">No hay detalles de cambios registrados para esta accion.</p>
+            <p className="mb-0">No hay detalles de cambios registrados para esta acción.</p>
           </div>
         </div>
       )}

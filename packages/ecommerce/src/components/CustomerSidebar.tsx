@@ -94,7 +94,7 @@ export default function CustomerSidebar() {
                 className={`${styles.navLink} ${pathname?.startsWith('/productos') ? styles.active : ''}`}
               >
                 <i className={`bi bi-grid-3x3-gap ${styles.navIcon}`} aria-hidden="true"></i>
-                Ver Catalogo
+                Ver Catálogo
               </button>
             </li>
           </ul>

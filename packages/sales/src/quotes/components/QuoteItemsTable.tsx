@@ -317,7 +317,7 @@ export function QuoteItemsTable({
   if (items.length === 0 && !isAddingProduct) {
     return (
       <div className="text-center py-5 text-muted">
-        <p className="mb-2">No hay items en esta cotizacion</p>
+        <p className="mb-2">No hay items en esta cotización</p>
         {editable && (
           <button
             className="btn btn-outline-primary btn-sm"

@@ -52,7 +52,7 @@ export default function AlphaLabHeader() {
               </Link>
             </li>
             {/* /p/<slug> son rutas dinámicas servidas por el PageBuilder.
-                Devuelven 404 hasta que el admin cree la pagina via
+                Devuelven 404 hasta que el admin cree la página via
                 /dashboard/pages con el slug correspondiente. */}
             <li className="nav-item">
               <Link className="nav-link" href="/p/nosotros">

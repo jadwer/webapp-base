@@ -78,7 +78,7 @@ export default function SystemEmailsTemplate() {
       <div className="card mb-3">
         <div className="card-body py-2">
           <div className="d-flex gap-2 align-items-center">
-            <span className="text-muted small">Filtrar por modulo:</span>
+            <span className="text-muted small">Filtrar por módulo:</span>
             <button
               className={`btn btn-sm ${!moduleFilter ? 'btn-primary' : 'btn-outline-primary'}`}
               onClick={() => setModuleFilter('')}

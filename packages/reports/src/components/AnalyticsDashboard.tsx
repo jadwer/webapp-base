@@ -97,7 +97,7 @@ export function AnalyticsDashboard() {
                       <tr>
                         <th>Periodo</th>
                         <th className="text-end">Ventas</th>
-                        <th className="text-end">Ordenes</th>
+                        <th className="text-end">Órdenes</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -171,7 +171,7 @@ export function AnalyticsDashboard() {
         <div className="col-md-6">
           <div className="card">
             <div className="card-header">
-              <h6 className="mb-0">Ventas por Categoria</h6>
+              <h6 className="mb-0">Ventas por Categoría</h6>
             </div>
             <div className="card-body">
               {isLoading ? (
@@ -213,7 +213,7 @@ export function AnalyticsDashboard() {
         <div className="col-md-6">
           <div className="card">
             <div className="card-header">
-              <h6 className="mb-0">Resumen Rapido</h6>
+              <h6 className="mb-0">Resumen Rápido</h6>
             </div>
             <div className="card-body">
               {isLoading ? (
@@ -231,7 +231,7 @@ export function AnalyticsDashboard() {
                     <div className="h5 mb-0">{dashboard?.activeCustomers || 0}</div>
                   </div>
                   <div className="col-6">
-                    <div className="text-muted small">Ordenes Pendientes</div>
+                    <div className="text-muted small">Órdenes Pendientes</div>
                     <div className="h5 mb-0">{dashboard?.pendingOrders || 0}</div>
                   </div>
                   <div className="col-6">

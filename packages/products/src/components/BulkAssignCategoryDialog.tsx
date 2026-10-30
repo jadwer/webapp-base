@@ -74,7 +74,7 @@ export const BulkAssignCategoryDialog = React.memo<BulkAssignCategoryDialogProps
       title={
         <div className="d-flex align-items-center">
           <i className="bi bi-diagram-3 text-primary me-2" />
-          Reasignar Categoria por Marca
+          Reasignar Categoría por Marca
         </div>
       }
       size="medium"
@@ -96,12 +96,12 @@ export const BulkAssignCategoryDialog = React.memo<BulkAssignCategoryDialogProps
               </option>
             ))}
           </select>
-          <div className="form-text">Todos los productos de esta marca cambiaran de categoria.</div>
+          <div className="form-text">Todos los productos de esta marca cambiaran de categoría.</div>
         </div>
 
         {/* Target category selector */}
         <div className="mb-3">
-          <label className="form-label fw-semibold">Categoria destino</label>
+          <label className="form-label fw-semibold">Categoría destino</label>
           <select
             className="form-select"
             value={categoryId}
@@ -158,7 +158,7 @@ export const BulkAssignCategoryDialog = React.memo<BulkAssignCategoryDialogProps
             loading={isSubmitting}
           >
             <i className="bi bi-check-lg me-2" />
-            Confirmar Reasignacion
+            Confirmar Reasignación
           </Button>
         </div>
       </div>

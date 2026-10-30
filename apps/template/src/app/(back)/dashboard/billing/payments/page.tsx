@@ -110,7 +110,7 @@ export default function PaymentsPage() {
           <nav aria-label="breadcrumb">
             <ol className="breadcrumb">
               <li className="breadcrumb-item">
-                <Link href="/dashboard/billing">Facturacion</Link>
+                <Link href="/dashboard/billing">Facturación</Link>
               </li>
               <li className="breadcrumb-item active">Pagos Stripe</li>
             </ol>
@@ -233,7 +233,7 @@ export default function PaymentsPage() {
                 <i className="bi bi-inbox display-1 text-muted" />
                 <p className="text-muted mt-3">No hay transacciones para mostrar</p>
                 <p className="text-muted small">
-                  Las transacciones apareceran aqui cuando se procesen pagos con Stripe
+                  Las transacciones apareceran aquí cuando se procesen pagos con Stripe
                 </p>
               </div>
             ) : (
@@ -354,12 +354,12 @@ export default function PaymentsPage() {
         <div className="card-header">
           <h5 className="mb-0">
             <i className="bi bi-info-circle me-2" />
-            Configuracion de Webhooks
+            Configuración de Webhooks
           </h5>
         </div>
         <div className="card-body">
           <p className="mb-2">
-            Para sincronizar automaticamente el estado de las transacciones, configura un webhook en tu dashboard de Stripe:
+            Para sincronizar automáticamente el estado de las transacciones, configura un webhook en tu dashboard de Stripe:
           </p>
           <ol className="mb-3">
             <li>Ve a <strong>Stripe Dashboard &gt; Developers &gt; Webhooks</strong></li>

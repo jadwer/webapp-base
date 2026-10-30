@@ -88,7 +88,7 @@ export const VarianceBadge: React.FC<VarianceBadgeProps> = ({
     return (
       <span className="badge bg-success">
         <i className="bi bi-check-circle me-1" />
-        Sin variacion
+        Sin variación
       </span>
     )
   }

@@ -48,7 +48,7 @@ export const CreateDiscountRuleWrapper: React.FC = () => {
             </button>
             <div>
               <h1 className="h3 mb-0">Nueva Regla de Descuento</h1>
-              <p className="text-muted mb-0">Crear una nueva regla de descuento automatico</p>
+              <p className="text-muted mb-0">Crear una nueva regla de descuento automático</p>
             </div>
           </div>
 

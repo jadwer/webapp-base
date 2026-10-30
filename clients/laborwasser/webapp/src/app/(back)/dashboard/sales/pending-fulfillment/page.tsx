@@ -50,7 +50,7 @@ export default function SalesPendingFulfillmentPage() {
                 Pedidos por surtir
               </h1>
               <p className="text-muted">
-                Ordenes de venta abiertas pendientes de entregar
+                Órdenes de venta abiertas pendientes de entregar
               </p>
             </div>
             <div className="btn-group">
@@ -140,7 +140,7 @@ export default function SalesPendingFulfillmentPage() {
                             <i className="bi bi-check2-circle display-4 text-muted mb-3 d-block"></i>
                             <h6>No hay pedidos por surtir</h6>
                             <p className="mb-0">
-                              Todas las ordenes de venta estan entregadas o cerradas
+                              Todas las órdenes de venta estan entregadas o cerradas
                             </p>
                           </td>
                         </tr>

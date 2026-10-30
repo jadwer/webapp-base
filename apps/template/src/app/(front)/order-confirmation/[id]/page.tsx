@@ -164,7 +164,7 @@ export default function OrderConfirmationPage({ params }: OrderConfirmationPageP
           <div className="spinner-border text-primary" role="status" style={{ width: '3rem', height: '3rem' }}>
             <span className="visually-hidden">Cargando...</span>
           </div>
-          <p className="mt-3 text-muted">Cargando confirmacion de pedido...</p>
+          <p className="mt-3 text-muted">Cargando confirmación de pedido...</p>
         </div>
       </div>
     )
@@ -255,7 +255,7 @@ export default function OrderConfirmationPage({ params }: OrderConfirmationPageP
               <div className="card-header">
                 <h5 className="mb-0">
                   <i className="bi bi-truck me-2"></i>
-                  Direccion de Envio
+                  Dirección de Envío
                 </h5>
               </div>
               <div className="card-body">
@@ -315,7 +315,7 @@ export default function OrderConfirmationPage({ params }: OrderConfirmationPageP
             </div>
             <div className="card-body">
               <p className="text-muted small mb-3">
-                Recibiras un correo de confirmacion con los detalles de tu pedido.
+                Recibiras un correo de confirmación con los detalles de tu pedido.
                 Puedes dar seguimiento desde tu portal de cliente.
               </p>
               <Link href="/dashboard/my-orders" className="btn btn-primary w-100 mb-2">

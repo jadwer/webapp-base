@@ -112,7 +112,7 @@ export function ProductReviewForm({
           )}
 
           <div className="mb-3">
-            <label className="form-label">Calificacion</label>
+            <label className="form-label">Calificación</label>
             {renderStarInput()}
           </div>
 

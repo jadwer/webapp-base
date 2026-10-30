@@ -135,7 +135,7 @@ export default function CampaignViewPage({ params }: CampaignViewPageProps) {
                 <div className="card-header bg-light">
                   <h5 className="mb-0">
                     <i className="bi bi-currency-dollar me-2" />
-                    Informacion Financiera
+                    Información Financiera
                   </h5>
                 </div>
                 <div className="card-body p-4">

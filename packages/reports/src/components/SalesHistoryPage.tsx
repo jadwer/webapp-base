@@ -531,7 +531,7 @@ export const SalesHistoryPage = () => {
           <div className="d-flex align-items-center gap-3">
             {!isGrouped && (
               <div className="d-flex align-items-center gap-2">
-                <span className="small text-muted">Por pagina:</span>
+                <span className="small text-muted">Por página:</span>
                 <select
                   className="form-select form-select-sm"
                   style={{ width: 'auto' }}
@@ -566,7 +566,7 @@ export const SalesHistoryPage = () => {
                   <thead className="table-light">
                     <tr>
                       <th>{groupLabelHeader}</th>
-                      <th className="text-center">Ordenes</th>
+                      <th className="text-center">Órdenes</th>
                       <th className="text-end">Costo</th>
                       <th className="text-end">Utilidad</th>
                       <th className="text-end">Subtotal</th>

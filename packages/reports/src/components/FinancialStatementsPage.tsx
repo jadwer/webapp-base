@@ -45,7 +45,7 @@ export const FinancialStatementsPage = () => {
                 Estados Financieros
               </h1>
               <p className="text-muted">
-                Balance General, Estado de Resultados, Flujo de Efectivo y Balanza de Comprobacion
+                Balance General, Estado de Resultados, Flujo de Efectivo y Balanza de Comprobación
               </p>
             </div>
           </div>
@@ -306,13 +306,13 @@ export const FinancialStatementsPage = () => {
               <div className="spinner-border text-secondary" role="status">
                 <span className="visually-hidden">Cargando...</span>
               </div>
-              <p className="text-muted mt-2">Generando balanza de comprobacion...</p>
+              <p className="text-muted mt-2">Generando balanza de comprobación...</p>
             </div>
           )}
           {errorTB && (
             <div className="alert alert-warning">
               <i className="bi bi-info-circle me-2" />
-              No hay datos disponibles para la balanza de comprobacion en este periodo
+              No hay datos disponibles para la balanza de comprobación en este periodo
             </div>
           )}
           {!loadingTB && !errorTB && trialBalance && (

@@ -21,7 +21,7 @@ function ResetPasswordContent() {
             </div>
             <h1 className={styles.authTitle}>Enlace invalido</h1>
             <p className={styles.authSubtitle}>
-              El enlace para restablecer tu contrasena es invalido o ha expirado.
+              El enlace para restablecer tu contraseña es invalido o ha expirado.
             </p>
           </div>
           <div className={styles.authFooter}>

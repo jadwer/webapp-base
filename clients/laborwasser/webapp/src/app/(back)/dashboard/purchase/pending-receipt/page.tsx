@@ -58,7 +58,7 @@ export default function PurchasePendingReceiptPage() {
                 Compras por surtir
               </h1>
               <p className="text-muted">
-                Ordenes de compra pendientes de recibir
+                Órdenes de compra pendientes de recibir
               </p>
             </div>
             <div className="btn-group">
@@ -116,7 +116,7 @@ export default function PurchasePendingReceiptPage() {
               {isLoading && (
                 <div className="d-flex justify-content-center p-4">
                   <div className="spinner-border text-primary" role="status">
-                    <span className="visually-hidden">Cargando ordenes...</span>
+                    <span className="visually-hidden">Cargando órdenes...</span>
                   </div>
                 </div>
               )}
@@ -148,7 +148,7 @@ export default function PurchasePendingReceiptPage() {
                             <i className="bi bi-check2-circle display-4 text-muted mb-3 d-block"></i>
                             <h6>No hay compras por surtir</h6>
                             <p className="mb-0">
-                              Todas las ordenes de compra estan recibidas o canceladas
+                              Todas las órdenes de compra estan recibidas o canceladas
                             </p>
                           </td>
                         </tr>

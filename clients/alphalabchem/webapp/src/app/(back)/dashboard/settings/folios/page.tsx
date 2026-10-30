@@ -88,7 +88,7 @@ export default function FoliosSettingsPage() {
     <div className="container-fluid py-4">
       <div className="d-flex justify-content-between align-items-center mb-4">
         <div>
-          <h4 className="mb-1">Configuracion de Folios</h4>
+          <h4 className="mb-1">Configuración de Folios</h4>
           <p className="text-muted mb-0">Administra los prefijos y consecutivos de los documentos del sistema.</p>
         </div>
       </div>

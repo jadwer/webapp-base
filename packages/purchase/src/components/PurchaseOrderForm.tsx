@@ -166,7 +166,7 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
             <div className="card-header">
               <h5 className="card-title mb-0">
                 <i className="bi bi-info-circle me-2"></i>
-                Informacion de la Orden de Compra
+                Información de la Orden de Compra
               </h5>
             </div>
             <div className="card-body">

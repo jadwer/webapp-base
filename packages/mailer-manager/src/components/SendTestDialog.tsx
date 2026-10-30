@@ -48,7 +48,7 @@ export default function SendTestDialog({ isOpen, onClose, onSend, title = 'Envia
           </div>
           <div className="modal-body">
             <p className="text-muted small mb-3">
-              Ingresa la direccion de correo donde quieres recibir el email de prueba.
+              Ingresa la dirección de correo donde quieres recibir el email de prueba.
               No tiene que ser el correo de la empresa.
             </p>
             <div className="mb-3">

@@ -110,7 +110,7 @@ export default function LeadForm({ initialData, onSubmit, onCancel }: LeadFormPr
         </div>
 
         <div className="col-md-6">
-          <label className="form-label">Calificacion *</label>
+          <label className="form-label">Calificación *</label>
           <select
             className={`form-select ${errors.rating ? 'is-invalid' : ''}`}
             value={formData.rating}

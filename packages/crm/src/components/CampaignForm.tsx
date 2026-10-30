@@ -154,7 +154,7 @@ export default function CampaignForm({ initialData, onSubmit, onCancel }: Campai
           <hr className="my-3" />
           <h6 className="text-muted mb-3">
             <i className="bi bi-currency-dollar me-2" />
-            Informacion Financiera
+            Información Financiera
           </h6>
         </div>
 
@@ -212,7 +212,7 @@ export default function CampaignForm({ initialData, onSubmit, onCancel }: Campai
         </div>
 
         <div className="col-12">
-          <label className="form-label">Descripcion</label>
+          <label className="form-label">Descripción</label>
           <textarea
             className="form-control"
             rows={3}

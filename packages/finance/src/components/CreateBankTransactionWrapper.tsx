@@ -49,7 +49,7 @@ export const CreateBankTransactionWrapper: React.FC = () => {
               <i className="bi bi-arrow-left fs-4" />
             </button>
             <div>
-              <h1 className="h3 mb-0">Nueva Transaccion Bancaria</h1>
+              <h1 className="h3 mb-0">Nueva Transacción Bancaria</h1>
               <p className="text-muted mb-0">Registrar un nuevo movimiento bancario</p>
             </div>
           </div>

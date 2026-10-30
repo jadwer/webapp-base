@@ -84,7 +84,7 @@ export const PurchaseOrdersTable: React.FC<PurchaseOrdersTableProps> = ({
     return (
       <div className="d-flex justify-content-center p-5">
         <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Cargando ordenes de compra...</span>
+          <span className="visually-hidden">Cargando órdenes de compra...</span>
         </div>
       </div>
     )
@@ -94,7 +94,7 @@ export const PurchaseOrdersTable: React.FC<PurchaseOrdersTableProps> = ({
     return (
       <div className="text-center p-5">
         <i className="bi bi-bag display-1 text-muted mb-3"></i>
-        <h5 className="text-muted">No hay ordenes de compra</h5>
+        <h5 className="text-muted">No hay órdenes de compra</h5>
         <p className="text-muted">Crea tu primera orden de compra para comenzar</p>
       </div>
     )

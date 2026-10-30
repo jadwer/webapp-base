@@ -155,7 +155,7 @@ export const CycleCountsAdminPageReal = () => {
       <div className="d-flex justify-content-between align-items-center mb-4">
         <div>
           <h1 className="h3 mb-0">Conteos Ciclicos</h1>
-          <p className="text-muted mb-0">Gestion de conteos ciclicos de inventario (Analisis ABC)</p>
+          <p className="text-muted mb-0">Gestion de conteos ciclicos de inventario (Análisis ABC)</p>
         </div>
         <div className="d-flex gap-2">
           <Button variant="primary" onClick={() => navigation.push('/dashboard/inventory/cycle-counts/create')}>
@@ -254,7 +254,7 @@ export const CycleCountsAdminPageReal = () => {
             <div className="card-body">
               <div className="d-flex justify-content-between align-items-center">
                 <div>
-                  <h6 className="card-title text-white-50">Con Variacion</h6>
+                  <h6 className="card-title text-white-50">Con Variación</h6>
                   <h3 className="mb-0">{countMetrics.withVariance}</h3>
                 </div>
                 <i className="bi bi-arrow-left-right" style={{ fontSize: '2rem', opacity: 0.7 }} />

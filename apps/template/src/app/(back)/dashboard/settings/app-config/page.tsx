@@ -191,7 +191,7 @@ export default function AppConfigPage() {
       <div className="container-fluid py-4">
         <div className="text-center py-5">
           <span className="spinner-border text-primary" role="status" />
-          <p className="mt-2 text-muted">Cargando configuracion...</p>
+          <p className="mt-2 text-muted">Cargando configuración...</p>
         </div>
       </div>
     )
@@ -208,8 +208,8 @@ export default function AppConfigPage() {
     <div className="container-fluid py-4">
       <div className="d-flex justify-content-between align-items-center mb-4">
         <div>
-          <h4 className="mb-1">Configuracion del Sistema</h4>
-          <p className="text-muted mb-0">Administra los datos de empresa, branding y autenticacion.</p>
+          <h4 className="mb-1">Configuración del Sistema</h4>
+          <p className="text-muted mb-0">Administra los datos de empresa, branding y autenticación.</p>
         </div>
       </div>
 
@@ -417,7 +417,7 @@ export default function AppConfigPage() {
           </div>
           <div className="card-body">
             <p className="text-muted mb-3" style={{ fontSize: '13px' }}>
-              Verifica que la configuracion SMTP sea correcta enviando un correo de prueba.
+              Verifica que la configuración SMTP sea correcta enviando un correo de prueba.
             </p>
             <div className="d-flex gap-2 align-items-end">
               <div className="flex-grow-1">

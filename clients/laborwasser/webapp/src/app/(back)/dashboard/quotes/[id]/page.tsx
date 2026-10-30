@@ -256,7 +256,7 @@ export default function QuoteDetailPage({ params }: PageProps) {
       <div className="container-fluid py-4">
         <div className="d-flex justify-content-center">
           <div className="spinner-border text-primary" role="status">
-            <span className="visually-hidden">Cargando cotizacion...</span>
+            <span className="visually-hidden">Cargando cotización...</span>
           </div>
         </div>
       </div>
@@ -270,7 +270,7 @@ export default function QuoteDetailPage({ params }: PageProps) {
           <div className="card-body text-center py-5">
             <i className="bi bi-file-earmark-x display-4 text-muted mb-3 d-block"></i>
             <h5>Cotización no encontrada</h5>
-            <p className="text-muted">La cotizacion que buscas no existe o fue eliminada.</p>
+            <p className="text-muted">La cotización que buscas no existe o fue eliminada.</p>
             <button
               className="btn btn-primary mt-3"
               onClick={() => router.push('/dashboard/quotes')}
@@ -418,7 +418,7 @@ export default function QuoteDetailPage({ params }: PageProps) {
             <div className="card-header d-flex justify-content-between align-items-center">
               <h5 className="card-title mb-0">
                 <i className="bi bi-file-earmark-text me-2"></i>
-                Informacion de la Cotizacion
+                Información de la Cotización
               </h5>
               {canEditQuote(quote, userIsAdmin) && !isEditing && (
                 <button className="btn btn-sm btn-outline-primary" onClick={handleStartEdit}>
@@ -445,7 +445,7 @@ export default function QuoteDetailPage({ params }: PageProps) {
                   <div className="d-flex align-items-start">
                     <i className="bi bi-calendar text-muted me-3 fs-5"></i>
                     <div>
-                      <small className="text-muted d-block">Fecha de Cotizacion</small>
+                      <small className="text-muted d-block">Fecha de Cotización</small>
                       <strong>{formatDateOnly(quote.quoteDate, 'es-MX', { day: '2-digit', month: 'long', year: 'numeric' })}</strong>
                     </div>
                   </div>
@@ -486,7 +486,7 @@ export default function QuoteDetailPage({ params }: PageProps) {
                   <div className="d-flex align-items-start">
                     <i className="bi bi-credit-card text-muted me-3 fs-5"></i>
                     <div>
-                      <small className="text-muted d-block">Metodo de pago</small>
+                      <small className="text-muted d-block">Método de pago</small>
                       {isEditing ? (
                         <select
                           className="form-select form-select-sm"
@@ -512,7 +512,7 @@ export default function QuoteDetailPage({ params }: PageProps) {
                   <div className="d-flex align-items-start">
                     <i className="bi bi-calendar-week text-muted me-3 fs-5"></i>
                     <div>
-                      <small className="text-muted d-block">Dias de credito</small>
+                      <small className="text-muted d-block">Días de crédito</small>
                       {isEditing ? (
                         <input
                           type="number"
@@ -761,14 +761,14 @@ export default function QuoteDetailPage({ params }: PageProps) {
         <div className="modal-dialog">
           <div className="modal-content">
             <div className="modal-header">
-              <h5 className="modal-title">Rechazar Cotizacion</h5>
+              <h5 className="modal-title">Rechazar Cotización</h5>
               <button aria-label="Cerrar" type="button" className="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div className="modal-body">
               <p className="text-muted">
-                Marcar esta cotizacion como rechazada. Opcionalmente puedes agregar una razon.
+                Marcar esta cotización como rechazada. Opcionalmente puedes agregar una razón.
               </p>
-              <label className="form-label">Razon del rechazo (opcional)</label>
+              <label className="form-label">Razón del rechazo (opcional)</label>
               <textarea
                 className="form-control"
                 value={rejectReason}
@@ -829,7 +829,7 @@ export default function QuoteDetailPage({ params }: PageProps) {
               </div>
               <div className="modal-body">
                 <p className="text-muted small">
-                  Se creara una orden de compra para los productos de esta cotizacion.
+                  Se creara una orden de compra para los productos de esta cotización.
                   Selecciona el proveedor al que se solicitara el material.
                 </p>
                 <label className="form-label" htmlFor="po-supplier">

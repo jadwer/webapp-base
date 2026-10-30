@@ -143,7 +143,7 @@ export const BudgetForm: React.FC<BudgetFormProps> = ({
       <div className="row g-3">
         {/* Basic Info */}
         <div className="col-12">
-          <h6 className="text-muted mb-3">Informacion Basica</h6>
+          <h6 className="text-muted mb-3">Información Básica</h6>
         </div>
 
         <div className="col-md-8">
@@ -347,7 +347,7 @@ export const BudgetForm: React.FC<BudgetFormProps> = ({
               Permitir Sobrecompromiso
             </label>
           </div>
-          <small className="text-muted">Permitir comprometer mas del disponible</small>
+          <small className="text-muted">Permitir comprometer más del disponible</small>
         </div>
 
         <div className="col-md-4">

@@ -135,7 +135,7 @@ export default function AttendanceViewPage({ params }: AttendanceViewPageProps) 
                   <div className="mb-4 pb-3 border-bottom">
                     <h5 className="text-primary mb-3">
                       <i className="bi bi-calendar-date me-2" />
-                      Informacion de Fecha
+                      Información de Fecha
                     </h5>
                     <p className="mb-0 fs-5">{formatDate(attendance.date)}</p>
                   </div>

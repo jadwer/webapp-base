@@ -197,7 +197,7 @@ export const SalesAdvancedReportsPage = () => {
                 Reportes Avanzados de Ventas
               </h1>
               <p className="text-muted mb-0">
-                Analisis de rentabilidad, tendencias y trazabilidad por lote
+                Análisis de rentabilidad, tendencias y trazabilidad por lote
               </p>
             </div>
           </div>
@@ -318,7 +318,7 @@ export const SalesAdvancedReportsPage = () => {
               <div className="col-12 col-md-3">
                 <label className="form-label small text-muted mb-1">
                   <i className="bi bi-upc me-1" />
-                  Numero de Lote
+                  Número de Lote
                 </label>
                 <input
                   type="text"
@@ -334,7 +334,7 @@ export const SalesAdvancedReportsPage = () => {
               <div className="col-12 col-md-3">
                 <label className="form-label small text-muted mb-1">
                   <i className="bi bi-tags me-1" />
-                  ID Categoria
+                  ID Categoría
                 </label>
                 <input
                   type="number"
@@ -445,7 +445,7 @@ export const SalesAdvancedReportsPage = () => {
                     <div className="col-md-3">
                       <div className="card bg-secondary text-white">
                         <div className="card-body">
-                          <div className="small text-white-50">Total Ordenes</div>
+                          <div className="small text-white-50">Total Órdenes</div>
                           <div className="h3 mb-0">{salesByEmployee.summary?.totalOrders || 0}</div>
                         </div>
                       </div>
@@ -482,7 +482,7 @@ export const SalesAdvancedReportsPage = () => {
                 <div className="col-md-6">
                   <div className="card h-100">
                     <div className="card-header">
-                      <h6 className="mb-0">Distribucion de Ventas</h6>
+                      <h6 className="mb-0">Distribución de Ventas</h6>
                     </div>
                     <div className="card-body">
                       <ResponsiveContainer width="100%" height={300}>
@@ -519,7 +519,7 @@ export const SalesAdvancedReportsPage = () => {
                           <thead className="table-light">
                             <tr>
                               <th>Vendedor</th>
-                              <th className="text-center">Ordenes</th>
+                              <th className="text-center">Órdenes</th>
                               <th className="text-end">Ventas</th>
                               <th className="text-end">Costo</th>
                               <th className="text-end">Utilidad</th>
@@ -828,7 +828,7 @@ export const SalesAdvancedReportsPage = () => {
                     className={`btn btn-outline-primary ${trendGroupBy === 'day' ? 'active' : ''}`}
                     onClick={() => setTrendGroupBy('day')}
                   >
-                    Por Dia
+                    Por Día
                   </button>
                   <button
                     className={`btn btn-outline-primary ${trendGroupBy === 'week' ? 'active' : ''}`}
@@ -867,7 +867,7 @@ export const SalesAdvancedReportsPage = () => {
                       <div className="col-md-3">
                         <div className="card bg-info text-white">
                           <div className="card-body">
-                            <div className="small text-white-50">Total Ordenes</div>
+                            <div className="small text-white-50">Total Órdenes</div>
                             <div className="h3 mb-0">{salesTrend.summary?.totalOrders || 0}</div>
                           </div>
                         </div>

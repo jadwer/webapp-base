@@ -61,7 +61,7 @@ export const ViewBudgetWrapper: React.FC<ViewBudgetWrapperProps> = ({ budgetId }
       <div className="container-fluid py-4">
         <Alert variant="warning">
           <i className="bi bi-exclamation-triangle me-2" />
-          No se encontro el presupuesto solicitado
+          No se encontró el presupuesto solicitado
         </Alert>
       </div>
     )
@@ -128,7 +128,7 @@ export const ViewBudgetWrapper: React.FC<ViewBudgetWrapperProps> = ({ budgetId }
           {/* Budget Progress Card */}
           <div className="card mb-4">
             <div className="card-header">
-              <h5 className="card-title mb-0">Utilizacion del Presupuesto</h5>
+              <h5 className="card-title mb-0">Utilización del Presupuesto</h5>
             </div>
             <div className="card-body">
               <div className="d-flex justify-content-between align-items-center mb-2">
@@ -201,7 +201,7 @@ export const ViewBudgetWrapper: React.FC<ViewBudgetWrapperProps> = ({ budgetId }
           {budget.description && (
             <div className="card mb-4">
               <div className="card-header">
-                <h5 className="card-title mb-0">Descripcion</h5>
+                <h5 className="card-title mb-0">Descripción</h5>
               </div>
               <div className="card-body">
                 <p className="mb-0">{budget.description}</p>
@@ -215,7 +215,7 @@ export const ViewBudgetWrapper: React.FC<ViewBudgetWrapperProps> = ({ budgetId }
           {/* Type and Period */}
           <div className="card mb-4">
             <div className="card-header">
-              <h5 className="card-title mb-0">Clasificacion</h5>
+              <h5 className="card-title mb-0">Clasificación</h5>
             </div>
             <div className="card-body">
               <dl className="mb-0">
@@ -237,7 +237,7 @@ export const ViewBudgetWrapper: React.FC<ViewBudgetWrapperProps> = ({ budgetId }
 
                 {budget.fiscalYear && (
                   <>
-                    <dt className="text-muted small mt-3">Ano Fiscal</dt>
+                    <dt className="text-muted small mt-3">Año Fiscal</dt>
                     <dd>{budget.fiscalYear}</dd>
                   </>
                 )}
@@ -258,7 +258,7 @@ export const ViewBudgetWrapper: React.FC<ViewBudgetWrapperProps> = ({ budgetId }
 
                 {budget.categoryName && (
                   <>
-                    <dt className="text-muted small mt-3">Categoria</dt>
+                    <dt className="text-muted small mt-3">Categoría</dt>
                     <dd>{budget.categoryName}</dd>
                   </>
                 )}
@@ -276,7 +276,7 @@ export const ViewBudgetWrapper: React.FC<ViewBudgetWrapperProps> = ({ budgetId }
           {/* Options */}
           <div className="card mb-4">
             <div className="card-header">
-              <h5 className="card-title mb-0">Configuracion</h5>
+              <h5 className="card-title mb-0">Configuración</h5>
             </div>
             <div className="card-body">
               <div className="d-flex align-items-center mb-3">
@@ -297,7 +297,7 @@ export const ViewBudgetWrapper: React.FC<ViewBudgetWrapperProps> = ({ budgetId }
           {/* Metadata */}
           <div className="card">
             <div className="card-header">
-              <h5 className="card-title mb-0">Informacion del Registro</h5>
+              <h5 className="card-title mb-0">Información del Registro</h5>
             </div>
             <div className="card-body">
               <dl className="mb-0">

@@ -50,7 +50,7 @@ export const UnitsTableVirtualized = React.memo<UnitsTableVirtualizedProps>(({
         <div className="card-body text-center py-5">
           <i className="bi bi-rulers display-1 text-muted mb-3"></i>
           <h5 className="text-muted">No se encontraron unidades</h5>
-          <p className="text-muted">Intenta cambiar los filtros de busqueda o crea una nueva unidad.</p>
+          <p className="text-muted">Intenta cambiar los filtros de búsqueda o crea una nueva unidad.</p>
         </div>
       </div>
     )
@@ -109,7 +109,7 @@ export const UnitsTableVirtualized = React.memo<UnitsTableVirtualizedProps>(({
 
                       <td>
                         <div className="small text-muted text-truncate">
-                          {unit.description || <span className="fst-italic">Sin descripcion</span>}
+                          {unit.description || <span className="fst-italic">Sin descripción</span>}
                         </div>
                       </td>
 

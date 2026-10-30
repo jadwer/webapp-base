@@ -345,7 +345,7 @@ export default function InvoiceViewPage({ params }: InvoiceViewPageProps) {
                       <p className="fs-5 mb-0">{invoice.formaPago}</p>
                     </div>
                     <div className="col-md-4">
-                      <h6 className="text-muted mb-1">Metodo de Pago</h6>
+                      <h6 className="text-muted mb-1">Método de Pago</h6>
                       <p className="fs-5 mb-0">{invoice.metodoPago}</p>
                     </div>
                     <div className="col-md-4">
@@ -375,7 +375,7 @@ export default function InvoiceViewPage({ params }: InvoiceViewPageProps) {
                       <p className="fs-5 mb-0 font-monospace">{invoice.receptorRfc}</p>
                     </div>
                     <div className="col-md-6">
-                      <h6 className="text-muted mb-1">Razon Social</h6>
+                      <h6 className="text-muted mb-1">Razón Social</h6>
                       <p className="fs-5 mb-0">{invoice.receptorNombre}</p>
                     </div>
                   </div>

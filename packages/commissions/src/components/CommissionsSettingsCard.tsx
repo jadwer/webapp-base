@@ -68,7 +68,7 @@ export const CommissionsSettingsCard: React.FC = () => {
       <div className="card-header d-flex justify-content-between align-items-center">
         <h6 className="mb-0">
           <i className="bi bi-gear me-2" />
-          Comisiones - Configuracion
+          Comisiones - Configuración
         </h6>
         {savedMessage && <span className="small text-success">{savedMessage}</span>}
       </div>

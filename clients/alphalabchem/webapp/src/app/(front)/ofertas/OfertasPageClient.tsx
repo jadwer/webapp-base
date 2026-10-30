@@ -216,7 +216,7 @@ export const OfertasPageClient: React.FC = () => {
                 ) : (
                   <>
                     <i className="bi bi-arrow-down-circle me-2"></i>
-                    Ver mas ofertas
+                    Ver más ofertas
                   </>
                 )}
               </Button>
@@ -231,12 +231,12 @@ export const OfertasPageClient: React.FC = () => {
           <i className="bi bi-tag display-1 text-muted mb-4 d-block"></i>
           <h3>No hay ofertas disponibles</h3>
           <p className="text-muted mb-4">
-            Actualmente no tenemos ofertas activas. Visita nuestro catalogo completo.
+            Actualmente no tenemos ofertas activas. Visita nuestro catálogo completo.
           </p>
           <Link href="/productos">
             <Button variant="primary" size="large">
               <i className="bi bi-grid me-2"></i>
-              Ver Catalogo
+              Ver Catálogo
             </Button>
           </Link>
         </div>
@@ -252,7 +252,7 @@ export const OfertasPageClient: React.FC = () => {
                 No te pierdas nuestras ofertas
               </h3>
               <p className="mb-4">
-                Contactanos para recibir informacion sobre nuevas ofertas y promociones exclusivas.
+                Contactanos para recibir información sobre nuevas ofertas y promociones exclusivas.
               </p>
               <div className="d-flex gap-3 justify-content-center flex-wrap">
                 <a
@@ -273,7 +273,7 @@ export const OfertasPageClient: React.FC = () => {
                 </a>
                 <Link href="/productos" className="btn btn-outline-light btn-lg">
                   <i className="bi bi-grid me-2"></i>
-                  Ver Catalogo
+                  Ver Catálogo
                 </Link>
               </div>
             </div>

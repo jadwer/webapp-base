@@ -100,7 +100,7 @@ export default function EmployeeViewPage({ params }: EmployeeViewPageProps) {
                 <div className="card-header bg-light">
                   <h5 className="mb-0">
                     <i className="bi bi-person me-2" />
-                    Informacion Personal
+                    Información Personal
                   </h5>
                 </div>
                 <div className="card-body p-4">
@@ -119,7 +119,7 @@ export default function EmployeeViewPage({ params }: EmployeeViewPageProps) {
                     )}
                     {employee.phone && (
                       <div className="col-md-6">
-                        <h6 className="text-muted mb-1">Telefono</h6>
+                        <h6 className="text-muted mb-1">Teléfono</h6>
                         <p className="fs-5 mb-0">
                           <a href={`tel:${employee.phone}`}>{employee.phone}</a>
                         </p>
@@ -134,14 +134,14 @@ export default function EmployeeViewPage({ params }: EmployeeViewPageProps) {
                 <div className="card-header bg-light">
                   <h5 className="mb-0">
                     <i className="bi bi-briefcase me-2" />
-                    Informacion Laboral
+                    Información Laboral
                   </h5>
                 </div>
                 <div className="card-body p-4">
                   <div className="row g-4">
                     {employee.hireDate && (
                       <div className="col-md-6">
-                        <h6 className="text-muted mb-1">Fecha de Contratacion</h6>
+                        <h6 className="text-muted mb-1">Fecha de Contratación</h6>
                         <p className="fs-5 mb-0">{formatDateOnly(employee.hireDate)}</p>
                       </div>
                     )}

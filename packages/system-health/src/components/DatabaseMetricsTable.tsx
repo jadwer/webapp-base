@@ -25,7 +25,7 @@ export function DatabaseMetricsTable({ metrics }: DatabaseMetricsTableProps) {
               <tr>
                 <th>Tabla</th>
                 <th className="text-end">Registros</th>
-                <th className="text-end">Tamano (MB)</th>
+                <th className="text-end">Tamaño (MB)</th>
               </tr>
             </thead>
             <tbody>

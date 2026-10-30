@@ -86,7 +86,7 @@ export default function MyQuotesPage() {
         </div>
         <Link href="/productos" className="btn btn-primary">
           <i className="bi bi-plus-circle me-2"></i>
-          Nueva Cotizacion
+          Nueva Cotización
         </Link>
       </div>
 
@@ -110,11 +110,11 @@ export default function MyQuotesPage() {
             <i className="bi bi-file-earmark-text text-muted" style={{ fontSize: '3rem' }}></i>
             <h5 className="mt-3">No tienes cotizaciones</h5>
             <p className="text-muted">
-              Explora nuestro catalogo y solicita una cotizacion para los productos que necesitas.
+              Explora nuestro catálogo y solicita una cotización para los productos que necesitas.
             </p>
             <Link href="/productos" className="btn btn-primary mt-2">
               <i className="bi bi-grid-3x3-gap me-2"></i>
-              Ver Catalogo
+              Ver Catálogo
             </Link>
           </div>
         </div>
@@ -178,16 +178,16 @@ export default function MyQuotesPage() {
         <div className="card-body">
           <h6 className="card-title">
             <i className="bi bi-info-circle me-2"></i>
-            Estados de cotizacion
+            Estados de cotización
           </h6>
           <div className="row mt-3">
             <div className="col-md-3 col-6 mb-2">
               <QuoteStatusBadge status="draft" />
-              <small className="d-block text-muted mt-1">En revision</small>
+              <small className="d-block text-muted mt-1">En revisión</small>
             </div>
             <div className="col-md-3 col-6 mb-2">
               <QuoteStatusBadge status="sent" />
-              <small className="d-block text-muted mt-1">Enviada para tu aprobacion</small>
+              <small className="d-block text-muted mt-1">Enviada para tu aprobación</small>
             </div>
             <div className="col-md-3 col-6 mb-2">
               <QuoteStatusBadge status="accepted" />

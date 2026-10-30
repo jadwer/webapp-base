@@ -44,7 +44,7 @@ export const ManagementReportsPage = () => {
                 Reportes Gerenciales
               </h1>
               <p className="text-muted">
-                Analisis de ventas y compras por cliente, proveedor y producto
+                Análisis de ventas y compras por cliente, proveedor y producto
               </p>
             </div>
           </div>
@@ -280,7 +280,7 @@ export const ManagementReportsPage = () => {
                     <thead className="table-light">
                       <tr>
                         <th>Proveedor</th>
-                        <th className="text-center">Ordenes</th>
+                        <th className="text-center">Órdenes</th>
                         <th className="text-end">Total Compras</th>
                         <th className="text-end">Ticket Promedio</th>
                       </tr>

@@ -321,7 +321,7 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
             <div className="card-header">
               <h5 className="card-title mb-0">
                 <i className="bi bi-info-circle me-2"></i>
-                Informacion de la Orden
+                Información de la Orden
               </h5>
             </div>
             <div className="card-body">
@@ -498,7 +498,7 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
                   ) : (
                     <i className="bi bi-plus me-1" />
                   )}
-                  Generar Remision
+                  Generar Remisión
                 </button>
               )}
             </div>
@@ -687,7 +687,7 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
                   ) : (
                     <i className="bi bi-truck me-2"></i>
                   )}
-                  Generar Remision
+                  Generar Remisión
                 </button>
                 {/* Bloque FE del ciclo: antes ambos botones navegaban a un formulario
                     generico SIN el id de la orden (cascarones, hallazgo C1 del QA).

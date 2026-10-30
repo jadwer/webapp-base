@@ -229,7 +229,7 @@ export const CycleCountForm: React.FC<CycleCountFormProps> = ({
         {/* ABC Class */}
         <div className="col-md-4">
           <label htmlFor="abcClass" className="form-label">
-            Clasificacion ABC
+            Clasificación ABC
           </label>
           <select
             id="abcClass"

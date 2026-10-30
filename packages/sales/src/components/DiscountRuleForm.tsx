@@ -190,7 +190,7 @@ export const DiscountRuleForm: React.FC<DiscountRuleFormProps> = ({
       <div className="row g-3">
         {/* Basic Information */}
         <div className="col-12">
-          <h6 className="text-muted border-bottom pb-2 mb-3">Informacion Basica</h6>
+          <h6 className="text-muted border-bottom pb-2 mb-3">Información Básica</h6>
         </div>
 
         {/* Name */}
@@ -219,7 +219,7 @@ export const DiscountRuleForm: React.FC<DiscountRuleFormProps> = ({
             disabled={isLoading}
             placeholder="Ej: VERANO2025"
           />
-          <small className="text-muted">Codigo unico para identificar la regla</small>
+          <small className="text-muted">Código único para identificar la regla</small>
         </div>
 
         {/* Description */}
@@ -241,7 +241,7 @@ export const DiscountRuleForm: React.FC<DiscountRuleFormProps> = ({
 
         {/* Discount Configuration */}
         <div className="col-12 mt-4">
-          <h6 className="text-muted border-bottom pb-2 mb-3">Configuracion del Descuento</h6>
+          <h6 className="text-muted border-bottom pb-2 mb-3">Configuración del Descuento</h6>
         </div>
 
         {/* Discount Type */}
@@ -332,7 +332,7 @@ export const DiscountRuleForm: React.FC<DiscountRuleFormProps> = ({
             step="0.01"
             placeholder="Sin limite"
           />
-          <small className="text-muted">Opcional: limita el descuento maximo</small>
+          <small className="text-muted">Opcional: limita el descuento máximo</small>
         </div>
 
         {/* Applies To */}
@@ -458,7 +458,7 @@ export const DiscountRuleForm: React.FC<DiscountRuleFormProps> = ({
             min="0"
             step="1"
           />
-          <small className="text-muted">Mayor numero = mayor prioridad</small>
+          <small className="text-muted">Mayor número = mayor prioridad</small>
         </div>
 
         {/* Options */}

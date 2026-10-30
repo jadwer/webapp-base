@@ -102,7 +102,7 @@ export const OfferForm: React.FC<OfferFormProps> = ({
               <div className="card-header">
                 <h5 className="card-title mb-0">
                   <i className="bi bi-box me-2"></i>
-                  Informacion del Producto
+                  Información del Producto
                 </h5>
               </div>
               <div className="card-body">
@@ -119,14 +119,14 @@ export const OfferForm: React.FC<OfferFormProps> = ({
 
                   {offer.description && (
                     <>
-                      <dt className="col-sm-3">Descripcion</dt>
+                      <dt className="col-sm-3">Descripción</dt>
                       <dd className="col-sm-9">{offer.description}</dd>
                     </>
                   )}
 
                   {offer.category && (
                     <>
-                      <dt className="col-sm-3">Categoria</dt>
+                      <dt className="col-sm-3">Categoría</dt>
                       <dd className="col-sm-9">
                         <span className="badge bg-secondary">{offer.category.name}</span>
                       </dd>
@@ -158,7 +158,7 @@ export const OfferForm: React.FC<OfferFormProps> = ({
             <div className="card-header">
               <h5 className="card-title mb-0">
                 <i className="bi bi-tag me-2"></i>
-                Configuracion de Precios
+                Configuración de Precios
               </h5>
             </div>
             <div className="card-body">

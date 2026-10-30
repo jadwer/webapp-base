@@ -26,7 +26,7 @@ export default function EcommerceDashboardPage() {
       <div className="mb-4">
         <h1 className="h3">Panel de comercio electrónico</h1>
         <p className="text-muted">
-          Resumen general del modulo de comercio electronico
+          Resumen general del módulo de comercio electrónico
         </p>
       </div>
 
@@ -42,7 +42,7 @@ export default function EcommerceDashboardPage() {
             <div className="card-body text-center">
               <i className="bi bi-bag-check fs-1 text-primary mb-2"></i>
               <h3 className="mb-1">{isLoading ? '...' : stats.totalOrders}</h3>
-              <p className="text-muted mb-0">Total Ordenes</p>
+              <p className="text-muted mb-0">Total Órdenes</p>
             </div>
           </div>
         </div>
@@ -81,7 +81,7 @@ export default function EcommerceDashboardPage() {
             <div className="card-header bg-white border-0">
               <h5 className="mb-0">
                 <i className="bi bi-bag me-2"></i>
-                Ordenes Recientes
+                Órdenes Recientes
               </h5>
             </div>
             <div className="card-body">
@@ -108,7 +108,7 @@ export default function EcommerceDashboardPage() {
                   ))}
                 </ul>
               ) : (
-                <p className="text-muted mb-0">No hay ordenes recientes</p>
+                <p className="text-muted mb-0">No hay órdenes recientes</p>
               )}
             </div>
           </div>
@@ -126,7 +126,7 @@ export default function EcommerceDashboardPage() {
               <div className="d-grid gap-2">
                 <Link href="/dashboard/ecommerce/orders" className="btn btn-outline-primary">
                   <i className="bi bi-bag-check me-2"></i>
-                  Ver Todas las Ordenes
+                  Ver Todas las Órdenes
                 </Link>
                 <Link href="/dashboard/ecommerce/orders/create" className="btn btn-outline-success">
                   <i className="bi bi-plus-circle me-2"></i>

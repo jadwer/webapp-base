@@ -215,7 +215,7 @@ export const BankTransactionFormComponent: React.FC<BankTransactionFormProps> = 
         {/* Statement Number */}
         <div className="col-md-6">
           <label htmlFor="statementNumber" className="form-label">
-            Numero de Estado de Cuenta
+            Número de Estado de Cuenta
           </label>
           <Input
             id="statementNumber"
@@ -247,7 +247,7 @@ export const BankTransactionFormComponent: React.FC<BankTransactionFormProps> = 
         {isEdit && (
           <div className="col-md-6">
             <label htmlFor="reconciliationStatus" className="form-label">
-              Estado de Conciliacion
+              Estado de Conciliación
             </label>
             <select
               id="reconciliationStatus"
@@ -296,7 +296,7 @@ export const BankTransactionFormComponent: React.FC<BankTransactionFormProps> = 
               disabled={isLoading}
             />
             <label htmlFor="isActive" className="form-check-label">
-              Transaccion activa
+              Transacción activa
             </label>
           </div>
         </div>

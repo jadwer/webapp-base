@@ -139,7 +139,7 @@ export const CycleCountDetail: React.FC<CycleCountDetailProps> = ({
           <div className="col-md-6">
             <div className="card bg-light">
               <div className="card-body">
-                <h6 className="card-subtitle mb-3 text-muted">Ubicacion</h6>
+                <h6 className="card-subtitle mb-3 text-muted">Ubicación</h6>
                 {cycleCount.warehouse ? (
                   <>
                     <p className="mb-1">
@@ -155,7 +155,7 @@ export const CycleCountDetail: React.FC<CycleCountDetailProps> = ({
                     )}
                   </>
                 ) : (
-                  <p className="text-muted mb-0">Ubicacion no especificada</p>
+                  <p className="text-muted mb-0">Ubicación no especificada</p>
                 )}
               </div>
             </div>
@@ -178,7 +178,7 @@ export const CycleCountDetail: React.FC<CycleCountDetailProps> = ({
                     </h4>
                   </div>
                   <div className="col-4">
-                    <small className="text-muted d-block">Variacion</small>
+                    <small className="text-muted d-block">Variación</small>
                     {cycleCount.status === 'completed' ? (
                       <VarianceBadge
                         hasVariance={cycleCount.hasVariance}
@@ -192,7 +192,7 @@ export const CycleCountDetail: React.FC<CycleCountDetailProps> = ({
                 </div>
                 {cycleCount.varianceValue !== null && cycleCount.varianceValue !== undefined && (
                   <div className="mt-3 pt-3 border-top">
-                    <small className="text-muted d-block">Valor de Variacion</small>
+                    <small className="text-muted d-block">Valor de Variación</small>
                     <h5 className={`mb-0 ${cycleCount.varianceValue < 0 ? 'text-danger' : 'text-warning'}`}>
                       ${Math.abs(cycleCount.varianceValue).toFixed(2)}
                       {cycleCount.varianceValue < 0 ? ' (Faltante)' : ' (Sobrante)'}

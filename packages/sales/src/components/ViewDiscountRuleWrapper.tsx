@@ -113,7 +113,7 @@ export const ViewDiscountRuleWrapper: React.FC<ViewDiscountRuleWrapperProps> = (
             <div className="card-header">
               <h5 className="mb-0">
                 <i className="bi bi-info-circle me-2" />
-                Informacion General
+                Información General
               </h5>
             </div>
             <div className="card-body">
@@ -161,7 +161,7 @@ export const ViewDiscountRuleWrapper: React.FC<ViewDiscountRuleWrapperProps> = (
 
                 {discountRule.description && (
                   <div className="col-12">
-                    <label className="form-label text-muted small">Descripcion</label>
+                    <label className="form-label text-muted small">Descripción</label>
                     <div>{discountRule.description}</div>
                   </div>
                 )}
@@ -180,17 +180,17 @@ export const ViewDiscountRuleWrapper: React.FC<ViewDiscountRuleWrapperProps> = (
             <div className="card-body">
               <div className="row g-4">
                 <div className="col-md-4">
-                  <label className="form-label text-muted small">Monto Minimo de Orden</label>
+                  <label className="form-label text-muted small">Monto Mínimo de Orden</label>
                   <div>{formatCurrency(discountRule.minOrderAmount)}</div>
                 </div>
 
                 <div className="col-md-4">
-                  <label className="form-label text-muted small">Cantidad Minima</label>
+                  <label className="form-label text-muted small">Cantidad Mínima</label>
                   <div>{discountRule.minQuantity || '-'}</div>
                 </div>
 
                 <div className="col-md-4">
-                  <label className="form-label text-muted small">Descuento Maximo</label>
+                  <label className="form-label text-muted small">Descuento Máximo</label>
                   <div>{formatCurrency(discountRule.maxDiscountAmount)}</div>
                 </div>
 
@@ -304,18 +304,18 @@ export const ViewDiscountRuleWrapper: React.FC<ViewDiscountRuleWrapperProps> = (
             <div className="card-header">
               <h5 className="mb-0">
                 <i className="bi bi-clock-history me-2" />
-                Informacion del Sistema
+                Información del Sistema
               </h5>
             </div>
             <div className="card-body">
               <div className="row g-4">
                 <div className="col-md-6">
-                  <label className="form-label text-muted small">Fecha de Creacion</label>
+                  <label className="form-label text-muted small">Fecha de Creación</label>
                   <div>{formatDateTime(discountRule.createdAt)}</div>
                 </div>
 
                 <div className="col-md-6">
-                  <label className="form-label text-muted small">Ultima Actualizacion</label>
+                  <label className="form-label text-muted small">Última Actualización</label>
                   <div>{formatDateTime(discountRule.updatedAt)}</div>
                 </div>
               </div>

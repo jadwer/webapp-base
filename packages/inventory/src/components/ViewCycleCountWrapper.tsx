@@ -115,7 +115,7 @@ export const ViewCycleCountWrapper: React.FC<ViewCycleCountWrapperProps> = ({ id
         </button>
         <div>
           <h1 className="h3 mb-0">Detalle de Conteo Ciclico</h1>
-          <p className="text-muted mb-0">Informacion completa del conteo</p>
+          <p className="text-muted mb-0">Información completa del conteo</p>
         </div>
       </div>
 

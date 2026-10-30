@@ -197,7 +197,7 @@ export default function RemissionsPage() {
             <i className="bi bi-truck me-3"></i>
             Remisiones
           </h1>
-          <p className="text-muted">Notas de entrega generadas desde ordenes de venta</p>
+          <p className="text-muted">Notas de entrega generadas desde órdenes de venta</p>
         </div>
       </div>
 
@@ -206,7 +206,7 @@ export default function RemissionsPage() {
         <div className="card-header">
           <h5 className="card-title mb-0">
             <i className="bi bi-plus-circle me-2"></i>
-            Generar remision desde orden
+            Generar remisión desde orden
           </h5>
         </div>
         <div className="card-body">
@@ -235,12 +235,12 @@ export default function RemissionsPage() {
                 ) : (
                   <i className="bi bi-truck me-2"></i>
                 )}
-                Generar remision
+                Generar remisión
               </button>
             </div>
           </div>
           <small className="text-muted d-block mt-2">
-            Genera la remision con todos los items de la orden. Requiere stock disponible.
+            Genera la remisión con todos los items de la orden. Requiere stock disponible.
           </small>
         </div>
       </div>

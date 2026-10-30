@@ -266,7 +266,7 @@ export const CommissionsPage: React.FC = () => {
               </div>
               {selectedStatuses.length > 1 && (
                 <div className="form-text">
-                  Con multiples estados, el filtro se aplica sobre la pagina cargada del periodo.
+                  Con multiples estados, el filtro se aplica sobre la página cargada del periodo.
                 </div>
               )}
             </div>
@@ -338,7 +338,7 @@ export const CommissionsPage: React.FC = () => {
                     <th>Vendedor</th>
                     <th className="text-end">Base</th>
                     <th className="text-end">%</th>
-                    <th className="text-end">Comision</th>
+                    <th className="text-end">Comisión</th>
                     <th className="text-center">Estado</th>
                     <th>Ganada</th>
                     <th>Pagada</th>

@@ -54,7 +54,7 @@ export const ProductsTableVirtualized = React.memo<ProductsTableVirtualizedProps
         <div className="card-body text-center py-5">
           <i className="bi bi-box-seam display-1 text-muted mb-3"></i>
           <h5 className="text-muted">No se encontraron productos</h5>
-          <p className="text-muted">Intenta cambiar los filtros de busqueda.</p>
+          <p className="text-muted">Intenta cambiar los filtros de búsqueda.</p>
         </div>
       </div>
     )

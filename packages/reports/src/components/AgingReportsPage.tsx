@@ -40,7 +40,7 @@ export const AgingReportsPage = () => {
                 Reportes de Antigüedad
               </h1>
               <p className="text-muted">
-                Analisis de Cuentas por Cobrar y Cuentas por Pagar por periodos de vencimiento
+                Análisis de Cuentas por Cobrar y Cuentas por Pagar por periodos de vencimiento
               </p>
             </div>
           </div>
@@ -113,7 +113,7 @@ export const AgingReportsPage = () => {
                 <div className="col-6 col-md-3">
                   <div className="card border-success">
                     <div className="card-body py-2">
-                      <div className="small text-muted">0-30 dias</div>
+                      <div className="small text-muted">0-30 días</div>
                       <div className="h5 mb-0 text-success">{formatCurrency(arAgingReport.summary?.current)}</div>
                     </div>
                   </div>
@@ -121,7 +121,7 @@ export const AgingReportsPage = () => {
                 <div className="col-6 col-md-3">
                   <div className="card border-warning">
                     <div className="card-body py-2">
-                      <div className="small text-muted">31-60 dias</div>
+                      <div className="small text-muted">31-60 días</div>
                       <div className="h5 mb-0 text-warning">{formatCurrency(arAgingReport.summary?.days30)}</div>
                     </div>
                   </div>
@@ -129,7 +129,7 @@ export const AgingReportsPage = () => {
                 <div className="col-6 col-md-3">
                   <div className="card border-danger">
                     <div className="card-body py-2">
-                      <div className="small text-muted">61-90 dias</div>
+                      <div className="small text-muted">61-90 días</div>
                       <div className="h5 mb-0 text-danger">{formatCurrency(arAgingReport.summary?.days60)}</div>
                     </div>
                   </div>
@@ -137,7 +137,7 @@ export const AgingReportsPage = () => {
                 <div className="col-6 col-md-3">
                   <div className="card border-dark">
                     <div className="card-body py-2">
-                      <div className="small text-muted">90+ dias</div>
+                      <div className="small text-muted">90+ días</div>
                       <div className="h5 mb-0 text-dark">{formatCurrency(arAgingReport.summary?.days90Plus)}</div>
                     </div>
                   </div>
@@ -157,10 +157,10 @@ export const AgingReportsPage = () => {
                     <thead className="table-light">
                       <tr>
                         <th>Cliente</th>
-                        <th className="text-end">0-30 dias</th>
-                        <th className="text-end">31-60 dias</th>
-                        <th className="text-end">61-90 dias</th>
-                        <th className="text-end">90+ dias</th>
+                        <th className="text-end">0-30 días</th>
+                        <th className="text-end">31-60 días</th>
+                        <th className="text-end">61-90 días</th>
+                        <th className="text-end">90+ días</th>
                         <th className="text-end">Total</th>
                       </tr>
                     </thead>
@@ -225,7 +225,7 @@ export const AgingReportsPage = () => {
                 <div className="col-6 col-md-3">
                   <div className="card border-success">
                     <div className="card-body py-2">
-                      <div className="small text-muted">0-30 dias</div>
+                      <div className="small text-muted">0-30 días</div>
                       <div className="h5 mb-0 text-success">{formatCurrency(apAgingReport.summary?.current)}</div>
                     </div>
                   </div>
@@ -233,7 +233,7 @@ export const AgingReportsPage = () => {
                 <div className="col-6 col-md-3">
                   <div className="card border-warning">
                     <div className="card-body py-2">
-                      <div className="small text-muted">31-60 dias</div>
+                      <div className="small text-muted">31-60 días</div>
                       <div className="h5 mb-0 text-warning">{formatCurrency(apAgingReport.summary?.days30)}</div>
                     </div>
                   </div>
@@ -241,7 +241,7 @@ export const AgingReportsPage = () => {
                 <div className="col-6 col-md-3">
                   <div className="card border-danger">
                     <div className="card-body py-2">
-                      <div className="small text-muted">61-90 dias</div>
+                      <div className="small text-muted">61-90 días</div>
                       <div className="h5 mb-0 text-danger">{formatCurrency(apAgingReport.summary?.days60)}</div>
                     </div>
                   </div>
@@ -249,7 +249,7 @@ export const AgingReportsPage = () => {
                 <div className="col-6 col-md-3">
                   <div className="card border-dark">
                     <div className="card-body py-2">
-                      <div className="small text-muted">90+ dias</div>
+                      <div className="small text-muted">90+ días</div>
                       <div className="h5 mb-0 text-dark">{formatCurrency(apAgingReport.summary?.days90Plus)}</div>
                     </div>
                   </div>
@@ -269,10 +269,10 @@ export const AgingReportsPage = () => {
                     <thead className="table-light">
                       <tr>
                         <th>Proveedor</th>
-                        <th className="text-end">0-30 dias</th>
-                        <th className="text-end">31-60 dias</th>
-                        <th className="text-end">61-90 dias</th>
-                        <th className="text-end">90+ dias</th>
+                        <th className="text-end">0-30 días</th>
+                        <th className="text-end">31-60 días</th>
+                        <th className="text-end">61-90 días</th>
+                        <th className="text-end">90+ días</th>
                         <th className="text-end">Total</th>
                       </tr>
                     </thead>

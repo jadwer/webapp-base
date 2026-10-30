@@ -33,7 +33,7 @@ export function ApplicationMetricsGrid({ metrics }: ApplicationMetricsGridProps)
       <div className="card-header">
         <h6 className="mb-0">
           <i className="bi bi-graph-up me-2" aria-hidden="true" />
-          Metricas de Aplicacion
+          Metricas de Aplicación
         </h6>
       </div>
       <div className="card-body">

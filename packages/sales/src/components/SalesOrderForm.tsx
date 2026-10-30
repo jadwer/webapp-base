@@ -170,7 +170,7 @@ export const SalesOrderForm: React.FC<SalesOrderFormProps> = ({
             <div className="card-header">
               <h5 className="card-title mb-0">
                 <i className="bi bi-info-circle me-2"></i>
-                Informacion de la Orden
+                Información de la Orden
               </h5>
             </div>
             <div className="card-body">

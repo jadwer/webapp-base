@@ -109,9 +109,9 @@ export default function MyCartPage() {
         <div className="card border-0 shadow-sm">
           <div className="card-body text-center py-5">
             <i className="bi bi-cart text-muted" style={{ fontSize: '3rem' }}></i>
-            <h5 className="mt-3">Tu carrito esta vacio</h5>
+            <h5 className="mt-3">Tu carrito esta vacío</h5>
             <p className="text-muted">
-              Explora nuestro catalogo y agrega productos a tu carrito.
+              Explora nuestro catálogo y agrega productos a tu carrito.
             </p>
             <button
               className="btn btn-primary"
@@ -250,7 +250,7 @@ export default function MyCartPage() {
                 )}
                 {cart.shippingAmount > 0 && (
                   <div className="d-flex justify-content-between mb-2">
-                    <span className="text-muted">Envio</span>
+                    <span className="text-muted">Envío</span>
                     <span>{formatCurrency(cart.shippingAmount)}</span>
                   </div>
                 )}

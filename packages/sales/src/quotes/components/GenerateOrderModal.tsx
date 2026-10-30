@@ -308,7 +308,7 @@ export function GenerateOrderModal({ quote, isOpen, onClose, onConverted }: Gene
             </h6>
             <div className="row g-3">
               <div className="col-md-6">
-                <label className="form-label" htmlFor="order-payment-method">Metodo de pago</label>
+                <label className="form-label" htmlFor="order-payment-method">Método de pago</label>
                 <select
                   id="order-payment-method"
                   className="form-select"
@@ -322,7 +322,7 @@ export function GenerateOrderModal({ quote, isOpen, onClose, onConverted }: Gene
               </div>
 
               <div className="col-md-6">
-                <label className="form-label" htmlFor="order-credit-days">Dias de credito</label>
+                <label className="form-label" htmlFor="order-credit-days">Días de crédito</label>
                 <input
                   id="order-credit-days"
                   type="number"

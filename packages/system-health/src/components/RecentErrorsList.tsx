@@ -20,7 +20,7 @@ export function RecentErrorsList({ errors }: RecentErrorsListProps) {
       <div className="card border-success">
         <div className="card-body text-center py-4">
           <i className="bi bi-check-circle-fill text-success fs-1 mb-2" aria-hidden="true" />
-          <h6 className="text-success mb-0">Sin errores en las ultimas 24 horas</h6>
+          <h6 className="text-success mb-0">Sin errores en las últimas 24 horas</h6>
         </div>
       </div>
     )

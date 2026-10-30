@@ -23,10 +23,10 @@ export default function FrontNotFound() {
               404
             </div>
             <h2 className="mb-3" style={{ color: "#333" }}>
-              La pagina que buscas no existe o fue movida
+              La página que buscas no existe o fue movida
             </h2>
             <p className="text-muted mb-4">
-              Es posible que el enlace este roto o que la pagina haya sido
+              Es posible que el enlace este roto o que la página haya sido
               eliminada. Intenta navegar desde el menu principal.
             </p>
             <div className="d-flex justify-content-center gap-3">

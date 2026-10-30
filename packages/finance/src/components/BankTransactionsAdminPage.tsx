@@ -162,12 +162,12 @@ export const BankTransactionsAdminPage = () => {
       <div className="d-flex justify-content-between align-items-center mb-4">
         <div>
           <h1 className="h3 mb-0">Transacciones Bancarias</h1>
-          <p className="text-muted mb-0">Gestion y conciliacion de movimientos bancarios</p>
+          <p className="text-muted mb-0">Gestion y conciliación de movimientos bancarios</p>
         </div>
         <div className="d-flex gap-2">
           <Button variant="primary" onClick={() => navigation.push('/dashboard/finance/bank-transactions/create')}>
             <i className="bi bi-plus-lg me-2" />
-            Nueva Transaccion
+            Nueva Transacción
           </Button>
         </div>
       </div>
@@ -197,7 +197,7 @@ export const BankTransactionsAdminPage = () => {
             <div className="card-body">
               <div className="d-flex justify-content-between align-items-center">
                 <div>
-                  <h6 className="card-title text-white-50">Creditos</h6>
+                  <h6 className="card-title text-white-50">Créditos</h6>
                   <h3 className="mb-0">{transactionMetrics.credits}</h3>
                   <small>{formatCurrency(transactionMetrics.totalCredits)}</small>
                 </div>

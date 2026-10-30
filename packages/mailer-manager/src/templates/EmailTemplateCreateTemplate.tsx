@@ -97,7 +97,7 @@ export default function EmailTemplateCreateTemplate() {
                     placeholder="cotizacion-enviada"
                     required
                   />
-                  <div className="form-text">Identificador unico. Se genera automaticamente del nombre.</div>
+                  <div className="form-text">Identificador único. Se genera automáticamente del nombre.</div>
                 </div>
 
                 <div className="mb-3">
@@ -115,7 +115,7 @@ export default function EmailTemplateCreateTemplate() {
                 </div>
 
                 <div className="mb-3">
-                  <label htmlFor="description" className="form-label">Descripcion</label>
+                  <label htmlFor="description" className="form-label">Descripción</label>
                   <textarea
                     className="form-control"
                     id="description"
@@ -127,7 +127,7 @@ export default function EmailTemplateCreateTemplate() {
                 </div>
 
                 <div className="mb-3">
-                  <label htmlFor="category" className="form-label">Categoria</label>
+                  <label htmlFor="category" className="form-label">Categoría</label>
                   <select
                     className="form-select"
                     id="category"

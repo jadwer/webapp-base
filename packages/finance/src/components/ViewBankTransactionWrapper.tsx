@@ -66,7 +66,7 @@ export const ViewBankTransactionWrapper: React.FC<ViewBankTransactionWrapperProp
       <div className="container-fluid py-4">
         <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '400px' }}>
           <div className="spinner-border text-primary" role="status">
-            <span className="visually-hidden">Cargando transaccion...</span>
+            <span className="visually-hidden">Cargando transacción...</span>
           </div>
         </div>
       </div>
@@ -92,7 +92,7 @@ export const ViewBankTransactionWrapper: React.FC<ViewBankTransactionWrapperProp
       <div className="container-fluid py-4">
         <div className="alert alert-warning">
           <i className="bi bi-info-circle me-2" />
-          Transaccion no encontrada
+          Transacción no encontrada
         </div>
         <button className="btn btn-secondary" onClick={handleBack}>
           Volver
@@ -112,7 +112,7 @@ export const ViewBankTransactionWrapper: React.FC<ViewBankTransactionWrapperProp
             <i className="bi bi-arrow-left fs-4" />
           </button>
           <div>
-            <h1 className="h3 mb-0">Transaccion Bancaria</h1>
+            <h1 className="h3 mb-0">Transacción Bancaria</h1>
             <p className="text-muted mb-0">
               {bankTransaction.reference || `Transacción #${transactionId}`}
             </p>
@@ -131,12 +131,12 @@ export const ViewBankTransactionWrapper: React.FC<ViewBankTransactionWrapperProp
         <div className="col-md-8">
           <div className="card">
             <div className="card-header bg-white">
-              <h5 className="card-title mb-0">Informacion de la Transaccion</h5>
+              <h5 className="card-title mb-0">Información de la Transacción</h5>
             </div>
             <div className="card-body">
               <div className="row g-3">
                 <div className="col-md-6">
-                  <label className="text-muted small d-block">Tipo de Transaccion</label>
+                  <label className="text-muted small d-block">Tipo de Transacción</label>
                   <span className={clsx('badge', typeConfig?.badgeClass || 'bg-secondary', 'fs-6')}>
                     <i className={clsx('bi', typeConfig?.icon, 'me-1')} />
                     {typeConfig?.label || bankTransaction.transactionType}
@@ -154,7 +154,7 @@ export const ViewBankTransactionWrapper: React.FC<ViewBankTransactionWrapperProp
                   </span>
                 </div>
                 <div className="col-md-6">
-                  <label className="text-muted small d-block">Fecha de Transaccion</label>
+                  <label className="text-muted small d-block">Fecha de Transacción</label>
                   <span className="fw-medium">{formatDate(bankTransaction.transactionDate)}</span>
                 </div>
                 <div className="col-md-6">
@@ -168,12 +168,12 @@ export const ViewBankTransactionWrapper: React.FC<ViewBankTransactionWrapperProp
                   <span className="font-monospace">{bankTransaction.reference || '-'}</span>
                 </div>
                 <div className="col-md-6">
-                  <label className="text-muted small d-block">Numero de Estado de Cuenta</label>
+                  <label className="text-muted small d-block">Número de Estado de Cuenta</label>
                   <span>{bankTransaction.statementNumber || '-'}</span>
                 </div>
                 {bankTransaction.description && (
                   <div className="col-12">
-                    <label className="text-muted small d-block">Descripcion</label>
+                    <label className="text-muted small d-block">Descripción</label>
                     <p className="mb-0">{bankTransaction.description}</p>
                   </div>
                 )}
@@ -192,7 +192,7 @@ export const ViewBankTransactionWrapper: React.FC<ViewBankTransactionWrapperProp
         <div className="col-md-4">
           <div className="card">
             <div className="card-header bg-white">
-              <h5 className="card-title mb-0">Estado de Conciliacion</h5>
+              <h5 className="card-title mb-0">Estado de Conciliación</h5>
             </div>
             <div className="card-body">
               <div className="mb-3">
@@ -208,13 +208,13 @@ export const ViewBankTransactionWrapper: React.FC<ViewBankTransactionWrapperProp
                   )}
                   {bankTransaction.reconciledAt && (
                     <div className="mb-2">
-                      <label className="text-muted small d-block">Fecha de Conciliacion</label>
+                      <label className="text-muted small d-block">Fecha de Conciliación</label>
                       <span>{formatDateTime(bankTransaction.reconciledAt)}</span>
                     </div>
                   )}
                   {bankTransaction.reconciliationNotes && (
                     <div className="mb-2">
-                      <label className="text-muted small d-block">Notas de Conciliacion</label>
+                      <label className="text-muted small d-block">Notas de Conciliación</label>
                       <p className="mb-0 small">{bankTransaction.reconciliationNotes}</p>
                     </div>
                   )}
@@ -226,7 +226,7 @@ export const ViewBankTransactionWrapper: React.FC<ViewBankTransactionWrapperProp
           {/* Metadata Card */}
           <div className="card mt-3">
             <div className="card-header bg-white">
-              <h5 className="card-title mb-0">Informacion del Sistema</h5>
+              <h5 className="card-title mb-0">Información del Sistema</h5>
             </div>
             <div className="card-body">
               <div className="mb-2">

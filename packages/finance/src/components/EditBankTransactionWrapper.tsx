@@ -50,7 +50,7 @@ export const EditBankTransactionWrapper: React.FC<EditBankTransactionWrapperProp
       <div className="container-fluid py-4">
         <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '400px' }}>
           <div className="spinner-border text-primary" role="status">
-            <span className="visually-hidden">Cargando transaccion...</span>
+            <span className="visually-hidden">Cargando transacción...</span>
           </div>
         </div>
       </div>
@@ -76,7 +76,7 @@ export const EditBankTransactionWrapper: React.FC<EditBankTransactionWrapperProp
       <div className="container-fluid py-4">
         <div className="alert alert-warning">
           <i className="bi bi-info-circle me-2" />
-          Transaccion no encontrada
+          Transacción no encontrada
         </div>
         <button className="btn btn-secondary" onClick={handleCancel}>
           Volver
@@ -112,7 +112,7 @@ export const EditBankTransactionWrapper: React.FC<EditBankTransactionWrapperProp
               <i className="bi bi-arrow-left fs-4" />
             </button>
             <div>
-              <h1 className="h3 mb-0">Editar Transaccion Bancaria</h1>
+              <h1 className="h3 mb-0">Editar Transacción Bancaria</h1>
               <p className="text-muted mb-0">
                 {bankTransaction.reference || `Transacción #${transactionId}`}
               </p>

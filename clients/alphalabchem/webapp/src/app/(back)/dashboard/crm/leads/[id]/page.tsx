@@ -105,7 +105,7 @@ export default function LeadViewPage({ params }: LeadViewPageProps) {
                 <div className="card-header bg-light">
                   <h5 className="mb-0">
                     <i className="bi bi-building me-2" />
-                    Informacion de Contacto
+                    Información de Contacto
                   </h5>
                 </div>
                 <div className="card-body p-4">
@@ -132,7 +132,7 @@ export default function LeadViewPage({ params }: LeadViewPageProps) {
                     )}
                     {lead.phone && (
                       <div className="col-md-6">
-                        <h6 className="text-muted mb-1">Telefono</h6>
+                        <h6 className="text-muted mb-1">Teléfono</h6>
                         <p className="fs-5 mb-0">
                           <a href={`tel:${lead.phone}`}>{lead.phone}</a>
                         </p>
@@ -152,7 +152,7 @@ export default function LeadViewPage({ params }: LeadViewPageProps) {
                 <div className="card-header bg-light">
                   <h5 className="mb-0">
                     <i className="bi bi-currency-dollar me-2" />
-                    Informacion Comercial
+                    Información Comercial
                   </h5>
                 </div>
                 <div className="card-body p-4">

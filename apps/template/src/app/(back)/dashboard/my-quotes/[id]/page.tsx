@@ -366,7 +366,7 @@ export default function MyQuoteDetailPage({ params }: MyQuoteDetailPageProps) {
             </div>
             <div className="card-body">
               <dl className="mb-0">
-                <dt className="text-muted small">Fecha de creacion</dt>
+                <dt className="text-muted small">Fecha de creación</dt>
                 <dd>{formatDate(quote.createdAt)}</dd>
 
                 {quote.validUntil && (

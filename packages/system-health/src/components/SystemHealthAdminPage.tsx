@@ -121,7 +121,7 @@ export function SystemHealthAdminPage() {
             Estado del Sistema
           </h1>
           <p className="text-muted mb-0">
-            Monitoreo en tiempo real del estado de la aplicacion
+            Monitoreo en tiempo real del estado de la aplicación
           </p>
         </div>
         <div className="d-flex align-items-center gap-3">

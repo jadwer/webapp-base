@@ -133,7 +133,7 @@ export const CommissionsByEmployeePage: React.FC = () => {
                     <th>Vendedor</th>
                     <th className="text-center">Comisiones</th>
                     <th className="text-end">Base Total</th>
-                    <th className="text-end">Comision Total</th>
+                    <th className="text-end">Comisión Total</th>
                     <th className="text-end">Ganada</th>
                     <th className="text-end">Pagada</th>
                   </tr>

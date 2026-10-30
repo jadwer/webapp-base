@@ -41,10 +41,10 @@ export default function NotFound() {
           margin: "15px 0 10px",
         }}
       >
-        Ups, no podemos encontrar la pagina solicitada
+        Ups, no podemos encontrar la página solicitada
       </h2>
       <p style={{ color: "#666", fontSize: "1rem", marginBottom: 30 }}>
-        La pagina que buscas no existe o fue movida.
+        La página que buscas no existe o fue movida.
       </p>
       <Link
         href="/"

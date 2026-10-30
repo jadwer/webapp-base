@@ -320,12 +320,12 @@ export default function CustomerDashboard() {
               ) : (
                 <div className="text-center py-3">
                   <i className="bi bi-cart text-muted" style={{ fontSize: '2rem' }}></i>
-                  <p className="text-muted mt-2 mb-3">Tu carrito esta vacio</p>
+                  <p className="text-muted mt-2 mb-3">Tu carrito esta vacío</p>
                   <button
                     className="btn btn-outline-primary btn-sm"
                     onClick={() => navigation.push('/productos')}
                   >
-                    Ver Catalogo
+                    Ver Catálogo
                   </button>
                 </div>
               )}
@@ -406,7 +406,7 @@ export default function CustomerDashboard() {
                 className="btn btn-sm btn-outline-primary"
                 onClick={() => navigation.push('/productos')}
               >
-                Ver Catalogo
+                Ver Catálogo
               </button>
             </div>
             <div className="card-body">
@@ -456,7 +456,7 @@ export default function CustomerDashboard() {
                 <div className="text-center py-3">
                   <i className="bi bi-eye-slash text-muted" style={{ fontSize: '2rem' }}></i>
                   <p className="text-muted mt-2 mb-0">
-                    Aun no has visto ningun producto. <Link href="/productos">Explora el catalogo</Link>
+                    Aun no has visto ningun producto. <Link href="/productos">Explora el catálogo</Link>
                   </p>
                 </div>
               )}

@@ -122,7 +122,7 @@ export const CFDIInvoicesTable: React.FC<CFDIInvoicesTableProps> = ({
       <div className="text-center p-5">
         <i className="bi bi-receipt display-1 text-muted mb-3"></i>
         <h5 className="text-muted">No hay facturas CFDI</h5>
-        <p className="text-muted">Crea tu primera factura electronica para comenzar</p>
+        <p className="text-muted">Crea tu primera factura electrónica para comenzar</p>
       </div>
     )
   }

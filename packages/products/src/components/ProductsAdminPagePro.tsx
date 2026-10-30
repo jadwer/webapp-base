@@ -206,7 +206,7 @@ export const ProductsAdminPagePro = React.memo(() => {
               onClick={() => setShowAssignCategoryDialog(true)}
             >
               <i className="bi bi-diagram-3 me-2" />
-              Reasignar categoria por marca
+              Reasignar categoría por marca
             </Button>
             <Button
               variant="primary"

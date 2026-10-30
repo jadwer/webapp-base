@@ -121,7 +121,7 @@ export default function OfferViewPage({ params }: OfferViewPageProps) {
                     </div>
                     {offer.category && (
                       <div className="col-md-6">
-                        <h6 className="text-muted mb-1">Categoria</h6>
+                        <h6 className="text-muted mb-1">Categoría</h6>
                         <p className="fs-5 mb-0">
                           <span className="badge bg-info">{typeof offer.category === 'object' ? offer.category?.name : offer.category}</span>
                         </p>

@@ -296,7 +296,7 @@ export const ImageGalleryManager: React.FC<ImageGalleryManagerProps> = ({
 
   return (
     <div className="image-gallery-manager">
-      <label className="form-label">Galeria de imagenes</label>
+      <label className="form-label">Galeria de imágenes</label>
 
       {loadError && (
         <div className="alert alert-danger py-2 small" role="alert">
@@ -335,7 +335,7 @@ export const ImageGalleryManager: React.FC<ImageGalleryManagerProps> = ({
                 </button>
               </div>
             </div>
-            <small className="text-muted d-block" style={{ fontSize: '0.65rem' }}>Aun no esta en la galeria</small>
+            <small className="text-muted d-block" style={{ fontSize: '0.65rem' }}>Aun no está en la galeria</small>
           </div>
         )}
 
@@ -498,7 +498,7 @@ export const ImageGalleryManager: React.FC<ImageGalleryManagerProps> = ({
       )}
 
       <small className="text-muted d-block mt-1">
-        Puede seleccionar varias imagenes a la vez. La principal se muestra primero en el catalogo y en la ficha.
+        Puede seleccionar varias imágenes a la vez. La principal se muestra primero en el catálogo y en la ficha.
         Arrastra para reordenar las demas. JPG, PNG, GIF o WebP. Max {MAX_SIZE_MB}MB por imagen.
       </small>
       <ConfirmModal ref={confirmModalRef} />

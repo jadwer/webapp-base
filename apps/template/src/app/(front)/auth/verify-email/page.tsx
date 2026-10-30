@@ -62,7 +62,7 @@ function VerifyEmailContent() {
           {status === 'success' && (
             <p>
               <Link href="/auth/login">
-                Iniciar sesion
+                Iniciar sesión
               </Link>
             </p>
           )}

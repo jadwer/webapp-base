@@ -169,7 +169,7 @@ export function GenerateSaleModal({ quote, isOpen, onClose, onConverted }: Gener
                 <span className="spinner-border spinner-border-sm text-primary" role="status"></span>
               </div>
             ) : items.length === 0 ? (
-              <div className="alert alert-warning mb-3">La cotizacion no tiene items.</div>
+              <div className="alert alert-warning mb-3">La cotización no tiene items.</div>
             ) : (
               <div className="table-responsive mb-3">
                 <table className="table table-sm table-hover mb-0">
@@ -227,7 +227,7 @@ export function GenerateSaleModal({ quote, isOpen, onClose, onConverted }: Gener
             {/* Condiciones de pago */}
             <div className="row g-3">
               <div className="col-md-6">
-                <label className="form-label" htmlFor="sale-payment-method">Metodo de pago</label>
+                <label className="form-label" htmlFor="sale-payment-method">Método de pago</label>
                 <select
                   id="sale-payment-method"
                   className="form-select"
@@ -240,7 +240,7 @@ export function GenerateSaleModal({ quote, isOpen, onClose, onConverted }: Gener
                 </select>
               </div>
               <div className="col-md-6">
-                <label className="form-label" htmlFor="sale-credit-days">Dias de credito</label>
+                <label className="form-label" htmlFor="sale-credit-days">Días de crédito</label>
                 <input
                   id="sale-credit-days"
                   type="number"

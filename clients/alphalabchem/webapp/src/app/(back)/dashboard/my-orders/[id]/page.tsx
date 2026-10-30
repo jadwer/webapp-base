@@ -320,7 +320,7 @@ export default function MyOrderDetailPage({ params }: MyOrderDetailPageProps) {
               <div className="card-header">
                 <h5 className="mb-0">
                   <i className="bi bi-truck me-2"></i>
-                  Informacion de Envio
+                  Información de Envío
                 </h5>
               </div>
               <div className="card-body">
@@ -332,7 +332,7 @@ export default function MyOrderDetailPage({ params }: MyOrderDetailPageProps) {
 
                 {order.shippingAddress && (
                   <div>
-                    <h6 className="text-muted small mb-2">Direccion de entrega:</h6>
+                    <h6 className="text-muted small mb-2">Dirección de entrega:</h6>
                     <p className="mb-0">
                       {order.shippingAddress}
                       {order.shippingCity && <>, {order.shippingCity}</>}

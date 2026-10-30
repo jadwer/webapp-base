@@ -69,7 +69,7 @@ export const OffersTable: React.FC<OffersTableProps> = ({
       <div className="text-center p-5">
         <i className="bi bi-tag display-1 text-muted mb-3"></i>
         <h5 className="text-muted">No hay ofertas activas</h5>
-        <p className="text-muted">Las ofertas aparecen automaticamente cuando un producto tiene precio mayor que su costo</p>
+        <p className="text-muted">Las ofertas aparecen automáticamente cuando un producto tiene precio mayor que su costo</p>
       </div>
     )
   }

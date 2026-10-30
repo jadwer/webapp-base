@@ -69,7 +69,7 @@ export const EditBudgetWrapper: React.FC<EditBudgetWrapperProps> = ({ budgetId }
       <div className="container-fluid py-4">
         <Alert variant="warning">
           <i className="bi bi-exclamation-triangle me-2" />
-          No se encontro el presupuesto solicitado
+          No se encontró el presupuesto solicitado
         </Alert>
       </div>
     )

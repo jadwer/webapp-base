@@ -205,7 +205,7 @@ export const OrderForm: React.FC<OrderFormProps> = ({
             <div className="card-header">
               <h5 className="card-title mb-0">
                 <i className="bi bi-truck me-2"></i>
-                Direccion de Envio
+                Dirección de Envío
               </h5>
             </div>
             <div className="card-body">

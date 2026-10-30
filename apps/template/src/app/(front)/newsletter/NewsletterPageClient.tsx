@@ -120,7 +120,7 @@ export const NewsletterPageClient: React.FC = () => {
                 <i className="bi bi-journal-text text-info fs-2"></i>
               </div>
               <h5>Contenido Util</h5>
-              <p className="text-muted small">Tips y articulos sobre el mundo del laboratorio</p>
+              <p className="text-muted small">Tips y artículos sobre el mundo del laboratorio</p>
             </div>
           </div>
 
@@ -132,7 +132,7 @@ export const NewsletterPageClient: React.FC = () => {
                   <i className="bi bi-check-circle-fill text-success display-1 mb-4 d-block"></i>
                   <h3 className="text-success mb-3">Gracias por suscribirte</h3>
                   <p className="text-muted mb-4">
-                    Te hemos enviado un mensaje por WhatsApp para confirmar tu suscripcion.
+                    Te hemos enviado un mensaje por WhatsApp para confirmar tu suscripción.
                     Pronto recibiras nuestras novedades.
                   </p>
                   <div className="d-flex gap-3 justify-content-center">
@@ -168,7 +168,7 @@ export const NewsletterPageClient: React.FC = () => {
                   </div>
 
                   <div className="mb-3">
-                    <label htmlFor="email" className="form-label">Correo electronico</label>
+                    <label htmlFor="email" className="form-label">Correo electrónico</label>
                     <input
                       type="email"
                       className="form-control form-control-lg"

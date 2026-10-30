@@ -62,7 +62,7 @@ export default function EmailTemplatesAdminTemplate() {
             <i className="bi bi-palette me-2"></i>
             Plantillas de Email
           </h1>
-          <p className="text-muted mb-0">Gestiona los templates de correo electronico del sistema</p>
+          <p className="text-muted mb-0">Gestiona los templates de correo electrónico del sistema</p>
         </div>
         <button className="btn btn-primary" onClick={() => router.push('/dashboard/mailer-manager/create')}>
           <i className="bi bi-plus-lg me-2"></i>
