@@ -83,7 +83,7 @@ export default function SalesPendingFulfillmentPage() {
             <input
               type="text"
               className="form-control"
-              placeholder="Buscar por numero de orden, cliente..."
+              placeholder="Buscar por número de orden, cliente..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -125,7 +125,7 @@ export default function SalesPendingFulfillmentPage() {
                   <table className="table table-striped table-hover mb-0">
                     <thead className="table-dark">
                       <tr>
-                        <th>Numero de Orden</th>
+                        <th>Número de Orden</th>
                         <th>Cliente</th>
                         <th>Fecha</th>
                         <th>Estado</th>

@@ -109,7 +109,7 @@ describe('UsersTable', () => {
     expect(badge.className).toContain('bg-danger')
   })
 
-  it('muestra estado vacio cuando no hay usuarios', () => {
+  it('muestra estado vacío cuando no hay usuarios', () => {
     // Arrange + Act
     render(<UsersTable users={[]} />)
 

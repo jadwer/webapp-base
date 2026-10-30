@@ -251,7 +251,7 @@ export const adminNavigation: NavigationSection = {
       permissions: [],
       items: [
         { href: '/dashboard/ecommerce', label: 'Panel de comercio electrónico', icon: 'bi-speedometer2', permissions: ['sales-orders.index'] },
-        { href: '/dashboard/ecommerce/orders', label: 'Ordenes', icon: 'bi-bag-check', permissions: ['sales-orders.index'] },
+        { href: '/dashboard/ecommerce/orders', label: 'Órdenes', icon: 'bi-bag-check', permissions: ['sales-orders.index'] },
         { href: '/dashboard/ecommerce/orders/create', label: 'Nueva Orden', icon: 'bi-plus-circle', permissions: ['sales-orders.store'] },
       ],
     },
@@ -282,7 +282,7 @@ export const adminNavigation: NavigationSection = {
       activePathPrefixes: ['/dashboard/settings', '/dashboard/pages', '/dashboard/page-builder', '/dashboard/mailer-manager'],
       permissions: [],
       items: [
-        { href: '/dashboard/settings/app-config', label: 'Configuracion General', icon: 'bi-gear', permissions: [] },
+        { href: '/dashboard/settings/app-config', label: 'Configuración General', icon: 'bi-gear', permissions: [] },
         { href: '/dashboard/settings/documents', label: 'Configuración de Documentos', icon: 'bi-file-earmark-text', permissions: ['sales.folio-sequences.index'] },
         { href: '/dashboard/settings/branches', label: 'Sucursales', icon: 'bi-shop', permissions: ['branches.index'] },
         { href: '/dashboard/pages', label: 'Gestión de Páginas', icon: 'bi-brush', permissions: ['page.index'] },

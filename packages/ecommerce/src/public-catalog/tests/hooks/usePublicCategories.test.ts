@@ -38,7 +38,7 @@ describe('usePublicCategories', () => {
     expect(mockGet).not.toHaveBeenCalled()
   })
 
-  it('initialData vacio tambien cuenta como prerenderizado (no refetch)', async () => {
+  it('initialData vacío también cuenta como prerenderizado (no refetch)', async () => {
     const { result } = renderHook(() => usePublicCategories({ initialData: [] }))
     expect(result.current.isLoading).toBe(false)
     await new Promise((r) => setTimeout(r, 10))

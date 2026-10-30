@@ -4,7 +4,7 @@ import { DiscountRulesTable } from '../../components/DiscountRulesTable'
 import type { ParsedDiscountRule } from '../../types'
 
 describe('DiscountRulesTable fechas', () => {
-  it('vigencia ISO medianoche se muestra con su dia', () => {
+  it('vigencia ISO medianoche se muestra con su día', () => {
     const rule = {
       id: '1',
       name: 'Regla',

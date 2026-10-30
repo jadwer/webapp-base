@@ -114,7 +114,7 @@ export const salesService = {
       const url = window.URL.createObjectURL(blob)
       const link = document.createElement('a')
       link.href = url
-      link.download = `autorizacion-cliente-${orderNumber || id}.${ext}`
+      link.download = `autorización-cliente-${orderNumber || id}.${ext}`
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)

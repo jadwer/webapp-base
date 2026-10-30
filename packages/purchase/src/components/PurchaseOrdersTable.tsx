@@ -58,7 +58,7 @@ export const PurchaseOrdersTable: React.FC<PurchaseOrdersTableProps> = ({
 
     const orderIdentifier = order.orderNumber || `#${order.id}`
     const confirmed = await confirmModalRef.current.confirm(
-      `Esta seguro de que quiere eliminar la orden de compra "${orderIdentifier}"? Esta accion no se puede deshacer.`
+      `Está seguro de que quiere eliminar la orden de compra "${orderIdentifier}"? Esta acción no se puede deshacer.`
     )
 
     if (confirmed) {
@@ -110,7 +110,7 @@ export const PurchaseOrdersTable: React.FC<PurchaseOrdersTableProps> = ({
               <th scope="col">Proveedor</th>
               <th scope="col">Fecha</th>
               <th scope="col">Estado</th>
-              <th scope="col">Facturacion</th>
+              <th scope="col">Facturación</th>
               <th scope="col" className="text-end">Total</th>
               <th scope="col" className="text-end">Acciones</th>
             </tr>

@@ -106,7 +106,7 @@ describe('Finance transformers ToAPI', () => {
     })
   })
 
-  it('pagos AP y cobros AR van al recurso payments con numeros como number', () => {
+  it('pagos AP y cobros AR van al recurso payments con números como number', () => {
     const form = {
       paymentNumber: 'PAG-1',
       paymentDate: '2026-10-08',
@@ -187,7 +187,7 @@ describe('Finance transformers ToAPI', () => {
     })
   })
 
-  it('aplicacion de pago: amount y arInvoiceId, nunca apInvoiceId ni appliedAmount', () => {
+  it('aplicación de pago: amount y arInvoiceId, nunca apInvoiceId ni appliedAmount', () => {
     expect(transformPaymentApplicationToAPI({
       paymentId: 1,
       arInvoiceId: 2,
@@ -204,7 +204,7 @@ describe('Finance transformers ToAPI', () => {
     })
   })
 
-  it('transaccion bancaria en camelCase', () => {
+  it('transacción bancaria en camelCase', () => {
     expect(transformBankTransactionToAPI({
       bankAccountId: 1,
       transactionDate: '2026-10-08',
@@ -245,7 +245,7 @@ describe('Finance transformers FromAPI', () => {
     expect(account).not.toHaveProperty('clabe')
   })
 
-  it('aplicacion de pago expone amount numerico', () => {
+  it('aplicación de pago expone amount numerico', () => {
     const app = transformPaymentApplicationFromAPI({
       id: '1',
       attributes: { paymentId: 4, arInvoiceId: 5, amount: '120.00', applicationDate: '2026-10-08' },
@@ -255,7 +255,7 @@ describe('Finance transformers FromAPI', () => {
     expect(app).not.toHaveProperty('apInvoiceId')
   })
 
-  it('pago resuelve metodo y cuenta desde included', () => {
+  it('pago resuelve método y cuenta desde included', () => {
     const payment = transformAPPaymentFromAPI(
       { id: '1', attributes: { contactId: 1, bankAccountId: 2, paymentMethodId: 3, amount: 10 } },
       [
@@ -300,7 +300,7 @@ describe('Errores y folios', () => {
     expect(getFinanceErrorMessage(error, 'fallo')).toBe('El número de pago ya ha sido registrado.')
   })
 
-  it('soporta validacion Laravel y { error } de controladores custom', () => {
+  it('soporta validación Laravel y { error } de controladores custom', () => {
     expect(getFinanceErrorMessage({ response: { data: { message: 'x', errors: { amount: ['Monto excede saldo'] } } } }, 'f'))
       .toBe('Monto excede saldo')
     expect(getFinanceErrorMessage({ response: { data: { error: 'Periodo fiscal cerrado' } } }, 'f'))

@@ -520,13 +520,13 @@ export interface ReconciliationStatusConfig {
 // Constants for UI
 export const BANK_TRANSACTION_TYPE_CONFIG: Record<BankTransactionType, BankTransactionTypeConfig> = {
   debit: {
-    label: 'Debito',
+    label: 'Débito',
     icon: 'bi-arrow-down-circle',
     badgeClass: 'bg-danger',
     description: 'Salida de dinero de la cuenta'
   },
   credit: {
-    label: 'Credito',
+    label: 'Crédito',
     icon: 'bi-arrow-up-circle',
     badgeClass: 'bg-success',
     description: 'Entrada de dinero a la cuenta'
@@ -537,23 +537,23 @@ export const RECONCILIATION_STATUS_CONFIG: Record<ReconciliationStatus, Reconcil
   unreconciled: {
     label: 'Sin Conciliar',
     badgeClass: 'bg-warning text-dark',
-    description: 'Transaccion pendiente de conciliacion'
+    description: 'Transacción pendiente de conciliación'
   },
   pending: {
     label: 'Pendiente',
     badgeClass: 'bg-info',
-    description: 'Transaccion en proceso de conciliacion'
+    description: 'Transacción en proceso de conciliación'
   },
   reconciled: {
     label: 'Conciliada',
     badgeClass: 'bg-success',
-    description: 'Transaccion conciliada correctamente'
+    description: 'Transacción conciliada correctamente'
   }
 };
 
 export const BANK_TRANSACTION_TYPE_OPTIONS = [
-  { value: 'debit', label: 'Debito (Salida)' },
-  { value: 'credit', label: 'Credito (Entrada)' }
+  { value: 'debit', label: 'Débito (Salida)' },
+  { value: 'credit', label: 'Crédito (Entrada)' }
 ];
 
 export const RECONCILIATION_STATUS_OPTIONS = [
@@ -583,33 +583,33 @@ export const EARLY_PAYMENT_TERM_CONFIG: Record<EarlyPaymentTermPreset, EarlyPaym
     label: '2/10 Net 30',
     discountPercent: 2.0,
     discountDays: 10,
-    description: '2% descuento si paga en 10 dias, vencimiento en 30 dias'
+    description: '2% descuento si paga en 10 días, vencimiento en 30 días'
   },
   '1/15 Net 45': {
     label: '1/15 Net 45',
     discountPercent: 1.0,
     discountDays: 15,
-    description: '1% descuento si paga en 15 dias, vencimiento en 45 dias'
+    description: '1% descuento si paga en 15 días, vencimiento en 45 días'
   },
   '3/5 Net 30': {
     label: '3/5 Net 30',
     discountPercent: 3.0,
     discountDays: 5,
-    description: '3% descuento si paga en 5 dias, vencimiento en 30 dias'
+    description: '3% descuento si paga en 5 días, vencimiento en 30 días'
   },
   '2/15 Net 60': {
     label: '2/15 Net 60',
     discountPercent: 2.0,
     discountDays: 15,
-    description: '2% descuento si paga en 15 dias, vencimiento en 60 dias'
+    description: '2% descuento si paga en 15 días, vencimiento en 60 días'
   }
 };
 
 export const EARLY_PAYMENT_TERM_OPTIONS = [
-  { value: '2/10 Net 30', label: '2/10 Net 30 (2% en 10 dias)' },
-  { value: '1/15 Net 45', label: '1/15 Net 45 (1% en 15 dias)' },
-  { value: '3/5 Net 30', label: '3/5 Net 30 (3% en 5 dias)' },
-  { value: '2/15 Net 60', label: '2/15 Net 60 (2% en 15 dias)' }
+  { value: '2/10 Net 30', label: '2/10 Net 30 (2% en 10 días)' },
+  { value: '1/15 Net 45', label: '1/15 Net 45 (1% en 15 días)' },
+  { value: '3/5 Net 30', label: '3/5 Net 30 (3% en 5 días)' },
+  { value: '2/15 Net 60', label: '2/15 Net 60 (2% en 15 días)' }
 ];
 
 export interface EarlyPaymentDiscountInfo {

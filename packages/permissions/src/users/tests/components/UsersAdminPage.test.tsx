@@ -25,7 +25,7 @@ vi.mock('../../hooks/useRoleOptions', () => ({
   useRoleOptions: vi.fn(),
 }))
 
-describe('UsersAdminPage - selector por pagina', () => {
+describe('UsersAdminPage - selector por página', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     vi.mocked(useRoleOptions).mockReturnValue({
@@ -63,7 +63,7 @@ describe('UsersAdminPage - selector por pagina', () => {
     expect(PAGE_SIZE_OPTIONS).toEqual([5, 10, 50, 100])
   })
 
-  it('cambiar el tamano consulta con el nuevo page[size]', () => {
+  it('cambiar el tamaño consulta con el nuevo page[size]', () => {
     // Arrange
     render(<UsersAdminPage />)
 
@@ -78,7 +78,7 @@ describe('UsersAdminPage - selector por pagina', () => {
     expect(lastCall?.[2]).toBe(50)
   })
 
-  it('cambiar el tamano regresa a la pagina 1 aunque estes en otra', () => {
+  it('cambiar el tamaño regresa a la página 1 aunque estes en otra', () => {
     // Arrange - ir a la pagina 2 via paginacion
     render(<UsersAdminPage />)
     fireEvent.click(screen.getByRole('button', { name: '2' }))

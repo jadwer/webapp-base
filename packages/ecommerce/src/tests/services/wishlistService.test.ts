@@ -185,7 +185,7 @@ describe('wishlistService', () => {
 
       // Act
       const result = await wishlistService.create({
-        name: 'Lista Publica',
+        name: 'Lista Pública',
         isPublic: true,
       });
 
@@ -194,7 +194,7 @@ describe('wishlistService', () => {
         data: {
           type: 'wishlists',
           attributes: {
-            name: 'Lista Publica',
+            name: 'Lista Pública',
             isPublic: true,
           },
         },

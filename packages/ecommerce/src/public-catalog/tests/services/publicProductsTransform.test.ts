@@ -59,7 +59,7 @@ const included: PublicProductsResponse['included'] = [
 ]
 
 describe('buildPublicProductsQueryParams / QueryString', () => {
-  it('manda filtros en plural, orden, paginacion e include; isActive no viaja', () => {
+  it('manda filtros en plural, orden, paginación e include; isActive no viaja', () => {
     const params = buildPublicProductsQueryParams(
       { isActive: true, search: 'acido', categoryId: ['1', '2'], brandId: '3', priceMin: 10, priceMax: 20, isOnSale: true, sku: 'X' },
       [{ field: 'name', direction: 'asc' }, { field: 'price', direction: 'desc' }],
@@ -86,14 +86,14 @@ describe('buildPublicProductsQueryParams / QueryString', () => {
     expect(qs).toBe('filter%5Bcategories%5D=1&sort=name&page%5Bnumber%5D=1&page%5Bsize%5D=24&include=unit%2Ccategory%2Cbrand%2Cimages%2Ccurrency')
   })
 
-  it('sin argumentos devuelve vacio', () => {
+  it('sin argumentos devuelve vacío', () => {
     expect(buildPublicProductsQueryParams()).toEqual({})
     expect(buildPublicProductsQueryString()).toBe('')
   })
 })
 
 describe('enhancePublicProduct', () => {
-  it('resuelve unidad, categoria, marca, moneda y galeria ordenada', () => {
+  it('resuelve unidad, categoría, marca, moneda y galeria ordenada', () => {
     const enhanced = enhancePublicProduct(rawProduct(), included)
     expect(enhanced.displayName).toBe('Jumper 2 pos')
     expect(enhanced.displayUnit).toBe('PZA')
@@ -131,7 +131,7 @@ describe('enhancePublicProduct', () => {
 })
 
 describe('respuestas completas', () => {
-  it('normaliza meta.page y enriquece la coleccion', () => {
+  it('normaliza meta.page y enriquece la colección', () => {
     const page = enhancePublicProductsResponse({
       data: [rawProduct('1'), rawProduct('2')],
       included,
@@ -155,7 +155,7 @@ describe('respuestas completas', () => {
   })
 })
 
-describe('precio sujeto a cotizacion (P2 granel)', () => {
+describe('precio sujeto a cotización (P2 granel)', () => {
   it('quote_only muestra la etiqueta estandar en lugar del precio', () => {
     const product = rawProduct()
     product.attributes.price = null

@@ -130,7 +130,7 @@ export const CycleCountsAdminPageReal = () => {
     async (id: string) => {
       const count = cycleCounts.find(c => c.id === id)
       const confirmed = await confirmModalRef.current?.confirm(
-        `Estas seguro de cancelar el conteo ${count?.countNumber || id}? Esta accion no se puede deshacer.`,
+        `Estas seguro de cancelar el conteo ${count?.countNumber || id}? Esta acción no se puede deshacer.`,
         {
           title: 'Cancelar Conteo',
           confirmVariant: 'danger',

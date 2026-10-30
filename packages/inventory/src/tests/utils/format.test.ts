@@ -7,11 +7,11 @@ describe('toNumber', () => {
     expect(toNumber('-3')).toBe(-3)
   })
 
-  it('deja pasar numeros', () => {
+  it('deja pasar números', () => {
     expect(toNumber(7)).toBe(7)
   })
 
-  it('null, undefined, vacio y NaN dan 0', () => {
+  it('null, undefined, vacío y NaN dan 0', () => {
     expect(toNumber(null)).toBe(0)
     expect(toNumber(undefined)).toBe(0)
     expect(toNumber('')).toBe(0)
@@ -22,11 +22,11 @@ describe('toNumber', () => {
 })
 
 describe('formatDate', () => {
-  it('formatea fecha sin hora en es-MX sin correrse un dia', () => {
+  it('formatea fecha sin hora en es-MX sin correrse un día', () => {
     expect(formatDate('2026-10-07')).toBe('07/10/2026')
   })
 
-  it('ISO medianoche UTC conserva el dia guardado', () => {
+  it('ISO medianoche UTC conserva el día guardado', () => {
     expect(formatDate('2026-10-25T00:00:00.000000Z')).toBe('25/10/2026')
   })
 
@@ -36,7 +36,7 @@ describe('formatDate', () => {
     expect(formatDate(local, { withTime: true })).toMatch(/^05\/01\/2026,? 14:30$/)
   })
 
-  it('vacio o invalido da guion', () => {
+  it('vacío o invalido da guion', () => {
     expect(formatDate(null)).toBe('-')
     expect(formatDate(undefined)).toBe('-')
     expect(formatDate('')).toBe('-')

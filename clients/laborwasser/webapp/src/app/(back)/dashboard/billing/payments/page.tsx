@@ -245,7 +245,7 @@ export default function PaymentsPage() {
                       <th>Fecha</th>
                       <th>Monto</th>
                       <th>Estado</th>
-                      <th>Metodo</th>
+                      <th>Método</th>
                       <th>Tarjeta</th>
                       <th>Orden</th>
                       <th>Acciones</th>
@@ -294,7 +294,7 @@ export default function PaymentsPage() {
                                 title="Reembolsar"
                                 onClick={async () => {
                                   const confirmed = await confirmModalRef.current?.confirm(
-                                    'Deseas procesar un reembolso para esta transaccion?',
+                                    'Deseas procesar un reembolso para esta transacción?',
                                     { title: 'Confirmar Reembolso', confirmVariant: 'warning' }
                                   )
                                   if (confirmed) {
@@ -319,14 +319,14 @@ export default function PaymentsPage() {
                                 title="Cancelar"
                                 onClick={async () => {
                                   const confirmed = await confirmModalRef.current?.confirm(
-                                    'Deseas cancelar esta transaccion?',
-                                    { title: 'Confirmar Cancelacion', confirmVariant: 'danger' }
+                                    'Deseas cancelar esta transacción?',
+                                    { title: 'Confirmar Cancelación', confirmVariant: 'danger' }
                                   )
                                   if (confirmed) {
                                     const result = await paymentService.processor
                                       .cancelPayment(tx.paymentIntentId || '')
                                     if (result.success) {
-                                      toast.success('Transaccion cancelada')
+                                      toast.success('Transacción cancelada')
                                       loadTransactions()
                                     } else {
                                       toast.error('Error: ' + result.error)
@@ -363,7 +363,7 @@ export default function PaymentsPage() {
           </p>
           <ol className="mb-3">
             <li>Ve a <strong>Stripe Dashboard &gt; Developers &gt; Webhooks</strong></li>
-            <li>Agrega un endpoint con la URL de tu aplicacion</li>
+            <li>Agrega un endpoint con la URL de tu aplicación</li>
             <li>Selecciona los eventos: <code>payment_intent.succeeded</code>, <code>payment_intent.payment_failed</code></li>
             <li>Copia el Webhook Secret y agregalo a tu archivo <code>.env</code> como <code>STRIPE_WEBHOOK_SECRET</code></li>
           </ol>

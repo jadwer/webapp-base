@@ -4,7 +4,7 @@ import { PurchaseOrdersTable } from '../../components/PurchaseOrdersTable'
 import type { PurchaseOrder } from '../../types'
 
 describe('PurchaseOrdersTable fechas', () => {
-  it('muestra la fecha de la orden sin correrla un dia (ISO medianoche)', () => {
+  it('muestra la fecha de la orden sin correrla un día (ISO medianoche)', () => {
     const order = {
       id: '1',
       orderNumber: 'OC-1',

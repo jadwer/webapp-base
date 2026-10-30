@@ -40,7 +40,7 @@ describe('RolePermissionsEditor', () => {
     vi.mocked(rolesService.update).mockResolvedValue(mockRole())
   })
 
-  it('agrupa por modulo con labels legibles y muestra descripcion, no el string tecnico', () => {
+  it('agrupa por módulo con labels legibles y muestra descripción, no el string técnico', () => {
     // Arrange + Act
     render(
       <RolePermissionsEditor
@@ -96,7 +96,7 @@ describe('RolePermissionsEditor', () => {
     expect(master.checked).toBe(false)
   })
 
-  it('la busqueda filtra por label en todos los modulos', () => {
+  it('la búsqueda filtra por label en todos los módulos', () => {
     // Arrange
     render(
       <RolePermissionsEditor

@@ -16,14 +16,14 @@ describe('localizeHttpErrorMessage (regla 9)', () => {
       .toBe('Carrito vacío')
   })
 
-  it('sin cuerpo explica el codigo HTTP en espanol', () => {
+  it('sin cuerpo explica el código HTTP en español', () => {
     expect(localizeHttpErrorMessage({ message: 'Request failed with status code 403', response: { status: 403 } }))
       .toBe('No tienes permiso para realizar esta acción.')
     expect(localizeHttpErrorMessage({ message: 'Request failed with status code 500', response: { status: 500, data: '' } }))
       .toBe('El servidor no pudo completar la solicitud (error 500).')
   })
 
-  it('red caida y tiempo agotado en espanol', () => {
+  it('red caida y tiempo agotado en español', () => {
     expect(localizeHttpErrorMessage({ message: 'Network Error' })).toBe('No hay conexión con el servidor; revisa tu conexión a internet.')
     expect(localizeHttpErrorMessage({ message: 'timeout of 10000ms exceeded', code: 'ECONNABORTED' }))
       .toBe('El servidor tardó demasiado en responder; intenta de nuevo.')

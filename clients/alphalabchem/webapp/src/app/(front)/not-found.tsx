@@ -10,7 +10,7 @@ export default function FrontNotFound() {
         <div className="container">
           <div className="row align-items-center">
             <div className="col">
-              <h1>PAGINA NO ENCONTRADA</h1>
+              <h1>PÁGINA NO ENCONTRADA</h1>
             </div>
           </div>
         </div>

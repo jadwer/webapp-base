@@ -240,7 +240,7 @@ function DocumentLegendsTab() {
                 maxLength={2000}
                 value={body}
                 onChange={e => setBody(e.target.value)}
-                placeholder="Ej. Cotizacion {folio} valida hasta {fecha_vencimiento}. Precios mas IVA."
+                placeholder="Ej. Cotización {folio} valida hasta {fecha_vencimiento}. Precios más IVA."
               />
               <div className="form-text">
                 Cada linea se imprime como un renglon en el PDF. Maximo 2000 caracteres ({body.length}/2000).

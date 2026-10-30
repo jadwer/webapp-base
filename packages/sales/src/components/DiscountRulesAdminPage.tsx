@@ -322,7 +322,7 @@ export const DiscountRulesAdminPage = () => {
           <input
             type="text"
             className="form-control"
-            placeholder="Buscar por nombre, codigo o descripcion..."
+            placeholder="Buscar por nombre, código o descripción..."
             value={searchTerm}
             onChange={handleSearchChange}
           />

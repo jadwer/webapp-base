@@ -29,33 +29,33 @@ function formatDate(dateString: string): string {
 // Field name translations for display
 const FIELD_LABELS: Record<string, string> = {
   name: 'Nombre',
-  email: 'Correo electronico',
-  description: 'Descripcion',
-  fullDescription: 'Descripcion completa',
-  full_description: 'Descripcion completa',
+  email: 'Correo electrónico',
+  description: 'Descripción',
+  fullDescription: 'Descripción completa',
+  full_description: 'Descripción completa',
   price: 'Precio',
   cost: 'Costo',
   sku: 'SKU',
   img_path: 'Imagen',
   imgPath: 'Imagen',
-  datasheet_path: 'Ficha tecnica',
-  datasheetPath: 'Ficha tecnica',
+  datasheet_path: 'Ficha técnica',
+  datasheetPath: 'Ficha técnica',
   is_active: 'Activo',
   isActive: 'Activo',
   unit_id: 'Unidad',
   unitId: 'Unidad',
-  category_id: 'Categoria',
-  categoryId: 'Categoria',
+  category_id: 'Categoría',
+  categoryId: 'Categoría',
   brand_id: 'Marca',
   brandId: 'Marca',
-  created_at: 'Fecha creacion',
-  updated_at: 'Fecha actualizacion',
+  created_at: 'Fecha creación',
+  updated_at: 'Fecha actualización',
   status: 'Estado',
   total: 'Total',
   subtotal: 'Subtotal',
   quantity: 'Cantidad',
-  phone: 'Telefono',
-  address: 'Direccion',
+  phone: 'Teléfono',
+  address: 'Dirección',
   iva: 'IVA',
 }
 
@@ -65,7 +65,7 @@ function formatFieldName(field: string): string {
 
 function PropertyDiff({ change }: { change: FieldChange }) {
   const formatValue = (val: unknown): string => {
-    if (val === null || val === undefined) return '(vacio)'
+    if (val === null || val === undefined) return '(vacío)'
     if (typeof val === 'object') return JSON.stringify(val, null, 2)
     if (typeof val === 'boolean') return val ? 'Si' : 'No'
     return String(val)

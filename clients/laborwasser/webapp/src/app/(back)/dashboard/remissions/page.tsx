@@ -79,12 +79,12 @@ export default function RemissionsPage() {
       }
 
       if (!orderId) {
-        toast.error(`No se encontro una orden con folio ${folio}`)
+        toast.error(`No se encontró una orden con folio ${folio}`)
         return
       }
 
       await remissionService.createFromOrderFull(orderId)
-      toast.success('Remision generada correctamente')
+      toast.success('Remisión generada correctamente')
       setOrderFolio('')
       await loadRemissions()
     } catch (err) {
@@ -108,7 +108,7 @@ export default function RemissionsPage() {
         toast.error(
           error.response?.data?.message ||
             error.response?.data?.error ||
-            'Error al generar la remision'
+            'Error al generar la remisión'
         )
       }
     } finally {
@@ -120,17 +120,17 @@ export default function RemissionsPage() {
     setActionLoading(`print-${remId}`)
     try {
       await remissionService.print(remId)
-      toast.success('Remision marcada como impresa')
+      toast.success('Remisión marcada como impresa')
       await loadRemissions()
     } catch {
-      toast.error('Error al imprimir la remision')
+      toast.error('Error al imprimir la remisión')
     } finally {
       setActionLoading(null)
     }
   }
 
   const handleDeliver = async (remId: string) => {
-    const confirmed = await confirmModalRef.current?.confirm('Marcar remision como entregada?', {
+    const confirmed = await confirmModalRef.current?.confirm('Marcar remisión como entregada?', {
       title: 'Confirmar entrega',
       confirmText: 'Marcar entregada',
       cancelText: 'Cancelar',
@@ -140,7 +140,7 @@ export default function RemissionsPage() {
     setActionLoading(`deliver-${remId}`)
     try {
       await remissionService.deliver(remId)
-      toast.success('Remision marcada como entregada')
+      toast.success('Remisión marcada como entregada')
       await loadRemissions()
     } catch {
       toast.error('Error al marcar como entregada')
@@ -162,10 +162,10 @@ export default function RemissionsPage() {
 
   const handleCancel = async (remId: string) => {
     const confirmed = await confirmModalRef.current?.confirm(
-      'Cancelar esta remision? Esta accion no se puede deshacer.',
+      'Cancelar esta remisión? Esta acción no se puede deshacer.',
       {
-        title: 'Cancelar remision',
-        confirmText: 'Cancelar remision',
+        title: 'Cancelar remisión',
+        confirmText: 'Cancelar remisión',
         cancelText: 'Volver',
         confirmVariant: 'danger',
       }
@@ -174,10 +174,10 @@ export default function RemissionsPage() {
     setActionLoading(`cancel-${remId}`)
     try {
       await remissionService.cancel(remId)
-      toast.success('Remision cancelada')
+      toast.success('Remisión cancelada')
       await loadRemissions()
     } catch {
-      toast.error('Error al cancelar la remision')
+      toast.error('Error al cancelar la remisión')
     } finally {
       setActionLoading(null)
     }
@@ -298,7 +298,7 @@ export default function RemissionsPage() {
               <table className="table table-hover mb-0">
                 <thead className="table-light">
                   <tr>
-                    <th>Numero</th>
+                    <th>Número</th>
                     <th>Orden</th>
                     {branchName.multi && <th>Sucursal</th>}
                     <th>Estado</th>

@@ -5,12 +5,12 @@ import { DetailSection } from '../../components/patterns'
 describe('DetailSection', () => {
   it('renderiza card con encabezado h5 e icono', () => {
     const { container } = render(
-      <DetailSection title="Informacion general" icon="bi-info-circle">
+      <DetailSection title="Información general" icon="bi-info-circle">
         <p>Contenido</p>
       </DetailSection>,
     )
     expect(container.firstChild).toHaveClass('card', 'mb-4')
-    expect(screen.getByRole('heading', { level: 5, name: 'Informacion general' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 5, name: 'Información general' })).toBeInTheDocument()
     expect(container.querySelector('.card-header i.bi-info-circle')).not.toBeNull()
     expect(screen.getByText('Contenido').parentElement).toHaveClass('card-body')
   })

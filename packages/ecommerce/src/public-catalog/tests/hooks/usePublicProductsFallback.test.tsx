@@ -36,7 +36,7 @@ const wrapper = ({ children }: { children: React.ReactNode }) => (
   <SWRConfig value={{ provider: () => new Map(), dedupingInterval: 0 }}>{children}</SWRConfig>
 )
 
-describe('usePublicProducts con fallbackData en navegacion suave', () => {
+describe('usePublicProducts con fallbackData en navegación suave', () => {
   beforeEach(() => {
     mockGet.mockReset()
   })

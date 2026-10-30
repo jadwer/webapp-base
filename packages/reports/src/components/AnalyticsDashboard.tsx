@@ -40,7 +40,7 @@ export function AnalyticsDashboard() {
         </div>
         <div className="col-md-3">
           <KPICard
-            title="Ordenes"
+            title="Órdenes"
             value={kpis?.totalOrders || 0}
             format="number"
             trend={kpis?.ordersTrend || 'neutral'}

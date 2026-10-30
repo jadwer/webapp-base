@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const page = await fetchPageBySlug(slug)
 
   if (!page) {
-    return { title: "Pagina no encontrada" }
+    return { title: "Página no encontrada" }
   }
 
   return {

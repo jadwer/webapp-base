@@ -108,7 +108,7 @@ export function GenerateOrderModal({ quote, isOpen, onClose, onConverted }: Gene
     }
     const parsedCreditDays = Number(creditDays)
     if (!Number.isFinite(parsedCreditDays) || parsedCreditDays < 0) {
-      validation.creditDays = 'Dias de credito invalidos'
+      validation.creditDays = 'Días de crédito invalidos'
     }
     if (validation.customerPoNumber || validation.creditDays) {
       setErrors((prev) => ({ ...prev, ...validation }))
@@ -185,7 +185,7 @@ export function GenerateOrderModal({ quote, isOpen, onClose, onConverted }: Gene
         toast.error(
           details.length > 0
             ? details.join(' ')
-            : error.response.data?.message || error.response.data?.error || 'La cotizacion no se puede convertir en pedido'
+            : error.response.data?.message || error.response.data?.error || 'La cotización no se puede convertir en pedido'
         )
       } else {
         toast.error(extractApiErrorMessage(err, 'Error al generar el pedido'))
@@ -317,7 +317,7 @@ export function GenerateOrderModal({ quote, isOpen, onClose, onConverted }: Gene
                   disabled={isBusy}
                 >
                   <option value="PPD">PPD - Pago en parcialidades o diferido</option>
-                  <option value="PUE">PUE - Pago en una exhibicion</option>
+                  <option value="PUE">PUE - Pago en una exhibición</option>
                 </select>
               </div>
 

@@ -10,7 +10,7 @@ function axios422(errors: Array<{ detail?: string; title?: string; source?: { po
 }
 
 describe('getValidationErrorMessages', () => {
-  it('traduce unique de taxId con etiqueta en espanol', () => {
+  it('traduce unique de taxId con etiqueta en español', () => {
     const messages = getValidationErrorMessages(
       axios422([
         {
@@ -19,7 +19,7 @@ describe('getValidationErrorMessages', () => {
         },
       ])
     )
-    expect(messages).toEqual(['RFC: ya esta registrado en otro contacto'])
+    expect(messages).toEqual(['RFC: ya está registrado en otro contacto'])
   })
 
   it('traduce url invalida de website', () => {
@@ -34,7 +34,7 @@ describe('getValidationErrorMessages', () => {
     expect(messages).toEqual(['Sitio web: debe ser una URL valida (incluye https://)'])
   })
 
-  it('traduce max length con el numero interpolado', () => {
+  it('traduce max length con el número interpolado', () => {
     const messages = getValidationErrorMessages(
       axios422([
         {
@@ -43,7 +43,7 @@ describe('getValidationErrorMessages', () => {
         },
       ])
     )
-    expect(messages).toEqual(['Telefono: excede el largo maximo (20 caracteres)'])
+    expect(messages).toEqual(['Teléfono: excede el largo máximo (20 caracteres)'])
   })
 
   it('devuelve varios errores en orden', () => {
@@ -58,7 +58,7 @@ describe('getValidationErrorMessages', () => {
     expect(messages[1]).toContain('RFC:')
   })
 
-  it('regla 9: el detalle en espanol se muestra tal cual, sin anteponer el puntero', () => {
+  it('regla 9: el detalle en español se muestra tal cual, sin anteponer el puntero', () => {
     const messages = getValidationErrorMessages(
       axios422([
         { detail: 'El campo RFC no tiene un formato válido.', source: { pointer: '/data/attributes/taxId' } },
@@ -67,7 +67,7 @@ describe('getValidationErrorMessages', () => {
     expect(messages).toEqual(['El campo RFC no tiene un formato válido.'])
   })
 
-  it('nunca antepone el atributo en ingles cuando no hay etiqueta mapeada', () => {
+  it('nunca antepone el atributo en inglés cuando no hay etiqueta mapeada', () => {
     const messages = getValidationErrorMessages(
       axios422([
         { detail: 'The foo field is required.', source: { pointer: '/data/attributes/foo' } },

@@ -50,7 +50,7 @@ export const NewsletterPageClient: React.FC = () => {
       ).join(', ')
 
       const whatsappMessage = encodeURIComponent(
-        `*Nueva suscripcion a Newsletter - ${get('company.name') || 'Empresa'}*\n\n` +
+        `*Nueva suscripción a Newsletter - ${get('company.name') || 'Empresa'}*\n\n` +
         `*Nombre:* ${name}\n` +
         `*Email:* ${email}\n` +
         `*Intereses:* ${interestLabels || 'No especificados'}`

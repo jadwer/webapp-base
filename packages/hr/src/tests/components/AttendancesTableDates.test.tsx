@@ -4,7 +4,7 @@ import { AttendancesTable } from '../../components/AttendancesTable'
 import type { Attendance } from '../../types'
 
 describe('AttendancesTable fechas', () => {
-  it('muestra la fecha de asistencia sin correrla un dia (ISO medianoche)', () => {
+  it('muestra la fecha de asistencia sin correrla un día (ISO medianoche)', () => {
     const attendance = {
       id: '1',
       date: '2026-10-25T00:00:00.000000Z',

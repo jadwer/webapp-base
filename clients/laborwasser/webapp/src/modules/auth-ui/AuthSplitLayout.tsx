@@ -24,7 +24,7 @@ interface AuthSplitLayoutProps {
   title: string
   subtitle?: React.ReactNode
   children: React.ReactNode
-  /** Enlace secundario justo bajo el boton (login: "Olvidaste tu contrasena?") */
+  /** Enlace secundario justo bajo el boton (login: "Olvidaste tu contraseña?") */
   aside?: React.ReactNode
   /** Enlace de pie tras el separador "o" */
   footer?: React.ReactNode

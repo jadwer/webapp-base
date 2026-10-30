@@ -325,7 +325,7 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
       const relatedContactId = result?.id ?? contact?.id
 
       if (!relatedContactId && (localAddresses.length > 0 || localPeople.length > 0 || localDocuments.length > 0)) {
-        toast.error('El contacto se guardo pero no se pudieron guardar direcciones/personas/documentos (sin id del contacto)', { duration: 0 })
+        toast.error('El contacto se guardó pero no se pudieron guardar direcciones/personas/documentos (sin id del contacto)', { duration: 0 })
       }
 
       if (relatedContactId) {
@@ -357,8 +357,8 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
               const details = getValidationErrorMessages(error)
               toast.error(
                 details.length > 0
-                  ? `Direccion no guardada: ${details.join(' ')}`
-                  : 'Una direccion no se pudo guardar',
+                  ? `Dirección no guardada: ${details.join(' ')}`
+                  : 'Una dirección no se pudo guardar',
                 { duration: 0 }
               )
             }
@@ -454,7 +454,7 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
       try {
         await contactAddressesService.update(id, updatedAddress)
       } catch {
-        toast.error('Error al actualizar la direccion')
+        toast.error('Error al actualizar la dirección')
       }
     }
   }
@@ -468,7 +468,7 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
       try {
         await contactAddressesService.delete(id)
       } catch {
-        toast.error('Error al eliminar la direccion')
+        toast.error('Error al eliminar la dirección')
       }
     }
   }
@@ -906,7 +906,7 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
                 </div>
 
                 {/* Condiciones comerciales: credito en dias (unico campo de
-                    plazo; "Credito (meses)" se retiro por redundante) */}
+                    plazo; "Crédito (meses)" se retiro por redundante) */}
                 <div className="col-12">
                   <h5 className="mb-0 mt-3">
                     <i className="bi bi-cash-coin me-2" aria-hidden="true"></i>

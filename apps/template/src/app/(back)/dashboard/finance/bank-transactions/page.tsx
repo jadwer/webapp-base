@@ -9,7 +9,7 @@ import { BankTransactionsAdminPage } from '@/modules/finance'
 
 export const metadata: Metadata = {
   title: 'Transacciones Bancarias - Finance',
-  description: 'Administracion de transacciones bancarias y conciliacion'
+  description: 'Administración de transacciones bancarias y conciliación'
 }
 
 export default function BankTransactionsPage() {

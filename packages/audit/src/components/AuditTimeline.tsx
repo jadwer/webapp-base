@@ -52,8 +52,8 @@ function getEventDescription(audit: Audit, showEntity: boolean): string {
   const entity = showEntity ? formatAuditableType(audit.auditableType) : ''
   const entityId = audit.auditableId ? ` #${audit.auditableId}` : ''
 
-  if (event === 'login') return 'Inicio sesion'
-  if (event === 'logout') return 'Cerro sesion'
+  if (event === 'login') return 'Inicio sesión'
+  if (event === 'logout') return 'Cerró sesión'
   if (event === 'login_failed') return 'Fallo de login'
 
   if (entity) {

@@ -90,7 +90,7 @@ describe('buildContactAttributes (escritura de campos comerciales/fiscales)', ()
     expect(out).toHaveProperty('collectionsAgentId', null)
   })
 
-  it('descarta null en campos NO nullables (evita romper validacion)', () => {
+  it('descarta null en campos NO nullables (evita romper validación)', () => {
     const out = buildContactAttributes({
       regimenFiscal: null,
       usoCfdi: null,
@@ -103,7 +103,7 @@ describe('buildContactAttributes (escritura de campos comerciales/fiscales)', ()
     expect(out).not.toHaveProperty('name')
   })
 
-  it('conserva el valor 0 (no lo confunde con vacio)', () => {
+  it('conserva el valor 0 (no lo confunde con vacío)', () => {
     const out = buildContactAttributes({
       creditMonths: 0,
       discountPct: 0,

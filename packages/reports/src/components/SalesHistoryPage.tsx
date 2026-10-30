@@ -39,7 +39,7 @@ const GROUP_BY_OPTIONS: { value: SalesHistoryGroupBy; label: string }[] = [
   { value: 'customer', label: 'Cliente' },
   { value: 'salesperson', label: 'Vendedor' },
   { value: 'status', label: 'Estatus' },
-  { value: 'day', label: 'Dia' },
+  { value: 'day', label: 'Día' },
   { value: 'month', label: 'Mes' },
 ]
 
@@ -437,7 +437,7 @@ export const SalesHistoryPage = () => {
                   value={categoryId}
                   onChange={(e) => setCategoryId(e.target.value)}
                 >
-                  <option value="">Todas las categorias</option>
+                  <option value="">Todas las categorías</option>
                   {categories.map((category) => (
                     <option key={category.id} value={category.id}>
                       {category.name}

@@ -29,7 +29,7 @@ describe('parseContact', () => {
       usoCfdi: 'G03',
       creditMonths: 2,
       bankAccountNumber: '0123456789',
-      referralSource: 'Recomendacion',
+      referralSource: 'Recomendación',
       cuentaContable: '105-01-001',
       discountPct: 5,
       defaultSalespersonId: 3,
@@ -45,7 +45,7 @@ describe('parseContact', () => {
     expect(parsed.usoCfdi).toBe('G03')
     expect(parsed.creditMonths).toBe(2)
     expect(parsed.bankAccountNumber).toBe('0123456789')
-    expect(parsed.referralSource).toBe('Recomendacion')
+    expect(parsed.referralSource).toBe('Recomendación')
     expect(parsed.cuentaContable).toBe('105-01-001')
     expect(parsed.discountPct).toBe(5)
     expect(parsed.defaultSalespersonId).toBe(3)

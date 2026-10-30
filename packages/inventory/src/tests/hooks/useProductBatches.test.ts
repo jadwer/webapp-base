@@ -34,7 +34,7 @@ describe('useProductBatches', () => {
     expect(result.current.meta).toEqual({ total: 47, perPage: 20, currentPage: 2, lastPage: 3 })
   })
 
-  it('sin meta.page no inventa paginacion', async () => {
+  it('sin meta.page no inventa paginación', async () => {
     vi.mocked(productBatchService.getAll).mockResolvedValue({
       data: [],
       meta: {},
@@ -46,7 +46,7 @@ describe('useProductBatches', () => {
     expect(result.current.meta).toBeUndefined()
   })
 
-  it('pasa un solo estado y la busqueda al servicio', async () => {
+  it('pasa un solo estado y la búsqueda al servicio', async () => {
     vi.mocked(productBatchService.getAll).mockResolvedValue({ data: [], meta: {} })
 
     const { result } = renderHook(

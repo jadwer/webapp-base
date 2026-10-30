@@ -64,14 +64,14 @@ export interface PublicCatalogQuery {
 
 export class PublicCatalogServerError extends Error {
   constructor(public readonly status: number, public readonly url: string) {
-    super(`Catalogo publico: ${url} respondio ${status}`)
+    super(`Catálogo público: ${url} respondio ${status}`)
     this.name = 'PublicCatalogServerError'
   }
 }
 
 function resolveBackendUrl(explicit?: string): string {
   const raw = (explicit ?? process.env.NEXT_PUBLIC_BACKEND_URL ?? '').trim()
-  if (!raw) throw new Error('Catalogo publico: falta NEXT_PUBLIC_BACKEND_URL')
+  if (!raw) throw new Error('Catálogo público: falta NEXT_PUBLIC_BACKEND_URL')
   return raw.replace(/\/+$/, '')
 }
 

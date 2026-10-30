@@ -127,7 +127,7 @@ export interface ProductRef {
   name: string
   sku: string
   price: number | null
-  /** fixed | quote_only ("Precio sujeto a cotizacion") */
+  /** fixed | quote_only ("Precio sujeto a cotización") */
   pricingType?: 'fixed' | 'quote_only'
   /** Nombre de la unidad del producto (include product.unit); null si no tiene. */
   unitName?: string | null

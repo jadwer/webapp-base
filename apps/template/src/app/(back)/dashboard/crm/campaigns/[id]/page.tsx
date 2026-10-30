@@ -12,7 +12,7 @@ interface CampaignViewPageProps {
 }
 
 const STATUS_BADGES: Record<string, { class: string; label: string }> = {
-  planning: { class: 'bg-secondary', label: 'Planeacion' },
+  planning: { class: 'bg-secondary', label: 'Planeación' },
   active: { class: 'bg-success', label: 'Activa' },
   paused: { class: 'bg-warning text-dark', label: 'Pausada' },
   completed: { class: 'bg-info', label: 'Completada' },

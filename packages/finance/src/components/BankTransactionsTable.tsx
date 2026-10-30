@@ -60,9 +60,9 @@ export const BankTransactionsTable: React.FC<BankTransactionsTableProps> = ({
     if (!onDelete || !confirmModalRef.current) return
 
     const confirmed = await confirmModalRef.current.confirm(
-      `Esta seguro de que quiere eliminar la transaccion con referencia "${transaction.reference || 'Sin referencia'}"? Esta accion no se puede deshacer.`,
+      `Está seguro de que quiere eliminar la transacción con referencia "${transaction.reference || 'Sin referencia'}"? Esta acción no se puede deshacer.`,
       {
-        title: 'Eliminar Transaccion Bancaria',
+        title: 'Eliminar Transacción Bancaria',
         confirmVariant: 'danger',
         confirmText: 'Eliminar',
         cancelText: 'Cancelar',
@@ -83,9 +83,9 @@ export const BankTransactionsTable: React.FC<BankTransactionsTableProps> = ({
     if (!onReconcile || !confirmModalRef.current) return
 
     const confirmed = await confirmModalRef.current.confirm(
-      `Deseas marcar esta transaccion como conciliada?`,
+      `Deseas marcar esta transacción como conciliada?`,
       {
-        title: 'Conciliar Transaccion',
+        title: 'Conciliar Transacción',
         confirmVariant: 'success',
         confirmText: 'Conciliar',
         cancelText: 'Cancelar',
@@ -106,9 +106,9 @@ export const BankTransactionsTable: React.FC<BankTransactionsTableProps> = ({
     if (!onUnreconcile || !confirmModalRef.current) return
 
     const confirmed = await confirmModalRef.current.confirm(
-      `Deseas deshacer la conciliacion de esta transaccion?`,
+      `Deseas deshacer la conciliación de esta transacción?`,
       {
-        title: 'Deshacer Conciliacion',
+        title: 'Deshacer Conciliación',
         confirmVariant: 'warning',
         confirmText: 'Deshacer',
         cancelText: 'Cancelar',
@@ -154,7 +154,7 @@ export const BankTransactionsTable: React.FC<BankTransactionsTableProps> = ({
               <th scope="col">Fecha</th>
               <th scope="col">Tipo</th>
               <th scope="col">Referencia</th>
-              <th scope="col">Descripcion</th>
+              <th scope="col">Descripción</th>
               <th scope="col" className="text-end">Monto</th>
               <th scope="col">Cuenta</th>
               <th scope="col">Estado</th>
@@ -236,11 +236,11 @@ export const BankTransactionsTable: React.FC<BankTransactionsTableProps> = ({
 
                       {transaction.reconciliationStatus === 'reconciled' && onUnreconcile && (
                         <Button
-                          aria-label="Deshacer conciliacion"
+                          aria-label="Deshacer conciliación"
                           size="small"
                           variant="warning"
                           buttonStyle="outline"
-                          title="Deshacer conciliacion"
+                          title="Deshacer conciliación"
                           onClick={() => handleUnreconcile(transaction)}
                           disabled={isTransactionLoading}
                         >
@@ -250,11 +250,11 @@ export const BankTransactionsTable: React.FC<BankTransactionsTableProps> = ({
 
                       {onView && (
                         <Button
-                          aria-label="Ver transaccion"
+                          aria-label="Ver transacción"
                           size="small"
                           variant="secondary"
                           buttonStyle="outline"
-                          title="Ver transaccion"
+                          title="Ver transacción"
                           onClick={() => onView(transaction)}
                           disabled={isTransactionLoading}
                         >
@@ -264,11 +264,11 @@ export const BankTransactionsTable: React.FC<BankTransactionsTableProps> = ({
 
                       {onEdit && (
                         <Button
-                          aria-label="Editar transaccion"
+                          aria-label="Editar transacción"
                           size="small"
                           variant="primary"
                           buttonStyle="outline"
-                          title="Editar transaccion"
+                          title="Editar transacción"
                           onClick={() => onEdit(transaction)}
                           disabled={isTransactionLoading}
                         >
@@ -278,11 +278,11 @@ export const BankTransactionsTable: React.FC<BankTransactionsTableProps> = ({
 
                       {onDelete && (
                         <Button
-                          aria-label="Eliminar transaccion"
+                          aria-label="Eliminar transacción"
                           size="small"
                           variant="danger"
                           buttonStyle="outline"
-                          title="Eliminar transaccion"
+                          title="Eliminar transacción"
                           onClick={() => handleDelete(transaction)}
                           disabled={isTransactionLoading}
                         >

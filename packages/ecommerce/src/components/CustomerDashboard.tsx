@@ -209,7 +209,7 @@ export default function CustomerDashboard() {
     switch (type) {
       case 'percentage': return `${value}% descuento`
       case 'fixed_amount': return `${formatCurrency(value)} descuento`
-      case 'free_shipping': return 'Envio gratis'
+      case 'free_shipping': return 'Envío gratis'
       default: return `${value} descuento`
     }
   }
@@ -493,10 +493,10 @@ export default function CustomerDashboard() {
                           )}
                         </div>
                         <button
-                          aria-label="Copiar codigo"
+                          aria-label="Copiar código"
                           className="btn btn-sm btn-outline-secondary"
                           onClick={() => handleCopyCoupon(coupon.code)}
-                          title="Copiar codigo"
+                          title="Copiar código"
                         >
                           <i className="bi bi-clipboard"></i>
                         </button>
@@ -520,7 +520,7 @@ export default function CustomerDashboard() {
             <div className="card-body">
               <div className="row g-2">
                 {[
-                  { href: '/productos', icon: 'bi-grid-3x3-gap', label: 'Ver Catalogo', color: 'primary' },
+                  { href: '/productos', icon: 'bi-grid-3x3-gap', label: 'Ver Catálogo', color: 'primary' },
                   { href: '/dashboard/my-quotes', icon: 'bi-file-earmark-text', label: 'Mis Cotizaciones', color: 'info' },
                   { href: '/dashboard/my-orders', icon: 'bi-bag-check', label: 'Mis Pedidos', color: 'success' },
                   { href: '/dashboard/profile', icon: 'bi-person-circle', label: 'Mi Perfil', color: 'secondary' },

@@ -364,7 +364,7 @@ describe('CFDI Invoices Services', () => {
       expect(result).toEqual({ ...mockResponse, cancellationStatus: undefined, message: 'CFDI cancelado correctamente' });
     });
 
-    it('cancelacion con aceptacion: queda en proceso con el estatus del SAT', async () => {
+    it('cancelación con aceptación: queda en proceso con el estatus del SAT', async () => {
       vi.mocked(axiosClient.post).mockResolvedValue({
         data: {
           message: 'Cancelación solicitada al SAT; queda en proceso hasta su confirmación',

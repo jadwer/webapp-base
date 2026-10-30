@@ -7,7 +7,7 @@ import { describe, it, expect } from 'vitest'
 import { catalogInitialQuery, normalizePage, CATALOG_PRODUCTS_INCLUDE } from '../../services/catalogQuery'
 
 describe('normalizePage', () => {
-  it('acepta enteros >= 1 (numero o texto) y cae a 1 con basura', () => {
+  it('acepta enteros >= 1 (número o texto) y cae a 1 con basura', () => {
     expect(normalizePage(3)).toBe(3)
     expect(normalizePage('7')).toBe(7)
     expect(normalizePage('0')).toBe(1)
@@ -17,7 +17,7 @@ describe('normalizePage', () => {
     expect(normalizePage(2.5)).toBe(1)
   })
 
-  it('initialPage entra a la paginacion de la consulta inicial', () => {
+  it('initialPage entra a la paginación de la consulta inicial', () => {
     expect(catalogInitialQuery({ initialPage: 4 }).pagination).toEqual({ page: 4, size: 24 })
     expect(catalogInitialQuery({ initialPage: 0 }).pagination).toEqual({ page: 1, size: 24 })
   })
@@ -25,7 +25,7 @@ describe('normalizePage', () => {
 import { createProductsKey } from '../../hooks/usePublicProducts'
 
 describe('catalogInitialQuery', () => {
-  it('defaults: pagina 1 de 24, orden name asc, isActive primero', () => {
+  it('defaults: página 1 de 24, orden name asc, isActive primero', () => {
     const q = catalogInitialQuery()
     expect(q).toEqual({
       filters: { isActive: true },
@@ -42,7 +42,7 @@ describe('catalogInitialQuery', () => {
       .toBe(createProductsKey(b.filters, b.sort, b.pagination, b.include))
   })
 
-  it('la clave cambia con categoria, orden o tamano de pagina', () => {
+  it('la clave cambia con categoría, orden o tamaño de página', () => {
     const base = catalogInitialQuery()
     const key = (q: ReturnType<typeof catalogInitialQuery>) => createProductsKey(q.filters, q.sort, q.pagination, q.include)
     expect(key(catalogInitialQuery({ initialFilters: { categoryId: '1' } }))).not.toBe(key(base))

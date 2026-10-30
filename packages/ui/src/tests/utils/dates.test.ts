@@ -20,11 +20,11 @@ describe('parseDateOnly', () => {
     expect(parseDateOnly('2026-10-25T00:00:00.000000Z')?.toISOString()).toBe('2026-10-25T00:00:00.000Z')
   })
 
-  it('acepta ISO con hora y conserva el dia del string', () => {
+  it('acepta ISO con hora y conserva el día del string', () => {
     expect(parseDateOnly('2026-10-25T23:30:00Z')?.toISOString()).toBe('2026-10-25T00:00:00.000Z')
   })
 
-  it('devuelve null para vacio o invalido', () => {
+  it('devuelve null para vacío o invalido', () => {
     expect(parseDateOnly(null)).toBeNull()
     expect(parseDateOnly(undefined)).toBeNull()
     expect(parseDateOnly('')).toBeNull()
@@ -34,11 +34,11 @@ describe('parseDateOnly', () => {
 })
 
 describe('formatDateOnly', () => {
-  it('Y-m-d se muestra el mismo dia', () => {
+  it('Y-m-d se muestra el mismo día', () => {
     expect(formatDateOnly('2026-10-25')).toBe('25/10/2026')
   })
 
-  it('ISO medianoche no se corre al dia anterior (frontera de dia)', () => {
+  it('ISO medianoche no se corre al día anterior (frontera de día)', () => {
     expect(formatDateOnly('2026-10-25T00:00:00.000000Z')).toBe('25/10/2026')
     expect(formatDateOnly('2026-01-01T00:00:00.000000Z')).toBe('01/01/2026')
   })
@@ -52,7 +52,7 @@ describe('formatDateOnly', () => {
       .toBe('25 de octubre de 2026')
   })
 
-  it('vacio -> "-" e invalido se devuelve tal cual', () => {
+  it('vacío -> "-" e invalido se devuelve tal cual', () => {
     expect(formatDateOnly(null)).toBe('-')
     expect(formatDateOnly(undefined)).toBe('-')
     expect(formatDateOnly('')).toBe('-')
@@ -66,7 +66,7 @@ describe('toDateInput', () => {
     expect(toDateInput('2026-10-25T00:00:00.000000Z')).toBe('2026-10-25')
   })
 
-  it('vacio o invalido -> ""', () => {
+  it('vacío o invalido -> ""', () => {
     expect(toDateInput(null)).toBe('')
     expect(toDateInput(undefined)).toBe('')
     expect(toDateInput('basura')).toBe('')
@@ -85,7 +85,7 @@ describe('todayDateInput / isPastDateOnly', () => {
     expect(todayDateInput()).toBe('2026-10-25')
   })
 
-  it('vencimiento compara por dia de calendario', () => {
+  it('vencimiento compara por día de calendario', () => {
     vi.useFakeTimers()
     vi.setSystemTime(new Date(2026, 9, 25, 23, 30))
     expect(isPastDateOnly('2026-10-24')).toBe(true)
@@ -102,7 +102,7 @@ describe('compareDateOnly / diffDaysDateOnly / addDaysDateOnly', () => {
     expect(compareDateOnly(null, '2026-10-25')).toBeGreaterThan(0)
   })
 
-  it('diferencia en dias y suma de dias', () => {
+  it('diferencia en días y suma de días', () => {
     expect(diffDaysDateOnly('2026-10-25', '2026-11-24T00:00:00.000000Z')).toBe(30)
     expect(diffDaysDateOnly(null, '2026-10-25')).toBeNull()
     expect(addDaysDateOnly('2026-10-25T00:00:00.000000Z', 10)).toBe('2026-11-04')
@@ -111,7 +111,7 @@ describe('compareDateOnly / diffDaysDateOnly / addDaysDateOnly', () => {
 })
 
 describe('formatDateTime', () => {
-  it('formatea timestamp con hora y vacio como "-"', () => {
+  it('formatea timestamp con hora y vacío como "-"', () => {
     const value = new Date(2026, 9, 25, 14, 5)
     expect(formatDateTime(value)).toBe('25/10/2026, 14:05')
     expect(formatDateTime(null)).toBe('-')

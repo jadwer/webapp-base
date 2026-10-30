@@ -52,23 +52,23 @@ export function QuotesTable({ quotes, isLoading, onQuoteUpdated }: QuotesTablePr
       switch (action) {
         case 'send':
           await mutations.send.mutateAsync(quote.id)
-          toast.success('Cotizacion enviada')
+          toast.success('Cotización enviada')
           break
         case 'accept':
           await mutations.accept.mutateAsync(quote.id)
-          toast.success('Cotizacion aceptada')
+          toast.success('Cotización aceptada')
           break
         case 'reject':
           await mutations.reject.mutateAsync({ id: quote.id })
-          toast.success('Cotizacion rechazada')
+          toast.success('Cotización rechazada')
           break
         case 'cancel':
           await mutations.cancel.mutateAsync(quote.id)
-          toast.success('Cotizacion cancelada')
+          toast.success('Cotización cancelada')
           break
         case 'duplicate':
           await mutations.duplicate.mutateAsync(quote.id)
-          toast.success('Cotizacion duplicada')
+          toast.success('Cotización duplicada')
           break
       }
       onQuoteUpdated?.()
@@ -98,7 +98,7 @@ export function QuotesTable({ quotes, isLoading, onQuoteUpdated }: QuotesTablePr
     try {
       const items = await quoteItemService.getByQuoteId(quote.id)
       if (items.length === 0) {
-        toast.error('La cotizacion no tiene partidas para exportar')
+        toast.error('La cotización no tiene partidas para exportar')
         return
       }
       exportQuoteItemsCsv(quote.quoteNumber, items)
@@ -127,9 +127,9 @@ export function QuotesTable({ quotes, isLoading, onQuoteUpdated }: QuotesTablePr
 
   const handleDelete = async (quoteId: string) => {
     const confirmed = await confirmModalRef.current?.confirm(
-      'Esta accion no se puede deshacer. Se eliminara permanentemente esta cotizacion.',
+      'Esta acción no se puede deshacer. Se eliminara permanentemente esta cotización.',
       {
-        title: 'Eliminar cotizacion',
+        title: 'Eliminar cotización',
         confirmText: 'Eliminar',
         cancelText: 'Cancelar',
         confirmVariant: 'danger'
@@ -140,10 +140,10 @@ export function QuotesTable({ quotes, isLoading, onQuoteUpdated }: QuotesTablePr
 
     try {
       await mutations.delete.mutateAsync(quoteId)
-      toast.success('Cotizacion eliminada')
+      toast.success('Cotización eliminada')
       onQuoteUpdated?.()
     } catch {
-      toast.error('Error al eliminar la cotizacion')
+      toast.error('Error al eliminar la cotización')
     }
   }
 
@@ -189,7 +189,7 @@ export function QuotesTable({ quotes, isLoading, onQuoteUpdated }: QuotesTablePr
       disabled: !quote.salesOrderId,
       title: quote.salesOrderId
         ? 'Vista previa de la prefactura de la orden generada'
-        : 'Disponible cuando la cotizacion tenga una orden generada'
+        : 'Disponible cuando la cotización tenga una orden generada'
     })
 
     if (statusConfig.canSend && (quote.itemsCount ?? 0) > 0) {
@@ -291,7 +291,7 @@ export function QuotesTable({ quotes, isLoading, onQuoteUpdated }: QuotesTablePr
         <table className="table table-hover">
           <thead className="table-light">
             <tr>
-              <th>No. Cotizacion</th>
+              <th>No. Cotización</th>
               <th>Cliente</th>
               <th>Fecha</th>
               <th>Vigencia</th>

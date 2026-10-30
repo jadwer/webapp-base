@@ -68,7 +68,7 @@ export function GenerateSaleModal({ quote, isOpen, onClose, onConverted }: Gener
   const handleSubmit = async () => {
     const parsedCreditDays = Number(creditDays)
     if (!Number.isFinite(parsedCreditDays) || parsedCreditDays < 0) {
-      setFormError('Dias de credito invalidos')
+      setFormError('Días de crédito invalidos')
       return
     }
     setFormError(null)
@@ -114,7 +114,7 @@ export function GenerateSaleModal({ quote, isOpen, onClose, onConverted }: Gener
           toast.error(
             error.response.data?.message ||
               error.response.data?.error ||
-              'La cotizacion no se puede convertir en venta directa'
+              'La cotización no se puede convertir en venta directa'
           )
         }
       } else {
@@ -235,7 +235,7 @@ export function GenerateSaleModal({ quote, isOpen, onClose, onConverted }: Gener
                   onChange={(e) => setPaymentMethod(e.target.value as PaymentMethod)}
                   disabled={convert.isPending}
                 >
-                  <option value="PUE">PUE - Pago en una exhibicion</option>
+                  <option value="PUE">PUE - Pago en una exhibición</option>
                   <option value="PPD">PPD - Pago en parcialidades o diferido</option>
                 </select>
               </div>

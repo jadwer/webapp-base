@@ -6,5 +6,5 @@ export default function ProductConversionsPage() {
 
 export const metadata = {
   title: 'Conversiones de Productos - Inventario',
-  description: 'Configuracion de conversiones entre productos para fraccionamiento'
+  description: 'Configuración de conversiones entre productos para fraccionamiento'
 }

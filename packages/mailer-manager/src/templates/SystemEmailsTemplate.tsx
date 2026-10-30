@@ -105,7 +105,7 @@ export default function SystemEmailsTemplate() {
             <thead>
               <tr>
                 <th style={{ width: '60px' }}>Estado</th>
-                <th>Modulo</th>
+                <th>Módulo</th>
                 <th>Email</th>
                 <th style={{ width: '250px' }}>Template Asignado</th>
                 <th className="text-end" style={{ width: '120px' }}>Acciones</th>

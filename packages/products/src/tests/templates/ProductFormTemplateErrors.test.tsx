@@ -36,7 +36,7 @@ vi.mock('../../components/ProductForm', () => ({ default: () => null }))
 import { ProductFormTemplate } from '../../templates/ProductFormTemplate.html'
 
 describe('ProductFormTemplate errores de guardado', () => {
-  it('muestra el detail en espanol sin el nombre del campo en ingles', () => {
+  it('muestra el detail en español sin el nombre del campo en inglés', () => {
     render(<ProductFormTemplate />)
     expect(screen.getByText('El precio de venta debe ser mayor a 0 con precio fijo.')).toBeInTheDocument()
     const alert = screen.getByRole('alert')

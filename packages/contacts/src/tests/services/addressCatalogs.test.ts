@@ -42,7 +42,7 @@ describe('addressCatalogsService', () => {
     expect(info?.colonias).toHaveLength(1)
   })
 
-  it('lookupPostalCode devuelve null en 404 (CP fuera de catalogo, captura manual)', async () => {
+  it('lookupPostalCode devuelve null en 404 (CP fuera de catálogo, captura manual)', async () => {
     getMock.mockRejectedValueOnce({ response: { status: 404 } })
 
     const info = await addressCatalogsService.lookupPostalCode('00000')

@@ -31,7 +31,7 @@ export const PipelineStagesAdminPageReal = () => {
     if (!confirmModalRef.current) return
 
     const confirmed = await confirmModalRef.current.confirm(
-      `¿Estas seguro de que quieres eliminar la etapa "${stage.name}"? Esta accion no se puede deshacer.`,
+      `¿Estas seguro de que quieres eliminar la etapa "${stage.name}"? Esta acción no se puede deshacer.`,
       {
         title: 'Eliminar Etapa',
         confirmText: 'Eliminar',

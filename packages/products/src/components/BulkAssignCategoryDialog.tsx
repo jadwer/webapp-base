@@ -53,7 +53,7 @@ export const BulkAssignCategoryDialog = React.memo<BulkAssignCategoryDialogProps
         setCategoryId('')
       }, 2000)
     } catch {
-      setError('Error al reasignar la categoria. Verifique los datos e intente de nuevo.')
+      setError('Error al reasignar la categoría. Verifique los datos e intente de nuevo.')
     } finally {
       setIsSubmitting(false)
     }
@@ -108,7 +108,7 @@ export const BulkAssignCategoryDialog = React.memo<BulkAssignCategoryDialogProps
             onChange={e => setCategoryId(e.target.value)}
             disabled={isSubmitting}
           >
-            <option value="">Seleccionar categoria...</option>
+            <option value="">Seleccionar categoría...</option>
             {categories.filter(c => c.isActive !== false).map(c => (
               <option key={c.id} value={c.id}>
                 {c.name}
@@ -121,7 +121,7 @@ export const BulkAssignCategoryDialog = React.memo<BulkAssignCategoryDialogProps
         {isValid && selectedBrand && selectedCategory && (
           <div className="alert alert-info mb-3">
             <i className="bi bi-info-circle me-2" />
-            Esto reasignara <strong>{selectedBrand.productsCount ?? 0}</strong> producto(s) de <strong>{selectedBrand.name}</strong> a la categoria <strong>{selectedCategory.name}</strong>.
+            Esto reasignara <strong>{selectedBrand.productsCount ?? 0}</strong> producto(s) de <strong>{selectedBrand.name}</strong> a la categoría <strong>{selectedCategory.name}</strong>.
           </div>
         )}
 

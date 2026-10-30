@@ -2,14 +2,14 @@ import { describe, it, expect } from 'vitest'
 import { buildRobots, isNoIndexEnv, ROBOTS_DISALLOW } from '@/lib/seo/robots'
 
 describe('robots', () => {
-  it('produccion: permite todo salvo las rutas privadas y apunta al sitemap del host canonico', () => {
+  it('producción: permite todo salvo las rutas privadas y apunta al sitemap del host canonico', () => {
     const robots = buildRobots({ NEXT_PUBLIC_CANONICAL_HOST: 'https://laborwasserdemexico.com/' })
     expect(robots.rules).toEqual({ userAgent: '*', allow: '/', disallow: ROBOTS_DISALLOW })
     expect(robots.sitemap).toBe('https://laborwasserdemexico.com/sitemap.xml')
     expect(robots.host).toBe('https://laborwasserdemexico.com')
   })
 
-  it('bloquea dashboard, auth, carrito, checkout, cotizacion y confirmacion de pedido', () => {
+  it('bloquea dashboard, auth, carrito, checkout, cotización y confirmación de pedido', () => {
     for (const path of ['/dashboard', '/auth', '/cart', '/checkout', '/cotizacion', '/order-confirmation']) {
       expect(ROBOTS_DISALLOW).toContain(path)
     }

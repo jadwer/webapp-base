@@ -49,7 +49,7 @@ export default function TemplatesPage() {
       }
     } catch (error) {
       console.error('Error creating page from template:', error)
-      toast.error('Error al crear la pagina desde el template')
+      toast.error('Error al crear la página desde el template')
     } finally {
       setIsCreating(false)
     }

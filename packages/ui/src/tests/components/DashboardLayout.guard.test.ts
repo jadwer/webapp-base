@@ -25,7 +25,7 @@ describe('customerCanOpen', () => {
     expect(customerCanOpen('/dashboard/my-orders/12', config)).toBe(true)
   })
 
-  it('bloquea las rutas de administracion', () => {
+  it('bloquea las rutas de administración', () => {
     expect(customerCanOpen('/dashboard/ecommerce/orders', config)).toBe(false)
     expect(customerCanOpen('/dashboard/users', config)).toBe(false)
     expect(customerCanOpen('/dashboard/my-orders-x', config)).toBe(false)
@@ -51,14 +51,14 @@ describe('staffCanOpen', () => {
   })
 })
 
-describe('staffCanOpen con el menu de administracion completo', () => {
+describe('staffCanOpen con el menu de administración completo', () => {
   const admin = {
     topLinks: [item('/dashboard')],
     groups: [{ items: [item('/dashboard/inventory'), item('/dashboard/inventory/stock'), item('/dashboard/inventory/fraccionamiento')] }],
   }
   const own = { topLinks: [item('/dashboard')], groups: [{ items: [item('/dashboard/inventory'), item('/dashboard/inventory/stock')] }] }
 
-  it('el enlace mas especifico decide', () => {
+  it('el enlace más especifico decide', () => {
     expect(staffCanOpen('/dashboard/inventory', own, admin)).toBe(true)
     expect(staffCanOpen('/dashboard/inventory/stock/4', own, admin)).toBe(true)
     expect(staffCanOpen('/dashboard/inventory/fraccionamiento', own, admin)).toBe(false)

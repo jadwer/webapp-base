@@ -16,12 +16,12 @@ const TIPO_COMPROBANTE_OPTIONS: { value: TipoComprobante; label: string }[] = [
   { value: 'I', label: 'Ingreso' },
   { value: 'E', label: 'Egreso' },
   { value: 'T', label: 'Traslado' },
-  { value: 'N', label: 'Nomina' },
+  { value: 'N', label: 'Nómina' },
   { value: 'P', label: 'Pago' },
 ]
 
 const METODO_PAGO_OPTIONS: { value: MetodoPago; label: string }[] = [
-  { value: 'PUE', label: 'Pago en Una Exhibicion' },
+  { value: 'PUE', label: 'Pago en Una Exhibición' },
   { value: 'PPD', label: 'Pago en Parcialidades o Diferido' },
 ]
 
@@ -132,7 +132,7 @@ export const CFDIInvoiceForm: React.FC<CFDIInvoiceFormProps> = ({
     }
 
     if (!formData.receptorDomicilioFiscal.trim()) {
-      newErrors.receptorDomicilioFiscal = 'El codigo postal es requerido'
+      newErrors.receptorDomicilioFiscal = 'El código postal es requerido'
     }
 
     if (parseFloat(formData.total) <= 0) {
@@ -224,21 +224,21 @@ export const CFDIInvoiceForm: React.FC<CFDIInvoiceFormProps> = ({
 
                 <div className="col-md-8">
                   <Input
-                    label="Razon Social / Nombre"
+                    label="Razón Social / Nombre"
                     type="text"
                     value={formData.receptorNombre}
                     onChange={(e) => handleInputChange('receptorNombre', e.target.value)}
                     onBlur={() => handleBlur('receptorNombre')}
                     errorText={touched.receptorNombre ? errors.receptorNombre : ''}
                     required
-                    placeholder="Nombre completo o razon social"
+                    placeholder="Nombre completo o razón social"
                     disabled={isFormLoading}
                   />
                 </div>
 
                 <div className="col-md-4">
                   <Input
-                    label="Codigo Postal"
+                    label="Código Postal"
                     type="text"
                     value={formData.receptorDomicilioFiscal}
                     onChange={(e) => handleInputChange('receptorDomicilioFiscal', e.target.value)}
@@ -313,7 +313,7 @@ export const CFDIInvoiceForm: React.FC<CFDIInvoiceFormProps> = ({
 
                 <div className="col-md-4">
                   <Input
-                    label="Fecha de Emision"
+                    label="Fecha de Emisión"
                     type="date"
                     value={formData.fechaEmision}
                     onChange={(e) => handleInputChange('fechaEmision', e.target.value)}
@@ -336,7 +336,7 @@ export const CFDIInvoiceForm: React.FC<CFDIInvoiceFormProps> = ({
 
                 <div className="col-md-4">
                   <Input
-                    label="Metodo de Pago"
+                    label="Método de Pago"
                     type="select"
                     value={formData.metodoPago}
                     onChange={(e) => handleInputChange('metodoPago', e.target.value)}
@@ -380,7 +380,7 @@ export const CFDIInvoiceForm: React.FC<CFDIInvoiceFormProps> = ({
                     value={formData.condicionesPago}
                     onChange={(e) => handleInputChange('condicionesPago', e.target.value)}
                     onBlur={() => handleBlur('condicionesPago')}
-                    placeholder="Ej: Pago a 30 dias"
+                    placeholder="Ej: Pago a 30 días"
                     disabled={isFormLoading}
                   />
                 </div>

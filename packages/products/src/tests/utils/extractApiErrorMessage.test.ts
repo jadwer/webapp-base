@@ -13,7 +13,7 @@ describe('extractApiErrorMessage (regla 7: errores con detalle)', () => {
     expect(extractApiErrorMessage(err(422, { errors: [{ detail: 'filePath es obligatorio' }] }), 'x')).toBe('filePath es obligatorio')
   })
 
-  it('primer error de validacion de Laravel', () => {
+  it('primer error de validación de Laravel', () => {
     expect(extractApiErrorMessage(err(422, { message: 'm', errors: { file: ['Debe ser imagen'] } }), 'x')).toBe('Debe ser imagen')
   })
 
@@ -23,12 +23,12 @@ describe('extractApiErrorMessage (regla 7: errores con detalle)', () => {
       .toBe('All images must belong to the same product (422)')
   })
 
-  it('sin cuerpo usa el fallback con el codigo HTTP', () => {
+  it('sin cuerpo usa el fallback con el código HTTP', () => {
     expect(extractApiErrorMessage(err(500, null), 'Error al subir')).toBe('Error al subir (500)')
     expect(extractApiErrorMessage(err(403, null), 'Error al subir')).toBe('Sin permiso para esta acción (403)')
   })
 
-  it('error de red en espanol; un Error propio conserva su mensaje', () => {
+  it('error de red en español; un Error propio conserva su mensaje', () => {
     expect(extractApiErrorMessage(new Error('Network Error'), 'Error al subir')).toBe('Error al subir: no hay conexión con el servidor')
     expect(extractApiErrorMessage(new Error('timeout of 10000ms exceeded'), 'Error al subir')).toBe('Error al subir: el servidor tardó demasiado en responder')
     expect(extractApiErrorMessage(new Error('Archivo dañado'), 'Error al subir')).toBe('Error al subir: Archivo dañado')

@@ -10,7 +10,7 @@ export interface ProductSearchOption {
   id: string
   name: string
   sku?: string
-  /** P2 granel: quote_only pinta la etiqueta "Sujeto a cotizacion". */
+  /** P2 granel: quote_only pinta la etiqueta "Sujeto a cotización". */
   pricingType?: PricingType
   price?: number | null
 }

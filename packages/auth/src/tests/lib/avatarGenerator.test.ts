@@ -20,7 +20,7 @@ describe('avatarGenerator', () => {
     expect(parseRecipe(null)).toBeNull()
   })
 
-  it('indices fuera de rango caen a la primera opcion', () => {
+  it('indices fuera de rango caen a la primera opción', () => {
     expect(parseRecipe('avatar:1:99.1.1.1.1.1.1')).toEqual({ skin: 0, hair: 1, hairColor: 1, background: 1, clothes: 1, clothesColor: 1, accessory: 1 })
   })
 

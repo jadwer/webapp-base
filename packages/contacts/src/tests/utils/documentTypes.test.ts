@@ -17,7 +17,7 @@ describe('CONTACT_DOCUMENT_TYPES', () => {
     expect([...CONTACT_DOCUMENT_TYPES]).toEqual(BACKEND_DOCUMENT_TYPES)
   })
 
-  it('cada tipo tiene etiqueta en espanol y no hay etiquetas sobrantes', () => {
+  it('cada tipo tiene etiqueta en español y no hay etiquetas sobrantes', () => {
     expect(Object.keys(CONTACT_DOCUMENT_TYPE_LABELS).sort()).toEqual([...BACKEND_DOCUMENT_TYPES].sort())
     for (const type of CONTACT_DOCUMENT_TYPES) {
       expect(CONTACT_DOCUMENT_TYPE_LABELS[type].length).toBeGreaterThan(0)

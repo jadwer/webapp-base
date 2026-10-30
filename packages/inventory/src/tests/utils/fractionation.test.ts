@@ -32,7 +32,7 @@ describe('factorFromContent', () => {
     expect(factorFromContent(250, 'GRM', 'KGM')).toBe(4)
   })
 
-  it('null con unidades de distinta dimension, desconocidas o contenido invalido', () => {
+  it('null con unidades de distinta dimensión, desconocidas o contenido invalido', () => {
     expect(factorFromContent(25, 'GRM', 'LTR')).toBeNull()
     expect(factorFromContent(25, 'MLT', 'H87')).toBeNull()
     expect(factorFromContent(0, 'MLT', 'LTR')).toBeNull()
@@ -73,11 +73,11 @@ describe('apiErrorMessage', () => {
   })
 
   it('usa data.error de controladores propios como respaldo', () => {
-    const err = { message: 'Request failed with status code 422', response: { data: { error: 'No active conversion found' } } }
-    expect(apiErrorMessage(err, 'fallback')).toBe('No active conversion found')
+    const err = { message: 'Request failed with status code 422', response: { data: { error: 'No active conversión found' } } }
+    expect(apiErrorMessage(err, 'fallback')).toBe('No active conversión found')
   })
 
-  it('validacion de Laravel (errors por campo) cae en message', () => {
+  it('validación de Laravel (errors por campo) cae en message', () => {
     const err = { response: { data: { message: 'Elige el almacén.', errors: { warehouse_id: ['Elige el almacén.'] } } } }
     expect(apiErrorMessage(err, 'fallback')).toBe('Elige el almacén.')
     expect(apiErrorList(err, 'fallback')).toEqual(['Elige el almacén.'])
@@ -87,7 +87,7 @@ describe('apiErrorMessage', () => {
 describe('batchUnavailableReason (D10)', () => {
   const base = { is_expired: false, expiration_date: '2027-01-01' }
 
-  it('usa la razon del backend cuando llega', () => {
+  it('usa la razón del backend cuando llega', () => {
     expect(batchUnavailableReason({ ...base, is_usable: false, unavailable_reason: 'el lote no pasó el control de calidad' }))
       .toBe('el lote no pasó el control de calidad')
     expect(batchUnavailableReason({ ...base, is_expired: true, is_usable: true })).toBeNull()

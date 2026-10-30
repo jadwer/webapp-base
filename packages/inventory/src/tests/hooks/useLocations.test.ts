@@ -379,14 +379,14 @@ describe('useWarehouseLocationOptions', () => {
     vi.clearAllMocks()
   })
 
-  it('no consulta sin almacen', () => {
+  it('no consulta sin almacén', () => {
     const { result } = renderHook(() => useWarehouseLocationOptions(''))
     expect(result.current.locations).toEqual([])
     expect(result.current.isLoading).toBe(false)
     expect(locationsService.getAll).not.toHaveBeenCalled()
   })
 
-  it('pide las ubicaciones activas del almacen con tamano 200 y descarta las de otro almacen', async () => {
+  it('pide las ubicaciones activas del almacén con tamaño 200 y descarta las de otro almacén', async () => {
     const locations = [
       { ...createMockLocation({ id: '11', name: 'Rack 1' }), warehouseId: '77' },
       { ...createMockLocation({ id: '12', name: 'Rack 2' }), warehouseId: '78' },

@@ -17,7 +17,7 @@ const STATUS_BADGES: Record<string, { label: string; className: string }> = {
 
 const CATEGORY_LABELS: Record<string, string> = {
   transactional: 'Transaccional',
-  notification: 'Notificacion',
+  notification: 'Notificación',
   marketing: 'Marketing',
 }
 
@@ -92,9 +92,9 @@ export default function EmailTemplatesAdminTemplate() {
                 value={filters.category || ''}
                 onChange={(e) => setFilters({ ...filters, category: e.target.value as EmailTemplateFilters['category'] || undefined })}
               >
-                <option value="">Todas las categorias</option>
+                <option value="">Todas las categorías</option>
                 <option value="transactional">Transaccional</option>
-                <option value="notification">Notificacion</option>
+                <option value="notification">Notificación</option>
                 <option value="marketing">Marketing</option>
               </select>
             </div>
@@ -117,7 +117,7 @@ export default function EmailTemplatesAdminTemplate() {
               <tr>
                 <th>Nombre</th>
                 <th>Asunto</th>
-                <th>Categoria</th>
+                <th>Categoría</th>
                 <th>Estado</th>
                 <th>Actualizado</th>
                 <th className="text-end">Acciones</th>

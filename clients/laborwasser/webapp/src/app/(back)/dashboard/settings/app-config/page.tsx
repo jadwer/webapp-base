@@ -28,29 +28,29 @@ const GROUP_CONFIG: Record<string, { label: string; icon: string; description: s
     description: 'URLs de redes sociales.',
   },
   auth: {
-    label: 'Autenticacion',
+    label: 'Autenticación',
     icon: 'bi-shield-lock',
-    description: 'Configuracion de autenticacion y seguridad.',
+    description: 'Configuración de autenticación y seguridad.',
   },
   mail: {
     label: 'Correo del Sistema',
     icon: 'bi-envelope',
-    description: 'Configuracion del correo electronico del sistema (SMTP).',
+    description: 'Configuración del correo electrónico del sistema (SMTP).',
   },
   search: {
     label: 'Buscador',
     icon: 'bi-search',
-    description: 'Comportamiento del buscador del sitio publico (tolerancia a typos y numero de sugerencias).',
+    description: 'Comportamiento del buscador del sitio público (tolerancia a typos y número de sugerencias).',
   },
   landing: {
     label: 'Landing',
     icon: 'bi-house-door',
-    description: 'Textos y secciones del home publico (hero, ofertas, nuevos productos, preguntas frecuentes).',
+    description: 'Textos y secciones del home público (hero, ofertas, nuevos productos, preguntas frecuentes).',
   },
   documents: {
     label: 'Documentos',
     icon: 'bi-file-earmark-text',
-    description: 'Datos del emisor que imprimen las cotizaciones, separados de la configuracion fiscal de facturacion.',
+    description: 'Datos del emisor que imprimen las cotizaciones, separados de la configuración fiscal de facturación.',
   },
 }
 
@@ -59,9 +59,9 @@ const GROUP_ORDER = ['company', 'documents', 'branding', 'social', 'auth', 'mail
 // documents.issuer_source se edita con un select (valores fijos del backend)
 const SELECT_KEYS: Record<string, Array<{ value: string; label: string }>> = {
   'documents.issuer_source': [
-    { value: 'company', label: 'Datos de la empresa (Configuracion > Empresa)' },
-    { value: 'manual', label: 'Manual (los campos de esta seccion)' },
-    { value: 'billing', label: 'Configuracion fiscal de facturacion' },
+    { value: 'company', label: 'Datos de la empresa (Configuración > Empresa)' },
+    { value: 'manual', label: 'Manual (los campos de esta sección)' },
+    { value: 'billing', label: 'Configuración fiscal de facturación' },
   ],
 }
 
@@ -86,7 +86,7 @@ export default function AppConfigPage() {
       const data = await appSettingsService.getAll()
       setSettings(data)
     } catch {
-      toast.error('Error al cargar la configuracion')
+      toast.error('Error al cargar la configuración')
     } finally {
       setLoading(false)
     }
@@ -126,9 +126,9 @@ export default function AppConfigPage() {
       })
 
       setEditing(null)
-      toast.success('Configuracion actualizada')
+      toast.success('Configuración actualizada')
     } catch {
-      toast.error('Error al guardar la configuracion')
+      toast.error('Error al guardar la configuración')
     } finally {
       setSaving(false)
     }
@@ -178,9 +178,9 @@ export default function AppConfigPage() {
         return newSettings
       })
 
-      toast.success('Configuracion actualizada')
+      toast.success('Configuración actualizada')
     } catch {
-      toast.error('Error al guardar la configuracion')
+      toast.error('Error al guardar la configuración')
     } finally {
       setSaving(false)
     }
@@ -255,7 +255,7 @@ export default function AppConfigPage() {
               <table className="table table-hover mb-0">
                 <thead className="table-light">
                   <tr>
-                    <th style={{ width: '30%' }}>Configuracion</th>
+                    <th style={{ width: '30%' }}>Configuración</th>
                     <th>Valor</th>
                     <th style={{ width: '100px' }}>Acciones</th>
                   </tr>
@@ -465,11 +465,11 @@ export default function AppConfigPage() {
         <div className="card-body">
           <h6 className="card-title">Ayuda</h6>
           <ul className="mb-0" style={{ fontSize: '13px' }}>
-            <li><strong>Empresa:</strong> Datos generales como nombre, telefono, email, direccion y logos.</li>
+            <li><strong>Empresa:</strong> Datos generales como nombre, teléfono, email, dirección y logos.</li>
             <li><strong>Branding:</strong> Color primario de la interfaz.</li>
             <li><strong>Redes Sociales:</strong> URLs de Facebook, Instagram y LinkedIn.</li>
-            <li><strong>Autenticacion:</strong> Controla si se requiere verificacion de email para usar el sistema.</li>
-            <li><strong>Correo del Sistema:</strong> Configuracion SMTP para enviar correos (notificaciones, cotizaciones, recuperacion de contrasena).</li>
+            <li><strong>Autenticacion:</strong> Controla si se requiere verificación de email para usar el sistema.</li>
+            <li><strong>Correo del Sistema:</strong> Configuración SMTP para enviar correos (notificaciones, cotizaciones, recuperación de contraseña).</li>
           </ul>
         </div>
       </div>

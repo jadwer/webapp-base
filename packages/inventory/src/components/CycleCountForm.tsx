@@ -89,7 +89,7 @@ export const CycleCountForm: React.FC<CycleCountFormProps> = ({
     const newErrors: Record<string, string> = {}
 
     if (!formData.warehouseId) {
-      newErrors.warehouseId = 'El almacen es requerido'
+      newErrors.warehouseId = 'El almacén es requerido'
     }
 
     if (!formData.productId) {
@@ -135,7 +135,7 @@ export const CycleCountForm: React.FC<CycleCountFormProps> = ({
             onChange={handleChange}
             disabled={isLoading || loadingWarehouses}
           >
-            <option value="">Seleccionar almacen...</option>
+            <option value="">Seleccionar almacén...</option>
             {warehouses.map(warehouse => (
               <option key={warehouse.id} value={warehouse.id}>
                 {warehouse.name} ({warehouse.code})
@@ -158,7 +158,7 @@ export const CycleCountForm: React.FC<CycleCountFormProps> = ({
             onChange={handleChange}
             disabled={isLoading || loadingLocations || !formData.warehouseId}
           >
-            <option value="">Sin ubicacion especifica</option>
+            <option value="">Sin ubicación especifica</option>
             {locations.map(location => (
               <option key={location.id} value={location.id}>
                 {location.name} ({location.code})

@@ -66,7 +66,7 @@ export default function AttendanceViewPage({ params }: AttendanceViewPageProps) 
       present: { class: 'bg-success', label: 'Presente' },
       absent: { class: 'bg-danger', label: 'Ausente' },
       late: { class: 'bg-warning text-dark', label: 'Tarde' },
-      half_day: { class: 'bg-info', label: 'Medio dia' },
+      half_day: { class: 'bg-info', label: 'Medio día' },
       on_leave: { class: 'bg-secondary', label: 'Con permiso' },
     }
     const statusInfo = statusMap[status || ''] || { class: 'bg-secondary', label: status || 'Desconocido' }

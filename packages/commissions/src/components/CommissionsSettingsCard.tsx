@@ -31,7 +31,7 @@ export const CommissionsSettingsCard: React.FC = () => {
     setSavedMessage(null)
     try {
       await updateSetting('commissions.enabled', !settings.enabled)
-      setSavedMessage('Configuracion actualizada')
+      setSavedMessage('Configuración actualizada')
     } finally {
       setIsSaving(false)
     }

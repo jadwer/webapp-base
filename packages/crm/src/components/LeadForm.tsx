@@ -47,13 +47,13 @@ export default function LeadForm({ initialData, onSubmit, onCancel }: LeadFormPr
     const newErrors: Record<string, string> = {}
 
     if (!formData.title?.trim()) {
-      newErrors.title = 'El titulo es requerido'
+      newErrors.title = 'El título es requerido'
     }
     if (!formData.status) {
       newErrors.status = 'El estado es requerido'
     }
     if (!formData.rating) {
-      newErrors.rating = 'La calificacion es requerida'
+      newErrors.rating = 'La calificación es requerida'
     }
     if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       newErrors.email = 'Email invalido'
@@ -87,7 +87,7 @@ export default function LeadForm({ initialData, onSubmit, onCancel }: LeadFormPr
       <div className="row g-3">
         <div className="col-12">
           <Input
-            label="Titulo *"
+            label="Título *"
             value={formData.title || ''}
             onChange={(e) => handleChange('title', e.target.value)}
             placeholder="Ej: Oportunidad de venta - Empresa XYZ"
@@ -154,7 +154,7 @@ export default function LeadForm({ initialData, onSubmit, onCancel }: LeadFormPr
 
         <div className="col-md-6">
           <Input
-            label="Telefono"
+            label="Teléfono"
             value={formData.phone || ''}
             onChange={(e) => handleChange('phone', e.target.value)}
             placeholder="+52 55 1234 5678"

@@ -30,13 +30,13 @@ describe('RowActions', () => {
     render(
       <RowActions
         editHref="/x/edit"
-        labels={{ edit: 'Editar almacen' }}
+        labels={{ edit: 'Editar almacén' }}
         extra={<button type="button" aria-label="Duplicar"><i className="bi bi-copy" /></button>}
       />,
     )
     expect(screen.queryByRole('link', { name: 'Ver' })).toBeNull()
     expect(screen.queryByRole('button', { name: 'Eliminar' })).toBeNull()
-    expect(screen.getByRole('link', { name: 'Editar almacen' })).toHaveAttribute('title', 'Editar almacen')
+    expect(screen.getByRole('link', { name: 'Editar almacén' })).toHaveAttribute('title', 'Editar almacén')
     expect(screen.getByRole('button', { name: 'Duplicar' })).toBeInTheDocument()
   })
 })

@@ -64,7 +64,7 @@ describe('QuoteSendButton', () => {
     expect(quoteService.getRecipientOptions).toHaveBeenCalledWith(7)
   })
 
-  it('manda los elegidos mas los agregados en caliente y guarda en el contacto', async () => {
+  it('manda los elegidos más los agregados en caliente y guarda en el contacto', async () => {
     mockSend.mockResolvedValue({ meta: { recipients: ['compras@lab.mx', 'ana@lab.mx', 'calidad@lab.mx'], emailSent: true, emailError: null } })
     const onSent = vi.fn()
     render(<QuoteSendButton quote={createMockQuote({ status: 'draft', id: '42', contactId: 7 })} onSent={onSent} />)
@@ -87,7 +87,7 @@ describe('QuoteSendButton', () => {
     expect(onSent).toHaveBeenCalled()
   })
 
-  it('avisa con detalle si la cotizacion quedo enviada sin correo', async () => {
+  it('avisa con detalle si la cotización quedo enviada sin correo', async () => {
     mockSend.mockResolvedValue({ meta: { recipients: ['compras@lab.mx'], emailSent: false, emailError: 'Mailer apagado' } })
     render(<QuoteSendButton quote={createMockQuote({ status: 'draft', contactId: 7 })} />)
     fireEvent.click(screen.getByRole('button', { name: /enviar/i }))
@@ -98,7 +98,7 @@ describe('QuoteSendButton', () => {
     await waitFor(() => expect(toast.warning).toHaveBeenCalledWith(expect.stringContaining('Mailer apagado'), { duration: 0 }))
   })
 
-  it('muestra los errores de validacion del backend en el modal', async () => {
+  it('muestra los errores de validación del backend en el modal', async () => {
     mockSend.mockRejectedValue({ response: { status: 422, data: { errors: { 'recipients.0': ['Captura un solo destinatario'] } } } })
     render(<QuoteSendButton quote={createMockQuote({ status: 'draft', contactId: 7 })} />)
     fireEvent.click(screen.getByRole('button', { name: /enviar/i }))

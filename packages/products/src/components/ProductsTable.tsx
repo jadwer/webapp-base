@@ -142,7 +142,7 @@ export const ProductsTable: React.FC<ProductsTableProps> = ({
                         <div className="fw-medium">
                           {truncateText(product.name)}
                           {product.isPublic === false && (
-                            <span className="badge bg-warning text-dark ms-2" title="Producto interno: cotizable y vendible pero oculto del catalogo publico">
+                            <span className="badge bg-warning text-dark ms-2" title="Producto interno: cotizable y vendible pero oculto del catálogo público">
                               Interno
                             </span>
                           )}

@@ -33,7 +33,7 @@ const TIPO_LABELS: Record<string, string> = {
   I: 'Ingreso',
   E: 'Egreso',
   T: 'Traslado',
-  N: 'Nomina',
+  N: 'Nómina',
   P: 'Pago',
 }
 

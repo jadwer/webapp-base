@@ -74,7 +74,7 @@ export const OrderForm: React.FC<OrderFormProps> = ({
     }
 
     if (!formData.shippingAddressLine1.trim()) {
-      newErrors.shippingAddressLine1 = 'La direccion es requerida'
+      newErrors.shippingAddressLine1 = 'La dirección es requerida'
     }
 
     if (!formData.shippingCity.trim()) {
@@ -86,7 +86,7 @@ export const OrderForm: React.FC<OrderFormProps> = ({
     }
 
     if (!formData.shippingPostalCode.trim()) {
-      newErrors.shippingPostalCode = 'El codigo postal es requerido'
+      newErrors.shippingPostalCode = 'El código postal es requerido'
     }
 
     setErrors(newErrors)
@@ -185,7 +185,7 @@ export const OrderForm: React.FC<OrderFormProps> = ({
 
                 <div className="col-md-6">
                   <Input
-                    label="Telefono"
+                    label="Teléfono"
                     type="tel"
                     value={formData.customerPhone}
                     onChange={(e) => handleInputChange('customerPhone', e.target.value)}
@@ -212,21 +212,21 @@ export const OrderForm: React.FC<OrderFormProps> = ({
               <div className="row g-3">
                 <div className="col-12">
                   <Input
-                    label="Direccion Linea 1"
+                    label="Dirección Línea 1"
                     type="text"
                     value={formData.shippingAddressLine1}
                     onChange={(e) => handleInputChange('shippingAddressLine1', e.target.value)}
                     onBlur={() => handleBlur('shippingAddressLine1')}
                     errorText={touched.shippingAddressLine1 ? errors.shippingAddressLine1 : ''}
                     required
-                    placeholder="Calle, numero exterior e interior"
+                    placeholder="Calle, número exterior e interior"
                     disabled={isLoading}
                   />
                 </div>
 
                 <div className="col-12">
                   <Input
-                    label="Direccion Linea 2"
+                    label="Dirección Línea 2"
                     type="text"
                     value={formData.shippingAddressLine2}
                     onChange={(e) => handleInputChange('shippingAddressLine2', e.target.value)}
@@ -266,7 +266,7 @@ export const OrderForm: React.FC<OrderFormProps> = ({
 
                 <div className="col-md-4">
                   <Input
-                    label="Codigo Postal"
+                    label="Código Postal"
                     type="text"
                     value={formData.shippingPostalCode}
                     onChange={(e) => handleInputChange('shippingPostalCode', e.target.value)}
@@ -280,7 +280,7 @@ export const OrderForm: React.FC<OrderFormProps> = ({
 
                 <div className="col-md-8">
                   <Input
-                    label="Pais"
+                    label="País"
                     type="select"
                     value={formData.shippingCountry}
                     onChange={(e) => handleInputChange('shippingCountry', e.target.value)}

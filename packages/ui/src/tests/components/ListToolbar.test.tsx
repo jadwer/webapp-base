@@ -12,8 +12,8 @@ describe('ListToolbar', () => {
 
   it('aplica debounce de 300 ms por defecto', () => {
     const onChange = vi.fn()
-    render(<ListToolbar search={{ value: '', onChange, placeholder: 'Buscar almacen' }} />)
-    const input = screen.getByPlaceholderText('Buscar almacen')
+    render(<ListToolbar search={{ value: '', onChange, placeholder: 'Buscar almacén' }} />)
+    const input = screen.getByPlaceholderText('Buscar almacén')
 
     fireEvent.change(input, { target: { value: 'a' } })
     fireEvent.change(input, { target: { value: 'ab' } })
@@ -37,7 +37,7 @@ describe('ListToolbar', () => {
     const onChange = vi.fn()
     render(<ListToolbar search={{ value: 'abc', onChange }} />)
     fireEvent.change(screen.getByDisplayValue('abc'), { target: { value: 'abcd' } })
-    fireEvent.click(screen.getByRole('button', { name: 'Limpiar busqueda' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Limpiar búsqueda' }))
     expect(onChange).toHaveBeenCalledWith('')
     act(() => { vi.advanceTimersByTime(500) })
     expect(onChange).toHaveBeenCalledTimes(1)
@@ -45,7 +45,7 @@ describe('ListToolbar', () => {
 
   it('sin valor no muestra boton limpiar', () => {
     render(<ListToolbar search={{ value: '', onChange: vi.fn() }} />)
-    expect(screen.queryByRole('button', { name: 'Limpiar busqueda' })).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Limpiar búsqueda' })).toBeNull()
   })
 
   it('sincroniza el valor externo', () => {

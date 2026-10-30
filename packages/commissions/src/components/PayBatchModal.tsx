@@ -76,7 +76,7 @@ export const PayBatchModal: React.FC<PayBatchModalProps> = ({
       <input
         type="text"
         className="form-control"
-        placeholder="Ej: SPEI-000123 o folio de nomina"
+        placeholder="Ej: SPEI-000123 o folio de nómina"
         value={paymentReference}
         onChange={(e) => setPaymentReference(e.target.value)}
         autoFocus

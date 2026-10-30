@@ -84,7 +84,7 @@ export const CartPage = React.memo<CartPageProps>(({ sessionId, contactId }) => 
   // Handle clear cart
   const handleClearCart = useCallback(async () => {
     const confirmed = await confirmModalRef.current?.confirm(
-      '¿Vaciar todo el carrito? Esta accion no se puede deshacer.',
+      '¿Vaciar todo el carrito? Esta acción no se puede deshacer.',
       { title: 'Vaciar carrito', confirmText: 'Vaciar', cancelText: 'Cancelar' }
     )
     if (!confirmed) return
@@ -117,8 +117,8 @@ export const CartPage = React.memo<CartPageProps>(({ sessionId, contactId }) => 
     }
 
     const confirmed = await confirmModalRef.current?.confirm(
-      'Se creara una cotizacion con los productos de tu carrito. Recibiras la cotizacion por correo electronico.',
-      { title: 'Solicitar Cotizacion', confirmText: 'Solicitar', cancelText: 'Cancelar' }
+      'Se creara una cotización con los productos de tu carrito. Recibiras la cotización por correo electrónico.',
+      { title: 'Solicitar Cotización', confirmText: 'Solicitar', cancelText: 'Cancelar' }
     )
 
     if (!confirmed) return
@@ -130,12 +130,12 @@ export const CartPage = React.memo<CartPageProps>(({ sessionId, contactId }) => 
         contact_id: contactId,
       })
 
-      toast.success(response.message || 'Cotizacion creada exitosamente')
+      toast.success(response.message || 'Cotización creada exitosamente')
       navigation.push(`/dashboard/quotes/${response.data.id}`)
     } catch (error) {
       // Regla 7: el detalle del backend, no el mensaje generico de axios.
       const data = (error as { response?: { data?: { error?: string; message?: string } } })?.response?.data
-      const errorMessage = data?.message || data?.error || (error instanceof Error ? error.message : 'Error al crear cotizacion')
+      const errorMessage = data?.message || data?.error || (error instanceof Error ? error.message : 'Error al crear cotización')
       toast.error(errorMessage)
     } finally {
       setIsRequestingQuote(false)

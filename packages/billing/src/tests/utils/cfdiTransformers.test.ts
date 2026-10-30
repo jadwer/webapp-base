@@ -190,7 +190,7 @@ describe('transformJsonApiCFDIInvoice', () => {
     expect(invoice.fechaEmision).toBe('2026-01-01')
   })
 
-  it('transforma la coleccion con included', () => {
+  it('transforma la colección con included', () => {
     const result = transformCFDIInvoicesResponse({ data: [invoiceResource], included, meta: { page: {} } })
 
     expect(result.data[0].companySetting?.companyName).toBe('Emisor SA')
@@ -380,7 +380,7 @@ describe('transformCFDIItemFormToJsonApi', () => {
     })
   })
 
-  it('numeroLinea por omision 1 y sin impuestos si no hay traslado ni retencion', () => {
+  it('numeroLinea por omisión 1 y sin impuestos si no hay traslado ni retención', () => {
     const attributes = (
       transformCFDIItemFormToJsonApi({
         cfdiInvoiceId: 42,

@@ -22,7 +22,7 @@ const EVENT_OPTIONS: { value: AuditEvent | ''; label: string }[] = [
 ]
 
 const AUDITABLE_TYPE_OPTIONS = [
-  { value: '', label: 'Todos los modulos' },
+  { value: '', label: 'Todos los módulos' },
   ...Object.entries(AUDITABLE_TYPE_LABELS).map(([value, label]) => ({
     value,
     label,

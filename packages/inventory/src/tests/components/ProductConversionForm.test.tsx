@@ -65,7 +65,7 @@ describe('ProductConversionForm', () => {
     expect((screen.getByLabelText(/Factor de conversión/) as HTMLInputElement).value).toBe('0.264172')
   })
 
-  it('manda piezas completas en el alta y rechaza mas de 6 decimales', async () => {
+  it('manda piezas completas en el alta y rechaza más de 6 decimales', async () => {
     render(<ProductConversionForm />)
     fireEvent.change(screen.getByTestId('conversion-source'), { target: { value: '10' } })
     fireEvent.change(screen.getByTestId('conversion-destination'), { target: { value: '20' } })

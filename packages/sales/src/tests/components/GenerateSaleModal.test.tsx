@@ -129,7 +129,7 @@ describe('GenerateSaleModal', () => {
     expect(onConverted).toHaveBeenCalledWith('99')
   })
 
-  it('defaults to PUE / 30 dias when the quote has no payment terms', async () => {
+  it('defaults to PUE / 30 días when the quote has no payment terms', async () => {
     mockConvert.mockResolvedValue({
       data: {
         quote: createMockQuote({ status: 'converted' }),
@@ -185,14 +185,14 @@ describe('GenerateSaleModal', () => {
 
   it('shows a plain 422 message when the backend rejects without shortages', async () => {
     mockConvert.mockRejectedValue({
-      response: { status: 422, data: { message: 'La cotizacion no esta aceptada' } },
+      response: { status: 422, data: { message: 'La cotización no está aceptada' } },
     })
     setup()
 
     fireEvent.click(screen.getByRole('button', { name: /generar venta/i }))
 
     await waitFor(() =>
-      expect(toast.error).toHaveBeenCalledWith('La cotizacion no esta aceptada')
+      expect(toast.error).toHaveBeenCalledWith('La cotización no está aceptada')
     )
   })
 
@@ -208,7 +208,7 @@ describe('GenerateSaleModal', () => {
       response: {
         status: 422,
         data: {
-          message: 'Captura el precio de los productos sujetos a cotizacion antes de convertir: Alcohol granel.',
+          message: 'Captura el precio de los productos sujetos a cotización antes de convertir: Alcohol granel.',
           errors: [{
             status: '422', code: 'price_pending', title: 'Precio por confirmar',
             detail: 'Captura el precio de Alcohol granel antes de convertir.',

@@ -4,7 +4,7 @@ import { CampaignsTableSimple } from '../../components/CampaignsTableSimple'
 import type { Campaign } from '../../types'
 
 describe('CampaignsTableSimple fechas', () => {
-  it('muestra inicio y fin con el dia guardado (Y-m-d e ISO medianoche)', () => {
+  it('muestra inicio y fin con el día guardado (Y-m-d e ISO medianoche)', () => {
     const campaign = {
       id: '1',
       name: 'Campana',

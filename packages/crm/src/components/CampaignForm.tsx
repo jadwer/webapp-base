@@ -20,7 +20,7 @@ const TYPE_OPTIONS: { value: CampaignType; label: string }[] = [
 ]
 
 const STATUS_OPTIONS: { value: CampaignStatus; label: string }[] = [
-  { value: 'planning', label: 'Planeacion' },
+  { value: 'planning', label: 'Planeación' },
   { value: 'active', label: 'Activa' },
   { value: 'paused', label: 'Pausada' },
   { value: 'completed', label: 'Completada' },
@@ -218,7 +218,7 @@ export default function CampaignForm({ initialData, onSubmit, onCancel }: Campai
             rows={3}
             value={formData.description || ''}
             onChange={(e) => handleChange('description', e.target.value)}
-            placeholder="Descripcion de la campana..."
+            placeholder="Descripción de la campana..."
           />
         </div>
 

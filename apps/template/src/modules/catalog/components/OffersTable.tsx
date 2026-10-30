@@ -41,7 +41,7 @@ export const OffersTable: React.FC<OffersTableProps> = ({
     if (!onDelete || !confirmModalRef.current) return
 
     const confirmed = await confirmModalRef.current.confirm(
-      `Esta seguro de que quiere eliminar la oferta para "${offer.name}"? El producto seguira existiendo pero sin el precio de oferta.`
+      `Está seguro de que quiere eliminar la oferta para "${offer.name}"? El producto seguira existiendo pero sin el precio de oferta.`
     )
 
     if (confirmed) {
@@ -81,7 +81,7 @@ export const OffersTable: React.FC<OffersTableProps> = ({
           <thead className="table-light">
             <tr>
               <th scope="col">Producto</th>
-              <th scope="col">Categoria</th>
+              <th scope="col">Categoría</th>
               <th scope="col">Marca</th>
               <th scope="col" className="text-end">Precio</th>
               <th scope="col" className="text-end">Costo</th>

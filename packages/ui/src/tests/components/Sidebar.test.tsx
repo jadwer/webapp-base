@@ -51,7 +51,7 @@ const config: NavigationConfig = {
         activePathPrefixes: ['/dashboard/sales', '/dashboard/contacts/customers'],
         permissions: [],
         items: [
-          { href: '/dashboard/sales', label: 'Ordenes', icon: 'bi-cart', permissions: [] },
+          { href: '/dashboard/sales', label: 'Órdenes', icon: 'bi-cart', permissions: [] },
         ],
       },
     ],
@@ -104,7 +104,7 @@ describe('Sidebar - acordeon de grupos', () => {
     expect(groupButton('Ventas')).toHaveAttribute('aria-expanded', 'false')
   })
 
-  it('auto-expande SOLO el grupo con el prefijo mas especifico del pathname', () => {
+  it('auto-expande SOLO el grupo con el prefijo más especifico del pathname', () => {
     // Arrange - /dashboard/contacts/customers matchea Contactos y Ventas;
     // gana Ventas por prefijo mas largo.
     mockUsePathname.mockReturnValue('/dashboard/contacts/customers')

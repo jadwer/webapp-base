@@ -91,7 +91,7 @@ describe('transformSalesOrderFormToJsonApi', () => {
 })
 
 describe('transformJsonApiSalesOrderItem', () => {
-  it('no expone campos de facturacion que la API ya no tiene', () => {
+  it('no expone campos de facturación que la API ya no tiene', () => {
     const item = transformJsonApiSalesOrderItem({
       id: '3',
       type: 'sales-order-items',

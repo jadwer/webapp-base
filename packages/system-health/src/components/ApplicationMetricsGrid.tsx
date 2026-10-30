@@ -51,13 +51,13 @@ export function ApplicationMetricsGrid({ metrics }: ApplicationMetricsGridProps)
             color="success"
           />
           <MetricCard
-            label="Ordenes de Venta"
+            label="Órdenes de Venta"
             value={metrics.salesOrders}
             icon="bi-cart"
             color="info"
           />
           <MetricCard
-            label="Ordenes de Compra"
+            label="Órdenes de Compra"
             value={metrics.purchaseOrders}
             icon="bi-truck"
             color="warning"

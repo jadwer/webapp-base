@@ -160,7 +160,7 @@ export const ContactCommercialFields: React.FC<ContactCommercialFieldsProps> = (
           value={formData.commissionPctOverride?.toString() ?? ''}
           onChange={(e) => updateField('commissionPctOverride', numberOrNull(e.target.value))}
           disabled={isLoading}
-          placeholder="Usa el % del vendedor si se deja vacio"
+          placeholder="Usa el % del vendedor si se deja vacío"
         />
       </div>
 
@@ -269,7 +269,7 @@ export const ContactCommercialFields: React.FC<ContactCommercialFieldsProps> = (
           value={formData.referralSource ?? ''}
           onChange={(e) => updateField('referralSource', e.target.value)}
           disabled={isLoading}
-          placeholder="Ej. Recomendacion, Google, Feria..."
+          placeholder="Ej. Recomendación, Google, Feria..."
         />
       </div>
       </>

@@ -30,7 +30,7 @@ describe('ContactDocuments fechas', () => {
     vi.useRealTimers()
   })
 
-  it('vencimiento ISO medianoche se muestra con su dia', () => {
+  it('vencimiento ISO medianoche se muestra con su día', () => {
     const { container } = renderDocs({ expiresAt: '2026-10-25T00:00:00.000000Z' })
     expect(container.textContent).toContain('Vence: 25/10/2026')
   })

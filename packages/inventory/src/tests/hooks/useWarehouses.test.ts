@@ -385,7 +385,7 @@ describe('useWarehousesMutations', () => {
       await expect(result.current.deleteWarehouse('1')).rejects.toThrow('Foreign key constraint failed')
     })
 
-    it('no revalida el detalle del almacen borrado y si la lista', async () => {
+    it('no revalida el detalle del almacén borrado y si la lista', async () => {
       const parsed = createMockWarehouse({ id: '1' })
       vi.mocked(warehousesService.getById).mockResolvedValue({ data: createMockWarehouseApiFormat(parsed) } as never)
       vi.mocked(warehousesService.getAll).mockResolvedValue({ data: [createMockWarehouseApiFormat(parsed)] } as never)

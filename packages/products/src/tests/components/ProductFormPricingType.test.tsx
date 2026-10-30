@@ -95,7 +95,7 @@ describe('ProductForm tipo de precio', () => {
     expect(onSubmit.mock.calls[0][0]).toMatchObject({ pricingType: 'quote_only', price: null })
   })
 
-  it('con precio fijo manda el numero capturado', async () => {
+  it('con precio fijo manda el número capturado', async () => {
     render(<ProductForm product={product({ isOnSale: false })} onSubmit={onSubmit} />)
     fireEvent.change(screen.getByLabelText(/Precio de venta/), { target: { value: '199.5' } })
     submit()

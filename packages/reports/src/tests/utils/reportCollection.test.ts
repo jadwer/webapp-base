@@ -5,7 +5,7 @@
 import { describe, it, expect } from 'vitest'
 import { transformSalesByCustomerResponse, transformBalanceSheetResponse } from '../../utils/transformers'
 
-describe('respuestas de reportes como coleccion', () => {
+describe('respuestas de reportes como colección', () => {
   it('lee el primer recurso de data', () => {
     const r = transformSalesByCustomerResponse({
       data: [{
@@ -21,7 +21,7 @@ describe('respuestas de reportes como coleccion', () => {
     expect(r.data.startDate).toBe('2026-01-01')
   })
 
-  it('sigue aceptando un recurso unico', () => {
+  it('sigue aceptando un recurso único', () => {
     const r = transformBalanceSheetResponse({
       data: { type: 'balance-sheets', id: '1', attributes: { asOfDate: '2026-10-24', currency: 'MXN', totalAssets: 10 } },
     })

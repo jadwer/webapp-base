@@ -61,7 +61,7 @@ function createMockProduct(id: string): EnhancedPublicProduct {
     displayName: `Product ${id}`,
     displayPrice: '$100.00',
     displayCurrency: 'MXN',
-    displayCategory: 'Sin categoria',
+    displayCategory: 'Sin categoría',
     displayBrand: 'Sin marca',
     displayUnit: 'Sin unidad',
   }

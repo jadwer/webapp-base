@@ -79,7 +79,7 @@ describe('ImageGalleryManager', () => {
     expect(sorted.map(i => i.id)).toEqual(['b', 'a', 'c'])
   })
 
-  it('sube varias imagenes a la vez y la primera queda principal si no habia ninguna', async () => {
+  it('sube varias imágenes a la vez y la primera queda principal si no habia ninguna', async () => {
     render(<ImageGalleryManager productId="7" />)
     const input = screen.getByTestId('gallery-file-input')
 
@@ -90,7 +90,7 @@ describe('ImageGalleryManager', () => {
     expect(create.mock.calls[0][0]).toEqual({ filePath: 'products/a.jpg', productId: '7', sortOrder: 0, isPrimary: true })
     expect(create.mock.calls[1][0]).toEqual({ filePath: 'products/b.jpg', productId: '7', sortOrder: 1 })
     expect(create.mock.calls[2][0]).toEqual({ filePath: 'products/c.jpg', productId: '7', sortOrder: 2 })
-    expect(toast.success).toHaveBeenCalledWith('3 imagenes subidas correctamente')
+    expect(toast.success).toHaveBeenCalledWith('3 imágenes subidas correctamente')
   })
 
   it('con galeria existente agrega al final y solo marca principal si se pide', async () => {
@@ -129,7 +129,7 @@ describe('ImageGalleryManager', () => {
     expect(toast.success).toHaveBeenCalledWith('Imagen reemplazada')
   })
 
-  it('Quitar pide confirmacion y borra la imagen', async () => {
+  it('Quitar pide confirmación y borra la imagen', async () => {
     hookState.images = [img('1', 0, true)]
     remove.mockResolvedValue(undefined as never)
     render(<ImageGalleryManager productId="7" />)

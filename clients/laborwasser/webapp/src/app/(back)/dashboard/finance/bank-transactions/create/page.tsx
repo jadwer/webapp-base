@@ -8,8 +8,8 @@ import type { Metadata } from 'next'
 import { CreateBankTransactionWrapper } from '@/modules/finance'
 
 export const metadata: Metadata = {
-  title: 'Nueva Transaccion Bancaria - Finance',
-  description: 'Registrar una nueva transaccion bancaria'
+  title: 'Nueva Transacción Bancaria - Finance',
+  description: 'Registrar una nueva transacción bancaria'
 }
 
 export default function CreateBankTransactionPage() {

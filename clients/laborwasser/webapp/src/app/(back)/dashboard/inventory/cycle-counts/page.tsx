@@ -10,7 +10,7 @@ import { CycleCountsAdminPageReal } from '@/modules/inventory'
 
 export const metadata: Metadata = {
   title: 'Conteos Ciclicos - Inventory',
-  description: 'Gestion de conteos ciclicos de inventario con analisis ABC'
+  description: 'Gestion de conteos ciclicos de inventario con análisis ABC'
 }
 
 export default function CycleCountsPage() {

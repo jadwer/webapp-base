@@ -4,7 +4,7 @@ import { OrdersTable } from '../../components/OrdersTable'
 import type { EcommerceOrder } from '../../types'
 
 describe('OrdersTable fechas', () => {
-  it('muestra orderDate sin correrla un dia (ISO medianoche)', () => {
+  it('muestra orderDate sin correrla un día (ISO medianoche)', () => {
     const order = {
       id: '1',
       orderNumber: 'OV-1',

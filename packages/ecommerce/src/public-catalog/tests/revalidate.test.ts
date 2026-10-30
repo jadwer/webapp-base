@@ -78,7 +78,7 @@ describe('createRevalidateHandler', () => {
     expect(revalidateTag).not.toHaveBeenCalled()
   })
 
-  it('cuerpo vacio o JSON invalido responde 400', async () => {
+  it('cuerpo vacío o JSON invalido responde 400', async () => {
     const { POST } = setup()
     expect((await POST(request({}))).status).toBe(400)
     expect((await POST(request('{no json'))).status).toBe(400)

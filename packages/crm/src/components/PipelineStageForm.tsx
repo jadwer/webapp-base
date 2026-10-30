@@ -42,7 +42,7 @@ export default function PipelineStageForm({ initialData, onSubmit, onCancel }: P
       newErrors.probability = 'La probabilidad debe estar entre 0 y 100'
     }
     if (formData.sortOrder === undefined || formData.sortOrder < 0) {
-      newErrors.sortOrder = 'El orden debe ser un numero positivo'
+      newErrors.sortOrder = 'El orden debe ser un número positivo'
     }
     if (formData.isClosedWon && formData.isClosedLost) {
       newErrors.isClosedWon = 'No puede ser ganado y perdido a la vez'
@@ -79,7 +79,7 @@ export default function PipelineStageForm({ initialData, onSubmit, onCancel }: P
             label="Nombre de la Etapa *"
             value={formData.name || ''}
             onChange={(e) => handleChange('name', e.target.value)}
-            placeholder="Ej: Contacto Inicial, Propuesta, Negociacion"
+            placeholder="Ej: Contacto Inicial, Propuesta, Negociación"
             errorText={errors.name}
           />
         </div>
@@ -112,7 +112,7 @@ export default function PipelineStageForm({ initialData, onSubmit, onCancel }: P
 
         <div className="col-md-6">
           <Input
-            label="Orden de Visualizacion *"
+            label="Orden de Visualización *"
             type="number"
             min="0"
             value={formData.sortOrder?.toString() || '0'}

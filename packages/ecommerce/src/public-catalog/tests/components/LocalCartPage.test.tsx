@@ -456,7 +456,7 @@ describe('LocalCartPage', () => {
       mockCartSync.syncLocalCartToAPI.mockResolvedValue({ id: '789' })
       mockQuoteService.createFromCart.mockResolvedValue({
         data: { id: '99' },
-        message: 'Cotizacion creada',
+        message: 'Cotización creada',
       })
 
       const user = userEvent.setup()
@@ -486,7 +486,7 @@ describe('LocalCartPage', () => {
       mockCartSync.syncLocalCartToAPI.mockResolvedValue({ id: 'cart-99' })
       mockQuoteService.createFromCart.mockResolvedValue({
         data: { id: '42' },
-        message: 'Cotizacion creada exitosamente',
+        message: 'Cotización creada exitosamente',
       })
 
       const user = userEvent.setup()
@@ -509,7 +509,7 @@ describe('LocalCartPage', () => {
       mockCartSync.syncLocalCartToAPI.mockResolvedValue({ id: '55' })
       mockQuoteService.createFromCart.mockResolvedValue({
         data: { id: '7' },
-        message: 'Cotizacion creada',
+        message: 'Cotización creada',
       })
 
       const user = userEvent.setup()
@@ -594,7 +594,7 @@ describe('LocalCartPage', () => {
   })
 
   describe('Precio sujeto a cotización (P2 granel)', () => {
-    it('marca la linea, avisa en el total y deshabilita el pago con la explicacion', async () => {
+    it('marca la línea, avisa en el total y deshabilita el pago con la explicación', async () => {
       mockIsAuthenticated.mockReturnValue(true)
       const items = [
         createMockCartItem(),

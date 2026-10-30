@@ -80,7 +80,7 @@ export default function EmailTemplateCreateTemplate() {
                     id="name"
                     value={name}
                     onChange={(e) => handleNameChange(e.target.value)}
-                    placeholder="Ej: Cotizacion Enviada"
+                    placeholder="Ej: Cotización Enviada"
                     required
                     autoFocus
                   />
@@ -108,7 +108,7 @@ export default function EmailTemplateCreateTemplate() {
                     id="subject"
                     value={subject}
                     onChange={(e) => setSubject(e.target.value)}
-                    placeholder={'Ej: Cotizacion {{quote_number}} - {{company_name}}'}
+                    placeholder={'Ej: Cotización {{quote_number}} - {{company_name}}'}
                     required
                   />
                   <div className="form-text">{'Puedes usar variables: {{variable_name}}'}</div>
@@ -122,7 +122,7 @@ export default function EmailTemplateCreateTemplate() {
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     rows={2}
-                    placeholder="Descripcion opcional del template"
+                    placeholder="Descripción opcional del template"
                   />
                 </div>
 
@@ -134,9 +134,9 @@ export default function EmailTemplateCreateTemplate() {
                     value={category}
                     onChange={(e) => setCategory(e.target.value as EmailTemplateCategory | '')}
                   >
-                    <option value="">Sin categoria</option>
+                    <option value="">Sin categoría</option>
                     <option value="transactional">Transaccional</option>
-                    <option value="notification">Notificacion</option>
+                    <option value="notification">Notificación</option>
                     <option value="marketing">Marketing</option>
                   </select>
                 </div>

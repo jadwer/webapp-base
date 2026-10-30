@@ -7,7 +7,7 @@ describe('quoteOnlyCheckoutError (P2 granel)', () => {
       response: {
         status: 422,
         data: {
-          error: 'Tu carrito tiene productos con precio sujeto a cotizacion',
+          error: 'Tu carrito tiene productos con precio sujeto a cotización',
           quote_only_items: [{ product_id: 9, product_name: 'Alcohol granel', product_sku: 'GR-9' }],
           quote_cta: true,
         },

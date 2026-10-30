@@ -200,7 +200,7 @@ describe('CheckoutPage - order of operations', () => {
       error.response = {
         status: 422,
         data: {
-          error: 'Tu carrito tiene productos con precio sujeto a cotizacion',
+          error: 'Tu carrito tiene productos con precio sujeto a cotización',
           quote_only_items: [{ product_id: 9, product_name: 'Alcohol granel', product_sku: 'GR-9' }],
           quote_cta: true,
         },
@@ -220,7 +220,7 @@ describe('CheckoutPage - order of operations', () => {
     expect(pushMock).toHaveBeenCalledWith('/cart?action=quote')
   })
 
-  it('P2b D8: lineas en $0 del carrito se avisan antes de crear la orden', async () => {
+  it('P2b D8: líneas en $0 del carrito se avisan antes de crear la orden', async () => {
     cartItemsState.items = [
       { id: '1', productId: '9', productName: 'Alcohol granel', productSku: 'GR-9', quantity: 2, unitPrice: 0, totalPrice: 0 },
     ]

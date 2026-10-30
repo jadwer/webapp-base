@@ -326,7 +326,7 @@ export default function MyOrderDetailPage({ params }: MyOrderDetailPageProps) {
               <div className="card-body">
                 {order.trackingNumber && (
                   <div className="alert alert-info mb-3">
-                    <strong>Numero de rastreo:</strong> {order.trackingNumber}
+                    <strong>Número de rastreo:</strong> {order.trackingNumber}
                   </div>
                 )}
 

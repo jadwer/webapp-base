@@ -57,7 +57,7 @@ describe('Account Transformers', () => {
       expect(result.currency).toBe('MXN')
     })
 
-    it('should handle parentId as number conversion', () => {
+    it('should handle parentId as number conversión', () => {
       // Arrange
       const apiData = {
         id: '2',

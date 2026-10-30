@@ -289,7 +289,7 @@ export function registerSliderEditorComponent(editor: Editor) {
 
       const slides = slidesContainer.components()
       if (slides.length <= 1) {
-        toast.warning('No puedes eliminar el ultimo slide')
+        toast.warning('No puedes eliminar el último slide')
         return
       }
 

@@ -8,7 +8,7 @@ import {
 } from '@/lib/seo/jsonLd'
 
 describe('organizationJsonLd', () => {
-  it('normaliza telefonos mexicanos, arma direccion y omite vacios', () => {
+  it('normaliza teléfonos mexicanos, arma dirección y omite vacios', () => {
     const org = organizationJsonLd({
       name: 'Labor Wasser de México',
       url: 'https://laborwasserdemexico.com',
@@ -26,7 +26,7 @@ describe('organizationJsonLd', () => {
     expect(org).not.toHaveProperty('postalCode')
   })
 
-  it('sin telefonos ni direccion queda minimo y valido', () => {
+  it('sin teléfonos ni dirección queda mínimo y valido', () => {
     const org = organizationJsonLd({ name: 'X', url: 'https://x.com' })
     expect(org).toEqual({ '@context': 'https://schema.org', '@type': 'Organization', name: 'X', url: 'https://x.com' })
   })

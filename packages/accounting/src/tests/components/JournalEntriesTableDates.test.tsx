@@ -4,7 +4,7 @@ import { JournalEntriesTableSimple } from '../../components/JournalEntriesTableS
 import type { JournalEntry } from '../../types'
 
 describe('JournalEntriesTableSimple fechas', () => {
-  it('muestra la fecha del asiento sin correrla un dia (ISO medianoche)', () => {
+  it('muestra la fecha del asiento sin correrla un día (ISO medianoche)', () => {
     const entry = {
       id: '1',
       number: 'AS-1',

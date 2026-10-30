@@ -80,8 +80,8 @@ export const ListToolbar: React.FC<ListToolbarProps> = ({
                 type="button"
                 className="btn btn-outline-secondary"
                 onClick={handleClear}
-                title="Limpiar busqueda"
-                aria-label="Limpiar busqueda"
+                title="Limpiar búsqueda"
+                aria-label="Limpiar búsqueda"
               >
                 <i className="bi bi-x-lg" aria-hidden="true" />
               </button>

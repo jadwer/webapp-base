@@ -144,7 +144,7 @@ export function PaymentComplementsSection({ invoice }: PaymentComplementsSection
           className="btn btn-sm btn-outline-primary"
           onClick={() => setShowConfirm(true)}
           disabled={emitting}
-          title="Emitir el complemento de pago (REP) del ultimo abono registrado"
+          title="Emitir el complemento de pago (REP) del último abono registrado"
         >
           {emitting ? (
             <span className="spinner-border spinner-border-sm me-2" />

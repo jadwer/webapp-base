@@ -23,13 +23,13 @@ export function phoneError(phone: ContactPhone): string | null {
   const code = digitsOnly(phone.code) || DEFAULT_COUNTRY_CODE
   const number = digitsOnly(phone.number)
   const ext = digitsOnly(phone.ext)
-  if (code.length > 4) return `La lada +${code} no es valida (maximo 4 digitos).`
-  if (number === '') return 'El numero de telefono es obligatorio.'
+  if (code.length > 4) return `La lada +${code} no es valida (máximo 4 digitos).`
+  if (number === '') return 'El número de teléfono es obligatorio.'
   if (code === DEFAULT_COUNTRY_CODE && number.length !== MX_NUMBER_DIGITS) {
-    return `El telefono debe tener exactamente 10 digitos (lleva ${number.length}).`
+    return `El teléfono debe tener exactamente 10 digitos (lleva ${number.length}).`
   }
-  if (number.length > MAX_NUMBER_DIGITS) return 'El telefono no puede tener mas de 12 digitos.'
-  if (ext.length > MAX_EXT_DIGITS) return 'La extension no puede tener mas de 10 digitos.'
+  if (number.length > MAX_NUMBER_DIGITS) return 'El teléfono no puede tener más de 12 digitos.'
+  if (ext.length > MAX_EXT_DIGITS) return 'La extensión no puede tener más de 10 digitos.'
   return null
 }
 

@@ -29,13 +29,13 @@ const mockSystemEmail = {
   attributes: {
     key: 'sales.quote_sent',
     module: 'Sales',
-    name: 'Cotizacion Enviada',
+    name: 'Cotización Enviada',
     description: 'Se envia al cliente',
     mailableClass: 'Modules\\Sales\\Mail\\QuoteSentMail',
-    availableVariables: { quote_number: 'Numero', customer_name: 'Nombre' },
+    availableVariables: { quote_number: 'Número', customer_name: 'Nombre' },
     sampleData: { quote_number: 'COT-001', customer_name: 'Juan' },
     isEnabled: true,
-    defaultSubject: 'Cotizacion {{quote_number}}',
+    defaultSubject: 'Cotización {{quote_number}}',
   },
   relationships: {
     emailTemplate: { data: null },
@@ -161,7 +161,7 @@ describe('systemEmailService', () => {
           subject: 'Test',
           html: '<p>Preview</p>',
           has_custom_template: false,
-          available_variables: { quote_number: 'Numero' },
+          available_variables: { quote_number: 'Número' },
         },
       },
     })
@@ -190,6 +190,6 @@ describe('systemEmailService', () => {
     const result = await systemEmailService.getAll()
 
     expect(result[0].availableVariables).toHaveProperty('quote_number')
-    expect(result[0].availableVariables.quote_number).toBe('Numero')
+    expect(result[0].availableVariables.quote_number).toBe('Número')
   })
 })

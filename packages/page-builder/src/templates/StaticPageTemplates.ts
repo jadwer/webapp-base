@@ -7,9 +7,9 @@
 export const staticPageTemplates = [
   {
     id: 'static-page-generic',
-    name: 'Pagina Estatica',
-    category: 'Paginas',
-    description: 'Template generico para paginas institucionales: titulo, contenido y CTA de cotizacion',
+    name: 'Página Estatica',
+    category: 'Páginas',
+    description: 'Template generico para páginas institucionales: título, contenido y CTA de cotización',
     thumbnail: '/templates/static-page.jpg',
     tags: ['static', 'page', 'institutional', 'content'],
     html: `
@@ -18,7 +18,7 @@ export const staticPageTemplates = [
   <div class="container">
     <div class="row align-items-center">
       <div class="col">
-        <h1 style="font-size: 2.5rem; font-weight: bold; text-transform: uppercase; margin: 0;">TITULO DE LA PAGINA</h1>
+        <h1 style="font-size: 2.5rem; font-weight: bold; text-transform: uppercase; margin: 0;">TÍTULO DE LA PÁGINA</h1>
       </div>
     </div>
   </div>
@@ -41,7 +41,7 @@ export const staticPageTemplates = [
 <!-- CTA Cotizacion -->
 <section class="cta-section" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 60px 0; color: white;">
   <div class="container text-center">
-    <h2 style="font-size: 2rem; font-weight: bold; margin-bottom: 15px;">¿NECESITAS UNA COTIZACION?</h2>
+    <h2 style="font-size: 2rem; font-weight: bold; margin-bottom: 15px;">¿NECESITAS UNA COTIZACIÓN?</h2>
     <p style="font-size: 1.1rem; opacity: 0.9; margin-bottom: 25px;">Ponte en contacto con nosotros y uno de nuestros representantes se pondra en contacto contigo.</p>
     <a href="/productos" class="btn btn-success btn-lg" style="padding: 12px 30px; font-size: 1.1rem;">
       <i class="bi bi-cart-check me-2"></i>Cotiza ahora

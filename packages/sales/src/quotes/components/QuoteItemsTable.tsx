@@ -146,7 +146,7 @@ export function QuoteItemsTable({
 
     const errors: Record<string, string> = {}
     if (quantity === null || quantity < 0.01) {
-      errors.quantity = 'Cantidad minima 0.01'
+      errors.quantity = 'Cantidad mínima 0.01'
     }
     if (price === null || price < 0) {
       errors.price = 'Precio invalido (0 es valido)'
@@ -254,7 +254,7 @@ export function QuoteItemsTable({
 
     const errors: Record<string, string> = {}
     if (quantity === null || quantity < 0.01) {
-      errors.quantity = 'Cantidad minima 0.01'
+      errors.quantity = 'Cantidad mínima 0.01'
     }
     if (quotedPrice === null || quotedPrice < 0) {
       errors.quotedPrice = 'Precio invalido (0 es valido)'
@@ -262,7 +262,7 @@ export function QuoteItemsTable({
     if (discountValue === null || discountValue < 0) {
       errors.discount = 'Descuento invalido'
     } else if (editValues.discountMode === 'percent' && discountValue > 100) {
-      errors.discount = 'Maximo 100%'
+      errors.discount = 'Máximo 100%'
     }
     if (taxRate === null || taxRate < 0 || taxRate > 100) {
       errors.taxRate = 'IVA entre 0 y 100'

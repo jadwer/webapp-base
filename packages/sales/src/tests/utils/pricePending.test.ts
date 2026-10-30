@@ -50,7 +50,7 @@ describe('getPricePendingErrors con el 422 de aceptar (D9)', () => {
     ])
   })
 
-  it('el mensaje del portal esta en espanol', () => {
+  it('el mensaje del portal esta en español', () => {
     expect(ACCEPT_PRICE_PENDING_MESSAGE).toMatch(/precio por confirmar/)
   })
 })

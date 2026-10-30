@@ -25,10 +25,10 @@ export interface DocumentLegendPlaceholder {
 }
 
 export const LEGEND_DOCUMENT_TYPE_LABELS: Record<LegendDocumentType, string> = {
-  quote: 'Cotizacion',
+  quote: 'Cotización',
   sales_order: 'Orden de venta',
   cfdi_invoice: 'Factura (CFDI)',
-  remission: 'Remision',
+  remission: 'Remisión',
 }
 
 interface JsonApiResource {

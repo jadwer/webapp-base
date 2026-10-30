@@ -69,7 +69,7 @@ export const SalesOrdersTable: React.FC<SalesOrdersTableProps> = ({
     if (!onDelete || !confirmModalRef.current) return
 
     const confirmed = await confirmModalRef.current.confirm(
-      `Esta seguro de que quiere eliminar la orden "${order.orderNumber}"? Esta accion no se puede deshacer.`
+      `Está seguro de que quiere eliminar la orden "${order.orderNumber}"? Esta acción no se puede deshacer.`
     )
 
     if (confirmed) {
@@ -121,7 +121,7 @@ export const SalesOrdersTable: React.FC<SalesOrdersTableProps> = ({
               <th scope="col">Cliente</th>
               <th scope="col">Fecha</th>
               <th scope="col">Estado</th>
-              <th scope="col">Facturacion</th>
+              <th scope="col">Facturación</th>
               <th scope="col" className="text-end">Total</th>
               <th scope="col" className="text-end">Acciones</th>
             </tr>

@@ -24,7 +24,7 @@ interface ContactCatalogsPayload {
 const FALLBACK_CLASSIFICATIONS: SatCatalogEntry[] = [
   { code: 'premium', label: 'Premium' },
   { code: 'standard', label: 'Estandar' },
-  { code: 'basic', label: 'Basico' },
+  { code: 'basic', label: 'Básico' },
 ]
 
 const fetchCatalogs = async (): Promise<ContactCatalogsPayload> => {

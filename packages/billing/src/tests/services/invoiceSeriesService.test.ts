@@ -20,7 +20,7 @@ describe('invoiceSeriesService', () => {
     vi.clearAllMocks()
   })
 
-  it('create manda llaves camelCase y la relacion companySetting', async () => {
+  it('create manda llaves camelCase y la relación companySetting', async () => {
     vi.mocked(axiosClient.post).mockResolvedValue({ data: { data: resource } })
 
     await invoiceSeriesService.create({

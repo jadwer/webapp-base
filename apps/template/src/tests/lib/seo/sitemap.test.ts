@@ -80,12 +80,12 @@ describe('entries', () => {
     expect(entries[1]).toMatchObject({ url: 'https://x.com/productos', priority: 0.8, changeFrequency: 'weekly' })
   })
 
-  it('paginas del builder viven en la raiz por slug y productos en /productos/{id}', () => {
+  it('páginas del builder viven en la raiz por slug y productos en /productos/{id}', () => {
     expect(pageEntries('https://x.com', [{ slug: 'nosotros', updatedAt: 'd' }])[0]).toMatchObject({ url: 'https://x.com/nosotros', lastModified: 'd' })
     expect(productEntries('https://x.com', [{ id: '604', updatedAt: 'd' }])[0]).toMatchObject({ url: 'https://x.com/productos/604', lastModified: 'd' })
   })
 
-  it('dedupeEntries conserva la primera aparicion', () => {
+  it('dedupeEntries conserva la primera aparición', () => {
     const out = dedupeEntries([
       { url: 'a', priority: 0.8 },
       { url: 'b' },
@@ -104,7 +104,7 @@ describe('fetchers', () => {
     expect(pages.map((p) => p.slug)).toEqual(['nosotros', 'aviso-privacidad'])
   })
 
-  it('fetchProductChunk usa sparse fieldsets, el tamano de lote y la pagina pedida', async () => {
+  it('fetchProductChunk usa sparse fieldsets, el tamaño de lote y la página pedida', async () => {
     const fetchImpl = vi.fn<FetchLike>().mockResolvedValue(jsonResponse(productsPayload(['1', '2'], 2)))
     const products = await fetchProductChunk('https://api.test', 3, fetchImpl)
     expect(fetchImpl.mock.calls[0][0]).toBe(
@@ -129,14 +129,14 @@ describe('fetchers', () => {
     ])
   })
 
-  it('un status no 2xx lanza error (no se publica un sitemap vacio en silencio)', async () => {
+  it('un status no 2xx lanza error (no se pública un sitemap vacío en silencio)', async () => {
     const fetchImpl = vi.fn<FetchLike>().mockResolvedValue(jsonResponse({}, 500))
     await expect(fetchProductChunk('https://api.test', 1, fetchImpl)).rejects.toThrow('respondio 500')
   })
 })
 
 describe('listSitemapIds', () => {
-  it('devuelve el id 0 mas un id por lote segun el total real', async () => {
+  it('devuelve el id 0 más un id por lote según el total real', async () => {
     const fetchImpl = vi.fn<FetchLike>().mockResolvedValue(jsonResponse(productsPayload(['1'], 37396)))
     const ids = await listSitemapIds('https://api.test', fetchImpl)
     expect(ids).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8].map((id) => ({ id })))
@@ -181,7 +181,7 @@ describe('categorias', () => {
 })
 
 describe('buildSitemap', () => {
-  it('id 0 = estaticas + categorias + paginas publicadas, sin duplicar una ruta estatica que tambien es pagina', async () => {
+  it('id 0 = estaticas + categorías + páginas publicadas, sin duplicar una ruta estatica que también es página', async () => {
     const fetchImpl = fetchByUrl()
     const entries = await buildSitemap(0, source, fetchImpl)
     expect(entries.map((e) => e.url)).toEqual([
@@ -195,14 +195,14 @@ describe('buildSitemap', () => {
     expect(entries[2].priority).toBe(0.8)
   })
 
-  it('id N (numero o string "N" como lo entrega Next) = lote N de productos', async () => {
+  it('id N (número o string "N" como lo entrega Next) = lote N de productos', async () => {
     const fetchImpl = vi.fn<FetchLike>().mockResolvedValue(jsonResponse(productsPayload(['604', '605'], 2)))
     const entries = await buildSitemap('2', source, fetchImpl)
     expect(fetchImpl.mock.calls[0][0]).toContain('page[number]=2')
     expect(entries.map((e) => e.url)).toEqual(['https://tenant.test/productos/604', 'https://tenant.test/productos/605'])
   })
 
-  it('id invalido no llama a la API y devuelve vacio', async () => {
+  it('id invalido no llama a la API y devuelve vacío', async () => {
     const fetchImpl = vi.fn<FetchLike>()
     expect(await buildSitemap('abc', source, fetchImpl)).toEqual([])
     expect(await buildSitemap(-1, source, fetchImpl)).toEqual([])
@@ -213,7 +213,7 @@ describe('buildSitemap', () => {
 describe('sitemapIndexXml', () => {
   it('genera un sitemapindex valido con una entrada por id', () => {
     const xml = sitemapIndexXml('https://tenant.test', [{ id: 0 }, { id: 1 }])
-    expect(xml.startsWith('<?xml version="1.0" encoding="UTF-8"?>')).toBe(true)
+    expect(xml.startsWith('<?xml versión="1.0" encoding="UTF-8"?>')).toBe(true)
     expect(xml).toContain('<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">')
     expect(xml).toContain('<loc>https://tenant.test/sitemap/0.xml</loc>')
     expect(xml).toContain('<loc>https://tenant.test/sitemap/1.xml</loc>')

@@ -81,7 +81,7 @@ export const BankTransactionFormComponent: React.FC<BankTransactionFormProps> = 
     }
 
     if (!formData.transactionDate) {
-      newErrors.transactionDate = 'La fecha de transaccion es requerida'
+      newErrors.transactionDate = 'La fecha de transacción es requerida'
     }
 
     if (!formData.amount || formData.amount <= 0) {
@@ -89,7 +89,7 @@ export const BankTransactionFormComponent: React.FC<BankTransactionFormProps> = 
     }
 
     if (!formData.transactionType) {
-      newErrors.transactionType = 'El tipo de transaccion es requerido'
+      newErrors.transactionType = 'El tipo de transacción es requerido'
     }
 
     setErrors(newErrors)
@@ -105,7 +105,7 @@ export const BankTransactionFormComponent: React.FC<BankTransactionFormProps> = 
     try {
       await onSubmit(formData)
     } catch (error) {
-      setSubmitError(error instanceof Error ? error.message : 'Error al guardar la transaccion')
+      setSubmitError(error instanceof Error ? error.message : 'Error al guardar la transacción')
     }
   }
 
@@ -205,7 +205,7 @@ export const BankTransactionFormComponent: React.FC<BankTransactionFormProps> = 
           <Input
             id="reference"
             type="text"
-            placeholder="Numero de referencia o cheque"
+            placeholder="Número de referencia o cheque"
             value={formData.reference || ''}
             onChange={(e) => handleChange('reference', e.target.value)}
             disabled={isLoading}
@@ -236,7 +236,7 @@ export const BankTransactionFormComponent: React.FC<BankTransactionFormProps> = 
             id="description"
             className="form-control"
             rows={3}
-            placeholder="Descripcion de la transaccion..."
+            placeholder="Descripción de la transacción..."
             value={formData.description || ''}
             onChange={(e) => handleChange('description', e.target.value)}
             disabled={isLoading}
@@ -314,9 +314,9 @@ export const BankTransactionFormComponent: React.FC<BankTransactionFormProps> = 
               Guardando...
             </>
           ) : isEdit ? (
-            'Actualizar Transaccion'
+            'Actualizar Transacción'
           ) : (
-            'Crear Transaccion'
+            'Crear Transacción'
           )}
         </Button>
       </div>

@@ -27,7 +27,7 @@ export default function ProductDetailRoute({ params }: ProductDetailRouteProps) 
       productId={id}
       onAddToCart={handleAddToCart}
       backUrl="/productos"
-      backLabel="Volver al catalogo"
+      backLabel="Volver al catálogo"
     />
   )
 }

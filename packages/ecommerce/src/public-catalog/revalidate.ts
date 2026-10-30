@@ -59,7 +59,7 @@ function safeEqual(a: string, b: string): boolean {
 function readList(value: unknown, re: RegExp, name: string): { ok: string[]; error?: string } {
   if (value === undefined || value === null) return { ok: [] }
   if (!Array.isArray(value)) return { ok: [], error: `${name} debe ser una lista` }
-  if (value.length > MAX_ENTRIES) return { ok: [], error: `${name}: maximo ${MAX_ENTRIES} elementos` }
+  if (value.length > MAX_ENTRIES) return { ok: [], error: `${name}: máximo ${MAX_ENTRIES} elementos` }
   const invalid = value.filter((v) => typeof v !== 'string' || !re.test(v))
   if (invalid.length > 0) {
     return { ok: [], error: `${name} no permitidos: ${invalid.slice(0, 5).map(String).join(', ')}` }
@@ -71,7 +71,7 @@ export function createRevalidateHandler(deps: RevalidateHandlerDeps) {
   return async function POST(request: Request): Promise<Response> {
     const expected = (deps.getToken ? deps.getToken() : process.env.REVALIDATE_TOKEN)?.trim() ?? ''
     if (!expected) {
-      return json({ revalidated: false, error: 'Revalidacion desactivada: falta REVALIDATE_TOKEN en el servidor' }, 503)
+      return json({ revalidated: false, error: 'Revalidación desactivada: falta REVALIDATE_TOKEN en el servidor' }, 503)
     }
 
     const header = request.headers.get('authorization') ?? ''

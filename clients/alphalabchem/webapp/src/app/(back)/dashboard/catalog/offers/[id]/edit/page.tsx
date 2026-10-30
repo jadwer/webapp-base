@@ -22,7 +22,7 @@ export default function EditOfferPage({ params }: EditOfferPageProps) {
 
   const handleSubmit = async (data: { price: number; cost?: number }) => {
     if (!offer) {
-      setError('No se encontro la oferta')
+      setError('No se encontró la oferta')
       return
     }
 

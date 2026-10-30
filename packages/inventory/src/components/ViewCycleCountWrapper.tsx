@@ -55,7 +55,7 @@ export const ViewCycleCountWrapper: React.FC<ViewCycleCountWrapperProps> = ({ id
 
   const handleCancelCount = async () => {
     const confirmed = await confirmModalRef.current?.confirm(
-      `Estas seguro de cancelar el conteo ${cycleCount?.countNumber}? Esta accion no se puede deshacer.`,
+      `Estas seguro de cancelar el conteo ${cycleCount?.countNumber}? Esta acción no se puede deshacer.`,
       {
         title: 'Cancelar Conteo',
         confirmVariant: 'danger',
@@ -96,7 +96,7 @@ export const ViewCycleCountWrapper: React.FC<ViewCycleCountWrapperProps> = ({ id
       <div className="container-fluid py-4">
         <Alert variant="danger">
           <i className="bi bi-exclamation-triangle me-2" />
-          {loadError?.message || 'No se encontro el conteo ciclico'}
+          {loadError?.message || 'No se encontró el conteo ciclico'}
         </Alert>
         <Button variant="secondary" onClick={handleBack}>
           <i className="bi bi-arrow-left me-2" />

@@ -169,7 +169,7 @@ function ProductosContent() {
 
         refreshInterval={300000}
         emptyMessage={initialCategoryId
-          ? 'No se encontraron productos para esta categoria. Es posible que la categoria no exista o no tenga productos asociados.'
+          ? 'No se encontraron productos para esta categoría. Es posible que la categoría no exista o no tenga productos asociados.'
           : 'No se encontraron productos que coincidan con los filtros seleccionados'
         }
       />

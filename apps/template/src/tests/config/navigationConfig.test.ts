@@ -15,7 +15,7 @@ describe('navigationConfig', () => {
       expect(adminNavigation.topLinks).toHaveLength(1)
     })
 
-    it('has 17 groups (poda UX 2026-09: comisiones en Ventas; Page Builder y Correos en Configuracion)', () => {
+    it('has 17 groups (poda UX 2026-09: comisiones en Ventas; Page Builder y Correos en Configuración)', () => {
       expect(adminNavigation.groups).toHaveLength(17)
     })
 

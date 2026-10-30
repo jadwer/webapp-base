@@ -84,7 +84,7 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
   }
 
   const handleGenerateRemission = async () => {
-    const confirmed = await confirmModalRef.current?.confirm('Generar remision con todos los items de esta orden?', {
+    const confirmed = await confirmModalRef.current?.confirm('Generar remisión con todos los items de esta orden?', {
       title: 'Confirmar',
       confirmVariant: 'warning'
     })
@@ -92,7 +92,7 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
     setActionLoading('remission')
     try {
       await remissionService.createFromOrderFull(resolvedParams.id)
-      toast.success('Remision generada correctamente')
+      toast.success('Remisión generada correctamente')
       await loadRemissions()
     } catch (err) {
       const error = err as { response?: { status?: number; data?: { error?: string; insufficient_items?: Array<{ product_name: string; sku: string; required: number; available: number; deficit: number }>; suggestion?: string } } }
@@ -101,7 +101,7 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
         const itemsList = items.map(i => `- ${i.product_name} (${i.sku}): necesita ${i.required}, disponible ${i.available}, faltan ${i.deficit}`).join('\n')
         toast.error(`Stock insuficiente:\n${itemsList}\n\n${error.response.data.suggestion || 'Genere una Orden de Compra primero.'}`)
       } else {
-        toast.error('Error al generar la remision')
+        toast.error('Error al generar la remisión')
       }
     } finally {
       setActionLoading(null)
@@ -112,17 +112,17 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
     setActionLoading(`print-${remId}`)
     try {
       await remissionService.print(remId)
-      toast.success('Remision marcada como impresa')
+      toast.success('Remisión marcada como impresa')
       await loadRemissions()
     } catch {
-      toast.error('Error al imprimir remision')
+      toast.error('Error al imprimir remisión')
     } finally {
       setActionLoading(null)
     }
   }
 
   const handleDeliverRemission = async (remId: string) => {
-    const confirmed = await confirmModalRef.current?.confirm('Marcar remision como entregada?', {
+    const confirmed = await confirmModalRef.current?.confirm('Marcar remisión como entregada?', {
       title: 'Confirmar',
       confirmVariant: 'warning'
     })
@@ -130,7 +130,7 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
     setActionLoading(`deliver-${remId}`)
     try {
       await remissionService.deliver(remId)
-      toast.success('Remision marcada como entregada')
+      toast.success('Remisión marcada como entregada')
       await loadRemissions()
     } catch {
       toast.error('Error al marcar como entregada')
@@ -148,7 +148,7 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
   }
 
   const handleCancelRemission = async (remId: string) => {
-    const confirmed = await confirmModalRef.current?.confirm('Cancelar esta remision? Esta accion no se puede deshacer.', {
+    const confirmed = await confirmModalRef.current?.confirm('Cancelar esta remisión? Esta acción no se puede deshacer.', {
       title: 'Confirmar',
       confirmVariant: 'danger'
     })
@@ -156,17 +156,17 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
     setActionLoading(`cancel-${remId}`)
     try {
       await remissionService.cancel(remId)
-      toast.success('Remision cancelada')
+      toast.success('Remisión cancelada')
       await loadRemissions()
     } catch {
-      toast.error('Error al cancelar remision')
+      toast.error('Error al cancelar remisión')
     } finally {
       setActionLoading(null)
     }
   }
 
   const handleCancelOrder = async () => {
-    const confirmed = await confirmModalRef.current?.confirm('Cancelar esta orden de venta? Esta accion no se puede deshacer.', {
+    const confirmed = await confirmModalRef.current?.confirm('Cancelar esta orden de venta? Esta acción no se puede deshacer.', {
       title: 'Confirmar',
       confirmVariant: 'danger'
     })
@@ -201,7 +201,7 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
   // desde Facturas CFDI (decision D-a: sin timbrado automatico).
   const handleGenerateInvoice = async () => {
     const confirmed = await confirmModalRef.current?.confirm(
-      'Generar la factura de esta orden? Se crea la cuenta por cobrar y el CFDI en borrador (el timbrado se hace despues, desde Facturas CFDI).',
+      'Generar la factura de esta orden? Se crea la cuenta por cobrar y el CFDI en borrador (el timbrado se hace después, desde Facturas CFDI).',
       { title: 'Generar factura', confirmVariant: 'primary' }
     )
     if (!confirmed) return
@@ -330,7 +330,7 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
                   <table className="table table-borderless">
                     <tbody>
                       <tr>
-                        <td><strong>Numero de Orden:</strong></td>
+                        <td><strong>Número de Orden:</strong></td>
                         <td>{salesOrder.orderNumber}</td>
                       </tr>
                       <tr>
@@ -517,7 +517,7 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
                   <table className="table table-hover mb-0">
                     <thead className="table-light">
                       <tr>
-                        <th>Numero</th>
+                        <th>Número</th>
                         <th>Estado</th>
                         <th>Fecha</th>
                         <th>Items</th>

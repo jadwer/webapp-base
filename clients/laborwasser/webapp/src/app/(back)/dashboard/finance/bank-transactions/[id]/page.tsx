@@ -8,8 +8,8 @@ import type { Metadata } from 'next'
 import { ViewBankTransactionWrapper } from '@/modules/finance'
 
 export const metadata: Metadata = {
-  title: 'Ver Transaccion Bancaria - Finance',
-  description: 'Detalles de la transaccion bancaria'
+  title: 'Ver Transacción Bancaria - Finance',
+  description: 'Detalles de la transacción bancaria'
 }
 
 interface PageProps {

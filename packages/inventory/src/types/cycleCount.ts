@@ -276,19 +276,19 @@ export const ABC_CLASS_CONFIG: Record<ABCClass, ABCClassConfig> = {
     label: 'Clase A',
     variant: 'danger',
     description: 'Alto valor - Conteo mensual',
-    frequency: 'Mensual (30 dias)'
+    frequency: 'Mensual (30 días)'
   },
   B: {
     label: 'Clase B',
     variant: 'warning',
     description: 'Valor medio - Conteo trimestral',
-    frequency: 'Trimestral (90 dias)'
+    frequency: 'Trimestral (90 días)'
   },
   C: {
     label: 'Clase C',
     variant: 'secondary',
     description: 'Bajo valor - Conteo anual',
-    frequency: 'Anual (365 dias)'
+    frequency: 'Anual (365 días)'
   }
 }
 

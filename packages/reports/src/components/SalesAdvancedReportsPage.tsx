@@ -44,11 +44,11 @@ const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82CA9D'
 const DATE_PRESETS = [
   { label: 'Hoy', value: 'today' },
   { label: 'Ayer', value: 'yesterday' },
-  { label: 'Ultimos 7 dias', value: '7days' },
-  { label: 'Ultimos 30 dias', value: '30days' },
+  { label: 'Últimos 7 días', value: '7days' },
+  { label: 'Últimos 30 días', value: '30days' },
   { label: 'Este mes', value: 'thisMonth' },
   { label: 'Mes pasado', value: 'lastMonth' },
-  { label: 'Este ano', value: 'thisYear' },
+  { label: 'Este año', value: 'thisYear' },
   { label: 'Personalizado', value: 'custom' },
 ]
 
@@ -339,7 +339,7 @@ export const SalesAdvancedReportsPage = () => {
                 <input
                   type="number"
                   className="form-control"
-                  placeholder="ID de la categoria"
+                  placeholder="ID de la categoría"
                   value={categoryFilter}
                   onChange={(e) => setCategoryFilter(e.target.value)}
                 />
@@ -775,9 +775,9 @@ export const SalesAdvancedReportsPage = () => {
                         <table className="table table-sm table-hover">
                           <thead className="table-light">
                             <tr>
-                              <th>Codigo</th>
+                              <th>Código</th>
                               <th>Producto</th>
-                              <th>Categoria</th>
+                              <th>Categoría</th>
                               <th className="text-end">Cantidad</th>
                               <th className="text-end">Ingreso</th>
                               <th className="text-end">Costo</th>

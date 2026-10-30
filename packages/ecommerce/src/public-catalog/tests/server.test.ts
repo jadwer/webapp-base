@@ -80,7 +80,7 @@ describe('fetchPublicProductServer', () => {
 })
 
 describe('fetchPublicCategoriesServer', () => {
-  it('pide categorias ordenadas por nombre y las mapea al shape del hook', async () => {
+  it('pide categorías ordenadas por nombre y las mapea al shape del hook', async () => {
     const fetchImpl = vi.fn().mockResolvedValue(response({
       data: [{ id: '1', attributes: { name: 'Reactivos', slug: 'reactivos', productsCount: 5, updatedAt: 'u' } }]
     }))

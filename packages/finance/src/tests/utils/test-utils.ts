@@ -186,7 +186,7 @@ export const createMockParsedBankTransaction = (overrides?: Partial<ParsedBankTr
   ...createMockBankTransaction(),
   amountDisplay: '$5,000.00',
   statusLabel: 'Sin Conciliar',
-  typeLabel: 'Credito',
+  typeLabel: 'Crédito',
   ...overrides,
 })
 

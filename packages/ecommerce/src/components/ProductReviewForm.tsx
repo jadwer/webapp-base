@@ -32,12 +32,12 @@ export function ProductReviewForm({
     setError(null)
 
     if (rating === 0) {
-      setError('Por favor selecciona una calificacion')
+      setError('Por favor selecciona una calificación')
       return
     }
 
     if (!title.trim()) {
-      setError('Por favor ingresa un titulo')
+      setError('Por favor ingresa un título')
       return
     }
 
@@ -141,7 +141,7 @@ export function ProductReviewForm({
               rows={4}
               value={content}
               onChange={e => setContent(e.target.value)}
-              placeholder="Cuentanos mas sobre tu experiencia con este producto"
+              placeholder="Cuentanos más sobre tu experiencia con este producto"
               maxLength={2000}
             />
             <div className="form-text">

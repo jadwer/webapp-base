@@ -156,7 +156,7 @@ function getValidityLabel(rule: ParsedDiscountRule): string {
   if (rule.endDate) {
     return `Valido hasta ${formatDateOnly(rule.endDate)}`
   }
-  return 'Sin fecha de expiracion'
+  return 'Sin fecha de expiración'
 }
 
 // Parse JSON:API response to UI-friendly format
@@ -386,7 +386,7 @@ export const discountRulesService = {
     if (!rule) {
       return {
         valid: false,
-        error: 'Codigo de descuento no encontrado'
+        error: 'Código de descuento no encontrado'
       }
     }
 

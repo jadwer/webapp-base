@@ -76,7 +76,7 @@ export const SalesOrderForm: React.FC<SalesOrderFormProps> = ({
     }
 
     if (!formData.orderNumber.trim()) {
-      newErrors.orderNumber = 'El numero de orden es requerido'
+      newErrors.orderNumber = 'El número de orden es requerido'
     }
 
     if (!formData.orderDate) {
@@ -197,7 +197,7 @@ export const SalesOrderForm: React.FC<SalesOrderFormProps> = ({
 
                 <div className="col-md-6">
                   <Input
-                    label="Numero de Orden"
+                    label="Número de Orden"
                     type="text"
                     value={formData.orderNumber}
                     onChange={(e) => handleInputChange('orderNumber', e.target.value)}
@@ -248,12 +248,12 @@ export const SalesOrderForm: React.FC<SalesOrderFormProps> = ({
 
                 <div className="col-12">
                   <Input
-                    label="Notas de Facturacion"
+                    label="Notas de Facturación"
                     type="textarea"
                     value={formData.invoicingNotes}
                     onChange={(e) => handleInputChange('invoicingNotes', e.target.value)}
                     onBlur={() => handleBlur('invoicingNotes')}
-                    placeholder="Instrucciones especiales para facturacion..."
+                    placeholder="Instrucciones especiales para facturación..."
                     disabled={isFormLoading}
                   />
                 </div>

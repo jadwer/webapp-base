@@ -10,7 +10,7 @@ describe('productPath', () => {
     expect(productPath({ id: '604', attributes: { slug: 'jumper-hach-ha-001215' } })).toBe('/productos/jumper-hach-ha-001215')
   })
 
-  it('cae al id sin slug, con slug nulo o vacio, o sin attributes', () => {
+  it('cae al id sin slug, con slug nulo o vacío, o sin attributes', () => {
     expect(productPath({ id: '604' })).toBe('/productos/604')
     expect(productPath({ id: 604, attributes: { slug: null } })).toBe('/productos/604')
     expect(productPath({ id: '604', attributes: { slug: '   ' } })).toBe('/productos/604')

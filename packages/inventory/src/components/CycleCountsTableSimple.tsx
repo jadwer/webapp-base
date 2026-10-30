@@ -74,13 +74,13 @@ export const CycleCountsTableSimple: React.FC<CycleCountsTableSimpleProps> = ({
           <tr>
             <th>No. Conteo</th>
             <th>Producto</th>
-            <th>Almacen</th>
+            <th>Almacén</th>
             <th>Fecha Programada</th>
             <th>Estado</th>
             <th>Clase</th>
             <th className="text-end">Qty Sistema</th>
             <th className="text-end">Qty Contada</th>
-            <th>Variacion</th>
+            <th>Variación</th>
             <th>Asignado</th>
             <th className="text-end">Acciones</th>
           </tr>

@@ -132,7 +132,7 @@ describe('Journal Lines Service', () => {
   })
 
   describe('journalEntryService.createWithLines', () => {
-    it('crea las lineas con journalEntryId y contactId camelCase', async () => {
+    it('crea las líneas con journalEntryId y contactId camelCase', async () => {
       mockAxios.post.mockImplementation((url: string) =>
         Promise.resolve({ data: { data: url === '/api/v1/journal-entries' ? { id: '50' } : createMockJournalLine() } })
       )
@@ -161,7 +161,7 @@ describe('Journal Lines Service', () => {
   })
 
   describe('journalEntryService.updateWithLines', () => {
-    it('edita el borrador sin crear otra poliza y reemplaza sus lineas', async () => {
+    it('edita el borrador sin crear otra póliza y reemplaza sus líneas', async () => {
       mockAxios.patch.mockResolvedValue({ data: { data: { id: '50' } } })
       mockAxios.get.mockImplementation((url: string) =>
         Promise.resolve({

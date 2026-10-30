@@ -10,7 +10,7 @@ describe('EmptyState', () => {
     expect(screen.getByText('Sin registros').tagName).toBe('H6')
   })
 
-  it('muestra descripcion, accion e icono propio', () => {
+  it('muestra descripción, acción e icono propio', () => {
     const { container } = render(
       <EmptyState
         icon="bi-box"

@@ -175,7 +175,7 @@ describe('FractionationForm', () => {
     expect(screen.getByTestId('fractionation-blocked-batches')).toHaveTextContent('L-RET (el lote fue retirado)')
   })
 
-  it('pide la ubicacion cuando el origen esta en varias', async () => {
+  it('pide la ubicación cuando el origen esta en varias', async () => {
     mocks.calculate.mockResolvedValue({
       data: basePreview({
         location_required: true,

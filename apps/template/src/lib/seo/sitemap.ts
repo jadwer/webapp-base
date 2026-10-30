@@ -206,5 +206,5 @@ export function sitemapIndexXml(host: string, ids: Array<{ id: number }>): strin
   const items = ids
     .map(({ id }) => `  <sitemap><loc>${escapeXml(absoluteUrl(host, `/sitemap/${id}.xml`))}</loc></sitemap>`)
     .join('\n')
-  return `<?xml version="1.0" encoding="UTF-8"?>\n<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${items}\n</sitemapindex>\n`
+  return `<?xml versión="1.0" encoding="UTF-8"?>\n<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${items}\n</sitemapindex>\n`
 }

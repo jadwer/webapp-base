@@ -75,7 +75,7 @@ export const ImageGalleryManager: React.FC<ImageGalleryManagerProps> = ({
         return false
       }
       if (file.size > MAX_SIZE_MB * 1024 * 1024) {
-        toast.warning(`"${file.name}" excede el tamano maximo de ${MAX_SIZE_MB}MB`)
+        toast.warning(`"${file.name}" excede el tamaño máximo de ${MAX_SIZE_MB}MB`)
         return false
       }
       return true
@@ -124,7 +124,7 @@ export const ImageGalleryManager: React.FC<ImageGalleryManagerProps> = ({
     setUploading(false)
     setMakeFirstPrimary(false)
     if (successCount > 0) {
-      toast.success(`${successCount} imagen${successCount > 1 ? 'es subidas' : ' subida'} correctamente`)
+      toast.success(`${successCount} ${successCount > 1 ? 'imágenes subidas' : 'imagen subida'} correctamente`)
     }
     mutate()
   }, [productId, images, showLegacy, legacyImgPath, hasAnyImage, makeFirstPrimary, mutate, reportError])
@@ -266,7 +266,7 @@ export const ImageGalleryManager: React.FC<ImageGalleryManagerProps> = ({
     try {
       await productImageService.reorder(reordered.map(img => img.id))
     } catch (err) {
-      reportError(err, 'Error al reordenar las imagenes')
+      reportError(err, 'Error al reordenar las imágenes')
     }
     mutate()
   }
@@ -428,7 +428,7 @@ export const ImageGalleryManager: React.FC<ImageGalleryManagerProps> = ({
         <div
           role="button"
           tabIndex={0}
-          aria-label="Agregar imagenes"
+          aria-label="Agregar imágenes"
           style={{
             width: 120,
             height: 120,

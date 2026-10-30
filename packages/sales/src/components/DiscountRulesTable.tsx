@@ -50,7 +50,7 @@ export const DiscountRulesTable: React.FC<DiscountRulesTableProps> = ({
     if (!onDelete || !confirmModalRef.current) return
 
     const confirmed = await confirmModalRef.current.confirm(
-      `Esta seguro de que quiere eliminar la regla de descuento "${rule.name}"? Esta accion no se puede deshacer.`,
+      `Está seguro de que quiere eliminar la regla de descuento "${rule.name}"? Esta acción no se puede deshacer.`,
       {
         title: 'Eliminar Regla de Descuento',
         confirmVariant: 'danger',
@@ -121,7 +121,7 @@ export const DiscountRulesTable: React.FC<DiscountRulesTableProps> = ({
         <table className="table table-hover">
           <thead className="table-light">
             <tr>
-              <th scope="col">Codigo</th>
+              <th scope="col">Código</th>
               <th scope="col">Nombre</th>
               <th scope="col">Tipo</th>
               <th scope="col">Descuento</th>

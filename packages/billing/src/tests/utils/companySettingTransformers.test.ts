@@ -46,7 +46,7 @@ describe('transformCompanySettingFormToJsonApi', () => {
     expect(Object.keys(payload.attributes).filter((k) => k.includes('_'))).toEqual([])
   })
 
-  it('nunca manda certificado, llave ni su contrasena', () => {
+  it('nunca manda certificado, llave ni su contraseña', () => {
     const legado = { ...form, certificateFile: 'x.cer', keyFile: 'x.key', keyPassword: 'secreto' }
     const attributes = (transformCompanySettingFormToJsonApi(legado) as { attributes: Record<string, unknown> }).attributes
 
@@ -55,7 +55,7 @@ describe('transformCompanySettingFormToJsonApi', () => {
     }
   })
 
-  it('pacPassword vacio no se manda para no borrar el guardado', () => {
+  it('pacPassword vacío no se manda para no borrar el guardado', () => {
     const sin = (transformCompanySettingFormToJsonApi({ ...form, pacPassword: '' }) as { attributes: Record<string, unknown> }).attributes
     expect(sin).not.toHaveProperty('pacPassword')
     const con = (transformCompanySettingFormToJsonApi({ ...form, pacPassword: 'nueva' }) as { attributes: Record<string, unknown> }).attributes

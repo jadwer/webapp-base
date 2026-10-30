@@ -19,7 +19,7 @@ describe('satCfdiCatalogsService', () => {
     vi.clearAllMocks()
   })
 
-  it('lee uso CFDI y regimen fiscal del endpoint de catalogos de contactos', async () => {
+  it('lee uso CFDI y régimen fiscal del endpoint de catálogos de contactos', async () => {
     const payload = {
       regimenes_fiscales: [{ code: '601', label: 'General de Ley Personas Morales' }],
       usos_cfdi: [{ code: 'G03', label: 'Gastos en general' }],
@@ -33,7 +33,7 @@ describe('satCfdiCatalogsService', () => {
     expect(result.usos_cfdi).toEqual(payload.usos_cfdi)
   })
 
-  it('lee forma de pago del catalogo SAT y la normaliza a code/label', async () => {
+  it('lee forma de pago del catálogo SAT y la normaliza a code/label', async () => {
     mockedAxios.get.mockResolvedValue({
       data: { data: [{ clave: '03', descripcion: 'Transferencia electrónica de fondos' }] },
     })

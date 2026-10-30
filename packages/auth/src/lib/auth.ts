@@ -242,7 +242,7 @@ const isLoading = shouldFetch && !user && !error;
       const response = await axios.post("/api/auth/email/verification-notification");
       setStatus(response.data.message);
     } catch {
-      setStatus("Error al enviar el correo de verificacion.");
+      setStatus("Error al enviar el correo de verificación.");
     }
   };
 

@@ -38,7 +38,7 @@ describe('lotTraceabilityService', () => {
     expect(result.items.map((i) => i.batch_id)).toEqual([1, 2])
   })
 
-  it('getExpiringSoonSummary usa 30 dias por defecto', async () => {
+  it('getExpiringSoonSummary usa 30 días por defecto', async () => {
     vi.mocked(axios.get).mockResolvedValue({ data: { data: [], meta: { count: 0, threshold_days: 30 } } })
 
     const result = await lotTraceabilityService.getExpiringSoonSummary()
@@ -60,7 +60,7 @@ describe('lotTraceabilityService', () => {
     expect(result).toEqual({ items: [batch(3)], count: 1 })
   })
 
-  it('sin meta.count cuenta los items; sin data devuelve lista vacia', async () => {
+  it('sin meta.count cuenta los items; sin data devuelve lista vacía', async () => {
     vi.mocked(axios.get).mockResolvedValueOnce({ data: { data: [batch(4)] } })
     expect(await lotTraceabilityService.getExpiredSummary()).toEqual({ items: [batch(4)], count: 1 })
 

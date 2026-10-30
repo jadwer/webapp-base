@@ -125,7 +125,7 @@ export default function OrderConfirmationPage({ params }: OrderConfirmationPageP
           })
         })
       } catch {
-        setError('No se pudo cargar la informacion del pedido')
+        setError('No se pudo cargar la información del pedido')
       } finally {
         setIsLoading(false)
       }

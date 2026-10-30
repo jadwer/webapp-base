@@ -15,7 +15,7 @@ const legendResource = {
   type: 'document-legends',
   attributes: {
     documentType: 'quote',
-    body: 'Cotizacion {folio} valida hasta {fecha_vencimiento}.',
+    body: 'Cotización {folio} valida hasta {fecha_vencimiento}.',
     isActive: true,
     createdAt: '2026-08-25T00:00:00Z',
     updatedAt: '2026-08-25T00:00:00Z',
@@ -37,7 +37,7 @@ describe('documentLegendsService', () => {
     expect(legends[0]).toMatchObject({
       id: '1',
       documentType: 'quote',
-      body: 'Cotizacion {folio} valida hasta {fecha_vencimiento}.',
+      body: 'Cotización {folio} valida hasta {fecha_vencimiento}.',
       isActive: true,
     })
   })

@@ -86,15 +86,15 @@ export default function QuoteDetailPage({ params }: PageProps) {
       switch (action) {
         case 'accept':
           await mutations.accept.mutateAsync(quote.id)
-          toast.success('Cotizacion marcada como aceptada')
+          toast.success('Cotización marcada como aceptada')
           break
         case 'cancel':
           await mutations.cancel.mutateAsync(quote.id)
-          toast.success('Cotizacion cancelada')
+          toast.success('Cotización cancelada')
           break
         case 'duplicate':
           const result = await mutations.duplicate.mutateAsync(quote.id)
-          toast.success('Cotizacion duplicada')
+          toast.success('Cotización duplicada')
           router.push(`/dashboard/quotes/${result.data.id}`)
           return
         case 'recalculate-taxes': {
@@ -123,7 +123,7 @@ export default function QuoteDetailPage({ params }: PageProps) {
         id: quote.id,
         data: rejectReason ? { reason: rejectReason } : undefined
       })
-      toast.success('Cotizacion marcada como rechazada')
+      toast.success('Cotización marcada como rechazada')
       setRejectReason('')
       refetch()
     } catch (err) {
@@ -161,7 +161,7 @@ export default function QuoteDetailPage({ params }: PageProps) {
           creditDays: editingCreditDays === '' ? null : Number(editingCreditDays)
         }
       })
-      toast.success('Cotizacion actualizada')
+      toast.success('Cotización actualizada')
       setIsEditing(false)
       refetch()
     } catch (err) {
@@ -213,7 +213,7 @@ export default function QuoteDetailPage({ params }: PageProps) {
   const handleExportCsv = () => {
     if (!quote) return
     if (items.length === 0) {
-      toast.error('La cotizacion no tiene partidas para exportar')
+      toast.error('La cotización no tiene partidas para exportar')
       return
     }
     exportQuoteItemsCsv(quote.quoteNumber, items)
@@ -269,7 +269,7 @@ export default function QuoteDetailPage({ params }: PageProps) {
         <div className="card">
           <div className="card-body text-center py-5">
             <i className="bi bi-file-earmark-x display-4 text-muted mb-3 d-block"></i>
-            <h5>Cotizacion no encontrada</h5>
+            <h5>Cotización no encontrada</h5>
             <p className="text-muted">La cotizacion que buscas no existe o fue eliminada.</p>
             <button
               className="btn btn-primary mt-3"
@@ -317,7 +317,7 @@ export default function QuoteDetailPage({ params }: PageProps) {
       disabled: !quote.salesOrderId || actionLoading === 'prefactura',
       title: quote.salesOrderId
         ? 'Vista previa de la prefactura de la orden generada'
-        : 'Disponible cuando la cotizacion tenga una orden generada'
+        : 'Disponible cuando la cotización tenga una orden generada'
     },
     {
       type: 'custom',
@@ -490,17 +490,17 @@ export default function QuoteDetailPage({ params }: PageProps) {
                       {isEditing ? (
                         <select
                           className="form-select form-select-sm"
-                          aria-label="Metodo de pago"
+                          aria-label="Método de pago"
                           value={editingPaymentMethod}
                           onChange={(e) => setEditingPaymentMethod(e.target.value as '' | PaymentMethod)}
                         >
                           <option value="">Sin especificar</option>
-                          <option value="PUE">PUE - Pago en una exhibicion</option>
+                          <option value="PUE">PUE - Pago en una exhibición</option>
                           <option value="PPD">PPD - Pago en parcialidades o diferido</option>
                         </select>
                       ) : (
                         <strong>
-                          {quote.paymentMethod === 'PUE' && 'PUE - Pago en una exhibicion'}
+                          {quote.paymentMethod === 'PUE' && 'PUE - Pago en una exhibición'}
                           {quote.paymentMethod === 'PPD' && 'PPD - Pago en parcialidades o diferido'}
                           {!quote.paymentMethod && 'No especificado'}
                         </strong>
@@ -517,7 +517,7 @@ export default function QuoteDetailPage({ params }: PageProps) {
                         <input
                           type="number"
                           className="form-control form-control-sm"
-                          aria-label="Dias de credito"
+                          aria-label="Días de crédito"
                           min={0}
                           step={1}
                           value={editingCreditDays}
@@ -526,7 +526,7 @@ export default function QuoteDetailPage({ params }: PageProps) {
                         />
                       ) : (
                         <strong>
-                          {quote.creditDays != null ? `${quote.creditDays} dias` : 'No especificado (default 30)'}
+                          {quote.creditDays != null ? `${quote.creditDays} días` : 'No especificado (default 30)'}
                         </strong>
                       )}
                     </div>

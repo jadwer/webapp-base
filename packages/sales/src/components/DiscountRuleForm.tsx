@@ -130,9 +130,9 @@ export const DiscountRuleForm: React.FC<DiscountRuleFormProps> = ({
     }
 
     if (!formData.code?.trim()) {
-      newErrors.code = 'El codigo es requerido'
+      newErrors.code = 'El código es requerido'
     } else if (!/^[A-Z0-9_-]+$/i.test(formData.code)) {
-      newErrors.code = 'El codigo solo puede contener letras, numeros, guiones y guiones bajos'
+      newErrors.code = 'El código solo puede contener letras, números, guiones y guiones bajos'
     }
 
     if (!formData.discountType) {
@@ -210,7 +210,7 @@ export const DiscountRuleForm: React.FC<DiscountRuleFormProps> = ({
         {/* Code */}
         <div className="col-md-6">
           <Input
-            label="Codigo"
+            label="Código"
             name="code"
             value={formData.code}
             onChange={handleChange}
@@ -235,7 +235,7 @@ export const DiscountRuleForm: React.FC<DiscountRuleFormProps> = ({
             value={formData.description || ''}
             onChange={handleChange}
             disabled={isLoading}
-            placeholder="Descripcion opcional de la regla..."
+            placeholder="Descripción opcional de la regla..."
           />
         </div>
 
@@ -322,7 +322,7 @@ export const DiscountRuleForm: React.FC<DiscountRuleFormProps> = ({
         {/* Max Discount Amount */}
         <div className="col-md-4">
           <Input
-            label="Descuento Maximo ($)"
+            label="Descuento Máximo ($)"
             type="number"
             name="maxDiscountAmount"
             value={formData.maxDiscountAmount?.toString() || ''}
@@ -360,7 +360,7 @@ export const DiscountRuleForm: React.FC<DiscountRuleFormProps> = ({
         {/* Minimum Requirements */}
         <div className="col-md-4">
           <Input
-            label="Monto Minimo de Orden ($)"
+            label="Monto Mínimo de Orden ($)"
             type="number"
             name="minOrderAmount"
             value={formData.minOrderAmount?.toString() || ''}
@@ -368,13 +368,13 @@ export const DiscountRuleForm: React.FC<DiscountRuleFormProps> = ({
             disabled={isLoading}
             min="0"
             step="0.01"
-            placeholder="Sin minimo"
+            placeholder="Sin mínimo"
           />
         </div>
 
         <div className="col-md-4">
           <Input
-            label="Cantidad Minima"
+            label="Cantidad Mínima"
             type="number"
             name="minQuantity"
             value={formData.minQuantity?.toString() || ''}
@@ -382,7 +382,7 @@ export const DiscountRuleForm: React.FC<DiscountRuleFormProps> = ({
             disabled={isLoading}
             min="1"
             step="1"
-            placeholder="Sin minimo"
+            placeholder="Sin mínimo"
           />
         </div>
 

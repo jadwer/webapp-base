@@ -9,7 +9,7 @@ import { BudgetsAdminPage } from '@/modules/purchase'
 
 export const metadata: Metadata = {
   title: 'Presupuestos - Purchase',
-  description: 'Administracion de presupuestos de compras'
+  description: 'Administración de presupuestos de compras'
 }
 
 export default function BudgetsPage() {

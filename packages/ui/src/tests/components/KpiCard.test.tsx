@@ -18,7 +18,7 @@ describe('KpiCard', () => {
   })
 
   it('con href renderiza un enlace', () => {
-    render(<KpiCard label="Bajo minimo" value={3} href="/dashboard/inventory/stock" variant="warning" />)
+    render(<KpiCard label="Bajo mínimo" value={3} href="/dashboard/inventory/stock" variant="warning" />)
     const link = screen.getByRole('link')
     expect(link).toHaveAttribute('href', '/dashboard/inventory/stock')
     expect(link).toHaveClass('card', 'border-warning')

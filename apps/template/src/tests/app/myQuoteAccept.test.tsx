@@ -71,7 +71,7 @@ async function renderPage() {
   await screen.findByText(/Cotización COT-015/)
 }
 
-describe('Portal: aceptar cotizacion (D9)', () => {
+describe('Portal: aceptar cotización (D9)', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mocks.getById.mockResolvedValue(quote)

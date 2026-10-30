@@ -997,11 +997,11 @@ describe('useLocalCartCount', () => {
   })
 })
 
-describe('useLocalCart precio sujeto a cotizacion (P2 granel)', () => {
+describe('useLocalCart precio sujeto a cotización (P2 granel)', () => {
   beforeEach(() => localStorage.clear())
   afterEach(() => localStorage.clear())
 
-  it('guarda el tipo de precio, no suma la linea y cuenta los pendientes', async () => {
+  it('guarda el tipo de precio, no suma la línea y cuenta los pendientes', async () => {
     const { result } = renderHook(() => useLocalCart())
     await waitFor(() => expect(result.current.isInitialized).toBe(true))
 
@@ -1031,7 +1031,7 @@ describe('useLocalCart precio sujeto a cotizacion (P2 granel)', () => {
     expect(result.current.totals.pendingPriceCount).toBe(0)
   })
 
-  it('P2b D8: producto fijo sin precio o en $0 tambien queda pendiente', async () => {
+  it('P2b D8: producto fijo sin precio o en $0 también queda pendiente', async () => {
     const { result } = renderHook(() => useLocalCart())
     await waitFor(() => expect(result.current.isInitialized).toBe(true))
 
@@ -1051,7 +1051,7 @@ describe('useLocalCart precio sujeto a cotizacion (P2 granel)', () => {
     expect(result.current.totals.subtotal).toBe(0)
   })
 
-  it('P2b D8: un carrito viejo con linea fija en $0 cuenta como pendiente', async () => {
+  it('P2b D8: un carrito viejo con línea fija en $0 cuenta como pendiente', async () => {
     localStorage.setItem(CART_STORAGE_KEY, JSON.stringify({
       items: [{ id: 'x', productId: '5', name: 'Viejo sin precio', price: 0, pricingType: 'fixed', quantity: 1, iva: true, imageUrl: null, sku: null, unitName: null, categoryName: null, brandName: null, addedAt: '' }],
       createdAt: '', updatedAt: '',

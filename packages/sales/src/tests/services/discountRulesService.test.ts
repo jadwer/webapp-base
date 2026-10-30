@@ -391,7 +391,7 @@ describe('discountRulesService', () => {
       const result = await discountRulesService.validateCode('NONEXISTENT')
 
       expect(result.valid).toBe(false)
-      expect(result.error).toBe('Codigo de descuento no encontrado')
+      expect(result.error).toBe('Código de descuento no encontrado')
     })
 
     it('should return invalid for inactive rule', async () => {

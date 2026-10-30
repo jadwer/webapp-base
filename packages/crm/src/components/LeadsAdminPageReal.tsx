@@ -72,7 +72,7 @@ export const LeadsAdminPageReal = () => {
     if (!confirmModalRef.current) return
 
     const confirmed = await confirmModalRef.current.confirm(
-      `¿Esta seguro de eliminar el lead "${lead.title}"? Esta accion no se puede deshacer.`,
+      `¿Está seguro de eliminar el lead "${lead.title}"? Esta acción no se puede deshacer.`,
       {
         title: 'Eliminar Lead',
         confirmText: 'Eliminar',

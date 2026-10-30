@@ -28,7 +28,7 @@ const TIPO_COMPROBANTE_LABELS: Record<TipoComprobante, string> = {
   'I': 'Ingreso',
   'E': 'Egreso',
   'T': 'Traslado',
-  'N': 'Nomina',
+  'N': 'Nómina',
   'P': 'Pago',
 }
 
@@ -76,7 +76,7 @@ export const CFDIInvoicesTable: React.FC<CFDIInvoicesTableProps> = ({
     if (!onDelete || !confirmModalRef.current) return
 
     const confirmed = await confirmModalRef.current.confirm(
-      `Esta seguro de que quiere eliminar la factura ${invoice.series}-${invoice.folio}? Esta accion no se puede deshacer.`
+      `Está seguro de que quiere eliminar la factura ${invoice.series}-${invoice.folio}? Esta acción no se puede deshacer.`
     )
 
     if (confirmed) {

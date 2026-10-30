@@ -114,7 +114,7 @@ export const ViewBankTransactionWrapper: React.FC<ViewBankTransactionWrapperProp
           <div>
             <h1 className="h3 mb-0">Transaccion Bancaria</h1>
             <p className="text-muted mb-0">
-              {bankTransaction.reference || `Transaccion #${transactionId}`}
+              {bankTransaction.reference || `Transacción #${transactionId}`}
             </p>
           </div>
         </div>

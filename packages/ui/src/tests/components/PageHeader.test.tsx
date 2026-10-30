@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react'
 import { PageHeader } from '../../components/patterns'
 
 describe('PageHeader', () => {
-  it('renderiza titulo, subtitulo e icono', () => {
+  it('renderiza título, subtitulo e icono', () => {
     const { container } = render(<PageHeader title="Almacenes" subtitle="Gestion de almacenes" icon="bi-building" />)
     expect(screen.getByRole('heading', { level: 1, name: 'Almacenes' })).toHaveClass('h3', 'mb-1')
     expect(screen.getByText('Gestion de almacenes')).toHaveClass('text-muted', 'mb-0')
@@ -36,7 +36,7 @@ describe('PageHeader', () => {
   })
 
   it('no pinta bloque derecho sin acciones ni backHref', () => {
-    render(<PageHeader title="Solo titulo" />)
+    render(<PageHeader title="Solo título" />)
     expect(screen.queryByRole('link')).toBeNull()
   })
 })

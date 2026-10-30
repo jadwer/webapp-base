@@ -70,7 +70,7 @@ export const UnitsTableVirtualized = React.memo<UnitsTableVirtualizedProps>(({
           <thead className="table-light sticky-top">
             <tr className="text-nowrap">
               <th>Unidad</th>
-              <th>Descripcion</th>
+              <th>Descripción</th>
               <th className="text-center">Productos</th>
               <th>Acciones</th>
             </tr>
@@ -103,7 +103,7 @@ export const UnitsTableVirtualized = React.memo<UnitsTableVirtualizedProps>(({
                       <td>
                         <div className="fw-bold text-dark">{unit.name}</div>
                         <small className="text-muted">
-                          {unit.code ? `Codigo: ${unit.code}` : unit.unitType || 'Sin tipo'}
+                          {unit.code ? `Código: ${unit.code}` : unit.unitType || 'Sin tipo'}
                         </small>
                       </td>
 

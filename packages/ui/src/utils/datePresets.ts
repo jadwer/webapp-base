@@ -11,11 +11,11 @@ import { dateToInput } from './dates'
 export const DATE_PRESETS = [
   { label: 'Hoy', value: 'today' },
   { label: 'Ayer', value: 'yesterday' },
-  { label: 'Ultimos 7 dias', value: '7days' },
-  { label: 'Ultimos 30 dias', value: '30days' },
+  { label: 'Últimos 7 días', value: '7days' },
+  { label: 'Últimos 30 días', value: '30days' },
   { label: 'Este mes', value: 'thisMonth' },
   { label: 'Mes pasado', value: 'lastMonth' },
-  { label: 'Este ano', value: 'thisYear' },
+  { label: 'Este año', value: 'thisYear' },
   { label: 'Personalizado', value: 'custom' },
 ]
 

@@ -158,7 +158,7 @@ export function QuoteSendModal({ quote, show, onHide, onSent }: QuoteSendModalPr
         value={extra}
         onChange={setExtra}
         exclude={options.filter((o) => checked.has(o.email)).map((o) => o.email)}
-        placeholder="calidad@cliente.com, almacen@cliente.com"
+        placeholder="calidad@cliente.com, almacén@cliente.com"
         helpText="Sepáralos con coma o punto y coma."
       />
 

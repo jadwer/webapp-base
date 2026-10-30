@@ -17,7 +17,7 @@ describe('PRICING_TYPES', () => {
     expect([...PRICING_TYPES]).toEqual(BACKEND_PRICING_TYPES)
   })
 
-  it('cada tipo tiene etiqueta en espanol y la de quote_only es la estandar', () => {
+  it('cada tipo tiene etiqueta en español y la de quote_only es la estandar', () => {
     expect(Object.keys(PRICING_TYPE_LABELS).sort()).toEqual([...BACKEND_PRICING_TYPES].sort())
     expect(PRICING_TYPE_LABELS.quote_only).toBe('Precio sujeto a cotización')
     expect(QUOTE_ONLY_LABEL).toBe('Precio sujeto a cotización')
@@ -34,7 +34,7 @@ describe('PRICING_TYPES', () => {
 })
 
 describe('requiresQuote (P2b D8: producto sin precio de venta)', () => {
-  it('sujeto a cotizacion, sin precio o con precio <= 0 se cotiza', () => {
+  it('sujeto a cotización, sin precio o con precio <= 0 se cotiza', () => {
     expect(requiresQuote({ pricingType: 'quote_only', price: 100 })).toBe(true)
     expect(requiresQuote({ pricingType: 'fixed', price: null })).toBe(true)
     expect(requiresQuote({ pricingType: 'fixed', price: 0 })).toBe(true)

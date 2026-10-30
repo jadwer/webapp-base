@@ -56,7 +56,7 @@ export default function PurchaseOrderDetailPage({ params }: PageProps) {
 
   const handleReceive = async () => {
     const confirmed = await confirmModalRef.current?.confirm(
-      'Recibir TODOS los items pendientes de esta orden? Esto sube el stock al almacen y, al completar el total, genera la factura por pagar del proveedor.',
+      'Recibir TODOS los items pendientes de esta orden? Esto sube el stock al almacén y, al completar el total, genera la factura por pagar del proveedor.',
       { title: 'Recibir mercancia', confirmVariant: 'primary' }
     )
     if (!confirmed) return

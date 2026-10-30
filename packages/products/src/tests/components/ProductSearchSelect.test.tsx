@@ -39,7 +39,7 @@ describe('ProductSearchSelect', () => {
     vi.useRealTimers()
   })
 
-  it('busca con debounce, filtro de activos, tamano 20 y orden por nombre', async () => {
+  it('busca con debounce, filtro de activos, tamaño 20 y orden por nombre', async () => {
     render(<ProductSearchSelect value="" onChange={vi.fn()} />)
     const input = screen.getByRole('combobox')
 
@@ -104,7 +104,7 @@ describe('ProductSearchSelect', () => {
     expect(screen.getByText('Acido nitrico')).toBeInTheDocument()
   })
 
-  it('muestra "Sin resultados" cuando la busqueda viene vacia', async () => {
+  it('muestra "Sin resultados" cuando la búsqueda viene vacía', async () => {
     getProducts.mockResolvedValue({ data: [] } as never)
     render(<ProductSearchSelect value="" onChange={vi.fn()} />)
     fireEvent.change(screen.getByRole('combobox'), { target: { value: 'zzz' } })
@@ -136,7 +136,7 @@ describe('ProductSearchSelect', () => {
     expect(screen.getByText('Glicerina')).toBeInTheDocument()
   })
 
-  it('limpia la seleccion', () => {
+  it('limpia la selección', () => {
     const onChange = vi.fn()
     render(
       <ProductSearchSelect value="5" onChange={onChange} initialProduct={{ id: '5', name: 'Etanol' }} />
@@ -146,12 +146,12 @@ describe('ProductSearchSelect', () => {
     expect(screen.getByRole('combobox')).toBeInTheDocument()
   })
 
-  it('muestra el error de validacion', () => {
+  it('muestra el error de validación', () => {
     render(<ProductSearchSelect value="" onChange={vi.fn()} errorText="El producto es obligatorio" />)
     expect(screen.getByText('El producto es obligatorio')).toBeInTheDocument()
   })
 
-  it('marca los productos con precio sujeto a cotizacion en la opcion y en la seleccion', async () => {
+  it('marca los productos con precio sujeto a cotización en la opción y en la selección', async () => {
     getProducts.mockResolvedValue({
       data: [{ id: '9', name: 'Alcohol granel', sku: 'GR-9', isActive: true, iva: true, pricingType: 'quote_only', price: null }],
     } as never)

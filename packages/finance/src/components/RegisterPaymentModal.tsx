@@ -256,7 +256,7 @@ export const RegisterPaymentModal = ({
             value={formData.reference}
             onChange={(e) => handleChange('reference', e.target.value)}
             disabled={isSubmitting}
-            placeholder="Numero de transferencia, cheque, etc."
+            placeholder="Número de transferencia, cheque, etc."
           />
         </div>
 

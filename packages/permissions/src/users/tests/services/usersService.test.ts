@@ -46,7 +46,7 @@ describe('usersService', () => {
   })
 
   describe('getUsers', () => {
-    it('siempre manda paginacion e include=roles', async () => {
+    it('siempre manda paginación e include=roles', async () => {
       // Arrange
       vi.mocked(axiosClient.get).mockResolvedValue({
         data: { data: [], included: [], meta: {} },
@@ -65,7 +65,7 @@ describe('usersService', () => {
       })
     })
 
-    it('serializa filtros de busqueda, rol, estado y trashed', async () => {
+    it('serializa filtros de búsqueda, rol, estado y trashed', async () => {
       // Arrange
       vi.mocked(axiosClient.get).mockResolvedValue({
         data: { data: [], included: [], meta: {} },
@@ -185,7 +185,7 @@ describe('usersService', () => {
   })
 
   describe('updateUser', () => {
-    it('omite password del payload cuando viene vacio (no cambia)', async () => {
+    it('omite password del payload cuando viene vacío (no cambia)', async () => {
       // Arrange
       vi.mocked(axiosClient.patch).mockResolvedValue({
         data: { data: jsonApiUser('5', []) },

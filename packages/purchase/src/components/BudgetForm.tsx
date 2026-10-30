@@ -79,7 +79,7 @@ export const BudgetForm: React.FC<BudgetFormProps> = ({
     }
 
     if (!formData.code.trim()) {
-      newErrors.code = 'El codigo es requerido'
+      newErrors.code = 'El código es requerido'
     }
 
     if (!formData.startDate) {
@@ -159,7 +159,7 @@ export const BudgetForm: React.FC<BudgetFormProps> = ({
 
         <div className="col-md-4">
           <Input
-            label="Codigo"
+            label="Código"
             value={formData.code}
             onChange={(e) => handleChange('code', e.target.value.toUpperCase())}
             errorText={errors.code}
@@ -171,10 +171,10 @@ export const BudgetForm: React.FC<BudgetFormProps> = ({
 
         <div className="col-12">
           <Input
-            label="Descripcion"
+            label="Descripción"
             value={formData.description || ''}
             onChange={(e) => handleChange('description', e.target.value)}
-            placeholder="Descripcion opcional del presupuesto"
+            placeholder="Descripción opcional del presupuesto"
           />
         </div>
 
@@ -217,7 +217,7 @@ export const BudgetForm: React.FC<BudgetFormProps> = ({
         {formData.budgetType === 'department' && (
           <div className="col-md-6">
             <Input
-              label="Codigo de Departamento"
+              label="Código de Departamento"
               value={formData.departmentCode || ''}
               onChange={(e) => handleChange('departmentCode', e.target.value)}
               placeholder="Ej: DEPT-001"
@@ -228,7 +228,7 @@ export const BudgetForm: React.FC<BudgetFormProps> = ({
         {formData.budgetType === 'project' && (
           <div className="col-md-6">
             <Input
-              label="Codigo de Proyecto"
+              label="Código de Proyecto"
               value={formData.projectCode || ''}
               onChange={(e) => handleChange('projectCode', e.target.value)}
               placeholder="Ej: PROJ-2025-001"
@@ -262,7 +262,7 @@ export const BudgetForm: React.FC<BudgetFormProps> = ({
         <div className="col-md-4">
           <Input
             type="number"
-            label="Ano Fiscal"
+            label="Año Fiscal"
             value={formData.fiscalYear?.toString() || ''}
             onChange={(e) => handleChange('fiscalYear', e.target.value ? parseInt(e.target.value) : undefined)}
             placeholder="Ej: 2025"

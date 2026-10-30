@@ -67,7 +67,7 @@ describe('useUsers', () => {
     expect(usersService.getUsers).toHaveBeenCalledWith({}, 1, 20)
   })
 
-  it('pasa filtros y pagina al service', async () => {
+  it('pasa filtros y página al service', async () => {
     // Arrange
     vi.mocked(usersService.getUsers).mockResolvedValue({ users: [], meta: {} })
     const filters = { search: 'ana', role: 'tech', trashed: 'with' as const }
@@ -80,7 +80,7 @@ describe('useUsers', () => {
     expect(usersService.getUsers).toHaveBeenCalledWith(filters, 2, 10)
   })
 
-  it('refetch al cambiar de pagina (key serializada por filtros+pagina)', async () => {
+  it('refetch al cambiar de página (key serializada por filtros+página)', async () => {
     // Arrange
     vi.mocked(usersService.getUsers).mockResolvedValue({ users: [], meta: {} })
 

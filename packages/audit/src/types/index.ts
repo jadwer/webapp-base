@@ -104,7 +104,7 @@ export interface AuditSingleJsonApiResponse {
 export const AUDITABLE_TYPE_LABELS: Record<string, string> = {
   // Product Module
   'Modules\\Product\\Models\\Product': 'Producto',
-  'Modules\\Product\\Models\\Category': 'Categoria',
+  'Modules\\Product\\Models\\Category': 'Categoría',
   'Modules\\Product\\Models\\Brand': 'Marca',
   'Modules\\Product\\Models\\Unit': 'Unidad',
   // User Module
@@ -114,17 +114,17 @@ export const AUDITABLE_TYPE_LABELS: Record<string, string> = {
   // Sales Module
   'Modules\\Sales\\Models\\SalesOrder': 'Orden de Venta',
   'Modules\\Sales\\Models\\SalesOrderItem': 'Item de Venta',
-  'Modules\\Sales\\Models\\SalesQuote': 'Cotizacion',
+  'Modules\\Sales\\Models\\SalesQuote': 'Cotización',
   // Purchase Module
   'Modules\\Purchase\\Models\\PurchaseOrder': 'Orden de Compra',
   'Modules\\Purchase\\Models\\PurchaseOrderItem': 'Item de Compra',
   // Inventory Module
-  'Modules\\Inventory\\Models\\Warehouse': 'Almacen',
+  'Modules\\Inventory\\Models\\Warehouse': 'Almacén',
   'Modules\\Inventory\\Models\\Stock': 'Stock',
   'Modules\\Inventory\\Models\\InventoryMovement': 'Movimiento de Inventario',
   // Billing Module
   'Modules\\Billing\\Models\\CFDIInvoice': 'Factura CFDI',
-  'Modules\\Billing\\Models\\PaymentTransaction': 'Transaccion de Pago',
+  'Modules\\Billing\\Models\\PaymentTransaction': 'Transacción de Pago',
   // HR Module
   'Modules\\HR\\Models\\Employee': 'Empleado',
   'Modules\\HR\\Models\\Department': 'Departamento',
@@ -139,22 +139,22 @@ export const AUDITABLE_TYPE_LABELS: Record<string, string> = {
   'Modules\\Finance\\Models\\APInvoice': 'Factura por Pagar',
   'Modules\\Finance\\Models\\ARInvoice': 'Factura por Cobrar',
   'Modules\\Finance\\Models\\Payment': 'Pago',
-  'Modules\\Finance\\Models\\PaymentApplication': 'Aplicacion de Pago',
+  'Modules\\Finance\\Models\\PaymentApplication': 'Aplicación de Pago',
   'Modules\\Finance\\Models\\BankAccount': 'Cuenta Bancaria',
   // Accounting Module
   'Modules\\Accounting\\Models\\Account': 'Cuenta Contable',
-  'Modules\\Accounting\\Models\\JournalEntry': 'Poliza Contable',
+  'Modules\\Accounting\\Models\\JournalEntry': 'Póliza Contable',
   // Roles & Permissions
   'Modules\\Role\\Models\\Role': 'Rol',
   'Modules\\Permission\\Models\\Permission': 'Permiso',
   // Ecommerce Module
   'Modules\\Ecommerce\\Models\\CartItem': 'Item de Carrito',
-  'Modules\\Ecommerce\\Models\\CheckoutSession': 'Sesion de Checkout',
+  'Modules\\Ecommerce\\Models\\CheckoutSession': 'Sesión de Checkout',
   'Modules\\Ecommerce\\Models\\ShoppingCart': 'Carrito de Compras',
   'Modules\\Ecommerce\\Models\\Wishlist': 'Lista de Deseos',
   'Modules\\Ecommerce\\Models\\ProductReview': 'Resena de Producto',
   // PageBuilder Module
-  'Modules\\PageBuilder\\Models\\Page': 'Pagina',
+  'Modules\\PageBuilder\\Models\\Page': 'Página',
 }
 
 // Event labels for display
@@ -162,8 +162,8 @@ export const EVENT_LABELS: Record<AuditEvent, string> = {
   created: 'Creado',
   updated: 'Actualizado',
   deleted: 'Eliminado',
-  login: 'Inicio de Sesion',
-  logout: 'Cierre de Sesion',
+  login: 'Inicio de Sesión',
+  logout: 'Cierre de Sesión',
   login_failed: 'Login Fallido',
 }
 

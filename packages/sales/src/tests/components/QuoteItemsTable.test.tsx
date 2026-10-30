@@ -71,7 +71,7 @@ describe('QuoteItemsTable inline edit', () => {
     expect(mockUpdate.mock.calls[0][0].data.quotedPrice).toBe(0)
   })
 
-  it('precio vacio muestra error inline y no guarda', async () => {
+  it('precio vacío muestra error inline y no guarda', async () => {
     renderEditing()
 
     fireEvent.change(screen.getByLabelText('Precio cotizado'), { target: { value: '' } })
@@ -87,7 +87,7 @@ describe('QuoteItemsTable inline edit', () => {
     fireEvent.change(screen.getByLabelText('Cantidad'), { target: { value: '0' } })
     fireEvent.click(screen.getByTitle('Guardar'))
 
-    expect(await screen.findByText('Cantidad minima 0.01')).toBeInTheDocument()
+    expect(await screen.findByText('Cantidad mínima 0.01')).toBeInTheDocument()
     expect(mockUpdate).not.toHaveBeenCalled()
   })
 
@@ -124,7 +124,7 @@ describe('QuoteItemsTable inline edit', () => {
     fireEvent.change(screen.getByLabelText('Descuento'), { target: { value: '150' } })
     fireEvent.click(screen.getByTitle('Guardar'))
 
-    expect(await screen.findByText('Maximo 100%')).toBeInTheDocument()
+    expect(await screen.findByText('Máximo 100%')).toBeInTheDocument()
     expect(mockUpdate).not.toHaveBeenCalled()
   })
 
@@ -148,7 +148,7 @@ describe('QuoteItemsTable inline edit', () => {
     expect(mockUpdate).not.toHaveBeenCalled()
   })
 
-  it('resalta la linea con precio por confirmar y abre la edicion con el precio vacio (P2 granel)', async () => {
+  it('resalta la línea con precio por confirmar y abre la edición con el precio vacío (P2 granel)', async () => {
     const item = createMockQuoteItem({ unitPrice: 0, quotedPrice: 0, total: 0, pricePending: true, productName: 'Alcohol granel' })
     const { container } = render(<QuoteItemsTable items={[item]} quoteId="1" editable onItemsChanged={vi.fn()} />)
 
@@ -170,7 +170,7 @@ describe('QuoteItemsTable inline edit', () => {
   })
 })
 
-describe('QuoteItemsTable busqueda de productos', () => {
+describe('QuoteItemsTable búsqueda de productos', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     vi.mocked(useQuoteItemMutations).mockReturnValue({
@@ -180,7 +180,7 @@ describe('QuoteItemsTable busqueda de productos', () => {
     } as unknown as ReturnType<typeof useQuoteItemMutations>)
   })
 
-  it('espera a que termines de escribir y busca solo el ultimo termino', async () => {
+  it('espera a que termines de escribir y busca solo el último termino', async () => {
     const { productService } = await import('@lwm/products')
     render(<QuoteItemsTable items={[]} quoteId="1" editable onItemsChanged={vi.fn()} />)
     fireEvent.click(screen.getAllByText(/Agregar Producto/)[0])

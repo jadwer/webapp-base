@@ -60,7 +60,7 @@ describe('UserForm', () => {
     })
   })
 
-  it('el toggle de visibilidad cambia el type del input de contrasena', () => {
+  it('el toggle de visibilidad cambia el type del input de contraseña', () => {
     // Arrange
     renderForm()
     const passwordInput = screen.getByLabelText('Contraseña') as HTMLInputElement
@@ -81,7 +81,7 @@ describe('UserForm', () => {
     expect(passwordInput.type).toBe('password')
   })
 
-  it('muestra error en vivo y bloquea el submit cuando la confirmacion no coincide', () => {
+  it('muestra error en vivo y bloquea el submit cuando la confirmación no coincide', () => {
     // Arrange
     renderForm()
     const passwordInput = screen.getByLabelText('Contraseña')
@@ -110,7 +110,7 @@ describe('UserForm', () => {
     expect(submitButton).not.toBeDisabled()
   })
 
-  it('el generador llena ambos campos con la misma contrasena de 16 y la muestra en claro', () => {
+  it('el generador llena ambos campos con la misma contraseña de 16 y la muestra en claro', () => {
     // Arrange
     renderForm()
     const passwordInput = screen.getByLabelText('Contraseña') as HTMLInputElement
@@ -164,7 +164,7 @@ describe('UserForm', () => {
     expect(payload.permissionIds).not.toContain(3)
   })
 
-  it('en edicion arranca con los permisos efectivos del usuario y placeholder de password opcional', async () => {
+  it('en edición arranca con los permisos efectivos del usuario y placeholder de password opcional', async () => {
     mockUpdateUser.mockResolvedValue({ id: '5' })
     vi.mocked(accessService.get).mockResolvedValue({
       userId: '5',

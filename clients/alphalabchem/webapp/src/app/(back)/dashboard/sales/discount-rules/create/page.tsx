@@ -9,7 +9,7 @@ import { CreateDiscountRuleWrapper } from '@/modules/sales'
 
 export const metadata: Metadata = {
   title: 'Nueva Regla de Descuento - Sales',
-  description: 'Crear una nueva regla de descuento automatico'
+  description: 'Crear una nueva regla de descuento automático'
 }
 
 export default function CreateDiscountRulePage() {

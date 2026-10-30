@@ -592,7 +592,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                   type="text"
                   value={formData.saleBadge}
                   onChange={(e) => handleInputChange('saleBadge', e.target.value)}
-                  placeholder="Ej. -20%, LIQUIDACION"
+                  placeholder="Ej. -20%, LIQUIDACIÓN"
                   disabled={isSubmitting}
                 />
               </div>

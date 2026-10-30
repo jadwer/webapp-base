@@ -7,7 +7,7 @@ vi.mock('../../lib/axiosClient')
 describe('fractionationService.cancel', () => {
   beforeEach(() => vi.clearAllMocks())
 
-  it('manda el motivo al endpoint de cancelacion', async () => {
+  it('manda el motivo al endpoint de cancelación', async () => {
     vi.mocked(axiosClient.post).mockResolvedValue({ data: {} })
 
     await fractionationService.cancel('7', 'Captura equivocada')

@@ -68,7 +68,7 @@ export const EditCycleCountWrapper: React.FC<EditCycleCountWrapperProps> = ({ id
       <div className="container-fluid py-4">
         <Alert variant="danger">
           <i className="bi bi-exclamation-triangle me-2" />
-          {loadError?.message || 'No se encontro el conteo ciclico'}
+          {loadError?.message || 'No se encontró el conteo ciclico'}
         </Alert>
       </div>
     )

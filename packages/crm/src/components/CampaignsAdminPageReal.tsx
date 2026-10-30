@@ -81,7 +81,7 @@ export const CampaignsAdminPageReal = () => {
     if (!confirmModalRef.current) return
 
     const confirmed = await confirmModalRef.current.confirm(
-      `¿Esta seguro de eliminar la campana "${campaign.name}"? Esta accion no se puede deshacer.`,
+      `¿Está seguro de eliminar la campana "${campaign.name}"? Esta acción no se puede deshacer.`,
       {
         title: 'Eliminar Campana',
         confirmText: 'Eliminar',

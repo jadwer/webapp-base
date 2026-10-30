@@ -312,7 +312,7 @@ export interface BudgetSummary {
 // UI Config Constants
 export const BUDGET_TYPE_CONFIG: Record<BudgetType, { label: string; icon: string; badgeClass: string }> = {
   department: { label: 'Departamento', icon: 'bi-building', badgeClass: 'bg-primary' },
-  category: { label: 'Categoria', icon: 'bi-tags', badgeClass: 'bg-info' },
+  category: { label: 'Categoría', icon: 'bi-tags', badgeClass: 'bg-info' },
   project: { label: 'Proyecto', icon: 'bi-folder', badgeClass: 'bg-success' },
   supplier: { label: 'Proveedor', icon: 'bi-person-badge', badgeClass: 'bg-warning' },
   general: { label: 'General', icon: 'bi-globe', badgeClass: 'bg-secondary' },
@@ -335,7 +335,7 @@ export const BUDGET_STATUS_LEVEL_CONFIG: Record<BudgetStatusLevel, { label: stri
 export const BUDGET_TYPE_OPTIONS: Array<{ value: BudgetType; label: string }> = [
   { value: 'general', label: 'General' },
   { value: 'department', label: 'Departamento' },
-  { value: 'category', label: 'Categoria' },
+  { value: 'category', label: 'Categoría' },
   { value: 'project', label: 'Proyecto' },
   { value: 'supplier', label: 'Proveedor' },
 ];

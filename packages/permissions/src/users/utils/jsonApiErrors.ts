@@ -22,19 +22,19 @@ const FIELD_LABELS: Record<string, string> = {
   name: 'Nombre',
   email: 'Email',
   status: 'Estado',
-  password: 'Contrasena',
-  password_confirmation: 'Confirmacion de contrasena',
+  password: 'Contraseña',
+  password_confirmation: 'Confirmación de contraseña',
   roles: 'Roles',
 }
 
 /** Traducciones de los mensajes de validacion mas comunes de Laravel. */
 const MESSAGE_PATTERNS: Array<[RegExp, string]> = [
-  [/has already been taken/i, 'ya esta registrado'],
+  [/has already been taken/i, 'ya está registrado'],
   [/must be a valid email/i, 'no tiene formato de correo valido'],
   [/must be at least (\d+) characters/i, 'debe tener al menos $1 caracteres'],
-  [/confirmation does not match/i, 'no coincide con la confirmacion'],
+  [/confirmation does not match/i, 'no coincide con la confirmación'],
   [/format is invalid/i, 'tiene un formato invalido'],
-  [/must not be greater than (\d+) characters/i, 'excede el largo maximo ($1 caracteres)'],
+  [/must not be greater than (\d+) characters/i, 'excede el largo máximo ($1 caracteres)'],
   [/is required/i, 'es obligatorio'],
 ]
 

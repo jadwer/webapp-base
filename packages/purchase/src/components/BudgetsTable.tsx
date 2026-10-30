@@ -48,7 +48,7 @@ export const BudgetsTable: React.FC<BudgetsTableProps> = ({
     if (!onDelete || !confirmModalRef.current) return
 
     const confirmed = await confirmModalRef.current.confirm(
-      `Esta seguro de que quiere eliminar el presupuesto "${budget.name}" (${budget.code})? Esta accion no se puede deshacer.`,
+      `Está seguro de que quiere eliminar el presupuesto "${budget.name}" (${budget.code})? Esta acción no se puede deshacer.`,
       {
         title: 'Eliminar Presupuesto',
         confirmVariant: 'danger',

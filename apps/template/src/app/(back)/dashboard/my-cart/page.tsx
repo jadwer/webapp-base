@@ -65,7 +65,7 @@ export default function MyCartPage() {
           <p className="text-muted mb-0">
             {cart && cart.itemsCount > 0
               ? `${cart.itemsCount} producto(s) en tu carrito`
-              : 'Tu carrito esta vacio'}
+              : 'Tu carrito esta vacío'}
           </p>
         </div>
         {cart && cart.itemsCount > 0 && (

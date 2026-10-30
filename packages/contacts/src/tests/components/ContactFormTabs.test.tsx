@@ -41,7 +41,7 @@ describe('ContactFormTabs por pasos', () => {
     expect(screen.getByText(/un solo correo principal/)).toBeTruthy()
   })
 
-  it('Siguiente no avanza con un telefono de 9 digitos', () => {
+  it('Siguiente no avanza con un teléfono de 9 digitos', () => {
     render(<ContactFormTabs onSubmit={onSubmit} onCancel={() => {}} />)
     fireEvent.change(screen.getByLabelText('Nombre comercial *'.replace(' *', ''), { exact: false }), { target: { value: 'Lab Canales' } })
     fireEvent.change(screen.getByLabelText('Número del teléfono 1'), { target: { value: '553344556' } })
@@ -50,7 +50,7 @@ describe('ContactFormTabs por pasos', () => {
     expect(screen.getAllByText(/10 digitos/).length).toBeGreaterThan(0)
   })
 
-  it('Siguiente desbloquea y guarda telefonos limpios y correos adicionales', async () => {
+  it('Siguiente desbloquea y guarda teléfonos limpios y correos adicionales', async () => {
     render(<ContactFormTabs onSubmit={onSubmit} onCancel={() => {}} />)
     fireEvent.change(screen.getByLabelText('Nombre comercial', { exact: false }), { target: { value: 'Lab Canales' } })
     fireEvent.change(screen.getByLabelText('Correo principal'), { target: { value: 'compras@lab.mx' } })

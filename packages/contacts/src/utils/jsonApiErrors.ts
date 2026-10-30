@@ -24,24 +24,24 @@ interface AxiosLikeError {
 /** Etiquetas en espanol para los atributos del contacto (pointer JSON:API). */
 const FIELD_LABELS: Record<string, string> = {
   name: 'Nombre comercial',
-  legalName: 'Razon social',
+  legalName: 'Razón social',
   taxId: 'RFC',
   email: 'Email',
-  phone: 'Telefono',
+  phone: 'Teléfono',
   website: 'Sitio web',
   status: 'Estado',
   contactType: 'Tipo de contacto',
-  creditLimit: 'Limite de credito',
+  creditLimit: 'Limite de crédito',
   paymentTerms: 'Terminos de pago',
-  classification: 'Clasificacion',
-  regimenFiscal: 'Regimen fiscal',
+  classification: 'Clasificación',
+  regimenFiscal: 'Régimen fiscal',
   usoCfdi: 'Uso CFDI',
-  creditMonths: 'Credito (meses)',
+  creditMonths: 'Crédito (meses)',
   bankAccountNumber: 'Cuenta bancaria',
   cuentaContable: 'Cuenta contable',
   referralSource: 'Como se entero',
   discountPct: 'Descuento pactado',
-  commissionPctOverride: 'Comision override',
+  commissionPctOverride: 'Comisión override',
   defaultSalespersonId: 'Vendedor asignado',
   collectionsAgentId: 'Agente de cobranza',
   notes: 'Notas',
@@ -49,12 +49,12 @@ const FIELD_LABELS: Record<string, string> = {
 
 /** Traducciones de los mensajes de validacion mas comunes de Laravel. */
 const MESSAGE_PATTERNS: Array<[RegExp, string]> = [
-  [/has already been taken/i, 'ya esta registrado en otro contacto'],
+  [/has already been taken/i, 'ya está registrado en otro contacto'],
   [/must be a valid email/i, 'no tiene formato de correo valido'],
   [/must be a valid url/i, 'debe ser una URL valida (incluye https://)'],
   [/format is invalid/i, 'tiene un formato invalido'],
-  [/must not be greater than (\d+) characters/i, 'excede el largo maximo ($1 caracteres)'],
-  [/may not be greater than (\d+) characters/i, 'excede el largo maximo ($1 caracteres)'],
+  [/must not be greater than (\d+) characters/i, 'excede el largo máximo ($1 caracteres)'],
+  [/may not be greater than (\d+) characters/i, 'excede el largo máximo ($1 caracteres)'],
   [/is required/i, 'es obligatorio'],
 ]
 

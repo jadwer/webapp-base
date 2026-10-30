@@ -8,8 +8,8 @@ import type { Metadata } from 'next'
 import { EditBankTransactionWrapper } from '@/modules/finance'
 
 export const metadata: Metadata = {
-  title: 'Editar Transaccion Bancaria - Finance',
-  description: 'Editar una transaccion bancaria'
+  title: 'Editar Transacción Bancaria - Finance',
+  description: 'Editar una transacción bancaria'
 }
 
 interface PageProps {

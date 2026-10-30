@@ -16,11 +16,11 @@ describe('Button iconOnly', () => {
 
   it('respeta aria-label explicito sobre title', () => {
     render(
-      <Button iconOnly title="Borrar" aria-label="Eliminar almacen">
+      <Button iconOnly title="Borrar" aria-label="Eliminar almacén">
         <i className="bi bi-trash" />
       </Button>,
     )
-    expect(screen.getByRole('button', { name: 'Eliminar almacen' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Eliminar almacén' })).toBeInTheDocument()
   })
 
   it('avisa en desarrollo si no hay aria-label ni title', () => {

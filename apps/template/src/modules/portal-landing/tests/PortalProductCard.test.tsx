@@ -72,7 +72,7 @@ describe('PortalProductCard', () => {
     expect(onQuote).toHaveBeenCalledWith(p)
   })
 
-  it('granel: sin precio ni carrito, solo cotizacion', () => {
+  it('granel: sin precio ni carrito, solo cotización', () => {
     render(
       <PortalProductCard
         product={product({ price: null }, true)}
