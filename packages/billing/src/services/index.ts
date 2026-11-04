@@ -364,8 +364,12 @@ export const cfdiInvoicesService = {
   /**
    * Create CFDI invoice from a SalesOrder (GAP 5: automated invoicing)
    */
-  createFromOrder: async (orderId: string) => {
-    const response = await axiosClient.post(`/api/v1/sales-orders/${orderId}/facturar`)
+  createFromOrder: async (orderId: string, formaPago?: string) => {
+    // formaPago: forma SAT real cuando el pedido es de contado (PUE) y aun no se cobra
+    const response = await axiosClient.post(
+      `/api/v1/sales-orders/${orderId}/facturar`,
+      formaPago ? { forma_pago: formaPago } : undefined
+    )
     return response.data
   },
 

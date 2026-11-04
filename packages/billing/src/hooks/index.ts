@@ -476,8 +476,8 @@ export function useSalesOrderBillingMutations() {
     []
   )
 
-  const facturar = useCallback(async (orderId: string) => {
-    return await cfdiInvoicesService.createFromOrder(orderId)
+  const facturar = useCallback(async (orderId: string, formaPago?: string) => {
+    return await cfdiInvoicesService.createFromOrder(orderId, formaPago)
   }, [])
 
   return {

@@ -365,7 +365,7 @@ describe('Billing Module Hooks', () => {
       const { result } = renderHook(() => useSalesOrderBillingMutations());
       const response = await result.current.facturar('5');
 
-      expect(cfdiInvoicesService.createFromOrder).toHaveBeenCalledWith('5');
+      expect(cfdiInvoicesService.createFromOrder).toHaveBeenCalledWith('5', undefined);
       expect(response).toEqual({ data: { id: '10' } });
     });
   });

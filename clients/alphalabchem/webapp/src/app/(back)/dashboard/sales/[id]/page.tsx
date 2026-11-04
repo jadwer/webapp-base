@@ -11,6 +11,7 @@ import { ACCEPTANCE_CHANNEL_LABELS } from '@/modules/sales'
 import { toast } from '@/lib/toast'
 import axiosClient from '@/lib/axiosClient'
 import { cfdiInvoicesService } from '@/modules/billing'
+import { useFormaPagoOptions } from '@/modules/finance'
 import { AddItemModal } from '@/modules/sales'
 import { StockAvailabilityPanel } from '@/modules/sales'
 import ConfirmModal, { ConfirmModalHandle } from '@/ui/components/base/ConfirmModal'
@@ -28,6 +29,10 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
   const [remissionsLoading, setRemissionsLoading] = useState(true)
   const [actionLoading, setActionLoading] = useState<string | null>(null)
   const confirmModalRef = useRef<ConfirmModalHandle>(null)
+  // Venta de contado (PUE) sin cobrar: el CFDI necesita la forma de pago real
+  const [formaPagoPrompt, setFormaPagoPrompt] = useState<string | null>(null)
+  const [formaPagoSel, setFormaPagoSel] = useState('')
+  const { formaPagoOptions } = useFormaPagoOptions()
 
   const { salesOrder, isLoading: orderLoading, error: orderError, mutate } = useSalesOrder(resolvedParams.id)
   const { salesOrderItems, isLoading: itemsLoading, error: itemsError, mutate: mutateItems } = useSalesOrderItems(resolvedParams.id)
@@ -205,15 +210,26 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
       { title: 'Generar factura', confirmVariant: 'primary' }
     )
     if (!confirmed) return
+    await submitInvoice()
+  }
+
+  const submitInvoice = async (formaPago?: string) => {
     setActionLoading('invoice')
     try {
-      const res = await cfdiInvoicesService.createFromOrder(resolvedParams.id)
+      const res = await cfdiInvoicesService.createFromOrder(resolvedParams.id, formaPago)
+      setFormaPagoPrompt(null)
       toast.success(`Factura generada: ${res?.data?.series ?? ''}-${res?.data?.folio ?? ''} (borrador)`)
       await mutate()
       navigation.push('/dashboard/billing/invoices')
     } catch (err) {
-      const e = err as { response?: { data?: { error?: string; message?: string } } }
-      toast.error(e.response?.data?.error || e.response?.data?.message || 'No se pudo generar la factura')
+      const e = err as { response?: { data?: { error?: string; message?: string; requires?: string } } }
+      if (e.response?.data?.requires === 'forma_pago') {
+        // El backend explica por que (PUE sin cobrar); se pide la forma y se reintenta
+        setFormaPagoSel('')
+        setFormaPagoPrompt(e.response.data.error ?? 'Indica la forma de pago')
+      } else {
+        toast.error(e.response?.data?.error || e.response?.data?.message || 'No se pudo generar la factura')
+      }
     } finally {
       setActionLoading(null)
     }
@@ -782,6 +798,51 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
         }}
       />
       <ConfirmModal ref={confirmModalRef} />
+
+      {formaPagoPrompt && (
+        <>
+          <div className="modal d-block" tabIndex={-1} role="dialog" aria-labelledby="forma-pago-title">
+            <div className="modal-dialog modal-dialog-centered">
+              <div className="modal-content">
+                <div className="modal-header">
+                  <h5 className="modal-title" id="forma-pago-title">Forma de pago de la factura</h5>
+                  <button type="button" className="btn-close" aria-label="Cerrar" onClick={() => setFormaPagoPrompt(null)} />
+                </div>
+                <div className="modal-body">
+                  <p className="text-muted small">{formaPagoPrompt}</p>
+                  <label htmlFor="formaPagoFactura" className="form-label">Forma de pago</label>
+                  <select
+                    id="formaPagoFactura"
+                    className="form-select"
+                    value={formaPagoSel}
+                    onChange={(e) => setFormaPagoSel(e.target.value)}
+                  >
+                    <option value="">Seleccionar forma de pago...</option>
+                    {formaPagoOptions.filter((o) => o.clave !== '99').map((o) => (
+                      <option key={o.clave} value={o.clave}>{o.clave} - {o.descripcion}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="modal-footer">
+                  <button type="button" className="btn btn-outline-secondary" onClick={() => setFormaPagoPrompt(null)}>
+                    Cancelar
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    disabled={!formaPagoSel || actionLoading === 'invoice'}
+                    onClick={() => submitInvoice(formaPagoSel)}
+                  >
+                    {actionLoading === 'invoice' && <span className="spinner-border spinner-border-sm me-2" />}
+                    Generar factura
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="modal-backdrop show" />
+        </>
+      )}
     </div>
   )
 }

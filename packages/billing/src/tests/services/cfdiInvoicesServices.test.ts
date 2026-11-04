@@ -613,8 +613,14 @@ describe('CFDI Invoices Services', () => {
       const result = await cfdiInvoicesService.createFromOrder('5');
 
       // Assert
-      expect(axiosClient.post).toHaveBeenCalledWith('/api/v1/sales-orders/5/facturar');
+      expect(axiosClient.post).toHaveBeenCalledWith('/api/v1/sales-orders/5/facturar', undefined);
       expect(result).toEqual(mockResponse);
+    });
+
+    it('sends the real forma de pago for a cash (PUE) order', async () => {
+      vi.mocked(axiosClient.post).mockResolvedValue({ data: { data: { id: 1 } } });
+      await cfdiInvoicesService.createFromOrder('5', '03');
+      expect(axiosClient.post).toHaveBeenCalledWith('/api/v1/sales-orders/5/facturar', { forma_pago: '03' });
     });
   });
 
