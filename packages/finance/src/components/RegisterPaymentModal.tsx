@@ -236,7 +236,8 @@ export const RegisterPaymentModal = ({
             <option value="">
               {loadingFormaPago ? 'Cargando...' : 'Seleccionar forma de pago...'}
             </option>
-            {formaPagoOptions.map((option) => (
+            {/* 99 "Por definir" no aplica a un cobro: el REP la prohibe y el backend la rechaza */}
+            {formaPagoOptions.filter((option) => option.clave !== '99').map((option) => (
               <option key={option.clave} value={option.clave}>
                 {option.clave} - {option.descripcion}
               </option>

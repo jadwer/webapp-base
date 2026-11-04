@@ -17,6 +17,7 @@ vi.mock('../../hooks', () => ({
     formaPagoOptions: [
       { clave: '01', descripcion: 'Efectivo' },
       { clave: '03', descripcion: 'Transferencia electrónica de fondos' },
+      { clave: '99', descripcion: 'Por definir' },
     ],
     isLoading: false,
     error: null,
@@ -68,6 +69,14 @@ describe('RegisterPaymentModal', () => {
 
     expect(screen.getByText('01 - Efectivo')).toBeInTheDocument()
     expect(screen.getByText('03 - Transferencia electrónica de fondos')).toBeInTheDocument()
+  })
+
+  it('does not offer 99 Por definir: a payment always has a real forma de pago', () => {
+    render(
+      <RegisterPaymentModal isOpen={true} arInvoice={mockInvoice} onClose={mockOnClose} onSuccess={mockOnSuccess} />
+    )
+
+    expect(screen.queryByText('99 - Por definir')).not.toBeInTheDocument()
   })
 
   it('blocks submission when amount exceeds the outstanding balance', async () => {
