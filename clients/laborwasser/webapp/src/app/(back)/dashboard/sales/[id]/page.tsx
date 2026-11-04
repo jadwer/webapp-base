@@ -1,6 +1,7 @@
 'use client'
 
 import { use, useState, useEffect, useCallback, useRef } from 'react'
+import useSWR from 'swr'
 import { useSalesOrder, useSalesOrderItems } from '@/modules/sales'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
 import { formatCurrency, formatQuantity } from '@/lib/formatters'
@@ -36,6 +37,13 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
 
   const { salesOrder, isLoading: orderLoading, error: orderError, mutate } = useSalesOrder(resolvedParams.id)
   const { salesOrderItems, isLoading: itemsLoading, error: itemsError, mutate: mutateItems } = useSalesOrderItems(resolvedParams.id)
+  // La entrega crea la cuenta por cobrar sola; el CFDI no. El boton de factura
+  // depende de si ya hay CFDI de ingreso, no de la cuenta por cobrar.
+  const { data: cfdiOfOrder } = useSWR(
+    salesOrder?.arInvoiceId ? `/api/v1/cfdi-invoices?filter[arInvoiceId]=${salesOrder.arInvoiceId}&filter[tipoComprobante]=I&page[size]=1` : null,
+    async (url: string) => (await axiosClient.get(url)).data?.data?.[0] ?? null
+  )
+  const hasCfdi = Boolean(cfdiOfOrder)
 
   const loadRemissions = useCallback(async () => {
     try {
@@ -709,7 +717,7 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
                     generico SIN el id de la orden (cascarones, hallazgo C1 del QA).
                     Ahora llaman a los endpoints reales: facturar exige orden entregada
                     (regla del backend) y crea ARInvoice + CFDI draft. */}
-                {salesOrder.financialStatus !== 'cancelled' && !salesOrder.arInvoiceId && (
+                {salesOrder.financialStatus !== 'cancelled' && !hasCfdi && (
                   <button
                     className="btn btn-outline-primary"
                     onClick={handleGenerateInvoice}
@@ -726,13 +734,13 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
                     Generar Factura
                   </button>
                 )}
-                {salesOrder.arInvoiceId && salesOrder.financialStatus !== 'cancelled' && (
+                {hasCfdi && salesOrder.financialStatus !== 'cancelled' && (
                   <button
                     className="btn btn-outline-secondary"
                     onClick={() => navigation.push('/dashboard/billing/invoices')}
                   >
                     <i className="bi bi-receipt me-2"></i>
-                    Ver factura (ya facturada)
+                    Ver factura (CFDI generado)
                   </button>
                 )}
                 <button
