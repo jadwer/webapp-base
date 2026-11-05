@@ -19,6 +19,7 @@ export { ARReceiptFormComponent } from './ARReceiptForm'
 
 // AR Invoice payment registration
 export { RegisterPaymentModal } from './RegisterPaymentModal'
+export { SupplierInvoiceModal } from './SupplierInvoiceModal'
 
 // Shared components
 export { FilterBar } from './FilterBar'

@@ -99,6 +99,24 @@ export const apInvoicesService = {
   async delete(id: string): Promise<void> {
     await axiosClient.delete(`/api/v1/ap-invoices/${id}`);
   },
+
+  /**
+   * Captura la factura del proveedor (folio o UUID e IVA) sobre la CxP nacida
+   * de la recepcion. Decision de la contadora: la orden de compra no lleva IVA.
+   */
+  async captureSupplierInvoice(
+    id: string,
+    data: { supplierInvoiceNumber: string; supplierUuid?: string; subtotal: number; taxAmount: number }
+  ): Promise<{ id: number; subtotal: number; taxAmount: number; totalAmount: number }> {
+    const response = await axiosClient.post(`/api/v1/ap-invoices/${id}/supplier-invoice`, {
+      supplier_invoice_number: data.supplierInvoiceNumber,
+      ...(data.supplierUuid ? { supplier_uuid: data.supplierUuid } : {}),
+      subtotal: data.subtotal,
+      tax_amount: data.taxAmount,
+    });
+    const inv = response.data.invoice;
+    return { id: inv.id, subtotal: inv.subtotal, taxAmount: inv.tax_amount, totalAmount: inv.total_amount };
+  },
 };
 
 // AP Payments Service

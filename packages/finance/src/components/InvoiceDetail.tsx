@@ -1,10 +1,12 @@
 'use client'
 
-import React from 'react'
+import React, { useState } from 'react'
 import Link from 'next/link'
 import { formatDateOnly } from '@lwm/ui'
 import { useAPInvoice, useARInvoice } from '../hooks'
 import { INVOICE_STATUS_LABELS } from '../types'
+import type { APInvoice } from '../types'
+import { SupplierInvoiceModal } from './SupplierInvoiceModal'
 
 type Kind = 'ap' | 'ar'
 
@@ -52,6 +54,7 @@ export const InvoiceDetail: React.FC<{ kind: Kind; id: string }> = ({ kind, id }
   const ap = useAPInvoice(kind === 'ap' ? id : null, ['contact'])
   const ar = useARInvoice(kind === 'ar' ? id : null, ['contact'])
   const { isLoading, error } = kind === 'ap' ? ap : ar
+  const [showSupplierModal, setShowSupplierModal] = useState(false)
   const invoice = kind === 'ap' ? ap.apInvoice : ar.arInvoice
   const orderId = invoice
     ? kind === 'ap'
@@ -90,6 +93,12 @@ export const InvoiceDetail: React.FC<{ kind: Kind; id: string }> = ({ kind, id }
   const total = Number(invoice.totalAmount) || 0
   const paid = Number(invoice.paidAmount) || 0
   const status = invoice.status as string
+  // IVA de compras (decision de la contadora): se captura con la factura del proveedor
+  const supplierInvoice = kind === 'ap'
+    ? ((invoice.metadata as { supplier_invoice?: { number?: string; uuid?: string | null } } | null)?.supplier_invoice ?? null)
+    : null
+  const canCaptureSupplier = kind === 'ap' && !supplierInvoice && Boolean(orderId)
+    && ['posted', 'overdue'].includes(status) && paid === 0
 
   return (
     <div className="container-fluid py-4">
@@ -102,11 +111,25 @@ export const InvoiceDetail: React.FC<{ kind: Kind; id: string }> = ({ kind, id }
             {(INVOICE_STATUS_LABELS as Record<string, string>)[status] ?? status}
           </span>
         </div>
-        <Link href={copy.list} className="btn btn-outline-secondary">
-          <i className="bi bi-arrow-left me-1" aria-hidden="true" />
-          Volver
-        </Link>
+        <div className="d-flex gap-2">
+          {canCaptureSupplier && (
+            <button type="button" className="btn btn-primary" onClick={() => setShowSupplierModal(true)}>
+              <i className="bi bi-receipt me-1" aria-hidden="true" />
+              Capturar factura del proveedor
+            </button>
+          )}
+          <Link href={copy.list} className="btn btn-outline-secondary">
+            <i className="bi bi-arrow-left me-1" aria-hidden="true" />
+            Volver
+          </Link>
+        </div>
       </div>
+
+      {canCaptureSupplier && (
+        <div className="alert alert-warning">
+          Falta capturar la factura del proveedor: esta cuenta por pagar va por el subtotal recibido, sin IVA.
+        </div>
+      )}
 
       <div className="row g-4">
         <div className="col-lg-8">
@@ -134,6 +157,15 @@ export const InvoiceDetail: React.FC<{ kind: Kind; id: string }> = ({ kind, id }
                     <dt className="col-sm-4 text-muted fw-normal">{copy.order}</dt>
                     <dd className="col-sm-8">
                       <Link href={copy.orderHref(orderId)}>#{orderId}</Link>
+                    </dd>
+                  </>
+                ) : null}
+                {supplierInvoice ? (
+                  <>
+                    <dt className="col-sm-4 text-muted fw-normal">Factura del proveedor</dt>
+                    <dd className="col-sm-8">
+                      {supplierInvoice.number}
+                      {supplierInvoice.uuid ? <span className="text-muted small d-block">{supplierInvoice.uuid}</span> : null}
                     </dd>
                   </>
                 ) : null}
@@ -167,6 +199,18 @@ export const InvoiceDetail: React.FC<{ kind: Kind; id: string }> = ({ kind, id }
           </div>
         </div>
       </div>
+
+      {canCaptureSupplier && showSupplierModal && (
+        <SupplierInvoiceModal
+          isOpen={showSupplierModal}
+          apInvoice={invoice as APInvoice}
+          onClose={() => setShowSupplierModal(false)}
+          onSuccess={() => {
+            setShowSupplierModal(false)
+            ap.mutate()
+          }}
+        />
+      )}
     </div>
   )
 }
