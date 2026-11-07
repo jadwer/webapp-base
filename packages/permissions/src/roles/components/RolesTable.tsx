@@ -10,6 +10,15 @@ import { RoleForm } from './RoleForm'
 import { toast } from '@lwm/ui'
 import { ConfirmModal, type ConfirmModalHandle } from '@lwm/ui'
 
+// Etiquetas por omision de los roles de sistema cuando no tienen descripcion
+const ROLE_FALLBACK_LABELS: Record<string, string> = {
+  god: 'Superadministrador',
+  admin: 'Administrador',
+  tech: 'Tecnico',
+  customer: 'Cliente (portal del cliente)',
+  guest: 'Invitado',
+}
+
 interface RolesTableProps {
   onRoleSelect?: (role: Role) => void
   selectedRole?: Role | null
@@ -115,10 +124,10 @@ export function RolesTable({ onRoleSelect, selectedRole }: RolesTableProps) {
                             </div>
                           </div>
                           <div className="flex-grow-1 ms-3">
-                            <h6 className="mb-0">{role.name}</h6>
-                            {role.description && (
-                              <small className="text-muted">{role.description}</small>
-                            )}
+                            {/* El nombre es un identificador de codigo (customer, guest);
+                                lo que se lee es la descripcion en espanol */}
+                            <h6 className="mb-0">{role.description || ROLE_FALLBACK_LABELS[role.name] || role.name}</h6>
+                            <small className="text-muted">{role.name}</small>
                           </div>
                         </div>
                       </td>
