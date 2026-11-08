@@ -149,7 +149,8 @@ export function GuidePanel({ type, id, revision, onAction, onDone, hrefFor = def
             <ul className="list-unstyled mb-0" data-testid="guide-trail">
               {trail.map((entry) => {
                 const href = entry.current ? null : hrefFor(entry)
-                const next = entry.next.find((a) => a.kind === 'primary')
+                // El paso del documento actual ya esta arriba; en el expediente solo el de los demas.
+                const next = entry.current ? undefined : entry.next.find((a) => a.kind === 'primary')
                 const last = entry.history[entry.history.length - 1]
                 const name = `${typeLabel(entry.type)} ${entry.label}`
                 return (
