@@ -34,6 +34,7 @@ export {
   QuoteItemsTable,
   QuoteSummaryCards,
   QuoteSendButton,
+  QuoteSendModal,
   GenerateSaleModal,
   GenerateOrderModal
 } from './components'

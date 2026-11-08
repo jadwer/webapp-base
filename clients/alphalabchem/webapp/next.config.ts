@@ -63,6 +63,7 @@ const nextConfig: NextConfig = {
     '@lwm/products',
     '@lwm/contacts',
     '@lwm/sales',
+    '@lwm/guide',
     '@lwm/ecommerce',
     '@lwm/page-builder',
     '@lwm/mailer-manager',

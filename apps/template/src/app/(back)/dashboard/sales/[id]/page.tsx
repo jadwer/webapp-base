@@ -16,6 +16,7 @@ import { useFormaPagoOptions } from '@/modules/finance'
 import { AddItemModal } from '@/modules/sales'
 import { StockAvailabilityPanel } from '@/modules/sales'
 import ConfirmModal, { ConfirmModalHandle } from '@/ui/components/base/ConfirmModal'
+import { GuidePanel, type GuideAction } from '@lwm/guide'
 import { formatDateOnly } from '@lwm/ui'
 
 interface PageProps {
@@ -243,6 +244,25 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
     }
   }
 
+  // Flujo guiado (F4): remisionar, facturar y cancelar ya tienen manejador aqui
+  // (con su confirmacion y sus datos); confirmar y entregar los ejecuta la barra
+  // con el manejador generico (no piden datos).
+  const handleGuideAction = (action: GuideAction): boolean => {
+    switch (action.key) {
+      case 'sales::guide.order.remit':
+        void handleGenerateRemission()
+        return true
+      case 'sales::guide.order.invoice':
+        void handleGenerateInvoice()
+        return true
+      case 'sales::guide.order.cancel':
+        void handleCancelOrder()
+        return true
+      default:
+        return false
+    }
+  }
+
   // Prefactura: vista previa PDF sin efectos fiscales (GET .../prefactura).
   const handlePrefactura = async () => {
     setActionLoading('prefactura')
@@ -337,6 +357,17 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
           </div>
         </div>
       </div>
+
+      <GuidePanel
+        type="sales-orders"
+        id={salesOrder.id}
+        revision={`${salesOrder.status}:${salesOrder.updatedAt}`}
+        onAction={handleGuideAction}
+        onDone={() => {
+          void mutate()
+          void loadRemissions()
+        }}
+      />
 
       <div className="row">
         {/* Informacion principal */}

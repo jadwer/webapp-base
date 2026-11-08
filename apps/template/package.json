@@ -41,6 +41,7 @@
     "@lwm/crm": "workspace:*",
     "@lwm/ecommerce": "workspace:*",
     "@lwm/finance": "workspace:*",
+    "@lwm/guide": "workspace:*",
     "@lwm/hr": "workspace:*",
     "@lwm/inventory": "workspace:*",
     "@lwm/mailer-manager": "workspace:*",

@@ -52,7 +52,7 @@ if (envPattern) remotePatterns.push(envPattern);
 
 // Every @lwm/* package that ships TS+SCSS source. Feeds transpilePackages and
 // experimental.optimizePackageImports below.
-const LWM_PACKAGES = ['@lwm/primitives', '@lwm/ui', '@lwm/auth', '@lwm/app-config', '@lwm/billing', '@lwm/system-health', '@lwm/audit', '@lwm/commissions', '@lwm/products', '@lwm/contacts', '@lwm/sales', '@lwm/ecommerce', '@lwm/page-builder', '@lwm/mailer-manager', '@lwm/permissions', '@lwm/accounting', '@lwm/reports', '@lwm/hr', '@lwm/crm', '@lwm/finance', '@lwm/purchase', '@lwm/inventory'];
+const LWM_PACKAGES = ['@lwm/primitives', '@lwm/ui', '@lwm/auth', '@lwm/app-config', '@lwm/billing', '@lwm/system-health', '@lwm/audit', '@lwm/commissions', '@lwm/products', '@lwm/contacts', '@lwm/sales', '@lwm/ecommerce', '@lwm/page-builder', '@lwm/mailer-manager', '@lwm/permissions', '@lwm/accounting', '@lwm/reports', '@lwm/hr', '@lwm/crm', '@lwm/finance', '@lwm/guide', '@lwm/purchase', '@lwm/inventory'];
 
 const nextConfig: NextConfig = {
   // Self-contained build for cPanel/Passenger deploys (marca blanca demo).

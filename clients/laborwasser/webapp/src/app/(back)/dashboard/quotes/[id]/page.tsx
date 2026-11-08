@@ -9,6 +9,7 @@ import {
   QuoteStatusBadge,
   QuoteItemsTable,
   QuoteSendButton,
+  QuoteSendModal,
   GenerateSaleModal,
   GenerateOrderModal,
   OperationsMenu,
@@ -27,6 +28,7 @@ import { ConfirmModal, ConfirmModalHandle } from '@/ui/components/base'
 import { useAuth } from '@/modules/auth'
 import { isAdmin } from '@/lib/permissions'
 import { isPastDateOnly } from '@lwm/ui'
+import { GuidePanel, type GuideAction } from '@lwm/guide'
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -61,6 +63,9 @@ export default function QuoteDetailPage({ params }: PageProps) {
   const [poSupplierId, setPoSupplierId] = useState('')
   const [poError, setPoError] = useState('')
   const [poSubmitting, setPoSubmitting] = useState(false)
+  // Flujo guiado (F4): la barra enruta cada accion al manejador de esta pagina.
+  const [sendModalOpen, setSendModalOpen] = useState(false)
+  const rejectTriggerRef = useRef<HTMLButtonElement>(null)
   const { contacts: suppliers = [], isLoading: suppliersLoading } = useSuppliers()
 
   const formatCurrency = (amount: number, currency: string = 'MXN') => {
@@ -288,6 +293,39 @@ export default function QuoteDetailPage({ params }: PageProps) {
   const isExpired = quote.validUntil && isPastDateOnly(quote.validUntil)
 
   // Menu Operaciones (Fase A): agrupa las acciones de documento
+  // La barra de la guia no inventa formularios (D10): cada accion abre el modal
+  // o el manejador que ya existe en esta pagina. Devuelve true si la tomo.
+  const handleGuideAction = (action: GuideAction): boolean => {
+    switch (action.key) {
+      case 'sales::guide.quote.send':
+        setSendModalOpen(true)
+        return true
+      case 'sales::guide.quote.accept':
+      case 'sales::guide.quote.accept_direct':
+        void handleAction('accept')
+        return true
+      case 'sales::guide.quote.reject':
+        if (!rejectTriggerRef.current) return false
+        rejectTriggerRef.current.click()
+        return true
+      case 'sales::guide.quote.convert':
+        setConvertModalType('order')
+        return true
+      case 'sales::guide.quote.cancel':
+        void handleAction('cancel')
+        return true
+      case 'sales::guide.quote.duplicate':
+        void handleAction('duplicate')
+        return true
+      case 'sales::guide.quote.confirm_price':
+        document.getElementById('quote-items')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        toast.info('Captura el precio de venta en las partidas con precio por confirmar.')
+        return true
+      default:
+        return false
+    }
+  }
+
   const operationsItems: OperationsMenuItem[] = [
     {
       key: 'generate-sale',
@@ -388,6 +426,7 @@ export default function QuoteDetailPage({ params }: PageProps) {
           )}
           {statusConfig.canReject && (
             <button
+              ref={rejectTriggerRef}
               className="btn btn-outline-danger"
               data-bs-toggle="modal"
               data-bs-target="#rejectModal"
@@ -409,6 +448,17 @@ export default function QuoteDetailPage({ params }: PageProps) {
           <OperationsMenu items={operationsItems} loading={actionLoading === 'prefactura'} />
         </div>
       </div>
+
+      <GuidePanel
+        type="quotes"
+        id={quote.id}
+        revision={`${quote.status}:${quote.updatedAt}`}
+        onAction={handleGuideAction}
+        onDone={() => {
+          refetch()
+          refetchItems()
+        }}
+      />
 
       <div className="row">
         {/* Main Content */}
@@ -572,7 +622,7 @@ export default function QuoteDetailPage({ params }: PageProps) {
           </div>
 
           {/* Items Table */}
-          <div className="card mb-4">
+          <div className="card mb-4" id="quote-items">
             <div className="card-header">
               <h5 className="card-title mb-0">
                 <i className="bi bi-box-seam me-2"></i>
@@ -794,6 +844,16 @@ export default function QuoteDetailPage({ params }: PageProps) {
           </div>
         </div>
       </div>
+
+      <QuoteSendModal
+        quote={quote}
+        show={sendModalOpen}
+        onHide={() => setSendModalOpen(false)}
+        onSent={() => {
+          setSendModalOpen(false)
+          refetch()
+        }}
+      />
 
       {/* Modales de conversion (Fase A: venta directa vs pedido) */}
       <GenerateSaleModal

@@ -79,7 +79,7 @@ const LWM_PACKAGES = [
   '@lwm/reports',
   '@lwm/hr',
   '@lwm/crm',
-  '@lwm/finance',
+  '@lwm/finance', '@lwm/guide',
   '@lwm/purchase',
   '@lwm/inventory',
 ]
