@@ -228,8 +228,17 @@ function buildQueryParams(
 
   // Filters
   if (filters) {
+    // Folio, cliente (nombre o correo) o vendedor (Scope search del backend)
     if (filters.search) {
-      params['filter[quote_number]'] = filters.search
+      params['filter[search]'] = filters.search
+    }
+
+    if (filters.expiringWithinDays) {
+      params['filter[expiringWithin]'] = String(filters.expiringWithinDays)
+    }
+
+    if (filters.assignedTo) {
+      params['filter[assignedTo]'] = String(filters.assignedTo)
     }
 
     if (filters.status) {
@@ -289,9 +298,11 @@ export const quoteService = {
     const includedMap = buildIncludedMap(response.data.included)
     const quotes = response.data.data.map((resource) => parseQuote(resource, includedMap))
 
+    // El backend pagina en meta.page (PagePagination); se aplana aqui.
+    const rawMeta = response.data.meta as (QuotePaginationMeta & { page?: QuotePaginationMeta }) | undefined
     return {
       data: quotes,
-      meta: response.data.meta
+      meta: rawMeta?.page ?? rawMeta
     }
   },
 

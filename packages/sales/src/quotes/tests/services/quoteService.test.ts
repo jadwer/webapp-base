@@ -131,7 +131,7 @@ describe('quoteService', () => {
       // Assert
       expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/quotes', {
         params: expect.objectContaining({
-          'filter[quote_number]': 'COT-26000001',
+          'filter[search]': 'COT-26000001',
         }),
       });
     });

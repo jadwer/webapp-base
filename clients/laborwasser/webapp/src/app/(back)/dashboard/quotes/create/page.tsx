@@ -10,7 +10,8 @@ import { stockService } from '@/modules/inventory'
 import { toast } from '@/lib/toast'
 import { BranchSelect } from '@lwm/auth'
 import type { LocalCartItem } from '@/modules/public-catalog'
-import { todayDateInput, dateToInput } from '@lwm/ui'
+import { todayDateInput, dateToInput, LwSurface, LwPageTitle } from '@lwm/ui'
+import { extractApiErrorMessage } from '@/modules/products'
 
 interface Contact {
   id: string
@@ -47,7 +48,7 @@ export default function CreateQuotePage() {
 
   // Creation mode: 'from-cart' or 'from-scratch'
   const [mode, setMode] = useState<'from-cart' | 'from-scratch'>(
-    sourceFromUrl === 'public-cart' || cartIdFromUrl ? 'from-cart' : 'from-scratch'
+    sourceFromUrl === 'public-cart' || sourceFromUrl === 'cart' || cartIdFromUrl ? 'from-cart' : 'from-scratch'
   )
 
   // Form state
@@ -289,10 +290,11 @@ export default function CreateQuotePage() {
         branch_id: branchId ? Number(branchId) : undefined
       })
 
-      toast.success('Cotización creada exitosamente')
+      toast.success('Cotización creada. Ahora agrega o revisa sus productos.')
       router.push(`/dashboard/quotes/${result.data.id}`)
-    } catch {
-      toast.error('Error al crear la cotización')
+    } catch (err) {
+      // Regla 7: el rechazo del backend con su detalle
+      toast.error(extractApiErrorMessage(err, 'No se pudo crear la cotización'))
     }
   }
 
@@ -442,34 +444,19 @@ export default function CreateQuotePage() {
 
   return (
     <div className="container-fluid py-4">
-      {/* Header */}
-      <div className="row mb-4">
-        <div className="col-12">
-          <div className="d-flex align-items-center">
-            <button
-              aria-label="Volver"
-              className="btn btn-outline-secondary me-3"
-              onClick={() => router.push('/dashboard/quotes')}
-            >
-              <i className="bi bi-arrow-left"></i>
-            </button>
-            <div>
-              <h1 className="h3 mb-1">
-                <i className="bi bi-file-text me-2"></i>
-                Nueva Cotización
-              </h1>
-              <p className="text-muted mb-0">
-                {mode === 'from-scratch'
-                  ? 'Crea una cotización en blanco y agrega productos manualmente'
-                  : 'Crea una cotización a partir de un carrito de compras'
-                }
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
+      <LwSurface>
+      <LwPageTitle
+        title="Crear nueva cotización"
+        subtitle={mode === 'from-scratch'
+          ? 'Elige el cliente; después agregas los productos en la cotización'
+          : 'Toma los productos de un carrito de la tienda'}
+        actions={
+          <button aria-label="Volver" className="btn btn-outline-primary" onClick={() => router.push('/dashboard/quotes')}>
+            <i className="bi bi-arrow-left me-1"></i> Volver
+          </button>
+        }
+      />
 
-      {/* Mode Tabs */}
       <ul className="nav nav-tabs mb-4">
         <li className="nav-item">
           <button
@@ -478,7 +465,7 @@ export default function CreateQuotePage() {
             onClick={() => setMode('from-scratch')}
           >
             <i className="bi bi-file-earmark-plus me-1"></i>
-            Desde Cero
+            Desde cero
           </button>
         </li>
         <li className="nav-item">
@@ -488,7 +475,7 @@ export default function CreateQuotePage() {
             onClick={() => setMode('from-cart')}
           >
             <i className="bi bi-cart me-1"></i>
-            Desde Carrito
+            Desde un carrito de la tienda
           </button>
         </li>
       </ul>
@@ -789,6 +776,7 @@ export default function CreateQuotePage() {
           </div>
         </div>
       </form>
+      </LwSurface>
     </div>
   )
 }

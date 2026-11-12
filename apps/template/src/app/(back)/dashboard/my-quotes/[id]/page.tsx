@@ -11,7 +11,8 @@ import { useState, useEffect, use } from 'react'
 import Link from 'next/link'
 import { useAuth } from '@/modules/auth'
 import { usePublicSettings } from '@/modules/app-config'
-import { QuoteStatusBadge } from '@/modules/quotes'
+import { QUOTE_STATUS_TONE, QUOTE_STATUS_LABEL } from '@/modules/quotes'
+import { LwSurface, LwStatusPill } from '@lwm/ui'
 import { quoteService, quoteItemService } from '@/modules/quotes'
 import type { Quote, QuoteItem } from '@/modules/quotes'
 import { formatDateOnly } from '@/modules/quotes'
@@ -157,18 +158,19 @@ export default function MyQuoteDetailPage({ params }: MyQuoteDetailPageProps) {
 
   return (
     <div className="container-fluid py-4">
+      <LwSurface>
       {/* Header */}
-      <div className="d-flex justify-content-between align-items-start mb-4">
+      <div className="d-flex justify-content-between align-items-start mb-4 flex-wrap gap-3">
         <div>
           <Link href="/dashboard/my-quotes" className="text-muted text-decoration-none mb-2 d-inline-block">
             <i className="bi bi-arrow-left me-1"></i>
             Mis Cotizaciones
           </Link>
           <h1 className="h3 mb-1">
-            Cotización {quote.quoteNumber || `#${quote.id}`}
+            Cotización <span style={{ color: 'var(--brand-primary, #8ac905)' }}>{quote.quoteNumber || `#${quote.id}`}</span>
           </h1>
           <div className="d-flex align-items-center gap-3">
-            <QuoteStatusBadge status={quote.status} />
+            <LwStatusPill tone={QUOTE_STATUS_TONE[quote.status] ?? 'neutral'}>{QUOTE_STATUS_LABEL[quote.status] ?? quote.status}</LwStatusPill>
             {isExpired && quote.status === 'sent' && (
               <span className="badge bg-warning text-dark">
                 <i className="bi bi-clock me-1"></i>
@@ -180,7 +182,7 @@ export default function MyQuoteDetailPage({ params }: MyQuoteDetailPageProps) {
 
         <div className="d-flex gap-2">
           <button
-            className="btn btn-outline-secondary"
+            className="btn btn-outline-primary"
             onClick={handleDownloadPDF}
           >
             <i className="bi bi-download me-2"></i>
@@ -414,6 +416,7 @@ export default function MyQuoteDetailPage({ params }: MyQuoteDetailPageProps) {
           </div>
         </div>
       </div>
+      </LwSurface>
     </div>
   )
 }

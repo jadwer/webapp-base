@@ -10,7 +10,8 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useAuth } from '@/modules/auth'
-import { QuoteStatusBadge } from '@/modules/quotes'
+import { QUOTE_STATUS_TONE, QUOTE_STATUS_LABEL } from '@/modules/quotes'
+import { LwSurface, LwPageTitle, LwStatusPill, LwCountPill, LwTableWrap } from '@lwm/ui'
 import { quoteService } from '@/modules/quotes'
 import type { Quote } from '@/modules/quotes'
 import { formatDateOnly } from '@/modules/quotes'
@@ -77,18 +78,17 @@ export default function MyQuotesPage() {
 
   return (
     <div className="container-fluid py-4">
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <div>
-          <h1 className="h3 mb-1">Mis Cotizaciones</h1>
-          <p className="text-muted mb-0">
-            Historial de cotizaciones solicitadas
-          </p>
-        </div>
-        <Link href="/productos" className="btn btn-primary">
-          <i className="bi bi-plus-circle me-2"></i>
-          Nueva Cotización
-        </Link>
-      </div>
+      <LwSurface>
+      <LwPageTitle
+        title="Mis cotizaciones"
+        subtitle="Revisa, acepta o rechaza las cotizaciones que te enviamos"
+        actions={
+          <Link href="/productos" className="btn btn-primary">
+            <i className="bi bi-plus-lg me-1"></i>
+            Solicitar cotización
+          </Link>
+        }
+      />
 
       {error && (
         <div className="alert alert-danger">
@@ -119,11 +119,9 @@ export default function MyQuotesPage() {
           </div>
         </div>
       ) : (
-        <div className="card">
-          <div className="card-body p-0">
-            <div className="table-responsive">
-              <table className="table table-hover mb-0">
-                <thead className="table-light">
+        <LwTableWrap>
+              <table className="table mb-0">
+                <thead>
                   <tr>
                     <th>Folio</th>
                     <th>Fecha</th>
@@ -145,15 +143,15 @@ export default function MyQuotesPage() {
                         {quote.validUntil ? formatDateOnly(quote.validUntil) : '-'}
                       </td>
                       <td>
-                        <span className="badge bg-secondary">
-                          {quote.itemsCount || 0} productos
-                        </span>
+                        <LwCountPill>
+                          {quote.itemsCount || 0} {quote.itemsCount === 1 ? 'Producto' : 'Productos'}
+                        </LwCountPill>
                       </td>
                       <td className="text-end">
                         <strong>{formatPrice(quote.totalAmount || 0)}</strong>
                       </td>
                       <td>
-                        <QuoteStatusBadge status={quote.status} />
+                        <LwStatusPill tone={QUOTE_STATUS_TONE[quote.status] ?? 'neutral'}>{QUOTE_STATUS_LABEL[quote.status] ?? quote.status}</LwStatusPill>
                       </td>
                       <td>
                         <Link
@@ -168,9 +166,7 @@ export default function MyQuotesPage() {
                   ))}
                 </tbody>
               </table>
-            </div>
-          </div>
-        </div>
+        </LwTableWrap>
       )}
 
       {/* Info card */}
@@ -182,24 +178,25 @@ export default function MyQuotesPage() {
           </h6>
           <div className="row mt-3">
             <div className="col-md-3 col-6 mb-2">
-              <QuoteStatusBadge status="draft" />
+              <LwStatusPill tone={QUOTE_STATUS_TONE.draft}>{QUOTE_STATUS_LABEL.draft}</LwStatusPill>
               <small className="d-block text-muted mt-1">En revisión</small>
             </div>
             <div className="col-md-3 col-6 mb-2">
-              <QuoteStatusBadge status="sent" />
+              <LwStatusPill tone={QUOTE_STATUS_TONE.sent}>{QUOTE_STATUS_LABEL.sent}</LwStatusPill>
               <small className="d-block text-muted mt-1">Enviada para tu aprobación</small>
             </div>
             <div className="col-md-3 col-6 mb-2">
-              <QuoteStatusBadge status="accepted" />
+              <LwStatusPill tone={QUOTE_STATUS_TONE.accepted}>{QUOTE_STATUS_LABEL.accepted}</LwStatusPill>
               <small className="d-block text-muted mt-1">Aceptada, en proceso</small>
             </div>
             <div className="col-md-3 col-6 mb-2">
-              <QuoteStatusBadge status="converted" />
+              <LwStatusPill tone={QUOTE_STATUS_TONE.converted}>{QUOTE_STATUS_LABEL.converted}</LwStatusPill>
               <small className="d-block text-muted mt-1">Convertida en pedido</small>
             </div>
           </div>
         </div>
       </div>
+      </LwSurface>
     </div>
   )
 }

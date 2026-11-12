@@ -1,24 +1,24 @@
 'use client'
 
-import { use, useState, useRef } from 'react'
-import { useRouter } from 'next/navigation'
+import { use, useState, useRef, useEffect, useMemo, type ReactNode } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import {
   useQuote,
   useQuoteItems,
   useQuoteMutations,
-  QuoteStatusBadge,
   QuoteItemsTable,
-  QuoteSendButton,
   QuoteSendModal,
+  QuoteRejectModal,
   GenerateSaleModal,
   GenerateOrderModal,
-  OperationsMenu,
+  QUOTE_STATUS_TONE,
+  QUOTE_STATUS_LABEL,
   exportQuoteItemsCsv,
   QUOTE_STATUS_CONFIG,
   canEditQuote,
   formatDateOnly
 } from '@/modules/quotes'
-import type { OperationsMenuItem, PaymentMethod } from '@/modules/quotes'
+import type { PaymentMethod } from '@/modules/quotes'
 import { quoteService } from '@/modules/quotes'
 import { extractApiErrorMessage } from '@/modules/products'
 import { useSalesOrderBillingMutations } from '@/modules/billing'
@@ -27,7 +27,8 @@ import { toast } from '@/lib/toast'
 import { ConfirmModal, ConfirmModalHandle } from '@/ui/components/base'
 import { useAuth } from '@/modules/auth'
 import { isAdmin } from '@/lib/permissions'
-import { isPastDateOnly } from '@lwm/ui'
+import { isPastDateOnly, LwSurface, LwPageTitle, LwStatusPill, LwActionMenu, LwTableWrap, type LwActionMenuItem } from '@lwm/ui'
+import { useUsers } from '@lwm/permissions'
 import { GuidePanel, type GuideAction } from '@lwm/guide'
 
 interface PageProps {
@@ -47,8 +48,12 @@ export default function QuoteDetailPage({ params }: PageProps) {
   const { data: quote, isLoading: quoteLoading, error: quoteError, mutate: refetch } = useQuote(id)
   const { data: items = [], mutate: refetchItems } = useQuoteItems(id)
 
-  const [rejectReason, setRejectReason] = useState('')
+  const searchParams = useSearchParams()
+  const [rejectOpen, setRejectOpen] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
+  const [editingValidUntil, setEditingValidUntil] = useState('')
+  const [editingTerms, setEditingTerms] = useState('')
+  const [editingSeller, setEditingSeller] = useState('')
   const [editingEta, setEditingEta] = useState('')
   const [editingNotes, setEditingNotes] = useState('')
   const [editingPaymentMethod, setEditingPaymentMethod] = useState<'' | PaymentMethod>('')
@@ -65,8 +70,12 @@ export default function QuoteDetailPage({ params }: PageProps) {
   const [poSubmitting, setPoSubmitting] = useState(false)
   // Flujo guiado (F4): la barra enruta cada accion al manejador de esta pagina.
   const [sendModalOpen, setSendModalOpen] = useState(false)
-  const rejectTriggerRef = useRef<HTMLButtonElement>(null)
   const { contacts: suppliers = [], isLoading: suppliersLoading } = useSuppliers()
+  const { users = [] } = useUsers({}, 1, 200)
+  const sellers = useMemo(
+    () => users.filter((u) => !u.roles?.some((r) => ['customer', 'cliente', 'guest'].includes(r.name))),
+    [users]
+  )
 
   const formatCurrency = (amount: number, currency: string = 'MXN') => {
     return new Intl.NumberFormat('es-MX', {
@@ -120,16 +129,16 @@ export default function QuoteDetailPage({ params }: PageProps) {
     router.push(`/dashboard/sales/${salesOrderId}`)
   }
 
-  const handleReject = async () => {
+  const handleReject = async (reason: string) => {
     if (!quote) return
 
     try {
       await mutations.reject.mutateAsync({
         id: quote.id,
-        data: rejectReason ? { reason: rejectReason } : undefined
+        data: reason ? { reason } : undefined
       })
       toast.success('Cotización marcada como rechazada')
-      setRejectReason('')
+      setRejectOpen(false)
       refetch()
     } catch (err) {
       toast.error(extractApiErrorMessage(err, 'Error al rechazar la cotización'))
@@ -142,6 +151,9 @@ export default function QuoteDetailPage({ params }: PageProps) {
     setEditingNotes(quote.notes ?? '')
     setEditingPaymentMethod(quote.paymentMethod ?? '')
     setEditingCreditDays(quote.creditDays != null ? String(quote.creditDays) : '')
+    setEditingValidUntil(quote.validUntil ? quote.validUntil.slice(0, 10) : '')
+    setEditingTerms(quote.termsAndConditions ?? '')
+    setEditingSeller(quote.assignedTo != null ? String(quote.assignedTo) : '')
     setIsEditing(true)
   }
 
@@ -163,7 +175,10 @@ export default function QuoteDetailPage({ params }: PageProps) {
           estimatedEta: editingEta || undefined,
           notes: editingNotes || undefined,
           paymentMethod: editingPaymentMethod === '' ? null : editingPaymentMethod,
-          creditDays: editingCreditDays === '' ? null : Number(editingCreditDays)
+          creditDays: editingCreditDays === '' ? null : Number(editingCreditDays),
+          validUntil: editingValidUntil || undefined,
+          termsAndConditions: editingTerms || undefined,
+          assignedTo: editingSeller === '' ? null : Number(editingSeller)
         }
       })
       toast.success('Cotización actualizada')
@@ -256,6 +271,14 @@ export default function QuoteDetailPage({ params }: PageProps) {
     }
   }
 
+  // Abrir directo en edicion desde el lapiz del listado (?editar=1)
+  useEffect(() => {
+    if (quote && searchParams.get('editar') === '1' && canEditQuote(quote, userIsAdmin) && !isEditing) {
+      handleStartEdit()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [quote?.id])
+
   if (quoteLoading) {
     return (
       <div className="container-fluid py-4">
@@ -271,28 +294,38 @@ export default function QuoteDetailPage({ params }: PageProps) {
   if (quoteError || !quote) {
     return (
       <div className="container-fluid py-4">
-        <div className="card">
-          <div className="card-body text-center py-5">
-            <i className="bi bi-file-earmark-x display-4 text-muted mb-3 d-block"></i>
-            <h5>Cotización no encontrada</h5>
-            <p className="text-muted">La cotización que buscas no existe o fue eliminada.</p>
-            <button
-              className="btn btn-primary mt-3"
-              onClick={() => router.push('/dashboard/quotes')}
-            >
-              <i className="bi bi-arrow-left me-2"></i>
-              Volver a cotizaciones
-            </button>
-          </div>
-        </div>
+        <LwSurface className="text-center py-5">
+          <i className="bi bi-file-earmark-x display-4 text-muted mb-3 d-block"></i>
+          <h2 className="h5">Cotización no encontrada</h2>
+          <p className="text-muted">La cotización que buscas no existe o fue eliminada.</p>
+          <button className="btn btn-primary mt-3" onClick={() => router.push('/dashboard/quotes')}>
+            <i className="bi bi-arrow-left me-2"></i>
+            Volver a cotizaciones
+          </button>
+        </LwSurface>
       </div>
     )
   }
 
   const statusConfig = QUOTE_STATUS_CONFIG[quote.status]
   const isExpired = quote.validUntil && isPastDateOnly(quote.validUntil)
+  const editable = canEditQuote(quote, userIsAdmin)
+  const dateLong = (d?: string | null) => (d ? formatDateOnly(d, 'es-MX', { day: '2-digit', month: '2-digit', year: '2-digit' }) : '')
+  const paymentLabel = quote.paymentMethod === 'PUE' ? 'PUE - Pago en una exhibición' : quote.paymentMethod === 'PPD' ? 'PPD - Pago en parcialidades o diferido' : 'No especificado'
+  const statusLine = (() => {
+    const who = quote.contact?.name || `Cliente #${quote.contactId}`
+    switch (quote.status) {
+      case 'draft': return `Borrador para ${who}, creada el ${dateLong(quote.createdAt)}`
+      case 'sent': return `Enviada a ${who}${quote.sentAt ? ` el ${dateLong(quote.sentAt)}` : ''}`
+      case 'accepted': return `Aceptada por ${who}${quote.acceptedAt ? ` el ${dateLong(quote.acceptedAt)}` : ''}; lista para convertir`
+      case 'converted': return `Convertida en pedido${quote.convertedAt ? ` el ${dateLong(quote.convertedAt)}` : ''}`
+      case 'rejected': return `Rechazada por ${who}${quote.rejectedAt ? ` el ${dateLong(quote.rejectedAt)}` : ''}`
+      case 'expired': return `Vencida; duplícala para renovar la vigencia`
+      case 'cancelled': return `Cancelada`
+      default: return who
+    }
+  })()
 
-  // Menu Operaciones (Fase A): agrupa las acciones de documento
   // La barra de la guia no inventa formularios (D10): cada accion abre el modal
   // o el manejador que ya existe en esta pagina. Devuelve true si la tomo.
   const handleGuideAction = (action: GuideAction): boolean => {
@@ -305,8 +338,7 @@ export default function QuoteDetailPage({ params }: PageProps) {
         void handleAction('accept')
         return true
       case 'sales::guide.quote.reject':
-        if (!rejectTriggerRef.current) return false
-        rejectTriggerRef.current.click()
+        setRejectOpen(true)
         return true
       case 'sales::guide.quote.convert':
         setConvertModalType('order')
@@ -318,6 +350,7 @@ export default function QuoteDetailPage({ params }: PageProps) {
         void handleAction('duplicate')
         return true
       case 'sales::guide.quote.confirm_price':
+        if (!isEditing && editable) handleStartEdit()
         document.getElementById('quote-items')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
         toast.info('Captura el precio de venta en las partidas con precio por confirmar.')
         return true
@@ -326,524 +359,262 @@ export default function QuoteDetailPage({ params }: PageProps) {
     }
   }
 
-  const operationsItems: OperationsMenuItem[] = [
-    {
-      key: 'generate-sale',
-      label: 'Generar venta',
-      icon: 'bi-cash-coin',
-      onClick: () => setConvertModalType('sale'),
-      disabled: !statusConfig.canConvert,
-      title: statusConfig.canConvert
-        ? 'Venta directa (requiere stock, nace confirmada)'
-        : 'Solo cotizaciones aceptadas'
-    },
+  // "Operaciones": todas las acciones del documento, segun su estado (nada se esconde
+  // sin decir por que: lo que no aplica queda deshabilitado con su motivo).
+  const operations: LwActionMenuItem[] = [
+    ...(statusConfig.canAccept
+      ? [{ key: 'accept', label: quote.status === 'draft' ? 'Marcar aceptada (teléfono o mostrador)' : 'Marcar aceptada', icon: 'bi-check-circle', onSelect: () => void handleAction('accept') }]
+      : []),
+    ...(statusConfig.canReject ? [{ key: 'reject', label: 'Rechazar', icon: 'bi-x-circle', onSelect: () => setRejectOpen(true) }] : []),
     {
       key: 'generate-order',
       label: 'Generar pedido',
       icon: 'bi-clipboard-check',
-      onClick: () => setConvertModalType('order'),
+      onSelect: () => setConvertModalType('order'),
       disabled: !statusConfig.canConvert,
-      title: statusConfig.canConvert
-        ? 'Pedido con OC del cliente (no bloquea por stock)'
-        : 'Solo cotizaciones aceptadas'
+      hint: statusConfig.canConvert ? undefined : 'Solo cotizaciones aceptadas.',
+      divider: true,
+    },
+    {
+      key: 'generate-sale',
+      label: 'Generar venta directa',
+      icon: 'bi-cash-coin',
+      onSelect: () => setConvertModalType('sale'),
+      disabled: !statusConfig.canConvert,
+      hint: statusConfig.canConvert ? undefined : 'Solo cotizaciones aceptadas; requiere existencia.',
+    },
+    {
+      key: 'purchase-order',
+      label: 'Generar orden de compra',
+      icon: 'bi-box-seam',
+      onSelect: handleOpenPurchaseOrderModal,
+      disabled: quote.status !== 'accepted' || !!quote.purchaseOrderId,
+      hint: quote.purchaseOrderId ? 'Ya tiene orden de compra.' : quote.status !== 'accepted' ? 'Solo cotizaciones aceptadas.' : undefined,
     },
     {
       key: 'prefactura',
       label: 'Prefactura',
       icon: 'bi-file-earmark-medical',
-      onClick: handlePrefactura,
+      onSelect: () => void handlePrefactura(),
       disabled: !quote.salesOrderId || actionLoading === 'prefactura',
-      title: quote.salesOrderId
-        ? 'Vista previa de la prefactura de la orden generada'
-        : 'Disponible cuando la cotización tenga una orden generada'
+      hint: quote.salesOrderId ? undefined : 'Disponible cuando haya pedido generado.',
     },
     {
-      type: 'custom',
       key: 'send',
-      node: <QuoteSendButton quote={quote} onSent={refetch} asMenuItem />
+      label: 'Enviar al cliente',
+      icon: 'bi-send',
+      onSelect: () => setSendModalOpen(true),
+      disabled: !statusConfig.canSend,
+      hint: statusConfig.canSend ? undefined : 'Solo borradores con partidas.',
+      divider: true,
     },
-    { type: 'divider', key: 'div-1' },
-    {
-      key: 'duplicate',
-      label: 'Duplicar',
-      icon: 'bi-copy',
-      onClick: () => handleAction('duplicate')
-    },
+    { key: 'duplicate', label: 'Duplicar', icon: 'bi-copy', onSelect: () => void handleAction('duplicate') },
     {
       key: 'recalculate-taxes',
       label: 'Recalcular impuestos',
       icon: 'bi-percent',
-      onClick: () => handleAction('recalculate-taxes'),
+      onSelect: () => void handleAction('recalculate-taxes'),
       disabled: quote.status !== 'draft',
-      title: quote.status === 'draft'
-        ? 'Aplica a cada partida el IVA vigente del producto'
-        : 'Solo cotizaciones en borrador'
+      hint: quote.status === 'draft' ? undefined : 'Solo cotizaciones en borrador.',
     },
-    {
-      key: 'export-csv',
-      label: 'Exportar partidas CSV',
-      icon: 'bi-filetype-csv',
-      onClick: handleExportCsv
-    },
-    {
-      key: 'download-pdf',
-      label: 'Descargar PDF',
-      icon: 'bi-file-earmark-pdf',
-      onClick: handleDownloadPdf,
-      disabled: pdfLoading === 'download'
-    }
+    { key: 'export-csv', label: 'Exportar partidas CSV', icon: 'bi-filetype-csv', onSelect: handleExportCsv },
+    ...(statusConfig.canCancel
+      ? [{ key: 'cancel', label: 'Cancelar cotización', icon: 'bi-slash-circle', danger: true, divider: true, onSelect: () => void handleAction('cancel') }]
+      : []),
   ]
+
+  const field = (label: string, value: ReactNode, col = 'col-md-3') => (
+    <div className={col}>
+      <label className="form-label">{label}</label>
+      <div className="form-control" style={{ background: '#f6f7f9' }}>{value || <span className="text-muted">No especificado</span>}</div>
+    </div>
+  )
 
   return (
     <div className="container-fluid py-4">
-      {/* Header */}
-      <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4">
-        <div className="d-flex align-items-center gap-3 mb-3 mb-md-0">
-          <button
-            aria-label="Volver"
-            className="btn btn-outline-secondary"
-            onClick={() => router.push('/dashboard/quotes')}
-          >
-            <i className="bi bi-arrow-left"></i>
-          </button>
-          <div>
-            <h1 className="h3 mb-1">{quote.quoteNumber}</h1>
-            <QuoteStatusBadge status={quote.status} />
-            <small className="text-muted ms-2">Creada el {formatDate(quote.createdAt)}</small>
-          </div>
-        </div>
-        <div className="d-flex gap-2 flex-wrap">
-          {statusConfig.canAccept && (
-            <button
-              className="btn btn-outline-success"
-              onClick={() => handleAction('accept')}
-              disabled={mutations.accept.isPending}
-              title="Registra la aceptación del cliente (por teléfono o en mostrador) y habilita Generar pedido"
-            >
-              <i className="bi bi-check-lg me-1"></i>
-              Marcar aceptada
-            </button>
-          )}
-          {statusConfig.canReject && (
-            <button
-              ref={rejectTriggerRef}
-              className="btn btn-outline-danger"
-              data-bs-toggle="modal"
-              data-bs-target="#rejectModal"
-            >
-              <i className="bi bi-x-lg me-1"></i>
-              Rechazar
-            </button>
-          )}
-          {statusConfig.canCancel && (
-            <button
-              className="btn btn-outline-warning"
-              onClick={() => handleAction('cancel')}
-              disabled={mutations.cancel.isPending}
-            >
-              <i className="bi bi-x-circle me-1"></i>
-              Cancelar
-            </button>
-          )}
-          <OperationsMenu items={operationsItems} loading={actionLoading === 'prefactura'} />
-        </div>
-      </div>
-
-      <GuidePanel
-        type="quotes"
-        id={quote.id}
-        revision={`${quote.status}:${quote.updatedAt}`}
-        onAction={handleGuideAction}
-        onDone={() => {
-          refetch()
-          refetchItems()
-        }}
-      />
-
-      <div className="row">
-        {/* Main Content */}
-        <div className="col-lg-8">
-          {/* Quote Info Card */}
-          <div className="card mb-4">
-            <div className="card-header d-flex justify-content-between align-items-center">
-              <h5 className="card-title mb-0">
-                <i className="bi bi-file-earmark-text me-2"></i>
-                Información de la Cotización
-              </h5>
-              {canEditQuote(quote, userIsAdmin) && !isEditing && (
-                <button className="btn btn-sm btn-outline-primary" onClick={handleStartEdit}>
-                  <i className="bi bi-pencil me-1"></i>
-                  Editar
+      <LwSurface>
+        <LwPageTitle
+          title={isEditing ? 'Editar cotización:' : 'Consulta cotización:'}
+          highlight={quote.quoteNumber}
+          subtitle={
+            <span className="d-inline-flex align-items-center gap-2 flex-wrap">
+              <LwStatusPill tone={QUOTE_STATUS_TONE[quote.status] ?? 'neutral'}>{QUOTE_STATUS_LABEL[quote.status] ?? quote.status}</LwStatusPill>
+              {isEditing ? 'Cambia vigencia, condiciones o partidas' : statusLine}
+            </span>
+          }
+          actions={
+            <>
+              <button aria-label="Volver" className="btn btn-outline-primary" onClick={() => router.push('/dashboard/quotes')}>
+                <i className="bi bi-arrow-left me-1"></i> Volver
+              </button>
+              {editable && !isEditing ? (
+                <button className="btn btn-outline-primary" onClick={handleStartEdit}>
+                  <i className="bi bi-pencil me-1"></i> Editar
                 </button>
-              )}
+              ) : null}
+              <LwActionMenu
+                items={operations}
+                triggerClassName="btn btn-primary"
+                trigger={<span>{actionLoading === 'prefactura' ? 'Generando...' : 'Operaciones'} <i className="bi bi-chevron-down ms-1" aria-hidden="true" /></span>}
+              />
+            </>
+          }
+        />
+
+        <GuidePanel
+          type="quotes"
+          id={quote.id}
+          revision={`${quote.status}:${quote.updatedAt}`}
+          onAction={handleGuideAction}
+          onDone={() => {
+            refetch()
+            refetchItems()
+          }}
+        />
+
+        <h2 className="h5 mb-3">Información general</h2>
+        <div className="row g-3 mb-4">
+          {field('Cliente', quote.contact?.name || `Cliente #${quote.contactId}`, 'col-md-4')}
+          {field('Correo', quote.contact?.email, 'col-md-4')}
+          {field('Fecha de cotización', dateLong(quote.quoteDate), 'col-md-2')}
+          {isEditing ? (
+            <div className="col-md-2">
+              <label className="form-label" htmlFor="q-seller">Vendedor</label>
+              <select id="q-seller" className="form-select" value={editingSeller} onChange={(e) => setEditingSeller(e.target.value)}>
+                <option value="">Sin asignar</option>
+                {quote.assignedTo != null && !sellers.some((u) => String(u.id) === String(quote.assignedTo)) ? (
+                  <option value={String(quote.assignedTo)}>{quote.assignedUserName || `Usuario #${quote.assignedTo}`}</option>
+                ) : null}
+                {sellers.map((u) => (
+                  <option key={u.id} value={String(u.id)}>{u.name}</option>
+                ))}
+              </select>
             </div>
-            <div className="card-body">
-              <div className="row">
-                <div className="col-md-6 mb-3">
-                  <div className="d-flex align-items-start">
-                    <i className="bi bi-person text-muted me-3 fs-5"></i>
-                    <div>
-                      <small className="text-muted d-block">Cliente</small>
-                      <strong>{quote.contact?.name || `Contact #${quote.contactId}`}</strong>
-                      {quote.contact?.email && (
-                        <small className="text-muted d-block">{quote.contact.email}</small>
-                      )}
-                    </div>
-                  </div>
-                </div>
-                <div className="col-md-6 mb-3">
-                  <div className="d-flex align-items-start">
-                    <i className="bi bi-calendar text-muted me-3 fs-5"></i>
-                    <div>
-                      <small className="text-muted d-block">Fecha de Cotización</small>
-                      <strong>{formatDateOnly(quote.quoteDate, 'es-MX', { day: '2-digit', month: 'long', year: 'numeric' })}</strong>
-                    </div>
-                  </div>
-                </div>
-                <div className="col-md-6 mb-3">
-                  <div className="d-flex align-items-start">
-                    <i className="bi bi-clock text-muted me-3 fs-5"></i>
-                    <div>
-                      <small className="text-muted d-block">Vigencia</small>
-                      <strong className={isExpired && quote.status === 'sent' ? 'text-danger' : ''}>
-                        {formatDateOnly(quote.validUntil, 'es-MX', { day: '2-digit', month: 'long', year: 'numeric' })}
-                        {isExpired && quote.status === 'sent' && ' (Vencida)'}
-                      </strong>
-                    </div>
-                  </div>
-                </div>
-                <div className="col-md-6 mb-3">
-                  <div className="d-flex align-items-start">
-                    <i className="bi bi-truck text-muted me-3 fs-5"></i>
-                    <div>
-                      <small className="text-muted d-block">Tiempo de Entrega (ETA)</small>
-                      {isEditing ? (
-                        <input
-                          type="text"
-                          className="form-control form-control-sm"
-                          value={editingEta}
-                          onChange={(e) => setEditingEta(e.target.value)}
-                          placeholder="Ej: 2-3 semanas"
-                        />
-                      ) : (
-                        <strong>{quote.estimatedEta || 'No especificado'}</strong>
-                      )}
-                    </div>
-                  </div>
-                </div>
-                {/* Fase A: condiciones de pago (viajan a la orden al convertir) */}
-                <div className="col-md-6 mb-3">
-                  <div className="d-flex align-items-start">
-                    <i className="bi bi-credit-card text-muted me-3 fs-5"></i>
-                    <div>
-                      <small className="text-muted d-block">Método de pago</small>
-                      {isEditing ? (
-                        <select
-                          className="form-select form-select-sm"
-                          aria-label="Método de pago"
-                          value={editingPaymentMethod}
-                          onChange={(e) => setEditingPaymentMethod(e.target.value as '' | PaymentMethod)}
-                        >
-                          <option value="">Sin especificar</option>
-                          <option value="PUE">PUE - Pago en una exhibición</option>
-                          <option value="PPD">PPD - Pago en parcialidades o diferido</option>
-                        </select>
-                      ) : (
-                        <strong>
-                          {quote.paymentMethod === 'PUE' && 'PUE - Pago en una exhibición'}
-                          {quote.paymentMethod === 'PPD' && 'PPD - Pago en parcialidades o diferido'}
-                          {!quote.paymentMethod && 'No especificado'}
-                        </strong>
-                      )}
-                    </div>
-                  </div>
-                </div>
-                <div className="col-md-6 mb-3">
-                  <div className="d-flex align-items-start">
-                    <i className="bi bi-calendar-week text-muted me-3 fs-5"></i>
-                    <div>
-                      <small className="text-muted d-block">Días de crédito</small>
-                      {isEditing ? (
-                        <input
-                          type="number"
-                          className="form-control form-control-sm"
-                          aria-label="Días de crédito"
-                          min={0}
-                          step={1}
-                          value={editingCreditDays}
-                          onChange={(e) => setEditingCreditDays(e.target.value)}
-                          placeholder="30"
-                        />
-                      ) : (
-                        <strong>
-                          {quote.creditDays != null ? `${quote.creditDays} días` : 'No especificado (default 30)'}
-                        </strong>
-                      )}
-                    </div>
-                  </div>
-                </div>
+          ) : (
+            field('Vendedor', quote.assignedUserName, 'col-md-2')
+          )}
+
+          {isEditing ? (
+            <>
+              <div className="col-md-3">
+                <label className="form-label" htmlFor="q-valid">Vigencia</label>
+                <input id="q-valid" type="date" className="form-control" value={editingValidUntil} onChange={(e) => setEditingValidUntil(e.target.value)} />
+                <div className="form-text">La cotización vence automáticamente después de esta fecha.</div>
               </div>
+              <div className="col-md-3">
+                <label className="form-label" htmlFor="q-eta">Tiempo de entrega</label>
+                <input id="q-eta" type="text" className="form-control" value={editingEta} onChange={(e) => setEditingEta(e.target.value)} placeholder="Ej.: 2 a 3 semanas" />
+              </div>
+              <div className="col-md-3">
+                <label className="form-label" htmlFor="q-payment">Método de pago</label>
+                <select id="q-payment" className="form-select" value={editingPaymentMethod} onChange={(e) => setEditingPaymentMethod(e.target.value as '' | PaymentMethod)}>
+                  <option value="">Sin especificar</option>
+                  <option value="PUE">PUE - Pago en una exhibición</option>
+                  <option value="PPD">PPD - Pago en parcialidades o diferido</option>
+                </select>
+              </div>
+              <div className="col-md-3">
+                <label className="form-label" htmlFor="q-credit">Días de crédito</label>
+                <input id="q-credit" type="number" min={0} step={1} className="form-control" value={editingCreditDays} onChange={(e) => setEditingCreditDays(e.target.value)} placeholder="30" />
+              </div>
+              <div className="col-md-6">
+                <label className="form-label" htmlFor="q-notes">Notas para el cliente</label>
+                <textarea id="q-notes" className="form-control" rows={3} value={editingNotes} onChange={(e) => setEditingNotes(e.target.value)} placeholder="Notas visibles para el cliente" />
+              </div>
+              <div className="col-md-6">
+                <label className="form-label" htmlFor="q-terms">Términos y condiciones</label>
+                <textarea id="q-terms" className="form-control" rows={3} value={editingTerms} onChange={(e) => setEditingTerms(e.target.value)} placeholder="Términos y condiciones de la cotización" />
+              </div>
+            </>
+          ) : (
+            <>
+              {field('Vigencia', <span className={isExpired && quote.status === 'sent' ? 'text-danger' : undefined}>{dateLong(quote.validUntil)}{isExpired && quote.status === 'sent' ? ' (vencida)' : ''}</span>)}
+              {field('Tiempo de entrega', quote.estimatedEta)}
+              {field('Método de pago', paymentLabel)}
+              {field('Días de crédito', quote.creditDays != null ? `${quote.creditDays} días` : 'No especificado (30 por omisión)')}
+              {field('Notas para el cliente', quote.notes, 'col-md-6')}
+              {field('Términos y condiciones', quote.termsAndConditions, 'col-md-6')}
+            </>
+          )}
+        </div>
 
-              {(quote.notes || isEditing) && (
-                <>
-                  <hr />
-                  <div>
-                    <label className="form-label small text-muted">Notas</label>
-                    {isEditing ? (
-                      <textarea
-                        className="form-control"
-                        value={editingNotes}
-                        onChange={(e) => setEditingNotes(e.target.value)}
-                        placeholder="Notas para el cliente..."
-                        rows={3}
-                      />
-                    ) : (
-                      <p className="mb-0">{quote.notes}</p>
-                    )}
-                  </div>
-                </>
-              )}
-
-              {isEditing && (
-                <div className="d-flex gap-2 justify-content-end mt-3">
-                  <button className="btn btn-outline-secondary" onClick={() => setIsEditing(false)}>
-                    Cancelar
-                  </button>
-                  <button
-                    className="btn btn-primary"
-                    onClick={handleSaveEdit}
-                    disabled={mutations.update.isPending}
-                  >
-                    {mutations.update.isPending ? 'Guardando...' : 'Guardar cambios'}
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Items Table */}
-          <div className="card mb-4" id="quote-items">
-            <div className="card-header">
-              <h5 className="card-title mb-0">
-                <i className="bi bi-box-seam me-2"></i>
-                Productos ({items.length})
-              </h5>
-            </div>
-            <div className="card-body p-0">
+        <div className="row g-3" id="quote-items">
+          <div className="col-lg-9">
+            <h2 className="h5 mb-3">Productos ({items.length})</h2>
+            <LwTableWrap>
               <QuoteItemsTable
                 items={items}
                 quoteId={id}
                 currency={quote.currency}
-                editable={canEditQuote(quote, userIsAdmin)}
+                editable={editable}
                 onItemsChanged={() => {
                   refetchItems()
                   refetch()
                 }}
               />
+            </LwTableWrap>
+          </div>
+          <div className="col-lg-3">
+            <div className="card mt-lg-5">
+              <div className="card-body">
+                <h3 className="h6 mb-3">Resumen de cotización</h3>
+                <div className="d-flex justify-content-between small mb-2">
+                  <span>Subtotal</span>
+                  <span>{formatCurrency(quote.subtotalAmount, quote.currency)}</span>
+                </div>
+                {quote.discountAmount > 0 ? (
+                  <div className="d-flex justify-content-between small mb-2 text-success">
+                    <span>Descuento</span>
+                    <span>-{formatCurrency(quote.discountAmount, quote.currency)}</span>
+                  </div>
+                ) : null}
+                <div className="d-flex justify-content-between small mb-2">
+                  <span>IVA</span>
+                  <span>{formatCurrency(quote.taxAmount, quote.currency)}</span>
+                </div>
+                <hr />
+                <div className="d-flex justify-content-between align-items-baseline">
+                  <span>Total:</span>
+                  <span className="fs-5" style={{ color: 'var(--brand-primary, #8ac905)' }}>{formatCurrency(quote.totalAmount, quote.currency)}</span>
+                </div>
+                <div className="small text-muted text-end mt-1">{quote.itemsCount} producto(s), {quote.totalQuantity} unidades</div>
+                {quote.salesOrderId ? (
+                  <button className="btn btn-outline-success w-100 mt-3" onClick={() => router.push(`/dashboard/sales/${quote.salesOrderId}`)}>
+                    <i className="bi bi-receipt me-1"></i> Ver pedido {quote.salesOrder?.orderNumber || `#${quote.salesOrderId}`}
+                  </button>
+                ) : null}
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Sidebar */}
-        <div className="col-lg-4">
-          {/* Totals Card */}
-          <div className="card mb-4">
-            <div className="card-header">
-              <h5 className="card-title mb-0">
-                <i className="bi bi-calculator me-2"></i>
-                Resumen
-              </h5>
-            </div>
-            <div className="card-body">
-              <div className="d-flex justify-content-between mb-2">
-                <span>Subtotal</span>
-                <span>{formatCurrency(quote.subtotalAmount, quote.currency)}</span>
-              </div>
-              {quote.discountAmount > 0 && (
-                <div className="d-flex justify-content-between mb-2 text-success">
-                  <span>Descuento</span>
-                  <span>-{formatCurrency(quote.discountAmount, quote.currency)}</span>
-                </div>
-              )}
-              <div className="d-flex justify-content-between mb-2">
-                <span>IVA</span>
-                <span>{formatCurrency(quote.taxAmount, quote.currency)}</span>
-              </div>
-              <hr />
-              <div className="d-flex justify-content-between fw-bold fs-5">
-                <span>Total</span>
-                <span className="text-primary">{formatCurrency(quote.totalAmount, quote.currency)}</span>
-              </div>
-              <small className="text-muted d-block text-end mt-2">
-                {quote.itemsCount} producto(s), {quote.totalQuantity} unidades
-              </small>
-            </div>
-          </div>
-
-          {/* Timeline Card */}
-          <div className="card mb-4">
-            <div className="card-header">
-              <h6 className="card-title mb-0">Historial</h6>
-            </div>
-            <div className="card-body">
-              <div className="d-flex justify-content-between mb-2 small">
-                <span className="text-muted">Creada</span>
-                <span>{formatDate(quote.createdAt)}</span>
-              </div>
-              {quote.sentAt && (
-                <div className="d-flex justify-content-between mb-2 small">
-                  <span className="text-muted">Enviada</span>
-                  <span>{formatDate(quote.sentAt)}</span>
-                </div>
-              )}
-              {quote.acceptedAt && (
-                <div className="d-flex justify-content-between mb-2 small">
-                  <span className="text-muted">Aceptada</span>
-                  <span>{formatDate(quote.acceptedAt)}</span>
-                </div>
-              )}
-              {quote.rejectedAt && (
-                <div className="d-flex justify-content-between mb-2 small">
-                  <span className="text-muted">Rechazada</span>
-                  <span>{formatDate(quote.rejectedAt)}</span>
-                </div>
-              )}
-              {quote.convertedAt && (
-                <div className="d-flex justify-content-between mb-2 small">
-                  <span className="text-muted">Convertida</span>
-                  <span>{formatDate(quote.convertedAt)}</span>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Converted Order Reference */}
-          {quote.salesOrderId && (
-            <div className="card mb-4 border-success">
-              <div className="card-header bg-success bg-opacity-10">
-                <h6 className="card-title mb-0 text-success">
-                  <i className="bi bi-check-circle me-2"></i>
-                  Orden de Venta Generada
-                </h6>
-              </div>
-              <div className="card-body">
-                <button
-                  className="btn btn-outline-success w-100"
-                  onClick={() => router.push(`/dashboard/sales/${quote.salesOrderId}`)}
-                >
-                  <i className="bi bi-receipt me-2"></i>
-                  Ver Orden #{quote.salesOrder?.orderNumber || quote.salesOrderId}
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* PDF Actions Card */}
-          <div className="card mb-4">
-            <div className="card-header">
-              <h6 className="card-title mb-0">
-                <i className="bi bi-file-earmark-pdf me-2"></i>
-                Documento PDF
-              </h6>
-            </div>
-            <div className="card-body d-grid gap-2">
-              <button
-                className="btn btn-outline-primary"
-                onClick={handlePreviewPdf}
-                disabled={pdfLoading === 'preview'}
-              >
-                <i className="bi bi-eye me-2"></i>
+        <div className="d-flex justify-content-end gap-2 mt-4 flex-wrap">
+          {isEditing ? (
+            <>
+              <button className="btn btn-outline-primary" onClick={() => setIsEditing(false)} disabled={mutations.update.isPending}>Cancelar</button>
+              <button className="btn btn-primary" onClick={handleSaveEdit} disabled={mutations.update.isPending}>
+                {mutations.update.isPending ? 'Guardando...' : 'Guardar cambios'}
+              </button>
+            </>
+          ) : (
+            <>
+              <button className="btn btn-outline-primary" onClick={handlePreviewPdf} disabled={pdfLoading === 'preview'}>
                 {pdfLoading === 'preview' ? 'Generando...' : 'Vista previa PDF'}
               </button>
-              <button
-                className="btn btn-primary"
-                onClick={handleDownloadPdf}
-                disabled={pdfLoading === 'download'}
-              >
-                <i className="bi bi-download me-2"></i>
+              <button className="btn btn-primary" onClick={handleDownloadPdf} disabled={pdfLoading === 'download'}>
                 {pdfLoading === 'download' ? 'Descargando...' : 'Descargar PDF'}
               </button>
-            </div>
-          </div>
-
-          {/* Actions Card - only show when there are available actions */}
-          {(statusConfig.canConvert || (quote.status === 'accepted' && !quote.purchaseOrderId)) && (
-            <div className="card">
-              <div className="card-header">
-                <h6 className="card-title mb-0">Acciones</h6>
-              </div>
-              <div className="card-body d-grid gap-2">
-                {statusConfig.canConvert && (
-                  <>
-                    <button
-                      className="btn btn-success btn-lg"
-                      onClick={() => setConvertModalType('sale')}
-                    >
-                      <i className="bi bi-cash-coin me-2"></i>
-                      Generar venta
-                    </button>
-                    <button
-                      className="btn btn-outline-primary"
-                      onClick={() => setConvertModalType('order')}
-                    >
-                      <i className="bi bi-clipboard-check me-2"></i>
-                      Generar pedido
-                    </button>
-                  </>
-                )}
-                {quote.status === 'accepted' && !quote.purchaseOrderId && (
-                  <button
-                    className="btn btn-outline-warning"
-                    onClick={handleOpenPurchaseOrderModal}
-                  >
-                    <i className="bi bi-box-seam me-2"></i>
-                    Generar Orden de Compra
-                  </button>
-                )}
-              </div>
-            </div>
+            </>
           )}
         </div>
-      </div>
+      </LwSurface>
 
-      {/* Reject Modal */}
-      <div className="modal fade" id="rejectModal" tabIndex={-1}>
-        <div className="modal-dialog">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h5 className="modal-title">Rechazar Cotización</h5>
-              <button aria-label="Cerrar" type="button" className="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div className="modal-body">
-              <p className="text-muted">
-                Marcar esta cotización como rechazada. Opcionalmente puedes agregar una razón.
-              </p>
-              <label className="form-label">Razón del rechazo (opcional)</label>
-              <textarea
-                className="form-control"
-                value={rejectReason}
-                onChange={(e) => setRejectReason(e.target.value)}
-                placeholder="Ej: Cliente encontro mejor precio..."
-                rows={3}
-              />
-            </div>
-            <div className="modal-footer">
-              <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">
-                Cancelar
-              </button>
-              <button
-                type="button"
-                className="btn btn-danger"
-                onClick={handleReject}
-                disabled={mutations.reject.isPending}
-                data-bs-dismiss="modal"
-              >
-                {mutations.reject.isPending ? 'Rechazando...' : 'Rechazar'}
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
+      <QuoteRejectModal
+        quote={rejectOpen ? quote : null}
+        busy={mutations.reject.isPending}
+        onClose={() => setRejectOpen(false)}
+        onConfirm={(reason) => void handleReject(reason)}
+      />
 
       <QuoteSendModal
         quote={quote}
@@ -868,7 +639,6 @@ export default function QuoteDetailPage({ params }: PageProps) {
         onClose={() => setConvertModalType(null)}
         onConverted={handleConverted}
       />
-
       {/* Modal Generar Orden de Compra: requiere seleccionar proveedor */}
       {poModalOpen && (
         <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }} role="dialog">

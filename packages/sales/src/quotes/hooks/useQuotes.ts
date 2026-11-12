@@ -25,8 +25,8 @@ import type {
 // SWR key generators
 const quoteKeys = {
   all: 'quotes',
-  list: (filters?: QuoteFilters, sort?: QuoteSortOptions, page?: number) =>
-    `quotes-list-${JSON.stringify({ filters, sort, page })}`,
+  list: (filters?: QuoteFilters, sort?: QuoteSortOptions, page?: number, pageSize?: number) =>
+    `quotes-list-${JSON.stringify({ filters, sort, page, pageSize })}`,
   detail: (id: string) => `quotes-detail-${id}`,
   expiringSoon: (days: number) => `quotes-expiring-${days}`,
   summary: () => 'quotes-summary',
@@ -43,7 +43,7 @@ export function useQuotes(
   pageSize?: number
 ) {
   return useSWR(
-    quoteKeys.list(filters, sort, page),
+    quoteKeys.list(filters, sort, page, pageSize),
     () => quoteService.getAll(filters, sort, page, pageSize)
   )
 }

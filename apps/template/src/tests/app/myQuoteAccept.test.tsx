@@ -32,6 +32,8 @@ vi.mock('@/modules/quotes', async () => {
     ...pricePending,
     ...quantity,
     QuoteStatusBadge: ({ status }: { status: string }) => <span>{status}</span>,
+    QUOTE_STATUS_TONE: new Proxy({}, { get: () => 'neutral' }),
+    QUOTE_STATUS_LABEL: new Proxy({}, { get: (_t, k) => String(k) }),
     formatDateOnly: (v: string) => v,
     quoteService: { getById: mocks.getById, accept: mocks.accept, downloadPdf: vi.fn() },
     quoteItemService: { getByQuoteId: mocks.getItems },
@@ -68,7 +70,7 @@ async function renderPage() {
       </Suspense>
     )
   })
-  await screen.findByText(/Cotización COT-015/)
+  await screen.findByRole('heading', { name: /Cotización COT-015/ })
 }
 
 describe('Portal: aceptar cotización (D9)', () => {

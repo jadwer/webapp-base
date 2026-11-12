@@ -20,6 +20,10 @@ export type QuoteStatus =
 export interface Quote {
   id: string
   contactId: number
+  /** Vendedor (rediseno 12-11): FK users; pasa al pedido al convertir */
+  assignedTo?: number | null
+  /** Nombre del vendedor, solo lectura */
+  assignedUserName?: string | null
   branchId?: number | null
   shoppingCartId: number | null
   salesOrderId: number | null
@@ -144,6 +148,7 @@ export interface SalesOrderRef {
 // Form data types
 export interface CreateQuoteRequest {
   contactId: number
+  assignedTo?: number | null
   quoteDate: string
   validUntil?: string
   estimatedEta?: string
@@ -161,6 +166,7 @@ export interface CreateQuoteRequest {
 
 export interface UpdateQuoteRequest {
   contactId?: number
+  assignedTo?: number | null
   validUntil?: string
   estimatedEta?: string
   paymentMethod?: PaymentMethod | null
@@ -268,6 +274,8 @@ export interface QuoteFilters {
   expiringWithinDays?: number
   /** Multi-sucursal: '' o ausente = todas las visibles. */
   branchId?: string
+  /** Vendedor (users.id) */
+  assignedTo?: number
 }
 
 export interface QuoteSortOptions {
