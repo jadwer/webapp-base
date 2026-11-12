@@ -42,6 +42,10 @@ export function DocumentDesigner() {
   const load = useCallback(async (type: string) => {
     setLoadError(null)
     setSaveError(null)
+    // Sin esto el documento anterior queda en pantalla mientras carga el nuevo
+    // y lo que se edite en ese instante se pierde.
+    setDesign(null)
+    setDraft(null)
     try {
       const data = await documentDesignService.get(type)
       setDesign(data)
@@ -154,6 +158,8 @@ export function DocumentDesigner() {
       )}
 
       {loadError && <div className="alert alert-danger" role="alert">{loadError}</div>}
+
+      {!design && !loadError && active && <div className="text-muted small py-4">Cargando el diseño…</div>}
 
       {design && draft && (
         <div className="row g-4">
