@@ -14,6 +14,11 @@ bash scripts/check-parity.sh
 files="$(git diff --name-only "$base..HEAD")"
 for pkg in $(printf '%s\n' "$files" | sed -n 's#^packages/\([^/]*\)/.*#packages/\1#p' | sort -u); do
     [ -f "$pkg/package.json" ] || continue
+    # Sin archivos de prueba no hay que correr (y vitest puede ni estar instalado ahi).
+    if ! find "$pkg" -path "$pkg/node_modules" -prune -o \( -name '*.test.ts' -o -name '*.test.tsx' \) -print | grep -q .; then
+        echo "verify: $pkg sin pruebas, se omite"
+        continue
+    fi
     echo "verify: vitest $pkg"
     (cd "$pkg" && npx vitest run --reporter=dot --passWithNoTests)
 done
