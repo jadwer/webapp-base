@@ -326,7 +326,7 @@ export function QuotesListPage() {
                     <tr key={quote.id}>
                       <td>{String((page - 1) * perPage + i + 1).padStart(2, '0')}</td>
                       <td>
-                        <button type="button" className="btn btn-link btn-sm p-0 text-decoration-none" onClick={() => router.push(`/dashboard/quotes/${quote.id}`)}>
+                        <button type="button" className="btn btn-link btn-sm p-0 text-decoration-none text-nowrap text-reset" onClick={() => router.push(`/dashboard/quotes/${quote.id}`)}>
                           {quote.quoteNumber}
                         </button>
                       </td>

@@ -520,7 +520,7 @@ export default function QuoteDetailPage({ params }: PageProps) {
             </>
           ) : (
             <>
-              {field('Vigencia', <span className={isExpired && quote.status === 'sent' ? 'text-danger' : undefined}>{dateLong(quote.validUntil)}{isExpired && quote.status === 'sent' ? ' (vencida)' : ''}</span>)}
+              {field('Vigencia', quote.validUntil ? <span className={isExpired && quote.status === 'sent' ? 'text-danger' : undefined}>{dateLong(quote.validUntil)}{isExpired && quote.status === 'sent' ? ' (vencida)' : ''}</span> : null)}
               {field('Tiempo de entrega', quote.estimatedEta)}
               {field('Método de pago', paymentLabel)}
               {field('Días de crédito', quote.creditDays != null ? `${quote.creditDays} días` : 'No especificado (30 por omisión)')}

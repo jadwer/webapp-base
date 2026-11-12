@@ -498,7 +498,7 @@ export function QuoteItemsTable({
             return (
               <tr key={item.id} className={isQuoteItemPricePending(item) ? 'table-warning' : undefined} data-price-pending={isQuoteItemPricePending(item) ? 'true' : undefined}>
                 <td className="fw-medium">
-                  <div>{item.productName || `Producto #${item.productId}`}</div>
+                  <div>{item.productName || item.product?.name || `Producto #${item.productId}`}</div>
                   {isQuoteItemPricePending(item) && (
                     <span className="badge bg-warning text-dark mt-1" data-testid="quote-item-price-pending">
                       <i className="bi bi-hourglass-split me-1" aria-hidden="true" />
@@ -523,7 +523,7 @@ export function QuoteItemsTable({
                     <small className="text-muted d-block">{item.notes}</small>
                   ) : null}
                 </td>
-                <td className="text-muted">{item.productSku || '-'}</td>
+                <td className="text-muted">{item.productSku || item.product?.sku || '-'}</td>
                 <td className="text-center">
                   {stockStatus.available === 0 ? (
                     <span className="text-danger" title="Sin stock disponible">

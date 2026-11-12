@@ -29,7 +29,8 @@
 
   :global(h1), :global(.h3) { font-weight: 500; font-size: 1.5rem; margin-bottom: .25rem; }
 
-  :global(.btn) { border-radius: var(--lwr-radius-sm); font-size: .8125rem; font-weight: 500; padding: .45rem 1rem; }
+  :global(.btn) { border-radius: var(--lwr-radius-sm); font-size: .8125rem; font-weight: 500; padding: .45rem 1rem; text-transform: none; letter-spacing: normal; }
+  :global(.btn-link) { color: var(--lwr-accent); }
   :global(.btn-primary) { background: var(--lwr-accent); border-color: var(--lwr-accent); color: #fff; }
   :global(.btn-primary:hover), :global(.btn-primary:focus) { background: var(--lwr-accent-dark); border-color: var(--lwr-accent-dark); }
   :global(.btn-outline-primary) { color: var(--lwr-accent); border-color: var(--lwr-accent); background: #fff; }
@@ -95,6 +96,7 @@
     white-space: nowrap; padding: .7rem .6rem;
   }
   :global(td) { border-color: var(--lwr-border); padding: .55rem .6rem; vertical-align: middle; }
+  :global(.btn) { text-transform: none; }
   :global(td + td), :global(th + th) { border-left: 1px solid var(--lwr-border); }
   :global(tbody tr:hover) { background: #fafcff; }
 }
