@@ -1,0 +1,146 @@
+// Piel del panel del rediseno 2026-11 (Figma "Rediseno Labor wasser", UI Kit).
+// Colores desde las variables de marca de cada tenant (branding.scss), con el
+// valor del UI Kit como respaldo: verde vital, azul innovacion, azul
+// corporativo, rojo carmin y grises. Solo afecta lo que va dentro de LwSurface.
+
+.surface {
+  --lwr-accent: var(--brand-accent, #0094ff);
+  --lwr-accent-dark: var(--brand-accent-dark, #0072c6);
+  --lwr-accent-light: var(--brand-accent-light, #4ec8fc);
+  --lwr-green: var(--brand-primary, #8ac905);
+  --lwr-navy: var(--brand-secondary, #012a94);
+  --lwr-soft: var(--lw-surface-tint, #eaf6ff);
+  --lwr-red: #ff3b30;
+  --lwr-gray: #a9a9a9;
+  --lwr-gray-soft: #d9d9d9;
+  --lwr-slate: #4a5876;
+  --lwr-text: #212529;
+  --lwr-muted: #6c757d;
+  --lwr-border: #e3e8ef;
+  --lwr-radius: 10px;
+  --lwr-radius-sm: 6px;
+
+  font-family: var(--lw-font, var(--font-poppins, inherit));
+  color: var(--lwr-text);
+  background: #fff;
+  border-radius: 14px;
+  padding: 1.75rem 1.75rem 1.5rem;
+  box-shadow: 0 2px 10px rgba(33, 37, 41, 0.04);
+
+  :global(h1), :global(.h3) { font-weight: 500; font-size: 1.5rem; margin-bottom: .25rem; }
+
+  :global(.btn) { border-radius: var(--lwr-radius-sm); font-size: .8125rem; font-weight: 500; padding: .45rem 1rem; }
+  :global(.btn-primary) { background: var(--lwr-accent); border-color: var(--lwr-accent); color: #fff; }
+  :global(.btn-primary:hover), :global(.btn-primary:focus) { background: var(--lwr-accent-dark); border-color: var(--lwr-accent-dark); }
+  :global(.btn-outline-primary) { color: var(--lwr-accent); border-color: var(--lwr-accent); background: #fff; }
+  :global(.btn-outline-primary:hover) { background: var(--lwr-soft); color: var(--lwr-accent-dark); }
+  :global(.btn-success) { background: var(--lwr-green); border-color: var(--lwr-green); color: #fff; }
+  :global(.btn-outline-success) { color: var(--brand-primary-text, #5a8203); border-color: var(--lwr-green); background: #fff; }
+
+  :global(.form-control), :global(.form-select) {
+    border-radius: var(--lwr-radius-sm); border-color: var(--lwr-border); font-size: .8125rem; min-height: 2.5rem;
+  }
+  :global(.form-control:focus), :global(.form-select:focus) { border-color: var(--lwr-accent); box-shadow: 0 0 0 .15rem rgba(0, 148, 255, .15); }
+  :global(.form-control:disabled), :global(.form-select:disabled), :global(.form-control[readonly]) { background: #f6f7f9; }
+  :global(.form-label) { font-size: .8125rem; font-weight: 500; margin-bottom: .35rem; }
+  :global(.form-text) { font-size: .6875rem; }
+  :global(.input-group-text) { background: #fff; border-color: var(--lwr-border); color: var(--lwr-muted); }
+
+  :global(.card) { border-color: var(--lwr-border); border-radius: var(--lwr-radius); }
+  :global(.card-header) { background: #fff; border-bottom-color: var(--lwr-border); font-weight: 500; }
+}
+
+.subtitle { color: var(--lwr-text); font-size: .875rem; margin-bottom: 0; }
+.accentText { color: var(--lwr-green); }
+
+// ---- Tarjetas KPI ---------------------------------------------------
+.kpi {
+  display: flex; flex-direction: column; justify-content: space-between; gap: .5rem;
+  background: var(--lwr-soft); border-radius: var(--lwr-radius); padding: .85rem 1rem; height: 100%;
+  color: var(--lwr-navy); text-decoration: none;
+}
+.kpiHighlight { background: linear-gradient(90deg, var(--lwr-accent) 0%, var(--lwr-accent-light) 100%); color: #fff; }
+.kpiTop { display: flex; justify-content: space-between; align-items: center; font-size: .75rem; color: var(--lwr-text); }
+.kpiHighlight .kpiTop { color: #fff; }
+.kpiIcon {
+  width: 1.35rem; height: 1.35rem; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+  background: var(--lwr-accent); color: #fff; font-size: .7rem; flex-shrink: 0;
+}
+.kpiHighlight .kpiIcon { background: rgba(255, 255, 255, .25); }
+.kpiValue { font-size: 1.5rem; font-weight: 500; line-height: 1.1; }
+.kpiHint { font-size: .6875rem; opacity: .8; }
+
+// ---- Pastillas --------------------------------------------------------
+.pill {
+  display: inline-block; min-width: 5.25rem; text-align: center; border-radius: 4px; padding: .2rem .6rem;
+  font-size: .6875rem; font-weight: 500; color: #fff; white-space: nowrap;
+}
+.tone-neutral { background: var(--lwr-gray); }
+.tone-success { background: var(--lwr-green); }
+.tone-info { background: var(--lwr-accent); }
+.tone-danger { background: var(--lwr-red); }
+.tone-warning { background: #f5a623; }
+.tone-navy { background: var(--lwr-navy); }
+.countPill {
+  display: inline-block; border: 1px solid var(--lwr-border); border-radius: 4px; padding: .15rem .5rem;
+  font-size: .6875rem; color: var(--lwr-accent); background: #fff; white-space: nowrap;
+}
+
+// ---- Tabla ------------------------------------------------------------
+.tableWrap {
+  border: 1px solid var(--lwr-border); border-radius: var(--lwr-radius); overflow-x: auto;
+  :global(table) { margin: 0; font-size: .75rem; }
+  :global(thead th) {
+    background: #f6f7f9; color: var(--lwr-text); font-weight: 500; border-bottom: 1px solid var(--lwr-border);
+    white-space: nowrap; padding: .7rem .6rem;
+  }
+  :global(td) { border-color: var(--lwr-border); padding: .55rem .6rem; vertical-align: middle; }
+  :global(td + td), :global(th + th) { border-left: 1px solid var(--lwr-border); }
+  :global(tbody tr:hover) { background: #fafcff; }
+}
+.iconBtn {
+  border: 0; background: transparent; color: var(--lwr-slate); padding: .2rem .35rem; border-radius: 4px; line-height: 1;
+  &:hover { background: var(--lwr-soft); color: var(--lwr-accent); }
+  &:disabled { opacity: .35; cursor: not-allowed; }
+}
+
+// ---- Menu de acciones ------------------------------------------------------
+.menuWrap { position: relative; display: inline-block; }
+.menu {
+  position: absolute; right: 0; top: calc(100% + 4px); z-index: 1050; min-width: 11rem; background: #fff;
+  border: 1px solid var(--lwr-border); border-radius: 8px; box-shadow: 0 10px 28px rgba(33, 37, 41, .14);
+  padding: .3rem; list-style: none; margin: 0;
+}
+.menuItem {
+  display: flex; align-items: center; gap: .5rem; width: 100%; text-align: left; border: 0; background: transparent;
+  font-size: .75rem; padding: .45rem .6rem; border-radius: 4px; color: var(--lwr-text);
+  &:hover:not(:disabled) { background: var(--lwr-soft); color: var(--lwr-accent-dark); }
+  &:disabled { color: var(--lwr-gray); cursor: not-allowed; }
+}
+.menuItemDanger { color: var(--lwr-red); }
+.menuDivider { height: 1px; background: var(--lwr-border); margin: .25rem 0; }
+.menuHint { font-size: .625rem; color: var(--lwr-muted); padding: 0 .6rem .3rem 2rem; }
+
+// ---- Paginacion --------------------------------------------------------
+.pager { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; font-size: .75rem; color: var(--lwr-muted); }
+.pagerSize { width: auto; min-height: 1.9rem !important; padding-top: .15rem; padding-bottom: .15rem; }
+.pageBtn {
+  border: 0; background: transparent; color: var(--lwr-muted); min-width: 1.7rem; height: 1.7rem; border-radius: 4px; font-size: .75rem;
+  &:disabled { opacity: .4; }
+}
+.pageBtnActive { background: var(--lwr-accent); color: #fff; }
+
+// ---- Modal de resultado ---------------------------------------------------
+.backdrop { position: fixed; inset: 0; background: rgba(1, 42, 148, .08); backdrop-filter: blur(1px); z-index: 1060; display: flex; align-items: center; justify-content: center; }
+.dialog {
+  background: #fff; border-radius: 12px; box-shadow: 0 12px 32px rgba(0, 0, 0, .12); width: min(22rem, 92vw);
+  padding: 1.5rem 1.5rem 1.25rem; text-align: center; font-family: var(--lw-font, inherit);
+}
+.dialogIcon { font-size: 2rem; line-height: 1; }
+.dialogIcon-success { color: var(--lwr-green, #8ac905); }
+.dialogIcon-warning { color: #f5a623; }
+.dialogIcon-danger { color: var(--lwr-red, #ff3b30); }
+.dialogTitle { font-size: 1.15rem; font-weight: 500; margin: .6rem 0 .35rem; }
+.dialogText { font-size: .8125rem; color: var(--lwr-muted, #6c757d); margin-bottom: 1rem; }
+.dialogActions { display: flex; gap: .6rem; justify-content: center; }
+.dialogActions :global(.btn) { min-width: 7rem; }

@@ -60,6 +60,9 @@ export {
 // Primitivas de layout para paginas del dashboard (Bootstrap puro)
 export * from './components/patterns'
 
+// Piel del rediseno del panel 2026-11
+export * from './components/redesign'
+
 // ============================================
 // Layout primitives (require @lwm/auth as peer)
 // ============================================

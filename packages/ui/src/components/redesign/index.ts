@@ -1,0 +1,13 @@
+// Rediseno del panel 2026-11 (Figma "Rediseno Labor wasser"). Ver redesign.module.scss.
+export { LwSurface, LwPageTitle } from './LwSurface'
+export type { LwSurfaceProps, LwPageTitleProps } from './LwSurface'
+export { LwKpiCard } from './LwKpiCard'
+export type { LwKpiCardProps } from './LwKpiCard'
+export { LwStatusPill, LwCountPill, LwTableWrap, LwIconButton } from './LwPill'
+export type { LwTone, LwStatusPillProps, LwIconButtonProps } from './LwPill'
+export { LwActionMenu } from './LwActionMenu'
+export type { LwActionMenuItem, LwActionMenuProps } from './LwActionMenu'
+export { LwPagination } from './LwPagination'
+export type { LwPaginationProps } from './LwPagination'
+export { LwResultModal } from './LwResultModal'
+export type { LwResultModalProps } from './LwResultModal'
