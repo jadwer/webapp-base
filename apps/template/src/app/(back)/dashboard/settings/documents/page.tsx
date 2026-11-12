@@ -4,6 +4,7 @@
  * Configuración de Documentos
  *
  * Pantalla unificada (estilo Bind) con pestañas:
+ *  - Diseño: editor visual de los PDF (constructor de documentos, 2026-11-12)
  *  - Leyendas: texto configurable por tipo de documento, impreso en el PDF
  *  - Folios: consecutivos COT/OV/OC/REM (pantalla existente montada como pestaña)
  *  - Series: series de facturacion CFDI (pantalla existente montada como pestaña)
@@ -26,8 +27,9 @@ import { toast } from '@/lib/toast'
 import ConfirmModal, { ConfirmModalHandle } from '@/ui/components/base/ConfirmModal'
 import FoliosSettingsPage from '../folios/page'
 import InvoiceSeriesSettingsPage from '../invoice-series/page'
+import { DocumentDesigner } from '@lwm/sales'
 
-type TabKey = 'leyendas' | 'folios' | 'series'
+type TabKey = 'diseno' | 'leyendas' | 'folios' | 'series'
 
 const LEGEND_TYPES = Object.keys(LEGEND_DOCUMENT_TYPE_LABELS) as LegendDocumentType[]
 
@@ -322,17 +324,18 @@ function DocumentLegendsTab() {
 }
 
 export default function DocumentsSettingsPage() {
-  const [activeTab, setActiveTab] = useState<TabKey>('leyendas')
+  const [activeTab, setActiveTab] = useState<TabKey>('diseno')
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
     const tab = params.get('tab')
-    if (tab === 'folios' || tab === 'series') {
+    if (tab === 'leyendas' || tab === 'folios' || tab === 'series') {
       setActiveTab(tab)
     }
   }, [])
 
   const tabs: Array<{ key: TabKey; label: string; icon: string }> = [
+    { key: 'diseno', label: 'Diseño', icon: 'bi-layout-text-window' },
     { key: 'leyendas', label: 'Leyendas', icon: 'bi-card-text' },
     { key: 'folios', label: 'Folios', icon: 'bi-123' },
     { key: 'series', label: 'Series', icon: 'bi-collection' },
@@ -344,7 +347,7 @@ export default function DocumentsSettingsPage() {
         <div>
           <h1 className="h3 mb-1">Configuración de Documentos</h1>
           <p className="text-muted mb-0">
-            Leyendas, folios y series de los documentos que emite el sistema
+            Diseño, leyendas, folios y series de los documentos que emite el sistema
           </p>
         </div>
       </div>
@@ -367,6 +370,7 @@ export default function DocumentsSettingsPage() {
       </ul>
 
       <div className="tab-content">
+        {activeTab === 'diseno' && <DocumentDesigner />}
         {activeTab === 'leyendas' && <DocumentLegendsTab />}
         {activeTab === 'folios' && <FoliosSettingsPage />}
         {activeTab === 'series' && <InvoiceSeriesSettingsPage />}

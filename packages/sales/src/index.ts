@@ -15,6 +15,9 @@ export * from './utils/dates'
 // Export all components
 export * from './components'
 
+// Editor visual de documentos PDF
+export * from './documents'
+
 // Re-export main items for convenience
 export { 
   // Types
