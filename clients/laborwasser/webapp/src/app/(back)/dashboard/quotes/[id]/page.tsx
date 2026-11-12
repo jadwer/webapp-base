@@ -84,14 +84,6 @@ export default function QuoteDetailPage({ params }: PageProps) {
     }).format(amount)
   }
 
-  const formatDate = (dateString: string | null | undefined) => {
-    if (!dateString) return '-'
-    return new Date(dateString).toLocaleDateString('es-MX', {
-      day: '2-digit',
-      month: 'long',
-      year: 'numeric'
-    })
-  }
 
   const handleAction = async (action: 'accept' | 'cancel' | 'duplicate' | 'recalculate-taxes') => {
     if (!quote) return
