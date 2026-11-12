@@ -6,6 +6,7 @@ import { Card, CardHeader, CardContent, CardFooter } from '@/ui/components/base/
 import { ToggleSwitch } from '@/ui/components/base/ToggleSwitch'
 import { Input, Textarea, Checkbox, Radio } from '@/ui/components/base'
 import { toast } from '@/lib/toast'
+import { RedesignShowcase } from './RedesignShowcase'
 
 export default function DesignSystemPage() {
   const [loading, setLoading] = useState(false)
@@ -42,6 +43,8 @@ export default function DesignSystemPage() {
             </p>
           </div>
         </div>
+
+        <RedesignShowcase />
 
         {/* Colors Section */}
         <div className="row mb-5">

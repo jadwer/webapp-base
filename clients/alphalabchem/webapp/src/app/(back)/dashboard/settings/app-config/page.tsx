@@ -50,20 +50,14 @@ const GROUP_CONFIG: Record<string, { label: string; icon: string; description: s
   documents: {
     label: 'Documentos',
     icon: 'bi-file-earmark-text',
-    description: 'Datos del emisor que imprimen las cotizaciones, separados de la configuración fiscal de facturación.',
+    description: 'Datos del emisor que imprimen las cotizaciones (separados de la configuración fiscal) y qué documentos salen con el diseño nuevo.',
   },
 }
 
 const GROUP_ORDER = ['company', 'documents', 'branding', 'social', 'auth', 'mail', 'landing', 'search']
 
-// documents.issuer_source se edita con un select (valores fijos del backend)
-const SELECT_KEYS: Record<string, Array<{ value: string; label: string }>> = {
-  'documents.issuer_source': [
-    { value: 'company', label: 'Datos de la empresa (Configuración > Empresa)' },
-    { value: 'manual', label: 'Manual (los campos de esta sección)' },
-    { value: 'billing', label: 'Configuración fiscal de facturación' },
-  ],
-}
+// Los ajustes de lista cerrada traen sus opciones del backend (setting.options);
+// el panel no guarda copia de los valores validos (regla 7).
 
 // Settings que se editan en un textarea (parrafos) en vez de input de una linea
 const MULTILINE_KEYS = ['landing.hero_subtitle', 'documents.quote_bank_accounts', 'documents.issuer_address']
@@ -303,14 +297,14 @@ export default function AppConfigPage() {
                                 saving={saving}
                                 onSave={handleSaveFaq}
                               />
-                            ) : isEditing && SELECT_KEYS[setting.key] ? (
+                            ) : isEditing && setting.options?.length ? (
                               <select
                                 className="form-select form-select-sm"
                                 value={String(editing.value ?? '')}
                                 onChange={(e) => setEditing({ ...editing, value: e.target.value })}
                                 autoFocus
                               >
-                                {SELECT_KEYS[setting.key].map((opt) => (
+                                {setting.options.map((opt) => (
                                   <option key={opt.value} value={opt.value}>{opt.label}</option>
                                 ))}
                               </select>
@@ -359,6 +353,8 @@ export default function AppConfigPage() {
                                   </span>
                                 ) : PASSWORD_KEYS.includes(setting.key) && setting.value ? (
                                   '••••••••'
+                                ) : setting.options?.length ? (
+                                  setting.options.find((opt) => opt.value === setting.value)?.label ?? String(setting.value ?? '—')
                                 ) : (
                                   String(setting.value ?? '—')
                                 )}

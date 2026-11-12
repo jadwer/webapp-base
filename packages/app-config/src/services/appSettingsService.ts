@@ -6,6 +6,8 @@ export interface AppSettingValue {
   type: string
   label: string | null
   description: string | null
+  /** Lista cerrada de valores que acepta el backend (null = texto libre). */
+  options?: Array<{ value: string; label: string }> | null
 }
 
 export interface AppSettingsGrouped {
