@@ -38,7 +38,13 @@
 }
 
 .logo {
-  height: 3.75rem; // Figma: ~60
+  // Figma: ~60 de alto. Con alto fijo el logo (apaisado, ~266 de ancho) se
+  // salia de su columna de 992 a 1399 px y quedaba bajo "Recursos"; ahora se
+  // achica con la columna y conserva la proporcion.
+  display: block;
+  max-height: 3.75rem;
+  max-width: 100%;
+  height: auto;
   width: auto;
 }
 
