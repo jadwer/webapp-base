@@ -38,8 +38,10 @@
   min-width: 0; // Prevent flex item from overflowing
   background: transparent;
   transition: margin-left 250ms ease-in-out;
+  // Sobre el degradado fijo de .layout::before (z-index 0) por orden del
+  // documento. Sin z-index propio: con z-index 1 el contenido era una capa
+  // aparte y todo modal en linea quedaba bajo el encabezado (z-index 1000).
   position: relative;
-  z-index: 1;
   
   @media (max-width: 991px) {
     margin-left: 0 !important;
