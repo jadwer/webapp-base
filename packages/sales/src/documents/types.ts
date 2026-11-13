@@ -1,11 +1,10 @@
 /**
- * Editor visual de documentos (2026-11-12). El diseno es el formato v1 de
- * atomo/documents tal cual: filas de una o dos celdas sobre una rejilla de 12.
- * El catalogo (que secciones, columnas y datos ofrece cada documento) lo manda
- * el backend; el panel no guarda copia (regla 7).
+ * Diseno de los PDF (2026-11-12): el usuario elige COMO se ve cada documento
+ * (plantilla de la galeria y estilo fila por fila, como las plantillas de
+ * Bind), no su contenido. El diseno es el formato v1 de atomo/documents tal
+ * cual. La galeria, las opciones con sus valores y nombres y las miniaturas
+ * las manda el backend; el panel no guarda copia (regla 7).
  */
-
-export type LayoutColumn = string | { key: string; label?: string; width?: number }
 
 export interface LayoutCell {
   block: string
@@ -20,26 +19,31 @@ export interface LayoutRow {
 export interface RawLayout {
   version: number
   name?: string
-  theme?: { mode?: string }
-  page?: { watermark?: string | null; footer?: { legal?: boolean; pageNumbers?: boolean } }
+  theme?: { mode?: string; accent?: string }
+  page?: { watermark?: string | null; footer?: { legal?: boolean; pageNumbers?: boolean; rule?: string } }
   rows: LayoutRow[]
 }
 
-export type BlockOptionType = 'bool' | 'text' | 'cols' | 'columns' | 'keys'
-
-export interface CatalogBlock {
+export interface StyleOption {
   key: string
   label: string
-  description: string
-  options: Array<{ key: string; type: BlockOptionType; label: string }>
-  /** Las partidas van solas en su fila. */
-  alone: boolean
+  type: 'enum' | 'bool' | 'color' | 'text' | 'keys' | 'columns'
+  style: boolean
+  default: unknown
+  values?: Array<{ value: string; label: string }>
 }
 
 export interface DesignCatalog {
-  blocks: CatalogBlock[]
-  columns: Array<{ key: string; label: string }>
-  meta: Array<{ key: string; label: string }>
+  blocks: Record<string, { label: string; options: StyleOption[] }>
+  theme: StyleOption[]
+  page: StyleOption[]
+}
+
+export interface DesignStyle {
+  key: string
+  label: string
+  description: string
+  thumbnail: boolean
 }
 
 export interface DocumentDesignSummary {
@@ -47,14 +51,13 @@ export interface DocumentDesignSummary {
   label: string
   enabledKey: string
   enabled: boolean
-  modeKey: string
-  mode: string
   customized: boolean
+  style: string
 }
 
 export interface DocumentDesign extends DocumentDesignSummary {
   layout: RawLayout
   updatedAt: string | null
+  styles: DesignStyle[]
   catalog: DesignCatalog
-  modes: Array<{ value: string; label: string }>
 }

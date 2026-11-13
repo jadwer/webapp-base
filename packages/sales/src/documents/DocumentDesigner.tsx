@@ -1,34 +1,35 @@
 'use client'
 
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { LwResultModal, LwStatusPill, toast } from '@lwm/ui'
-import { CellEditor } from './CellEditor'
 import { designErrorMessage, documentDesignService } from './documentDesignService'
-import { addRow, moveRow, removeCell, removeRow, setBlock, setLeftSpan, setOption, spanOf, splitRow } from './layoutOps'
-import type { DocumentDesign, DocumentDesignSummary, RawLayout } from './types'
+import { pageValue, setCellStyle, setPageStyle, setThemeStyle } from './layoutOps'
+import type { DesignStyle, DocumentDesign, DocumentDesignSummary, RawLayout, StyleOption } from './types'
 
 const PREVIEW_DELAY = 700
 
 /**
- * Editor visual de documentos PDF (2026-11-12): por documento, sus secciones
- * en filas, las opciones de cada una, colores, pie de pagina y la vista previa
- * del PDF real con el documento mas reciente. Lo que ofrece sale del catalogo
- * del backend y lo que se guarda lo valida el backend con el formato de Atomo.
+ * Diseno de los PDF (2026-11-12): por documento, se escoge una plantilla de
+ * la galeria y se ajusta el estilo fila por fila (logo, fondo del titulo,
+ * encabezado de la tabla, marcos, titulos de seccion, total), con la vista
+ * previa del PDF real. El contenido no se edita aqui. Plantillas, opciones y
+ * miniaturas salen del backend (atomo/documents).
  */
 export function DocumentDesigner() {
   const [types, setTypes] = useState<DocumentDesignSummary[]>([])
   const [active, setActive] = useState<string | null>(null)
   const [design, setDesign] = useState<DocumentDesign | null>(null)
   const [draft, setDraft] = useState<RawLayout | null>(null)
+  const [style, setStyle] = useState('standard')
   const [saved, setSaved] = useState('')
   const [loadError, setLoadError] = useState<string | null>(null)
   const [saveError, setSaveError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
   const [confirmRestore, setConfirmRestore] = useState(false)
-  const [newBlock, setNewBlock] = useState('')
   const [pendingSwitch, setPendingSwitch] = useState<string | null>(null)
 
-  const dirty = draft !== null && JSON.stringify(draft) !== saved
+  const snapshot = (layout: RawLayout | null, s: string) => JSON.stringify({ layout, s })
+  const dirty = draft !== null && snapshot(draft, style) !== saved
 
   useEffect(() => {
     documentDesignService.list()
@@ -42,18 +43,16 @@ export function DocumentDesigner() {
   const load = useCallback(async (type: string) => {
     setLoadError(null)
     setSaveError(null)
-    // Sin esto el documento anterior queda en pantalla mientras carga el nuevo
-    // y lo que se edite en ese instante se pierde.
+    // Sin esto el documento anterior queda en pantalla mientras carga el nuevo.
     setDesign(null)
     setDraft(null)
     try {
       const data = await documentDesignService.get(type)
       setDesign(data)
       setDraft(data.layout)
-      setSaved(JSON.stringify(data.layout))
+      setStyle(data.style)
+      setSaved(snapshot(data.layout, data.style))
     } catch (err) {
-      setDesign(null)
-      setDraft(null)
       setLoadError(await designErrorMessage(err, 'No se pudo cargar el diseño.'))
     }
   }, [])
@@ -71,16 +70,29 @@ export function DocumentDesigner() {
     setActive(type)
   }
 
+  const pickStyle = async (key: string) => {
+    if (!design) return
+    setSaveError(null)
+    try {
+      const res = await documentDesignService.applyStyle(design.type, key)
+      setDraft(res.layout)
+      setStyle(res.style)
+    } catch (err) {
+      toast.error(await designErrorMessage(err, 'No se pudo aplicar la plantilla.'))
+    }
+  }
+
   const save = async () => {
     if (!design || !draft) return
     setBusy(true)
     setSaveError(null)
     try {
-      const res = await documentDesignService.save(design.type, draft)
+      const res = await documentDesignService.save(design.type, draft, style)
       setDraft(res.layout)
-      setSaved(JSON.stringify(res.layout))
-      setDesign({ ...design, customized: res.customized, updatedAt: res.updatedAt })
-      setTypes((list) => list.map((t) => (t.type === design.type ? { ...t, customized: true } : t)))
+      setStyle(res.style)
+      setSaved(snapshot(res.layout, res.style))
+      setDesign({ ...design, customized: res.customized, updatedAt: res.updatedAt, style: res.style })
+      setTypes((list) => list.map((t) => (t.type === design.type ? { ...t, customized: true, style: res.style } : t)))
       toast.success('Diseño guardado. Los PDF nuevos ya salen así.')
     } catch (err) {
       setSaveError(await designErrorMessage(err, 'No se pudo guardar el diseño.'))
@@ -95,9 +107,10 @@ export function DocumentDesigner() {
     try {
       const res = await documentDesignService.restore(design.type)
       setDraft(res.layout)
-      setSaved(JSON.stringify(res.layout))
-      setDesign({ ...design, customized: false, updatedAt: null })
-      setTypes((list) => list.map((t) => (t.type === design.type ? { ...t, customized: false } : t)))
+      setStyle(res.style)
+      setSaved(snapshot(res.layout, res.style))
+      setDesign({ ...design, customized: false, updatedAt: null, style: res.style })
+      setTypes((list) => list.map((t) => (t.type === design.type ? { ...t, customized: false, style: res.style } : t)))
       toast.success('Se restauró el diseño de fábrica.')
     } catch (err) {
       toast.error(await designErrorMessage(err, 'No se pudo restaurar el diseño de fábrica.'))
@@ -107,35 +120,25 @@ export function DocumentDesigner() {
     }
   }
 
-  const setSetting = async (key: string, value: string | boolean, patch: Partial<DocumentDesignSummary>) => {
+  const toggleEnabled = async (value: boolean) => {
     if (!design) return
     try {
-      await documentDesignService.setSetting(key, value)
-      setDesign({ ...design, ...patch })
-      // La cotizacion de la tienda comparte los colores con la cotizacion.
-      setTypes((list) => list.map((t) => (t.enabledKey === key || t.modeKey === key ? { ...t, ...(t.enabledKey === key ? { enabled: Boolean(value) } : { mode: String(value) }) } : t)))
+      await documentDesignService.setSetting(design.enabledKey, value)
+      setDesign({ ...design, enabled: value })
+      setTypes((list) => list.map((t) => (t.type === design.type ? { ...t, enabled: value } : t)))
     } catch (err) {
       toast.error(await designErrorMessage(err, 'No se pudo guardar el ajuste.'))
     }
   }
 
-  const blockLabel = useMemo(() => {
-    const map = new Map((design?.catalog.blocks ?? []).map((b) => [b.key, b.label]))
-    return (key: string) => map.get(key) ?? key
-  }, [design])
-
-  const addSection = () => {
-    if (!draft || !design || !newBlock) return
-    const defaults = newBlock === 'lines' ? { columns: design.catalog.columns.map((c) => c.key) } : {}
-    setDraft(addRow(draft, newBlock, defaults))
-    setNewBlock('')
-  }
+  const styleLabel = design?.styles.find((s) => s.key === style)?.label ?? style
 
   return (
     <div>
       <p className="text-muted">
-        Arma cada PDF por secciones: cambia el orden, junta dos en una fila, elige columnas y datos. A la derecha ves el
-        PDF real con el documento más reciente. Los cambios aplican a los PDF que se generen después de guardar.
+        Escoge una plantilla para cada documento y, si quieres, ajusta el estilo fila por fila: tamaño del logo, fondo del
+        título, encabezados remarcados, marcos y color. La información del documento es la misma; cambia cómo se ve. A la
+        derecha ves el PDF real con el documento más reciente.
       </p>
 
       {types.length > 0 && (
@@ -158,7 +161,6 @@ export function DocumentDesigner() {
       )}
 
       {loadError && <div className="alert alert-danger" role="alert">{loadError}</div>}
-
       {!design && !loadError && active && <div className="text-muted small py-4">Cargando el diseño…</div>}
 
       {design && draft && (
@@ -166,11 +168,11 @@ export function DocumentDesigner() {
           <div className="col-12 col-xl-5">
             <div className="card mb-3">
               <div className="card-body">
-                <div className="d-flex justify-content-between align-items-start gap-2 mb-2">
+                <div className="d-flex justify-content-between align-items-start gap-2">
                   <div>
                     <h2 className="h6 mb-1">{design.label}</h2>
                     <LwStatusPill tone={design.customized ? 'info' : 'neutral'}>
-                      {design.customized ? 'Diseño personalizado' : 'Diseño de fábrica'}
+                      {design.customized ? `Personalizado (${styleLabel})` : 'Diseño de fábrica'}
                     </LwStatusPill>
                   </div>
                   <div className="form-check form-switch">
@@ -180,146 +182,99 @@ export function DocumentDesigner() {
                       role="switch"
                       className="form-check-input"
                       checked={design.enabled}
-                      onChange={(e) => setSetting(design.enabledKey, e.target.checked, { enabled: e.target.checked })}
+                      onChange={(e) => toggleEnabled(e.target.checked)}
                     />
                     <label className="form-check-label small" htmlFor="designer-enabled">
                       {design.enabled ? 'Los PDF salen con este diseño' : 'Apagado: los PDF salen con el formato anterior'}
                     </label>
                   </div>
                 </div>
-                <div className="row g-2">
-                  <div className="col-sm-6">
-                    <label className="form-label small mb-1" htmlFor="designer-mode">Colores</label>
-                    <select
-                      id="designer-mode"
-                      className="form-select form-select-sm"
-                      value={design.mode}
-                      onChange={(e) => setSetting(design.modeKey, e.target.value, { mode: e.target.value })}
-                    >
-                      {design.modes.map((m) => <option key={m.value} value={m.value}>{m.label}</option>)}
-                    </select>
-                    {design.type === 'cart_quote' && <div className="form-text">Los comparte con la cotización.</div>}
-                  </div>
-                  <div className="col-sm-6">
-                    <label className="form-label small mb-1" htmlFor="designer-watermark">Marca de agua</label>
-                    <input
-                      id="designer-watermark"
-                      className="form-control form-control-sm"
-                      value={draft.page?.watermark ?? ''}
-                      placeholder="Sin marca de agua"
-                      onChange={(e) => setDraft({ ...draft, page: { ...draft.page, watermark: e.target.value === '' ? null : e.target.value } })}
-                    />
-                  </div>
+              </div>
+            </div>
+
+            <h3 className="h6">Plantilla</h3>
+            <div className="row g-2 mb-4" role="radiogroup" aria-label="Plantilla">
+              {design.styles.map((s) => (
+                <div key={s.key} className="col-6">
+                  <StyleCard type={design.type} item={s} selected={style === s.key} onPick={() => pickStyle(s.key)} />
                 </div>
-                <div className="d-flex gap-3 mt-2">
-                  {([['legal', 'Leyenda legal al pie'], ['pageNumbers', 'Números de página']] as const).map(([key, label]) => (
-                    <div key={key} className="form-check">
-                      <input
-                        id={`designer-footer-${key}`}
-                        type="checkbox"
-                        className="form-check-input"
-                        checked={draft.page?.footer?.[key] ?? true}
-                        onChange={(e) => setDraft({ ...draft, page: { ...draft.page, footer: { ...draft.page?.footer, [key]: e.target.checked } } })}
+              ))}
+            </div>
+
+            <h3 className="h6">Ajustar fila por fila</h3>
+            <div className="card mb-2">
+              <div className="card-header py-1 small fw-semibold">Todo el documento</div>
+              <div className="card-body py-2">
+                <div className="row g-2">
+                  {design.catalog.theme.map((opt) => (
+                    <div key={opt.key} className="col-sm-6">
+                      <OptionField
+                        id={`designer-theme-${opt.key}`}
+                        option={opt}
+                        value={draft.theme?.[opt.key as 'mode' | 'accent']}
+                        onChange={(v) => setDraft(setThemeStyle(draft, opt.key as 'mode' | 'accent', v as string | undefined))}
                       />
-                      <label className="form-check-label small" htmlFor={`designer-footer-${key}`}>{label}</label>
+                    </div>
+                  ))}
+                  {design.catalog.page.map((opt) => (
+                    <div key={opt.key} className="col-sm-6">
+                      <OptionField
+                        id={`designer-page-${opt.key.replace('.', '-')}`}
+                        option={opt}
+                        value={pageValue(draft, opt.key)}
+                        onChange={(v) => setDraft(setPageStyle(draft, opt.key, v))}
+                      />
                     </div>
                   ))}
                 </div>
               </div>
             </div>
 
-            {draft.rows.map((row, r) => (
-              <div key={r} className="card mb-2" data-testid={`designer-row-${r}`}>
-                <div className="card-header py-1 d-flex align-items-center justify-content-between">
-                  <span className="small fw-semibold">
-                    Fila {r + 1}: {row.cells.map((c) => blockLabel(c.block)).join(' + ')}
-                  </span>
-                  <span className="text-nowrap">
-                    <button type="button" className="btn btn-sm btn-link px-1" aria-label={`Subir fila ${r + 1}`} disabled={r === 0} onClick={() => setDraft(moveRow(draft, r, -1))}>
-                      <i className="bi bi-arrow-up" aria-hidden="true" />
-                    </button>
-                    <button type="button" className="btn btn-sm btn-link px-1" aria-label={`Bajar fila ${r + 1}`} disabled={r === draft.rows.length - 1} onClick={() => setDraft(moveRow(draft, r, 1))}>
-                      <i className="bi bi-arrow-down" aria-hidden="true" />
-                    </button>
-                    <button
-                      type="button"
-                      className="btn btn-sm btn-link text-danger px-1"
-                      aria-label={`Quitar fila ${r + 1}`}
-                      disabled={draft.rows.length === 1}
-                      title={draft.rows.length === 1 ? 'El documento necesita al menos una fila' : undefined}
-                      onClick={() => setDraft(removeRow(draft, r))}
-                    >
-                      <i className="bi bi-trash" aria-hidden="true" />
-                    </button>
-                  </span>
-                </div>
-                <div className="card-body py-2">
-                  <div className="row g-3">
-                    {row.cells.map((cell, c) => (
-                      <div key={c} className={row.cells.length === 2 ? 'col-6' : 'col-12'}>
-                        <CellEditor
-                          cell={cell}
-                          catalog={design.catalog}
-                          shared={row.cells.length === 2}
-                          idPrefix={`designer-${r}-${c}`}
-                          onBlock={(block) => setDraft(setBlock(draft, r, c, block))}
-                          onOption={(name, value) => setDraft(setOption(draft, r, c, name, value))}
-                        />
-                        {row.cells.length === 2 && (
-                          <button type="button" className="btn btn-sm btn-link text-danger px-0 mt-1" onClick={() => setDraft(removeCell(draft, r, c as 0 | 1))}>
-                            Quitar esta sección de la fila
-                          </button>
-                        )}
+            {draft.rows.map((row, r) => {
+              const cells = row.cells.map((cell, c) => ({ cell, c, block: design.catalog.blocks[cell.block] }))
+              const withOptions = cells.filter((x) => x.block && x.block.options.length > 0)
+              const title = cells.map((x) => x.block?.label ?? x.cell.block).join(' + ')
+              return (
+                <div key={r} className="card mb-2" data-testid={`designer-row-${r}`}>
+                  <div className="card-header py-1 small fw-semibold">Fila {r + 1}: {title}</div>
+                  <div className="card-body py-2">
+                    {withOptions.length === 0 ? (
+                      <div className="small text-muted">Sin opciones de estilo; toma el color del documento.</div>
+                    ) : (
+                      <div className="row g-2">
+                        {withOptions.map(({ cell, c, block }) => (
+                          <div key={c} className={withOptions.length > 1 ? 'col-sm-6' : 'col-12'}>
+                            {withOptions.length > 1 && <div className="small fw-semibold mb-1">{block.label}</div>}
+                            {block.options.map((opt) => (
+                              <OptionField
+                                key={opt.key}
+                                id={`designer-${r}-${c}-${opt.key}`}
+                                option={opt}
+                                value={cell.options?.[opt.key]}
+                                onChange={(v) => setDraft(setCellStyle(draft, r, c, opt.key, v))}
+                              />
+                            ))}
+                          </div>
+                        ))}
                       </div>
-                    ))}
+                    )}
                   </div>
-                  {row.cells.length === 2 ? (
-                    <div className="mt-2">
-                      <label className="form-label small mb-0" htmlFor={`designer-${r}-span`}>
-                        Ancho: {Math.round((spanOf(row, 0) / 12) * 100)}% izquierda, {Math.round((spanOf(row, 1) / 12) * 100)}% derecha
-                      </label>
-                      <input
-                        id={`designer-${r}-span`}
-                        type="range"
-                        className="form-range"
-                        min={3}
-                        max={9}
-                        value={spanOf(row, 0)}
-                        onChange={(e) => setDraft(setLeftSpan(draft, r, Number(e.target.value)))}
-                      />
-                    </div>
-                  ) : (
-                    row.cells[0].block !== 'lines' && (
-                      <button
-                        type="button"
-                        className="btn btn-sm btn-outline-secondary mt-2"
-                        onClick={() => setDraft(splitRow(draft, r, design.catalog.blocks.find((b) => !b.alone && b.key !== row.cells[0].block)?.key ?? 'notes'))}
-                      >
-                        <i className="bi bi-layout-split me-1" aria-hidden="true" />Agregar otra sección al lado
-                      </button>
-                    )
-                  )}
                 </div>
-              </div>
-            ))}
-
-            <div className="d-flex gap-2 align-items-center my-3">
-              <select className="form-select form-select-sm" aria-label="Sección para la fila nueva" value={newBlock} onChange={(e) => setNewBlock(e.target.value)}>
-                <option value="">Agregar una fila con la sección…</option>
-                {design.catalog.blocks.map((b) => <option key={b.key} value={b.key}>{b.label}</option>)}
-              </select>
-              <button type="button" className="btn btn-sm btn-outline-primary text-nowrap" disabled={!newBlock} onClick={addSection}>
-                Agregar fila
-              </button>
-            </div>
+              )
+            })}
 
             {saveError && <div className="alert alert-danger py-2" role="alert">{saveError}</div>}
 
-            <div className="d-flex flex-wrap gap-2">
+            <div className="d-flex flex-wrap gap-2 mt-3">
               <button type="button" className="btn btn-primary" disabled={!dirty || busy} onClick={save}>
                 {busy ? 'Guardando…' : 'Guardar diseño'}
               </button>
-              <button type="button" className="btn btn-outline-secondary" disabled={!dirty || busy} onClick={() => { setDraft(JSON.parse(saved)); setSaveError(null) }}>
+              <button
+                type="button"
+                className="btn btn-outline-secondary"
+                disabled={!dirty || busy}
+                onClick={() => { const s = JSON.parse(saved); setDraft(s.layout); setStyle(s.s); setSaveError(null) }}
+              >
                 Descartar cambios
               </button>
               <button
@@ -335,7 +290,7 @@ export function DocumentDesigner() {
           </div>
 
           <div className="col-12 col-xl-7">
-            <PreviewPane type={design.type} layout={draft} mode={design.mode} />
+            <PreviewPane type={design.type} layout={draft} />
           </div>
         </div>
       )}
@@ -366,7 +321,96 @@ export function DocumentDesigner() {
   )
 }
 
-function PreviewPane({ type, layout, mode }: { type: string; layout: RawLayout; mode: string }) {
+/** Un campo de estilo; el valor vacio es "de fabrica" (la omision del catalogo). */
+function OptionField({ id, option, value, onChange }: { id: string; option: StyleOption; value: unknown; onChange: (v: unknown) => void }) {
+  const defaultLabel = option.values?.find((v) => v.value === option.default)?.label
+  if (option.type === 'color') {
+    const color = typeof value === 'string' && /^#[0-9a-fA-F]{6}$/.test(value) ? value : ''
+    return (
+      <div className="mb-2">
+        <label className="form-label small mb-1" htmlFor={id}>{option.label}</label>
+        <div className="d-flex gap-2 align-items-center">
+          <input id={id} type="color" className="form-control form-control-color form-control-sm" value={color || '#0094ff'} onChange={(e) => onChange(e.target.value)} />
+          <span className="small text-muted">{color ? color : 'El de la marca'}</span>
+          {color && (
+            <button type="button" className="btn btn-sm btn-link px-0" onClick={() => onChange(undefined)}>Usar el de la marca</button>
+          )}
+        </div>
+      </div>
+    )
+  }
+  if (option.type === 'bool') {
+    return (
+      <div className="form-check mb-2">
+        <input id={id} type="checkbox" className="form-check-input" checked={value === undefined ? Boolean(option.default) : Boolean(value)} onChange={(e) => onChange(e.target.checked)} />
+        <label className="form-check-label small" htmlFor={id}>{option.label}</label>
+      </div>
+    )
+  }
+  return (
+    <div className="mb-2">
+      <label className="form-label small mb-1" htmlFor={id}>{option.label}</label>
+      <select
+        id={id}
+        className="form-select form-select-sm"
+        value={typeof value === 'string' ? value : ''}
+        onChange={(e) => onChange(e.target.value === '' ? undefined : e.target.value)}
+      >
+        <option value="">{defaultLabel ? `${defaultLabel} (de fábrica)` : 'De fábrica'}</option>
+        {(option.values ?? []).map((v) => <option key={v.value} value={v.value}>{v.label}</option>)}
+      </select>
+    </div>
+  )
+}
+
+function StyleCard({ type, item, selected, onPick }: { type: string; item: DesignStyle; selected: boolean; onPick: () => void }) {
+  const [src, setSrc] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!item.thumbnail) return
+    let url: string | null = null
+    let alive = true
+    documentDesignService.thumbnail(type, item.key)
+      .then((blob) => {
+        if (!alive) return
+        url = URL.createObjectURL(blob)
+        setSrc(url)
+      })
+      .catch(() => undefined)
+    return () => {
+      alive = false
+      if (url) URL.revokeObjectURL(url)
+    }
+  }, [type, item.key, item.thumbnail])
+
+  return (
+    <button
+      type="button"
+      role="radio"
+      aria-checked={selected}
+      aria-label={`Plantilla ${item.label}`}
+      onClick={onPick}
+      className={`card w-100 h-100 text-start p-2 ${selected ? 'border-primary border-2' : ''}`}
+      style={{ cursor: 'pointer' }}
+    >
+      <div className="bg-light rounded mb-2 d-flex align-items-center justify-content-center w-100" style={{ aspectRatio: '8.5 / 11', overflow: 'hidden' }}>
+        {src ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={src} alt={`Miniatura de la plantilla ${item.label}`} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top' }} />
+        ) : (
+          <span className="small text-muted">Sin miniatura</span>
+        )}
+      </div>
+      <div className="d-flex justify-content-between align-items-center w-100">
+        <span className="fw-semibold small">{item.label}</span>
+        {selected && <span className="badge bg-primary">Elegida</span>}
+      </div>
+      <span className="text-muted d-block" style={{ fontSize: '0.75rem' }}>{item.description}</span>
+    </button>
+  )
+}
+
+function PreviewPane({ type, layout }: { type: string; layout: RawLayout }) {
   const [url, setUrl] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
@@ -378,7 +422,7 @@ function PreviewPane({ type, layout, mode }: { type: string; layout: RawLayout; 
     const timer = setTimeout(async () => {
       setLoading(true)
       try {
-        const blob = await documentDesignService.preview(type, JSON.parse(body), mode)
+        const blob = await documentDesignService.preview(type, JSON.parse(body))
         if (mine !== seq.current) return
         setUrl((old) => {
           if (old) URL.revokeObjectURL(old)
@@ -393,7 +437,7 @@ function PreviewPane({ type, layout, mode }: { type: string; layout: RawLayout; 
       }
     }, PREVIEW_DELAY)
     return () => clearTimeout(timer)
-  }, [type, body, mode])
+  }, [type, body])
 
   useEffect(() => () => { if (url) URL.revokeObjectURL(url) }, [url])
 

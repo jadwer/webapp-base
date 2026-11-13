@@ -3,6 +3,8 @@ import type { DocumentDesign, DocumentDesignSummary, RawLayout } from './types'
 
 const BASE = '/api/v1/document-designs'
 
+type SavedDesign = { layout: RawLayout; style: string; customized: boolean; updatedAt: string | null }
+
 /**
  * El mensaje que manda el backend (siempre en espanol). La vista previa pide
  * un Blob, asi que su error tambien llega como Blob y hay que leerlo.
@@ -32,22 +34,34 @@ export const documentDesignService = {
     return res.data.data
   },
 
-  async save(type: string, layout: RawLayout): Promise<{ layout: RawLayout; customized: boolean; updatedAt: string | null }> {
-    const res = await axios.put(`${BASE}/${type}`, { layout })
+  /** El diseno de fabrica del documento con una plantilla puesta (no se guarda). */
+  async applyStyle(type: string, style: string): Promise<{ layout: RawLayout; style: string }> {
+    const res = await axios.post(`${BASE}/${type}/style`, { style })
     return res.data.data
   },
 
-  async restore(type: string): Promise<{ layout: RawLayout; customized: boolean; updatedAt: string | null }> {
+  async thumbnail(type: string, style: string): Promise<Blob> {
+    const res = await axios.get(`${BASE}/${type}/styles/${style}/thumbnail`, { responseType: 'blob' })
+    return res.data as Blob
+  },
+
+  async save(type: string, layout: RawLayout, style: string): Promise<SavedDesign> {
+    const res = await axios.put(`${BASE}/${type}`, { layout, style })
+    return res.data.data
+  },
+
+  async restore(type: string): Promise<SavedDesign> {
     const res = await axios.delete(`${BASE}/${type}`)
     return res.data.data
   },
 
-  async preview(type: string, layout: RawLayout, mode: string): Promise<Blob> {
-    const res = await axios.post(`${BASE}/${type}/preview`, { layout, mode }, { responseType: 'blob' })
+  /** PDF del diseno en edicion; el color lo trae el propio diseno. */
+  async preview(type: string, layout: RawLayout): Promise<Blob> {
+    const res = await axios.post(`${BASE}/${type}/preview`, { layout }, { responseType: 'blob' })
     return res.data as Blob
   },
 
-  /** Interruptor y colores viven en la configuracion del sistema (app-settings). */
+  /** El interruptor del documento vive en la configuracion del sistema (app-settings). */
   async setSetting(key: string, value: string | boolean): Promise<void> {
     await axios.patch(`/api/v1/app-settings/${key}`, { value })
   },
