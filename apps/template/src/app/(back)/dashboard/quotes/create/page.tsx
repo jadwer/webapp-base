@@ -239,11 +239,11 @@ export default function CreateQuotePage() {
       .then((rows) => {
         if (!alive) return
         const items = rows.map((item) => {
-          const product = item.product as { name?: string } | undefined
           return {
             id: String(item.id),
             productId: String(item.productId),
-            productName: product?.name || `Producto #${item.productId}`,
+            // getAll ya pone el nombre del producto incluido en productName.
+            productName: item.productName || `Producto #${item.productId}`,
             quantity: item.quantity,
             unitPrice: item.unitPrice || 0,
           }
