@@ -5,7 +5,6 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { useQuoteMutations } from '@/modules/quotes'
 import { contactsService } from '@/modules/contacts'
 import { shoppingCartService } from '@/modules/ecommerce'
-import type { ShoppingCart } from '@/modules/ecommerce'
 import { stockService } from '@/modules/inventory'
 import { toast } from '@/lib/toast'
 import { BranchSelect } from '@lwm/auth'
@@ -102,25 +101,6 @@ export default function CreateQuotePage() {
       }
     }
   }, [sourceFromUrl])
-
-  // Transform ShoppingCart to display format
-  const transformCartToDisplay = (cart: ShoppingCart): CartWithItems => {
-    return {
-      id: String(cart.id),
-      items: (cart.items || []).map((item) => {
-        const product = item.product as { name?: string } | undefined
-        return {
-          id: String(item.id),
-          productId: String(item.productId),
-          productName: product?.name || `Producto #${item.productId}`,
-          quantity: item.quantity,
-          unitPrice: item.unitPrice || 0
-        }
-      }),
-      totalAmount: cart.totalAmount || 0,
-      itemsCount: (cart.items || []).length,
-    }
-  }
 
   // Create backend cart from public cart items
   const createBackendCartFromPublicCart = async (): Promise<string | null> => {
@@ -254,11 +234,21 @@ export default function CreateQuotePage() {
     const current = carts.find((c) => c.id === selectedCartId)
     if (!current || current.items.length > 0 || current.itemsCount === 0) return
     let alive = true
-    shoppingCartService.cart.getById(selectedCartId)
-      .then((full) => {
+    // Las partidas van aparte (el carrito no las trae embebidas), con su producto.
+    shoppingCartService.items.getAll(Number(selectedCartId))
+      .then((rows) => {
         if (!alive) return
-        const shown = transformCartToDisplay(full)
-        setCarts((list) => list.map((c) => (c.id === selectedCartId ? { ...c, items: shown.items } : c)))
+        const items = rows.map((item) => {
+          const product = item.product as { name?: string } | undefined
+          return {
+            id: String(item.id),
+            productId: String(item.productId),
+            productName: product?.name || `Producto #${item.productId}`,
+            quantity: item.quantity,
+            unitPrice: item.unitPrice || 0,
+          }
+        })
+        setCarts((list) => list.map((c) => (c.id === selectedCartId ? { ...c, items } : c)))
       })
       .catch(() => undefined)
     return () => { alive = false }
