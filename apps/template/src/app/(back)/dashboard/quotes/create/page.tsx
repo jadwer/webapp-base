@@ -21,6 +21,12 @@ interface Contact {
 
 interface CartWithItems {
   id: string
+  /** Partidas reales del carrito (del listado; las de items llegan al elegirlo). */
+  itemsCount: number
+  ownerName?: string | null
+  ownerEmail?: string | null
+  /** Dueno con rol de cliente: el cliente de la cotizacion sale del carrito. */
+  ownerIsCustomer?: boolean
   items: Array<{
     id: string
     productName: string
@@ -111,7 +117,8 @@ export default function CreateQuotePage() {
           unitPrice: item.unitPrice || 0
         }
       }),
-      totalAmount: cart.totalAmount || 0
+      totalAmount: cart.totalAmount || 0,
+      itemsCount: (cart.items || []).length,
     }
   }
 
@@ -163,13 +170,20 @@ export default function CreateQuotePage() {
     setIsLoadingData(true)
     setLoadError(null)
 
+    // Carritos con productos de los clientes (junta 2026-11-12, J4). Antes solo
+    // salia el carrito del propio usuario del panel y sin partidas ("0 productos").
     const fetchAllCarts = async (): Promise<CartWithItems[]> => {
       try {
-        const currentCart = await shoppingCartService.cart.getCurrent()
-        if (currentCart) {
-          return [transformCartToDisplay(currentCart)]
-        }
-        return []
+        const list = await shoppingCartService.cart.listForQuotes()
+        return list.map((c) => ({
+          id: c.id,
+          itemsCount: c.itemsCount,
+          totalAmount: c.total,
+          ownerName: c.ownerName,
+          ownerEmail: c.ownerEmail,
+          ownerIsCustomer: c.ownerIsCustomer,
+          items: [],
+        }))
       } catch {
         return []
       }
@@ -231,11 +245,30 @@ export default function CreateQuotePage() {
 
   const selectedCart = carts.find(c => c.id === selectedCartId)
   const selectedContact = contacts.find(c => c.id === selectedContactId)
+  // El carrito de un cliente registrado trae su cliente: no se pide.
+  const contactFromCart = mode === 'from-cart' && Boolean(selectedCart?.ownerIsCustomer)
+
+  // Al elegir un carrito se cargan sus partidas para revisarlas.
+  useEffect(() => {
+    if (!selectedCartId) return
+    const current = carts.find((c) => c.id === selectedCartId)
+    if (!current || current.items.length > 0 || current.itemsCount === 0) return
+    let alive = true
+    shoppingCartService.cart.getById(selectedCartId)
+      .then((full) => {
+        if (!alive) return
+        const shown = transformCartToDisplay(full)
+        setCarts((list) => list.map((c) => (c.id === selectedCartId ? { ...c, items: shown.items } : c)))
+      })
+      .catch(() => undefined)
+    return () => { alive = false }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedCartId, carts.length])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!selectedContactId) {
+    if (!selectedContactId && !contactFromCart) {
       toast.error('Selecciona un cliente')
       return
     }
@@ -283,7 +316,8 @@ export default function CreateQuotePage() {
     try {
       const result = await mutations.createFromCart.mutateAsync({
         shopping_cart_id: parseInt(cartIdToUse),
-        contact_id: parseInt(selectedContactId),
+        // Sin cliente: el backend lo toma del dueno del carrito.
+        contact_id: contactFromCart ? undefined : parseInt(selectedContactId),
         valid_until: validUntil || undefined,
         notes: notes || undefined,
         terms_and_conditions: termsAndConditions || undefined,
@@ -561,7 +595,7 @@ export default function CreateQuotePage() {
                         <option value="">Selecciona un carrito</option>
                         {carts.map((cart) => (
                           <option key={cart.id} value={cart.id}>
-                            Carrito #{cart.id} - {cart.items.length} productos - {formatCurrency(cart.totalAmount)}
+                            Carrito #{cart.id} · {cart.ownerIsCustomer ? (cart.ownerName || cart.ownerEmail) : cart.ownerName ? `${cart.ownerName} (sin cuenta de cliente)` : 'Visitante sin cuenta'} · {cart.itemsCount} {cart.itemsCount === 1 ? 'producto' : 'productos'} · {formatCurrency(cart.totalAmount)}
                           </option>
                         ))}
                       </select>
@@ -570,6 +604,9 @@ export default function CreateQuotePage() {
                     {selectedCart && (
                       <div className="border rounded p-3">
                         <p className="fw-bold mb-2">Productos en el carrito:</p>
+                        {selectedCart.items.length === 0 && selectedCart.itemsCount > 0 && (
+                          <p className="text-muted small mb-2">Cargando los productos…</p>
+                        )}
                         <ul className="list-unstyled mb-2">
                           {selectedCart.items.map((item) => (
                             <li key={item.id} className="d-flex justify-content-between text-muted small mb-1">
@@ -638,6 +675,13 @@ export default function CreateQuotePage() {
                   </div>
                 ) : (
                   <>
+                    {contactFromCart ? (
+                      <div className="alert alert-info py-2 mb-3" data-testid="contact-from-cart">
+                        <strong>Cliente:</strong> {selectedCart?.ownerName || selectedCart?.ownerEmail}
+                        {selectedCart?.ownerEmail && selectedCart?.ownerName && <span className="text-muted"> ({selectedCart.ownerEmail})</span>}
+                        <div className="small">Se toma del carrito: es un cliente registrado.</div>
+                      </div>
+                    ) : (
                     <div className="mb-3">
                       <label htmlFor="contact" className="form-label">Cliente *</label>
                       <select
@@ -654,12 +698,13 @@ export default function CreateQuotePage() {
                         ))}
                       </select>
                     </div>
+                    )}
 
                     <div className="mb-3">
                       <BranchSelect id="quote-branch" value={branchId} onChange={setBranchId} />
                     </div>
 
-                    {selectedContact && (
+                    {selectedContact && !contactFromCart && (
                       <div className="border rounded p-3">
                         <p className="fw-bold mb-1">{selectedContact.name}</p>
                         {selectedContact.email && (
@@ -734,7 +779,7 @@ export default function CreateQuotePage() {
                     className="btn btn-primary btn-lg"
                     disabled={
                       (mode === 'from-cart' && !selectedCartId && !publicCartPreview) ||
-                      !selectedContactId ||
+                      (!selectedContactId && !contactFromCart) ||
                       mutations.createFromCart.isPending ||
                       mutations.create.isPending ||
                       isCreatingBackendCart

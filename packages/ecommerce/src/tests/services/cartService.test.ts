@@ -560,3 +560,24 @@ describe('shoppingCartService', () => {
     });
   });
 });
+
+describe('shoppingCartService.cart.listForQuotes (junta 2026-11-12, J4)', () => {
+  it('pide solo carritos con productos y trae dueño, partidas y total', async () => {
+    mockAxios.get.mockResolvedValueOnce({
+      data: {
+        data: [
+          { id: '16', attributes: { itemsCount: 3, finalTotal: 44970.3, ownerName: 'Ana Pérez', ownerEmail: 'ana@example.com', ownerIsCustomer: true, updatedAt: '2026-11-14' } },
+          { id: '17', attributes: { itemsCount: 1, totalAmount: 120, ownerName: null, ownerEmail: null, ownerIsCustomer: false } },
+        ],
+      },
+    })
+
+    const carts = await shoppingCartService.cart.listForQuotes()
+
+    expect(mockAxios.get).toHaveBeenCalledWith('/api/v1/shopping-carts', {
+      params: { 'filter[withItems]': 1, sort: '-updatedAt', 'page[size]': 100 },
+    })
+    expect(carts[0]).toEqual({ id: '16', itemsCount: 3, total: 44970.3, ownerName: 'Ana Pérez', ownerEmail: 'ana@example.com', ownerIsCustomer: true, updatedAt: '2026-11-14' })
+    expect(carts[1]).toMatchObject({ id: '17', itemsCount: 1, total: 120, ownerIsCustomer: false })
+  })
+})

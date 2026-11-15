@@ -7,6 +7,7 @@
 
 import { axiosClient } from '@lwm/auth';
 import type {
+  QuotableCart,
   ShoppingCart,
   ShoppingCartItem,
   ShoppingCartResponse,
@@ -70,6 +71,27 @@ const cartService = {
     }
 
     return shoppingCartFromAPI(response.data.data as unknown as Record<string, unknown>);
+  },
+
+  /**
+   * Carritos con productos para cotizar desde el panel (junta 2026-11-12, J4):
+   * con su dueno y si es un cliente registrado (entonces el cliente de la
+   * cotizacion sale del carrito). Los mas recientes primero.
+   */
+  async listForQuotes(): Promise<QuotableCart[]> {
+    const response = await axiosClient.get('/api/v1/shopping-carts', {
+      params: { 'filter[withItems]': 1, sort: '-updatedAt', 'page[size]': 100 },
+    });
+    const rows = (response.data?.data ?? []) as Array<{ id: string | number; attributes: Record<string, unknown> }>;
+    return rows.map((r) => ({
+      id: String(r.id),
+      itemsCount: Number(r.attributes.itemsCount ?? 0),
+      total: Number(r.attributes.finalTotal ?? r.attributes.totalAmount ?? 0),
+      ownerName: (r.attributes.ownerName as string | null) ?? null,
+      ownerEmail: (r.attributes.ownerEmail as string | null) ?? null,
+      ownerIsCustomer: Boolean(r.attributes.ownerIsCustomer),
+      updatedAt: (r.attributes.updatedAt as string | null) ?? null,
+    }));
   },
 
   /**

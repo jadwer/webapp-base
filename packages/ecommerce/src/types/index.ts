@@ -175,6 +175,18 @@ export interface EcommerceOrderItemFormData {
 
 export type CartStatus = 'active' | 'abandoned' | 'converted' | 'expired';
 
+/** Carrito listado para cotizar desde el panel, con su dueno (junta 2026-11-12, J4). */
+export interface QuotableCart {
+  id: string
+  itemsCount: number
+  total: number
+  ownerName: string | null
+  ownerEmail: string | null
+  /** Dueno con rol de cliente: el cliente de la cotizacion sale del carrito. */
+  ownerIsCustomer: boolean
+  updatedAt: string | null
+}
+
 export interface ShoppingCart {
   id: string;
   sessionId: string | null;
