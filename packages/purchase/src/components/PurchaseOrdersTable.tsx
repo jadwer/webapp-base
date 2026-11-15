@@ -6,6 +6,7 @@ import { Button, formatDateOnly } from '@lwm/ui'
 import { ConfirmModal, type ConfirmModalHandle } from '@lwm/ui'
 import type { PurchaseOrder, PurchaseOrderStatus, InvoicingStatus } from '../types'
 import { INVOICING_STATUS_CONFIG } from '../types'
+import { etaStatus } from '../utils/eta'
 
 interface PurchaseOrdersTableProps {
   purchaseOrders: PurchaseOrder[]
@@ -140,6 +141,14 @@ export const PurchaseOrdersTable: React.FC<PurchaseOrdersTableProps> = ({
                   </td>
                   <td>
                     <div>{formatDate(order.orderDate)}</div>
+                    {order.expectedArrivalDate && (() => {
+                      const eta = etaStatus(order.expectedArrivalDate, order.status)
+                      return (
+                        <small className={eta.tone === 'late' ? 'text-danger fw-semibold' : 'text-muted'} title={eta.label || undefined}>
+                          ETA {formatDate(order.expectedArrivalDate)}{eta.tone === 'late' ? ` (${eta.label.toLowerCase()})` : ''}
+                        </small>
+                      )
+                    })()}
                   </td>
                   <td>
                     {getStatusBadge(order.status)}

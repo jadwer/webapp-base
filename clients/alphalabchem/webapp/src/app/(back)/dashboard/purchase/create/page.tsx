@@ -37,6 +37,7 @@ export default function CreatePurchaseOrderPage() {
     contactId: '',
     orderNumber: '',
     orderDate: todayDateInput(),
+    expectedArrivalDate: '',
     status: 'pending' as 'pending' | 'approved' | 'received' | 'cancelled',
     notes: '',
     branchId: ''
@@ -72,6 +73,7 @@ export default function CreatePurchaseOrderPage() {
       const created = await createPurchaseOrderWithItems({
         contactId: formData.contactId,
         orderDate: formData.orderDate,
+        expectedArrivalDate: formData.expectedArrivalDate || null,
         status: formData.status,
         notes: formData.notes,
         branchId: formData.branchId,
@@ -195,6 +197,24 @@ export default function CreatePurchaseOrderPage() {
                       onChange={handleInputChange}
                       required
                     />
+                  </div>
+
+                  <div className="col-md-6">
+                    <label htmlFor="expectedArrivalDate" className="form-label">
+                      Fecha estimada de llegada (ETA)
+                    </label>
+                    <input
+                      type="date"
+                      id="expectedArrivalDate"
+                      name="expectedArrivalDate"
+                      className="form-control"
+                      value={formData.expectedArrivalDate}
+                      min={formData.orderDate || undefined}
+                      onChange={handleInputChange}
+                    />
+                    <small className="text-muted">
+                      La da el proveedor en su cotización o al comprar. Se puede capturar después.
+                    </small>
                   </div>
 
                   <div className="col-md-6">

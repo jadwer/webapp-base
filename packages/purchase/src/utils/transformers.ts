@@ -21,6 +21,7 @@ export function transformJsonApiPurchaseOrder(resource: JsonApiResource): Purcha
     branchId: (attributes.branch_id ?? attributes.branchId ?? null) as number | null,
     orderNumber: (attributes.order_number || attributes.orderNumber || `PO-${resource.id}`) as string, // Use API value first, fallback to generated
     orderDate: (attributes.order_date || attributes.orderDate || '') as string,
+    expectedArrivalDate: (attributes.expectedArrivalDate ?? attributes.expected_arrival_date ?? undefined) as string | null | undefined,
     status: (attributes.status || 'pending') as PurchaseOrderStatus,
     approvalStatus: (attributes.approvalStatus ?? attributes.approval_status ?? undefined) as string | undefined,
     totalAmount: (attributes.total_amount || attributes.totalAmount || 0) as number,
@@ -213,6 +214,7 @@ export function transformPurchaseOrderFormToJsonApi(data: PurchaseOrderFormData,
         // "not a supported attribute" y rompia toda creacion de OC.
         contactId: data.contactId,
         orderDate: data.orderDate,
+        expectedArrivalDate: data.expectedArrivalDate || null,
         status: data.status,
         notes: data.notes || '',
         totalAmount: 0, // requerido por el Request; el backend recalcula desde items

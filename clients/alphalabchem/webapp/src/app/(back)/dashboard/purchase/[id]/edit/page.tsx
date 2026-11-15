@@ -31,6 +31,7 @@ export default function EditPurchaseOrderPage({ params }: PageProps) {
     contactId: '',
     orderNumber: '',
     orderDate: '',
+    expectedArrivalDate: '',
     status: 'draft' as PurchaseOrderStatus,
     notes: ''
   })
@@ -45,6 +46,7 @@ export default function EditPurchaseOrderPage({ params }: PageProps) {
         contactId: purchaseOrder.contactId?.toString() || '',
         orderNumber: purchaseOrder.orderNumber || '',
         orderDate: toDateInput(purchaseOrder.orderDate),
+        expectedArrivalDate: toDateInput(purchaseOrder.expectedArrivalDate ?? undefined) || '',
         status: purchaseOrder.status || 'draft',
         notes: purchaseOrder.notes || ''
       })
@@ -67,6 +69,7 @@ export default function EditPurchaseOrderPage({ params }: PageProps) {
     try {
       const orderData = {
         ...formData,
+        expectedArrivalDate: formData.expectedArrivalDate || null,
         contactId: parseInt(formData.contactId)
       }
 
@@ -213,6 +216,22 @@ export default function EditPurchaseOrderPage({ params }: PageProps) {
                       onChange={handleInputChange}
                       required
                     />
+                  </div>
+
+                  <div className="col-md-6">
+                    <label htmlFor="expectedArrivalDate" className="form-label">
+                      Fecha estimada de llegada (ETA)
+                    </label>
+                    <input
+                      type="date"
+                      id="expectedArrivalDate"
+                      name="expectedArrivalDate"
+                      className="form-control"
+                      value={formData.expectedArrivalDate}
+                      min={formData.orderDate || undefined}
+                      onChange={handleInputChange}
+                    />
+                    <small className="text-muted">La da el proveedor en su cotización o al comprar.</small>
                   </div>
 
                   <div className="col-md-6">

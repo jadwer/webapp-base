@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { usePurchaseOrders } from '@/modules/purchase'
+import { usePurchaseOrders, etaStatus, ETA_BADGE } from '@/modules/purchase'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
 import { formatCurrency } from '@/lib/formatters'
 import { formatDateOnly } from '@lwm/ui'
@@ -14,6 +14,7 @@ interface PurchaseOrder {
     email?: string
   }
   orderDate?: string
+  expectedArrivalDate?: string | null
   status: string
   totalAmount: number
   orderNumber?: string
@@ -22,6 +23,15 @@ interface PurchaseOrder {
 // Nota cliente #11: vista de "Compras por surtir".
 // Lista ordenes de compra pendientes de recibir (status pending+approved)
 // usando el filtro backend filter[pending_receipt]=1.
+// Primero lo que viene atrasado o mas pronto (ETA ascendente); sin fecha al final.
+function byEta(orders: PurchaseOrder[] | undefined): PurchaseOrder[] {
+  return [...(orders ?? [])].sort((a, b) => {
+    if (!a.expectedArrivalDate) return b.expectedArrivalDate ? 1 : 0
+    if (!b.expectedArrivalDate) return -1
+    return a.expectedArrivalDate.localeCompare(b.expectedArrivalDate)
+  })
+}
+
 export default function PurchasePendingReceiptPage() {
   const navigation = useNavigationProgress()
   const [searchTerm, setSearchTerm] = useState('')
@@ -136,6 +146,7 @@ export default function PurchasePendingReceiptPage() {
                         <th>Número de Orden</th>
                         <th>Proveedor</th>
                         <th>Fecha</th>
+                        <th>Llegada estimada</th>
                         <th>Estado</th>
                         <th>Total</th>
                         <th>Acciones</th>
@@ -144,7 +155,7 @@ export default function PurchasePendingReceiptPage() {
                     <tbody>
                       {purchaseOrders && purchaseOrders.length === 0 ? (
                         <tr>
-                          <td colSpan={6} className="text-center text-muted py-4">
+                          <td colSpan={7} className="text-center text-muted py-4">
                             <i className="bi bi-check2-circle display-4 text-muted mb-3 d-block"></i>
                             <h6>No hay compras por surtir</h6>
                             <p className="mb-0">
@@ -153,7 +164,7 @@ export default function PurchasePendingReceiptPage() {
                           </td>
                         </tr>
                       ) : (
-                        purchaseOrders?.map((order: PurchaseOrder) => (
+                        byEta(purchaseOrders).map((order: PurchaseOrder) => (
                           <tr key={order.id}>
                             <td>
                               <strong className="text-primary">{order.orderNumber || `PO-${order.id}`}</strong>
@@ -177,6 +188,19 @@ export default function PurchasePendingReceiptPage() {
                             </td>
                             <td>
                               {order.orderDate ? formatDateOnly(order.orderDate) : 'Sin fecha'}
+                            </td>
+                            <td>
+                              {(() => {
+                                const eta = etaStatus(order.expectedArrivalDate, order.status)
+                                return eta.tone === 'none' ? (
+                                  <span className="text-muted small">{eta.label}</span>
+                                ) : (
+                                  <div>
+                                    <div>{formatDateOnly(order.expectedArrivalDate as string)}</div>
+                                    <span className={`badge ${ETA_BADGE[eta.tone]}`}>{eta.label}</span>
+                                  </div>
+                                )
+                              })()}
                             </td>
                             <td>
                               <span className={`badge ${getStatusBadgeClass(order.status)}`}>

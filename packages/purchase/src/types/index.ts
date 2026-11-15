@@ -26,6 +26,8 @@ export interface PurchaseOrder {
   contact?: Contact
   orderNumber?: string // Frontend-generated, not in backend
   orderDate: string
+  /** Fecha estimada de llegada (ETA) que da el proveedor; Y-m-d o null. */
+  expectedArrivalDate?: string | null
   status: PurchaseOrderStatus
   /** not_required | pending | approved | rejected (solo lectura; endpoints de aprobacion) */
   approvalStatus?: string | null
@@ -80,6 +82,8 @@ export interface PurchaseOrderFormData {
   contactId: number
   orderNumber?: string
   orderDate: string
+  /** ETA del proveedor (Y-m-d); vacio = sin fecha todavia. */
+  expectedArrivalDate?: string | null
   status: PurchaseOrderStatus
   notes?: string | null
   items?: PurchaseOrderItem[]

@@ -42,6 +42,7 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
     contactId: purchaseOrder?.contactId?.toString() || '',
     orderNumber: purchaseOrder?.orderNumber || '',
     orderDate: toDateInput(purchaseOrder?.orderDate) || todayDateInput(),
+    expectedArrivalDate: toDateInput(purchaseOrder?.expectedArrivalDate ?? undefined) || '',
     status: (purchaseOrder?.status || 'pending') as PurchaseOrderStatus,
     notes: purchaseOrder?.notes || '',
     invoicingNotes: purchaseOrder?.invoicingNotes || ''
@@ -60,6 +61,7 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
         contactId: purchaseOrder.contactId?.toString() || '',
         orderNumber: purchaseOrder.orderNumber || '',
         orderDate: toDateInput(purchaseOrder.orderDate) || todayDateInput(),
+        expectedArrivalDate: toDateInput(purchaseOrder.expectedArrivalDate ?? undefined) || '',
         status: purchaseOrder.status || 'pending',
         notes: purchaseOrder.notes || '',
         invoicingNotes: purchaseOrder.invoicingNotes || ''
@@ -80,6 +82,10 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
 
     if (!formData.orderDate) {
       newErrors.orderDate = 'La fecha de orden es requerida'
+    }
+
+    if (formData.expectedArrivalDate && formData.orderDate && formData.expectedArrivalDate < formData.orderDate) {
+      newErrors.expectedArrivalDate = 'La fecha estimada de llegada no puede ser antes de la fecha de la orden'
     }
 
     if (items.length === 0) {
@@ -125,6 +131,7 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
       contactId: parseInt(formData.contactId),
       orderNumber: formData.orderNumber,
       orderDate: formData.orderDate,
+      expectedArrivalDate: formData.expectedArrivalDate || null,
       status: formData.status,
       notes: formData.notes || undefined,
       items: items.map(item => ({
@@ -214,6 +221,19 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
                     onBlur={() => handleBlur('orderDate')}
                     errorText={touched.orderDate ? errors.orderDate : ''}
                     required
+                    disabled={isFormLoading}
+                  />
+                </div>
+
+                <div className="col-md-6">
+                  <Input
+                    label="Fecha estimada de llegada (ETA)"
+                    type="date"
+                    value={formData.expectedArrivalDate}
+                    onChange={(e) => handleInputChange('expectedArrivalDate', e.target.value)}
+                    onBlur={() => handleBlur('expectedArrivalDate')}
+                    errorText={touched.expectedArrivalDate ? errors.expectedArrivalDate : ''}
+                    helpText="La da el proveedor en su cotización o al comprar."
                     disabled={isFormLoading}
                   />
                 </div>

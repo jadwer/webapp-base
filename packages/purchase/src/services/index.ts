@@ -74,6 +74,7 @@ export const purchaseService = {
     createWithItems: async (data: {
       contactId: string
       orderDate: string
+      expectedArrivalDate?: string | null
       status: string
       notes?: string
       branchId?: string
@@ -82,6 +83,7 @@ export const purchaseService = {
       const response = await axiosClient.post('/api/v1/purchase-orders/with-items', {
         contact_id: Number(data.contactId),
         order_date: data.orderDate,
+        expected_arrival_date: data.expectedArrivalDate || null,
         status: data.status,
         notes: data.notes || null,
         branch_id: data.branchId ? Number(data.branchId) : null,

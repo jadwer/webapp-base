@@ -1,7 +1,7 @@
 'use client'
 
 import { use, useState, useRef } from 'react'
-import { usePurchaseOrder, usePurchaseOrderItems } from '@/modules/purchase'
+import { usePurchaseOrder, usePurchaseOrderItems, etaStatus, ETA_BADGE } from '@/modules/purchase'
 import { purchaseService } from '@/modules/purchase'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
 import { formatCurrency, formatQuantity } from '@/lib/formatters'
@@ -243,6 +243,21 @@ export default function PurchaseOrderDetailPage({ params }: PageProps) {
                         <td><strong>Fecha de Orden:</strong></td>
                         <td>
                           {purchaseOrder.orderDate ? formatDateOnly(purchaseOrder.orderDate) : 'Sin fecha'}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td><strong>Llegada estimada (ETA):</strong></td>
+                        <td>
+                          {(() => {
+                            const eta = etaStatus(purchaseOrder.expectedArrivalDate, purchaseOrder.status)
+                            if (eta.tone === 'none') return <span className="text-muted">{eta.label}; se captura en Editar</span>
+                            return (
+                              <>
+                                {formatDateOnly(purchaseOrder.expectedArrivalDate as string)}
+                                {eta.label && <span className={`badge ms-2 ${ETA_BADGE[eta.tone]}`}>{eta.label}</span>}
+                              </>
+                            )
+                          })()}
                         </td>
                       </tr>
                       <tr>
