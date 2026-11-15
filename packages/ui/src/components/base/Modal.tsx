@@ -1,6 +1,6 @@
 'use client'
 
-import React, { ReactNode, useEffect, useState } from 'react'
+import React, { ReactNode, useEffect, useId, useState } from 'react'
 import { createPortal } from 'react-dom'
 import clsx from 'clsx'
 import styles from '../../styles/modules/Modal.module.scss'
@@ -43,6 +43,7 @@ export const Modal: React.FC<ModalProps> = ({
   className,
   contentClassName
 }) => {
+  const titleId = useId()
   const [mounted, setMounted] = useState(false)
   const [isVisible, setIsVisible] = useState(false)
 
@@ -112,13 +113,17 @@ export const Modal: React.FC<ModalProps> = ({
           className
         )}
         onClick={(e) => e.stopPropagation()}
+        // Accesible como dialogo: lectores de pantalla y pruebas lo encuentran por su rol y titulo.
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={title ? titleId : undefined}
       >
         <div className={clsx(styles.modalContent, contentClassName)}>
           {/* Header */}
           {(title || closeButton) && (
             <div className={styles.modalHeader}>
               {title && (
-                <h5 className={styles.modalTitle}>
+                <h5 className={styles.modalTitle} id={titleId}>
                   {title}
                 </h5>
               )}
