@@ -55,8 +55,10 @@ export type {
 export {
   publicProductsService,
   PublicProductsService,
-  cartQuotePdfService
+  cartQuotePdfService,
+  quoteRequestErrorMessage
 } from './services'
+export type { GuestQuoteRequest } from './services'
 
 // Export hooks
 export {
@@ -125,7 +127,10 @@ export {
   LocalCartPage,
   ProductDetailPage,
   ProductQuickViewModal,
-  ProductSearchBox
+  ProductSearchBox,
+  GuestQuoteRequestFields,
+  EMPTY_GUEST_QUOTE,
+  guestQuoteProblem
 } from './components'
 
 // Export search types

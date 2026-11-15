@@ -98,6 +98,7 @@ vi.mock('@lwm/ecommerce', async () => {
     },
     cartQuotePdfService: {
       downloadInformativePdf: vi.fn(),
+      requestFormalQuote: vi.fn(),
     },
   }
 })
@@ -409,41 +410,52 @@ describe('LocalCartPage', () => {
   })
 
   describe('Request Quote - Not Authenticated', () => {
-    // Cambio 2026-09 (junta cliente): el anonimo ya NO va a login; el boton
-    // descarga directo el PDF informativo (precios del backend).
-    it('should download the informative PDF without redirecting to login', async () => {
+    // Junta 2026-11-12 (J2): el anonimo deja sus datos y recibe la cotizacion
+    // formal con folio (ya no el PDF informativo); nunca va a login.
+    const fillGuest = async (user: ReturnType<typeof userEvent.setup>) => {
+      await user.type(screen.getByLabelText('Nombre *'), 'Ana Pérez')
+      await user.type(screen.getByLabelText('Correo *'), 'ana@farmabiot.mx')
+      await user.type(screen.getByLabelText('Empresa *'), 'Farmabiot')
+      await user.type(screen.getByLabelText('¿A quién va dirigida? *'), 'Laboratorio')
+    }
+
+    it('opens the guest form and requests the formal quote without redirecting to login', async () => {
       mockIsAuthenticated.mockReturnValue(false)
       const items = [createMockCartItem({ productId: '1', quantity: 2 })]
       mockUseLocalCart.mockReturnValue(mockCartWithItems(items))
-      vi.mocked(cartQuotePdfService.downloadInformativePdf).mockResolvedValue(undefined)
+      vi.mocked(cartQuotePdfService.requestFormalQuote).mockResolvedValue('COT-26000120')
 
       const user = userEvent.setup()
-
       render(<LocalCartPage />)
-      const quoteButton = screen.getByText('Generar Cotización')
-      await user.click(quoteButton)
+      await user.click(screen.getByText('Generar Cotización'))
+      await fillGuest(user)
+      await user.click(screen.getByRole('button', { name: 'Descargar cotización' }))
 
       await waitFor(() => {
-        expect(cartQuotePdfService.downloadInformativePdf).toHaveBeenCalledWith(items)
+        expect(cartQuotePdfService.requestFormalQuote).toHaveBeenCalledWith(
+          expect.objectContaining({ name: 'Ana Pérez', email: 'ana@farmabiot.mx', company: 'Farmabiot', attentionTo: 'Laboratorio' }),
+          items
+        )
       })
+      expect(toast.success).toHaveBeenCalledWith(expect.stringContaining('COT-26000120'))
+      expect(cartQuotePdfService.downloadInformativePdf).not.toHaveBeenCalled()
       expect(mockPush).not.toHaveBeenCalled()
     })
 
-    it('should show an error toast when the informative PDF fails', async () => {
+    it('shows the backend error inside the form when the request fails', async () => {
       mockIsAuthenticated.mockReturnValue(false)
-      const items = [createMockCartItem()]
-      mockUseLocalCart.mockReturnValue(mockCartWithItems(items))
-      vi.mocked(cartQuotePdfService.downloadInformativePdf).mockRejectedValue(new Error('500'))
+      mockUseLocalCart.mockReturnValue(mockCartWithItems([createMockCartItem()]))
+      vi.mocked(cartQuotePdfService.requestFormalQuote).mockRejectedValue({
+        response: { data: { message: 'x', errors: { email: ['El campo correo debe ser una dirección de correo válida.'] } } },
+      })
 
       const user = userEvent.setup()
-
       render(<LocalCartPage />)
-      const quoteButton = screen.getByText('Generar Cotización')
-      await user.click(quoteButton)
+      await user.click(screen.getByText('Generar Cotización'))
+      await fillGuest(user)
+      await user.click(screen.getByRole('button', { name: 'Descargar cotización' }))
 
-      await waitFor(() => {
-        expect(toast.error).toHaveBeenCalledWith('No se pudo generar el PDF de la cotización')
-      })
+      expect(await screen.findByText('El campo correo debe ser una dirección de correo válida.')).toBeInTheDocument()
       expect(mockPush).not.toHaveBeenCalled()
     })
   })

@@ -25,6 +25,8 @@ import { quoteServices as quoteServiceModule } from '@lwm/sales'
 // Auto-import del package (mismo patron que el LocalCartPage original):
 // permite a los tests mockear '@lwm/ecommerce' completo.
 import { shoppingCartService, CartSyncAuthError, cartQuotePdfService } from '@lwm/ecommerce'
+import { quoteRequestErrorMessage, type GuestQuoteRequest } from '../services/cartQuotePdfService'
+import { EMPTY_GUEST_QUOTE, guestQuoteProblem } from '../components/GuestQuoteRequestFields'
 
 export interface LocalCartPageControllerOptions {
   checkoutUrl?: string
@@ -45,6 +47,10 @@ export function useLocalCartPageController({
   const [isSyncingToCheckout, setIsSyncingToCheckout] = useState(false)
   const [showQuoteModal, setShowQuoteModal] = useState(false)
   const [quoteNote, setQuoteNote] = useState('')
+  // Cotizar sin registro (junta 2026-11-12, J2)
+  const [showGuestQuoteModal, setShowGuestQuoteModal] = useState(false)
+  const [guestQuote, setGuestQuote] = useState<GuestQuoteRequest>(EMPTY_GUEST_QUOTE)
+  const [guestQuoteError, setGuestQuoteError] = useState<string | null>(null)
   const hasProcessedPendingQuote = useRef(false)
   const hasProcessedCheckout = useRef(false)
 
@@ -93,25 +99,34 @@ export function useLocalCartPageController({
       return
     }
     if (!isAuthenticated) {
-      // Cambio 2026-09 (junta cliente): el carrito publico es anonimo, asi
-      // que Cotizar descarga directo un PDF INFORMATIVO (precios del
-      // backend, sin folio, no se persiste). La cotizacion formal sigue
-      // requiriendo registro; el toast conserva el embudo.
-      setIsRequestingQuote(true)
-      try {
-        await cartQuotePdfService.downloadInformativePdf(items)
-        toast.success('Cotización descargada')
-        toast.info('Regístrate para obtener una cotización formal con folio y vigencia')
-      } catch (error) {
-        console.error('Error downloading informative quote PDF:', error)
-        toast.error('No se pudo generar el PDF de la cotización')
-      } finally {
-        setIsRequestingQuote(false)
-      }
+      // Junta 2026-11-12 (J2): sin registro, el visitante deja nombre, correo,
+      // empresa y a quien va dirigida; la cotizacion nace con folio y ventas
+      // la recibe. Reemplaza al PDF informativo sin folio.
+      setGuestQuoteError(null)
+      setShowGuestQuoteModal(true)
       return
     }
     setShowQuoteModal(true)
   }, [items, isAuthenticated])
+
+  const handleSubmitGuestQuote = useCallback(async () => {
+    const problem = guestQuoteProblem(guestQuote)
+    if (problem) {
+      setGuestQuoteError(problem)
+      return
+    }
+    setGuestQuoteError(null)
+    setIsRequestingQuote(true)
+    try {
+      const folio = await cartQuotePdfService.requestFormalQuote(guestQuote, items)
+      setShowGuestQuoteModal(false)
+      toast.success(folio ? `Cotización ${folio} descargada. Ventas ya la recibió y te contactará.` : 'Cotización descargada. Ventas ya la recibió y te contactará.')
+    } catch (error) {
+      setGuestQuoteError(await quoteRequestErrorMessage(error, 'No se pudo generar la cotización. Intenta de nuevo en unos minutos.'))
+    } finally {
+      setIsRequestingQuote(false)
+    }
+  }, [guestQuote, items])
 
   // POST /quotes/from-cart (sync previo del carrito local a la API)
   const handleRequestQuote = useCallback(async () => {
@@ -225,7 +240,13 @@ export function useLocalCartPageController({
     setShowQuoteModal,
     quoteNote,
     setQuoteNote,
+    showGuestQuoteModal,
+    setShowGuestQuoteModal,
+    guestQuote,
+    setGuestQuote,
+    guestQuoteError,
     // Acciones
+    handleSubmitGuestQuote,
     handleOpenQuoteModal,
     handleRequestQuote,
     handleProceedToCheckout,

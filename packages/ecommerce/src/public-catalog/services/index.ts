@@ -5,7 +5,8 @@
 
 // Export the main service
 export { publicProductsService, default as PublicProductsService } from './publicProductsService'
-export { cartQuotePdfService } from './cartQuotePdfService'
+export { cartQuotePdfService, quoteRequestErrorMessage } from './cartQuotePdfService'
+export type { GuestQuoteRequest } from './cartQuotePdfService'
 
 // Export types needed for services
 export type {

@@ -38,3 +38,6 @@ export type {
   FilterOption,
   PublicProductsResponse
 } from '../types/publicProduct'
+
+// Cotizar sin registro (junta 2026-11-12, J2)
+export { GuestQuoteRequestFields, EMPTY_GUEST_QUOTE, guestQuoteProblem } from './GuestQuoteRequestFields'

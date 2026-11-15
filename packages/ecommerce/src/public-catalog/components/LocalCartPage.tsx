@@ -14,6 +14,7 @@ import type { LocalCartItem } from '../hooks/useLocalCart'
 import { isPendingPriceItem } from '../utils/pendingPrice'
 import { QUOTE_ONLY_SHORT_LABEL } from '@lwm/products/pricing'
 import { useLocalCartPageController } from '../hooks/useLocalCartPageController'
+import { GuestQuoteRequestFields } from './GuestQuoteRequestFields'
 import { usePublicSettings } from '@lwm/app-config'
 import { taxHintLabel } from '../../utils/taxHint'
 
@@ -56,6 +57,12 @@ export const LocalCartPage: React.FC<LocalCartPageProps> = ({
     handleProceedToCheckout,
     canCheckout,
     checkoutBlockedReason,
+    showGuestQuoteModal,
+    setShowGuestQuoteModal,
+    guestQuote,
+    setGuestQuote,
+    guestQuoteError,
+    handleSubmitGuestQuote,
   } = useLocalCartPageController({ checkoutUrl, onCheckout })
 
   // Format price
@@ -403,6 +410,27 @@ export const LocalCartPage: React.FC<LocalCartPageProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Cotizar sin registro (junta 2026-11-12, J2) */}
+      <Modal
+        show={showGuestQuoteModal}
+        onHide={() => setShowGuestQuoteModal(false)}
+        title="Solicitar cotización"
+        closable={!isRequestingQuote}
+        closeButton={!isRequestingQuote}
+        footer={
+          <>
+            <button type="button" className="btn btn-outline-secondary" onClick={() => setShowGuestQuoteModal(false)} disabled={isRequestingQuote}>
+              Cancelar
+            </button>
+            <Button variant="success" onClick={handleSubmitGuestQuote} disabled={isRequestingQuote}>
+              {isRequestingQuote ? 'Generando...' : 'Descargar cotización'}
+            </Button>
+          </>
+        }
+      >
+        <GuestQuoteRequestFields value={guestQuote} onChange={setGuestQuote} disabled={isRequestingQuote} error={guestQuoteError} />
+      </Modal>
 
       {/* Generate Quote Modal */}
       <Modal

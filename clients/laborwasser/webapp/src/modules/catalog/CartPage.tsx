@@ -25,7 +25,7 @@
 
 import React, { Suspense, useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
-import { useLocalCartPageController, useSaleProducts, isPendingPriceItem, type EnhancedPublicProduct, type LocalCartItem } from '@lwm/ecommerce'
+import { useLocalCartPageController, useSaleProducts, isPendingPriceItem, GuestQuoteRequestFields, type EnhancedPublicProduct, type LocalCartItem } from '@lwm/ecommerce'
 import { QUOTE_ONLY_SHORT_LABEL } from '@lwm/products/pricing'
 import { Modal, toast } from '@lwm/ui'
 import { useAuth } from '@lwm/auth'
@@ -203,6 +203,12 @@ const CartContent: React.FC = () => {
     handleProceedToCheckout,
     canCheckout,
     checkoutBlockedReason,
+    showGuestQuoteModal,
+    setShowGuestQuoteModal,
+    guestQuote,
+    setGuestQuote,
+    guestQuoteError,
+    handleSubmitGuestQuote,
   } = controller
 
   const [tab, setTab] = useState<'cart' | 'quotes'>('cart')
@@ -388,6 +394,19 @@ const CartContent: React.FC = () => {
           </button>
           <button type="button" className="btn lw-btn lw-btn-accent" onClick={handleRequestQuote} disabled={isRequestingQuote}>
             {isRequestingQuote ? 'Generando...' : 'Generar cotización'}
+          </button>
+        </div>
+      </Modal>
+
+      {/* Cotizar sin registro (junta 2026-11-12, J2) */}
+      <Modal show={showGuestQuoteModal} onHide={() => !isRequestingQuote && setShowGuestQuoteModal(false)} title="Solicitar cotización">
+        <GuestQuoteRequestFields value={guestQuote} onChange={setGuestQuote} disabled={isRequestingQuote} error={guestQuoteError} />
+        <div className="d-flex gap-2 justify-content-end mt-3">
+          <button type="button" className="btn lw-btn lw-btn-accent-outline" onClick={() => setShowGuestQuoteModal(false)} disabled={isRequestingQuote}>
+            Cancelar
+          </button>
+          <button type="button" className="btn lw-btn lw-btn-accent" onClick={handleSubmitGuestQuote} disabled={isRequestingQuote}>
+            {isRequestingQuote ? 'Generando...' : 'Descargar cotización'}
           </button>
         </div>
       </Modal>
