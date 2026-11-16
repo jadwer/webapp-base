@@ -87,11 +87,11 @@ export const CycleCountsAdminPageReal = () => {
         <LwPageTitle title="Conteos cíclicos" subtitle="Conteos físicos por producto y almacén; la diferencia se ajusta en Movimientos" />
 
         <div className="row row-cols-1 row-cols-md-3 row-cols-lg-5 g-3 mb-4">
-          <div className="col"><LwKpiCard label="Total de conteos" value={show(total.meta?.total)} icon="bi-clipboard-check" highlight isLoading={kpiLoading} onClick={clear} /></div>
-          <div className="col"><LwKpiCard label="Programados" value={show(scheduled.meta?.total)} icon="bi-calendar-event" isLoading={kpiLoading} onClick={() => pick('scheduled')} /></div>
-          <div className="col"><LwKpiCard label="En proceso" value={show(inProgress.meta?.total)} icon="bi-hourglass-split" isLoading={kpiLoading} onClick={() => pick('in_progress')} /></div>
-          <div className="col"><LwKpiCard label="Vencidos" value={show(overdue.meta?.total)} icon="bi-exclamation-triangle" hint="Programados con fecha pasada" isLoading={kpiLoading} onClick={() => pick('overdue')} /></div>
-          <div className="col"><LwKpiCard label="Con diferencia" value={show(variance.meta?.total)} icon="bi-arrow-left-right" isLoading={kpiLoading} onClick={() => pick('variance')} /></div>
+          <div className="col"><LwKpiCard label="Total de conteos" value={show(total.meta?.total)} icon="bi-clipboard-check" highlight={!quick} isLoading={kpiLoading} onClick={clear} /></div>
+          <div className="col"><LwKpiCard label="Programados" value={show(scheduled.meta?.total)} icon="bi-calendar-event" highlight={quick === 'scheduled'} isLoading={kpiLoading} onClick={() => pick('scheduled')} /></div>
+          <div className="col"><LwKpiCard label="En proceso" value={show(inProgress.meta?.total)} icon="bi-hourglass-split" highlight={quick === 'in_progress'} isLoading={kpiLoading} onClick={() => pick('in_progress')} /></div>
+          <div className="col"><LwKpiCard label="Vencidos" value={show(overdue.meta?.total)} icon="bi-exclamation-triangle" hint="Programados con fecha pasada" highlight={quick === 'overdue'} isLoading={kpiLoading} onClick={() => pick('overdue')} /></div>
+          <div className="col"><LwKpiCard label="Con diferencia" value={show(variance.meta?.total)} icon="bi-arrow-left-right" highlight={quick === 'variance'} isLoading={kpiLoading} onClick={() => pick('variance')} /></div>
         </div>
 
         <div className="row g-2 align-items-center mb-3">

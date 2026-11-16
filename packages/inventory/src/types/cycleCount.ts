@@ -114,6 +114,8 @@ export interface ParsedCycleCount {
   metadata?: CycleCountMetadata | null
   hasVariance: boolean
   variancePercentage?: number | null
+  /** Ajuste registrado en Movimientos al cerrar el conteo */
+  adjustmentMovementId?: number | null
   createdAt: string
   updatedAt: string
   warehouse?: {

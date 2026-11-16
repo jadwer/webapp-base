@@ -61,7 +61,7 @@ export const FractionationHistory = ({ fractionations, isLoading, hasFilters, of
             fractionations.map((frac, i) => (
               <tr key={frac.id}>
                 <td>{String(offset + i + 1).padStart(2, '0')}</td>
-                <td className="fw-semibold">{frac.folioNumber}</td>
+                <td className="fw-semibold text-nowrap">{frac.folioNumber}</td>
                 <td><ProductCell product={frac.sourceProduct} /></td>
                 <td><ProductCell product={frac.destinationProduct} /></td>
                 <td className="text-end">{formatQty(frac.sourceQuantity)}</td>
