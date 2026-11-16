@@ -19,7 +19,7 @@ import {
 } from '@lwm/ui'
 import { useBranchName } from '@lwm/auth'
 import { useStockItem, useStockMutations } from '../hooks'
-import { STOCK_STATUS } from '../utils/labels'
+import { STOCK_STATUS, LAST_MOVEMENT_TYPE } from '../utils/labels'
 import { formatDate, formatMoney, formatQty, toNumber } from '../utils/format'
 import { deleteErrorMessage } from '../utils/listing'
 
@@ -29,12 +29,6 @@ interface StockDetailProps {
 
 const LIST_HREF = '/dashboard/inventory/stock'
 
-const LAST_MOVEMENT_LABELS: Record<string, string> = {
-  in: 'Entrada',
-  out: 'Salida',
-  adjustment: 'Ajuste',
-  transfer: 'Transferencia',
-}
 
 const Field = ({ label, children }: { label: string; children: ReactNode }) => (
   <>
@@ -176,7 +170,7 @@ export const StockDetail = ({ stockId }: StockDetailProps) => {
             <dl className="row mb-0">
               <Field label="Fecha">{stock.lastMovementDate ? formatDate(stock.lastMovementDate) : null}</Field>
               <Field label="Tipo">
-                {stock.lastMovementType ? LAST_MOVEMENT_LABELS[stock.lastMovementType] || stock.lastMovementType : null}
+                {stock.lastMovementType ? LAST_MOVEMENT_TYPE[stock.lastMovementType] || stock.lastMovementType : null}
               </Field>
             </dl>
           </DetailSection>

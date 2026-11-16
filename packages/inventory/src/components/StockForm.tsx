@@ -17,7 +17,7 @@ import Link from 'next/link'
 import { DetailSection, LwSurface, LwPageTitle } from '@lwm/ui'
 import { ProductSearchSelect } from '@lwm/products'
 import { useWarehouseLocationOptions, useWarehouses } from '../hooks'
-import { MOVEMENT_TYPE, STOCK_STATUS } from '../utils/labels'
+import { STOCK_STATUS, LAST_MOVEMENT_TYPE } from '../utils/labels'
 import { formatDate, formatMoney, formatQty, toNumber } from '../utils/format'
 import { apiErrorList } from '../utils/listing'
 import type { Stock, CreateStockData, UpdateStockData } from '../types'
@@ -36,13 +36,6 @@ interface StockFormProps {
   backHref?: string
 }
 
-// Stock.last_movement_type guarda in/out; el resto coincide con el tipo de movimiento
-const LAST_MOVEMENT_LABELS: Record<string, string> = {
-  in: 'Entrada',
-  out: 'Salida',
-  adjustment: MOVEMENT_TYPE.adjustment?.label ?? 'Ajuste',
-  transfer: MOVEMENT_TYPE.transfer?.label ?? 'Transferencia',
-}
 
 const numberText = (value: unknown) => (value == null || value === '' ? '' : String(toNumber(value)))
 const optionalId = (value: unknown) => (value == null || value === '' ? '' : String(value))
@@ -324,7 +317,7 @@ export const StockForm = memo<StockFormProps>(({
                 <div className="col-md-3"><ReadOnly label="Costo unitario">{formatMoney(stock.unitCost)}</ReadOnly></div>
                 <div className="col-md-3"><ReadOnly label="Valor total">{formatMoney(stock.totalValue)}</ReadOnly></div>
                 <div className="col-md-3"><ReadOnly label="Último movimiento">{stock.lastMovementDate ? formatDate(stock.lastMovementDate) : 'Sin movimiento'}</ReadOnly></div>
-                <div className="col-md-3"><ReadOnly label="Tipo del último movimiento">{stock.lastMovementType ? LAST_MOVEMENT_LABELS[stock.lastMovementType] ?? stock.lastMovementType : 'Sin movimiento'}</ReadOnly></div>
+                <div className="col-md-3"><ReadOnly label="Tipo del último movimiento">{stock.lastMovementType ? LAST_MOVEMENT_TYPE[stock.lastMovementType] ?? stock.lastMovementType : 'Sin movimiento'}</ReadOnly></div>
                 <div className="col-12 form-text mt-0">
                   La existencia, lo reservado y el costo se mueven con entradas, salidas y ajustes; así cuadran con el costo y la contabilidad.
                 </div>

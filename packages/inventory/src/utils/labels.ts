@@ -65,3 +65,18 @@ export const LOCATION_TYPE: InventoryLabelMap = {
   zone: { label: 'Zona', variant: 'secondary' },
   bay: { label: 'Bahía', variant: 'secondary' },
 }
+
+/**
+ * Stock.last_movement_type: lo escribe InventoryMovementService (entry, exit, transfer_out,
+ * transfer_in, adjustment); los registros viejos traen in, out o transfer. Solo lectura.
+ */
+export const LAST_MOVEMENT_TYPE: Record<string, string> = {
+  entry: 'Entrada',
+  exit: 'Salida',
+  transfer_out: 'Transferencia (sale)',
+  transfer_in: 'Transferencia (entra)',
+  adjustment: 'Ajuste',
+  in: 'Entrada',
+  out: 'Salida',
+  transfer: 'Transferencia',
+}
