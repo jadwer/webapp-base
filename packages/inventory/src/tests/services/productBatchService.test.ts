@@ -490,11 +490,11 @@ describe('productBatchService', () => {
           data: expect.objectContaining({
             type: 'product-batches',
             id: '1',
-            attributes: expect.objectContaining({
-              currentQuantity: 75,
+            attributes: {
+              // currentQuantity no viaja: la cantidad del lote la mueven los movimientos
               status: 'consumed',
               qualityNotes: 'Updated quality notes'
-            })
+            }
           })
         })
       )
@@ -532,9 +532,8 @@ describe('productBatchService', () => {
         '/api/v1/product-batches/1',
         expect.objectContaining({
           data: expect.objectContaining({
-            attributes: expect.objectContaining({
-              currentQuantity: 50
-            }),
+            // currentQuantity no viaja al editar
+            attributes: {},
             relationships: expect.objectContaining({
               warehouse: { data: { type: 'warehouses', id: '5' } },
               warehouseLocation: { data: { type: 'warehouse-locations', id: '10' } }

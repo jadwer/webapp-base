@@ -73,5 +73,28 @@ export const lotTraceabilityService = {
   async getExpiredSummary(): Promise<LotAlertSummary<ExpiredBatch>> {
     const response = await axiosClient.get(`${LOT_TRACEABILITY_ENDPOINT}/expired`)
     return toSummary<ExpiredBatch>(response.data)
+  },
+
+  /** Impacto de retirar un lote del mercado: cuanto salio, cuanto queda y ventas afectadas */
+  async getRecallImpact(batchId: string): Promise<RecallImpact> {
+    const response = await axiosClient.get(`${LOT_TRACEABILITY_ENDPOINT}/${batchId}/recall-impact`)
+    return response.data?.data as RecallImpact
+  },
+
+  /** Inicia el retiro: el lote queda retirado y en cuarentena con el motivo (min. 10 caracteres) */
+  async initiateRecall(batchId: string, reason: string): Promise<void> {
+    await axiosClient.post(`${LOT_TRACEABILITY_ENDPOINT}/${batchId}/initiate-recall`, { reason })
   }
+}
+
+export interface RecallImpact {
+  batch_info?: { batch_number?: string; lot_number?: string | null; supplier?: string | null }
+  impact?: {
+    total_quantity_distributed?: number
+    remaining_quantity?: number
+    affected_sales_count?: number
+    affected_sales_ids?: Array<number | string>
+    destination_batches?: number
+  }
+  recommended_actions?: Record<string, boolean>
 }

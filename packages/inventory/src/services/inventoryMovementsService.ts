@@ -36,6 +36,10 @@ export const inventoryMovementsService = {
     if (filters.search) {
       queryParams['filter[search]'] = filters.search
     }
+    // Trazabilidad del lote: sus movimientos y las transferencias que le entraron
+    if (filters.batchId) {
+      queryParams['filter[batch]'] = filters.batchId
+    }
     if (filters.movementType) {
       queryParams['filter[movementType]'] = filters.movementType
     }
@@ -139,6 +143,7 @@ export const inventoryMovementsService = {
           qualityChecked: data.qualityChecked || undefined,
           qualityCheckedBy: data.qualityChecked && data.qualityCheckedBy ? Number(data.qualityCheckedBy) : undefined,
           qualityCheckNotes: data.qualityCheckNotes || undefined,
+          productBatchId: data.productBatchId ? Number(data.productBatchId) : undefined,
           destinationWarehouseId: data.destinationWarehouseId ? Number(data.destinationWarehouseId) : undefined,
           destinationLocationId: data.destinationLocationId ? Number(data.destinationLocationId) : undefined,
           batchInfo: data.batchInfo || undefined,

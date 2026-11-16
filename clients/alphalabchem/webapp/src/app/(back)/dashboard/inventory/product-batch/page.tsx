@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { ProductBatchesAdminPageReal } from '@/modules/inventory'
+import { ProductBatchesListPage } from '@/modules/inventory'
 
 export const metadata: Metadata = {
   title: 'Lotes de productos - Inventario',
@@ -7,5 +7,5 @@ export const metadata: Metadata = {
 }
 
 export default function ProductBatchPage() {
-  return <ProductBatchesAdminPageReal />
+  return <ProductBatchesListPage />
 }

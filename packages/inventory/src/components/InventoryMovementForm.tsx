@@ -29,6 +29,8 @@ export interface MovementFormDefaults {
   productId?: string
   warehouseId?: string
   locationId?: string
+  /** Lote preseleccionado (?batchId=), p. ej. desde la consulta del lote */
+  productBatchId?: string
 }
 
 /** Lo que entrega el formulario; el wrapper agrega userId al crear */
@@ -122,7 +124,7 @@ export const InventoryMovementForm = memo<InventoryMovementFormProps>(({
     metadata: movement?.metadata && Object.keys(movement.metadata).length > 0
       ? JSON.stringify(movement.metadata, null, 2)
       : '',
-    selectedBatchId: '',
+    selectedBatchId: optionalId(movement?.productBatchId ?? defaults?.productBatchId),
     // Revision de calidad: el backend la exige para completar salidas y transferencias manuales (IV-009)
     qualityChecked: movement?.qualityChecked ? 'true' : '',
     qualityCheckNotes: movement?.qualityCheckNotes || '',
@@ -144,6 +146,13 @@ export const InventoryMovementForm = memo<InventoryMovementFormProps>(({
     pageSize: 100,
     enabled: Boolean(formData.productId),
   })
+
+  // Primero el que vence primero (FEFO); los que no vencen al final
+  const batchesFefo = useMemo(
+    () => [...availableBatches].sort((a, b) => (a.expirationDate || '9999').localeCompare(b.expirationDate || '9999')),
+    [availableBatches],
+  )
+  const takesOut = formData.movementType === 'exit' || formData.movementType === 'transfer'
 
   // Si la ubicacion actual quedo inactiva sigue apareciendo en la edicion
   const locationOptions = useMemo(() => {
@@ -256,6 +265,8 @@ export const InventoryMovementForm = memo<InventoryMovementFormProps>(({
       locationId: formData.locationId || undefined,
       destinationWarehouseId: isTransfer ? formData.destinationWarehouseId || undefined : undefined,
       destinationLocationId: isTransfer ? formData.destinationLocationId || undefined : undefined,
+      // El backend suma o resta la cantidad en el lote elegido (decision 2026-11-16)
+      productBatchId: formData.selectedBatchId || undefined,
       batchInfo: parseJson(formData.batchInfo),
       metadata: parseJson(formData.metadata),
     }
@@ -430,12 +441,13 @@ export const InventoryMovementForm = memo<InventoryMovementFormProps>(({
                       disabled={busy || isBatchesLoading}
                     >
                       <option value="">Sin lote específico</option>
-                      {availableBatches.map((batch) => (
+                      {batchesFefo.map((batch, i) => (
                         <option key={batch.id} value={batch.id}>
                           {batch.batchNumber}
                           {batch.lotNumber ? ` (${batch.lotNumber})` : ''}
                           {` - Existencia: ${formatQty(batch.currentQuantity)}`}
                           {batch.expirationDate ? ` - Vence: ${formatDate(batch.expirationDate)}` : ''}
+                          {i === 0 && takesOut && batch.expirationDate ? ' · vence primero' : ''}
                         </option>
                       ))}
                     </select>
@@ -444,7 +456,9 @@ export const InventoryMovementForm = memo<InventoryMovementFormProps>(({
                         ? 'Cargando lotes...'
                         : availableBatches.length === 0
                           ? 'No hay lotes activos de este producto en el almacén elegido.'
-                          : 'Solo lotes activos. Al elegir uno se llena la información de lote.'}
+                          : takesOut
+                            ? 'La cantidad sale del lote elegido; sugerimos el que vence primero. Solo lotes activos.'
+                            : 'La cantidad se suma al lote elegido. Solo lotes activos.'}
                     </div>
                   </div>
                 )}

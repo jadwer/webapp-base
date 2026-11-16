@@ -1,12 +1,19 @@
 /**
  * PRODUCT BATCH FORM
- * Alta y edicion de lotes. Estados desde BATCH_STATUS (ProductBatchRequest).
+ * Alta y edicion de lotes con la piel del rediseno (Figma Inventario, 2026-11-15).
+ * Estados desde BATCH_STATUS (ProductBatchRequest).
+ *
+ * Decision de Gabino (2026-11-16): las cantidades del lote salen de los movimientos.
+ * Al crear, "Cantidad que entra" se registra como una entrada ligada al lote (backend).
+ * Al editar, cantidades, costo, producto y almacen son de solo lectura; se cambian con una
+ * entrada o un ajuste del lote en Movimientos.
  */
 
 'use client'
 
-import React, { memo, useCallback, useState } from 'react'
-import { DetailSection, PageHeader } from '@lwm/ui'
+import React, { memo, useCallback, useState, type ReactNode } from 'react'
+import Link from 'next/link'
+import { DetailSection, LwSurface, LwPageTitle } from '@lwm/ui'
 import { ProductSearchSelect } from '@lwm/products'
 import type {
   ProductBatch,
@@ -18,7 +25,7 @@ import type {
 } from '../types'
 import { useWarehouseLocationOptions } from '../hooks'
 import { BATCH_STATUS } from '../utils/labels'
-import { toNumber } from '../utils/format'
+import { formatMoney, formatQty, toNumber } from '../utils/format'
 import { apiErrorList } from '../utils/listing'
 
 interface ProductBatchFormProps {
@@ -38,6 +45,22 @@ const toJsonText = (value: unknown) =>
 const parseJson = (value: string) => (value.trim() ? JSON.parse(value) : undefined)
 
 const numberText = (value: unknown) => (value == null || value === '' ? '' : String(toNumber(value)))
+
+/** Alta de movimiento con el lote, su producto y su almacen ya elegidos. */
+export const batchMovementHref = (batch: { id: string | number; product?: { id?: unknown } | null; warehouse?: { id?: unknown } | null; warehouseLocation?: { id?: unknown } | null }, type: 'entry' | 'exit' | 'adjustment') => {
+  const params = new URLSearchParams({ type, batchId: String(batch.id) })
+  if (batch.product?.id != null) params.set('productId', String(batch.product.id))
+  if (batch.warehouse?.id != null) params.set('warehouseId', String(batch.warehouse.id))
+  if (batch.warehouseLocation?.id != null) params.set('locationId', String(batch.warehouseLocation.id))
+  return `/dashboard/inventory/movements/create?${params.toString()}`
+}
+
+const ReadOnly = ({ label, children }: { label: string; children: ReactNode }) => (
+  <div>
+    <span className="form-label d-block">{label}</span>
+    <div className="form-control bg-light">{children}</div>
+  </div>
+)
 
 export const ProductBatchForm = memo<ProductBatchFormProps>(({
   productBatch,
@@ -85,7 +108,7 @@ export const ProductBatchForm = memo<ProductBatchFormProps>(({
   const validateForm = useCallback(() => {
     const next: Record<string, string> = {}
     const initial = Number(formData.initialQuantity)
-    const current = Number(formData.currentQuantity)
+    const isEdit = Boolean(productBatch)
 
     if (!formData.batchNumber.trim()) next.batchNumber = 'El número de lote es obligatorio'
     if (!formData.manufacturingDate) next.manufacturingDate = 'La fecha de fabricación es obligatoria'
@@ -96,19 +119,16 @@ export const ProductBatchForm = memo<ProductBatchFormProps>(({
     if (formData.manufacturingDate && formData.bestBeforeDate && formData.bestBeforeDate < formData.manufacturingDate) {
       next.bestBeforeDate = 'No puede ser anterior a la fabricación'
     }
-    if (formData.initialQuantity === '' || Number.isNaN(initial) || initial < 0) {
-      next.initialQuantity = 'Captura una cantidad inicial válida'
+    if (!isEdit) {
+      if (formData.initialQuantity !== '' && (Number.isNaN(initial) || initial < 0)) {
+        next.initialQuantity = 'La cantidad no puede ser negativa'
+      }
+      if (formData.unitCost !== '' && (Number.isNaN(Number(formData.unitCost)) || Number(formData.unitCost) < 0)) {
+        next.unitCost = 'El costo unitario no puede ser negativo'
+      }
+      if (!formData.productId) next.productId = 'Selecciona un producto'
+      if (!formData.warehouseId) next.warehouseId = 'Selecciona un almacén'
     }
-    if (formData.currentQuantity === '' || Number.isNaN(current) || current < 0) {
-      next.currentQuantity = 'Captura una cantidad actual válida'
-    } else if (!Number.isNaN(initial) && current > initial) {
-      next.currentQuantity = 'No puede exceder la cantidad inicial'
-    }
-    if (formData.unitCost !== '' && (Number.isNaN(Number(formData.unitCost)) || Number(formData.unitCost) < 0)) {
-      next.unitCost = 'El costo unitario no puede ser negativo'
-    }
-    if (!formData.productId) next.productId = 'Selecciona un producto'
-    if (!formData.warehouseId) next.warehouseId = 'Selecciona un almacén'
 
     for (const field of ['testResults', 'certifications', 'metadata'] as const) {
       try {
@@ -120,33 +140,38 @@ export const ProductBatchForm = memo<ProductBatchFormProps>(({
 
     setErrors(next)
     return Object.keys(next).length === 0
-  }, [formData])
+  }, [formData, productBatch])
 
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault()
     setSubmitErrors([])
     if (!validateForm()) return
 
-    const data: CreateProductBatchRequest | UpdateProductBatchRequest = {
+    const common = {
       batchNumber: formData.batchNumber.trim(),
       lotNumber: formData.lotNumber.trim() || undefined,
       manufacturingDate: formData.manufacturingDate,
       expirationDate: formData.expirationDate,
       bestBeforeDate: formData.bestBeforeDate || undefined,
-      initialQuantity: Number(formData.initialQuantity),
-      currentQuantity: Number(formData.currentQuantity),
-      unitCost: formData.unitCost === '' ? 0 : Number(formData.unitCost),
       status: formData.status,
       supplierName: formData.supplierName.trim() || undefined,
       supplierBatch: formData.supplierBatch.trim() || undefined,
       qualityNotes: formData.qualityNotes.trim() || undefined,
-      productId: formData.productId,
-      warehouseId: formData.warehouseId,
-      warehouseLocationId: formData.warehouseLocationId || undefined,
       testResults: parseJson(formData.testResults),
       certifications: parseJson(formData.certifications),
       metadata: parseJson(formData.metadata),
     }
+    // Al editar no viajan cantidades, costo, producto ni almacen: los mueven los movimientos
+    const data: CreateProductBatchRequest | UpdateProductBatchRequest = productBatch
+      ? common
+      : {
+          ...common,
+          initialQuantity: formData.initialQuantity === '' ? 0 : Number(formData.initialQuantity),
+          unitCost: formData.unitCost === '' ? 0 : Number(formData.unitCost),
+          productId: formData.productId,
+          warehouseId: formData.warehouseId,
+          warehouseLocationId: formData.warehouseLocationId || undefined,
+        } as CreateProductBatchRequest
 
     setIsSubmitting(true)
     try {
@@ -206,12 +231,16 @@ export const ProductBatchForm = memo<ProductBatchFormProps>(({
 
   return (
     <div className="container-fluid py-4">
-      <div className="row justify-content-center">
-        <div className="col-lg-8">
-          <PageHeader
-            title={productBatch ? `Editar lote ${productBatch.batchNumber}` : 'Nuevo lote'}
-            subtitle={productBatch ? 'Modifica la información del lote' : 'Registra un lote con fabricación, vencimiento y cantidad inicial'}
-            backHref={backHref}
+      <LwSurface>
+          <LwPageTitle
+            title={productBatch ? 'Editar lote:' : 'Nuevo lote'}
+            highlight={productBatch?.batchNumber}
+            subtitle={productBatch ? 'Datos, proveedor y calidad del lote; sus cantidades se mueven con movimientos' : 'Registra un lote con fabricación, vencimiento y lo que entra'}
+            actions={
+              <Link href={backHref} className="btn btn-outline-secondary">
+                <i className="bi bi-arrow-left me-1" aria-hidden="true" /> Volver
+              </Link>
+            }
           />
 
           {submitErrors.length > 0 && (
@@ -224,15 +253,17 @@ export const ProductBatchForm = memo<ProductBatchFormProps>(({
           )}
 
           <form onSubmit={handleSubmit} noValidate>
-            <DetailSection title="Información del lote" icon="bi-info-circle">
+            <DetailSection title="Datos generales" icon="bi-info-circle">
               <div className="row g-3">
-                <div className="col-md-6">{textInput('batchNumber', 'Número de lote', { required: true, placeholder: 'LOTE-2026-001' })}</div>
-                <div className="col-md-6">{textInput('lotNumber', 'Número LOT', { placeholder: 'LOT24321196' })}</div>
+                <div className="col-md-6">{textInput('batchNumber', 'Lote interno', { required: true, placeholder: 'LOTE-2026-001' })}
+                  <div className="form-text">El folio con el que se identifica en el almacén.</div></div>
+                <div className="col-md-6">{textInput('lotNumber', 'Lote del fabricante', { placeholder: 'LOT24321196' })}
+                  <div className="form-text">El LOT impreso en el envase; con él se rastrea un retiro.</div></div>
                 <div className="col-md-4">{textInput('manufacturingDate', 'Fabricación', { type: 'date', required: true })}</div>
                 <div className="col-md-4">{textInput('expirationDate', 'Vencimiento', { type: 'date', required: true })}</div>
                 <div className="col-md-4">{textInput('bestBeforeDate', 'Consumir preferentemente antes de', { type: 'date' })}</div>
                 <div className="col-md-6">
-                  <label htmlFor="batch-status" className="form-label">Estado</label>
+                  <label htmlFor="batch-status" className="form-label">Estatus</label>
                   <select
                     id="batch-status"
                     className="form-select"
@@ -248,73 +279,119 @@ export const ProductBatchForm = memo<ProductBatchFormProps>(({
               </div>
             </DetailSection>
 
+            {productBatch ? (
+              <DetailSection title="Producto y ubicación" icon="bi-geo-alt">
+                <div className="row g-3">
+                  <div className="col-md-6">
+                    <ReadOnly label="Producto">
+                      {productBatch.product?.name ?? '—'}
+                      {productBatch.product?.sku ? <span className="text-muted ms-2">{productBatch.product.sku}</span> : null}
+                    </ReadOnly>
+                  </div>
+                  <div className="col-md-3"><ReadOnly label="Almacén">{productBatch.warehouse?.name ?? '—'}</ReadOnly></div>
+                  <div className="col-md-3"><ReadOnly label="Ubicación">{productBatch.warehouseLocation?.name ?? 'Sin ubicación específica'}</ReadOnly></div>
+                  <div className="col-12 form-text mt-0">Para llevar el lote a otro almacén registra una transferencia en Movimientos.</div>
+                </div>
+              </DetailSection>
+            ) : (
             <DetailSection title="Producto y ubicación" icon="bi-geo-alt">
-              <div className="row g-3">
-                <div className="col-12">
-                  <ProductSearchSelect
-                    id="batch-productId"
-                    className=""
-                    value={formData.productId}
-                    initialProduct={initialProduct}
-                    onChange={(id) => setField('productId', id)}
-                    required
-                    disabled={busy}
-                    errorText={errors.productId}
-                  />
-                </div>
-                <div className="col-md-6">
-                  <label htmlFor="batch-warehouseId" className="form-label">
-                    Almacén <span className="text-danger">*</span>
-                  </label>
-                  <select
-                    id="batch-warehouseId"
-                    className={`form-select${invalid('warehouseId')}`}
-                    value={formData.warehouseId}
-                    onChange={(e) => setField('warehouseId', e.target.value)}
-                    disabled={busy}
-                  >
-                    <option value="">Seleccionar almacén...</option>
-                    {warehouses.map((warehouse) => (
-                      <option key={warehouse.id} value={warehouse.id}>
-                        {warehouse.name}{warehouse.code ? ` (${warehouse.code})` : ''}
+                <div className="row g-3">
+                  <div className="col-12">
+                    <ProductSearchSelect
+                      id="batch-productId"
+                      className=""
+                      value={formData.productId}
+                      initialProduct={initialProduct}
+                      onChange={(id) => setField('productId', id)}
+                      required
+                      disabled={busy}
+                      errorText={errors.productId}
+                    />
+                  </div>
+                  <div className="col-md-6">
+                    <label htmlFor="batch-warehouseId" className="form-label">
+                      Almacén <span className="text-danger">*</span>
+                    </label>
+                    <select
+                      id="batch-warehouseId"
+                      className={`form-select${invalid('warehouseId')}`}
+                      value={formData.warehouseId}
+                      onChange={(e) => setField('warehouseId', e.target.value)}
+                      disabled={busy}
+                    >
+                      <option value="">Seleccionar almacén...</option>
+                      {warehouses.map((warehouse) => (
+                        <option key={warehouse.id} value={warehouse.id}>
+                          {warehouse.name}{warehouse.code ? ` (${warehouse.code})` : ''}
+                        </option>
+                      ))}
+                    </select>
+                    {feedback('warehouseId')}
+                  </div>
+                  <div className="col-md-6">
+                    <label htmlFor="batch-warehouseLocationId" className="form-label">Ubicación</label>
+                    <select
+                      id="batch-warehouseLocationId"
+                      className="form-select"
+                      value={formData.warehouseLocationId}
+                      onChange={(e) => setField('warehouseLocationId', e.target.value)}
+                      disabled={busy || !formData.warehouseId || isLoadingLocations}
+                    >
+                      <option value="">
+                        {!formData.warehouseId
+                          ? 'Elige primero un almacén'
+                          : isLoadingLocations
+                            ? 'Cargando ubicaciones...'
+                            : 'Sin ubicación específica'}
                       </option>
-                    ))}
-                  </select>
-                  {feedback('warehouseId')}
+                      {locations.map((location) => (
+                        <option key={location.id} value={location.id}>
+                          {location.name}{location.code ? ` (${location.code})` : ''}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
-                <div className="col-md-6">
-                  <label htmlFor="batch-warehouseLocationId" className="form-label">Ubicación</label>
-                  <select
-                    id="batch-warehouseLocationId"
-                    className="form-select"
-                    value={formData.warehouseLocationId}
-                    onChange={(e) => setField('warehouseLocationId', e.target.value)}
-                    disabled={busy || !formData.warehouseId || isLoadingLocations}
-                  >
-                    <option value="">
-                      {!formData.warehouseId
-                        ? 'Elige primero un almacén'
-                        : isLoadingLocations
-                          ? 'Cargando ubicaciones...'
-                          : 'Sin ubicación específica'}
-                    </option>
-                    {locations.map((location) => (
-                      <option key={location.id} value={location.id}>
-                        {location.name}{location.code ? ` (${location.code})` : ''}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-            </DetailSection>
+              </DetailSection>
+            )}
 
-            <DetailSection title="Cantidades y costo" icon="bi-calculator">
-              <div className="row g-3">
-                <div className="col-md-4">{textInput('initialQuantity', 'Cantidad inicial', { type: 'number', required: true, min: '0', step: '0.0001' })}</div>
-                <div className="col-md-4">{textInput('currentQuantity', 'Cantidad actual', { type: 'number', required: true, min: '0', step: '0.0001' })}</div>
-                <div className="col-md-4">{textInput('unitCost', 'Costo unitario', { type: 'number', min: '0', step: '0.01', placeholder: '0.00' })}</div>
-              </div>
-            </DetailSection>
+            {productBatch ? (
+              <DetailSection
+                title="Existencias del lote"
+                icon="bi-calculator"
+                headerActions={
+                  <div className="d-flex gap-2">
+                    <Link href={batchMovementHref(productBatch, 'entry')} className="btn btn-sm btn-outline-success">
+                      <i className="bi bi-box-arrow-in-down me-1" aria-hidden="true" /> Registrar entrada
+                    </Link>
+                    <Link href={batchMovementHref(productBatch, 'adjustment')} className="btn btn-sm btn-outline-primary">
+                      <i className="bi bi-sliders me-1" aria-hidden="true" /> Ajustar lote
+                    </Link>
+                  </div>
+                }
+              >
+                <div className="row g-3">
+                  <div className="col-md-2"><ReadOnly label="Inicial">{formatQty(productBatch.initialQuantity)}</ReadOnly></div>
+                  <div className="col-md-2"><ReadOnly label="Actual">{formatQty(productBatch.currentQuantity)}</ReadOnly></div>
+                  <div className="col-md-2"><ReadOnly label="Reservado">{formatQty(productBatch.reservedQuantity)}</ReadOnly></div>
+                  <div className="col-md-2"><ReadOnly label="Disponible">{formatQty(productBatch.availableQuantity)}</ReadOnly></div>
+                  <div className="col-md-2"><ReadOnly label="Costo unitario">{formatMoney(productBatch.unitCost)}</ReadOnly></div>
+                  <div className="col-md-2"><ReadOnly label="Valor total">{formatMoney(productBatch.totalValue)}</ReadOnly></div>
+                  <div className="col-12 form-text mt-0">Las cantidades del lote se mueven con entradas, salidas, ajustes y transferencias.</div>
+                </div>
+              </DetailSection>
+            ) : (
+              <DetailSection title="Entrada del lote" icon="bi-box-arrow-in-down">
+                <div className="row g-3">
+                  <div className="col-md-4">
+                    {textInput('initialQuantity', 'Cantidad que entra', { type: 'number', min: '0', step: '0.0001' })}
+                    <div className="form-text">Se registra como una entrada del lote en Movimientos.</div>
+                  </div>
+                  <div className="col-md-4">{textInput('unitCost', 'Costo unitario', { type: 'number', min: '0', step: '0.01', placeholder: '0.00' })}</div>
+                  <div className="col-md-4"><ReadOnly label="Valor total">{formatMoney(toNumber(formData.initialQuantity) * toNumber(formData.unitCost))}</ReadOnly></div>
+                </div>
+              </DetailSection>
+            )}
 
             <DetailSection title="Proveedor y calidad" icon="bi-truck">
               <div className="row g-3">
@@ -335,7 +412,7 @@ export const ProductBatchForm = memo<ProductBatchFormProps>(({
               </div>
             </DetailSection>
 
-            <DetailSection title="Información adicional (opcional)" icon="bi-clipboard-data">
+            <DetailSection title="Certificados, pruebas e información adicional" icon="bi-patch-check">
               <div className="row g-3">
                 <div className="col-md-4">{jsonArea('testResults', 'Resultados de pruebas (JSON)', '{"ph": 7.2}')}</div>
                 <div className="col-md-4">{jsonArea('certifications', 'Certificaciones (JSON)', '{"ISO9001": true}')}</div>
@@ -358,14 +435,13 @@ export const ProductBatchForm = memo<ProductBatchFormProps>(({
                 ) : (
                   <>
                     <i className="bi bi-check-lg me-1" />
-                    {productBatch ? 'Guardar cambios' : 'Crear lote'}
+                    {productBatch ? 'Guardar cambios' : 'Registrar lote'}
                   </>
                 )}
               </button>
             </div>
           </form>
-        </div>
-      </div>
+      </LwSurface>
     </div>
   )
 })

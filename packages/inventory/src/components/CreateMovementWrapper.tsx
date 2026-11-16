@@ -19,6 +19,7 @@ const readDefaults = (params: URLSearchParams): MovementFormDefaults => {
     productId: params.get('productId') || undefined,
     warehouseId: params.get('warehouseId') || undefined,
     locationId: params.get('locationId') || undefined,
+    productBatchId: params.get('batchId') || undefined,
   }
 }
 

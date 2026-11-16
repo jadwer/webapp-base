@@ -80,6 +80,8 @@ export interface InventoryMovement {
   qualityCheckedAt?: string | null
   qualityCheckedBy?: number | null
   qualityCheckNotes?: string | null
+  productBatchId?: number | string | null
+  destinationBatchId?: number | string | null
   glJournalEntryId?: number | null
   glPostingStatus?: string | null
   glPostingNotes?: string | null
@@ -130,6 +132,8 @@ export interface CreateMovementData {
   qualityChecked?: boolean
   qualityCheckedBy?: string
   qualityCheckNotes?: string
+  /** Lote al que suma o del que resta el movimiento */
+  productBatchId?: string
   
   // Relationship IDs for creation
   productId: string
@@ -160,6 +164,8 @@ export interface UpdateMovementData {
 
 export interface MovementFilters {
   search?: string
+  /** Lote (filter[batch]): movimientos que lo tocan y transferencias que le entraron */
+  batchId?: string
   movementType?: 'entry' | 'exit' | 'transfer' | 'adjustment'
   referenceType?: string
   referenceId?: string

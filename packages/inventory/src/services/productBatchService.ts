@@ -105,6 +105,20 @@ type JsonApiRelationships = {
 }
 
 // Parse JSON:API response to UI-friendly format
+/**
+ * Lo que el backend no acepta del lote (ProductBatchRequest, 2026-11-16): las cantidades salen
+ * de los movimientos; al crear solo viaja lo que entra (initialQuantity) y su costo.
+ */
+const stripBatchQuantities = <T extends Record<string, unknown>>(attributes: T, mode: 'create' | 'update'): Partial<T> => {
+  const out: Record<string, unknown> = { ...attributes }
+  for (const key of ['currentQuantity', 'reservedQuantity', 'availableQuantity', 'totalValue']) delete out[key]
+  if (mode === 'update') {
+    delete out.initialQuantity
+    delete out.unitCost
+  }
+  return out as Partial<T>
+}
+
 function parseProductBatch(data: { id: string; attributes: Record<string, unknown>; relationships?: JsonApiRelationships }, included?: JsonApiItem[]): ParsedProductBatch {
   const parsed = transformToCamelCase(data.attributes) as unknown as ParsedProductBatch
   parsed.id = data.id
@@ -252,8 +266,10 @@ export const productBatchService = {
    * Create new product batch
    */
   async create(data: CreateProductBatchRequest) {
-    // Separate relationships from attributes
-    const { productId, warehouseId, warehouseLocationId, ...attributes } = data
+    // Separate relationships from attributes; currentQuantity y reservedQuantity no se capturan
+    // (initialQuantity es lo que entra y el backend lo registra como entrada del lote)
+    const { productId, warehouseId, warehouseLocationId, ...rest } = data
+    const attributes = stripBatchQuantities(rest, 'create')
     
     const requestData = {
       data: {
@@ -287,8 +303,9 @@ export const productBatchService = {
    * Update existing product batch
    */
   async update(id: string, data: UpdateProductBatchRequest) {
-    // Separate relationships from attributes
-    const { productId, warehouseId, warehouseLocationId, ...attributes } = data
+    // Separate relationships from attributes; las cantidades y el costo no viajan al editar
+    const { productId, warehouseId, warehouseLocationId, ...rest } = data
+    const attributes = stripBatchQuantities(rest, 'update')
     
     const requestData = {
       data: {

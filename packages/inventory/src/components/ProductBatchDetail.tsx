@@ -5,13 +5,15 @@
 
 'use client'
 
-import { useRef, type ReactNode } from 'react'
+import { useRef, useState, type ReactNode } from 'react'
+import { useSWRConfig } from 'swr'
 import Link from 'next/link'
 import {
   ConfirmModal,
   DetailSection,
   PageHeader,
   StatusBadge,
+  TabNav,
   toast,
   useNavigationProgress,
   type ConfirmModalHandle,
@@ -20,6 +22,8 @@ import { useProductBatch, useProductBatchMutations } from '../hooks'
 import { BATCH_STATUS } from '../utils/labels'
 import { formatDate, formatMoney, formatQty, toNumber } from '../utils/format'
 import { deleteErrorMessage } from '../utils/listing'
+import { batchMovementHref } from './ProductBatchForm'
+import { ProductBatchTraceability } from './ProductBatchTraceability'
 
 interface ProductBatchDetailProps {
   productBatchId: string
@@ -60,6 +64,8 @@ export const ProductBatchDetail = ({ productBatchId }: ProductBatchDetailProps) 
   const confirmModalRef = useRef<ConfirmModalHandle>(null)
   const { productBatch, isLoading, error } = useProductBatch({ id: productBatchId })
   const { deleteProductBatch } = useProductBatchMutations()
+  const { mutate } = useSWRConfig()
+  const [tab, setTab] = useState('info')
 
   const handleDelete = async () => {
     if (!productBatch) return
@@ -132,6 +138,14 @@ export const ProductBatchDetail = ({ productBatchId }: ProductBatchDetailProps) 
               <i className="bi bi-trash me-1" />
               Eliminar
             </button>
+            <Link href={batchMovementHref(productBatch, 'entry')} className="btn btn-outline-success">
+              <i className="bi bi-box-arrow-in-down me-1" />
+              Registrar entrada
+            </Link>
+            <Link href={batchMovementHref(productBatch, 'adjustment')} className="btn btn-outline-primary">
+              <i className="bi bi-sliders me-1" />
+              Ajustar lote
+            </Link>
             <Link href={`${LIST_HREF}/${productBatchId}/edit`} className="btn btn-primary">
               <i className="bi bi-pencil me-1" />
               Editar
@@ -140,12 +154,29 @@ export const ProductBatchDetail = ({ productBatchId }: ProductBatchDetailProps) 
         }
       />
 
+      <TabNav
+        tabs={[
+          { key: 'info', label: 'Información', icon: 'bi-info-circle' },
+          { key: 'trace', label: 'Trazabilidad', icon: 'bi-diagram-3' },
+        ]}
+        activeKey={tab}
+        onChange={setTab}
+      />
+
+      {tab === 'trace' ? (
+        <ProductBatchTraceability
+          batchId={productBatchId}
+          batchNumber={productBatch.batchNumber}
+          status={productBatch.status}
+          onRecalled={() => mutate(['product-batch', productBatchId])}
+        />
+      ) : (
       <div className="row g-4">
         <div className="col-lg-8">
           <DetailSection title="Información del lote" icon="bi-info-circle">
             <dl className="row mb-0">
-              <Field label="Número de lote"><strong>{productBatch.batchNumber}</strong></Field>
-              <Field label="Número LOT">{productBatch.lotNumber}</Field>
+              <Field label="Lote interno"><strong>{productBatch.batchNumber}</strong></Field>
+              <Field label="Lote del fabricante">{productBatch.lotNumber}</Field>
               <Field label="Fabricación">{formatDate(productBatch.manufacturingDate)}</Field>
               <Field label="Vencimiento">
                 {formatDate(productBatch.expirationDate)}
@@ -210,6 +241,7 @@ export const ProductBatchDetail = ({ productBatchId }: ProductBatchDetailProps) 
           </DetailSection>
         </div>
       </div>
+      )}
 
       <ConfirmModal ref={confirmModalRef} />
     </div>
