@@ -10,7 +10,11 @@ const mocks = vi.hoisted(() => ({ useFractionation: vi.fn() }))
 
 vi.mock('next/link', () => ({ default: ({ children, href }: { children: React.ReactNode; href: string }) => <a href={href}>{children}</a> }))
 vi.mock('@lwm/ui', () => ({
-  PageHeader: ({ title }: { title: string }) => <h1>{title}</h1>,
+  LwSurface: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  LwPageTitle: ({ title, highlight, subtitle, actions }: { title: React.ReactNode; highlight?: React.ReactNode; subtitle?: React.ReactNode; actions?: React.ReactNode }) => (
+    <header><h1>{title}{highlight ? ' ' : ''}{highlight}</h1>{subtitle}{actions}</header>
+  ),
+  LwStatusPill: ({ children }: { children: React.ReactNode }) => <span>{children}</span>,
   StatusBadge: () => <span />,
   formatCurrency: (v: number) => `$${v.toFixed(2)}`,
   formatQuantity: (v: number) => String(v),

@@ -19,9 +19,11 @@ export function useCycleCountMutations(): UseCycleCountMutationsResult {
     globalMutate(key => Array.isArray(key) && key[0] === 'cycle-counts', undefined, { revalidate: true })
 
     // Invalidate related caches that might include cycle count data
+    // Un conteo registrado con ajuste mueve stock y crea un movimiento
     globalMutate(
       key =>
-        Array.isArray(key) && (key[0] === 'inventory' || key[0] === 'stock' || key[0] === 'dashboard'),
+        Array.isArray(key) &&
+        ['inventory', 'stock', 'stocks', 'inventory-movements', 'dashboard'].includes(String(key[0])),
       undefined,
       { revalidate: true }
     )
@@ -111,10 +113,10 @@ export function useCycleCountMutations(): UseCycleCountMutationsResult {
   )
 
   const recordCount = useCallback(
-    async (id: string, countedQuantity: number, notes?: string) => {
+    async (id: string, countedQuantity: number, adjust: boolean, notes?: string) => {
       setIsLoading(true)
       try {
-        const result = await cycleCountsService.recordCount(id, countedQuantity, notes)
+        const result = await cycleCountsService.recordCount(id, countedQuantity, adjust, notes)
 
         // Invalidate specific cycle count cache
         globalMutate(['cycle-count', id])

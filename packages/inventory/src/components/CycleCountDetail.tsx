@@ -1,266 +1,136 @@
 /**
- * CycleCount Detail Component
- *
- * Displays detailed information about a cycle count.
+ * Detalle del conteo ciclico con la piel del rediseno (2026-11-16). Con el conteo en
+ * proceso muestra el registro de lo contado: el conteo es a ciegas (no se ensena la
+ * existencia en sistema para no sesgar a quien cuenta) y por omision la diferencia se
+ * ajusta en Movimientos. Ya registrado, muestra sistema, contado, diferencia, su valor y
+ * el enlace al ajuste.
  */
 
 'use client'
 
-import React from 'react'
-import { CycleCountStatusBadge, ABCClassBadge, VarianceBadge } from './CycleCountStatusBadge'
-import { Button, formatDateOnly, isPastDateOnly } from '@lwm/ui'
+import React, { useState } from 'react'
+import Link from 'next/link'
+import { DetailSection, LwStatusPill } from '@lwm/ui'
+import { CYCLE_COUNT_STATUS_CONFIG, ABC_CLASS_CONFIG } from '../types/cycleCount'
+import { CYCLE_COUNT_STATUS_TONE, VarianceText, formatCountDate, isOverdueCount } from './CycleCountsTableSimple'
+import { formatMoney, formatQty } from '../utils/format'
 import type { ParsedCycleCount } from '../types'
 
 interface CycleCountDetailProps {
   cycleCount: ParsedCycleCount
-  onEdit?: () => void
-  onStartCount?: () => void
-  onRecordCount?: () => void
-  onCancelCount?: () => void
+  /** Registra lo contado; adjust ajusta la existencia a lo contado */
+  onRecord?: (countedQuantity: number, adjust: boolean, notes?: string) => Promise<void>
   isLoading?: boolean
+  recordErrors?: string[]
 }
 
-export const CycleCountDetail: React.FC<CycleCountDetailProps> = ({
-  cycleCount,
-  onEdit,
-  onStartCount,
-  onRecordCount,
-  onCancelCount,
-  isLoading = false
-}) => {
-  // scheduledDate y completedDate son fechas sin hora
-  const formatDate = (dateStr: string | null | undefined) =>
-    formatDateOnly(dateStr, 'es-MX', { year: 'numeric', month: 'long', day: 'numeric' })
+const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
+  <div className="col-md-4">
+    <div className="small text-muted">{label}</div>
+    <div className="fw-semibold">{children}</div>
+  </div>
+)
 
-  // Format datetime for display
-  const formatDateTime = (dateStr: string | null | undefined) => {
-    if (!dateStr) return '-'
-    const date = new Date(dateStr)
-    return date.toLocaleString('es-MX', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    })
-  }
+export const statusPill = (c: ParsedCycleCount) => (
+  <LwStatusPill tone={isOverdueCount(c) ? 'danger' : CYCLE_COUNT_STATUS_TONE[c.status] ?? 'neutral'}>
+    {isOverdueCount(c) ? 'Vencido' : CYCLE_COUNT_STATUS_CONFIG[c.status]?.label ?? c.status}
+  </LwStatusPill>
+)
 
-  // Check if count is overdue
-  const isOverdue = () => {
-    if (cycleCount.status !== 'scheduled') return false
-    return isPastDateOnly(cycleCount.scheduledDate)
+export const CycleCountDetail: React.FC<CycleCountDetailProps> = ({ cycleCount: c, onRecord, isLoading = false, recordErrors = [] }) => {
+  const [counted, setCounted] = useState('')
+  const [adjust, setAdjust] = useState(true)
+  const [notes, setNotes] = useState('')
+  const [localError, setLocalError] = useState<string | null>(null)
+  const done = c.status === 'completed'
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    const value = Number(counted)
+    if (counted.trim() === '' || Number.isNaN(value)) { setLocalError('Captura la cantidad contada.'); return }
+    if (value < 0) { setLocalError('Lo contado no puede ser negativo.'); return }
+    setLocalError(null)
+    await onRecord?.(value, adjust, notes.trim() || undefined)
   }
 
   return (
-    <div className="card">
-      <div className="card-header d-flex justify-content-between align-items-center">
-        <div>
-          <h5 className="mb-0">
-            Conteo: {cycleCount.countNumber}
-            {isOverdue() && <span className="badge bg-danger ms-2">Vencido</span>}
-          </h5>
+    <>
+      <DetailSection title="Datos del conteo" icon="bi-info-circle">
+        <div className="row g-3">
+          <Field label="Producto">
+            {c.product?.name ?? '—'}
+            {c.product?.sku ? <div className="small text-muted fw-normal">SKU: {c.product.sku}</div> : null}
+          </Field>
+          <Field label="Almacén">
+            {c.warehouse?.name ?? '—'}
+            <div className="small text-muted fw-normal">{c.warehouseLocation?.name ?? 'Todo el almacén'}</div>
+          </Field>
+          <Field label="Estatus">{statusPill(c)}</Field>
+          <Field label="Fecha programada">{formatCountDate(c.scheduledDate)}</Field>
+          <Field label="Fecha de cierre">{c.completedDate ? formatCountDate(c.completedDate) : '—'}</Field>
+          <Field label="Clasificación ABC">{c.abcClass ? ABC_CLASS_CONFIG[c.abcClass]?.description ?? c.abcClass : 'Sin clasificar'}</Field>
+          <Field label="Asignado a">{c.assignedTo?.name ?? 'Sin asignar'}</Field>
+          <Field label="Contó">{c.countedBy?.name ?? '—'}</Field>
         </div>
-        <div className="d-flex gap-2">
-          {cycleCount.status === 'scheduled' && (
-            <>
-              <Button variant="warning" size="small" onClick={onStartCount} disabled={isLoading}>
-                <i className="bi bi-play-fill me-1" />
-                Iniciar Conteo
-              </Button>
-              <Button variant="secondary" size="small" onClick={onEdit} disabled={isLoading}>
-                <i className="bi bi-pencil me-1" />
-                Editar
-              </Button>
-            </>
-          )}
-          {cycleCount.status === 'in_progress' && (
-            <Button variant="success" size="small" onClick={onRecordCount} disabled={isLoading}>
-              <i className="bi bi-check2-square me-1" />
-              Registrar Resultado
-            </Button>
-          )}
-          {(cycleCount.status === 'scheduled' || cycleCount.status === 'in_progress') && (
-            <Button variant="danger" size="small" onClick={onCancelCount} disabled={isLoading}>
-              <i className="bi bi-x-lg me-1" />
-              Cancelar
-            </Button>
-          )}
-        </div>
-      </div>
-
-      <div className="card-body">
-        <div className="row g-4">
-          {/* Status Section */}
-          <div className="col-md-6">
-            <div className="card bg-light">
-              <div className="card-body">
-                <h6 className="card-subtitle mb-3 text-muted">Estado del Conteo</h6>
-                <div className="d-flex gap-3 align-items-center mb-3">
-                  <CycleCountStatusBadge status={cycleCount.status} size="large" />
-                  <ABCClassBadge abcClass={cycleCount.abcClass} showDescription size="large" />
-                </div>
-                <div className="row g-2">
-                  <div className="col-6">
-                    <small className="text-muted d-block">Fecha Programada</small>
-                    <strong>{formatDate(cycleCount.scheduledDate)}</strong>
-                  </div>
-                  {cycleCount.completedDate && (
-                    <div className="col-6">
-                      <small className="text-muted d-block">Fecha Completado</small>
-                      <strong>{formatDate(cycleCount.completedDate)}</strong>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
+        {c.notes ? (
+          <div className="mt-3">
+            <div className="small text-muted">Notas</div>
+            <div style={{ whiteSpace: 'pre-line' }}>{c.notes}</div>
           </div>
+        ) : null}
+      </DetailSection>
 
-          {/* Product Section */}
-          <div className="col-md-6">
-            <div className="card bg-light">
-              <div className="card-body">
-                <h6 className="card-subtitle mb-3 text-muted">Producto</h6>
-                {cycleCount.product ? (
-                  <>
-                    <h5 className="mb-1">{cycleCount.product.name}</h5>
-                    <p className="text-muted mb-0">
-                      <i className="bi bi-upc me-1" />
-                      SKU: {cycleCount.product.sku}
-                    </p>
-                  </>
-                ) : (
-                  <p className="text-muted mb-0">Producto no especificado</p>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Location Section */}
-          <div className="col-md-6">
-            <div className="card bg-light">
-              <div className="card-body">
-                <h6 className="card-subtitle mb-3 text-muted">Ubicación</h6>
-                {cycleCount.warehouse ? (
-                  <>
-                    <p className="mb-1">
-                      <i className="bi bi-building me-2" />
-                      <strong>Almacen:</strong> {cycleCount.warehouse.name} ({cycleCount.warehouse.code})
-                    </p>
-                    {cycleCount.warehouseLocation && (
-                      <p className="mb-0">
-                        <i className="bi bi-geo-alt me-2" />
-                        <strong>Ubicacion:</strong> {cycleCount.warehouseLocation.name} (
-                        {cycleCount.warehouseLocation.code})
-                      </p>
-                    )}
-                  </>
-                ) : (
-                  <p className="text-muted mb-0">Ubicación no especificada</p>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Quantities Section */}
-          <div className="col-md-6">
-            <div className="card bg-light">
-              <div className="card-body">
-                <h6 className="card-subtitle mb-3 text-muted">Cantidades</h6>
-                <div className="row g-2">
-                  <div className="col-4">
-                    <small className="text-muted d-block">Sistema</small>
-                    <h4 className="mb-0">{cycleCount.systemQuantity?.toFixed(2) ?? '-'}</h4>
-                  </div>
-                  <div className="col-4">
-                    <small className="text-muted d-block">Contada</small>
-                    <h4 className="mb-0">
-                      {cycleCount.status === 'completed' ? cycleCount.countedQuantity?.toFixed(2) ?? '-' : '-'}
-                    </h4>
-                  </div>
-                  <div className="col-4">
-                    <small className="text-muted d-block">Variación</small>
-                    {cycleCount.status === 'completed' ? (
-                      <VarianceBadge
-                        hasVariance={cycleCount.hasVariance}
-                        varianceQuantity={cycleCount.varianceQuantity}
-                        variancePercentage={cycleCount.variancePercentage}
-                      />
-                    ) : (
-                      <h4 className="mb-0">-</h4>
-                    )}
-                  </div>
-                </div>
-                {cycleCount.varianceValue !== null && cycleCount.varianceValue !== undefined && (
-                  <div className="mt-3 pt-3 border-top">
-                    <small className="text-muted d-block">Valor de Variación</small>
-                    <h5 className={`mb-0 ${cycleCount.varianceValue < 0 ? 'text-danger' : 'text-warning'}`}>
-                      ${Math.abs(cycleCount.varianceValue).toFixed(2)}
-                      {cycleCount.varianceValue < 0 ? ' (Faltante)' : ' (Sobrante)'}
-                    </h5>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Personnel Section */}
-          <div className="col-md-6">
-            <div className="card bg-light">
-              <div className="card-body">
-                <h6 className="card-subtitle mb-3 text-muted">Personal</h6>
-                <div className="row g-2">
-                  <div className="col-6">
-                    <small className="text-muted d-block">Asignado a</small>
-                    {cycleCount.assignedTo ? (
-                      <>
-                        <strong>{cycleCount.assignedTo.name}</strong>
-                        <br />
-                        <small className="text-muted">{cycleCount.assignedTo.email}</small>
-                      </>
-                    ) : (
-                      <span className="text-muted">Sin asignar</span>
-                    )}
-                  </div>
-                  <div className="col-6">
-                    <small className="text-muted d-block">Contado por</small>
-                    {cycleCount.countedBy ? (
-                      <>
-                        <strong>{cycleCount.countedBy.name}</strong>
-                        <br />
-                        <small className="text-muted">{cycleCount.countedBy.email}</small>
-                      </>
-                    ) : (
-                      <span className="text-muted">-</span>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Notes Section */}
-          {cycleCount.notes && (
-            <div className="col-md-6">
-              <div className="card bg-light">
-                <div className="card-body">
-                  <h6 className="card-subtitle mb-3 text-muted">Notas</h6>
-                  <p className="mb-0">{cycleCount.notes}</p>
-                </div>
-              </div>
+      {c.status === 'in_progress' && onRecord ? (
+        <DetailSection title="Registrar lo contado" icon="bi-check2-square">
+          {(localError || recordErrors.length > 0) && (
+            <div className="alert alert-danger" role="alert">
+              <i className="bi bi-exclamation-triangle me-2" />
+              {localError ?? (recordErrors.length === 1 ? recordErrors[0] : <ul className="mb-0 ps-3">{recordErrors.map((m) => <li key={m}>{m}</li>)}</ul>)}
             </div>
           )}
-
-          {/* Metadata Section */}
-          <div className="col-12">
-            <div className="border-top pt-3 mt-3">
-              <small className="text-muted">
-                <i className="bi bi-clock me-1" />
-                Creado: {formatDateTime(cycleCount.createdAt)} | Actualizado: {formatDateTime(cycleCount.updatedAt)}
-              </small>
+          <form onSubmit={submit} noValidate>
+            <div className="row g-3 align-items-end">
+              <div className="col-md-3">
+                <label htmlFor="cc-counted" className="form-label">Cantidad contada <span className="text-danger">*</span></label>
+                <input id="cc-counted" type="number" min="0" step="0.0001" className="form-control" value={counted} onChange={(e) => setCounted(e.target.value)} disabled={isLoading} />
+              </div>
+              <div className="col-md-5">
+                <label htmlFor="cc-record-notes" className="form-label">Notas</label>
+                <input id="cc-record-notes" type="text" className="form-control" value={notes} onChange={(e) => setNotes(e.target.value)} maxLength={2000} disabled={isLoading} placeholder="Ej. dos piezas dañadas en anaquel" />
+              </div>
+              <div className="col-md-4">
+                <div className="form-check">
+                  <input id="cc-adjust" type="checkbox" className="form-check-input" checked={adjust} onChange={(e) => setAdjust(e.target.checked)} disabled={isLoading} />
+                  <label htmlFor="cc-adjust" className="form-check-label">Ajustar la existencia a lo contado</label>
+                </div>
+                <div className="small text-muted">Si hay diferencia se registra un ajuste en Movimientos.</div>
+              </div>
             </div>
+            <div className="d-flex justify-content-end mt-3">
+              <button type="submit" className="btn btn-primary" disabled={isLoading}>
+                {isLoading ? <span className="spinner-border spinner-border-sm me-2" role="status" /> : <i className="bi bi-check2-square me-1" aria-hidden="true" />}
+                Registrar conteo
+              </button>
+            </div>
+          </form>
+        </DetailSection>
+      ) : null}
+
+      {done ? (
+        <DetailSection title="Resultado" icon="bi-clipboard-data">
+          <div className="row g-3">
+            <Field label="En sistema">{c.systemQuantity != null ? formatQty(c.systemQuantity) : '—'}</Field>
+            <Field label="Contado">{c.countedQuantity != null ? formatQty(c.countedQuantity) : '—'}</Field>
+            <Field label="Diferencia"><VarianceText count={c} /></Field>
+            <Field label="Valor de la diferencia">{c.varianceValue != null ? formatMoney(c.varianceValue) : '—'}</Field>
+            <Field label="Ajuste en Movimientos">
+              {c.adjustmentMovementId ? (
+                <Link href={`/dashboard/inventory/movements/${c.adjustmentMovementId}`}>Ver ajuste</Link>
+              ) : c.hasVariance ? 'Sin ajustar' : 'No hizo falta'}
+            </Field>
           </div>
-        </div>
-      </div>
-    </div>
+        </DetailSection>
+      ) : null}
+    </>
   )
 }

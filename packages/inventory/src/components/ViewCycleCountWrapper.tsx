@@ -1,136 +1,109 @@
 /**
- * View CycleCount Wrapper Component
- *
- * Wrapper component for viewing cycle count details.
+ * Detalle del conteo con sus acciones (2026-11-16): iniciar, registrar lo contado,
+ * editar mientras esta programado y cancelar. Los rechazos del backend se muestran con
+ * su motivo.
  */
 
 'use client'
 
-import React, { useRef } from 'react'
+import React, { useRef, useState } from 'react'
+import Link from 'next/link'
+import { ConfirmModal, LwSurface, LwPageTitle, toast, type ConfirmModalHandle } from '@lwm/ui'
 import { CycleCountDetail } from './CycleCountDetail'
+import { FormStateCard } from './FormStateCard'
 import { useCycleCount } from '../hooks/useCycleCount'
 import { useCycleCountMutations } from '../hooks/useCycleCountMutations'
-import { useNavigationProgress } from '@lwm/ui'
-import { Alert } from '@lwm/ui'
-import { Button } from '@lwm/ui'
-import { ConfirmModal } from '@lwm/ui'
-import type { ConfirmModalHandle } from '@lwm/ui'
+import { apiErrorList, apiErrorMessage } from '../utils/listing'
+import { formatQty } from '../utils/format'
+
+const LIST_HREF = '/dashboard/inventory/cycle-counts'
 
 interface ViewCycleCountWrapperProps {
   id: string
 }
 
 export const ViewCycleCountWrapper: React.FC<ViewCycleCountWrapperProps> = ({ id }) => {
-  const navigation = useNavigationProgress()
   const { cycleCount, isLoading: loadingData, error: loadError } = useCycleCount({ id })
-  const { startCount, cancelCount, isLoading: mutating } = useCycleCountMutations()
-  const confirmModalRef = useRef<ConfirmModalHandle>(null)
+  const { startCount, recordCount, cancelCount, isLoading: mutating } = useCycleCountMutations()
+  const confirmRef = useRef<ConfirmModalHandle>(null)
+  const [recordErrors, setRecordErrors] = useState<string[]>([])
 
-  const handleEdit = () => {
-    navigation.push(`/dashboard/inventory/cycle-counts/${id}/edit`)
-  }
+  if (loadingData) return <FormStateCard state="loading" title="Conteo" backHref={LIST_HREF} message="Cargando conteo..." />
+  if (loadError) return <FormStateCard state="error" title="Conteo" backHref={LIST_HREF} message={loadError.message || 'No se pudo cargar el conteo.'} />
+  if (!cycleCount) return <FormStateCard state="not-found" title="Conteo" backHref={LIST_HREF} icon="bi-clipboard-check" message="El conteo no existe o no está disponible." />
 
-  const handleStartCount = async () => {
-    const confirmed = await confirmModalRef.current?.confirm(
-      `Deseas iniciar el conteo ${cycleCount?.countNumber}? El estado cambiara a "En Progreso".`,
-      {
-        title: 'Iniciar Conteo',
-        confirmVariant: 'warning',
-        confirmText: 'Iniciar',
-        cancelText: 'Cancelar'
-      }
-    )
-    if (confirmed) {
-      try {
-        await startCount(id)
-      } catch {
-        // Error handled by mutation hook
-      }
+  const c = cycleCount
+
+  const handleStart = async () => {
+    const ok = await confirmRef.current?.confirm(`¿Iniciar el conteo ${c.countNumber}? Quedará en proceso para registrar lo contado.`, { title: 'Iniciar conteo', confirmText: 'Iniciar', cancelText: 'Volver', confirmVariant: 'primary' })
+    if (!ok) return
+    try {
+      await startCount(id)
+      toast.success(`Conteo ${c.countNumber} en proceso`)
+    } catch (err) {
+      toast.error(apiErrorMessage(err, 'No se pudo iniciar el conteo.'))
     }
   }
 
-  const handleRecordCount = () => {
-    navigation.push(`/dashboard/inventory/cycle-counts/${id}/record`)
-  }
-
-  const handleCancelCount = async () => {
-    const confirmed = await confirmModalRef.current?.confirm(
-      `Estas seguro de cancelar el conteo ${cycleCount?.countNumber}? Esta acción no se puede deshacer.`,
-      {
-        title: 'Cancelar Conteo',
-        confirmVariant: 'danger',
-        confirmText: 'Cancelar Conteo',
-        cancelText: 'Volver'
-      }
-    )
-    if (confirmed) {
-      try {
-        await cancelCount(id, 'Cancelado por el usuario')
-      } catch {
-        // Error handled by mutation hook
-      }
+  const handleCancel = async () => {
+    const ok = await confirmRef.current?.confirm(`¿Cancelar el conteo ${c.countNumber}? No se puede deshacer.`, { title: 'Cancelar conteo', confirmText: 'Cancelar conteo', cancelText: 'Volver', confirmVariant: 'danger' })
+    if (!ok) return
+    try {
+      await cancelCount(id)
+      toast.success(`Conteo ${c.countNumber} cancelado`)
+    } catch (err) {
+      toast.error(apiErrorMessage(err, 'No se pudo cancelar el conteo.'))
     }
   }
 
-  const handleBack = () => {
-    navigation.push('/dashboard/inventory/cycle-counts')
-  }
-
-  // Loading state
-  if (loadingData) {
-    return (
-      <div className="container-fluid py-4">
-        <div className="text-center">
-          <div className="spinner-border text-primary" role="status">
-            <span className="visually-hidden">Cargando...</span>
-          </div>
-          <p className="mt-2 text-muted">Cargando datos del conteo...</p>
-        </div>
-      </div>
-    )
-  }
-
-  // Error state
-  if (loadError || !cycleCount) {
-    return (
-      <div className="container-fluid py-4">
-        <Alert variant="danger">
-          <i className="bi bi-exclamation-triangle me-2" />
-          {loadError?.message || 'No se encontró el conteo ciclico'}
-        </Alert>
-        <Button variant="secondary" onClick={handleBack}>
-          <i className="bi bi-arrow-left me-2" />
-          Volver a la lista
-        </Button>
-      </div>
-    )
+  const handleRecord = async (counted: number, adjust: boolean, notes?: string) => {
+    try {
+      setRecordErrors([])
+      const r = await recordCount(id, counted, adjust, notes)
+      const v = Number(r.varianceQuantity ?? 0)
+      toast.success(
+        v === 0
+          ? `Conteo ${c.countNumber} registrado sin diferencia`
+          : `Conteo ${c.countNumber} registrado: diferencia de ${v > 0 ? '+' : ''}${formatQty(v)}${r.adjustmentMovementId ? ', existencia ajustada' : ''}`,
+      )
+    } catch (err) {
+      setRecordErrors(apiErrorList(err, 'No se pudo registrar el conteo.'))
+    }
   }
 
   return (
     <div className="container-fluid py-4">
-      {/* Header */}
-      <div className="d-flex align-items-center mb-4">
-        <button aria-label="Volver" type="button" className="btn btn-link text-decoration-none p-0 me-3" onClick={handleBack}>
-          <i className="bi bi-arrow-left fs-4" />
-        </button>
-        <div>
-          <h1 className="h3 mb-0">Detalle de Conteo Ciclico</h1>
-          <p className="text-muted mb-0">Información completa del conteo</p>
-        </div>
-      </div>
-
-      {/* Detail Component */}
-      <CycleCountDetail
-        cycleCount={cycleCount}
-        onEdit={handleEdit}
-        onStartCount={handleStartCount}
-        onRecordCount={handleRecordCount}
-        onCancelCount={handleCancelCount}
-        isLoading={mutating}
-      />
-
-      {/* Confirm Modal */}
-      <ConfirmModal ref={confirmModalRef} />
+      <LwSurface>
+        <LwPageTitle
+          title="Conteo"
+          highlight={c.countNumber}
+          subtitle="Conteo físico de un producto en un almacén"
+          actions={
+            <>
+              <Link href={LIST_HREF} className="btn btn-outline-secondary">
+                <i className="bi bi-arrow-left me-1" aria-hidden="true" /> Volver
+              </Link>
+              {c.status === 'scheduled' ? (
+                <>
+                  <Link href={`${LIST_HREF}/${id}/edit`} className="btn btn-outline-primary">
+                    <i className="bi bi-pencil me-1" aria-hidden="true" /> Editar
+                  </Link>
+                  <button type="button" className="btn btn-primary" onClick={handleStart} disabled={mutating}>
+                    <i className="bi bi-play-fill me-1" aria-hidden="true" /> Iniciar conteo
+                  </button>
+                </>
+              ) : null}
+              {c.status === 'scheduled' || c.status === 'in_progress' ? (
+                <button type="button" className="btn btn-outline-danger" onClick={handleCancel} disabled={mutating}>
+                  <i className="bi bi-x-circle me-1" aria-hidden="true" /> Cancelar conteo
+                </button>
+              ) : null}
+            </>
+          }
+        />
+        <CycleCountDetail cycleCount={c} onRecord={handleRecord} isLoading={mutating} recordErrors={recordErrors} />
+      </LwSurface>
+      <ConfirmModal ref={confirmRef} />
     </div>
   )
 }

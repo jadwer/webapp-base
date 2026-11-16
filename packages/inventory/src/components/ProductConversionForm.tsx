@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { DetailSection, PageHeader, toast } from '@lwm/ui'
+import { DetailSection, LwSurface, LwPageTitle, toast } from '@lwm/ui'
+import Link from 'next/link'
 import { ProductSearchSelect } from '@lwm/products'
 import { useProductConversionsMutations, useProductConversion } from '../hooks/useProductConversions'
 import { FormStateCard } from './FormStateCard'
@@ -135,12 +136,15 @@ export const ProductConversionForm = ({ conversionId }: ProductConversionFormPro
 
   return (
     <div className="container-fluid py-4">
-      <div className="row justify-content-center">
-        <div className="col-lg-8">
-          <PageHeader
+      <LwSurface>
+          <LwPageTitle
             title={isEditing ? 'Editar conversión' : 'Nueva conversión'}
             subtitle={isEditing ? 'Modifica la conversión entre productos' : 'Define cuántas unidades destino salen de una unidad origen'}
-            backHref={LIST_HREF}
+            actions={
+              <Link href={LIST_HREF} className="btn btn-outline-secondary">
+                <i className="bi bi-arrow-left me-1" aria-hidden="true" /> Volver
+              </Link>
+            }
           />
 
           {errors.length > 0 && (
@@ -368,8 +372,7 @@ export const ProductConversionForm = ({ conversionId }: ProductConversionFormPro
               </button>
             </div>
           </form>
-        </div>
-      </div>
+      </LwSurface>
     </div>
   )
 }

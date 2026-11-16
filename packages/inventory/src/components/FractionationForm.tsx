@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { DetailSection, PageHeader, toast } from '@lwm/ui'
+import { DetailSection, LwSurface, LwPageTitle, toast } from '@lwm/ui'
 import { ProductSearchSelect } from '@lwm/products'
 import { useConversionsBySourceProduct } from '../hooks/useProductConversions'
 import { useFractionationMutations } from '../hooks/useFractionations'
@@ -170,12 +170,15 @@ export const FractionationForm = () => {
 
   return (
     <div className="container-fluid py-4">
-      <div className="row justify-content-center">
-        <div className="col-lg-8">
-          <PageHeader
+      <LwSurface>
+          <LwPageTitle
             title="Nuevo fraccionamiento"
             subtitle="Fracciona un producto a granel en presentaciones menores"
-            backHref={LIST_HREF}
+            actions={
+              <Link href={LIST_HREF} className="btn btn-outline-secondary">
+                <i className="bi bi-arrow-left me-1" aria-hidden="true" /> Volver
+              </Link>
+            }
           />
 
           {error && (
@@ -386,8 +389,7 @@ export const FractionationForm = () => {
               Ejecutar fraccionamiento
             </button>
           </div>
-        </div>
-      </div>
+      </LwSurface>
     </div>
   )
 }

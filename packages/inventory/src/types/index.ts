@@ -78,7 +78,8 @@ export type {
   RecordCountFormData,
   UseCycleCountsResult,
   UseCycleCountResult,
-  UseCycleCountMutationsResult
+  UseCycleCountMutationsResult,
+  CycleCountActionResult
 } from './cycleCount'
 
 export {

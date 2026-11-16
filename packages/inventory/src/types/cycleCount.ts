@@ -31,6 +31,8 @@ export interface CycleCount {
   // Computed fields (read-only)
   hasVariance: boolean
   variancePercentage?: number | null
+  /** Ajuste registrado en Movimientos al cerrar el conteo */
+  adjustmentMovementId?: number | null
   createdAt: string
   updatedAt: string
 
@@ -75,10 +77,7 @@ export interface CreateCycleCountRequest {
   warehouseId: string
   productId: string
   scheduledDate: string
-  status: CycleCountStatus
   warehouseLocationId?: string
-  systemQuantity?: number
-  countedQuantity?: number
   assignedTo?: string
   abcClass?: ABCClass
   notes?: string
@@ -86,21 +85,16 @@ export interface CreateCycleCountRequest {
 }
 
 // Update CycleCount request interface
+/** Estatus y resultados cambian con las acciones iniciar, registrar y cancelar (2026-11-16) */
 export interface UpdateCycleCountRequest {
   warehouseId?: string
   productId?: string
   scheduledDate?: string
-  completedDate?: string
-  status?: CycleCountStatus
-  warehouseLocationId?: string
-  systemQuantity?: number
-  countedQuantity?: number
-  varianceQuantity?: number
-  varianceValue?: number
-  assignedTo?: string
-  countedBy?: string
-  abcClass?: ABCClass
-  notes?: string
+  /** null quita la ubicacion */
+  warehouseLocationId?: string | null
+  assignedTo?: string | null
+  abcClass?: ABCClass | null
+  notes?: string | null
   metadata?: CycleCountMetadata
 }
 
@@ -203,13 +197,25 @@ export interface UseCycleCountResult {
   error: Error | null
 }
 
+/** Respuesta de las acciones POST cycle-counts/{id}/start|record|cancel */
+export interface CycleCountActionResult {
+  id: string
+  countNumber: string
+  status: CycleCountStatus
+  systemQuantity: number | null
+  countedQuantity: number | null
+  varianceQuantity: number | null
+  varianceValue: number | null
+  adjustmentMovementId: number | null
+}
+
 export interface UseCycleCountMutationsResult {
   createCycleCount: (data: CreateCycleCountRequest) => Promise<ParsedCycleCount>
   updateCycleCount: (id: string, data: UpdateCycleCountRequest) => Promise<ParsedCycleCount>
   deleteCycleCount: (id: string) => Promise<void>
-  startCount: (id: string) => Promise<ParsedCycleCount>
-  recordCount: (id: string, countedQuantity: number, notes?: string) => Promise<ParsedCycleCount>
-  cancelCount: (id: string, reason?: string) => Promise<ParsedCycleCount>
+  startCount: (id: string) => Promise<CycleCountActionResult>
+  recordCount: (id: string, countedQuantity: number, adjust: boolean, notes?: string) => Promise<CycleCountActionResult>
+  cancelCount: (id: string, reason?: string) => Promise<CycleCountActionResult>
   isLoading: boolean
 }
 
@@ -218,10 +224,7 @@ export interface CycleCountFormData {
   warehouseId: string
   productId: string
   scheduledDate: string
-  status: CycleCountStatus
   warehouseLocationId?: string
-  systemQuantity?: number
-  countedQuantity?: number
   assignedTo?: string
   abcClass?: ABCClass
   notes?: string
@@ -247,7 +250,7 @@ export const CYCLE_COUNT_STATUS_CONFIG: Record<CycleCountStatus, CycleCountStatu
     icon: 'bi-calendar-event'
   },
   in_progress: {
-    label: 'En Progreso',
+    label: 'En proceso',
     variant: 'warning',
     icon: 'bi-hourglass-split'
   },
@@ -295,13 +298,13 @@ export const ABC_CLASS_CONFIG: Record<ABCClass, ABCClassConfig> = {
 // Constants
 export const CYCLE_COUNT_STATUS_OPTIONS = [
   { value: 'scheduled', label: 'Programado' },
-  { value: 'in_progress', label: 'En Progreso' },
+  { value: 'in_progress', label: 'En proceso' },
   { value: 'completed', label: 'Completado' },
   { value: 'cancelled', label: 'Cancelado' }
 ] as const
 
 export const ABC_CLASS_OPTIONS = [
-  { value: 'A', label: 'Clase A - Alto Valor' },
-  { value: 'B', label: 'Clase B - Valor Medio' },
-  { value: 'C', label: 'Clase C - Bajo Valor' }
+  { value: 'A', label: 'Clase A: alto valor (mensual)' },
+  { value: 'B', label: 'Clase B: valor medio (trimestral)' },
+  { value: 'C', label: 'Clase C: bajo valor (anual)' }
 ] as const

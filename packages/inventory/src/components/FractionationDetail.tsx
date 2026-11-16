@@ -2,10 +2,11 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { PageHeader, StatusBadge, toast } from '@lwm/ui'
+import { LwSurface, LwPageTitle, LwStatusPill, toast } from '@lwm/ui'
 import { fractionationService } from '../services/fractionationService'
 import { useFractionation } from '../hooks/useFractionations'
 import { FRACTIONATION_STATUS } from '../utils/labels'
+import { FRACTIONATION_STATUS_TONE } from './FractionationHistory'
 import { formatDate as formatDateOnly, formatMoney, toNumber } from '../utils/format'
 import type { Fractionation } from '../types/fractionation'
 
@@ -126,7 +127,7 @@ export const FractionationDetail = ({ fractionationId }: FractionationDetailProp
   if (error || !fractionation) {
     return (
       <div className="container-fluid py-4">
-        <PageHeader title="Fraccionamiento" backHref={LIST_HREF} />
+        <LwPageTitle title="Fraccionamiento" actions={<Link href={LIST_HREF} className="btn btn-outline-secondary"><i className="bi bi-arrow-left me-1" aria-hidden="true" /> Volver</Link>} />
         <div className="alert alert-danger">
           <i className="bi bi-exclamation-triangle me-2" />
           {error?.message || 'El fraccionamiento no existe o no está disponible.'}
@@ -137,19 +138,28 @@ export const FractionationDetail = ({ fractionationId }: FractionationDetailProp
 
   return (
     <div className="container-fluid py-4">
-      <PageHeader
-        title={fractionation.folioNumber}
-        icon="bi-scissors"
-        badges={<StatusBadge status={fractionation.status} map={FRACTIONATION_STATUS} />}
-        subtitle="Detalle del fraccionamiento"
-        backHref={LIST_HREF}
+      <LwSurface>
+      <LwPageTitle
+        title="Fraccionamiento"
+        highlight={fractionation.folioNumber}
+        subtitle={
+          <span className="d-inline-flex align-items-center gap-2">
+            Detalle del fraccionamiento
+            <LwStatusPill tone={FRACTIONATION_STATUS_TONE[fractionation.status] ?? 'neutral'}>{FRACTIONATION_STATUS[fractionation.status]?.label ?? fractionation.status}</LwStatusPill>
+          </span>
+        }
         actions={
-          fractionation.status === 'completed' && !confirming ? (
-            <button type="button" className="btn btn-outline-danger" onClick={() => setConfirming(true)}>
-              <i className="bi bi-arrow-counterclockwise me-2" />
-              Cancelar fraccionamiento
-            </button>
-          ) : undefined
+          <>
+            <Link href={LIST_HREF} className="btn btn-outline-secondary">
+              <i className="bi bi-arrow-left me-1" aria-hidden="true" /> Volver
+            </Link>
+            {fractionation.status === 'completed' && !confirming ? (
+              <button type="button" className="btn btn-outline-danger" onClick={() => setConfirming(true)}>
+                <i className="bi bi-arrow-counterclockwise me-2" />
+                Cancelar fraccionamiento
+              </button>
+            ) : null}
+          </>
         }
       />
 
@@ -379,6 +389,7 @@ export const FractionationDetail = ({ fractionationId }: FractionationDetailProp
           </div>
         </div>
       </div>
+      </LwSurface>
     </div>
   )
 }

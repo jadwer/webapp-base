@@ -16,6 +16,7 @@ import type {
   UpdateCycleCountRequest,
   CycleCountFilters,
   CycleCountSortOptions,
+  CycleCountActionResult,
   JsonApiResponse
 } from '../types'
 import { todayDateInput } from '@lwm/ui'
@@ -238,7 +239,7 @@ function buildQueryParams(
     }
 
     if (filters.status && filters.status.length > 0) {
-      params['filter[status]'] = filters.status.join(',')
+      params['filter[status]'] = filters.status[0]
     }
 
     // Paquete A (auditoria 10 pasos): en laravel-json-api la clave del filtro
@@ -268,8 +269,8 @@ function buildQueryParams(
       params['filter[scheduledBefore]'] = filters.scheduledBefore
     }
 
-    if (filters.hasVariance !== undefined) {
-      params['filter[hasVariance]'] = filters.hasVariance.toString()
+    if (filters.hasVariance) {
+      params['filter[hasVariance]'] = 'true'
     }
 
     if (filters.overdue) {
@@ -324,103 +325,53 @@ export const cycleCountsService = {
   },
 
   /**
-   * Create new cycle count
+   * Programa un conteo. Almacen, producto y ubicacion van como ATRIBUTOS: en el Schema
+   * las relaciones son de solo lectura (solo para include); mandarlas como relationships
+   * dejaba el alta sin almacen ni producto y el backend respondia 422 (2026-11-16).
    */
   async create(data: CreateCycleCountRequest) {
-    // Separate relationships from attributes
-    const { warehouseId, productId, warehouseLocationId, assignedTo, ...attributes } = data
-
-    const requestData = {
+    const { warehouseId, productId, warehouseLocationId, assignedTo, ...rest } = data
+    const response = await axios.post<JsonApiResponse<CycleCount>>(BASE_URL, {
       data: {
         type: RESOURCE_TYPE,
         attributes: {
-          ...attributes,
-          // El backend define assignedTo como ATRIBUTO (la relacion
-          // assignedUser es readOnly, solo para include). Mandarlo como
-          // relationship se IGNORABA en silencio y la asignacion de
-          // conteos nunca se guardaba (deuda T2, fix Paquete B).
-          ...(assignedTo && { assignedTo: Number(assignedTo) })
+          ...rest,
+          warehouseId: Number(warehouseId),
+          productId: Number(productId),
+          ...(warehouseLocationId ? { warehouseLocationId: Number(warehouseLocationId) } : {}),
+          ...(assignedTo ? { assignedTo: Number(assignedTo) } : {}),
         },
-        relationships: {
-          warehouse: {
-            data: { type: 'warehouses', id: warehouseId }
-          },
-          product: {
-            data: { type: 'products', id: productId }
-          },
-          ...(warehouseLocationId && {
-            warehouseLocation: {
-              data: { type: 'warehouse-locations', id: warehouseLocationId }
-            }
-          })
-        }
-      }
-    }
-
-    const response = await axios.post<JsonApiResponse<CycleCount>>(BASE_URL, requestData)
+      },
+    })
 
     return parseCycleCount(
-      response.data.data as unknown as {
-        id: string
-        attributes: Record<string, unknown>
-        relationships?: JsonApiRelationships
-      },
+      response.data.data as unknown as { id: string; attributes: Record<string, unknown>; relationships?: JsonApiRelationships },
       response.data.included as JsonApiItem[]
     )
   },
 
   /**
-   * Update existing cycle count
+   * Edita los datos de un conteo programado (fecha, almacen, producto, ubicacion,
+   * asignado, clase, notas). El estatus y lo contado van por startCount/recordCount/cancelCount.
    */
   async update(id: string, data: UpdateCycleCountRequest) {
-    // Separate relationships from attributes
-    const { warehouseId, productId, warehouseLocationId, assignedTo, countedBy, ...attributes } = data
+    const attributes: Record<string, unknown> = {}
+    const toId = (v: string | null | undefined) => (v ? Number(v) : null)
+    if (data.warehouseId !== undefined) attributes.warehouseId = toId(data.warehouseId)
+    if (data.productId !== undefined) attributes.productId = toId(data.productId)
+    if (data.warehouseLocationId !== undefined) attributes.warehouseLocationId = toId(data.warehouseLocationId)
+    if (data.assignedTo !== undefined) attributes.assignedTo = toId(data.assignedTo)
+    if (data.scheduledDate !== undefined) attributes.scheduledDate = data.scheduledDate
+    if (data.abcClass !== undefined) attributes.abcClass = data.abcClass
+    if (data.notes !== undefined) attributes.notes = data.notes
+    if (data.metadata !== undefined) attributes.metadata = data.metadata
 
-    const requestData = {
-      data: {
-        type: RESOURCE_TYPE,
-        id,
-        attributes: attributes,
-        ...((warehouseId || productId || warehouseLocationId || assignedTo || countedBy) && {
-          relationships: {
-            ...(warehouseId && {
-              warehouse: {
-                data: { type: 'warehouses', id: warehouseId }
-              }
-            }),
-            ...(productId && {
-              product: {
-                data: { type: 'products', id: productId }
-              }
-            }),
-            ...(warehouseLocationId && {
-              warehouseLocation: {
-                data: { type: 'warehouse-locations', id: warehouseLocationId }
-              }
-            }),
-            ...(assignedTo && {
-              assignedTo: {
-                data: { type: 'users', id: assignedTo }
-              }
-            }),
-            ...(countedBy && {
-              countedBy: {
-                data: { type: 'users', id: countedBy }
-              }
-            })
-          }
-        })
-      }
-    }
-
-    const response = await axios.patch<JsonApiResponse<CycleCount>>(`${BASE_URL}/${id}`, requestData)
+    const response = await axios.patch<JsonApiResponse<CycleCount>>(`${BASE_URL}/${id}`, {
+      data: { type: RESOURCE_TYPE, id, attributes },
+    })
 
     return parseCycleCount(
-      response.data.data as unknown as {
-        id: string
-        attributes: Record<string, unknown>
-        relationships?: JsonApiRelationships
-      },
+      response.data.data as unknown as { id: string; attributes: Record<string, unknown>; relationships?: JsonApiRelationships },
       response.data.included as JsonApiItem[]
     )
   },
@@ -432,33 +383,29 @@ export const cycleCountsService = {
     await axios.delete(`${BASE_URL}/${id}`)
   },
 
-  /**
-   * Start a cycle count (change status from scheduled to in_progress)
-   */
-  async startCount(id: string) {
-    return this.update(id, { status: 'in_progress' })
+  /** Inicia un conteo programado */
+  async startCount(id: string): Promise<CycleCountActionResult> {
+    const response = await axios.post<{ data: CycleCountActionResult }>(`${BASE_URL}/${id}/start`)
+    return response.data.data
   },
 
   /**
-   * Record count results (complete the count with counted quantity)
+   * Registra lo contado y cierra el conteo. Con adjust, si hay diferencia, el backend
+   * registra un ajuste en Movimientos y la existencia queda igual a lo contado.
    */
-  async recordCount(id: string, countedQuantity: number, notes?: string) {
-    return this.update(id, {
-      status: 'completed',
-      countedQuantity,
-      completedDate: todayDateInput(),
-      ...(notes && { notes })
+  async recordCount(id: string, countedQuantity: number, adjust: boolean, notes?: string): Promise<CycleCountActionResult> {
+    const response = await axios.post<{ data: CycleCountActionResult }>(`${BASE_URL}/${id}/record`, {
+      counted_quantity: countedQuantity,
+      adjust,
+      ...(notes ? { notes } : {}),
     })
+    return response.data.data
   },
 
-  /**
-   * Cancel a cycle count
-   */
-  async cancelCount(id: string, reason?: string) {
-    return this.update(id, {
-      status: 'cancelled',
-      ...(reason && { notes: reason })
-    })
+  /** Cancela un conteo programado o en proceso */
+  async cancelCount(id: string, reason?: string): Promise<CycleCountActionResult> {
+    const response = await axios.post<{ data: CycleCountActionResult }>(`${BASE_URL}/${id}/cancel`, reason ? { reason } : {})
+    return response.data.data
   },
 
   /**

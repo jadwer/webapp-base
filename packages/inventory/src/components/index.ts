@@ -75,7 +75,8 @@ export { ProductConversionForm } from './ProductConversionForm'
 
 // Fractionation Components
 export { FractionationsAdminPage } from './FractionationsAdminPage'
-export { FractionationTabs } from './FractionationTabs'
+export { FractionationTabs, FractionationHeader } from './FractionationTabs'
+export { FRACTIONATION_STATUS_TONE } from './FractionationHistory'
 export { FractionationHistory } from './FractionationHistory'
 export { FractionationForm } from './FractionationForm'
 export { FractionationCalculator } from './FractionationCalculator'

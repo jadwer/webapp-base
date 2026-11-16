@@ -1,379 +1,149 @@
 /**
- * CYCLE COUNTS ADMIN PAGE - REAL IMPLEMENTATION
- *
- * Pagina de gestion de conteos ciclicos de inventario siguiendo patron exitoso.
- * Incluye metricas, filtros, acciones rapidas y tabla con operaciones.
+ * CONTEOS CICLICOS con la piel del rediseno (2026-11-16). Indicadores con totales reales
+ * del backend (meta.page.total por filtro; antes se contaba solo la pagina visible) que
+ * filtran el listado. Iniciar y cancelar piden confirmacion y muestran el motivo si el
+ * backend lo rechaza.
  */
 
 'use client'
 
-import React, { useState, useCallback, useRef } from 'react'
+import React, { useRef, useState } from 'react'
+import Link from 'next/link'
+import { ConfirmModal, LwSurface, LwPageTitle, LwKpiCard, LwPagination, toast, type ConfirmModalHandle } from '@lwm/ui'
 import { useCycleCounts } from '../hooks/useCycleCounts'
 import { useCycleCountMutations } from '../hooks/useCycleCountMutations'
+import { useWarehouses } from '../hooks'
 import { CycleCountsTableSimple } from './CycleCountsTableSimple'
-import { PaginationSimple } from './PaginationSimple'
-import { Button, isPastDateOnly } from '@lwm/ui'
-import { Alert, ListToolbar } from '@lwm/ui'
-import { ConfirmModal } from '@lwm/ui'
-import type { ConfirmModalHandle } from '@lwm/ui'
-import { useNavigationProgress } from '@lwm/ui'
+import { CYCLE_COUNT_STATUS_OPTIONS } from '../types/cycleCount'
+import { apiErrorMessage } from '../utils/listing'
 import type { CycleCountFilters, CycleCountStatus } from '../types'
+
+type Quick = '' | 'scheduled' | 'in_progress' | 'overdue' | 'variance'
+
+const show = (v?: number) => (v == null ? '--' : v.toLocaleString('es-MX'))
 
 export const CycleCountsAdminPageReal = () => {
   const [searchTerm, setSearchTerm] = useState('')
-  const [currentPage, setCurrentPage] = useState(1)
-  const [statusFilter, setStatusFilter] = useState<CycleCountStatus[]>([])
-  const [showOverdue, setShowOverdue] = useState(false)
-  const pageSize = 20
-  const navigation = useNavigationProgress()
-  const confirmModalRef = useRef<ConfirmModalHandle>(null)
-
-  // Mutations hook
+  const [search, setSearch] = useState('')
+  const [status, setStatus] = useState<CycleCountStatus | ''>('')
+  const [quick, setQuick] = useState<Quick>('')
+  const [warehouseId, setWarehouseId] = useState('')
+  const [page, setPage] = useState(1)
+  const [perPage, setPerPage] = useState(10)
+  const confirmRef = useRef<ConfirmModalHandle>(null)
   const { startCount, cancelCount, isLoading: isMutating } = useCycleCountMutations()
+  const { warehouses } = useWarehouses({ filters: { isActive: true }, pagination: { size: 100 } })
 
-  // Build filters
   const filters: CycleCountFilters = {
-    ...(searchTerm && { search: searchTerm }),
-    ...(statusFilter.length > 0 && { status: statusFilter }),
-    ...(showOverdue && { overdue: true })
+    ...(search && { search }),
+    ...(warehouseId && { warehouseId }),
+    ...(status && { status: [status] }),
+    ...(quick === 'scheduled' && { status: ['scheduled'] as CycleCountStatus[] }),
+    ...(quick === 'in_progress' && { status: ['in_progress'] as CycleCountStatus[] }),
+    ...(quick === 'overdue' && { overdue: true }),
+    ...(quick === 'variance' && { hasVariance: true }),
   }
+  const { cycleCounts, meta, isLoading, error } = useCycleCounts({ filters, page, pageSize: perPage })
 
-  // Hooks con paginacion real del backend
-  const { cycleCounts, meta, isLoading, error } = useCycleCounts({
-    filters: Object.keys(filters).length > 0 ? filters : undefined,
-    page: currentPage,
-    pageSize: pageSize
-  })
+  // Totales reales por indicador
+  const total = useCycleCounts({ pageSize: 1 })
+  const scheduled = useCycleCounts({ filters: { status: ['scheduled'] }, pageSize: 1 })
+  const inProgress = useCycleCounts({ filters: { status: ['in_progress'] }, pageSize: 1 })
+  const overdue = useCycleCounts({ filters: { overdue: true }, pageSize: 1 })
+  const variance = useCycleCounts({ filters: { hasVariance: true }, pageSize: 1 })
+  const kpiLoading = [total, scheduled, inProgress, overdue, variance].some((k) => k.isLoading)
 
-  // Paginacion desde meta structure
-  const totalPages = meta?.lastPage || 1
-  const totalItems = meta?.total || 0
-  const currentBackendPage = meta?.currentPage || currentPage
+  const hasFilters = Boolean(search || status || quick || warehouseId)
+  const pick = (q: Quick) => { setQuick(quick === q ? '' : q); setStatus(''); setPage(1) }
+  const clear = () => { setSearch(''); setSearchTerm(''); setStatus(''); setQuick(''); setWarehouseId(''); setPage(1) }
 
-  // Calculate metrics dynamically
-  const countMetrics = React.useMemo(() => {
-    return {
-      total: cycleCounts.length,
-      scheduled: cycleCounts.filter(c => c.status === 'scheduled').length,
-      inProgress: cycleCounts.filter(c => c.status === 'in_progress').length,
-      completed: cycleCounts.filter(c => c.status === 'completed').length,
-      withVariance: cycleCounts.filter(c => c.hasVariance).length,
-      overdue: cycleCounts.filter(c => {
-        if (c.status !== 'scheduled') return false
-        return isPastDateOnly(c.scheduledDate)
-      }).length
+  const handleStart = async (id: string) => {
+    const c = cycleCounts.find((x) => x.id === id)
+    const ok = await confirmRef.current?.confirm(`¿Iniciar el conteo ${c?.countNumber ?? id}? Quedará en proceso para registrar lo contado.`, { title: 'Iniciar conteo', confirmText: 'Iniciar', cancelText: 'Volver', confirmVariant: 'primary' })
+    if (!ok) return
+    try {
+      await startCount(id)
+      toast.success(`Conteo ${c?.countNumber ?? ''} en proceso`)
+    } catch (err) {
+      toast.error(apiErrorMessage(err, 'No se pudo iniciar el conteo.'))
     }
-  }, [cycleCounts])
-
-  // Reset to page 1 when filters change
-  const handleSearchChange = (newSearchTerm: string) => {
-    setSearchTerm(newSearchTerm)
-    setCurrentPage(1)
   }
 
-  const handleStatusFilter = (status: CycleCountStatus[] | null) => {
-    setStatusFilter(status || [])
-    setShowOverdue(false)
-    setCurrentPage(1)
+  const handleCancel = async (id: string) => {
+    const c = cycleCounts.find((x) => x.id === id)
+    const ok = await confirmRef.current?.confirm(`¿Cancelar el conteo ${c?.countNumber ?? id}? No se puede deshacer.`, { title: 'Cancelar conteo', confirmText: 'Cancelar conteo', cancelText: 'Volver', confirmVariant: 'danger' })
+    if (!ok) return
+    try {
+      await cancelCount(id)
+      toast.success(`Conteo ${c?.countNumber ?? ''} cancelado`)
+    } catch (err) {
+      toast.error(apiErrorMessage(err, 'No se pudo cancelar el conteo.'))
+    }
   }
-
-  const handleShowOverdue = () => {
-    setStatusFilter(['scheduled'])
-    setShowOverdue(true)
-    setCurrentPage(1)
-  }
-
-  const handleClearFilters = () => {
-    setSearchTerm('')
-    setStatusFilter([])
-    setShowOverdue(false)
-    setCurrentPage(1)
-  }
-
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page)
-  }
-
-  // Action handlers
-  const handleStartCount = useCallback(
-    async (id: string) => {
-      const count = cycleCounts.find(c => c.id === id)
-      const confirmed = await confirmModalRef.current?.confirm(
-        `Deseas iniciar el conteo ${count?.countNumber || id}? El estado cambiara a "En Progreso".`,
-        {
-          title: 'Iniciar Conteo',
-          confirmVariant: 'warning',
-          confirmText: 'Iniciar',
-          cancelText: 'Cancelar'
-        }
-      )
-      if (confirmed) {
-        try {
-          await startCount(id)
-        } catch {
-          // Error handled by mutation hook
-        }
-      }
-    },
-    [cycleCounts, startCount]
-  )
-
-  const handleRecordCount = useCallback(
-    (id: string) => {
-      // Navigate to record count page/modal
-      navigation.push(`/dashboard/inventory/cycle-counts/${id}/record`)
-    },
-    [navigation]
-  )
-
-  const handleCancelCount = useCallback(
-    async (id: string) => {
-      const count = cycleCounts.find(c => c.id === id)
-      const confirmed = await confirmModalRef.current?.confirm(
-        `Estas seguro de cancelar el conteo ${count?.countNumber || id}? Esta acción no se puede deshacer.`,
-        {
-          title: 'Cancelar Conteo',
-          confirmVariant: 'danger',
-          confirmText: 'Cancelar Conteo',
-          cancelText: 'Volver'
-        }
-      )
-      if (confirmed) {
-        try {
-          await cancelCount(id, 'Cancelado por el usuario')
-        } catch {
-          // Error handled by mutation hook
-        }
-      }
-    },
-    [cycleCounts, cancelCount]
-  )
 
   return (
     <div className="container-fluid py-4">
-      {/* Header */}
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <div>
-          <h1 className="h3 mb-0">Conteos Ciclicos</h1>
-          <p className="text-muted mb-0">Gestion de conteos ciclicos de inventario (Análisis ABC)</p>
-        </div>
-        <div className="d-flex gap-2">
-          <Button variant="primary" onClick={() => navigation.push('/dashboard/inventory/cycle-counts/create')}>
-            <i className="bi bi-plus-lg me-2" />
-            Nuevo Conteo
-          </Button>
-        </div>
-      </div>
+      <LwSurface>
+        <LwPageTitle title="Conteos cíclicos" subtitle="Conteos físicos por producto y almacén; la diferencia se ajusta en Movimientos" />
 
-      {/* Summary Cards */}
-      <div className="row g-3 mb-4">
-        <div className="col-md-2">
-          <div className="card border-0 bg-primary text-white">
-            <div className="card-body">
-              <div className="d-flex justify-content-between align-items-center">
-                <div>
-                  <h6 className="card-title text-white-50">Total</h6>
-                  <h3 className="mb-0">{totalItems || '--'}</h3>
-                </div>
-                <i className="bi bi-clipboard-check" style={{ fontSize: '2rem', opacity: 0.7 }} />
+        <div className="row row-cols-1 row-cols-md-3 row-cols-lg-5 g-3 mb-4">
+          <div className="col"><LwKpiCard label="Total de conteos" value={show(total.meta?.total)} icon="bi-clipboard-check" highlight isLoading={kpiLoading} onClick={clear} /></div>
+          <div className="col"><LwKpiCard label="Programados" value={show(scheduled.meta?.total)} icon="bi-calendar-event" isLoading={kpiLoading} onClick={() => pick('scheduled')} /></div>
+          <div className="col"><LwKpiCard label="En proceso" value={show(inProgress.meta?.total)} icon="bi-hourglass-split" isLoading={kpiLoading} onClick={() => pick('in_progress')} /></div>
+          <div className="col"><LwKpiCard label="Vencidos" value={show(overdue.meta?.total)} icon="bi-exclamation-triangle" hint="Programados con fecha pasada" isLoading={kpiLoading} onClick={() => pick('overdue')} /></div>
+          <div className="col"><LwKpiCard label="Con diferencia" value={show(variance.meta?.total)} icon="bi-arrow-left-right" isLoading={kpiLoading} onClick={() => pick('variance')} /></div>
+        </div>
+
+        <div className="row g-2 align-items-center mb-3">
+          <div className="col-md-3">
+            <form onSubmit={(e) => { e.preventDefault(); setSearch(searchTerm.trim()); setPage(1) }}>
+              <div className="input-group">
+                <span className="input-group-text"><i className="bi bi-search" aria-hidden="true" /></span>
+                <input
+                  type="search"
+                  className="form-control border-start-0"
+                  placeholder="Buscar por conteo, producto o almacén..."
+                  aria-label="Buscar conteo"
+                  value={searchTerm}
+                  onChange={(e) => { setSearchTerm(e.target.value); if (e.target.value === '' && search) { setSearch(''); setPage(1) } }}
+                />
               </div>
-            </div>
+            </form>
+          </div>
+          <div className="col-md-auto">
+            <select className="form-select" aria-label="Estatus" value={status} onChange={(e) => { setStatus(e.target.value as CycleCountStatus | ''); setQuick(''); setPage(1) }}>
+              <option value="">Todos los estatus</option>
+              {CYCLE_COUNT_STATUS_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+            </select>
+          </div>
+          <div className="col-md-auto">
+            <select className="form-select" aria-label="Almacén" value={warehouseId} onChange={(e) => { setWarehouseId(e.target.value); setPage(1) }}>
+              <option value="">Todos los almacenes</option>
+              {warehouses.map((w) => <option key={w.id} value={w.id}>{w.name}</option>)}
+            </select>
+          </div>
+          <div className="col d-flex justify-content-end gap-2">
+            {hasFilters ? <button type="button" className="btn btn-link btn-sm" onClick={clear}>Limpiar filtros</button> : null}
+            <Link href="/dashboard/inventory/cycle-counts/create" className="btn btn-primary">
+              <i className="bi bi-plus-lg me-1" aria-hidden="true" /> Nuevo conteo
+            </Link>
           </div>
         </div>
 
-        <div className="col-md-2">
-          <div
-            className="card border-0 bg-info text-white"
-            style={{ cursor: 'pointer' }}
-            onClick={() => handleStatusFilter(['scheduled'])}
-          >
-            <div className="card-body">
-              <div className="d-flex justify-content-between align-items-center">
-                <div>
-                  <h6 className="card-title text-white-50">Programados</h6>
-                  <h3 className="mb-0">{countMetrics.scheduled}</h3>
-                </div>
-                <i className="bi bi-calendar-event" style={{ fontSize: '2rem', opacity: 0.7 }} />
-              </div>
-            </div>
-          </div>
-        </div>
+        {error ? <div className="alert alert-danger" role="alert">{error.message || 'No se pudieron cargar los conteos.'}</div> : null}
 
-        <div className="col-md-2">
-          <div
-            className="card border-0 bg-warning text-white"
-            style={{ cursor: 'pointer' }}
-            onClick={() => handleStatusFilter(['in_progress'])}
-          >
-            <div className="card-body">
-              <div className="d-flex justify-content-between align-items-center">
-                <div>
-                  <h6 className="card-title text-white-50">En Progreso</h6>
-                  <h3 className="mb-0">{countMetrics.inProgress}</h3>
-                </div>
-                <i className="bi bi-hourglass-split" style={{ fontSize: '2rem', opacity: 0.7 }} />
-              </div>
-            </div>
-          </div>
-        </div>
+        <CycleCountsTableSimple
+          cycleCounts={cycleCounts}
+          isLoading={isLoading || isMutating}
+          hasFilters={hasFilters}
+          offset={(page - 1) * perPage}
+          onStartCount={handleStart}
+          onCancelCount={handleCancel}
+        />
 
-        <div className="col-md-2">
-          <div
-            className="card border-0 bg-success text-white"
-            style={{ cursor: 'pointer' }}
-            onClick={() => handleStatusFilter(['completed'])}
-          >
-            <div className="card-body">
-              <div className="d-flex justify-content-between align-items-center">
-                <div>
-                  <h6 className="card-title text-white-50">Completados</h6>
-                  <h3 className="mb-0">{countMetrics.completed}</h3>
-                </div>
-                <i className="bi bi-check-circle" style={{ fontSize: '2rem', opacity: 0.7 }} />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="col-md-2">
-          <div className="card border-0 bg-danger text-white" style={{ cursor: 'pointer' }} onClick={handleShowOverdue}>
-            <div className="card-body">
-              <div className="d-flex justify-content-between align-items-center">
-                <div>
-                  <h6 className="card-title text-white-50">Vencidos</h6>
-                  <h3 className="mb-0">{countMetrics.overdue}</h3>
-                </div>
-                <i className="bi bi-exclamation-triangle" style={{ fontSize: '2rem', opacity: 0.7 }} />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="col-md-2">
-          <div className="card border-0 bg-secondary text-white">
-            <div className="card-body">
-              <div className="d-flex justify-content-between align-items-center">
-                <div>
-                  <h6 className="card-title text-white-50">Con Variación</h6>
-                  <h3 className="mb-0">{countMetrics.withVariance}</h3>
-                </div>
-                <i className="bi bi-arrow-left-right" style={{ fontSize: '2rem', opacity: 0.7 }} />
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Quick Actions */}
-      <div className="row g-3 mb-4">
-        <div className="col-12">
-          <div className="card bg-light">
-            <div className="card-body py-3">
-              <div className="d-flex flex-wrap gap-2 align-items-center">
-                <span className="text-muted me-2">Filtros rapidos:</span>
-                <Button
-                  variant={statusFilter.includes('scheduled') && !showOverdue ? 'primary' : 'secondary'}
-                  size="small"
-                  onClick={() => handleStatusFilter(['scheduled'])}
-                >
-                  <i className="bi bi-calendar-event me-1" />
-                  Programados
-                </Button>
-                <Button
-                  variant={statusFilter.includes('in_progress') ? 'warning' : 'secondary'}
-                  size="small"
-                  onClick={() => handleStatusFilter(['in_progress'])}
-                >
-                  <i className="bi bi-hourglass-split me-1" />
-                  En Progreso
-                </Button>
-                <Button variant={showOverdue ? 'danger' : 'secondary'} size="small" onClick={handleShowOverdue}>
-                  <i className="bi bi-exclamation-triangle me-1" />
-                  Vencidos
-                </Button>
-                <Button
-                  variant={statusFilter.includes('completed') ? 'success' : 'secondary'}
-                  size="small"
-                  onClick={() => handleStatusFilter(['completed'])}
-                >
-                  <i className="bi bi-check-circle me-1" />
-                  Completados
-                </Button>
-                {(statusFilter.length > 0 || showOverdue || searchTerm) && (
-                  <Button variant="secondary" size="small" onClick={handleClearFilters}>
-                    <i className="bi bi-x-lg me-1" />
-                    Limpiar Filtros
-                  </Button>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Search Filter */}
-      <ListToolbar
-        search={{
-          value: searchTerm,
-          onChange: handleSearchChange,
-          placeholder: 'Buscar por número de conteo, producto o almacén',
-        }}
-      />
-
-      {/* Error State */}
-      {error && (
-        <Alert variant="danger" className="mb-4">
-          <i className="bi bi-exclamation-triangle me-2" />
-          <strong>Error:</strong> {error.message || 'Error al cargar los conteos ciclicos'}
-        </Alert>
-      )}
-
-      {/* Alerts for critical situations */}
-      {countMetrics.overdue > 0 && !showOverdue && (
-        <Alert variant="danger" className="mb-3">
-          <i className="bi bi-exclamation-triangle me-2" />
-          <strong>Atencion:</strong> Tienes {countMetrics.overdue} conteo(s) vencido(s) que requieren atencion
-          inmediata.
-          <Button variant="danger" size="small" className="ms-3" onClick={handleShowOverdue}>
-            Ver vencidos
-          </Button>
-        </Alert>
-      )}
-
-      {countMetrics.inProgress > 0 && (
-        <Alert variant="warning" className="mb-3">
-          <i className="bi bi-hourglass-split me-2" />
-          <strong>En progreso:</strong> {countMetrics.inProgress} conteo(s) estan en progreso y esperan resultados.
-        </Alert>
-      )}
-
-      {/* Content */}
-      <div className="card">
-        <div className="card-body p-0">
-          <CycleCountsTableSimple
-            cycleCounts={cycleCounts}
-            isLoading={isLoading || isMutating}
-            onStartCount={handleStartCount}
-            onRecordCount={handleRecordCount}
-            onCancelCount={handleCancelCount}
-          />
-
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <PaginationSimple
-              currentPage={currentBackendPage}
-              totalPages={totalPages}
-              onPageChange={handlePageChange}
-              isLoading={isLoading}
-              totalItems={totalItems}
-              pageSize={meta?.perPage || pageSize}
-            />
-          )}
-        </div>
-      </div>
-
-      {/* Confirm Modal */}
-      <ConfirmModal ref={confirmModalRef} />
+        <LwPagination page={meta?.currentPage ?? page} lastPage={meta?.lastPage ?? 1} perPage={perPage} total={meta?.total} onPage={setPage} onPerPage={(n) => { setPerPage(n); setPage(1) }} />
+      </LwSurface>
+      <ConfirmModal ref={confirmRef} />
     </div>
   )
 }

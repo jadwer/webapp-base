@@ -15,7 +15,11 @@ const mocks = vi.hoisted(() => ({
 vi.mock('next/navigation', () => ({ useRouter: () => ({ push: mocks.push }) }))
 vi.mock('@lwm/ui', () => ({
   toast: { success: vi.fn(), error: vi.fn() },
-  PageHeader: ({ title }: { title: string }) => <h1>{title}</h1>,
+  LwSurface: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  LwPageTitle: ({ title, highlight, subtitle, actions }: { title: React.ReactNode; highlight?: React.ReactNode; subtitle?: React.ReactNode; actions?: React.ReactNode }) => (
+    <header><h1>{title}{highlight ? ' ' : ''}{highlight}</h1>{subtitle}{actions}</header>
+  ),
+  LwStatusPill: ({ children }: { children: React.ReactNode }) => <span>{children}</span>,
   DetailSection: ({ children }: { children: React.ReactNode }) => <section>{children}</section>,
 }))
 vi.mock('@lwm/products', () => ({

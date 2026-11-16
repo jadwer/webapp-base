@@ -19,7 +19,11 @@ vi.mock('next/navigation', () => ({ useRouter: () => ({ push: mocks.push }) }))
 vi.mock('next/link', () => ({ default: ({ children, href }: { children: React.ReactNode; href: string }) => <a href={href}>{children}</a> }))
 vi.mock('@lwm/ui', () => ({
   toast: mocks.toast,
-  PageHeader: ({ title }: { title: string }) => <h1>{title}</h1>,
+  LwSurface: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  LwPageTitle: ({ title, highlight, subtitle, actions }: { title: React.ReactNode; highlight?: React.ReactNode; subtitle?: React.ReactNode; actions?: React.ReactNode }) => (
+    <header><h1>{title}{highlight ? ' ' : ''}{highlight}</h1>{subtitle}{actions}</header>
+  ),
+  LwStatusPill: ({ children }: { children: React.ReactNode }) => <span>{children}</span>,
   DetailSection: ({ children }: { children: React.ReactNode }) => <section>{children}</section>,
   formatCurrency: (v: number) => `$${v.toFixed(2)}`,
   formatQuantity: (v: number) => String(v),

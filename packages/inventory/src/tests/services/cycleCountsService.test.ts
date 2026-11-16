@@ -116,7 +116,7 @@ describe('cycleCountsService', () => {
       })
     })
 
-    it('should fetch cycle counts with multiple status filter', async () => {
+    it('manda un solo estatus (el filtro del backend no admite lista)', async () => {
       // Arrange
       const apiResponse = {
         data: [],
@@ -131,7 +131,7 @@ describe('cycleCountsService', () => {
       // Assert
       expect(axios.get).toHaveBeenCalledWith('/api/v1/cycle-counts', {
         params: expect.objectContaining({
-          'filter[status]': 'scheduled,in_progress'
+          'filter[status]': 'scheduled'
         })
       })
     })
@@ -384,188 +384,49 @@ describe('cycleCountsService', () => {
   })
 
   describe('create', () => {
-    it('should create a new cycle count', async () => {
-      // Arrange
-      const createData = {
+    it('manda almacen, producto y ubicacion como atributos (las relaciones son de solo lectura)', async () => {
+      const createdCycleCount = createApiCycleCount({ scheduled_date: '2025-01-20' })
+      vi.mocked(axios.post).mockResolvedValue({ data: { data: { ...createdCycleCount, id: '10' }, included: createIncludedResources() } })
+
+      const result = await cycleCountsService.create({
         warehouseId: '1',
-        productId: '1',
+        productId: '3',
+        warehouseLocationId: '2',
         scheduledDate: '2025-01-20',
-        status: 'scheduled' as const,
-        abcClass: 'A' as const,
-        systemQuantity: 100
-      }
-      const createdCycleCount = createApiCycleCount({
-        scheduled_date: '2025-01-20',
-        system_quantity: 100
+        abcClass: 'A',
+        assignedTo: '5',
       })
-      const apiResponse = {
-        data: { ...createdCycleCount, id: '10' },
-        included: createIncludedResources()
-      }
-      vi.mocked(axios.post).mockResolvedValue({ data: apiResponse })
 
-      // Act
-      const result = await cycleCountsService.create(createData)
-
-      // Assert
       expect(axios.post).toHaveBeenCalledWith('/api/v1/cycle-counts', {
         data: {
           type: 'cycle-counts',
-          attributes: {
-            scheduledDate: '2025-01-20',
-            status: 'scheduled',
-            abcClass: 'A',
-            systemQuantity: 100
-          },
-          relationships: {
-            warehouse: { data: { type: 'warehouses', id: '1' } },
-            product: { data: { type: 'products', id: '1' } }
-          }
-        }
+          attributes: { scheduledDate: '2025-01-20', abcClass: 'A', warehouseId: 1, productId: 3, warehouseLocationId: 2, assignedTo: 5 },
+        },
       })
       expect(result.scheduledDate).toBe('2025-01-20')
     })
 
-    it('should create cycle count with optional warehouseLocation', async () => {
-      // Arrange
-      const createData = {
-        warehouseId: '1',
-        productId: '1',
-        warehouseLocationId: '2',
-        scheduledDate: '2025-01-20',
-        status: 'scheduled' as const
-      }
-      const apiResponse = {
-        data: createApiCycleCount(),
-        included: createIncludedResources()
-      }
-      vi.mocked(axios.post).mockResolvedValue({ data: apiResponse })
-
-      // Act
-      await cycleCountsService.create(createData)
-
-      // Assert
-      expect(axios.post).toHaveBeenCalledWith('/api/v1/cycle-counts', {
-        data: expect.objectContaining({
-          relationships: expect.objectContaining({
-            warehouseLocation: { data: { type: 'warehouse-locations', id: '2' } }
-          })
-        })
-      })
-    })
-
-    it('should create cycle count with assigned user', async () => {
-      // Arrange
-      const createData = {
-        warehouseId: '1',
-        productId: '1',
-        scheduledDate: '2025-01-20',
-        status: 'scheduled' as const,
-        assignedTo: '5'
-      }
-      const apiResponse = {
-        data: createApiCycleCount(),
-        included: createIncludedResources()
-      }
-      vi.mocked(axios.post).mockResolvedValue({ data: apiResponse })
-
-      // Act
-      await cycleCountsService.create(createData)
-
-      // Assert
-      expect(axios.post).toHaveBeenCalledWith('/api/v1/cycle-counts', {
-        data: expect.objectContaining({
-          // Fix Paquete B: assignedTo es ATRIBUTO del backend; como
-          // relationship se ignoraba en silencio y la asignacion se perdia.
-          attributes: expect.objectContaining({
-            assignedTo: 5
-          })
-        })
-      })
-    })
-
     it('should throw validation error on invalid data', async () => {
-      // Arrange
-      const error = new Error('Validation failed')
-      vi.mocked(axios.post).mockRejectedValue(error)
-
-      // Act & Assert
-      await expect(
-        cycleCountsService.create({
-          warehouseId: '',
-          productId: '',
-          scheduledDate: '',
-          status: 'scheduled'
-        })
-      ).rejects.toThrow('Validation failed')
+      vi.mocked(axios.post).mockRejectedValue(new Error('Validation failed'))
+      await expect(cycleCountsService.create({ warehouseId: '', productId: '', scheduledDate: '' })).rejects.toThrow('Validation failed')
     })
   })
 
   describe('update', () => {
-    it('should update an existing cycle count', async () => {
-      // Arrange
-      const updateData = {
-        notes: 'Updated notes',
-        status: 'in_progress' as const
-      }
-      const updatedCycleCount = createApiCycleCount({
-        notes: 'Updated notes',
-        status: 'in_progress'
-      })
-      const apiResponse = {
-        data: updatedCycleCount,
-        included: createIncludedResources()
-      }
-      vi.mocked(axios.patch).mockResolvedValue({ data: apiResponse })
+    it('manda solo los datos editables, como atributos', async () => {
+      vi.mocked(axios.patch).mockResolvedValue({ data: { data: createApiCycleCount({ notes: 'Updated notes' }), included: createIncludedResources() } })
 
-      // Act
-      const result = await cycleCountsService.update('1', updateData)
+      const result = await cycleCountsService.update('1', { notes: 'Updated notes', warehouseId: '5', warehouseLocationId: null })
 
-      // Assert
       expect(axios.patch).toHaveBeenCalledWith('/api/v1/cycle-counts/1', {
-        data: {
-          type: 'cycle-counts',
-          id: '1',
-          attributes: {
-            notes: 'Updated notes',
-            status: 'in_progress'
-          }
-        }
+        data: { type: 'cycle-counts', id: '1', attributes: { warehouseId: 5, warehouseLocationId: null, notes: 'Updated notes' } },
       })
       expect(result.notes).toBe('Updated notes')
     })
 
-    it('should update cycle count with new warehouse', async () => {
-      // Arrange
-      const updateData = { warehouseId: '5' }
-      const apiResponse = {
-        data: createApiCycleCount(),
-        included: createIncludedResources()
-      }
-      vi.mocked(axios.patch).mockResolvedValue({ data: apiResponse })
-
-      // Act
-      await cycleCountsService.update('1', updateData)
-
-      // Assert
-      expect(axios.patch).toHaveBeenCalledWith('/api/v1/cycle-counts/1', {
-        data: expect.objectContaining({
-          relationships: {
-            warehouse: { data: { type: 'warehouses', id: '5' } }
-          }
-        })
-      })
-    })
-
     it('should throw 404 error when updating non-existent cycle count', async () => {
-      // Arrange
-      const error = new Error('Not found')
-      vi.mocked(axios.patch).mockRejectedValue(error)
-
-      // Act & Assert
-      await expect(
-        cycleCountsService.update('999', { notes: 'Test' })
-      ).rejects.toThrow('Not found')
+      vi.mocked(axios.patch).mockRejectedValue(new Error('Not found'))
+      await expect(cycleCountsService.update('999', { notes: 'x' })).rejects.toThrow('Not found')
     })
   })
 
@@ -591,134 +452,35 @@ describe('cycleCountsService', () => {
     })
   })
 
-  describe('startCount', () => {
-    it('should start a cycle count (change status to in_progress)', async () => {
-      // Arrange
-      const startedCycleCount = createApiCycleCount({ status: 'in_progress' })
-      const apiResponse = {
-        data: startedCycleCount,
-        included: createIncludedResources()
-      }
-      vi.mocked(axios.patch).mockResolvedValue({ data: apiResponse })
+  describe('acciones', () => {
+    const result = { id: '1', countNumber: 'CC1', status: 'completed', systemQuantity: 10, countedQuantity: 7, varianceQuantity: -3, varianceValue: -60, adjustmentMovementId: 99 }
 
-      // Act
-      const result = await cycleCountsService.startCount('1')
-
-      // Assert
-      expect(axios.patch).toHaveBeenCalledWith('/api/v1/cycle-counts/1', {
-        data: {
-          type: 'cycle-counts',
-          id: '1',
-          attributes: { status: 'in_progress' }
-        }
-      })
-      expect(result.status).toBe('in_progress')
-    })
-  })
-
-  describe('recordCount', () => {
-    it('should record count result with counted quantity', async () => {
-      // Arrange
-      const completedCycleCount = createApiCycleCount({
-        status: 'completed',
-        counted_quantity: 95,
-        variance_quantity: -5,
-        has_variance: true
-      })
-      const apiResponse = {
-        data: completedCycleCount,
-        included: createIncludedResources()
-      }
-      vi.mocked(axios.patch).mockResolvedValue({ data: apiResponse })
-
-      // Act
-      const result = await cycleCountsService.recordCount('1', 95)
-
-      // Assert
-      expect(axios.patch).toHaveBeenCalledWith('/api/v1/cycle-counts/1', {
-        data: {
-          type: 'cycle-counts',
-          id: '1',
-          attributes: expect.objectContaining({
-            status: 'completed',
-            countedQuantity: 95,
-            completedDate: expect.any(String)
-          })
-        }
-      })
-      expect(result.status).toBe('completed')
+    it('inicia con POST start', async () => {
+      vi.mocked(axios.post).mockResolvedValue({ data: { data: { ...result, status: 'in_progress' } } })
+      const r = await cycleCountsService.startCount('1')
+      expect(axios.post).toHaveBeenCalledWith('/api/v1/cycle-counts/1/start')
+      expect(r.status).toBe('in_progress')
     })
 
-    it('should record count with notes', async () => {
-      // Arrange
-      const apiResponse = {
-        data: createApiCycleCount({ status: 'completed' }),
-        included: createIncludedResources()
-      }
-      vi.mocked(axios.patch).mockResolvedValue({ data: apiResponse })
-
-      // Act
-      await cycleCountsService.recordCount('1', 100, 'Count verified by supervisor')
-
-      // Assert
-      expect(axios.patch).toHaveBeenCalledWith('/api/v1/cycle-counts/1', {
-        data: {
-          type: 'cycle-counts',
-          id: '1',
-          attributes: expect.objectContaining({
-            notes: 'Count verified by supervisor'
-          })
-        }
-      })
-    })
-  })
-
-  describe('cancelCount', () => {
-    it('should cancel a cycle count', async () => {
-      // Arrange
-      const cancelledCycleCount = createApiCycleCount({ status: 'cancelled' })
-      const apiResponse = {
-        data: cancelledCycleCount,
-        included: createIncludedResources()
-      }
-      vi.mocked(axios.patch).mockResolvedValue({ data: apiResponse })
-
-      // Act
-      const result = await cycleCountsService.cancelCount('1')
-
-      // Assert
-      expect(axios.patch).toHaveBeenCalledWith('/api/v1/cycle-counts/1', {
-        data: {
-          type: 'cycle-counts',
-          id: '1',
-          attributes: { status: 'cancelled' }
-        }
-      })
-      expect(result.status).toBe('cancelled')
+    it('registra con POST record, con ajuste y notas', async () => {
+      vi.mocked(axios.post).mockResolvedValue({ data: { data: result } })
+      const r = await cycleCountsService.recordCount('1', 7, true, 'Faltan 3')
+      expect(axios.post).toHaveBeenCalledWith('/api/v1/cycle-counts/1/record', { counted_quantity: 7, adjust: true, notes: 'Faltan 3' })
+      expect(r.adjustmentMovementId).toBe(99)
     })
 
-    it('should cancel a cycle count with reason', async () => {
-      // Arrange
-      const apiResponse = {
-        data: createApiCycleCount({ status: 'cancelled' }),
-        included: createIncludedResources()
-      }
-      vi.mocked(axios.patch).mockResolvedValue({ data: apiResponse })
+    it('registra sin ajuste y sin notas', async () => {
+      vi.mocked(axios.post).mockResolvedValue({ data: { data: { ...result, adjustmentMovementId: null } } })
+      await cycleCountsService.recordCount('1', 7, false)
+      expect(axios.post).toHaveBeenCalledWith('/api/v1/cycle-counts/1/record', { counted_quantity: 7, adjust: false })
+    })
 
-      // Act
-      await cycleCountsService.cancelCount('1', 'Product discontinued')
-
-      // Assert
-      expect(axios.patch).toHaveBeenCalledWith('/api/v1/cycle-counts/1', {
-        data: {
-          type: 'cycle-counts',
-          id: '1',
-          attributes: {
-            status: 'cancelled',
-            notes: 'Product discontinued'
-          }
-        }
-      })
+    it('cancela con POST cancel y motivo opcional', async () => {
+      vi.mocked(axios.post).mockResolvedValue({ data: { data: { ...result, status: 'cancelled' } } })
+      await cycleCountsService.cancelCount('1', 'Se cambió de almacén')
+      expect(axios.post).toHaveBeenCalledWith('/api/v1/cycle-counts/1/cancel', { reason: 'Se cambió de almacén' })
+      await cycleCountsService.cancelCount('1')
+      expect(axios.post).toHaveBeenLastCalledWith('/api/v1/cycle-counts/1/cancel', {})
     })
   })
 

@@ -1,304 +1,193 @@
 /**
- * CycleCount Form Component
- *
- * Form for creating and editing cycle counts.
+ * Formulario de conteo ciclico con la piel del rediseno (2026-11-16). Programa el conteo
+ * (almacen, ubicacion, producto, fecha, clase ABC y notas). El estatus y lo contado no se
+ * capturan aqui: cambian con Iniciar, Registrar conteo y Cancelar en el detalle.
  */
 
 'use client'
 
-import React, { useState, useEffect } from 'react'
-import { Button, todayDateInput } from '@lwm/ui'
-import { Input } from '@lwm/ui'
+import React, { useState } from 'react'
+import Link from 'next/link'
+import { DetailSection, LwSurface, LwPageTitle, todayDateInput } from '@lwm/ui'
+import { ProductSearchSelect } from '@lwm/products'
 import { useWarehouses } from '../hooks/useWarehouses'
 import { useLocations } from '../hooks/useLocations'
 import type { CycleCountFormData } from '../types'
-import { CYCLE_COUNT_STATUS_OPTIONS, ABC_CLASS_OPTIONS } from '../types/cycleCount'
-
-// Import products hook from products module
-import { useProducts } from '@lwm/products'
+import { ABC_CLASS_OPTIONS } from '../types/cycleCount'
 
 interface CycleCountFormProps {
   initialData?: Partial<CycleCountFormData>
+  /** Etiqueta del producto al editar (evita la consulta extra) */
+  initialProduct?: { id: string; name: string; sku?: string } | null
   onSubmit: (data: CycleCountFormData) => Promise<void>
-  onCancel: () => void
   isLoading?: boolean
   isEdit?: boolean
+  countNumber?: string
+  backHref: string
+  /** Errores del backend, con detalle */
+  submitErrors?: string[]
 }
 
 export const CycleCountForm: React.FC<CycleCountFormProps> = ({
   initialData,
+  initialProduct,
   onSubmit,
-  onCancel,
   isLoading = false,
-  isEdit = false
+  isEdit = false,
+  countNumber,
+  backHref,
+  submitErrors = [],
 }) => {
-  // Form state
   const [formData, setFormData] = useState<CycleCountFormData>({
     warehouseId: initialData?.warehouseId || '',
     productId: initialData?.productId || '',
     scheduledDate: initialData?.scheduledDate || todayDateInput(),
-    status: initialData?.status || 'scheduled',
     warehouseLocationId: initialData?.warehouseLocationId,
-    systemQuantity: initialData?.systemQuantity,
-    countedQuantity: initialData?.countedQuantity,
     assignedTo: initialData?.assignedTo,
     abcClass: initialData?.abcClass,
-    notes: initialData?.notes
+    notes: initialData?.notes,
   })
-
   const [errors, setErrors] = useState<Record<string, string>>({})
 
-  // Fetch warehouses and products for selects
-  const { warehouses, isLoading: loadingWarehouses } = useWarehouses({})
-  const { products, isLoading: loadingProducts } = useProducts({})
+  const { warehouses, isLoading: loadingWarehouses } = useWarehouses({ filters: { isActive: true }, pagination: { size: 100 } })
   const { locations, isLoading: loadingLocations } = useLocations({
-    filters: formData.warehouseId ? { warehouseId: formData.warehouseId } : undefined
+    filters: formData.warehouseId ? { warehouseId: formData.warehouseId } : undefined,
+    pagination: { size: 100 },
   })
 
-  // Update locations when warehouse changes
-  useEffect(() => {
-    if (formData.warehouseId !== initialData?.warehouseId) {
-      setFormData(prev => ({ ...prev, warehouseLocationId: undefined }))
-    }
-  }, [formData.warehouseId, initialData?.warehouseId])
-
-  // Handle input changes
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target
-    setFormData(prev => ({
-      ...prev,
-      [name]: value === '' ? undefined : value
-    }))
-    // Clear error when field is edited
-    if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: '' }))
-    }
+  const set = <K extends keyof CycleCountFormData>(name: K, value: CycleCountFormData[K]) => {
+    setFormData((prev) => ({ ...prev, [name]: value }))
+    if (errors[name as string]) setErrors((prev) => ({ ...prev, [name as string]: '' }))
   }
 
-  // Handle number input changes
-  const handleNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
-    setFormData(prev => ({
-      ...prev,
-      [name]: value === '' ? undefined : parseFloat(value)
-    }))
-  }
-
-  // Validate form
-  const validate = (): boolean => {
-    const newErrors: Record<string, string> = {}
-
-    if (!formData.warehouseId) {
-      newErrors.warehouseId = 'El almacén es requerido'
-    }
-
-    if (!formData.productId) {
-      newErrors.productId = 'El producto es requerido'
-    }
-
-    if (!formData.scheduledDate) {
-      newErrors.scheduledDate = 'La fecha programada es requerida'
-    }
-
-    if (!formData.status) {
-      newErrors.status = 'El estado es requerido'
-    }
-
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
-
-  // Handle form submit
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-
-    if (!validate()) {
-      return
-    }
-
+    const next: Record<string, string> = {}
+    if (!formData.warehouseId) next.warehouseId = 'Elige el almacén.'
+    if (!formData.productId) next.productId = 'Elige el producto.'
+    if (!formData.scheduledDate) next.scheduledDate = 'Indica la fecha programada.'
+    setErrors(next)
+    if (Object.keys(next).length) return
     await onSubmit(formData)
   }
 
   return (
-    <form onSubmit={handleSubmit}>
-      <div className="row g-3">
-        {/* Warehouse Select */}
-        <div className="col-md-6">
-          <label htmlFor="warehouseId" className="form-label">
-            Almacen <span className="text-danger">*</span>
-          </label>
-          <select
-            id="warehouseId"
-            name="warehouseId"
-            className={`form-select ${errors.warehouseId ? 'is-invalid' : ''}`}
-            value={formData.warehouseId}
-            onChange={handleChange}
-            disabled={isLoading || loadingWarehouses}
-          >
-            <option value="">Seleccionar almacén...</option>
-            {warehouses.map(warehouse => (
-              <option key={warehouse.id} value={warehouse.id}>
-                {warehouse.name} ({warehouse.code})
-              </option>
-            ))}
-          </select>
-          {errors.warehouseId && <div className="invalid-feedback">{errors.warehouseId}</div>}
-        </div>
+    <div className="container-fluid py-4">
+      <LwSurface>
+        <LwPageTitle
+          title={isEdit ? 'Editar conteo:' : 'Nuevo conteo'}
+          highlight={isEdit ? countNumber : undefined}
+          subtitle={isEdit ? 'Datos del conteo programado' : 'Programa un conteo físico de un producto en un almacén'}
+          actions={
+            <Link href={backHref} className="btn btn-outline-secondary">
+              <i className="bi bi-arrow-left me-1" aria-hidden="true" /> Volver
+            </Link>
+          }
+        />
 
-        {/* Warehouse Location Select (optional) */}
-        <div className="col-md-6">
-          <label htmlFor="warehouseLocationId" className="form-label">
-            Ubicacion
-          </label>
-          <select
-            id="warehouseLocationId"
-            name="warehouseLocationId"
-            className="form-select"
-            value={formData.warehouseLocationId || ''}
-            onChange={handleChange}
-            disabled={isLoading || loadingLocations || !formData.warehouseId}
-          >
-            <option value="">Sin ubicación especifica</option>
-            {locations.map(location => (
-              <option key={location.id} value={location.id}>
-                {location.name} ({location.code})
-              </option>
-            ))}
-          </select>
-        </div>
+        {submitErrors.length > 0 && (
+          <div className="alert alert-danger" role="alert">
+            <i className="bi bi-exclamation-triangle me-2" />
+            {submitErrors.length === 1 ? submitErrors[0] : (
+              <ul className="mb-0 ps-3">{submitErrors.map((msg) => <li key={msg}>{msg}</li>)}</ul>
+            )}
+          </div>
+        )}
 
-        {/* Product Select */}
-        <div className="col-md-6">
-          <label htmlFor="productId" className="form-label">
-            Producto <span className="text-danger">*</span>
-          </label>
-          <select
-            id="productId"
-            name="productId"
-            className={`form-select ${errors.productId ? 'is-invalid' : ''}`}
-            value={formData.productId}
-            onChange={handleChange}
-            disabled={isLoading || loadingProducts}
-          >
-            <option value="">Seleccionar producto...</option>
-            {products.map(product => (
-              <option key={product.id} value={product.id}>
-                {product.name} ({product.sku})
-              </option>
-            ))}
-          </select>
-          {errors.productId && <div className="invalid-feedback">{errors.productId}</div>}
-        </div>
+        <form onSubmit={handleSubmit} noValidate>
+          <DetailSection title="Qué se cuenta" icon="bi-clipboard-check">
+            <div className="row g-3">
+              <div className="col-md-6">
+                <label htmlFor="cc-warehouseId" className="form-label">Almacén <span className="text-danger">*</span></label>
+                <select
+                  id="cc-warehouseId"
+                  className={`form-select ${errors.warehouseId ? 'is-invalid' : ''}`}
+                  value={formData.warehouseId}
+                  onChange={(e) => { set('warehouseId', e.target.value); set('warehouseLocationId', undefined) }}
+                  disabled={isLoading || loadingWarehouses}
+                >
+                  <option value="">Elige un almacén</option>
+                  {warehouses.map((w) => <option key={w.id} value={w.id}>{w.name}{w.code ? ` (${w.code})` : ''}</option>)}
+                </select>
+                {errors.warehouseId && <div className="invalid-feedback">{errors.warehouseId}</div>}
+              </div>
+              <div className="col-md-6">
+                <label htmlFor="cc-warehouseLocationId" className="form-label">Ubicación</label>
+                <select
+                  id="cc-warehouseLocationId"
+                  className="form-select"
+                  value={formData.warehouseLocationId || ''}
+                  onChange={(e) => set('warehouseLocationId', e.target.value || undefined)}
+                  disabled={isLoading || loadingLocations || !formData.warehouseId}
+                >
+                  <option value="">Todo el almacén (sin ubicación)</option>
+                  {locations.map((l) => <option key={l.id} value={l.id}>{l.name}{l.code ? ` (${l.code})` : ''}</option>)}
+                </select>
+              </div>
+              <div className="col-md-6">
+                <ProductSearchSelect
+                  id="cc-productId"
+                  label="Producto"
+                  value={formData.productId}
+                  initialProduct={initialProduct ?? undefined}
+                  onChange={(id) => set('productId', id)}
+                  errorText={errors.productId}
+                  required
+                  disabled={isLoading}
+                />
+              </div>
+              <div className="col-md-3">
+                <label htmlFor="cc-scheduledDate" className="form-label">Fecha programada <span className="text-danger">*</span></label>
+                <input
+                  id="cc-scheduledDate"
+                  type="date"
+                  className={`form-control ${errors.scheduledDate ? 'is-invalid' : ''}`}
+                  value={formData.scheduledDate}
+                  onChange={(e) => set('scheduledDate', e.target.value)}
+                  disabled={isLoading}
+                />
+                {errors.scheduledDate && <div className="invalid-feedback">{errors.scheduledDate}</div>}
+              </div>
+              <div className="col-md-3">
+                <label htmlFor="cc-abcClass" className="form-label">Clasificación ABC</label>
+                <select
+                  id="cc-abcClass"
+                  className="form-select"
+                  value={formData.abcClass || ''}
+                  onChange={(e) => set('abcClass', (e.target.value || undefined) as CycleCountFormData['abcClass'])}
+                  disabled={isLoading}
+                >
+                  <option value="">Sin clasificar</option>
+                  {ABC_CLASS_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+                </select>
+              </div>
+              <div className="col-12">
+                <label htmlFor="cc-notes" className="form-label">Notas</label>
+                <textarea
+                  id="cc-notes"
+                  className="form-control"
+                  rows={3}
+                  value={formData.notes || ''}
+                  onChange={(e) => set('notes', e.target.value || undefined)}
+                  disabled={isLoading}
+                  placeholder="Indicaciones para quien cuenta"
+                />
+              </div>
+            </div>
+            <p className="small text-muted mt-3 mb-0">
+              La existencia en sistema y la diferencia las calcula el sistema al registrar lo contado; si lo eliges, la diferencia se ajusta en Movimientos.
+            </p>
+          </DetailSection>
 
-        {/* Scheduled Date */}
-        <div className="col-md-6">
-          <Input
-            label="Fecha Programada"
-            type="date"
-            name="scheduledDate"
-            value={formData.scheduledDate}
-            onChange={handleChange}
-            errorText={errors.scheduledDate}
-            required
-            disabled={isLoading}
-          />
-        </div>
-
-        {/* Status */}
-        <div className="col-md-4">
-          <label htmlFor="status" className="form-label">
-            Estado <span className="text-danger">*</span>
-          </label>
-          <select
-            id="status"
-            name="status"
-            className={`form-select ${errors.status ? 'is-invalid' : ''}`}
-            value={formData.status}
-            onChange={handleChange}
-            disabled={isLoading || (!isEdit && formData.status !== 'scheduled')}
-          >
-            {CYCLE_COUNT_STATUS_OPTIONS.map(option => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-          {errors.status && <div className="invalid-feedback">{errors.status}</div>}
-        </div>
-
-        {/* ABC Class */}
-        <div className="col-md-4">
-          <label htmlFor="abcClass" className="form-label">
-            Clasificación ABC
-          </label>
-          <select
-            id="abcClass"
-            name="abcClass"
-            className="form-select"
-            value={formData.abcClass || ''}
-            onChange={handleChange}
-            disabled={isLoading}
-          >
-            <option value="">Sin clasificar</option>
-            {ABC_CLASS_OPTIONS.map(option => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-          <small className="text-muted">A: Mensual, B: Trimestral, C: Anual</small>
-        </div>
-
-        {/* System Quantity */}
-        <div className="col-md-4">
-          <Input
-            label="Cantidad Sistema"
-            type="number"
-            name="systemQuantity"
-            value={formData.systemQuantity?.toString() || ''}
-            onChange={handleNumberChange}
-            disabled={isLoading}
-            min="0"
-            step="0.0001"
-          />
-        </div>
-
-        {/* Notes */}
-        <div className="col-12">
-          <label htmlFor="notes" className="form-label">
-            Notas
-          </label>
-          <textarea
-            id="notes"
-            name="notes"
-            className="form-control"
-            rows={3}
-            value={formData.notes || ''}
-            onChange={handleChange}
-            disabled={isLoading}
-            placeholder="Notas adicionales sobre el conteo..."
-          />
-        </div>
-      </div>
-
-      {/* Form Actions */}
-      <div className="d-flex justify-content-end gap-2 mt-4">
-        <Button variant="secondary" type="button" onClick={onCancel} disabled={isLoading}>
-          Cancelar
-        </Button>
-        <Button variant="primary" type="submit" disabled={isLoading}>
-          {isLoading ? (
-            <>
-              <span className="spinner-border spinner-border-sm me-2" />
-              Guardando...
-            </>
-          ) : isEdit ? (
-            'Actualizar Conteo'
-          ) : (
-            'Programar Conteo'
-          )}
-        </Button>
-      </div>
-    </form>
+          <div className="d-flex justify-content-end gap-2 mt-4">
+            <Link href={backHref} className="btn btn-outline-secondary">Cancelar</Link>
+            <button type="submit" className="btn btn-primary" disabled={isLoading}>
+              {isLoading ? <span className="spinner-border spinner-border-sm me-2" role="status" /> : null}
+              {isEdit ? 'Guardar cambios' : 'Programar conteo'}
+            </button>
+          </div>
+        </form>
+      </LwSurface>
+    </div>
   )
 }
