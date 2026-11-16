@@ -8,6 +8,7 @@ export { InventoryDashboardPage } from './InventoryDashboardPage'
 
 // Warehouses Components
 export { WarehousesAdminPage } from './WarehousesAdminPage'
+export { StockListPage, STOCK_STATUS_TONE, stockLevel } from './StockListPage'
 export { MovementsListPage, MOVEMENT_TYPE_TONE, MOVEMENT_STATUS_TONE, movementLockReason } from './MovementsListPage'
 export { WarehousesListPage, WAREHOUSE_TYPE_TONE } from './WarehousesListPage'
 export { WarehousesTableSimple } from './WarehousesTableSimple'

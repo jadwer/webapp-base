@@ -15,7 +15,13 @@ import type {
   JsonApiResponse
 } from '../types'
 
-const READ_ONLY_STOCK_FIELDS = ['availableQuantity', 'totalValue'] as const
+/**
+ * Lo que el backend no acepta por la API (StockRequest, 2026-11-15): las existencias, lo
+ * reservado, el costo y el ultimo movimiento salen de los movimientos y los pedidos.
+ */
+const READ_ONLY_STOCK_FIELDS = [
+  'availableQuantity', 'totalValue', 'quantity', 'reservedQuantity', 'unitCost', 'lastMovementDate', 'lastMovementType',
+] as const
 
 /** Atributos que acepta StockSchema: ids numericos y locationId (no warehouseLocationId) */
 const buildStockAttributes = (data: CreateStockData | UpdateStockData): Record<string, unknown> => {

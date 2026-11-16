@@ -3,10 +3,10 @@
  * Gestión completa de stock
  */
 
-import { StockAdminPageReal } from '@/modules/inventory'
+import { StockListPage } from '@/modules/inventory'
 
 export default function StockPage() {
-  return <StockAdminPageReal />
+  return <StockListPage />
 }
 
 export const metadata = {

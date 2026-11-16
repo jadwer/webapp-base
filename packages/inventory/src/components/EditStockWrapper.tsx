@@ -1,10 +1,10 @@
 'use client'
 
 import { toast, useNavigationProgress } from '@lwm/ui'
-import { StockForm } from './StockForm'
+import { StockForm, type StockFormResult } from './StockForm'
 import { FormStateCard } from './FormStateCard'
 import { useStockItem, useStockMutations } from '../hooks'
-import type { CreateStockData, UpdateStockData } from '../types'
+import type { UpdateStockData } from '../types'
 
 interface EditStockWrapperProps {
   stockId: string
@@ -18,8 +18,8 @@ export const EditStockWrapper = ({ stockId }: EditStockWrapperProps) => {
   const { stockItem: stock, isLoading, error } = useStockItem(stockId, ['product', 'warehouse', 'location'])
   const { updateStock } = useStockMutations()
 
-  const handleSubmit = async (data: CreateStockData | UpdateStockData) => {
-    await updateStock(stockId, data as UpdateStockData)
+  const handleSubmit = async ({ settings }: StockFormResult) => {
+    await updateStock(stockId, settings as UpdateStockData)
     toast.success('Registro de stock actualizado')
     navigation.push(detailHref)
   }

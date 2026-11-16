@@ -344,7 +344,7 @@ describe('stockService', () => {
             productId: 1,
             warehouseId: 2,
             locationId: 3,
-            quantity: 100,
+            // quantity no se envia: la existencia entra con un movimiento
             status: 'available',
           },
           relationships: {
@@ -398,7 +398,8 @@ describe('stockService', () => {
         data: {
           type: 'stocks',
           id: '1',
-          attributes: updateData,
+          // quantity no se envia: el backend la rechaza
+          attributes: { status: 'reserved' },
         },
       })
       expect(result).toEqual(apiResponse)

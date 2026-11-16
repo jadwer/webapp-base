@@ -84,7 +84,8 @@ export interface Stock {
 }
 
 export interface CreateStockData {
-  quantity: number
+  /** Solo lectura en el backend: la existencia entra con un movimiento */
+  quantity?: number
   reservedQuantity?: number
   /** Solo lectura en el backend; no se envia */
   availableQuantity?: number
