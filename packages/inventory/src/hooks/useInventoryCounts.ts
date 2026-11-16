@@ -26,7 +26,7 @@ export const readPageTotal = (meta: unknown): number | null => {
 }
 
 /** Fecha local YYYY-MM-DD (movement_date se compara contra el inicio del dia) */
-const localToday = (): string => {
+export const localToday = (): string => {
   const d = new Date()
   const mm = String(d.getMonth() + 1).padStart(2, '0')
   const dd = String(d.getDate()).padStart(2, '0')
@@ -51,22 +51,28 @@ export const useStockCounts = (filters: Pick<StockFilters, 'branchId' | 'warehou
   }
 }
 
-/** Movimientos: total, los registrados hoy y por estatus (indicadores del rediseno) */
+/** Primer dia del mes en curso, YYYY-MM-DD local */
+export const localMonthStart = (): string => `${localToday().slice(0, 8)}01`
+
+/**
+ * Movimientos: total, completados, los de hoy y los ajustes del mes (indicadores del rediseno).
+ * El sistema completa cada movimiento al registrarlo: pendientes y cancelados no ocurren,
+ * por eso no se cuentan (decision de Gabino, 2026-11-16).
+ */
 export const useMovementCounts = () => {
   const today = useMemo(localToday, [])
+  const monthStart = useMemo(localMonthStart, [])
   const all = useInventoryMovements({ pagination: COUNT_PAGE })
   const todays = useInventoryMovements({ filters: { dateFrom: today }, pagination: COUNT_PAGE })
   const completed = useInventoryMovements({ filters: { status: 'completed' }, pagination: COUNT_PAGE })
-  const pending = useInventoryMovements({ filters: { status: 'pending' }, pagination: COUNT_PAGE })
-  const cancelled = useInventoryMovements({ filters: { status: 'cancelled' }, pagination: COUNT_PAGE })
-  const parts = [all, todays, completed, pending, cancelled]
+  const adjustments = useInventoryMovements({ filters: { movementType: 'adjustment', dateFrom: monthStart }, pagination: COUNT_PAGE })
+  const parts = [all, todays, completed, adjustments]
 
   return {
     total: readPageTotal(all.meta),
     today: readPageTotal(todays.meta),
     completed: readPageTotal(completed.meta),
-    pending: readPageTotal(pending.meta),
-    cancelled: readPageTotal(cancelled.meta),
+    adjustmentsMonth: readPageTotal(adjustments.meta),
     isLoading: parts.some((p) => p.isLoading),
     error: parts.find((p) => p.error)?.error,
   }

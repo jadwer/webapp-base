@@ -2,8 +2,9 @@
 
 /**
  * Movimientos con la piel del rediseno (Figma "Rediseño Labor wasser",
- * Inventario, 2026-11-15). Indicadores por estatus (total, completados,
- * pendientes, cancelados) que filtran al tocarlos. Conserva lo de antes:
+ * Inventario, 2026-11-15). Indicadores que filtran al tocarlos: total,
+ * completados, de hoy y ajustes del mes (pendientes y cancelados del diseno no
+ * ocurren porque el sistema completa al registrar; decision de Gabino 2026-11-16). Conserva lo de antes:
  * filtro por almacen, fecha, almacen y ubicacion en la fila, accesos de
  * entrada y salida. Un movimiento completado no se edita (el backend lo
  * rechaza): el lapiz sale deshabilitado con el motivo.
@@ -22,7 +23,7 @@ import {
   type LwTone,
 } from '@lwm/ui'
 import { useInventoryMovements, useWarehouses } from '../hooks'
-import { useMovementCounts } from '../hooks/useInventoryCounts'
+import { useMovementCounts, localMonthStart, localToday } from '../hooks/useInventoryCounts'
 import { MOVEMENT_STATUS, MOVEMENT_TYPE } from '../utils/labels'
 import { formatDate, formatMoney, formatQty } from '../utils/format'
 import { readPageMeta } from '../utils/listing'
@@ -52,7 +53,9 @@ interface Filters {
   status?: string
   movementType?: string
   warehouseId?: string
+  dateFrom?: string
 }
+
 
 export function MovementsListPage() {
   const router = useRouter()
@@ -67,6 +70,7 @@ export function MovementsListPage() {
       status: filters.status,
       movementType: filters.movementType as MovementFilters['movementType'],
       warehouseId: filters.warehouseId,
+      dateFrom: filters.dateFrom,
     },
     pagination: { page, size: perPage },
     include: ['product', 'warehouse', 'location'],
@@ -80,18 +84,22 @@ export function MovementsListPage() {
     setFilters(next)
     setPage(1)
   }
-  const kpi = (label: string, value: number | null, icon: string, status?: string) => (
-    <div className="col-6 col-lg-3">
-      <LwKpiCard
-        label={label}
-        value={value ?? '--'}
-        icon={icon}
-        highlight={(filters.status ?? '') === (status ?? '')}
-        isLoading={counts.isLoading}
-        onClick={() => setFilter({ ...filters, status })}
-      />
-    </div>
-  )
+  /** Cada indicador es un filtro; el activo va resaltado y tocarlo de nuevo no cambia nada. */
+  const kpi = (label: string, value: number | null, icon: string, preset: Filters) => {
+    const active = (['status', 'movementType', 'dateFrom'] as const).every((k) => (filters[k] ?? '') === (preset[k] ?? ''))
+    return (
+      <div className="col-6 col-lg-3">
+        <LwKpiCard
+          label={label}
+          value={value ?? '--'}
+          icon={icon}
+          highlight={active}
+          isLoading={counts.isLoading}
+          onClick={() => setFilter({ search: filters.search, warehouseId: filters.warehouseId, ...preset })}
+        />
+      </div>
+    )
+  }
 
   return (
     <div className="container-fluid py-4">
@@ -112,10 +120,10 @@ export function MovementsListPage() {
         />
 
         <div className="row g-3 mb-4">
-          {kpi('Total movimientos', counts.total, 'bi-arrow-left-right')}
-          {kpi('Completados', counts.completed, 'bi-check2-square', 'completed')}
-          {kpi('Pendientes', counts.pending, 'bi-hourglass-split', 'pending')}
-          {kpi('Cancelados', counts.cancelled, 'bi-x-octagon', 'cancelled')}
+          {kpi('Total movimientos', counts.total, 'bi-arrow-left-right', {})}
+          {kpi('Completados', counts.completed, 'bi-check2-square', { status: 'completed' })}
+          {kpi('Movimientos de hoy', counts.today, 'bi-calendar-check', { dateFrom: localToday() })}
+          {kpi('Ajustes del mes', counts.adjustmentsMonth, 'bi-sliders', { movementType: 'adjustment', dateFrom: localMonthStart() })}
         </div>
 
         <div className="row g-2 align-items-center mb-3">
