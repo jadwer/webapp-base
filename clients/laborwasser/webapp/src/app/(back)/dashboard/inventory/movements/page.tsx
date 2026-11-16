@@ -3,10 +3,10 @@
  * Gestión completa de movimientos
  */
 
-import { MovementsAdminPageReal } from '@/modules/inventory'
+import { MovementsListPage } from '@/modules/inventory'
 
 export default function MovementsPage() {
-  return <MovementsAdminPageReal />
+  return <MovementsListPage />
 }
 
 export const metadata = {

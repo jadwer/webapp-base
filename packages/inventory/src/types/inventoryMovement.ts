@@ -75,6 +75,14 @@ export interface InventoryMovement {
   newStock?: number
   batchInfo?: MovementBatchInfo
   metadata?: MovementMetadata
+  // Revision de calidad y contabilizacion (solo lectura salvo calidad)
+  qualityChecked?: boolean
+  qualityCheckedAt?: string | null
+  qualityCheckedBy?: number | null
+  qualityCheckNotes?: string | null
+  glJournalEntryId?: number | null
+  glPostingStatus?: string | null
+  glPostingNotes?: string | null
   createdAt: string
   updatedAt: string
   
@@ -93,6 +101,7 @@ export interface InventoryMovement {
   destinationWarehouse?: Warehouse
   destinationLocation?: WarehouseLocation
   user?: UserBasic
+  qualityChecker?: UserBasic
 }
 
 // After JSON:API parsing

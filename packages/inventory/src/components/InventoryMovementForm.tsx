@@ -7,7 +7,8 @@
 'use client'
 
 import React, { memo, useCallback, useMemo, useState } from 'react'
-import { DetailSection, PageHeader } from '@lwm/ui'
+import Link from 'next/link'
+import { DetailSection, LwSurface, LwPageTitle } from '@lwm/ui'
 import { ProductSearchSelect } from '@lwm/products'
 import type {
   InventoryMovement,
@@ -260,12 +261,18 @@ export const InventoryMovementForm = memo<InventoryMovementFormProps>(({
 
   return (
     <div className="container-fluid py-4">
-      <div className="row justify-content-center">
-        <div className="col-lg-8">
-          <PageHeader
-            title={movement ? 'Editar movimiento' : 'Nuevo movimiento'}
-            subtitle={movement ? 'Modifica los datos del movimiento de inventario' : 'Registra una entrada, salida, transferencia o ajuste'}
-            backHref={backHref}
+      <LwSurface>
+          <LwPageTitle
+            title={movement ? 'Editar movimiento:' : 'Nuevo movimiento'}
+            highlight={movement ? String(movement.id).padStart(3, '0') : undefined}
+            subtitle={movement ? 'Modifica los datos del movimiento pendiente' : 'Registra una entrada, salida, transferencia o ajuste'}
+            actions={
+              backHref ? (
+                <Link href={backHref} className="btn btn-outline-secondary">
+                  <i className="bi bi-arrow-left me-1" aria-hidden="true" /> Volver
+                </Link>
+              ) : undefined
+            }
           />
 
           {submitErrors.length > 0 && (
@@ -278,7 +285,7 @@ export const InventoryMovementForm = memo<InventoryMovementFormProps>(({
           )}
 
           <form onSubmit={handleSubmit} noValidate>
-            <DetailSection title="Movimiento" icon="bi-arrow-left-right">
+            <DetailSection title="Datos del movimiento" icon="bi-arrow-left-right">
               <div className="row g-3">
                 <div className="col-md-6">
                   <label htmlFor="movementType" className="form-label">
@@ -325,7 +332,7 @@ export const InventoryMovementForm = memo<InventoryMovementFormProps>(({
                   {feedback('movementDate')}
                 </div>
                 <div className="col-md-3">
-                  <label htmlFor="referenceType" className="form-label">Referencia</label>
+                  <label htmlFor="referenceType" className="form-label">Origen</label>
                   <select
                     id="referenceType"
                     className="form-select"
@@ -602,8 +609,7 @@ export const InventoryMovementForm = memo<InventoryMovementFormProps>(({
               </button>
             </div>
           </form>
-        </div>
-      </div>
+      </LwSurface>
     </div>
   )
 })

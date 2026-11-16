@@ -21,6 +21,14 @@ import { useInventoryMovement, useInventoryMovementsMutations } from '../hooks'
 import { MOVEMENT_STATUS, MOVEMENT_TYPE } from '../utils/labels'
 import { formatDate, formatMoney, formatQty, toNumber } from '../utils/format'
 import { deleteErrorMessage } from '../utils/listing'
+import { movementLockReason } from './MovementsListPage'
+
+/** Estado de la poliza contable (solo lectura: lo escribe el posting a GL). */
+const GL_POSTING_LABELS: Record<string, string> = {
+  pending: 'Pendiente de contabilizar',
+  posted: 'Contabilizado',
+  error: 'Error al contabilizar',
+}
 
 interface MovementDetailProps {
   movementId: string
@@ -63,6 +71,7 @@ export const MovementDetail = ({ movementId }: MovementDetailProps) => {
     'destinationWarehouse',
     'destinationLocation',
     'user',
+    'qualityChecker',
   ])
   const { deleteMovement } = useInventoryMovementsMutations()
 
@@ -112,6 +121,9 @@ export const MovementDetail = ({ movementId }: MovementDetailProps) => {
   const totalValue = movement.totalValue != null ? toNumber(movement.totalValue) : quantity * unitCost
   const isTransfer = movement.movementType === 'transfer'
   const typeInfo = MOVEMENT_TYPE[movement.movementType]
+  const lock = movementLockReason(movement.status)
+  const batch = movement.batchInfo
+  const batchLabel = batch?.batch_number || batch?.lot_number
 
   return (
     <div className="container-fluid py-4">
@@ -127,16 +139,23 @@ export const MovementDetail = ({ movementId }: MovementDetailProps) => {
         subtitle={movement.product?.name}
         backHref={LIST_HREF}
         actions={
-          <>
-            <button type="button" className="btn btn-outline-danger" onClick={handleDelete}>
-              <i className="bi bi-trash me-1" />
-              Eliminar
-            </button>
-            <Link href={`${LIST_HREF}/${movementId}/edit`} className="btn btn-primary">
-              <i className="bi bi-pencil me-1" />
-              Editar
-            </Link>
-          </>
+          lock ? (
+            <span className="text-muted small align-self-center">
+              <i className="bi bi-lock me-1" aria-hidden="true" />
+              {lock}
+            </span>
+          ) : (
+            <>
+              <button type="button" className="btn btn-outline-danger" onClick={handleDelete}>
+                <i className="bi bi-trash me-1" />
+                Eliminar
+              </button>
+              <Link href={`${LIST_HREF}/${movementId}/edit`} className="btn btn-primary">
+                <i className="bi bi-pencil me-1" />
+                Editar
+              </Link>
+            </>
+          )
         }
       />
 
@@ -146,7 +165,7 @@ export const MovementDetail = ({ movementId }: MovementDetailProps) => {
             <dl className="row mb-0">
               <Field label="Tipo"><StatusBadge status={movement.movementType} map={MOVEMENT_TYPE} /></Field>
               <Field label="Fecha">{formatDate(movement.movementDate, { withTime: true })}</Field>
-              <Field label="Referencia">
+              <Field label="Origen">
                 {movement.referenceType ? REFERENCE_LABELS[movement.referenceType] || movement.referenceType : null}
                 {movement.referenceId ? <span className="text-muted ms-1">#{movement.referenceId}</span> : null}
               </Field>
@@ -165,6 +184,12 @@ export const MovementDetail = ({ movementId }: MovementDetailProps) => {
                 {movement.product?.sku && <small className="d-block text-muted">SKU: {movement.product.sku}</small>}
               </Field>
               <Field label="Cantidad"><strong>{formatQty(quantity)}</strong></Field>
+              {batchLabel ? (
+                <Field label="Lote">
+                  {batchLabel}
+                  {batch?.expiry_date ? <small className="d-block text-muted">Caduca {formatDate(batch.expiry_date)}</small> : null}
+                </Field>
+              ) : null}
               {movement.previousStock != null && <Field label="Existencia anterior">{formatQty(movement.previousStock)}</Field>}
               {movement.newStock != null && <Field label="Existencia nueva">{formatQty(movement.newStock)}</Field>}
             </dl>
@@ -197,6 +222,19 @@ export const MovementDetail = ({ movementId }: MovementDetailProps) => {
             </dl>
           </DetailSection>
 
+          <DetailSection title="Calidad" icon="bi-patch-check">
+            <dl className="row mb-0">
+              <Field label="Revisado">{movement.qualityChecked ? 'Sí' : 'No'}</Field>
+              {movement.qualityChecked ? (
+                <>
+                  <Field label="Revisó">{movement.qualityChecker?.name}</Field>
+                  <Field label="Fecha de revisión">{movement.qualityCheckedAt ? formatDate(movement.qualityCheckedAt, { withTime: true }) : null}</Field>
+                </>
+              ) : null}
+              <Field label="Notas">{movement.qualityCheckNotes}</Field>
+            </dl>
+          </DetailSection>
+
           {(hasKeys(movement.batchInfo) || hasKeys(movement.metadata)) && (
             <DetailSection title="Información adicional" icon="bi-clipboard-data">
               {hasKeys(movement.batchInfo) && <JsonBlock title="Información de lote" value={movement.batchInfo} />}
@@ -211,6 +249,11 @@ export const MovementDetail = ({ movementId }: MovementDetailProps) => {
               <Field label="Cantidad">{formatQty(quantity)}</Field>
               <Field label="Costo unitario">{formatMoney(unitCost)}</Field>
               <Field label="Valor total"><strong>{formatMoney(totalValue)}</strong></Field>
+              <Field label="Contabilidad">
+                {movement.glPostingStatus ? GL_POSTING_LABELS[movement.glPostingStatus] ?? movement.glPostingStatus : null}
+                {movement.glJournalEntryId ? <small className="d-block text-muted">Póliza #{movement.glJournalEntryId}</small> : null}
+                {movement.glPostingStatus === 'error' && movement.glPostingNotes ? <small className="d-block text-danger">{movement.glPostingNotes}</small> : null}
+              </Field>
               <Field label="Creado">{formatDate(movement.createdAt, { withTime: true })}</Field>
               <Field label="Actualizado">{formatDate(movement.updatedAt, { withTime: true })}</Field>
             </dl>

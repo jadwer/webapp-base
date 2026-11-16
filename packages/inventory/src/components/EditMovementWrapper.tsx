@@ -3,6 +3,7 @@
 import { toast, useNavigationProgress } from '@lwm/ui'
 import { InventoryMovementForm, type MovementFormData } from './InventoryMovementForm'
 import { FormStateCard } from './FormStateCard'
+import { movementLockReason } from './MovementsListPage'
 import { useInventoryMovement, useInventoryMovementsMutations, useWarehouses } from '../hooks'
 import type { UpdateMovementData } from '../types'
 
@@ -36,6 +37,12 @@ export const EditMovementWrapper = ({ movementId }: EditMovementWrapperProps) =>
   }
   if (!movement) {
     return <FormStateCard state="not-found" title="Editar movimiento" backHref={LIST_HREF} icon="bi-arrow-left-right" message="El movimiento no existe o no está disponible." />
+  }
+
+  // El backend rechaza editar un completado: se explica antes de mostrar un formulario que fallaria
+  const lock = movementLockReason(movement.status)
+  if (lock) {
+    return <FormStateCard state="error" title="Editar movimiento" backHref={detailHref} message={lock} />
   }
 
   // Un almacen inactivo del movimiento sigue disponible en la edicion

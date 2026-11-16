@@ -51,17 +51,24 @@ export const useStockCounts = (filters: Pick<StockFilters, 'branchId' | 'warehou
   }
 }
 
-/** Movimientos: total y los registrados hoy */
+/** Movimientos: total, los registrados hoy y por estatus (indicadores del rediseno) */
 export const useMovementCounts = () => {
   const today = useMemo(localToday, [])
   const all = useInventoryMovements({ pagination: COUNT_PAGE })
   const todays = useInventoryMovements({ filters: { dateFrom: today }, pagination: COUNT_PAGE })
+  const completed = useInventoryMovements({ filters: { status: 'completed' }, pagination: COUNT_PAGE })
+  const pending = useInventoryMovements({ filters: { status: 'pending' }, pagination: COUNT_PAGE })
+  const cancelled = useInventoryMovements({ filters: { status: 'cancelled' }, pagination: COUNT_PAGE })
+  const parts = [all, todays, completed, pending, cancelled]
 
   return {
     total: readPageTotal(all.meta),
     today: readPageTotal(todays.meta),
-    isLoading: all.isLoading || todays.isLoading,
-    error: all.error || todays.error,
+    completed: readPageTotal(completed.meta),
+    pending: readPageTotal(pending.meta),
+    cancelled: readPageTotal(cancelled.meta),
+    isLoading: parts.some((p) => p.isLoading),
+    error: parts.find((p) => p.error)?.error,
   }
 }
 
