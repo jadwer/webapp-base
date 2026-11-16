@@ -3,6 +3,26 @@
 // valor del UI Kit como respaldo: verde vital, azul innovacion, azul
 // corporativo, rojo carmin y grises. Solo afecta lo que va dentro de LwSurface.
 
+// Piezas que tambien se usan fuera de LwSurface (consultas con PageHeader): traen sus
+// propias variables; sin esto la pastilla salia blanca sobre blanco (2026-11-16).
+.pill, .countPill, .tableWrap, .iconBtn {
+  --lwr-accent: var(--brand-accent, #0094ff);
+  --lwr-accent-dark: var(--brand-accent-dark, #0072c6);
+  --lwr-accent-light: var(--brand-accent-light, #4ec8fc);
+  --lwr-green: var(--brand-primary, #8ac905);
+  --lwr-navy: var(--brand-secondary, #012a94);
+  --lwr-soft: var(--lw-surface-tint, #eaf6ff);
+  --lwr-red: #ff3b30;
+  --lwr-gray: #a9a9a9;
+  --lwr-gray-soft: #d9d9d9;
+  --lwr-slate: #4a5876;
+  --lwr-text: #212529;
+  --lwr-muted: #6c757d;
+  --lwr-border: #e3e8ef;
+  --lwr-radius: 10px;
+  --lwr-radius-sm: 6px;
+}
+
 .surface {
   --lwr-accent: var(--brand-accent, #0094ff);
   --lwr-accent-dark: var(--brand-accent-dark, #0072c6);
