@@ -74,6 +74,15 @@ const toLocalDateTime = (value?: string) => {
   return new Date(date.getTime() - offset).toISOString().slice(0, 16)
 }
 
+/**
+ * El input datetime-local da la hora de pared sin zona; el backend corre en UTC y la
+ * tomaria como UTC (las 21:43 de Mexico quedaban como 15:43). Se manda en ISO con zona.
+ */
+export const localDateTimeToIso = (value: string): string => {
+  const date = new Date(value)
+  return Number.isNaN(date.getTime()) ? value : date.toISOString()
+}
+
 const parseJson = (value: string) => (value.trim() ? JSON.parse(value) : undefined)
 
 const optionalId = (value: unknown) => (value == null || value === '' ? '' : String(value))
@@ -232,7 +241,7 @@ export const InventoryMovementForm = memo<InventoryMovementFormProps>(({
       movementType: formData.movementType,
       referenceType: formData.referenceType,
       referenceId: formData.referenceId ? Number(formData.referenceId) : undefined,
-      movementDate: formData.movementDate,
+      movementDate: localDateTimeToIso(formData.movementDate),
       description: formData.description.trim() || undefined,
       quantity: Number(formData.quantity),
       // unitCost es obligatorio en el backend; vacio se manda como 0
