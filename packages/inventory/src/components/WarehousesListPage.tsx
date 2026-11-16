@@ -96,7 +96,7 @@ export function WarehousesListPage() {
         <WarehousesTabs />
 
         <div className="row g-2 align-items-center mb-3 mt-1">
-          <div className="col-md-4">
+          <div className="col-md-3">
             <form onSubmit={(e) => { e.preventDefault(); setFilter({ ...filters, search: searchTerm.trim() || undefined }) }}>
               <div className="input-group">
                 <span className="input-group-text"><i className="bi bi-search" aria-hidden="true" /></span>
@@ -114,13 +114,13 @@ export function WarehousesListPage() {
               </div>
             </form>
           </div>
-          <div className="col-md-2">
+          <div className="col-md-auto">
             <select className="form-select" aria-label="Clasificación" value={filters.warehouseType ?? ''} onChange={(e) => setFilter({ ...filters, warehouseType: e.target.value || undefined })}>
               <option value="">Todas las clasificaciones</option>
               {Object.entries(WAREHOUSE_TYPE).map(([value, { label }]) => <option key={value} value={value}>{label}</option>)}
             </select>
           </div>
-          <div className="col-md-2">
+          <div className="col-md-auto">
             <select className="form-select" aria-label="Estatus" value={filters.isActive ?? ''} onChange={(e) => setFilter({ ...filters, isActive: e.target.value || undefined })}>
               <option value="">Todos los estatus</option>
               <option value="true">Activo</option>
@@ -128,7 +128,7 @@ export function WarehousesListPage() {
             </select>
           </div>
           {branchName.multi ? (
-            <div className="col-md-2">
+            <div className="col-md-auto">
               <BranchFilter className="form-select" value={filters.branchId ?? ''} onChange={(branchId) => setFilter({ ...filters, branchId: branchId || undefined })} />
             </div>
           ) : null}
