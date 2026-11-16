@@ -230,6 +230,18 @@ describe('inventoryMovementsService', () => {
       expect(attrs.data.attributes).toMatchObject({ qualityChecked: true, qualityCheckedBy: 7, qualityCheckNotes: 'Sin danos' })
     })
 
+    it('manda el costo 0 en lugar de omitirlo (el backend lo exige)', async () => {
+      vi.mocked(axios.post).mockResolvedValue({ data: { data: createMockMovement({ id: '13' }) } })
+
+      await inventoryMovementsService.create({
+        productId: '1', warehouseId: '2', movementType: 'exit', referenceType: 'manual',
+        movementDate: '2026-11-16', quantity: 1, unitCost: 0, status: 'completed', userId: '7',
+      })
+
+      const attrs = vi.mocked(axios.post).mock.calls.at(-1)?.[1] as { data: { attributes: Record<string, unknown> } }
+      expect(attrs.data.attributes.unitCost).toBe(0)
+    })
+
     it('no manda campos de calidad cuando no hubo revision', async () => {
       vi.mocked(axios.post).mockResolvedValue({ data: { data: createMockMovement({ id: '12' }) } })
 

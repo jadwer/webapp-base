@@ -136,7 +136,8 @@ export const inventoryMovementsService = {
           movementDate: data.movementDate,
           description: data.description,
           quantity: Number(data.quantity),
-          unitCost: data.unitCost ? Number(data.unitCost) : undefined,
+          // 0 es un costo valido (una salida toma el costo del stock): solo se omite si no viene
+          unitCost: data.unitCost != null && String(data.unitCost) !== '' ? Number(data.unitCost) : undefined,
           status: data.status,
           userId: Number(data.userId), // Required: must be passed from component using useAuth().user.id
           // Revision de calidad (IV-009): obligatoria para completar salidas y transferencias manuales
