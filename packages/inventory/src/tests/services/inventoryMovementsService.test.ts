@@ -217,6 +217,32 @@ describe('inventoryMovementsService', () => {
   })
 
   describe('create', () => {
+    it('manda la revision de calidad de una salida con quien la hizo (IV-009)', async () => {
+      vi.mocked(axios.post).mockResolvedValue({ data: { data: createMockMovement({ id: '11' }) } })
+
+      await inventoryMovementsService.create({
+        productId: '1', warehouseId: '2', movementType: 'exit', referenceType: 'manual',
+        movementDate: '2026-11-15', quantity: 1, status: 'completed', userId: '7',
+        qualityChecked: true, qualityCheckedBy: '7', qualityCheckNotes: 'Sin danos',
+      })
+
+      const attrs = vi.mocked(axios.post).mock.calls.at(-1)?.[1] as { data: { attributes: Record<string, unknown> } }
+      expect(attrs.data.attributes).toMatchObject({ qualityChecked: true, qualityCheckedBy: 7, qualityCheckNotes: 'Sin danos' })
+    })
+
+    it('no manda campos de calidad cuando no hubo revision', async () => {
+      vi.mocked(axios.post).mockResolvedValue({ data: { data: createMockMovement({ id: '12' }) } })
+
+      await inventoryMovementsService.create({
+        productId: '1', warehouseId: '2', movementType: 'entry', referenceType: 'manual',
+        movementDate: '2026-11-15', quantity: 1, status: 'completed', userId: '7', qualityChecked: false,
+      })
+
+      const attrs = vi.mocked(axios.post).mock.calls.at(-1)?.[1] as { data: { attributes: Record<string, unknown> } }
+      expect(attrs.data.attributes).not.toHaveProperty('qualityChecked')
+      expect(attrs.data.attributes).not.toHaveProperty('qualityCheckedBy')
+    })
+
     it('should create a new movement', async () => {
       // Arrange
       const movementData = {

@@ -135,6 +135,10 @@ export const inventoryMovementsService = {
           unitCost: data.unitCost ? Number(data.unitCost) : undefined,
           status: data.status,
           userId: Number(data.userId), // Required: must be passed from component using useAuth().user.id
+          // Revision de calidad (IV-009): obligatoria para completar salidas y transferencias manuales
+          qualityChecked: data.qualityChecked || undefined,
+          qualityCheckedBy: data.qualityChecked && data.qualityCheckedBy ? Number(data.qualityCheckedBy) : undefined,
+          qualityCheckNotes: data.qualityCheckNotes || undefined,
           destinationWarehouseId: data.destinationWarehouseId ? Number(data.destinationWarehouseId) : undefined,
           destinationLocationId: data.destinationLocationId ? Number(data.destinationLocationId) : undefined,
           batchInfo: data.batchInfo || undefined,

@@ -34,7 +34,13 @@ const CreateMovementContent = () => {
 
   const handleSubmit = async (data: MovementFormData | UpdateMovementData) => {
     if (!user?.id) throw new Error('No se pudo identificar al usuario. Vuelve a iniciar sesión.')
-    await createMovement({ ...(data as MovementFormData), userId: String(user.id) } as CreateMovementData)
+    const form = data as MovementFormData
+    await createMovement({
+      ...form,
+      userId: String(user.id),
+      // Quien confirma la revision de calidad es quien registra el movimiento
+      qualityCheckedBy: form.qualityChecked ? String(user.id) : undefined,
+    } as CreateMovementData)
     toast.success('Movimiento registrado')
     navigation.push(LIST_HREF)
   }

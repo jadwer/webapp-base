@@ -127,6 +127,9 @@ export interface CreateMovementData {
   newStock?: number
   batchInfo?: MovementBatchInfo
   metadata?: MovementMetadata
+  qualityChecked?: boolean
+  qualityCheckedBy?: string
+  qualityCheckNotes?: string
   
   // Relationship IDs for creation
   productId: string
@@ -151,6 +154,8 @@ export interface UpdateMovementData {
   newStock?: number
   batchInfo?: MovementBatchInfo
   metadata?: MovementMetadata
+  qualityChecked?: boolean
+  qualityCheckNotes?: string
 }
 
 export interface MovementFilters {

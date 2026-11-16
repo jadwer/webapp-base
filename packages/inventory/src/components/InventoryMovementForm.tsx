@@ -61,6 +61,9 @@ const REFERENCE_FOR_TYPE: Record<MovementType, string> = {
   adjustment: 'adjustment',
 }
 
+/** Salidas y transferencias manuales exigen revision de calidad para completarse (IV-009). */
+const needsQualityCheck = (type: string) => type === 'exit' || type === 'transfer'
+
 const isMovementType = (value: unknown): value is MovementType =>
   typeof value === 'string' && value in MOVEMENT_TYPE
 
@@ -111,6 +114,9 @@ export const InventoryMovementForm = memo<InventoryMovementFormProps>(({
       ? JSON.stringify(movement.metadata, null, 2)
       : '',
     selectedBatchId: '',
+    // Revision de calidad: el backend la exige para completar salidas y transferencias manuales (IV-009)
+    qualityChecked: movement?.qualityChecked ? 'true' : '',
+    qualityCheckNotes: movement?.qualityCheckNotes || '',
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [submitErrors, setSubmitErrors] = useState<string[]>([])
@@ -200,6 +206,10 @@ export const InventoryMovementForm = memo<InventoryMovementFormProps>(({
       }
     }
 
+    if (!movement && needsQualityCheck(formData.movementType) && formData.qualityChecked !== 'true') {
+      next.qualityChecked = 'Confirma la revisión de calidad: una salida o transferencia no se registra sin ella.'
+    }
+
     for (const field of ['batchInfo', 'metadata'] as const) {
       try {
         parseJson(formData[field])
@@ -227,7 +237,11 @@ export const InventoryMovementForm = memo<InventoryMovementFormProps>(({
       quantity: Number(formData.quantity),
       // unitCost es obligatorio en el backend; vacio se manda como 0
       unitCost: formData.unitCost === '' ? 0 : Number(formData.unitCost),
-      status: formData.status,
+      // Al crear, el backend completa el movimiento y mueve existencias (InventoryMovementService):
+      // el estatus solo se edita en movimientos que no estan completados.
+      status: movement ? formData.status : 'completed',
+      qualityChecked: formData.qualityChecked === 'true',
+      qualityCheckNotes: formData.qualityCheckNotes.trim() || undefined,
       productId: formData.productId,
       warehouseId: formData.warehouseId,
       locationId: formData.locationId || undefined,
@@ -303,20 +317,29 @@ export const InventoryMovementForm = memo<InventoryMovementFormProps>(({
                     ))}
                   </select>
                 </div>
-                <div className="col-md-6">
-                  <label htmlFor="status" className="form-label">Estado</label>
-                  <select
-                    id="status"
-                    className="form-select"
-                    value={formData.status}
-                    onChange={(e) => setField('status', e.target.value)}
-                    disabled={busy}
-                  >
-                    {Object.entries(MOVEMENT_STATUS).map(([value, { label }]) => (
-                      <option key={value} value={value}>{label}</option>
-                    ))}
-                  </select>
-                </div>
+                {movement ? (
+                  <div className="col-md-6">
+                    <label htmlFor="status" className="form-label">Estatus</label>
+                    <select
+                      id="status"
+                      className="form-select"
+                      value={formData.status}
+                      onChange={(e) => setField('status', e.target.value)}
+                      disabled={busy}
+                    >
+                      {Object.entries(MOVEMENT_STATUS).map(([value, { label }]) => (
+                        <option key={value} value={value}>{label}</option>
+                      ))}
+                    </select>
+                  </div>
+                ) : (
+                  <div className="col-md-6">
+                    <span className="form-label d-block">Estatus</span>
+                    <div className="form-text mt-0">
+                      Se registra como completado y mueve las existencias al guardar. Si te equivocas, corrige con un ajuste.
+                    </div>
+                  </div>
+                )}
                 <div className="col-md-6">
                   <label htmlFor="movementDate" className="form-label">
                     Fecha <span className="text-danger">*</span>
@@ -556,6 +579,42 @@ export const InventoryMovementForm = memo<InventoryMovementFormProps>(({
                 </div>
               </DetailSection>
             )}
+
+            {!movement && needsQualityCheck(formData.movementType) ? (
+              <DetailSection title="Revisión de calidad" icon="bi-patch-check">
+                <div className="row g-3">
+                  <div className="col-12">
+                    <div className="form-check">
+                      <input
+                        type="checkbox"
+                        id="qualityChecked"
+                        className={`form-check-input${invalid('qualityChecked')}`}
+                        checked={formData.qualityChecked === 'true'}
+                        onChange={(e) => setField('qualityChecked', e.target.checked ? 'true' : '')}
+                        disabled={busy}
+                      />
+                      <label className="form-check-label" htmlFor="qualityChecked">
+                        Revisé la calidad del producto que sale <span className="text-danger">*</span>
+                      </label>
+                      {feedback('qualityChecked')}
+                    </div>
+                    <div className="form-text">Queda registrado quién la revisó y cuándo.</div>
+                  </div>
+                  <div className="col-12">
+                    <label htmlFor="qualityCheckNotes" className="form-label">Notas de la revisión</label>
+                    <textarea
+                      id="qualityCheckNotes"
+                      className="form-control"
+                      rows={2}
+                      maxLength={1000}
+                      value={formData.qualityCheckNotes}
+                      onChange={(e) => setField('qualityCheckNotes', e.target.value)}
+                      disabled={busy}
+                    />
+                  </div>
+                </div>
+              </DetailSection>
+            ) : null}
 
             <DetailSection title="Información adicional (opcional)" icon="bi-info-circle">
               <div className="row g-3">
