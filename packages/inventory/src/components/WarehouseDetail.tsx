@@ -106,8 +106,14 @@ export const WarehouseDetail = ({ warehouseId }: WarehouseDetailProps) => {
     )
   }
 
+  const streetLine = [
+    warehouse.street,
+    warehouse.exteriorNumber ? `No. ${warehouse.exteriorNumber}` : null,
+    warehouse.interiorNumber ? `Int. ${warehouse.interiorNumber}` : null,
+  ].filter(Boolean).join(' ')
   const hasAddress = Boolean(
-    warehouse.address || warehouse.city || warehouse.state || warehouse.country || warehouse.postalCode,
+    streetLine || warehouse.neighborhood || warehouse.municipality || warehouse.address
+      || warehouse.city || warehouse.state || warehouse.country || warehouse.postalCode,
   )
 
   return (
@@ -160,7 +166,7 @@ export const WarehouseDetail = ({ warehouseId }: WarehouseDetailProps) => {
               <dl className="row mb-0">
                 <Field label="Nombre">{warehouse.name}</Field>
                 <Field label="Código"><code>{warehouse.code}</code></Field>
-                <Field label="Tipo">
+                <Field label="Clasificación">
                   <StatusBadge status={warehouse.warehouseType} map={WAREHOUSE_TYPE} />
                 </Field>
                 {branchName.multi && <Field label="Sucursal">{branchName.name(warehouse.branchId)}</Field>}
@@ -171,11 +177,15 @@ export const WarehouseDetail = ({ warehouseId }: WarehouseDetailProps) => {
             <DetailSection title="Dirección" icon="bi-geo-alt">
               {hasAddress ? (
                 <dl className="row mb-0">
-                  <Field label="Dirección">{warehouse.address}</Field>
+                  <Field label="Calle">{streetLine}</Field>
+                  <Field label="Colonia">{warehouse.neighborhood}</Field>
+                  <Field label="Municipio o alcaldía">{warehouse.municipality}</Field>
                   <Field label="Ciudad">{warehouse.city}</Field>
                   <Field label="Estado">{warehouse.state}</Field>
                   <Field label="País">{warehouse.country}</Field>
                   <Field label="Código postal">{warehouse.postalCode}</Field>
+                  <Field label="Referencia">{warehouse.addressReference}</Field>
+                  {warehouse.address ? <Field label="Dirección anterior">{warehouse.address}</Field> : null}
                 </dl>
               ) : (
                 <p className="text-muted mb-0">Sin dirección registrada.</p>

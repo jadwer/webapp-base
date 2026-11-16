@@ -3,10 +3,10 @@
  * Gestión completa de almacenes
  */
 
-import { WarehousesAdminPage } from '@/modules/inventory'
+import { WarehousesListPage } from '@/modules/inventory'
 
 export default function WarehousesPage() {
-  return <WarehousesAdminPage />
+  return <WarehousesListPage />
 }
 
 export const metadata = {

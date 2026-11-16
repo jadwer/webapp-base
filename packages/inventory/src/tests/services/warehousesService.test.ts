@@ -50,7 +50,7 @@ describe('warehousesService', () => {
 
       // Assert
       expect(axios.get).toHaveBeenCalledWith('/api/v1/warehouses', {
-        params: { 'filter[search_name]': 'Main' }
+        params: { 'filter[search]': 'Main' }
       })
       expect(result).toEqual(apiResponse)
     })

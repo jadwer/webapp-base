@@ -13,6 +13,13 @@ export interface WarehouseAttributes {
   code: string
   warehouseType: WarehouseType
   address?: string
+  /** Direccion desglosada (rediseno 2026-11-15) */
+  street?: string | null
+  exteriorNumber?: string | null
+  interiorNumber?: string | null
+  neighborhood?: string | null
+  municipality?: string | null
+  addressReference?: string | null
   city?: string
   state?: string
   country?: string
@@ -28,6 +35,8 @@ export interface WarehouseAttributes {
   isActive: boolean
   /** Sucursal duena del almacen (multi-sucursal 2026-09). */
   branchId?: number | null
+  /** Ubicaciones del almacen (solo lectura) */
+  locationsCount?: number
   createdAt: string
   updatedAt: string
 }
@@ -51,6 +60,13 @@ export interface CreateWarehouseData {
   code: string
   warehouseType?: WarehouseType
   address?: string
+  /** Direccion desglosada (rediseno 2026-11-15) */
+  street?: string | null
+  exteriorNumber?: string | null
+  interiorNumber?: string | null
+  neighborhood?: string | null
+  municipality?: string | null
+  addressReference?: string | null
   city?: string
   state?: string
   country?: string
@@ -71,6 +87,13 @@ export interface UpdateWarehouseData {
   code?: string
   warehouseType?: WarehouseType
   address?: string
+  /** Direccion desglosada (rediseno 2026-11-15) */
+  street?: string | null
+  exteriorNumber?: string | null
+  interiorNumber?: string | null
+  neighborhood?: string | null
+  municipality?: string | null
+  addressReference?: string | null
   city?: string
   state?: string
   country?: string

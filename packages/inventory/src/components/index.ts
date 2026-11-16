@@ -8,6 +8,7 @@ export { InventoryDashboardPage } from './InventoryDashboardPage'
 
 // Warehouses Components
 export { WarehousesAdminPage } from './WarehousesAdminPage'
+export { WarehousesListPage, WAREHOUSE_TYPE_TONE } from './WarehousesListPage'
 export { WarehousesTableSimple } from './WarehousesTableSimple'
 export { WarehouseForm } from './WarehouseForm'
 export { WarehouseDetail } from './WarehouseDetail'

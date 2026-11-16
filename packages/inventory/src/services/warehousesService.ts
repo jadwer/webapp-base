@@ -31,7 +31,8 @@ export const warehousesService = {
     
     // Filtros con nombres exactos de columnas de base de datos
     if (filters.search) {
-      queryParams['filter[search_name]'] = filters.search // LIKE search en nombre
+      // Nombre, codigo o ciudad (Scope search del backend, 2026-11-15)
+      queryParams['filter[search]'] = filters.search
     }
     if (filters.code) {
       queryParams['filter[search_code]'] = filters.code // LIKE search en código
