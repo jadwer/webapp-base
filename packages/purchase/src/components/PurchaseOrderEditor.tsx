@@ -315,7 +315,7 @@ export const PurchaseOrderEditor: React.FC<PurchaseOrderEditorProps> = ({ purcha
               <div className="border rounded p-3">
                 <h3 className="h6 mb-3">Resumen de la orden</h3>
                 <div className="d-flex justify-content-between small text-muted mb-2"><span>Partidas</span><span>{lines.length}</span></div>
-                <div className="d-flex justify-content-between align-items-baseline border-top pt-2">
+                <div className="d-flex flex-wrap justify-content-between align-items-baseline gap-2 border-top pt-2">
                   <span className="fw-semibold">Total de la orden</span>
                   <span className="fs-5 fw-semibold text-success">{formatCurrency(total)}</span>
                 </div>

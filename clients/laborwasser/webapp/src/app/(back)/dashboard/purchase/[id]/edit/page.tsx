@@ -17,7 +17,7 @@ export default function EditPurchaseOrderPage({ params }: { params: Promise<{ id
   }
   return (
     <PurchaseOrderEditor
-      key={`${purchaseOrder.id}-${purchaseOrder.updatedAt}`}
+      key={purchaseOrder.id}
       purchaseOrder={purchaseOrder}
       items={purchaseOrderItems}
       onSaved={async () => { await Promise.all([mutate(), mutateItems()]) }}
