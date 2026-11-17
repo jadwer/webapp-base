@@ -87,7 +87,7 @@ export const CatalogAdminPage: React.FC<CatalogAdminPageProps> = (props) => {
   ))
   const products = (i: CatalogItem) => (
     <button type="button" className="btn btn-sm btn-outline-primary text-nowrap" onClick={() => openProducts(i)} disabled={!i.productsCount}>
-      {(i.productsCount ?? 0).toLocaleString('es-MX')} productos
+      {(i.productsCount ?? 0).toLocaleString('es-MX')} {i.productsCount === 1 ? 'producto' : 'productos'}
     </button>
   )
   const actions = (i: CatalogItem) => (

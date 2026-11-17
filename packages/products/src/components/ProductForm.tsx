@@ -419,7 +419,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                   errorText={errors.imgPath}
                 />
                 <small className="text-muted d-block mt-1">
-                  Podra agregar más imágenes después de guardar el producto.
+                  Podrá agregar más imágenes después de guardar el producto.
                 </small>
               </>
             )}
