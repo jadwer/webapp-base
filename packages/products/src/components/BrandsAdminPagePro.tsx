@@ -25,7 +25,7 @@ export const BrandsAdminPagePro = React.memo(() => {
   const [priceOpen, setPriceOpen] = useState(false)
   const { brands, meta, isLoading, error, refresh } = useBrands({
     page: { number: page, size: perPage },
-    filter: filters.search ? { name: filters.search } : {},
+    filter: filters.search ? { search: filters.search } : {},
     sort: { field: 'name', direction: 'asc' },
   })
   const all = useBrands({ page: { number: 1, size: 200 }, sort: { field: 'name', direction: 'asc' } })

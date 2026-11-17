@@ -6,7 +6,7 @@ import { UnitsResponse, UnitSortOptions } from '../types'
 
 interface UseUnitsParams {
   page?: { number?: number; size?: number }
-  filter?: { name?: string; code?: string; unitType?: string }
+  filter?: { name?: string; search?: string; code?: string; unitType?: string }
   sort?: UnitSortOptions
 }
 

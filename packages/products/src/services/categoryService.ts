@@ -15,7 +15,7 @@ const CATEGORIES_ENDPOINT = '/api/v1/categories'
 export const categoryService = {
   async getCategories(params?: {
     page?: { number?: number; size?: number }
-    filter?: { name?: string; slug?: string; isActive?: boolean }
+    filter?: { name?: string; search?: string; slug?: string; isActive?: boolean }
     sort?: CategorySortOptions
   }): Promise<CategoriesResponse> {
     const queryParams: QueryParams = {}
@@ -31,6 +31,8 @@ export const categoryService = {
 
     if (params?.filter) {
       if (params.filter.name) queryParams['filter[name]'] = params.filter.name
+      // Busqueda parcial por nombre, slug o codigo (rediseno 17-11)
+      if (params.filter.search) queryParams['filter[search]'] = params.filter.search
       if (params.filter.slug) queryParams['filter[slug]'] = params.filter.slug
       if (params.filter.isActive !== undefined) queryParams['filter[is_active]'] = params.filter.isActive ? '1' : '0'
     }

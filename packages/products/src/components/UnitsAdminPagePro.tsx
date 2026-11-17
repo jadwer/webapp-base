@@ -23,7 +23,7 @@ export const UnitsAdminPagePro = React.memo(() => {
   const [perPage, setPerPage] = useState(10)
   const { units, meta, isLoading, error, refresh } = useUnits({
     page: { number: page, size: perPage },
-    filter: filters.search ? { name: filters.search } : {},
+    filter: filters.search ? { search: filters.search } : {},
     sort: { field: 'name', direction: 'asc' },
   })
   const { deleteUnit } = useUnitMutations()

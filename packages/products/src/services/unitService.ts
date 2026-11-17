@@ -15,7 +15,7 @@ const UNITS_ENDPOINT = '/api/v1/units'
 export const unitService = {
   async getUnits(params?: {
     page?: { number?: number; size?: number }
-    filter?: { name?: string; code?: string; unitType?: string }
+    filter?: { name?: string; search?: string; code?: string; unitType?: string }
     sort?: UnitSortOptions
   }): Promise<UnitsResponse> {
     const queryParams: QueryParams = {}
@@ -31,6 +31,8 @@ export const unitService = {
     
     if (params?.filter) {
       if (params.filter.name) queryParams['filter[name]'] = params.filter.name
+      // Busqueda parcial por nombre, slug o codigo (rediseno 17-11)
+      if (params.filter.search) queryParams['filter[search]'] = params.filter.search
       if (params.filter.code) queryParams['filter[code]'] = params.filter.code
       if (params.filter.unitType) queryParams['filter[unit_type]'] = params.filter.unitType
     }
