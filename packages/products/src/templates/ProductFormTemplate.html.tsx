@@ -1,8 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import Image from 'next/image'
-import { Card, Button } from '@lwm/ui'
+import { Card, LwSurface, LwPageTitle, LwResultModal } from '@lwm/ui'
 import { useNavigationProgress } from '@lwm/ui'
 import { useProduct, useProductMutations } from '../hooks'
 import ProductForm from '../components/ProductForm'
@@ -26,6 +25,8 @@ export const ProductFormTemplate: React.FC<ProductFormTemplateProps> = ({
 }) => {
   const navigation = useNavigationProgress()
   const [isSubmitting, setIsSubmitting] = useState(false)
+  // Modal de exito del Figma ("Producto registrado" / "Producto actualizado")
+  const [savedId, setSavedId] = useState<string | null>(null)
 
   const { product, isLoading: isLoadingProduct, error: loadError } = useProduct(
     productId, 
@@ -50,11 +51,7 @@ export const ProductFormTemplate: React.FC<ProductFormTemplateProps> = ({
         // se espejaba aqui con un catch mudo y, con el observer, duplicaria la fila.
       }
 
-      if (onSuccess) {
-        onSuccess(result.data.id)
-      } else {
-        navigation.push('/dashboard/products')
-      }
+      setSavedId(result.data.id)
     } catch {
       // Error handled by service layer
     } finally {
@@ -70,53 +67,27 @@ export const ProductFormTemplate: React.FC<ProductFormTemplateProps> = ({
     }
   }
 
-  const pageTitle = isEditing ? 'Editar Producto' : 'Crear Producto'
-  const pageDescription = isEditing 
-    ? 'Modifica los datos del producto existente'
-    : 'Completa los datos para crear un nuevo producto'
+  const finish = () => {
+    const id = savedId
+    setSavedId(null)
+    if (!id) return
+    if (onSuccess) onSuccess(id)
+    else navigation.push(isEditing ? `/dashboard/products/${id}` : '/dashboard/products')
+  }
 
   return (
     <div className={className}>
-      {/* Header */}
-      <div className="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3 mb-4">
-        <div>
-          <div className="d-flex align-items-center gap-2 mb-2">
-            <Button
-              size="small"
-              variant="secondary"
-              buttonStyle="ghost"
-              onClick={handleCancel}
-              disabled={isSubmitting}
-            >
-              <i className="bi bi-arrow-left me-1" />
-              Volver
-            </Button>
-          </div>
-          <h1 className="h3 mb-1">{pageTitle}</h1>
-          <p className="text-muted mb-0">{pageDescription}</p>
-        </div>
-
-        {isEditing && product && (
-          <div className="d-flex align-items-center gap-2">
-            <div className="text-end">
-              <div className="fw-medium">{product.name}</div>
-              {product.sku && (
-                <small className="text-muted">SKU: {product.sku}</small>
-              )}
-            </div>
-            {product.imgUrl && (
-              <Image
-                src={product.imgUrl}
-                alt={product.name}
-                width={48}
-                height={48}
-                className="rounded"
-                style={{ width: 48, height: 48, objectFit: 'cover' }}
-              />
-            )}
-          </div>
-        )}
-      </div>
+      <LwSurface>
+      <LwPageTitle
+        title={isEditing ? 'Editar producto:' : 'Crear nuevo producto'}
+        highlight={isEditing ? product?.name : undefined}
+        subtitle={isEditing ? 'Comencemos verificando sus datos' : 'Comencemos ingresando sus datos'}
+        actions={
+          <button type="button" className="btn btn-outline-secondary" onClick={handleCancel} disabled={isSubmitting}>
+            <i className="bi bi-arrow-left me-1" aria-hidden="true" /> Volver
+          </button>
+        }
+      />
 
       {/* Loading State */}
       {isLoadingProduct && isEditing && (
@@ -156,58 +127,24 @@ export const ProductFormTemplate: React.FC<ProductFormTemplateProps> = ({
         </div>
       )}
 
-      {/* Form Card */}
       {(!isEditing || (isEditing && product)) && (
-        <Card>
-          <div className="card-header">
-            <h5 className="mb-0">
-              <i className="bi bi-box-seam me-2" />
-              {isEditing ? 'Datos del Producto' : 'Nuevo Producto'}
-            </h5>
-          </div>
-
-          <div className="card-body">
-            <ProductForm
-              product={product}
-              isLoading={isSubmitting}
-              onSubmit={handleSubmit}
-              onCancel={handleCancel}
-            />
-          </div>
-        </Card>
+        <ProductForm
+          product={product}
+          isLoading={isSubmitting}
+          onSubmit={handleSubmit}
+          onCancel={handleCancel}
+        />
       )}
+      </LwSurface>
 
-      {/* Help Card */}
-      <Card className="mt-4">
-        <div className="card-header">
-          <h6 className="mb-0">
-            <i className="bi bi-info-circle me-2" />
-            Información adicional
-          </h6>
-        </div>
-        <div className="card-body">
-          <div className="row">
-            <div className="col-md-6">
-              <h6 className="fw-bold">Campos obligatorios:</h6>
-              <ul className="mb-0">
-                <li>Nombre del producto</li>
-                <li>Unidad de medida</li>
-                <li>Categoría</li>
-                <li>Marca</li>
-              </ul>
-            </div>
-            <div className="col-md-6">
-              <h6 className="fw-bold">Consejos:</h6>
-              <ul className="mb-0">
-                <li>El SKU debe ser único si se especifica</li>
-                <li>Los precios deben ser números válidos</li>
-                <li>Las imágenes mejoran la presentación</li>
-                <li>La descripción completa ayuda a los usuarios</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </Card>
+      <LwResultModal
+        open={savedId !== null}
+        tone="success"
+        title={isEditing ? 'Producto actualizado' : 'Producto registrado'}
+        message={isEditing ? 'El producto fue editado con éxito' : 'El producto fue registrado con éxito'}
+        confirmLabel="Confirmar"
+        onConfirm={finish}
+      />
     </div>
   )
 }

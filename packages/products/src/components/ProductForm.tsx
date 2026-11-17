@@ -345,7 +345,10 @@ export const ProductForm: React.FC<ProductFormProps> = ({
 
   return (
     <form onSubmit={handleSubmit} className="needs-validation" noValidate>
-      {/* Nombre del producto - Full width */}
+      {/* Orden del Figma (rediseno 2026-11-17): campos en pares; se conservan tipo de
+          precio, ventana de oferta y datos SAT, que el diseno no dibuja completos. */}
+      <div className="row g-3">
+        <div className="col-md-6">
       <div className="mb-4">
         <Input
           label="Nombre del producto"
@@ -360,10 +363,23 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           autoFocus
         />
       </div>
-
-      <div className="row">
-        <div className="col-md-8">
-          {/* Imagen del producto */}
+        </div>
+        <div className="col-md-6">
+          <div className="mb-3">
+            <Input
+              label="SKU"
+              type="text"
+              value={formData.sku}
+              onChange={(e) => handleInputChange('sku', e.target.value)}
+              onBlur={() => handleBlur('sku')}
+              errorText={touched.sku ? errors.sku : ''}
+              placeholder="Código único del producto (opcional)"
+              helpText="Código único para identificar el producto"
+              disabled={isSubmitting}
+            />
+          </div>
+        </div>
+        <div className="col-md-6">
           <div className="mb-3">
             {product?.id ? (
               <ImageGalleryManager
@@ -408,21 +424,42 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               </>
             )}
           </div>
-
+        </div>
+        <div className="col-md-6">
           <div className="mb-3">
-            <Input
-              label="SKU"
-              type="text"
-              value={formData.sku}
-              onChange={(e) => handleInputChange('sku', e.target.value)}
-              onBlur={() => handleBlur('sku')}
-              errorText={touched.sku ? errors.sku : ''}
-              placeholder="Código único del producto (opcional)"
-              helpText="Código único para identificar el producto"
-              disabled={isSubmitting}
+            <FileUploader
+              label="Hoja de datos (PDF)"
+              accept="application/pdf"
+              maxSizeMB={10}
+              isImage={false}
+              onFileSelect={(file) => {
+                setDatasheetFile(file)
+                setDatasheetRemoved(false)
+                setErrors(prev => {
+                  if (!prev.datasheetPath) return prev
+                  const { datasheetPath: _drop, ...rest } = prev
+                  return rest
+                })
+              }}
+              onClear={() => {
+                setDatasheetFile(null)
+                setDatasheetRemoved(true)
+                handleInputChange('datasheetPath', '')
+                setErrors(prev => {
+                  if (!prev.datasheetPath) return prev
+                  const { datasheetPath: _drop, ...rest } = prev
+                  return rest
+                })
+              }}
+              currentFileName={product?.datasheetPath && !datasheetRemoved ? product.datasheetPath.split('/').pop() : undefined}
+              currentFileUrl={product?.datasheetUrl && !datasheetRemoved ? product.datasheetUrl : undefined}
+              isLoading={uploadingDatasheet}
+              helpText={datasheetRemoved && product?.datasheetPath ? 'La ficha actual se quitará al guardar.' : 'Archivo PDF. Máximo 10MB. Al subir uno nuevo se reemplaza el anterior.'}
+              errorText={errors.datasheetPath}
             />
           </div>
-
+        </div>
+        <div className="col-md-6">
           <div className="mb-3">
             <Input
               label="Descripción corta"
@@ -436,7 +473,8 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               required
             />
           </div>
-
+        </div>
+        <div className="col-md-6">
           <div className="mb-3">
             <Input
               label="Descripción completa"
@@ -451,8 +489,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
             />
           </div>
         </div>
-
-        <div className="col-md-4">
+        <div className="col-md-3">
           <div className="mb-3">
             <Input
               label="Tipo de precio"
@@ -466,8 +503,10 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                 : undefined}
             />
           </div>
+        </div>
+        {!isQuoteOnlyPrice && (
+          <div className="col-md-3">
 
-          {!isQuoteOnlyPrice && (
             <div className="mb-3">
               <Input
                 label="Precio de venta"
@@ -484,8 +523,9 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                 required
               />
             </div>
-          )}
-
+          </div>
+        )}
+        <div className="col-md-3">
           <div className="mb-3">
             <Input
               label={isQuoteOnlyPrice ? 'Costo (recomendado)' : 'Costo'}
@@ -504,7 +544,67 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               disabled={isSubmitting}
             />
           </div>
-
+        </div>
+        <div className="col-md-3">
+          <div className="mb-3">
+            <Input
+              label="Moneda"
+              type="select"
+              value={formData.currencyId}
+              onChange={(e) => handleInputChange('currencyId', e.target.value)}
+              onBlur={() => handleBlur('currencyId')}
+              disabled={isSubmitting || isDropdownsLoading}
+              options={currencyOptions}
+            />
+          </div>
+        </div>
+        <div className="col-md-4">
+          <div className="mb-3">
+            <Input
+              label="Unidad de medida"
+              type="select"
+              value={formData.unitId}
+              onChange={(e) => handleInputChange('unitId', e.target.value)}
+              onBlur={() => handleBlur('unitId')}
+              errorText={touched.unitId ? errors.unitId : ''}
+              required
+              disabled={isSubmitting || isDropdownsLoading}
+              options={unitOptions}
+            />
+          </div>
+        </div>
+        <div className="col-md-4">
+          <div className="mb-3">
+            <Input
+              label="Categoría"
+              type="select"
+              value={formData.categoryId}
+              onChange={(e) => handleInputChange('categoryId', e.target.value)}
+              onBlur={() => handleBlur('categoryId')}
+              errorText={touched.categoryId ? errors.categoryId : ''}
+              required
+              disabled={isSubmitting || isDropdownsLoading}
+              options={categoryOptions}
+            />
+          </div>
+        </div>
+        <div className="col-md-4">
+          <div className="mb-3">
+            <Input
+              label="Marca"
+              type="select"
+              value={formData.brandId}
+              onChange={(e) => handleInputChange('brandId', e.target.value)}
+              onBlur={() => handleBlur('brandId')}
+              errorText={touched.brandId ? errors.brandId : ''}
+              required
+              disabled={isSubmitting || isDropdownsLoading}
+              options={brandOptions}
+            />
+          </div>
+        </div>
+        <div className="col-12">
+          <div className="d-flex flex-wrap gap-4">
           <div className="mb-3">
             <div className="form-check">
               <input
@@ -520,7 +620,6 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               </label>
             </div>
           </div>
-
           <div className="mb-3">
             <div className="form-check">
               <input
@@ -539,7 +638,6 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               </div>
             </div>
           </div>
-
           {/* Oferta: alimenta la seccion "Ofertas del Mes" del sitio publico.
               Un producto sujeto a cotizacion no tiene precio que ofertar. */}
           {!isQuoteOnlyPrice && (
@@ -563,7 +661,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           </div>
 
           )}
-
+          </div>
           {formData.isOnSale && !isQuoteOnlyPrice && (
             <div className="mb-3 ps-4 border-start">
               <div className="row g-2">
@@ -601,93 +699,6 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               </div>
             </div>
           )}
-
-          <div className="mb-3">
-            <Input
-              label="Moneda"
-              type="select"
-              value={formData.currencyId}
-              onChange={(e) => handleInputChange('currencyId', e.target.value)}
-              onBlur={() => handleBlur('currencyId')}
-              disabled={isSubmitting || isDropdownsLoading}
-              options={currencyOptions}
-            />
-          </div>
-
-          <div className="mb-3">
-            <Input
-              label="Unidad de medida"
-              type="select"
-              value={formData.unitId}
-              onChange={(e) => handleInputChange('unitId', e.target.value)}
-              onBlur={() => handleBlur('unitId')}
-              errorText={touched.unitId ? errors.unitId : ''}
-              required
-              disabled={isSubmitting || isDropdownsLoading}
-              options={unitOptions}
-            />
-          </div>
-
-          <div className="mb-3">
-            <Input
-              label="Categoría"
-              type="select"
-              value={formData.categoryId}
-              onChange={(e) => handleInputChange('categoryId', e.target.value)}
-              onBlur={() => handleBlur('categoryId')}
-              errorText={touched.categoryId ? errors.categoryId : ''}
-              required
-              disabled={isSubmitting || isDropdownsLoading}
-              options={categoryOptions}
-            />
-          </div>
-
-          <div className="mb-3">
-            <Input
-              label="Marca"
-              type="select"
-              value={formData.brandId}
-              onChange={(e) => handleInputChange('brandId', e.target.value)}
-              onBlur={() => handleBlur('brandId')}
-              errorText={touched.brandId ? errors.brandId : ''}
-              required
-              disabled={isSubmitting || isDropdownsLoading}
-              options={brandOptions}
-            />
-          </div>
-
-          <div className="mb-3">
-            <FileUploader
-              label="Hoja de datos (PDF)"
-              accept="application/pdf"
-              maxSizeMB={10}
-              isImage={false}
-              onFileSelect={(file) => {
-                setDatasheetFile(file)
-                setDatasheetRemoved(false)
-                setErrors(prev => {
-                  if (!prev.datasheetPath) return prev
-                  const { datasheetPath: _drop, ...rest } = prev
-                  return rest
-                })
-              }}
-              onClear={() => {
-                setDatasheetFile(null)
-                setDatasheetRemoved(true)
-                handleInputChange('datasheetPath', '')
-                setErrors(prev => {
-                  if (!prev.datasheetPath) return prev
-                  const { datasheetPath: _drop, ...rest } = prev
-                  return rest
-                })
-              }}
-              currentFileName={product?.datasheetPath && !datasheetRemoved ? product.datasheetPath.split('/').pop() : undefined}
-              currentFileUrl={product?.datasheetUrl && !datasheetRemoved ? product.datasheetUrl : undefined}
-              isLoading={uploadingDatasheet}
-              helpText={datasheetRemoved && product?.datasheetPath ? 'La ficha actual se quitará al guardar.' : 'Archivo PDF. Máximo 10MB. Al subir uno nuevo se reemplaza el anterior.'}
-              errorText={errors.datasheetPath}
-            />
-          </div>
         </div>
       </div>
 
@@ -747,25 +758,14 @@ export const ProductForm: React.FC<ProductFormProps> = ({
 
       <div className="d-flex justify-content-end gap-2 mt-4">
         {onCancel && (
-          <Button
-            type="button"
-            variant="secondary"
-            buttonStyle="outline"
-            onClick={onCancel}
-            disabled={isLoading}
-          >
+          <button type="button" className="btn btn-outline-primary px-4" onClick={onCancel} disabled={isLoading}>
             Cancelar
-          </Button>
+          </button>
         )}
-        <Button
-          type="submit"
-          variant="primary"
-          loading={isLoading}
-          disabled={isSubmitting || isDropdownsLoading}
-        >
-          <i className="bi bi-check-lg me-2" />
-          {product ? 'Actualizar producto' : 'Crear producto'}
-        </Button>
+        <button type="submit" className="btn btn-primary px-4" disabled={isSubmitting || isDropdownsLoading}>
+          {isLoading ? <span className="spinner-border spinner-border-sm me-2" aria-hidden="true" /> : null}
+          {product ? 'Guardar cambios' : 'Crear producto'}
+        </button>
       </div>
     </form>
   )

@@ -71,3 +71,10 @@ export * from './BrandView'
 export * from './BrandFormWrapper'
 
 export * from './BulkAssignCategoryDialog'
+
+// Rediseno de Productos (2026-11-17)
+export { ProductDetailView } from './ProductDetailView'
+export { CatalogAdminPage } from './CatalogAdminPage'
+export type { CatalogItem, CatalogAdminPageProps } from './CatalogAdminPage'
+export { CatalogFormPage, UNIT_TYPES } from './CatalogFormPage'
+export type { CatalogKind } from './CatalogFormPage'

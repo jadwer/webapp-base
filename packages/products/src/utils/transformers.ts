@@ -90,8 +90,19 @@ export function transformJsonApiProduct(
     }
   }
 
+  // Existencia total (rediseno 2026-11-17): suma de los registros de stock incluidos
+  // (include=stock). Sin el include queda undefined y la pantalla no inventa un dato.
+  const stockRel = (resource.relationships as Record<string, { data?: unknown }> | undefined)?.stock?.data
+  const stockTotal = Array.isArray(stockRel)
+    ? (stockRel as Array<{ type: string; id: string }>).reduce((sum, ref) => {
+        const row = includedMap[`${ref.type}:${ref.id}`]
+        return sum + (row ? Number(row.attributes.quantity ?? 0) : 0)
+      }, 0)
+    : undefined
+
   return {
     id: resource.id,
+    ...(stockTotal !== undefined && { stockTotal }),
     name: (resource.attributes.name || '') as string,
     sku: resource.attributes.sku as string | undefined,
     description: resource.attributes.description as string | undefined,

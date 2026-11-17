@@ -62,6 +62,8 @@ export interface Product {
   // taxRate: null = Exento de IVA; 0 = tasa 0%; number = tasa en % (16, 8, etc.)
   taxRate?: number | null
 
+  /** Suma de existencias en todos los almacenes; solo con include=stock */
+  stockTotal?: number
   // Relationships
   unit?: Unit
   category?: Category

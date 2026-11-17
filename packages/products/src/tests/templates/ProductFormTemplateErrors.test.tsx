@@ -26,6 +26,9 @@ vi.mock('@lwm/ui', () => ({
   Card: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
   Button: ({ children }: { children: React.ReactNode }) => <button type="button">{children}</button>,
   useNavigationProgress: () => ({ push: vi.fn(), back: vi.fn() }),
+  LwSurface: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  LwPageTitle: ({ title }: { title: React.ReactNode }) => <h1>{title}</h1>,
+  LwResultModal: () => null,
 }))
 vi.mock('../../hooks', () => ({
   useProduct: () => ({ product: null, isLoading: false, error: null }),
