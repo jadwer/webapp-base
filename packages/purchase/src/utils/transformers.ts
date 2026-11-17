@@ -19,7 +19,7 @@ export function transformJsonApiPurchaseOrder(resource: JsonApiResource): Purcha
     id: resource.id,
     contactId: (attributes.contact_id || attributes.contactId) as number,
     branchId: (attributes.branch_id ?? attributes.branchId ?? null) as number | null,
-    orderNumber: (attributes.order_number || attributes.orderNumber || `PO-${resource.id}`) as string, // Use API value first, fallback to generated
+    orderNumber: (attributes.order_number || attributes.orderNumber || '') as string,
     orderDate: (attributes.order_date || attributes.orderDate || '') as string,
     expectedArrivalDate: (attributes.expectedArrivalDate ?? attributes.expected_arrival_date ?? undefined) as string | null | undefined,
     status: (attributes.status || 'pending') as PurchaseOrderStatus,
@@ -62,6 +62,7 @@ export function transformJsonApiPurchaseOrderItem(resource: JsonApiResource): Pu
     purchaseOrderId: (attributes.purchase_order_id || attributes.purchaseOrderId) as number,
     productId: (attributes.product_id || attributes.productId) as number,
     quantity,
+    receivedQuantity: Number(attributes.receivedQuantity ?? attributes.received_quantity ?? 0),
     unitPrice,
     discount,
     subtotal,
@@ -215,9 +216,9 @@ export function transformPurchaseOrderFormToJsonApi(data: PurchaseOrderFormData,
         contactId: data.contactId,
         orderDate: data.orderDate,
         expectedArrivalDate: data.expectedArrivalDate || null,
-        status: data.status,
+        // El estatus solo al crear: en edicion cambia con las acciones y el backend lo rechaza (17-11)
+        ...(id ? {} : { status: data.status }),
         notes: data.notes || '',
-        totalAmount: 0, // requerido por el Request; el backend recalcula desde items
         // Solo si viene: en edicion no se mueve la sucursal por omision.
         ...(data.branchId ? { branchId: Number(data.branchId) } : {}),
         // orderNumber lo genera el backend (folio OC-), no se envia.

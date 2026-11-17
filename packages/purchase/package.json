@@ -45,6 +45,7 @@
   },
   "dependencies": {
     "@lwm/auth": "workspace:*",
+    "@lwm/products": "workspace:*",
     "@lwm/ui": "workspace:*",
     "clsx": "^2.1.0",
     "swr": "^2.0.0"

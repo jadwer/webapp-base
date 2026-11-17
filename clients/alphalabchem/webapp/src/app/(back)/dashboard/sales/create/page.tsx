@@ -30,7 +30,7 @@ export default function CreateSalesOrderPage() {
     orderNumber: '',
     orderDate: todayDateInput(),
     // Estado inicial: valores de SalesOrderRequest (api-base); 'approved' no existe
-    status: 'pending' as 'pending' | 'confirmed' | 'completed' | 'cancelled',
+    status: 'pending' as 'draft' | 'pending' | 'confirmed',
     notes: '',
     branchId: ''
   })
@@ -207,10 +207,10 @@ export default function CreateSalesOrderPage() {
                       onChange={handleInputChange}
                       required
                     >
+                      {/* Un pedido nace borrador, pendiente o confirmado (la confirmacion pasa por su accion en el servidor) */}
+                      <option value="draft">Borrador</option>
                       <option value="pending">Pendiente</option>
                       <option value="confirmed">Confirmada</option>
-                      <option value="completed">Completada</option>
-                      <option value="cancelled">Cancelada</option>
                     </select>
                   </div>
 

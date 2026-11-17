@@ -83,6 +83,7 @@ export const mockPurchaseOrderItem = (overrides?: Partial<PurchaseOrderItem>): P
     purchaseOrderId: 1,
     productId,
     quantity: 10,
+    receivedQuantity: 0,
     unitPrice: 100.00,
     discount: 0,
     subtotal: 1000.00,

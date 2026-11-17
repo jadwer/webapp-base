@@ -19,3 +19,10 @@ export { default as EditBudgetWrapper } from './EditBudgetWrapper'
 export { EditBudgetWrapper as EditBudgetWrapperComponent } from './EditBudgetWrapper'
 export { default as ViewBudgetWrapper } from './ViewBudgetWrapper'
 export { ViewBudgetWrapper as ViewBudgetWrapperComponent } from './ViewBudgetWrapper'
+
+// Rediseno de Compras (2026-11-17)
+export { PurchaseOrdersAdminPage } from './PurchaseOrdersAdminPage'
+export { PurchaseOrderEditor } from './PurchaseOrderEditor'
+export type { PurchaseOrderEditorProps } from './PurchaseOrderEditor'
+export { PurchaseOrderDetail } from './PurchaseOrderDetail'
+export type { PurchaseOrderDetailProps } from './PurchaseOrderDetail'

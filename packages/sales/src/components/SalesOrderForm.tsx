@@ -23,15 +23,18 @@ interface SalesOrderFormProps {
   onCancel?: () => void
 }
 
-const ORDER_STATUSES: { value: OrderStatus; label: string }[] = [
+// Un pedido nace borrador o pendiente; despues el estatus cambia con sus acciones
+// (confirmar, enviar, entregar, cancelar). El backend rechaza otro valor (17-11).
+const NEW_ORDER_STATUSES: { value: OrderStatus; label: string }[] = [
   { value: 'draft', label: 'Borrador' },
-  { value: 'confirmed', label: 'Confirmada' },
-  { value: 'processing', label: 'En proceso' },
-  { value: 'shipped', label: 'Enviada' },
-  { value: 'delivered', label: 'Entregada' },
-  { value: 'completed', label: 'Completada' },
-  { value: 'cancelled', label: 'Cancelada' },
+  { value: 'pending', label: 'Pendiente' },
 ]
+
+const STATUS_LABEL: Partial<Record<OrderStatus, string>> = {
+  draft: 'Borrador', pending: 'Pendiente', confirmed: 'Confirmada', processing: 'En proceso',
+  shipped: 'Enviada', delivered: 'Entregada', completed: 'Completada', cancelled: 'Cancelada',
+  returned: 'Devuelta', refunded: 'Reembolsada',
+}
 
 export const SalesOrderForm: React.FC<SalesOrderFormProps> = ({
   salesOrder,
@@ -223,15 +226,25 @@ export const SalesOrderForm: React.FC<SalesOrderFormProps> = ({
                 </div>
 
                 <div className="col-md-6">
-                  <Input
-                    label="Estado"
-                    type="select"
-                    value={formData.status}
-                    onChange={(e) => handleInputChange('status', e.target.value)}
-                    onBlur={() => handleBlur('status')}
-                    disabled={isFormLoading}
-                    options={ORDER_STATUSES.map(s => ({ value: s.value, label: s.label }))}
-                  />
+                  {salesOrder ? (
+                    <Input
+                      label="Estado"
+                      value={STATUS_LABEL[formData.status] ?? formData.status}
+                      onChange={() => {}}
+                      disabled
+                      helpText="Cambia con las acciones del pedido"
+                    />
+                  ) : (
+                    <Input
+                      label="Estado"
+                      type="select"
+                      value={formData.status}
+                      onChange={(e) => handleInputChange('status', e.target.value)}
+                      onBlur={() => handleBlur('status')}
+                      disabled={isFormLoading}
+                      options={NEW_ORDER_STATUSES.map(s => ({ value: s.value, label: s.label }))}
+                    />
+                  )}
                 </div>
 
                 <div className="col-12">

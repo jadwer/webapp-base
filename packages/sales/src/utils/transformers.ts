@@ -220,7 +220,8 @@ export function transformSalesOrderFormToJsonApi(data: SalesOrderFormData, type:
       attributes: {
         contactId: data.contactId,
         orderNumber: data.orderNumber,
-        status: data.status,
+        // El estatus solo se manda al crear; en edicion cambia con las acciones (17-11)
+        ...(id ? {} : { status: data.status }),
         orderDate: data.orderDate,
         approvedAt: data.approvedAt || null,
         deliveredAt: data.deliveredAt || null,

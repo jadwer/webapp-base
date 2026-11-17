@@ -52,6 +52,8 @@ export interface PurchaseOrderItem {
   purchaseOrderId: number
   productId: number
   quantity: number
+  /** Lo que ya entro al almacen (recepciones por tanda); solo lectura. */
+  receivedQuantity?: number
   unitPrice: number
   discount: number
   subtotal: number

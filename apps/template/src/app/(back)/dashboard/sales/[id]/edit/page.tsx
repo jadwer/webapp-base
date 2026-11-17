@@ -217,24 +217,16 @@ export default function EditSalesOrderPage({ params }: PageProps) {
                   </div>
 
                   <div className="col-md-6">
-                    <label htmlFor="status" className="form-label">
-                      Estado <span className="text-danger">*</span>
-                    </label>
-                    <select
+                    <label htmlFor="status" className="form-label">Estado</label>
+                    {/* El estatus cambia con las acciones del pedido; el backend lo rechaza aqui (17-11) */}
+                    <input
                       id="status"
-                      name="status"
-                      className="form-select"
-                      value={formData.status}
-                      onChange={handleInputChange}
-                      required
-                    >
-                      <option value="draft">Borrador</option>
-                      <option value="confirmed">Confirmada</option>
-                      <option value="processing">En proceso</option>
-                      <option value="shipped">Enviada</option>
-                      <option value="delivered">Entregada</option>
-                      <option value="cancelled">Cancelada</option>
-                    </select>
+                      className="form-control"
+                      value={({ draft: 'Borrador', pending: 'Pendiente', confirmed: 'Confirmada', processing: 'En proceso', shipped: 'Enviada', delivered: 'Entregada', completed: 'Completada', cancelled: 'Cancelada', returned: 'Devuelta', refunded: 'Reembolsada' } as Record<string, string>)[formData.status] ?? formData.status}
+                      disabled
+                      readOnly
+                    />
+                    <div className="form-text">Cambia con las acciones del pedido.</div>
                   </div>
 
                   <div className="col-12">

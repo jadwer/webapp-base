@@ -7,7 +7,7 @@ import { transformPurchaseOrdersResponse, transformPurchaseOrderItemsResponse } 
 import { PurchaseOrderFormData, PurchaseOrderFilters, BudgetFilters, BudgetSortOptions, CreateBudgetRequest, UpdateBudgetRequest, ParsedBudget } from '../types'
 
 // Purchase Orders Hooks
-export const usePurchaseOrders = (params?: PurchaseOrderFilters) => {
+export const usePurchaseOrders = (params?: PurchaseOrderFilters, pagination?: { page?: number; pageSize?: number }) => {
   // Convert filters to API query parameters
   const queryParams: Record<string, string> = {}
   
@@ -36,6 +36,9 @@ export const usePurchaseOrders = (params?: PurchaseOrderFilters) => {
   // Default: lo mas reciente primero (pedido de Gabino 2026-07-19). Sin sort
   // el backend devuelve id ascendente y el listado abria en lo mas viejo.
   queryParams['sort'] = '-createdAt'
+  // Rediseno de Compras (17-11): el listado pagina en el servidor (antes pintaba todas)
+  if (pagination?.page) queryParams['page[number]'] = String(pagination.page)
+  if (pagination?.pageSize) queryParams['page[size]'] = String(pagination.pageSize)
 
   const key = Object.keys(queryParams).length > 0
     ? ['/api/v1/purchase-orders', queryParams] 
@@ -57,6 +60,13 @@ export const usePurchaseOrders = (params?: PurchaseOrderFilters) => {
     error,
     mutate
   }
+}
+
+/** Total del backend (meta.page.total) para un filtro; los indicadores lo usan. */
+export const usePurchaseOrdersCount = (params?: PurchaseOrderFilters) => {
+  const { meta, isLoading, error } = usePurchaseOrders(params, { page: 1, pageSize: 1 })
+  const total = (meta as { page?: { total?: number } })?.page?.total
+  return { count: typeof total === 'number' ? total : null, isLoading, error }
 }
 
 export const usePurchaseOrder = (id: string) => {
