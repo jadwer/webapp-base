@@ -213,7 +213,7 @@ describe('buildSitemap', () => {
 describe('sitemapIndexXml', () => {
   it('genera un sitemapindex valido con una entrada por id', () => {
     const xml = sitemapIndexXml('https://tenant.test', [{ id: 0 }, { id: 1 }])
-    expect(xml.startsWith('<?xml versión="1.0" encoding="UTF-8"?>')).toBe(true)
+    expect(xml.startsWith('<?xml version="1.0" encoding="UTF-8"?>')).toBe(true)
     expect(xml).toContain('<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">')
     expect(xml).toContain('<loc>https://tenant.test/sitemap/0.xml</loc>')
     expect(xml).toContain('<loc>https://tenant.test/sitemap/1.xml</loc>')
