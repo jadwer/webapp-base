@@ -15,12 +15,9 @@ export default function EditUserPage({ params }: EditUserPageProps) {
 
   if (isLoading) {
     return (
-      <div className="container-fluid py-4">
-        <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '400px' }}>
-          <div className="spinner-border text-primary" role="status">
-            <span className="visually-hidden">Cargando...</span>
-          </div>
-        </div>
+      <div className="container-fluid py-4 text-center text-muted">
+        <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" />
+        Cargando usuario…
       </div>
     )
   }
@@ -28,12 +25,9 @@ export default function EditUserPage({ params }: EditUserPageProps) {
   if (error || !user) {
     return (
       <div className="container-fluid py-4">
-        <div className="alert alert-warning">
-          <i className="bi bi-exclamation-triangle me-2" />
-          {error?.message || 'Usuario no encontrado'}
-        </div>
-        <button className="btn btn-secondary" onClick={() => router.back()}>
-          Volver
+        <div className="alert alert-warning">No se encontró el usuario.</div>
+        <button type="button" className="btn btn-outline-primary" onClick={() => router.push('/dashboard/users')}>
+          Volver a usuarios
         </button>
       </div>
     )
@@ -41,42 +35,12 @@ export default function EditUserPage({ params }: EditUserPageProps) {
 
   return (
     <div className="container-fluid py-4">
-      <div className="row justify-content-center">
-        <div className="col-12 col-xxl-10">
-          {/* Header */}
-          <div className="d-flex align-items-center mb-4">
-            <button
-              aria-label="Volver"
-              type="button"
-              onClick={() => router.back()}
-              className="btn btn-link text-muted p-0 me-3"
-              title="Volver"
-            >
-              <i className="bi bi-arrow-left fs-4" />
-            </button>
-            <div>
-              <h1 className="h3 mb-0 fw-bold">
-                <i className="bi bi-pencil-square text-warning me-2" />
-                Editar Usuario
-              </h1>
-              <p className="text-muted mb-0 text-truncate" title={user.name}>
-                Modificar los datos de {user.name}
-              </p>
-            </div>
-          </div>
-
-          {/* Form */}
-          <div className="card shadow-sm border-0">
-            <div className="card-body p-4">
-              <UserForm
-                user={user}
-                onSuccess={() => router.push(`/dashboard/users/${user.id}`)}
-                onCancel={() => router.back()}
-              />
-            </div>
-          </div>
-        </div>
-      </div>
+      <UserForm
+        key={user.id}
+        user={user}
+        onSuccess={() => router.push(`/dashboard/users/${user.id}`)}
+        onCancel={() => router.push(`/dashboard/users/${user.id}`)}
+      />
     </div>
   )
 }

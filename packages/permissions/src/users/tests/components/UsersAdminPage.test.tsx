@@ -54,7 +54,7 @@ describe('UsersAdminPage - selector por página', () => {
   it('renderiza las opciones 5/10/50/100 con 10 por defecto', () => {
     // Arrange + Act
     render(<UsersAdminPage />)
-    const select = screen.getByLabelText('Usuarios por página') as HTMLSelectElement
+    const select = screen.getByLabelText('Resultados por página') as HTMLSelectElement
 
     // Assert
     expect(select.value).toBe('10')
@@ -68,7 +68,7 @@ describe('UsersAdminPage - selector por página', () => {
     render(<UsersAdminPage />)
 
     // Act
-    fireEvent.change(screen.getByLabelText('Usuarios por página'), {
+    fireEvent.change(screen.getByLabelText('Resultados por página'), {
       target: { value: '50' },
     })
 
@@ -81,12 +81,12 @@ describe('UsersAdminPage - selector por página', () => {
   it('cambiar el tamaño regresa a la página 1 aunque estes en otra', () => {
     // Arrange - ir a la pagina 2 via paginacion
     render(<UsersAdminPage />)
-    fireEvent.click(screen.getByRole('button', { name: '2' }))
+    fireEvent.click(screen.getByRole('button', { name: '02' }))
     let lastCall = vi.mocked(useUsers).mock.calls.at(-1)
     expect(lastCall?.[1]).toBe(2)
 
     // Act
-    fireEvent.change(screen.getByLabelText('Usuarios por página'), {
+    fireEvent.change(screen.getByLabelText('Resultados por página'), {
       target: { value: '100' },
     })
 

@@ -4,27 +4,23 @@ import { useState, useRef } from 'react'
 import { Role } from '../types/role'
 import { useRoles } from '../hooks/useRoles'
 import { useRoleActions } from '../hooks/useRoles'
-import { StatusMessage } from '@lwm/ui'
-import { Skeleton } from '@lwm/ui'
+import { StatusMessage, LwTableWrap, LwIconButton, LwCountPill, getApiErrorMessage } from '@lwm/ui'
 import { RoleForm } from './RoleForm'
 import { toast } from '@lwm/ui'
 import { ConfirmModal, type ConfirmModalHandle } from '@lwm/ui'
+import { roleLabel } from '../../utils/roleLabels'
 
-// Etiquetas por omision de los roles de sistema cuando no tienen descripcion
-const ROLE_FALLBACK_LABELS: Record<string, string> = {
-  god: 'Superadministrador',
-  admin: 'Administrador',
-  tech: 'Tecnico',
-  customer: 'Cliente (portal del cliente)',
-  guest: 'Invitado',
-}
+/** Nombre que se lee: la descripcion en espanol; si no hay, el nombre del rol de sistema. */
+export const roleDisplayName = (role: Pick<Role, 'name' | 'description'>) => role.description || roleLabel(role.name)
 
 interface RolesTableProps {
   onRoleSelect?: (role: Role) => void
   selectedRole?: Role | null
+  /** Busqueda por nombre o descripcion (en el navegador: son pocos roles) */
+  search?: string
 }
 
-export function RolesTable({ onRoleSelect, selectedRole }: RolesTableProps) {
+export function RolesTable({ onRoleSelect, selectedRole, search = '' }: RolesTableProps) {
   const { roles, isLoading, error } = useRoles(['permissions'])
   const { deleteRole } = useRoleActions()
   
@@ -36,16 +32,17 @@ export function RolesTable({ onRoleSelect, selectedRole }: RolesTableProps) {
   }>({ isOpen: false, role: null })
 
   const handleDelete = async (id: number) => {
-    const confirmed = await confirmModalRef.current?.confirm('¿Estás seguro de que quieres eliminar este rol?', {
-      title: 'Confirmar',
+    const confirmed = await confirmModalRef.current?.confirm('¿Eliminar este rol? Los usuarios que lo tienen conservan sus permisos directos.', {
+      title: 'Eliminar rol',
+      confirmText: 'Eliminar',
       confirmVariant: 'danger'
     })
     if (confirmed) {
       try {
         await deleteRole(id)
         // Ya no necesitamos mutate manual, useRoleActions lo hace automáticamente
-      } catch {
-        toast.error('Error al eliminar el rol')
+      } catch (err) {
+        toast.error(`No se pudo eliminar el rol: ${getApiErrorMessage(err, 'intenta de nuevo')}`)
       }
     }
   }
@@ -59,16 +56,10 @@ export function RolesTable({ onRoleSelect, selectedRole }: RolesTableProps) {
     setEditModal({ isOpen: false, role: null })
   }
 
-  if (isLoading) {
-    return (
-      <div className="card">
-        <div className="card-body">
-          <Skeleton className="mb-3 placeholder" />
-          <Skeleton className="placeholder" />
-        </div>
-      </div>
-    )
-  }
+  const term = search.trim().toLowerCase()
+  const visible = term
+    ? roles.filter((r) => `${r.name} ${roleDisplayName(r)}`.toLowerCase().includes(term))
+    : roles
 
   if (error) {
     return (
@@ -81,122 +72,48 @@ export function RolesTable({ onRoleSelect, selectedRole }: RolesTableProps) {
 
   return (
     <>
-      <div className="card">
-        <div className="card-header d-flex justify-content-between align-items-center">
-          <h5 className="card-title mb-0">
-            <i className="bi bi-people-fill me-2"></i>
-            Roles ({roles.length})
-          </h5>
-        </div>
-        
-        <div className="card-body p-0">
-          {roles.length === 0 ? (
-            <div className="text-center py-5">
-              <i className="bi bi-people display-1 text-muted"></i>
-              <h5 className="mt-3 text-muted">No hay roles configurados</h5>
-              <p className="text-muted">Los roles aparecerán aquí una vez que sean creados.</p>
-            </div>
-          ) : (
-            <div className="table-responsive">
-              <table className="table table-hover mb-0">
-                <thead className="table-light">
-                  <tr>
-                    <th>Nombre</th>
-                    <th>Guard</th>
-                    <th>Permisos</th>
-                    <th>Creado</th>
-                    <th style={{ width: '120px' }}>Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {roles.map((role) => (
-                    <tr
-                      key={role.id}
-                      className={selectedRole?.id === role.id ? 'table-active' : ''}
-                      style={{ cursor: onRoleSelect ? 'pointer' : 'default' }}
-                      onClick={() => onRoleSelect?.(role)}
-                    >
-                      <td>
-                        <div className="d-flex align-items-center">
-                          <div className="flex-shrink-0">
-                            <div className="avatar avatar-sm bg-primary bg-gradient">
-                              <i className="bi bi-shield-fill-check"></i>
-                            </div>
-                          </div>
-                          <div className="flex-grow-1 ms-3">
-                            {/* El nombre es un identificador de codigo (customer, guest);
-                                lo que se lee es la descripcion en espanol */}
-                            <h6 className="mb-0">{role.description || ROLE_FALLBACK_LABELS[role.name] || role.name}</h6>
-                            <small className="text-muted">{role.name}</small>
-                          </div>
-                        </div>
-                      </td>
-                      <td>
-                        <span className="badge bg-secondary">{role.guard_name}</span>
-                      </td>
-                      <td>
-                        <span className="badge bg-info">
-                          {role.permissions?.length || 0} permisos
-                        </span>
-                      </td>
-                      <td>
-                        <small className="text-muted">
-                          {new Date(role.created_at).toLocaleDateString()}
-                        </small>
-                      </td>
-                      <td>
-                        <div className="btn-group btn-group-sm">
-                          {onRoleSelect && (
-                            <button
-                              className="btn btn-outline-secondary"
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                onRoleSelect(role)
-                              }}
-                              title="Editar permisos del rol"
-                              aria-label={`Editar permisos del rol ${role.name}`}
-                            >
-                              <i className="bi bi-toggles"></i>
-                            </button>
-                          )}
-                          <button
-                            aria-label="Editar rol"
-                            className="btn btn-outline-primary"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              handleEdit(role)
-                            }}
-                            title="Editar rol"
-                          >
-                            <i className="bi bi-pencil"></i>
-                          </button>
-                          <button
-                            aria-label="Eliminar rol"
-                            className="btn btn-outline-danger"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              handleDelete(role.id)
-                            }}
-                            title="Eliminar rol"
-                          >
-                            <i className="bi bi-trash"></i>
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
-      </div>
+      <LwTableWrap>
+        <table className="table mb-0 align-middle">
+          <thead>
+            <tr>
+              <th className="text-center">No</th>
+              <th>Nombre</th>
+              <th className="text-center">Permisos</th>
+              <th>Fecha de creación</th>
+              <th className="text-center">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {isLoading ? (
+              <tr><td colSpan={5} className="text-center text-muted py-4">Cargando roles…</td></tr>
+            ) : visible.length === 0 ? (
+              <tr><td colSpan={5} className="text-center text-muted py-4">{term ? 'No se encontró ningún rol con esa búsqueda' : 'Todavía no hay roles'}</td></tr>
+            ) : visible.map((role, i) => (
+              <tr key={role.id} className={selectedRole?.id === role.id ? 'table-active' : undefined}>
+                <td className="text-center text-muted">{String(i + 1).padStart(2, '0')}</td>
+                <td>
+                  {/* El nombre es un identificador de codigo (customer, guest); lo que se lee es la descripcion */}
+                  <div>{roleDisplayName(role)}</div>
+                  <div className="small text-muted">{role.name}</div>
+                </td>
+                <td className="text-center"><LwCountPill>{role.permissions?.length || 0} permisos</LwCountPill></td>
+                <td className="text-nowrap">{role.created_at ? new Date(role.created_at).toLocaleDateString('es-MX', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '—'}</td>
+                <td className="text-center text-nowrap">
+                  {onRoleSelect ? <LwIconButton icon="bi-toggles" label={`Permisos del rol ${roleDisplayName(role)}`} onClick={() => onRoleSelect(role)} /> : null}
+                  <LwIconButton icon="bi-pencil" label={`Editar rol ${roleDisplayName(role)}`} onClick={() => handleEdit(role)} />
+                  <LwIconButton icon="bi-trash" label={`Eliminar rol ${roleDisplayName(role)}`} onClick={() => handleDelete(role.id)} />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </LwTableWrap>
 
       <ConfirmModal ref={confirmModalRef} />
 
       {/* Modal para editar rol */}
       {editModal.isOpen && editModal.role && (
-        <div className="modal show d-block" tabIndex={-1}>
+        <div className="modal show d-block" tabIndex={-1} role="dialog" aria-modal="true">
           <div className="modal-dialog modal-lg">
             <div className="modal-content">
               <div className="modal-header">

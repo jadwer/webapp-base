@@ -1,32 +1,36 @@
 'use client'
 
 /**
- * Pagina de administracion de usuarios (v2, patron contacts).
- * Filtros server-side (busqueda con debounce, rol, estado, eliminados),
- * paginacion server-side y acciones con confirmacion.
+ * GESTION DE USUARIOS con la piel del rediseno (Figma "Diseno final - Usuarios", 2026-11-18).
+ * Busqueda, rol y estatus como en el diseno; conserva lo que el diseno no dibuja: sucursal
+ * (multi sucursal) y "Mostrar eliminados" con Restaurar. Filtros y paginado en el servidor.
  */
 
 import React, { useEffect, useRef, useState } from 'react'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useUsers, useUserMutations } from '../hooks/useUsers'
 import { useRoleOptions } from '../hooks/useRoleOptions'
 import { UsersTable } from './UsersTable'
-import { UsersPagination } from './UsersPagination'
 import { BranchFilter } from '@lwm/auth'
-// Opciones del selector "por pagina" (peticion Gabino 2026-09-10).
-export const PAGE_SIZE_OPTIONS = [5, 10, 50, 100]
+import { roleLabel } from '../../utils/roleLabels'
 import type { User, UserStatus } from '../types/user'
 import {
-  Alert,
-  Button,
+  LwSurface,
+  LwPageTitle,
+  LwPagination,
   ToggleSwitch,
   toast,
-  useNavigationProgress,
   ConfirmModal,
+  getApiErrorMessage,
   type ConfirmModalHandle,
 } from '@lwm/ui'
 
+// Opciones del selector "por pagina" (peticion Gabino 2026-09-10).
+export const PAGE_SIZE_OPTIONS = [5, 10, 50, 100]
+
 export const UsersAdminPage = () => {
-  const navigation = useNavigationProgress()
+  const router = useRouter()
   const confirmModalRef = useRef<ConfirmModalHandle>(null)
   const { removeUser, restoreUser } = useUserMutations()
   const { roles } = useRoleOptions()
@@ -61,48 +65,23 @@ export const UsersAdminPage = () => {
     pageSize
   )
 
-  const paginationInfo = meta?.page
-  const totalPages = paginationInfo?.lastPage || 1
-  const totalItems = paginationInfo?.total || 0
-  const currentBackendPage = paginationInfo?.currentPage || currentPage
-
-  const handleRoleFilterChange = (value: string) => {
-    setRoleFilter(value)
-    setCurrentPage(1)
-  }
-
-  const handleStatusFilterChange = (value: string) => {
-    setStatusFilter(value)
-    setCurrentPage(1)
-  }
-
-  const handleTrashedChange = (value: boolean) => {
-    setShowTrashed(value)
-    setCurrentPage(1)
-  }
-
-  const handlePageSizeChange = (value: string) => {
-    setPageSize(Number(value))
-    setCurrentPage(1)
+  const pageInfo = meta?.page
+  const hasFilters = Boolean(searchTerm || roleFilter || statusFilter || branchFilter || showTrashed)
+  const clear = () => {
+    setSearchInput(''); setSearchTerm(''); setRoleFilter(''); setStatusFilter(''); setBranchFilter(''); setShowTrashed(false); setCurrentPage(1)
   }
 
   const handleDelete = async (user: User) => {
     const confirmed = await confirmModalRef.current?.confirm(
-      `¿Estás seguro de que quieres eliminar al usuario "${user.name}"?\n\nPodrás restaurarlo después desde "Mostrar eliminados".`,
-      { title: 'Eliminar usuario', confirmVariant: 'danger' }
+      `¿Eliminar al usuario "${user.name}"? Podrás restaurarlo después desde "Mostrar eliminados".`,
+      { title: 'Eliminar usuario', confirmText: 'Eliminar', confirmVariant: 'danger' }
     )
     if (!confirmed) return
-
     try {
       await removeUser(user.id)
       toast.success(`Usuario "${user.name}" eliminado.`)
     } catch (err: unknown) {
-      const axiosError = err && typeof err === 'object' && 'response' in err
-        ? (err as { response?: { data?: { message?: string } } })
-        : null
-      toast.error(
-        `Error al eliminar el usuario: ${axiosError?.response?.data?.message || 'intenta de nuevo'}`
-      )
+      toast.error(`No se pudo eliminar el usuario: ${getApiErrorMessage(err, 'intenta de nuevo')}`)
     }
   }
 
@@ -110,144 +89,86 @@ export const UsersAdminPage = () => {
     try {
       await restoreUser(user.id)
       toast.success(`Usuario "${user.name}" restaurado.`)
-    } catch {
-      toast.error('Error al restaurar el usuario. Intenta de nuevo.')
+    } catch (err: unknown) {
+      toast.error(`No se pudo restaurar el usuario: ${getApiErrorMessage(err, 'intenta de nuevo')}`)
     }
   }
 
   return (
     <div className="container-fluid py-4">
-      {/* Header */}
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <div>
-          <h1 className="h3 mb-0">Gestión de Usuarios</h1>
-          <p className="text-muted mb-0">
-            Administración de cuentas, roles y accesos al sistema
-          </p>
-        </div>
-        <Button
-          variant="primary"
-          onClick={() => navigation.push('/dashboard/users/create')}
-        >
-          <i className="bi bi-person-plus me-2" />
-          Nuevo usuario
-        </Button>
-      </div>
+      <LwSurface>
+        <LwPageTitle
+          title="Gestión de usuarios"
+          subtitle="Administración de cuentas, roles y accesos al sistema"
+          actions={
+            <Link href="/dashboard/users/create" className="btn btn-primary">
+              <i className="bi bi-plus-lg me-1" aria-hidden="true" /> Nuevo usuario
+            </Link>
+          }
+        />
 
-      {/* Filtros */}
-      <div className="card mb-4">
-        <div className="card-body">
-          <div className="row g-3 align-items-center">
-            <div className="col-md-2">
-              <div className="input-group">
-                <span className="input-group-text">
-                  <i className="bi bi-search"></i>
-                </span>
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder="Buscar por nombre o email..."
-                  value={searchInput}
-                  onChange={(e) => setSearchInput(e.target.value)}
-                  aria-label="Buscar usuarios"
-                />
-              </div>
-            </div>
-            <div className="col-md-2">
-              <select
-                className="form-select"
-                value={roleFilter}
-                onChange={(e) => handleRoleFilterChange(e.target.value)}
-                aria-label="Filtrar por rol"
-              >
-                <option value="">Todos los roles</option>
-                {roles.map((role) => (
-                  <option key={role.id} value={role.name}>
-                    {role.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="col-md-2">
-              <BranchFilter
-                className="form-select"
-                value={branchFilter}
-                onChange={(id) => {
-                  setBranchFilter(id)
-                  setCurrentPage(1)
-                }}
-              />
-            </div>
-            <div className="col-md-2">
-              <select
-                className="form-select"
-                value={statusFilter}
-                onChange={(e) => handleStatusFilterChange(e.target.value)}
-                aria-label="Filtrar por estado"
-              >
-                <option value="">Todos los estados</option>
-                <option value="active">Activo</option>
-                <option value="inactive">Inactivo</option>
-                <option value="banned">Bloqueado</option>
-              </select>
-            </div>
-            <div className="col-md-2">
-              <select
-                className="form-select"
-                value={pageSize}
-                onChange={(e) => handlePageSizeChange(e.target.value)}
-                aria-label="Usuarios por página"
-              >
-                {PAGE_SIZE_OPTIONS.map((size) => (
-                  <option key={size} value={size}>
-                    {size} por página
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="col-md-2">
-              <ToggleSwitch
-                checked={showTrashed}
-                onChange={handleTrashedChange}
-                label="Mostrar eliminados"
-                size="small"
+        <div className="row g-2 align-items-center mb-3">
+          <div className="col-md-4">
+            <div className="input-group">
+              <span className="input-group-text"><i className="bi bi-search" aria-hidden="true" /></span>
+              <input
+                type="search"
+                className="form-control border-start-0"
+                placeholder="Buscar usuario..."
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                aria-label="Buscar usuarios"
               />
             </div>
           </div>
+          <div className="col-md-auto">
+            <select className="form-select" value={roleFilter} onChange={(e) => { setRoleFilter(e.target.value); setCurrentPage(1) }} aria-label="Filtrar por rol">
+              <option value="">Todos los roles</option>
+              {roles.map((role) => <option key={role.id} value={role.name}>{roleLabel(role.name)}</option>)}
+            </select>
+          </div>
+          <div className="col-md-auto">
+            <select className="form-select" value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setCurrentPage(1) }} aria-label="Filtrar por estatus">
+              <option value="">Todos los estatus</option>
+              <option value="active">Activo</option>
+              <option value="inactive">Inactivo</option>
+              <option value="banned">Bloqueado</option>
+            </select>
+          </div>
+          <div className="col-md-auto">
+            <BranchFilter className="form-select" value={branchFilter} onChange={(id) => { setBranchFilter(id); setCurrentPage(1) }} />
+          </div>
+          <div className="col-md-auto">
+            <ToggleSwitch checked={showTrashed} onChange={(v) => { setShowTrashed(v); setCurrentPage(1) }} label="Mostrar eliminados" size="small" />
+          </div>
+          <div className="col d-flex justify-content-end">
+            {hasFilters ? <button type="button" className="btn btn-link btn-sm" onClick={clear}>Limpiar filtros</button> : null}
+          </div>
         </div>
-      </div>
 
-      {/* Error */}
-      {error && (
-        <Alert variant="danger" className="mb-4">
-          <i className="bi bi-exclamation-triangle me-2" />
-          <strong>Error:</strong> {error.message || 'Error al cargar los usuarios'}
-        </Alert>
-      )}
+        {error ? <div className="alert alert-danger" role="alert">No se pudieron cargar los usuarios. Intenta de nuevo.</div> : null}
 
-      {/* Tabla + paginacion */}
-      <div className="card">
-        <div className="card-body p-0">
-          <UsersTable
-            users={users}
-            isLoading={isLoading}
-            onView={(user) => navigation.push(`/dashboard/users/${user.id}`)}
-            onEdit={(user) => navigation.push(`/dashboard/users/${user.id}/edit`)}
-            onDelete={handleDelete}
-            onRestore={handleRestore}
-          />
-          {totalPages > 1 && (
-            <UsersPagination
-              currentPage={currentBackendPage}
-              totalPages={totalPages}
-              onPageChange={setCurrentPage}
-              isLoading={isLoading}
-              totalItems={totalItems}
-              pageSize={paginationInfo?.perPage || pageSize}
-            />
-          )}
-        </div>
-      </div>
+        <UsersTable
+          users={users}
+          isLoading={isLoading}
+          offset={(currentPage - 1) * pageSize}
+          emptyText={hasFilters ? 'No se encontraron usuarios con esos filtros' : 'Todavía no hay usuarios'}
+          onView={(user) => router.push(`/dashboard/users/${user.id}`)}
+          onEdit={(user) => router.push(`/dashboard/users/${user.id}/edit`)}
+          onDelete={handleDelete}
+          onRestore={handleRestore}
+        />
+
+        <LwPagination
+          page={pageInfo?.currentPage || currentPage}
+          lastPage={pageInfo?.lastPage || 1}
+          perPage={pageInfo?.perPage || pageSize}
+          total={pageInfo?.total}
+          perPageOptions={PAGE_SIZE_OPTIONS}
+          onPage={setCurrentPage}
+          onPerPage={(n) => { setPageSize(n); setCurrentPage(1) }}
+        />
+      </LwSurface>
       <ConfirmModal ref={confirmModalRef} />
     </div>
   )

@@ -7,6 +7,9 @@
  *  - Tab Roles: tabla CRUD de roles; elegir un rol salta a Permisos.
  *  - Tab Permisos: selector de rol + editor estilo Bind (bloques
  *    verticales por recurso, toggle maestro, labels del catalogo).
+ *
+ * Piel del rediseno (Figma "Diseno final - Roles y permisos", 2026-11-18): titulo,
+ * buscador, tarjetas Total, Con permisos y Sin permisos, tabla Lw.
  */
 
 import { useMemo, useState } from 'react'
@@ -16,7 +19,8 @@ import { RolesTable } from '../components/RolesTable'
 import { RolePermissionsEditor } from '../components/RolePermissionsEditor'
 import { useRoles } from '../hooks/useRoles'
 import { usePermissions } from '../hooks/usePermissions'
-import { toast } from '@lwm/ui'
+import { toast, LwSurface, LwPageTitle, LwKpiCard } from '@lwm/ui'
+import { roleDisplayName } from '../components/RolesTable'
 
 export default function PermissionManagerPage() {
   const { roles, isLoading: rolesLoading, mutate } = useRoles(['permissions'])
@@ -25,6 +29,8 @@ export default function PermissionManagerPage() {
   const [activeTab, setActiveTab] = useState<'roles' | 'permissions'>('roles')
   const [selectedRoleId, setSelectedRoleId] = useState<number | null>(null)
   const [showCreateForm, setShowCreateForm] = useState(false)
+  const [search, setSearch] = useState('')
+  const withPermissions = roles.filter((r) => (r.permissions?.length ?? 0) > 0).length
 
   const selectedRole = useMemo(
     () => roles.find((r) => r.id === selectedRoleId) ?? roles[0] ?? null,
@@ -45,24 +51,21 @@ export default function PermissionManagerPage() {
 
   return (
     <div className="container-fluid py-4">
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <div>
-          <h1 className="h3 mb-0">
-            <i className="bi bi-shield-fill-check me-2 text-primary"></i>
-            Roles y permisos
-          </h1>
-          <p className="text-muted mb-0">
-            Plantillas de permisos: al dar de alta un usuario se elige una plantilla que precarga sus permisos
-            y después se ajustan solo para ese usuario. Editar una plantilla no cambia a los usuarios ya creados.
-          </p>
-        </div>
-        <button
-          className="btn btn-primary"
-          onClick={() => setShowCreateForm(true)}
-        >
-          <i className="bi bi-plus-circle me-2"></i>
-          Nueva plantilla
-        </button>
+      <LwSurface>
+      <LwPageTitle
+        title="Gestión de roles"
+        subtitle={<>Administra los roles y permisos del sistema. <span className="small text-muted d-block">Cada rol es una plantilla: al dar de alta un usuario precarga sus permisos y después se ajustan solo para ese usuario. Editar un rol no cambia a los usuarios ya creados.</span></>}
+        actions={
+          <button type="button" className="btn btn-primary" onClick={() => setShowCreateForm(true)}>
+            <i className="bi bi-plus-lg me-1" aria-hidden="true" /> Nuevo rol
+          </button>
+        }
+      />
+
+      <div className="row row-cols-1 row-cols-md-3 g-3 mb-4">
+        <div className="col"><LwKpiCard label="Total de roles" value={rolesLoading ? '--' : roles.length} icon="bi-person-badge" highlight isLoading={rolesLoading} /></div>
+        <div className="col"><LwKpiCard label="Con permisos" value={rolesLoading ? '--' : withPermissions} icon="bi-shield-check" isLoading={rolesLoading} /></div>
+        <div className="col"><LwKpiCard label="Sin permisos" value={rolesLoading ? '--' : roles.length - withPermissions} icon="bi-shield-exclamation" isLoading={rolesLoading} /></div>
       </div>
 
       {/* Tabs */}
@@ -72,8 +75,7 @@ export default function PermissionManagerPage() {
             className={`nav-link ${activeTab === 'roles' ? 'active' : ''}`}
             onClick={() => setActiveTab('roles')}
           >
-            <i className="bi bi-people me-2"></i>
-            Plantillas
+            Roles
           </button>
         </li>
         <li className="nav-item">
@@ -81,10 +83,9 @@ export default function PermissionManagerPage() {
             className={`nav-link ${activeTab === 'permissions' ? 'active' : ''}`}
             onClick={() => setActiveTab('permissions')}
           >
-            <i className="bi bi-toggles me-2"></i>
             Permisos
             {selectedRole && activeTab !== 'permissions' && (
-              <span className="badge bg-secondary ms-2">{selectedRole.name}</span>
+              <span className="small text-muted ms-2">({roleDisplayName(selectedRole)})</span>
             )}
           </button>
         </li>
@@ -95,10 +96,21 @@ export default function PermissionManagerPage() {
           <span className="spinner-border text-primary" role="status" aria-label="Cargando" />
         </div>
       ) : activeTab === 'roles' ? (
-        <RolesTable
-          onRoleSelect={handleRoleSelect}
-          selectedRole={selectedRole}
-        />
+        <>
+          <div className="row mb-3">
+            <div className="col-md-5">
+              <div className="input-group">
+                <span className="input-group-text"><i className="bi bi-search" aria-hidden="true" /></span>
+                <input type="search" className="form-control border-start-0" placeholder="Buscar rol..." aria-label="Buscar rol" value={search} onChange={(e) => setSearch(e.target.value)} />
+              </div>
+            </div>
+          </div>
+          <RolesTable
+            onRoleSelect={handleRoleSelect}
+            selectedRole={selectedRole}
+            search={search}
+          />
+        </>
       ) : (
         <>
           {/* Selector de rol de la pestana Permisos */}
@@ -115,7 +127,7 @@ export default function PermissionManagerPage() {
             >
               {roles.map((role) => (
                 <option key={role.id} value={role.id}>
-                  {role.name} ({role.permissions?.length ?? 0} permisos)
+                  {roleDisplayName(role)} ({role.permissions?.length ?? 0} permisos)
                 </option>
               ))}
             </select>
@@ -141,8 +153,8 @@ export default function PermissionManagerPage() {
 
       {/* Modal crear rol (nombre, guard, descripcion) */}
       {showCreateForm && (
-        <div className="modal show d-block" tabIndex={-1}>
-          <div className="modal-dialog">
+        <div className="modal show d-block" tabIndex={-1} role="dialog" aria-modal="true">
+          <div className="modal-dialog modal-lg">
             <div className="modal-content">
               <div className="modal-header">
                 <h5 className="modal-title">Crear nuevo rol</h5>
@@ -163,6 +175,7 @@ export default function PermissionManagerPage() {
           </div>
         </div>
       )}
+      </LwSurface>
     </div>
   )
 }

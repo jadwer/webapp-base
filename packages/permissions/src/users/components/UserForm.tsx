@@ -16,6 +16,11 @@
  * perder acceso.
  *
  * Los 422 del backend se muestran SIEMPRE con detalle.
+ *
+ * Piel del rediseno (Figma "Diseno final - Usuarios", 2026-11-18): el alta va en dos
+ * pasos (datos y luego permisos, con Omitir) y termina en el modal "Usuario registrado";
+ * la edicion conserva las dos pestanas. Telefono y puesto del diseno esperan decision de
+ * Gabino (no existen en users).
  */
 
 import React, { useEffect, useMemo, useState } from 'react'
@@ -23,11 +28,12 @@ import useSWR from 'swr'
 import { useUserMutations } from '../hooks/useUsers'
 import { getUserValidationErrorMessages } from '../utils/jsonApiErrors'
 import { accessService, SYSTEM_ROLES, SYSTEM_ROLE_LABELS } from '../services/accessService'
-import { useBranches } from '@lwm/auth'
+import { useBranches, generateSecurePassword } from '@lwm/auth'
 import { useRoles } from '../../roles/hooks/useRoles'
 import { usePermissions } from '../../roles/hooks/usePermissions'
 import { PermissionsChecklist } from '../../roles/components/PermissionsChecklist'
 import type { User, UserStatus } from '../types/user'
+import { LwSurface, LwPageTitle, LwResultModal, LwCountPill } from '@lwm/ui'
 
 interface UserFormProps {
   /** Usuario existente = modo edicion; ausente = modo creacion. */
@@ -42,40 +48,8 @@ const STATUS_OPTIONS: Array<{ value: UserStatus; label: string }> = [
   { value: 'banned', label: 'Bloqueado' },
 ]
 
-/**
- * Genera una contrasena de 16 caracteres con al menos una mayuscula,
- * una minuscula, un digito y un simbolo, usando crypto.getRandomValues.
- */
-export const generateSecurePassword = (length = 16): string => {
-  const upper = 'ABCDEFGHJKLMNPQRSTUVWXYZ'
-  const lower = 'abcdefghijkmnpqrstuvwxyz'
-  const digits = '23456789'
-  const symbols = '!@#$%&*+-_=?'
-  const all = upper + lower + digits + symbols
-
-  const pick = (charset: string, count: number): string[] => {
-    const values = new Uint32Array(count)
-    crypto.getRandomValues(values)
-    return Array.from(values, (v) => charset[v % charset.length])
-  }
-
-  const chars = [
-    ...pick(upper, 1),
-    ...pick(lower, 1),
-    ...pick(digits, 1),
-    ...pick(symbols, 1),
-    ...pick(all, length - 4),
-  ]
-
-  const rand = new Uint32Array(chars.length)
-  crypto.getRandomValues(rand)
-  for (let i = chars.length - 1; i > 0; i--) {
-    const j = rand[i] % (i + 1)
-    ;[chars[i], chars[j]] = [chars[j], chars[i]]
-  }
-
-  return chars.join('')
-}
+// El generador vive en @lwm/auth (tambien lo usa Cambiar contrasena del perfil).
+export { generateSecurePassword }
 
 /** Errores del endpoint de acceso (validacion Laravel, no JSON:API). */
 export const getAccessErrorMessages = (error: unknown): string[] => {
@@ -123,6 +97,7 @@ export const UserForm: React.FC<UserFormProps> = ({ user, onSuccess, onCancel })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [validationMessages, setValidationMessages] = useState<string[]>([])
   const [genericError, setGenericError] = useState<string | null>(null)
+  const [done, setDone] = useState<User | null>(null)
 
   // Plantillas = roles que no son de sistema.
   const templates = useMemo(
@@ -215,7 +190,7 @@ export const UserForm: React.FC<UserFormProps> = ({ user, onSuccess, onCancel })
         template: template || null,
         permissionIds: Array.from(selected).sort((a, b) => a - b),
       })
-      onSuccess?.(saved)
+      setDone(saved)
     } catch (error) {
       const details = getAccessErrorMessages(error)
       setValidationMessages(
@@ -231,8 +206,22 @@ export const UserForm: React.FC<UserFormProps> = ({ user, onSuccess, onCancel })
 
   const permissionsLoadingAny = rolesLoading || permissionsLoading || (isEdit && accessLoading)
 
+  const isCreateStepOne = !isEdit && tab === 'data'
+  const goNext = (event: React.MouseEvent<HTMLButtonElement>) => {
+    const form = event.currentTarget.form
+    if (form && !form.reportValidity()) return
+    if (passwordMismatch) return
+    setTab('permissions')
+  }
+
   return (
-    <form onSubmit={handleSubmit}>
+    <LwSurface>
+      <LwPageTitle
+        title={isEdit ? 'Editar usuario:' : 'Crear nuevo usuario'}
+        highlight={isEdit ? user?.name : undefined}
+        subtitle={isEdit ? 'Modifica los datos y permisos de este usuario' : tab === 'data' ? 'Comencemos ingresando sus datos' : 'Seleccionar permisos personalizados'}
+      />
+    <form onSubmit={handleSubmit} noValidate={false}>
       {validationMessages.length > 0 && (
         <div className="alert alert-danger" role="alert">
           <strong>No se pudo guardar el usuario. Corrige lo siguiente:</strong>
@@ -251,7 +240,8 @@ export const UserForm: React.FC<UserFormProps> = ({ user, onSuccess, onCancel })
         </div>
       )}
 
-      <ul className="nav nav-tabs mb-3" role="tablist">
+      {isEdit ? null : (
+      <ul className="nav nav-tabs mb-4" role="tablist">
         <li className="nav-item">
           <button
             type="button"
@@ -260,7 +250,7 @@ export const UserForm: React.FC<UserFormProps> = ({ user, onSuccess, onCancel })
             className={`nav-link ${tab === 'data' ? 'active' : ''}`}
             onClick={() => setTab('data')}
           >
-            <i className="bi bi-person me-1" aria-hidden="true" />
+            {isEdit ? null : <span className="me-1">1.</span>}
             Datos
           </button>
         </li>
@@ -270,18 +260,19 @@ export const UserForm: React.FC<UserFormProps> = ({ user, onSuccess, onCancel })
             role="tab"
             aria-selected={tab === 'permissions'}
             className={`nav-link ${tab === 'permissions' ? 'active' : ''}`}
-            onClick={() => setTab('permissions')}
+            onClick={(e) => (isEdit ? setTab('permissions') : goNext(e))}
           >
-            <i className="bi bi-shield-lock me-1" aria-hidden="true" />
+            {isEdit ? null : <span className="me-1">2.</span>}
             Permisos
-            <span className="badge bg-secondary ms-2">{selected.size}</span>
+            <LwCountPill className="ms-2">{selected.size}</LwCountPill>
           </button>
         </li>
       </ul>
+      )}
 
-      <div hidden={tab !== 'data'}>
-        <div className="mb-3">
-          <label htmlFor="user-name" className="form-label">Nombre</label>
+      <div hidden={!isEdit && tab !== 'data'} className="row g-3">
+        <div className="col-md-6">
+          <label htmlFor="user-name" className="form-label">*Nombre completo</label>
           <input
             id="user-name"
             type="text"
@@ -293,8 +284,8 @@ export const UserForm: React.FC<UserFormProps> = ({ user, onSuccess, onCancel })
           />
         </div>
 
-        <div className="mb-3">
-          <label htmlFor="user-email" className="form-label">Correo electrónico</label>
+        <div className="col-md-6">
+          <label htmlFor="user-email" className="form-label">*Correo electrónico</label>
           <input
             id="user-email"
             type="email"
@@ -306,8 +297,8 @@ export const UserForm: React.FC<UserFormProps> = ({ user, onSuccess, onCancel })
           />
         </div>
 
-        <div className="mb-3">
-          <label htmlFor="user-status" className="form-label">Estado</label>
+        <div className="col-md-6">
+          <label htmlFor="user-status" className="form-label">*Estado</label>
           <select
             id="user-status"
             className="form-select"
@@ -322,14 +313,8 @@ export const UserForm: React.FC<UserFormProps> = ({ user, onSuccess, onCancel })
           </select>
         </div>
 
-        <div className="mb-3">
-          <div className="d-flex justify-content-between align-items-center">
-            <label htmlFor="user-password" className="form-label mb-0">Contraseña</label>
-            <button type="button" className="btn btn-sm btn-outline-secondary mb-1" onClick={handleGeneratePassword}>
-              <i className="bi bi-magic me-1"></i>
-              Generar contraseña segura
-            </button>
-          </div>
+        <div className="col-md-6">
+          <label htmlFor="user-password" className="form-label">{isEdit ? 'Contraseña' : '*Contraseña'}</label>
           <div className="input-group">
             <input
               id="user-password"
@@ -350,11 +335,16 @@ export const UserForm: React.FC<UserFormProps> = ({ user, onSuccess, onCancel })
               <i className={`bi ${showPassword ? 'bi-eye-slash' : 'bi-eye'}`}></i>
             </button>
           </div>
+          <div className="text-end">
+            <button type="button" className="btn btn-link btn-sm p-0" onClick={handleGeneratePassword}>
+              Recomendar contraseña segura
+            </button>
+          </div>
         </div>
 
-        <div className="mb-3">
+        <div className="col-md-6">
           <label htmlFor="user-password-confirmation" className="form-label">
-            Confirmar contraseña
+            {isEdit ? 'Confirmar contraseña' : '*Confirmar contraseña'}
           </label>
           <div className="input-group">
             <input
@@ -379,7 +369,7 @@ export const UserForm: React.FC<UserFormProps> = ({ user, onSuccess, onCancel })
           {passwordMismatch && <div className="text-danger small mt-1">Las contraseñas no coinciden.</div>}
         </div>
 
-        <div className="mb-3">
+        <div className="col-md-6">
           <label htmlFor="user-branch" className="form-label">Sucursal principal</label>
           <select
             id="user-branch"
@@ -401,7 +391,7 @@ export const UserForm: React.FC<UserFormProps> = ({ user, onSuccess, onCancel })
         </div>
 
         {branches.length > 1 && (
-          <div className="mb-3">
+          <div className="col-12">
             <span className="form-label d-block">Sucursales con acceso</span>
             <div className="d-flex flex-wrap gap-3">
               {branches
@@ -430,7 +420,8 @@ export const UserForm: React.FC<UserFormProps> = ({ user, onSuccess, onCancel })
         )}
       </div>
 
-      <div hidden={tab !== 'permissions'}>
+      <div hidden={!isEdit && tab !== 'permissions'} className={isEdit ? 'mt-4 pt-3 border-top' : undefined}>
+        {isEdit ? <h2 className="h5 mb-3">Asignar permisos personalizados <LwCountPill className="ms-1">{selected.size}</LwCountPill></h2> : null}
         {permissionsLoadingAny ? (
           <div className="text-muted">
             <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" />
@@ -492,25 +483,44 @@ export const UserForm: React.FC<UserFormProps> = ({ user, onSuccess, onCancel })
         )}
       </div>
 
-      <div className="d-flex gap-2 mt-4">
-        <button type="submit" className="btn btn-primary" disabled={submitBlocked}>
-          {isSubmitting ? (
-            <>
-              <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-              Guardando...
-            </>
-          ) : isEdit ? (
-            'Guardar cambios'
-          ) : (
-            'Crear usuario'
-          )}
-        </button>
+      <div className="d-flex justify-content-end gap-2 mt-4">
         {onCancel && (
-          <button type="button" className="btn btn-secondary" onClick={onCancel} disabled={isSubmitting}>
+          <button type="button" className="btn btn-outline-primary px-4" onClick={onCancel} disabled={isSubmitting}>
             Cancelar
           </button>
         )}
+        {isCreateStepOne ? (
+          <button type="button" className="btn btn-primary px-4" onClick={goNext}>
+            Siguiente
+          </button>
+        ) : (
+          <>
+            {!isEdit && selected.size === 0 && !template && systemRoles.length === 0 ? (
+              <span className="align-self-center small text-muted me-2">Sin permisos: podrá entrar pero no verá módulos</span>
+            ) : null}
+            <button type="submit" className="btn btn-primary px-4" disabled={submitBlocked}>
+              {isSubmitting ? (
+                <>
+                  <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                  Guardando...
+                </>
+              ) : isEdit ? (
+                'Guardar cambios'
+              ) : (
+                'Crear usuario'
+              )}
+            </button>
+          </>
+        )}
       </div>
     </form>
+      <LwResultModal
+        open={done !== null}
+        title={isEdit ? 'Usuario actualizado' : 'Usuario registrado'}
+        message={isEdit ? 'Los cambios se guardaron con éxito' : 'El usuario fue registrado con éxito'}
+        confirmLabel="Confirmar"
+        onConfirm={() => { const saved = done; setDone(null); if (saved) onSuccess?.(saved) }}
+      />
+    </LwSurface>
   )
 }

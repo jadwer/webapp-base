@@ -7,7 +7,8 @@ import { render, screen, fireEvent } from '@testing-library/react'
 import { UsersTable } from '../../components/UsersTable'
 import type { User } from '../../types/user'
 
-vi.mock('@lwm/auth', () => ({
+vi.mock('@lwm/auth', async () => ({
+  roleLabel: (await import('../../../../../auth/src/lib/roleLabels')).roleLabel, ROLE_LABELS: (await import('../../../../../auth/src/lib/roleLabels')).ROLE_LABELS, generateSecurePassword: (await import('../../../../../auth/src/lib/password')).generateSecurePassword, 
   useBranchName: () => ({ multi: true, name: (id?: string | null) => (id === '2' ? 'Toluca' : '—') }),
 }))
 
@@ -40,9 +41,9 @@ describe('UsersTable', () => {
     render(<UsersTable users={[user]} />)
 
     // Assert
-    expect(screen.getByText('admin')).toBeInTheDocument()
-    expect(screen.getByText('tech')).toBeInTheDocument()
-    expect(screen.getByText('customer')).toBeInTheDocument()
+    expect(screen.getByText('Administrador')).toBeInTheDocument()
+    expect(screen.getByText('Técnico')).toBeInTheDocument()
+    expect(screen.getByText('Cliente')).toBeInTheDocument()
     expect(screen.getByText('Activo')).toBeInTheDocument()
   })
 
@@ -86,12 +87,12 @@ describe('UsersTable', () => {
 
     // Assert - fila atenuada con Restaurar y sin Eliminar
     const row = screen.getByText('Usuario Borrado').closest('tr') as HTMLTableRowElement
-    expect(row.className).toContain('opacity-50')
+    expect(row.className).toContain('text-muted')
     expect(screen.getByText('Eliminado')).toBeInTheDocument()
     const restoreButton = screen.getByRole('button', { name: /Restaurar/ })
     expect(restoreButton).toBeInTheDocument()
-    expect(screen.queryByTitle('Eliminar')).not.toBeInTheDocument()
-    expect(screen.queryByTitle('Editar')).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /Eliminar/ })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /Editar/ })).not.toBeInTheDocument()
 
     // Act - restaurar
     fireEvent.click(restoreButton)
@@ -106,7 +107,7 @@ describe('UsersTable', () => {
 
     // Assert
     const badge = screen.getByText('Bloqueado')
-    expect(badge.className).toContain('bg-danger')
+    expect(badge.className).toMatch(/tone-danger/)
   })
 
   it('muestra estado vacío cuando no hay usuarios', () => {

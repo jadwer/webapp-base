@@ -1,8 +1,8 @@
 'use client'
 
 /**
- * Ficha de detalle de un usuario: datos, roles, estado, verificacion
- * de email y fechas, con acciones Editar/Volver.
+ * Consulta de un usuario con la piel del rediseno (Figma "Diseno final - Usuarios"):
+ * la ficha en solo lectura, sus permisos y las acciones Regresar y Editar usuario.
  */
 
 import React from 'react'
@@ -11,16 +11,17 @@ import { useUser } from '../hooks/useUsers'
 import { accessService, SYSTEM_ROLE_LABELS, type SystemRole } from '../services/accessService'
 import { useBranches } from '@lwm/auth'
 import type { UserStatus } from '../types/user'
-import { Alert, useNavigationProgress } from '@lwm/ui'
+import { Alert, useNavigationProgress, LwSurface, LwPageTitle, LwStatusPill, type LwTone } from '@lwm/ui'
+import { roleLabel } from '../../utils/roleLabels'
 
 interface UserViewPageProps {
   userId: string
 }
 
-const STATUS_BADGES: Record<UserStatus, { variant: string; label: string }> = {
-  active: { variant: 'success', label: 'Activo' },
-  inactive: { variant: 'secondary', label: 'Inactivo' },
-  banned: { variant: 'danger', label: 'Bloqueado' },
+const STATUS: Record<UserStatus, { tone: LwTone; label: string }> = {
+  active: { tone: 'success', label: 'Activo' },
+  inactive: { tone: 'warning', label: 'Inactivo' },
+  banned: { tone: 'danger', label: 'Bloqueado' },
 }
 
 const formatDate = (value?: string | null): string => {
@@ -74,145 +75,66 @@ export const UserViewPage: React.FC<UserViewPageProps> = ({ userId }) => {
     )
   }
 
-  const statusBadge = STATUS_BADGES[user.status] || STATUS_BADGES.inactive
+  const status = STATUS[user.status] || STATUS.inactive
+  const template = user.permissionTemplate || access?.templateRoles[0]
+  const field = (label: string, value: React.ReactNode, wide = false) => (
+    <div className={wide ? 'col-12' : 'col-md-6 col-xl-4'}>
+      <div className="small text-muted mb-1">{label}</div>
+      <div className="border rounded px-3 py-2 bg-light-subtle" style={{ minHeight: 40 }}>{value}</div>
+    </div>
+  )
 
   return (
     <div className="container-fluid py-4">
-      <div className="row justify-content-center">
-        <div className="col-12 col-lg-8 col-xl-6">
-          {/* Header */}
-          <div className="d-flex align-items-center mb-4">
-            <button
-              aria-label="Volver a usuarios"
-              className="btn btn-link text-muted p-0 me-3"
-              onClick={() => navigation.push('/dashboard/users')}
-              title="Volver a usuarios"
-            >
-              <i className="bi bi-arrow-left fs-4"></i>
-            </button>
-            <div className="flex-grow-1">
-              <h1 className="h3 mb-0">Detalle de Usuario</h1>
-              <p className="text-muted mb-0 text-truncate" title={user.name}>
-                {user.name}
-              </p>
-            </div>
-            {!user.deletedAt && (
-              <button
-                className="btn btn-warning"
-                onClick={() => navigation.push(`/dashboard/users/${user.id}/edit`)}
-              >
-                <i className="bi bi-pencil me-2"></i>
-                Editar
-              </button>
-            )}
+      <LwSurface>
+        <LwPageTitle
+          title="Consultar usuario:"
+          highlight={user.name}
+          subtitle="Consulta los datos de este usuario"
+        />
+
+        {user.deletedAt && (
+          <div className="alert alert-warning" role="alert">
+            Este usuario fue eliminado el {formatDate(user.deletedAt)}. Puedes restaurarlo desde la lista con
+            &quot;Mostrar eliminados&quot;.
           </div>
+        )}
 
-          {user.deletedAt && (
-            <Alert variant="warning" className="mb-4">
-              <i className="bi bi-trash me-2"></i>
-              Este usuario fue eliminado el {formatDate(user.deletedAt)}. Puedes
-              restaurarlo desde la lista con &quot;Mostrar eliminados&quot;.
-            </Alert>
-          )}
+        <div className="row g-3">
+          {field('Nombre completo', user.name)}
+          {field('Correo electrónico', <a href={`mailto:${user.email}`} className="text-decoration-none">{user.email}</a>)}
+          {field('Estatus', user.deletedAt ? <LwStatusPill tone="neutral">Eliminado</LwStatusPill> : <LwStatusPill tone={status.tone}>{status.label}</LwStatusPill>)}
+          {field('Sucursal principal', branchName(user.branchId))}
+          {field('Sucursales con acceso', user.branchIds.length > 0 ? user.branchIds.map(branchName).join(', ') : <span className="text-muted">Solo la principal</span>)}
+          {field('Correo verificado', user.emailVerifiedAt ? formatDate(user.emailVerifiedAt) : <span className="text-muted">Sin verificar</span>)}
+          {field('Alta', formatDate(user.createdAt))}
+          {user.deletedAt ? field('Eliminado', formatDate(user.deletedAt)) : null}
+        </div>
 
-          <div className="card shadow-sm border-0">
-            <div className="card-body p-4">
-              <dl className="row mb-0">
-                <dt className="col-sm-4">Nombre</dt>
-                <dd className="col-sm-8">{user.name}</dd>
-
-                <dt className="col-sm-4">Correo electrónico</dt>
-                <dd className="col-sm-8">
-                  <a href={`mailto:${user.email}`} className="text-decoration-none">
-                    {user.email}
-                  </a>
-                </dd>
-
-                <dt className="col-sm-4">Estado</dt>
-                <dd className="col-sm-8">
-                  <span className={`badge bg-${statusBadge.variant}`}>
-                    {statusBadge.label}
-                  </span>
-                </dd>
-
-                <dt className="col-sm-4">Roles de sistema</dt>
-                <dd className="col-sm-8">
-                  {access && access.systemRoles.length > 0 ? (
-                    <div className="d-flex flex-wrap gap-1">
-                      {access.systemRoles.map((role) => (
-                        <span key={role} className="badge bg-info text-dark">
-                          {SYSTEM_ROLE_LABELS[role as SystemRole] ?? role}
-                        </span>
-                      ))}
-                    </div>
-                  ) : (
-                    <span className="text-muted">Ninguno</span>
-                  )}
-                </dd>
-
-                <dt className="col-sm-4">Permisos</dt>
-                <dd className="col-sm-8">
-                  {access ? (
-                    <>
-                      {access.effectivePermissionIds.length} permisos
-                      {(user.permissionTemplate || access.templateRoles[0]) && (
-                        <span className="text-muted">
-                          {' '}(plantilla {user.permissionTemplate || access.templateRoles[0]})
-                        </span>
-                      )}
-                    </>
-                  ) : (
-                    <span className="text-muted">—</span>
-                  )}
-                </dd>
-
-                <dt className="col-sm-4">Sucursal principal</dt>
-                <dd className="col-sm-8">{branchName(user.branchId)}</dd>
-
-                <dt className="col-sm-4">Sucursales con acceso</dt>
-                <dd className="col-sm-8">
-                  {user.branchIds.length > 0 ? user.branchIds.map(branchName).join(', ') : <span className="text-muted">Solo la principal</span>}
-                </dd>
-
-                <dt className="col-sm-4">Email verificado</dt>
-                <dd className="col-sm-8">
-                  {user.emailVerifiedAt ? (
-                    <span className="text-success">
-                      <i className="bi bi-patch-check me-1"></i>
-                      {formatDate(user.emailVerifiedAt)}
-                    </span>
-                  ) : (
-                    <span className="text-muted">
-                      <i className="bi bi-x-circle me-1"></i>
-                      Sin verificar
-                    </span>
-                  )}
-                </dd>
-
-                <dt className="col-sm-4">Creado</dt>
-                <dd className="col-sm-8">{formatDate(user.createdAt)}</dd>
-
-                {user.deletedAt && (
-                  <>
-                    <dt className="col-sm-4">Eliminado</dt>
-                    <dd className="col-sm-8">{formatDate(user.deletedAt)}</dd>
-                  </>
-                )}
-              </dl>
-            </div>
-          </div>
-
-          <div className="mt-3">
-            <button
-              className="btn btn-secondary"
-              onClick={() => navigation.push('/dashboard/users')}
-            >
-              <i className="bi bi-arrow-left me-2"></i>
-              Volver a la lista
-            </button>
+        <div className="mt-4 pt-3 border-top">
+          <h2 className="h5 mb-3">Permisos</h2>
+          <div className="row g-3">
+            {field('Roles de sistema', access && access.systemRoles.length > 0 ? (
+              <span className="d-flex flex-wrap gap-1">
+                {access.systemRoles.map((role) => <LwStatusPill key={role} tone="navy">{SYSTEM_ROLE_LABELS[role as SystemRole] ?? roleLabel(role)}</LwStatusPill>)}
+              </span>
+            ) : <span className="text-muted">Ninguno</span>)}
+            {field('Plantilla de permisos', template ? roleLabel(template) : <span className="text-muted">Sin plantilla</span>)}
+            {field('Permisos asignados', access ? `${access.effectivePermissionIds.length} permisos` : '—')}
           </div>
         </div>
-      </div>
+
+        <div className="d-flex justify-content-end gap-2 mt-4">
+          <button type="button" className="btn btn-outline-primary px-4" onClick={() => navigation.push('/dashboard/users')}>
+            Regresar a usuarios
+          </button>
+          {!user.deletedAt && (
+            <button type="button" className="btn btn-primary px-4" onClick={() => navigation.push(`/dashboard/users/${user.id}/edit`)}>
+              Editar usuario
+            </button>
+          )}
+        </div>
+      </LwSurface>
     </div>
   )
 }

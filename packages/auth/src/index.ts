@@ -43,6 +43,8 @@ export { AvatarPickerModal } from './components/AvatarPickerModal'
 export { AvatarBuilder } from './components/AvatarBuilder'
 export { AVATAR_PARTS, avatarSvg, avatarDataUri, parseRecipe, serializeAvatar, type AvatarRecipe } from './lib/avatarGenerator'
 export { handleApiErrors } from './lib/handleApiErrors'
+export { ROLE_LABELS, roleLabel } from './lib/roleLabels'
+export { generateSecurePassword } from './lib/password'
 // Note: parseJsonApiErrors lives in @lwm/ui (utils/parseJsonApiErrors).
 // Earlier in Fase 3.6 we re-exported it from here for "auth owns errors"
 // coherence, but Subfase 3.7 makes @lwm/ui depend on @lwm/auth (peer)

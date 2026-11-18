@@ -28,9 +28,16 @@ async function changePassword(payload: {
     .then((res) => res.data)
     .catch((error) => {
       // Si es un error 422 de validación, extraemos los errores y los lanzamos en el formato esperado
+      // El controlador responde 422 de dos formas: JSON:API (contrasena actual incorrecta) y
+      // validacion de Laravel ({ errors: { campo: [..] } }). Las dos se entregan con el campo
+      // en camelCase para que el formulario las muestre junto a su entrada.
       if (error.response?.status === 422 && error.response.data?.errors) {
-        const parsedErrors = parseJsonApiErrors(error.response.data.errors);
-        throw parsedErrors;
+        const raw = error.response.data.errors;
+        const parsed: Record<string, string[]> = Array.isArray(raw)
+          ? parseJsonApiErrors(raw)
+          : Object.fromEntries(Object.entries(raw as Record<string, string[] | string>).map(([k, v]) => [k, Array.isArray(v) ? v : [v]]));
+        const camel = (k: string) => k.replace(/_([a-z])/g, (_, c: string) => c.toUpperCase());
+        throw Object.fromEntries(Object.entries(parsed).map(([k, v]) => [camel(k), v]));
       }
       // Para otros tipos de errores, relanzamos el error original
       throw error;

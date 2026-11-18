@@ -15,7 +15,7 @@ import { usePermissions } from '../../../roles/hooks/usePermissions'
 import { useBranches } from '@lwm/auth'
 import { accessService } from '../../services/accessService'
 
-vi.mock('@lwm/auth', () => ({ useBranches: vi.fn(), axiosClient: {} }))
+vi.mock('@lwm/auth', async () => ({ roleLabel: (await import('../../../../../auth/src/lib/roleLabels')).roleLabel, ROLE_LABELS: (await import('../../../../../auth/src/lib/roleLabels')).ROLE_LABELS, generateSecurePassword: (await import('../../../../../auth/src/lib/password')).generateSecurePassword, useBranches: vi.fn(), axiosClient: {} }))
 vi.mock('../../hooks/useUsers', () => ({ useUserMutations: vi.fn() }))
 vi.mock('../../../roles/hooks/useRoles', () => ({ useRoles: vi.fn() }))
 vi.mock('../../../roles/hooks/usePermissions', () => ({ usePermissions: vi.fn() }))
@@ -63,7 +63,7 @@ describe('UserForm', () => {
   it('el toggle de visibilidad cambia el type del input de contraseña', () => {
     // Arrange
     renderForm()
-    const passwordInput = screen.getByLabelText('Contraseña') as HTMLInputElement
+    const passwordInput = screen.getByLabelText(/^\*?Contraseña$/) as HTMLInputElement
     const toggleButtons = screen.getAllByLabelText('Mostrar contraseña')
 
     // Assert - oculto por defecto
@@ -84,20 +84,21 @@ describe('UserForm', () => {
   it('muestra error en vivo y bloquea el submit cuando la confirmación no coincide', () => {
     // Arrange
     renderForm()
-    const passwordInput = screen.getByLabelText('Contraseña')
-    const confirmationInput = screen.getByLabelText('Confirmar contraseña')
+    const passwordInput = screen.getByLabelText(/^\*?Contraseña$/)
+    const confirmationInput = screen.getByLabelText(/^\*?Confirmar contraseña$/)
 
     // Act
     fireEvent.change(passwordInput, { target: { value: 'Secreta123!' } })
     fireEvent.change(confirmationInput, { target: { value: 'Otra456?' } })
 
-    // Assert - mensaje visible y boton bloqueado
+    // Assert - mensaje visible y no se avanza a permisos
     expect(screen.getByText('Las contraseñas no coinciden.')).toBeInTheDocument()
-    const submitButton = screen.getByRole('button', { name: 'Crear usuario' })
-    expect(submitButton).toBeDisabled()
+    const nextButton = screen.getByRole('button', { name: 'Siguiente' })
+    fireEvent.click(nextButton)
+    expect(screen.queryByRole('button', { name: 'Crear usuario' })).not.toBeInTheDocument()
 
     // Act - intentar submit de todos modos
-    fireEvent.submit(submitButton.closest('form') as HTMLFormElement)
+    fireEvent.submit(nextButton.closest('form') as HTMLFormElement)
 
     // Assert - no viaja nada al backend
     expect(mockCreateUser).not.toHaveBeenCalled()
@@ -107,17 +108,17 @@ describe('UserForm', () => {
 
     // Assert - error desaparece y boton se habilita
     expect(screen.queryByText('Las contraseñas no coinciden.')).not.toBeInTheDocument()
-    expect(submitButton).not.toBeDisabled()
+    expect(nextButton).not.toBeDisabled()
   })
 
   it('el generador llena ambos campos con la misma contraseña de 16 y la muestra en claro', () => {
     // Arrange
     renderForm()
-    const passwordInput = screen.getByLabelText('Contraseña') as HTMLInputElement
-    const confirmationInput = screen.getByLabelText('Confirmar contraseña') as HTMLInputElement
+    const passwordInput = screen.getByLabelText(/^\*?Contraseña$/) as HTMLInputElement
+    const confirmationInput = screen.getByLabelText(/^\*?Confirmar contraseña$/) as HTMLInputElement
 
     // Act
-    fireEvent.click(screen.getByRole('button', { name: /Generar contraseña segura/ }))
+    fireEvent.click(screen.getByRole('button', { name: /Recomendar contraseña segura/ }))
 
     // Assert
     expect(passwordInput.value).toHaveLength(16)
@@ -137,12 +138,12 @@ describe('UserForm', () => {
     vi.mocked(accessService.put).mockResolvedValue({} as never)
     renderForm()
 
-    fireEvent.change(screen.getByLabelText('Nombre'), { target: { value: 'Ana' } })
-    fireEvent.change(screen.getByLabelText('Correo electrónico'), { target: { value: 'ana@example.com' } })
-    fireEvent.change(screen.getByLabelText('Contraseña'), { target: { value: 'Secreta123!' } })
-    fireEvent.change(screen.getByLabelText('Confirmar contraseña'), { target: { value: 'Secreta123!' } })
+    fireEvent.change(screen.getByLabelText(/Nombre/), { target: { value: 'Ana' } })
+    fireEvent.change(screen.getByLabelText(/Correo electrónico/), { target: { value: 'ana@example.com' } })
+    fireEvent.change(screen.getByLabelText(/^\*?Contraseña$/), { target: { value: 'Secreta123!' } })
+    fireEvent.change(screen.getByLabelText(/^\*?Confirmar contraseña$/), { target: { value: 'Secreta123!' } })
 
-    fireEvent.click(screen.getByRole('tab', { name: /Permisos/ }))
+    fireEvent.click(screen.getByRole('button', { name: 'Siguiente' }))
     // "admin" es rol de sistema: no aparece como plantilla
     const templateSelect = screen.getByLabelText('Plantilla de permisos') as HTMLSelectElement
     expect([...templateSelect.options].map((o) => o.value)).toEqual(['', 'ventas'])
@@ -191,7 +192,7 @@ describe('UserForm', () => {
       },
     })
 
-    expect(screen.getByLabelText('Contraseña')).toHaveAttribute('placeholder', '(Dejar vacío si no cambia)')
+    expect(screen.getByLabelText(/^\*?Contraseña$/)).toHaveAttribute('placeholder', '(Dejar vacío si no cambia)')
     const submit = screen.getByRole('button', { name: 'Guardar cambios' })
     await waitFor(() => expect(submit).not.toBeDisabled())
 
@@ -208,11 +209,12 @@ describe('UserForm', () => {
       response: { status: 422, data: { errors: { systemRoles: ['Solo un usuario god puede otorgar o retirar el rol god.'] } } },
     })
     renderForm()
-    fireEvent.change(screen.getByLabelText('Nombre'), { target: { value: 'Ana' } })
-    fireEvent.change(screen.getByLabelText('Correo electrónico'), { target: { value: 'ana@example.com' } })
-    fireEvent.change(screen.getByLabelText('Contraseña'), { target: { value: 'Secreta123!' } })
-    fireEvent.change(screen.getByLabelText('Confirmar contraseña'), { target: { value: 'Secreta123!' } })
+    fireEvent.change(screen.getByLabelText(/Nombre/), { target: { value: 'Ana' } })
+    fireEvent.change(screen.getByLabelText(/Correo electrónico/), { target: { value: 'ana@example.com' } })
+    fireEvent.change(screen.getByLabelText(/^\*?Contraseña$/), { target: { value: 'Secreta123!' } })
+    fireEvent.change(screen.getByLabelText(/^\*?Confirmar contraseña$/), { target: { value: 'Secreta123!' } })
 
+    fireEvent.click(screen.getByRole('button', { name: 'Siguiente' }))
     fireEvent.submit(screen.getByRole('button', { name: 'Crear usuario' }).closest('form') as HTMLFormElement)
 
     expect(await screen.findByText('Solo un usuario god puede otorgar o retirar el rol god.')).toBeInTheDocument()
