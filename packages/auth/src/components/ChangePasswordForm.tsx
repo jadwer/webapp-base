@@ -78,7 +78,7 @@ export default function ChangePasswordForm({ onCancel }: Props) {
           type="button"
           className="btn btn-outline-secondary"
           onClick={() => setShow({ ...show, [name]: !show[name] })}
-          aria-label={show[name] ? `Ocultar ${label.toLowerCase()}` : `Mostrar ${label.toLowerCase()}`}
+          aria-label={`${show[name] ? "Ocultar" : "Mostrar"} ${label.replace(/^\*/, "").toLowerCase()}`}
         >
           <i className={`bi ${show[name] ? "bi-eye-slash" : "bi-eye"}`} aria-hidden="true"></i>
         </button>

@@ -54,13 +54,18 @@ export default function PermissionManagerPage() {
       <LwSurface>
       <LwPageTitle
         title="Gestión de roles"
-        subtitle={<>Administra los roles y permisos del sistema. <span className="small text-muted d-block">Cada rol es una plantilla: al dar de alta un usuario precarga sus permisos y después se ajustan solo para ese usuario. Editar un rol no cambia a los usuarios ya creados.</span></>}
+        subtitle="Administra los roles y permisos del sistema"
         actions={
-          <button type="button" className="btn btn-primary" onClick={() => setShowCreateForm(true)}>
+          <button type="button" className="btn btn-primary text-nowrap" onClick={() => setShowCreateForm(true)}>
             <i className="bi bi-plus-lg me-1" aria-hidden="true" /> Nuevo rol
           </button>
         }
       />
+
+      <p className="small text-muted mt-n2 mb-3">
+        Cada rol es una plantilla: al dar de alta un usuario precarga sus permisos y después se ajustan solo para ese
+        usuario. Editar un rol no cambia a los usuarios ya creados.
+      </p>
 
       <div className="row row-cols-1 row-cols-md-3 g-3 mb-4">
         <div className="col"><LwKpiCard label="Total de roles" value={rolesLoading ? '--' : roles.length} icon="bi-person-badge" highlight isLoading={rolesLoading} /></div>

@@ -26,6 +26,8 @@ type HeaderUser = {
   role?: string
 }
 
+const BTN = { textTransform: 'none', letterSpacing: 'normal', fontWeight: 500, borderRadius: 8 } as const
+
 const roleOf = (user: HeaderUser): string | null => {
   const first = user.roles?.[0] ?? user.role
   if (!first) return null
@@ -99,7 +101,8 @@ export default function AuthStatus() {
           role="dialog"
           aria-label="Mi cuenta"
         >
-          <div className="bg-primary" style={{ height: 64 }} />
+          {/* Fuera de LwSurface: los colores del rediseno van en linea (@lwm/auth no depende de @lwm/ui) */}
+          <div style={{ height: 64, background: 'var(--brand-accent, #0094ff)' }} />
           <div className="px-3 pb-3" style={{ marginTop: -40 }}>
             <UserAvatar avatar={u.avatar} name={u.name} size={72} />
             <div className="fw-bold fs-5 mt-2 text-break">{u.name}</div>
@@ -108,14 +111,14 @@ export default function AuthStatus() {
             {created ? (
               <div className="small"><span className="fw-semibold">Registrado desde:</span> {new Date(created).toLocaleDateString('es-MX')}</div>
             ) : null}
-            <button type="button" className="btn btn-link btn-sm p-0 mt-2" onClick={() => go('/dashboard/profile')}>
+            <button type="button" className="btn btn-link btn-sm p-0 mt-2" style={{ color: 'var(--brand-accent, #0094ff)', textTransform: 'none' }} onClick={() => go('/dashboard/profile')}>
               Mi perfil y foto
             </button>
             <div className="d-flex gap-2 mt-3">
-              <button type="button" className="btn btn-primary btn-sm flex-fill" onClick={() => go('/dashboard/profile?tab=security')}>
+              <button type="button" className="btn btn-sm flex-fill text-white" style={{ ...BTN, background: 'var(--brand-accent, #0094ff)', borderColor: 'var(--brand-accent, #0094ff)' }} onClick={() => go('/dashboard/profile?tab=security')}>
                 Cambiar contraseña
               </button>
-              <button type="button" className="btn btn-outline-primary btn-sm flex-fill" onClick={handleLogout}>
+              <button type="button" className="btn btn-sm flex-fill bg-white" style={{ ...BTN, color: 'var(--brand-accent, #0094ff)', borderColor: 'var(--brand-accent, #0094ff)' }} onClick={handleLogout}>
                 Cerrar sesión
               </button>
             </div>
