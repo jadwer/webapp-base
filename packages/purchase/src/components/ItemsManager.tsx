@@ -27,6 +27,7 @@ interface Product {
     name?: string
     sku?: string
     price?: string | number
+    cost?: string | number | null
     unit_price?: string | number
   }
 }
@@ -70,10 +71,13 @@ export default function ItemsManager({ items, onItemsChange, onTotalChange }: It
     if (productId) {
       const selectedProduct = products.find((p: Product) => p.id === productId)
       if (selectedProduct) {
-        const price = selectedProduct.attributes?.price || selectedProduct.attributes?.unit_price || 0
+        // Se compra al costo, no al precio de venta: se prellena con el costo del
+        // producto y, si no tiene, queda en 0 para capturarlo (antes tomaba el precio
+        // de venta y un descuido metia ese importe como costo al inventario).
+        const cost = selectedProduct.attributes?.cost ?? 0
         setNewItem(prev => ({
           ...prev,
-          unitPrice: parseFloat(String(price)) || 0
+          unitPrice: parseFloat(String(cost)) || 0
         }))
       }
     }

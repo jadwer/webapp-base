@@ -336,7 +336,7 @@ export default function MyQuoteDetailPage({ params }: MyQuoteDetailPageProps) {
             <div className="card-body">
               <div className="d-flex justify-content-between mb-2">
                 <span>Subtotal:</span>
-                <span>{formatPrice(quote.subtotalAmount || 0)}</span>
+                <span>{formatPrice((quote.subtotalAmount || 0) + (quote.discountAmount || 0))}</span>
               </div>
               <div className="d-flex justify-content-between mb-2">
                 <span>IVA (16%):</span>

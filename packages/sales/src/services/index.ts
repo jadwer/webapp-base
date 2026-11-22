@@ -123,13 +123,29 @@ export const salesService = {
 
     /**
      * Prefactura (PDF de vista previa, no crea CFDI) a partir de la orden.
-     * Endpoint del modulo Billing: POST /sales-orders/{id}/prefactura.
+     * Endpoint del modulo Billing: GET /sales-orders/{id}/prefactura (el backend no
+     * tiene POST: la llamada anterior daba 405). Si falla, el error llega como blob:
+     * se lee su mensaje para mostrarlo.
      */
     prefactura: async (id: string): Promise<Blob> => {
-      const response = await axiosClient.post(`/api/v1/sales-orders/${id}/prefactura`, {}, {
-        responseType: 'blob'
-      })
-      return response.data
+      try {
+        const response = await axiosClient.get(`/api/v1/sales-orders/${id}/prefactura`, {
+          responseType: 'blob'
+        })
+        return response.data
+      } catch (error) {
+        const data = (error as { response?: { data?: unknown } })?.response?.data
+        if (data instanceof Blob) {
+          let message = ''
+          try {
+            message = JSON.parse(await data.text())?.message ?? ''
+          } catch {
+            message = ''
+          }
+          if (message) throw new Error(message)
+        }
+        throw error
+      }
     },
 
     getStockAvailability: async (id: string) => {

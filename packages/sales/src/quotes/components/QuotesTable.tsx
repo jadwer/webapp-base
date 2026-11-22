@@ -118,8 +118,10 @@ export function QuotesTable({ quotes, isLoading, onQuoteUpdated }: QuotesTablePr
       const blob = await salesService.orders.prefactura(String(quote.salesOrderId))
       const url = window.URL.createObjectURL(blob)
       window.open(url, '_blank')
-    } catch {
-      toast.error('Error al generar la prefactura')
+    } catch (error) {
+      toast.error(error instanceof Error && error.message && !/status code/i.test(error.message)
+        ? error.message
+        : 'No se pudo generar la prefactura. Intenta de nuevo.')
     } finally {
       setActionLoading(null)
     }

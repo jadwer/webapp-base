@@ -552,7 +552,8 @@ export default function QuoteDetailPage({ params }: PageProps) {
                 <h3 className="h6 mb-3">Resumen de cotización</h3>
                 <div className="d-flex justify-content-between small mb-2">
                   <span>Subtotal</span>
-                  <span>{formatCurrency(quote.subtotalAmount, quote.currency)}</span>
+                  {/* subtotalAmount ya viene neto: se muestra el bruto para que el renglon Descuento cuadre */}
+                  <span>{formatCurrency(quote.subtotalAmount + (quote.discountAmount || 0), quote.currency)}</span>
                 </div>
                 {quote.discountAmount > 0 ? (
                   <div className="d-flex justify-content-between small mb-2 text-success">
