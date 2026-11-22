@@ -276,6 +276,8 @@ export interface QuoteFilters {
   branchId?: string
   /** Vendedor (users.id) */
   assignedTo?: number
+  /** Bandeja por asignar: abiertas sin vendedor */
+  unassigned?: boolean
 }
 
 export interface QuoteSortOptions {
@@ -308,6 +310,8 @@ export interface QuoteSummary {
   rejected: number
   expired: number
   cancelled: number
+  /** Abiertas sin vendedor (bandeja por asignar) */
+  unassigned?: number
   totalValue: number
   averageValue: number
   conversionRate: number

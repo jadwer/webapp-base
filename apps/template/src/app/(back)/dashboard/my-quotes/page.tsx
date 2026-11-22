@@ -15,6 +15,7 @@ import { LwSurface, LwPageTitle, LwStatusPill, LwCountPill, LwTableWrap } from '
 import { quoteService } from '@/modules/quotes'
 import type { Quote } from '@/modules/quotes'
 import { formatDateOnly } from '@/modules/quotes'
+import { extractApiErrorMessage } from '@/modules/products'
 
 export default function MyQuotesPage() {
   const { user, isLoading: authLoading } = useAuth()
@@ -40,8 +41,8 @@ export default function MyQuotesPage() {
         )
 
         setQuotes(response.data)
-      } catch {
-        setError('Error al cargar tus cotizaciones')
+      } catch (err) {
+        setError(extractApiErrorMessage(err, 'No se pudieron cargar tus cotizaciones'))
       } finally {
         setIsLoading(false)
       }
@@ -126,7 +127,7 @@ export default function MyQuotesPage() {
                     <th>Folio</th>
                     <th>Fecha</th>
                     <th>Vigencia</th>
-                    <th>Items</th>
+                    <th>Productos</th>
                     <th className="text-end">Total</th>
                     <th>Estado</th>
                     <th></th>

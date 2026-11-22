@@ -241,6 +241,10 @@ function buildQueryParams(
       params['filter[assignedTo]'] = String(filters.assignedTo)
     }
 
+    if (filters.unassigned) {
+      params['filter[unassigned]'] = 'true'
+    }
+
     if (filters.status) {
       if (Array.isArray(filters.status)) {
         params['filter[status]'] = filters.status.join(',')

@@ -65,7 +65,7 @@ export function QuotesListPage() {
   const quotes = quotesResponse?.data ?? []
   const meta = quotesResponse?.meta
   const expiringCount = expiringResponse?.data?.length ?? 0
-  const hasFilters = !!(filters.search || filters.status || filters.expiringWithinDays || filters.branchId)
+  const hasFilters = !!(filters.search || filters.status || filters.expiringWithinDays || filters.branchId || filters.unassigned)
 
   const kpis = useMemo(() => {
     const s = summary
@@ -77,6 +77,7 @@ export function QuotesListPage() {
       rate: s?.conversionRate ?? 0,
       draft: s?.draft ?? 0,
       sent: s?.sent ?? 0,
+      unassigned: s?.unassigned ?? 0,
     }
   }, [summary])
 
@@ -218,6 +219,18 @@ export function QuotesListPage() {
           </div>
         ) : null}
 
+        {kpis.unassigned > 0 ? (
+          <div className="alert alert-info d-flex align-items-center py-2 small" data-testid="quotes-unassigned-alert">
+            <i className="bi bi-person-plus me-2" aria-hidden="true" />
+            <span>
+              <strong>Por asignar:</strong> {kpis.unassigned === 1 ? '1 cotización abierta no tiene vendedor.' : `${kpis.unassigned} cotizaciones abiertas no tienen vendedor.`}
+            </span>
+            <button type="button" className="btn btn-link btn-sm py-0 ms-2" onClick={() => setFilter({ unassigned: true })}>
+              Ver
+            </button>
+          </div>
+        ) : null}
+
         <div className="row g-2 align-items-center mb-3">
           <div className="col-md-4">
             <form
@@ -283,6 +296,9 @@ export function QuotesListPage() {
             />
           </div>
         </div>
+        {filters.unassigned ? (
+          <p className="small mb-2" data-testid="quotes-unassigned-note">Mostrando solo las abiertas sin vendedor. Ábrelas para asignarlas.</p>
+        ) : null}
         {filters.expiringWithinDays ? (
           <p className="small mb-2">Mostrando solo las que vencen en los próximos {filters.expiringWithinDays} días.</p>
         ) : null}

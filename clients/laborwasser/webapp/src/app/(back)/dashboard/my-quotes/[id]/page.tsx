@@ -40,6 +40,10 @@ export default function MyQuoteDetailPage({ params }: MyQuoteDetailPageProps) {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [isAccepting, setIsAccepting] = useState(false)
+  const [showReject, setShowReject] = useState(false)
+  const [rejectReason, setRejectReason] = useState('')
+  const [isRejecting, setIsRejecting] = useState(false)
+  const [rejectError, setRejectError] = useState<string | null>(null)
   // D9: rechazo del backend al aceptar (422 price_pending u otro error)
   const [acceptError, setAcceptError] = useState<{ message: string; pending: PricePendingError[] } | null>(null)
 
@@ -94,6 +98,28 @@ export default function MyQuoteDetailPage({ params }: MyQuoteDetailPageProps) {
     }
   }
 
+  const handleRejectQuote = async () => {
+    if (!quote) return
+
+    setIsRejecting(true)
+    setRejectError(null)
+    try {
+      const reason = rejectReason.trim()
+      await quoteService.reject(quote.id, reason ? { reason } : undefined)
+      toast.success('Cotización rechazada')
+      setShowReject(false)
+      setRejectReason('')
+      const updatedQuote = await quoteService.getById(id)
+      setQuote(updatedQuote)
+    } catch (err) {
+      const message = extractApiErrorMessage(err, 'No se pudo rechazar la cotización')
+      setRejectError(message)
+      toast.error(message)
+    } finally {
+      setIsRejecting(false)
+    }
+  }
+
   const handleDownloadPDF = async () => {
     if (!quote) return
 
@@ -104,8 +130,8 @@ export default function MyQuoteDetailPage({ params }: MyQuoteDetailPageProps) {
       // admin de cotizaciones.
       await quoteService.downloadPdf(quote.id)
       toast.success('PDF descargado')
-    } catch {
-      toast.error('Error al descargar el PDF')
+    } catch (err) {
+      toast.error(extractApiErrorMessage(err, 'No se pudo descargar el PDF'))
     }
   }
 
@@ -180,7 +206,7 @@ export default function MyQuoteDetailPage({ params }: MyQuoteDetailPageProps) {
           </div>
         </div>
 
-        <div className="d-flex gap-2">
+        <div className="d-flex gap-2 flex-wrap">
           <button
             className="btn btn-outline-primary"
             onClick={handleDownloadPDF}
@@ -188,6 +214,20 @@ export default function MyQuoteDetailPage({ params }: MyQuoteDetailPageProps) {
             <i className="bi bi-download me-2"></i>
             Descargar PDF
           </button>
+
+          {canAccept && (
+            <button
+              className="btn btn-outline-danger"
+              onClick={() => { setShowReject((v) => !v); setRejectError(null) }}
+              disabled={isRejecting || isAccepting}
+              aria-expanded={showReject}
+              aria-controls="my-quote-reject-panel"
+              data-testid="my-quote-reject"
+            >
+              <i className="bi bi-x-circle me-2"></i>
+              Rechazar
+            </button>
+          )}
 
           {showAcceptButton && (
             <button
@@ -213,6 +253,55 @@ export default function MyQuoteDetailPage({ params }: MyQuoteDetailPageProps) {
           )}
         </div>
       </div>
+
+      {canAccept && showReject && (
+        <div id="my-quote-reject-panel" className="card border-danger mb-4" data-testid="my-quote-reject-panel">
+          <div className="card-body">
+            <h2 className="h6">¿Rechazar esta cotización?</h2>
+            <p className="small text-muted mb-2">
+              Si quieres, cuéntanos el motivo para poder mejorar la propuesta.
+            </p>
+            <label htmlFor="my-quote-reject-reason" className="form-label small">Motivo (opcional)</label>
+            <textarea
+              id="my-quote-reject-reason"
+              className="form-control mb-3"
+              rows={2}
+              maxLength={500}
+              value={rejectReason}
+              onChange={(e) => setRejectReason(e.target.value)}
+              disabled={isRejecting}
+            />
+            {rejectError && (
+              <div className="alert alert-danger py-2" role="alert" data-testid="my-quote-reject-error">
+                <i className="bi bi-exclamation-triangle me-2" aria-hidden="true"></i>
+                {rejectError}
+              </div>
+            )}
+            <div className="d-flex gap-2">
+              <button
+                className="btn btn-danger"
+                onClick={handleRejectQuote}
+                disabled={isRejecting}
+                data-testid="my-quote-reject-confirm"
+              >
+                {isRejecting ? (
+                  <>
+                    <span className="spinner-border spinner-border-sm me-2"></span>
+                    Rechazando...
+                  </>
+                ) : 'Sí, rechazar'}
+              </button>
+              <button
+                className="btn btn-outline-secondary"
+                onClick={() => setShowReject(false)}
+                disabled={isRejecting}
+              >
+                No, volver
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {showAcceptButton && hasPendingPrices && (
         <div id="my-quote-accept-blocked" className="alert alert-info" role="status" data-testid="my-quote-accept-blocked">
@@ -363,7 +452,7 @@ export default function MyQuoteDetailPage({ params }: MyQuoteDetailPageProps) {
             <div className="card-header">
               <h5 className="mb-0">
                 <i className="bi bi-info-circle me-2"></i>
-                Informacion
+                Información
               </h5>
             </div>
             <div className="card-body">
@@ -403,7 +492,7 @@ export default function MyQuoteDetailPage({ params }: MyQuoteDetailPageProps) {
             <div className="card-body">
               <h6>
                 <i className="bi bi-question-circle me-2"></i>
-                Tienes dudas?
+                ¿Tienes dudas?
               </h6>
               <p className="small text-muted mb-2">
                 Si tienes preguntas sobre esta cotización, contáctanos:
