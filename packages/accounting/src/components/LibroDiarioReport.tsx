@@ -103,7 +103,7 @@ export function LibroDiarioReport() {
                 Libro Diario
               </h1>
               <p className="text-muted mb-0">
-                Registro cronológico de asientos contables
+                Registro cronológico de pólizas
               </p>
             </div>
             
@@ -214,7 +214,7 @@ export function LibroDiarioReport() {
                     <thead className="table-light">
                       <tr>
                         <th className="border-0">Fecha</th>
-                        <th className="border-0">N° Asiento</th>
+                        <th className="border-0">N° de póliza</th>
                         <th className="border-0">Descripción</th>
                         <th className="border-0">Cuenta</th>
                         <th className="border-0 text-end">Débito</th>
@@ -323,7 +323,7 @@ export function LibroDiarioReport() {
             <div className="row">
               <div className="col-md-6">
                 <i className="bi bi-info-circle text-primary me-2"></i>
-                <strong>Libro Diario:</strong> Registro cronológico de todos los asientos contables
+                <strong>Libro Diario:</strong> Registro cronológico de todas las pólizas
               </div>
               <div className="col-md-6 text-md-end">
                 <i className="bi bi-clock text-muted me-2"></i>

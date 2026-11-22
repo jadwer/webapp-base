@@ -9,7 +9,7 @@ describe('JournalEntriesTableSimple fechas', () => {
       id: '1',
       number: 'AS-1',
       date: '2026-10-25T00:00:00.000000Z',
-      description: 'Asiento de prueba',
+      description: 'Póliza de prueba',
       status: 'draft',
     } as unknown as JournalEntry
     const { container } = render(<JournalEntriesTableSimple journalEntries={[entry]} />)

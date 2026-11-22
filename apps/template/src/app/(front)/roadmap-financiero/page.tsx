@@ -138,7 +138,7 @@ export default function RoadmapFinancieroPage() {
                     <h6 className="text-success">Módulo Contable - Ya en Base de Datos</h6>
                     <ul className="list-unstyled small">
                       <li><i className="bi bi-check text-success me-1"></i> <strong>Catálogo de Cuentas</strong> - Plan contable jerárquico programado</li>
-                      <li><i className="bi bi-check text-success me-1"></i> <strong>Asientos Contables</strong> - Sistema de pólizas completo</li>
+                      <li><i className="bi bi-check text-success me-1"></i> <strong>Pólizas</strong> - Sistema de pólizas completo</li>
                       <li><i className="bi bi-check text-success me-1"></i> <strong>Ejercicios Fiscales</strong> - Periodos contables configurables</li>
                       <li><i className="bi bi-check text-success me-1"></i> <strong>Tipos de Cambio</strong> - Multi-moneda ya implementado</li>
                     </ul>

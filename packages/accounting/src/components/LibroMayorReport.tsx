@@ -212,7 +212,7 @@ export function LibroMayorReport() {
                         <thead className="table-light">
                           <tr>
                             <th className="border-0">Fecha</th>
-                            <th className="border-0">N° Asiento</th>
+                            <th className="border-0">N° de póliza</th>
                             <th className="border-0">Descripción</th>
                             <th className="border-0 text-end">Débito</th>
                             <th className="border-0 text-end">Crédito</th>

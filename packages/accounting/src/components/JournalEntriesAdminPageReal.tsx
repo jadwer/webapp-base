@@ -66,25 +66,25 @@ export const JournalEntriesAdminPageReal = () => {
   // y cuentas y asigna folio; el error del backend se muestra tal cual.
   const handlePostClick = async (id: string) => {
     const confirmed = await confirmModalRef.current?.confirm(
-      'Una vez contabilizado, el asiento ya no se puede editar; solo revertir.',
-      { title: 'Contabilizar asiento', confirmText: 'Contabilizar', confirmVariant: 'success' }
+      'Una vez contabilizado, la póliza ya no se puede editar; solo revertir.',
+      { title: 'Contabilizar póliza', confirmText: 'Contabilizar', confirmVariant: 'success' }
     )
     if (!confirmed) return
 
     try {
       await postJournalEntry(id)
       await mutate()
-      toast.success('Asiento contabilizado')
+      toast.success('Póliza contabilizada')
     } catch (err) {
       const message = (err as { response?: { data?: { error?: string } } })?.response?.data?.error
-      toast.error(message || 'No se pudo contabilizar el asiento')
+      toast.error(message || 'No se pudo contabilizar la póliza')
     }
   }
 
   if (error) {
     return (
       <Alert variant="danger" className="m-4">
-        Error al cargar los asientos contables: {error.message}
+        Error al cargar las pólizas: {error.message}
       </Alert>
     )
   }
@@ -98,7 +98,7 @@ export const JournalEntriesAdminPageReal = () => {
       {/* Header */}
       <div className="mb-6 flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Asientos Contables</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Pólizas</h1>
           <p className="text-gray-600 mt-1">
             Journal Entries - Registro de movimientos contables
           </p>
@@ -108,7 +108,7 @@ export const JournalEntriesAdminPageReal = () => {
           className="bg-green-600 hover:bg-green-700"
         >
           <i className="bi bi-plus-circle mr-2"></i>
-          Nuevo Asiento
+          Nueva póliza
         </Button>
       </div>
 
@@ -129,7 +129,7 @@ export const JournalEntriesAdminPageReal = () => {
       {/* Stats Summary */}
       <div className="mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
         <div className="bg-white p-4 rounded-lg border">
-          <div className="text-sm text-gray-600">Total Asientos</div>
+          <div className="text-sm text-gray-600">Total de pólizas</div>
           <div className="text-2xl font-bold text-gray-900">
             {journalEntries?.length || 0}
           </div>

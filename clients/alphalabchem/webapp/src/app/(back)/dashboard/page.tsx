@@ -737,7 +737,7 @@ function AdminDashboard() {
                     Contabilidad
                   </a>
                 </h5>
-                <p className="card-text text-muted small">Plan contable y asientos</p>
+                <p className="card-text text-muted small">Catálogo de cuentas y pólizas</p>
                 <span className="badge bg-danger">Pólizas</span>
               </div>
             </div>

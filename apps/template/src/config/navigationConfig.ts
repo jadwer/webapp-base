@@ -176,8 +176,8 @@ export const adminNavigation: NavigationSection = {
       activePathPrefixes: ['/dashboard/accounting'],
       permissions: [],
       items: [
-        { href: '/dashboard/accounting/accounts', label: 'Plan Contable', icon: 'bi-list-ol', permissions: ['accounts.index'] },
-        { href: '/dashboard/accounting/journal-entries', label: 'Asientos Contables', icon: 'bi-journal-text', permissions: ['journal-entries.index'] },
+        { href: '/dashboard/accounting/accounts', label: 'Catálogo de Cuentas', icon: 'bi-list-ol', permissions: ['accounts.index'] },
+        { href: '/dashboard/accounting/journal-entries', label: 'Pólizas', icon: 'bi-journal-text', permissions: ['journal-entries.index'] },
         { href: '/dashboard/accounting/fiscal-periods', label: 'Períodos Fiscales', icon: 'bi-calendar-range', permissions: ['fiscal-periods.index'] },
       ],
     },

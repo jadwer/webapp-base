@@ -86,7 +86,7 @@ export const AccountsAdminPageReal = () => {
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Catálogo de Cuentas</h1>
           <p className="text-gray-600 mt-1">
-            Chart of Accounts - Gestión del plan contable
+            Gestión del catálogo de cuentas
           </p>
         </div>
         <Button 
@@ -212,7 +212,7 @@ export const AccountsAdminPageReal = () => {
         <div className="d-flex align-items-center">
           <i className="bi bi-info-circle me-2"></i>
           <span>
-            <strong>{postableCount}</strong> cuentas de movimiento disponibles para asientos contables
+            <strong>{postableCount}</strong> cuentas de movimiento disponibles para pólizas
           </span>
         </div>
       </div>

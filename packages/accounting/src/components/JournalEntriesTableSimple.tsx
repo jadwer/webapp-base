@@ -94,7 +94,7 @@ export const JournalEntriesTableSimple = ({
         <div className="spinner-border text-primary" role="status">
           <span className="visually-hidden">Cargando...</span>
         </div>
-        <p className="text-muted mt-2">Cargando asientos contables...</p>
+        <p className="text-muted mt-2">Cargando pólizas...</p>
       </div>
     )
   }
@@ -103,8 +103,8 @@ export const JournalEntriesTableSimple = ({
     return (
       <div className="text-center py-5">
         <i className="bi bi-journal-text text-muted mb-3" style={{ fontSize: '3rem' }} />
-        <h4 className="text-muted">No hay asientos contables</h4>
-        <p className="text-muted">No se encontraron asientos contables para mostrar.</p>
+        <h4 className="text-muted">No hay pólizas</h4>
+        <p className="text-muted">No se encontraron pólizas para mostrar.</p>
       </div>
     )
   }
@@ -190,33 +190,33 @@ export const JournalEntriesTableSimple = ({
                   <div className="btn-group btn-group-sm">
                     {onView && (
                       <button
-                        aria-label="Ver asiento"
+                        aria-label="Ver póliza"
                         type="button"
                         className="btn btn-outline-primary"
                         onClick={() => onView(entry.id)}
-                        title="Ver asiento"
+                        title="Ver póliza"
                       >
                         <i className="bi bi-eye"></i>
                       </button>
                     )}
                     {onEdit && entry.status === 'draft' && (
                       <button
-                        aria-label="Editar asiento"
+                        aria-label="Editar póliza"
                         type="button"
                         className="btn btn-outline-secondary"
                         onClick={() => onEdit(entry.id)}
-                        title="Editar asiento"
+                        title="Editar póliza"
                       >
                         <i className="bi bi-pencil"></i>
                       </button>
                     )}
                     {entry.status === 'draft' && balanced && onPost && (
                       <button
-                        aria-label="Contabilizar asiento"
+                        aria-label="Contabilizar póliza"
                         type="button"
                         className="btn btn-outline-success"
                         onClick={() => onPost(entry.id)}
-                        title="Contabilizar asiento"
+                        title="Contabilizar póliza"
                       >
                         <i className="bi bi-check-circle"></i>
                       </button>
@@ -233,7 +233,7 @@ export const JournalEntriesTableSimple = ({
       <div className="p-3 bg-light border-top">
         <div className="row text-center">
           <div className="col-md-3">
-            <small className="text-muted">Total asientos:</small>
+            <small className="text-muted">Total de pólizas:</small>
             <div className="fw-bold">{journalEntries.length}</div>
           </div>
           <div className="col-md-3">
