@@ -433,7 +433,7 @@ export const CheckoutPage = React.memo<CheckoutPageProps>(({ cartId }) => {
       <div className="container py-5">
         <div className="alert alert-warning">
           <h4 className="alert-heading">Carrito Vacío</h4>
-          <p>No tienes productos en tu carrito para proceder al checkout.</p>
+          <p>No tienes productos en tu carrito para continuar con el pago.</p>
           <Button variant="primary" onClick={() => navigation.push('/products')}>
             Ir a la tienda
           </Button>

@@ -304,7 +304,7 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
             </div>
             <div className="card-body">
               <div className="d-flex justify-content-between mb-2">
-                <span>Items:</span>
+                <span>Partidas:</span>
                 <span className="fw-bold">{items.length}</span>
               </div>
               <div className="d-flex justify-content-between mb-2">

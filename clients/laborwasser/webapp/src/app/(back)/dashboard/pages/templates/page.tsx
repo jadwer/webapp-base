@@ -77,7 +77,7 @@ export default function TemplatesPage() {
           <div className="spinner-border text-primary" role="status">
             <span className="visually-hidden">Creando página...</span>
           </div>
-          <p className="mt-3">Creando página desde template...</p>
+          <p className="mt-3">Creando página desde la plantilla...</p>
         </div>
       ) : (
         <TemplateGallery

@@ -8,7 +8,7 @@ import type { Metadata } from 'next'
 import { CreateDiscountRuleWrapper } from '@/modules/sales'
 
 export const metadata: Metadata = {
-  title: 'Nueva Regla de Descuento - Sales',
+  title: 'Nueva regla de descuento',
   description: 'Crear una nueva regla de descuento automático'
 }
 

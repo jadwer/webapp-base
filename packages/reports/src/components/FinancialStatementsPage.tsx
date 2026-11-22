@@ -119,7 +119,7 @@ export const FinancialStatementsPage = () => {
         <div className="card-header bg-primary text-white">
           <h5 className="mb-0">
             <i className="bi bi-table me-2" />
-            Balance General (Balance Sheet)
+            Balance General
           </h5>
         </div>
         <div className="card-body">
@@ -179,7 +179,7 @@ export const FinancialStatementsPage = () => {
         <div className="card-header bg-success text-white">
           <h5 className="mb-0">
             <i className="bi bi-graph-up me-2" />
-            Estado de Resultados (Income Statement)
+            Estado de Resultados
           </h5>
         </div>
         <div className="card-body">
@@ -241,7 +241,7 @@ export const FinancialStatementsPage = () => {
         <div className="card-header bg-info text-white">
           <h5 className="mb-0">
             <i className="bi bi-cash-stack me-2" />
-            Flujo de Efectivo (Cash Flow)
+            Flujo de Efectivo
           </h5>
         </div>
         <div className="card-body">
@@ -297,7 +297,7 @@ export const FinancialStatementsPage = () => {
         <div className="card-header bg-secondary text-white">
           <h5 className="mb-0">
             <i className="bi bi-calculator me-2" />
-            Balanza de Comprobacion (Trial Balance)
+            Balanza de Comprobación
           </h5>
         </div>
         <div className="card-body">

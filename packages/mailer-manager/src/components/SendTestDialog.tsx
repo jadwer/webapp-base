@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { toast } from '@lwm/ui'
+import { toast, getApiErrorMessage } from '@lwm/ui'
 
 interface SendTestDialogProps {
   isOpen: boolean
@@ -28,8 +28,8 @@ export default function SendTestDialog({ isOpen, onClose, onSend, title = 'Envia
       toast.success(result.message)
       setEmail('')
       onClose()
-    } catch {
-      toast.error('Error al enviar el email de prueba')
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Error al enviar el email de prueba'))
     } finally {
       setSending(false)
     }

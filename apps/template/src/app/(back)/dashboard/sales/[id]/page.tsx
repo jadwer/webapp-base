@@ -17,7 +17,7 @@ import { AddItemModal } from '@/modules/sales'
 import { StockAvailabilityPanel } from '@/modules/sales'
 import ConfirmModal, { ConfirmModalHandle } from '@/ui/components/base/ConfirmModal'
 import { GuidePanel, type GuideAction } from '@lwm/guide'
-import { formatDateOnly } from '@lwm/ui'
+import { formatDateOnly, getApiErrorMessage } from '@lwm/ui'
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -51,8 +51,9 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
       setRemissionsLoading(true)
       const result = await remissionService.getForOrder(resolvedParams.id)
       setRemissions(result.remissions)
-    } catch {
-      // Silently fail - remissions are supplementary
+    } catch (err) {
+      // Las remisiones son complementarias: la pantalla sigue, pero se avisa.
+      toast.error(getApiErrorMessage(err, 'No se pudieron cargar las remisiones del pedido'))
     } finally {
       setRemissionsLoading(false)
     }
@@ -128,8 +129,8 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
       await remissionService.print(remId)
       toast.success('Remisión marcada como impresa')
       await loadRemissions()
-    } catch {
-      toast.error('Error al imprimir remisión')
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Error al imprimir remisión'))
     } finally {
       setActionLoading(null)
     }
@@ -146,8 +147,8 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
       await remissionService.deliver(remId)
       toast.success('Remisión marcada como entregada')
       await loadRemissions()
-    } catch {
-      toast.error('Error al marcar como entregada')
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Error al marcar como entregada'))
     } finally {
       setActionLoading(null)
     }
@@ -156,8 +157,8 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
   const handleDownloadRemissionPdf = async (remId: string) => {
     try {
       await remissionService.downloadPdf(remId)
-    } catch {
-      toast.error('Error al descargar PDF')
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Error al descargar PDF'))
     }
   }
 
@@ -172,8 +173,8 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
       await remissionService.cancel(remId)
       toast.success('Remisión cancelada')
       await loadRemissions()
-    } catch {
-      toast.error('Error al cancelar remisión')
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Error al cancelar remisión'))
     } finally {
       setActionLoading(null)
     }
@@ -190,8 +191,8 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
       await salesService.orders.cancel(resolvedParams.id)
       toast.success('Orden cancelada exitosamente')
       window.location.reload()
-    } catch {
-      toast.error('Error al cancelar la orden')
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Error al cancelar la orden'))
     } finally {
       setActionLoading(null)
     }
@@ -205,8 +206,8 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
       const blob = new Blob([response.data], { type: 'application/pdf' })
       const url = window.URL.createObjectURL(blob)
       window.open(url, '_blank')
-    } catch {
-      toast.error('Error al generar PDF de la orden')
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Error al generar PDF de la orden'))
     }
   }
 
@@ -273,8 +274,8 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
       const blob = new Blob([response.data], { type: 'application/pdf' })
       const url = window.URL.createObjectURL(blob)
       window.open(url, '_blank')
-    } catch {
-      toast.error('Error al generar la prefactura')
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Error al generar la prefactura'))
     } finally {
       setActionLoading(null)
     }
@@ -337,7 +338,7 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
                 onClick={() => navigation.push('/dashboard/sales')}
               >
                 <i className="bi bi-arrow-left me-2"></i>
-                Volver a Sales
+                Volver a pedidos
               </button>
               <button
                 className="btn btn-outline-primary"
@@ -351,7 +352,7 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
                 onClick={() => navigation.push(`/dashboard/sales/${resolvedParams.id}/items`)}
               >
                 <i className="bi bi-box-seam me-2"></i>
-                Ver Items ({salesOrderItems?.length || 0})
+                Ver partidas ({salesOrderItems?.length || 0})
               </button>
             </div>
           </div>
@@ -575,7 +576,7 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
                         <th>Número</th>
                         <th>Estado</th>
                         <th>Fecha</th>
-                        <th>Items</th>
+                        <th>Partidas</th>
                         <th>Acciones</th>
                       </tr>
                     </thead>
@@ -677,7 +678,7 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
               ) : salesOrderItems && salesOrderItems.length > 0 ? (
                 <div>
                   <div className="d-flex justify-content-between mb-3">
-                    <span>Total de Items:</span>
+                    <span>Total de partidas:</span>
                     <strong>{salesOrderItems.length}</strong>
                   </div>
                   <div className="d-flex justify-content-between mb-3">
@@ -687,7 +688,7 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
                     </strong>
                   </div>
                   <div className="d-flex justify-content-between mb-3">
-                    <span>Valor Items:</span>
+                    <span>Valor de las partidas:</span>
                     <strong className="text-success">
                       {formatCurrency(salesOrderItems.reduce((acc: number, item) => acc + (item.totalPrice || 0), 0))}
                     </strong>
@@ -706,13 +707,13 @@ export default function SalesOrderDetailPage({ params }: PageProps) {
               ) : (
                 <div className="text-center text-muted">
                   <i className="bi bi-inbox display-4 mb-3"></i>
-                  <p>Sin items en esta orden</p>
+                  <p>Sin partidas en este pedido</p>
                   <button
                     className="btn btn-sm btn-primary"
                     onClick={() => setShowAddModal(true)}
                   >
                     <i className="bi bi-plus me-1"></i>
-                    Agregar Item
+                    Agregar partida
                   </button>
                 </div>
               )}

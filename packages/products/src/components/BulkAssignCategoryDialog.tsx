@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Modal, Button } from '@lwm/ui'
+import { Modal, Button, getApiErrorMessage } from '@lwm/ui'
 import { productBulkService } from '../services/productService'
 import type { Brand } from '../types'
 import type { Category } from '../types/category'
@@ -52,8 +52,8 @@ export const BulkAssignCategoryDialog = React.memo<BulkAssignCategoryDialogProps
         setBrandId(preselectedBrandId || '')
         setCategoryId('')
       }, 2000)
-    } catch {
-      setError('Error al reasignar la categoría. Verifique los datos e intente de nuevo.')
+    } catch (err) {
+      setError(getApiErrorMessage(err, 'Error al reasignar la categoría. Verifique los datos e intente de nuevo.'))
     } finally {
       setIsSubmitting(false)
     }

@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import { toast } from '@lwm/ui'
+import { toast, getApiErrorMessage } from '@lwm/ui'
 import { useQuoteItems, useQuoteMutations } from '../hooks'
 import { getQuoteItemStockStatus } from '../utils/stock'
 import { getPricePendingErrors, pendingPriceItems, type PricePendingError } from '../utils/pricePending'
@@ -141,7 +141,7 @@ export function GenerateOrderModal({ quote, isOpen, onClose, onConverted }: Gene
         .items_requiring_purchase
       if (requiringPurchase && requiringPurchase.length > 0) {
         toast.info(
-          `${requiringPurchase.length} item(s) requeriran compra de material: ${requiringPurchase
+          `${requiringPurchase.length} partida(s) requerirán compra de material: ${requiringPurchase
             .map((i) => i.product_name)
             .join(', ')}`
         )
@@ -153,8 +153,8 @@ export function GenerateOrderModal({ quote, isOpen, onClose, onConverted }: Gene
         try {
           await salesService.orders.uploadCustomerPo(salesOrderId, evidenceFile)
           toast.success('Constancia de autorización adjuntada')
-        } catch {
-          toast.error('El pedido se creó, pero falló la subida de la constancia. Súbela desde el detalle de la orden.')
+        } catch (err) {
+          toast.error(getApiErrorMessage(err, 'El pedido se creó, pero falló la subida de la constancia. Súbela desde el detalle de la orden.'))
         } finally {
           setIsUploading(false)
         }

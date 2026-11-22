@@ -27,7 +27,7 @@ import { toast } from '@/lib/toast'
 import { ConfirmModal, ConfirmModalHandle } from '@/ui/components/base'
 import { useAuth } from '@/modules/auth'
 import { isAdmin } from '@/lib/permissions'
-import { isPastDateOnly, LwSurface, LwPageTitle, LwStatusPill, LwActionMenu, LwTableWrap, type LwActionMenuItem } from '@lwm/ui'
+import { isPastDateOnly, LwSurface, LwPageTitle, LwStatusPill, LwActionMenu, LwTableWrap, type LwActionMenuItem, getApiErrorMessage } from '@lwm/ui'
 import { useUsers } from '@lwm/permissions'
 import { GuidePanel, type GuideAction } from '@lwm/guide'
 
@@ -187,8 +187,8 @@ export default function QuoteDetailPage({ params }: PageProps) {
     try {
       await quoteService.downloadPdf(quote.id)
       toast.success('PDF descargado')
-    } catch {
-      toast.error('Error al descargar el PDF')
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Error al descargar el PDF'))
     } finally {
       setPdfLoading(null)
     }
@@ -199,8 +199,8 @@ export default function QuoteDetailPage({ params }: PageProps) {
     setPdfLoading('preview')
     try {
       await quoteService.previewPdf(quote.id)
-    } catch {
-      toast.error('Error al generar vista previa del PDF')
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Error al generar vista previa del PDF'))
     } finally {
       setPdfLoading(null)
     }
@@ -214,8 +214,8 @@ export default function QuoteDetailPage({ params }: PageProps) {
       const blob = await prefacturaFromOrder(String(quote.salesOrderId))
       const url = window.URL.createObjectURL(blob)
       window.open(url, '_blank')
-    } catch {
-      toast.error('Error al generar la prefactura')
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Error al generar la prefactura'))
     } finally {
       setActionLoading(null)
     }

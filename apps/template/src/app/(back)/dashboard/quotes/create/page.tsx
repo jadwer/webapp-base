@@ -9,7 +9,7 @@ import { stockService } from '@/modules/inventory'
 import { toast } from '@/lib/toast'
 import { BranchSelect } from '@lwm/auth'
 import type { LocalCartItem } from '@/modules/public-catalog'
-import { todayDateInput, dateToInput, LwSurface, LwPageTitle } from '@lwm/ui'
+import { todayDateInput, dateToInput, LwSurface, LwPageTitle, getApiErrorMessage } from '@lwm/ui'
 import { extractApiErrorMessage } from '@/modules/products'
 
 interface Contact {
@@ -278,8 +278,8 @@ export default function CreateQuotePage() {
 
         toast.success('Cotización creada. Agrega los productos a continuación.')
         router.push(`/dashboard/quotes/${result.id}`)
-      } catch {
-        toast.error('Error al crear la cotización')
+      } catch (err) {
+        toast.error(getApiErrorMessage(err, 'Error al crear la cotización'))
       }
       return
     }

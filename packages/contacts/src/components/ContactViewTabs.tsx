@@ -534,13 +534,7 @@ export const ContactViewTabs: React.FC<ContactViewTabsProps> = ({
 
                             if (!response.ok) {
                               // Try to get error details from response
-                              let errorMessage = `HTTP ${response.status}: ${response.statusText}`
-                              try {
-                                const errorData = await response.text()
-                                errorMessage += ` - ${errorData.substring(0, 200)}`
-                              } catch {
-                                // error reading response body
-                              }
+                              const errorMessage = response.status === 403 ? 'No tienes permiso para ver este documento' : response.status === 404 ? 'El documento ya no existe' : `No se pudo obtener el documento (error ${response.status})`
                               throw new Error(errorMessage)
                             }
                             
@@ -621,13 +615,7 @@ export const ContactViewTabs: React.FC<ContactViewTabsProps> = ({
 
                             if (!response.ok) {
                               // Try to get error details from response
-                              let errorMessage = `HTTP ${response.status}: ${response.statusText}`
-                              try {
-                                const errorData = await response.text()
-                                errorMessage += ` - ${errorData.substring(0, 200)}`
-                              } catch {
-                                // error reading response body
-                              }
+                              const errorMessage = response.status === 403 ? 'No tienes permiso para ver este documento' : response.status === 404 ? 'El documento ya no existe' : `No se pudo obtener el documento (error ${response.status})`
                               throw new Error(errorMessage)
                             }
                             

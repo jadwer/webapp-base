@@ -47,19 +47,19 @@ export const ReportsIndexPage = () => {
                 <ul className="list-unstyled mb-0 small">
                   <li className="mb-2">
                     <i className="bi bi-check-circle text-success me-2" />
-                    Balance General (Balance Sheet)
+                    Balance General
                   </li>
                   <li className="mb-2">
                     <i className="bi bi-check-circle text-success me-2" />
-                    Estado de Resultados (Income Statement)
+                    Estado de Resultados
                   </li>
                   <li className="mb-2">
                     <i className="bi bi-check-circle text-success me-2" />
-                    Flujo de Efectivo (Cash Flow)
+                    Flujo de Efectivo
                   </li>
                   <li className="mb-2">
                     <i className="bi bi-check-circle text-success me-2" />
-                    Balanza de Comprobación (Trial Balance)
+                    Balanza de Comprobación
                   </li>
                 </ul>
               </div>

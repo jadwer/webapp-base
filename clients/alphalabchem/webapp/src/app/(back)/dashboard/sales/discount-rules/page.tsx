@@ -9,7 +9,7 @@ import type { Metadata } from 'next'
 import { DiscountRulesAdminPage } from '@/modules/sales'
 
 export const metadata: Metadata = {
-  title: 'Reglas de Descuento - Sales',
+  title: 'Reglas de descuento',
   description: 'Gestion de reglas de descuento automaticas para ventas'
 }
 

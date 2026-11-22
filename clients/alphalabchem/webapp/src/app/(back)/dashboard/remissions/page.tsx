@@ -15,7 +15,7 @@ import type { Remission } from '@/modules/sales'
 import { toast } from '@/lib/toast'
 import { BranchFilter, useBranchName } from '@lwm/auth'
 import ConfirmModal, { ConfirmModalHandle } from '@/ui/components/base/ConfirmModal'
-import { formatDateOnly } from '@lwm/ui'
+import { formatDateOnly, getApiErrorMessage } from '@lwm/ui'
 
 export default function RemissionsPage() {
   const router = useRouter()
@@ -44,8 +44,8 @@ export default function RemissionsPage() {
         branchId: branchFilter || undefined,
       })
       setRemissions(result)
-    } catch {
-      toast.error('Error al cargar las remisiones')
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Error al cargar las remisiones'))
       setRemissions([])
     } finally {
       setIsLoading(false)
@@ -122,8 +122,8 @@ export default function RemissionsPage() {
       await remissionService.print(remId)
       toast.success('Remisión marcada como impresa')
       await loadRemissions()
-    } catch {
-      toast.error('Error al imprimir la remisión')
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Error al imprimir la remisión'))
     } finally {
       setActionLoading(null)
     }
@@ -142,8 +142,8 @@ export default function RemissionsPage() {
       await remissionService.deliver(remId)
       toast.success('Remisión marcada como entregada')
       await loadRemissions()
-    } catch {
-      toast.error('Error al marcar como entregada')
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Error al marcar como entregada'))
     } finally {
       setActionLoading(null)
     }
@@ -153,8 +153,8 @@ export default function RemissionsPage() {
     setActionLoading(`pdf-${remId}`)
     try {
       await remissionService.downloadPdf(remId)
-    } catch {
-      toast.error('Error al descargar el PDF')
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Error al descargar el PDF'))
     } finally {
       setActionLoading(null)
     }
@@ -176,8 +176,8 @@ export default function RemissionsPage() {
       await remissionService.cancel(remId)
       toast.success('Remisión cancelada')
       await loadRemissions()
-    } catch {
-      toast.error('Error al cancelar la remisión')
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Error al cancelar la remisión'))
     } finally {
       setActionLoading(null)
     }
@@ -304,7 +304,7 @@ export default function RemissionsPage() {
                     <th>Estado</th>
                     <th>Fecha</th>
                     <th>Entrega</th>
-                    <th className="text-end">Items</th>
+                    <th className="text-end">Partidas</th>
                     <th className="text-end">Acciones</th>
                   </tr>
                 </thead>

@@ -4,6 +4,8 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useAuth } from '@/modules/auth'
 import { useCart } from '@/modules/ecommerce'
+import { getApiErrorMessage } from '@lwm/ui'
+import { toast } from '@/lib/toast'
 import { useNavigationProgress } from '@/ui/hooks/useNavigationProgress'
 
 export default function MyCartPage() {
@@ -31,16 +33,29 @@ export default function MyCartPage() {
 
   const handleQuantityChange = async (itemId: string, newQuantity: number) => {
     if (newQuantity < 1) return
-    await updateItemQuantity(itemId, newQuantity)
+    try {
+      await updateItemQuantity(itemId, newQuantity)
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'No se pudo cambiar la cantidad'))
+    }
   }
 
   const handleRemoveItem = async (itemId: string) => {
-    await removeItem(itemId)
+    try {
+      await removeItem(itemId)
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'No se pudo quitar el producto'))
+    }
   }
 
   const handleClearCart = async () => {
-    await clearAllItems()
-    setConfirmClear(false)
+    try {
+      await clearAllItems()
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'No se pudo vaciar el carrito'))
+    } finally {
+      setConfirmClear(false)
+    }
   }
 
   if (authLoading) {

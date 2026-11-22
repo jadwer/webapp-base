@@ -7,6 +7,7 @@
  */
 
 import { axiosClient } from '@lwm/auth';
+import { getApiErrorMessage } from '@lwm/ui';
 import type {
   EcommercePaymentTransaction,
   CreatePaymentIntentRequest,
@@ -293,7 +294,7 @@ const paymentProcessor = {
         requiresAction: false,
       };
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Error al iniciar el pago';
+      const errorMessage = getApiErrorMessage(error, 'No se pudo iniciar el pago');
 
       return {
         success: false,

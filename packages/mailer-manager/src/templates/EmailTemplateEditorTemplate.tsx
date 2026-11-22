@@ -7,7 +7,7 @@ import VariablePicker from '../components/VariablePicker'
 import SendTestDialog from '../components/SendTestDialog'
 import PreviewDialog from '../components/PreviewDialog'
 import { emailTemplateService } from '../services/emailTemplateService'
-import { toast } from '@lwm/ui'
+import { toast, getApiErrorMessage } from '@lwm/ui'
 import type { Editor } from 'grapesjs'
 import type { EmailTemplatePreview } from '../types/emailTemplate'
 
@@ -134,8 +134,8 @@ export default function EmailTemplateEditorTemplate({ templateId, availableVaria
         json: json as Record<string, unknown>,
       })
       toast.success('Template guardado')
-    } catch {
-      toast.error('Error al guardar')
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Error al guardar'))
     }
   }, [template, name, subject, status, update])
 
@@ -146,8 +146,8 @@ export default function EmailTemplateEditorTemplate({ templateId, availableVaria
     try {
       const preview = await emailTemplateService.preview(template.id)
       setPreviewData(preview)
-    } catch {
-      toast.error('Error al cargar vista previa')
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Error al cargar vista previa'))
     }
   }
 
@@ -171,7 +171,7 @@ export default function EmailTemplateEditorTemplate({ templateId, availableVaria
     return (
       <div className="text-center py-5">
         <span className="spinner-border"></span>
-        <p className="mt-2">Cargando template...</p>
+        <p className="mt-2">Cargando plantilla...</p>
       </div>
     )
   }

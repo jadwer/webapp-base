@@ -1,5 +1,6 @@
 'use client'
 
+import { getApiErrorMessage } from '@lwm/ui'
 import { useState, useEffect, useCallback } from 'react'
 import { folioSequenceService, DOCUMENT_TYPE_LABELS } from '@/modules/sales'
 import type { FolioSequence, UpdateFolioSequenceRequest } from '@/modules/sales'
@@ -18,8 +19,8 @@ export default function FoliosSettingsPage() {
       setLoading(true)
       const data = await folioSequenceService.getAll()
       setSequences(data)
-    } catch {
-      toast.error('Error al cargar secuencias de folios')
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Error al cargar secuencias de folios'))
     } finally {
       setLoading(false)
     }

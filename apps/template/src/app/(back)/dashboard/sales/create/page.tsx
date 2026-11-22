@@ -259,7 +259,7 @@ export default function CreateSalesOrderPage() {
                       <h3 className="mb-0 text-success">{formatCurrency(totalAmount)}</h3>
                     </div>
                     <small className="text-muted">
-                      {orderItems.length} item{orderItems.length !== 1 ? 's' : ''} agregado{orderItems.length !== 1 ? 's' : ''}
+                      {orderItems.length} partida{orderItems.length !== 1 ? 's' : ''} agregada{orderItems.length !== 1 ? 's' : ''}
                     </small>
                   </div>
                   <div className="col-md-6">

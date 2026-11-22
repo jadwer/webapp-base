@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { salesService } from '../services'
-import { useNavigationProgress } from '@lwm/ui'
+import { useNavigationProgress, getApiErrorMessage } from '@lwm/ui'
 
 interface StockItem {
   product_id: number
@@ -32,8 +32,8 @@ export default function StockAvailabilityPanel({ salesOrderId }: StockAvailabili
       const data = await salesService.orders.getStockAvailability(salesOrderId)
       setItems(data.items)
       setAllSufficient(data.all_sufficient)
-    } catch {
-      setError('Error al verificar disponibilidad de stock')
+    } catch (err) {
+      setError(getApiErrorMessage(err, 'Error al verificar disponibilidad de stock'))
     } finally {
       setLoading(false)
     }

@@ -31,7 +31,7 @@ describe('ItemsManager: precio obligatorio mayor a 0', () => {
   it('producto sin precio de venta: explica y no deja agregar hasta capturar precio', () => {
     const onItemsChange = vi.fn()
     render(<ItemsManager items={[]} onItemsChange={onItemsChange} onTotalChange={vi.fn()} />)
-    fireEvent.click(screen.getByRole('button', { name: /Agregar Item/i }))
+    fireEvent.click(screen.getByRole('button', { name: /Agregar partida/i }))
     fireEvent.change(screen.getByRole('combobox'), { target: { value: '2' } })
 
     expect(screen.getByRole('option', { name: /Alcohol granel.*Sujeto a cotización/ })).toBeInTheDocument()
@@ -49,7 +49,7 @@ describe('ItemsManager: precio obligatorio mayor a 0', () => {
   it('producto con precio: toma el precio de lista y deja agregar', () => {
     const onItemsChange = vi.fn()
     render(<ItemsManager items={[]} onItemsChange={onItemsChange} onTotalChange={vi.fn()} />)
-    fireEvent.click(screen.getByRole('button', { name: /Agregar Item/i }))
+    fireEvent.click(screen.getByRole('button', { name: /Agregar partida/i }))
     fireEvent.change(screen.getByRole('combobox'), { target: { value: '1' } })
     expect(screen.queryByTestId('items-manager-price-required')).not.toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'Agregar producto' }))
@@ -70,7 +70,7 @@ describe('AddItemModal: precio > 0 y 422 con detalle', () => {
     render(<AddItemModal salesOrderId="5" isOpen onClose={vi.fn()} onSuccess={vi.fn()} />)
     fireEvent.change(screen.getByRole('combobox'), { target: { value: '2' } })
     expect(screen.getByTestId('add-item-price-required')).toHaveTextContent('mayor a 0')
-    expect(screen.getByRole('button', { name: /Agregar Item/i })).toBeDisabled()
+    expect(screen.getByRole('button', { name: /Agregar partida/i })).toBeDisabled()
   })
 
   it('muestra el detail del 422 tal cual, sin puntero', async () => {
@@ -82,7 +82,7 @@ describe('AddItemModal: precio > 0 y 422 con detalle', () => {
     })
     render(<AddItemModal salesOrderId="5" isOpen onClose={vi.fn()} onSuccess={vi.fn()} />)
     fireEvent.change(screen.getByRole('combobox'), { target: { value: '1' } })
-    fireEvent.submit(screen.getByRole('button', { name: /Agregar Item/i }).closest('form')!)
+    fireEvent.submit(screen.getByRole('button', { name: /Agregar partida/i }).closest('form')!)
     await waitFor(() => expect(create).toHaveBeenCalled())
     await waitFor(() => expect(screen.getByText('El precio unitario debe ser mayor a 0.')).toBeInTheDocument())
     expect(screen.queryByText(/unitPrice/)).not.toBeInTheDocument()

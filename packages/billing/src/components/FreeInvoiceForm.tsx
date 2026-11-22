@@ -9,7 +9,7 @@
  */
 
 import React, { useEffect, useId, useMemo, useRef, useState } from 'react'
-import { DetailSection, formatCurrency, toast } from '@lwm/ui'
+import { DetailSection, formatCurrency, toast, getApiErrorMessage } from '@lwm/ui'
 import { ProductSearchSelect, SatKeyCombobox, productService } from '@lwm/products'
 import {
   freeInvoiceService,
@@ -273,8 +273,8 @@ export const FreeInvoiceForm: React.FC<FreeInvoiceFormProps> = ({ invoice, onCre
         noIdentificacion: p.sku || '',
         tasaIva: tasaFromRate(p.taxRate ?? (p.iva ? 16 : 0)),
       })
-    } catch {
-      toast.error('No se pudo cargar el producto; captura el concepto a mano')
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'No se pudo cargar el producto; captura el concepto a mano'))
     }
   }
 

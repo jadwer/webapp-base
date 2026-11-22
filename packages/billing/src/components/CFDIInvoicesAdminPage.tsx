@@ -4,7 +4,7 @@ import { useState, useRef } from 'react'
 import { useCFDIInvoices, useCFDIInvoicesMutations, useCFDIWorkflow } from '../hooks'
 import type { CFDIInvoicesFilters, CFDIStatus, TipoComprobante } from '../types'
 import { CFDI_STATUS_BADGES, cfdiStatusBadge } from '../utils/status'
-import { toast } from '@lwm/ui'
+import { toast, getApiErrorMessage } from '@lwm/ui'
 import { BranchFilter, useBranchName } from '@lwm/auth'
 import { ConfirmModal, type ConfirmModalHandle } from '@lwm/ui'
 
@@ -29,8 +29,8 @@ export function CFDIInvoicesAdminPage() {
       await generateXML(id)
       mutate()
       toast.success('XML generado correctamente')
-    } catch {
-      toast.error('Error al generar XML')
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Error al generar XML'))
     }
   }
 
@@ -39,8 +39,8 @@ export function CFDIInvoicesAdminPage() {
       await generatePDF(id)
       mutate()
       toast.success('PDF generado correctamente')
-    } catch {
-      toast.error('Error al generar PDF')
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Error al generar PDF'))
     }
   }
 
@@ -49,8 +49,8 @@ export function CFDIInvoicesAdminPage() {
       await stampInvoice(id)
       mutate()
       toast.success('Factura timbrada correctamente')
-    } catch {
-      toast.error('Error al timbrar factura')
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Error al timbrar factura'))
     }
   }
 
@@ -104,8 +104,8 @@ export function CFDIInvoicesAdminPage() {
       a.click()
       window.URL.revokeObjectURL(url)
       document.body.removeChild(a)
-    } catch {
-      toast.error('Error al descargar XML')
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Error al descargar XML'))
     }
   }
 
@@ -120,8 +120,8 @@ export function CFDIInvoicesAdminPage() {
       a.click()
       window.URL.revokeObjectURL(url)
       document.body.removeChild(a)
-    } catch {
-      toast.error('Error al descargar PDF')
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Error al descargar PDF'))
     }
   }
 
@@ -136,8 +136,8 @@ export function CFDIInvoicesAdminPage() {
       await deleteInvoice(id)
       mutate()
       toast.success('Factura eliminada')
-    } catch {
-      toast.error('Error al eliminar factura')
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Error al eliminar factura'))
     }
   }
 

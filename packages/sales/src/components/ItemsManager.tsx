@@ -135,7 +135,7 @@ export default function ItemsManager({ items, onItemsChange, onTotalChange }: It
           disabled={showAddForm}
         >
           <i className="bi bi-plus-circle me-2"></i>
-          Agregar Item
+          Agregar partida
         </button>
       </div>
 
@@ -145,7 +145,7 @@ export default function ItemsManager({ items, onItemsChange, onTotalChange }: It
           <div className="border rounded p-3 mb-3 bg-light">
             <h6 className="mb-3">
               <i className="bi bi-plus me-2"></i>
-              Nuevo Item
+              Nueva partida
             </h6>
             
             <div className="row g-2">
@@ -328,8 +328,8 @@ export default function ItemsManager({ items, onItemsChange, onTotalChange }: It
         ) : (
           <div className="text-center text-muted py-4">
             <i className="bi bi-inbox display-4 mb-3"></i>
-            <p>No hay items agregados</p>
-            <small>Haz click en &quot;Agregar Item&quot; para comenzar</small>
+            <p>No hay partidas agregadas</p>
+            <small>Haz click en &quot;Agregar partida&quot; para comenzar</small>
           </div>
         )}
       </div>

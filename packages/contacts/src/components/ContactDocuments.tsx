@@ -7,7 +7,7 @@
 'use client'
 
 import React, { useState, useRef } from 'react'
-import { Button, formatDateOnly, isPastDateOnly } from '@lwm/ui'
+import { Button, formatDateOnly, isPastDateOnly, getApiErrorMessage } from '@lwm/ui'
 import { toast } from '@lwm/ui'
 import type { ContactDocument } from '../types'
 import {
@@ -102,8 +102,8 @@ export const ContactDocuments: React.FC<ContactDocumentsProps> = ({
       if (fileInputRef.current) {
         fileInputRef.current.value = ''
       }
-    } catch {
-      toast.error('Error al subir el documento. Inténtalo de nuevo.')
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Error al subir el documento. Inténtalo de nuevo.'))
     }
   }
 

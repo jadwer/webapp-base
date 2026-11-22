@@ -13,7 +13,7 @@
  */
 
 import React, { useState } from 'react'
-import { toast } from '@lwm/ui'
+import { toast, getApiErrorMessage } from '@lwm/ui'
 import { usePaymentComplements, useCFDIInvoicesMutations } from '../hooks'
 import type { CFDIInvoice } from '../types'
 import { CFDI_STATUS_BADGES } from '../utils/status'
@@ -79,8 +79,8 @@ export function PaymentComplementsSection({ invoice }: PaymentComplementsSection
     try {
       const blob = await downloadXML(rep.id)
       triggerDownload(blob, `REP-${rep.series}-${rep.folio}.xml`)
-    } catch {
-      toast.error('Error al descargar el XML del complemento de pago')
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Error al descargar el XML del complemento de pago'))
     } finally {
       setDownloading(null)
     }
@@ -91,8 +91,8 @@ export function PaymentComplementsSection({ invoice }: PaymentComplementsSection
     try {
       const blob = await downloadPDF(rep.id)
       triggerDownload(blob, `REP-${rep.series}-${rep.folio}.pdf`)
-    } catch {
-      toast.error('Error al descargar el PDF del complemento de pago')
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Error al descargar el PDF del complemento de pago'))
     } finally {
       setDownloading(null)
     }

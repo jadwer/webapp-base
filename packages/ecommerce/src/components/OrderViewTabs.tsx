@@ -144,7 +144,7 @@ export const OrderViewTabs = React.memo<OrderViewTabsProps>(({
                 onClick={() => setActiveTab('items')}
               >
                 <i className="bi bi-cart me-2" />
-                Items ({orderItems.length})
+                Partidas ({orderItems.length})
               </button>
             </li>
             <li className="nav-item">

@@ -103,7 +103,7 @@ export const AgingReportsPage = () => {
           {errorAR && (
             <div className="alert alert-warning">
               <i className="bi bi-info-circle me-2" />
-              No hay datos disponibles para el reporte AR en este periodo
+              No hay datos disponibles para la antigüedad de saldos de clientes en este periodo
             </div>
           )}
           {!loadingAR && !errorAR && arAgingReport && (
@@ -215,7 +215,7 @@ export const AgingReportsPage = () => {
           {errorAP && (
             <div className="alert alert-warning">
               <i className="bi bi-info-circle me-2" />
-              No hay datos disponibles para el reporte AP en este periodo
+              No hay datos disponibles para la antigüedad de saldos de proveedores en este periodo
             </div>
           )}
           {!loadingAP && !errorAP && apAgingReport && (

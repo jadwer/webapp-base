@@ -118,7 +118,7 @@ export default function AddItemModal({ purchaseOrderId, isOpen, onClose, onSucce
           <div className="modal-header">
             <h5 className="modal-title">
               <i className="bi bi-plus-circle me-2"></i>
-              Agregar Item a la Orden de Compra
+              Agregar partida a la orden de compra
             </h5>
             <button
               aria-label="Cerrar"
@@ -281,7 +281,7 @@ export default function AddItemModal({ purchaseOrderId, isOpen, onClose, onSucce
                 ) : (
                   <>
                     <i className="bi bi-check-circle me-2"></i>
-                    Agregar Item
+                    Agregar partida
                   </>
                 )}
               </button>

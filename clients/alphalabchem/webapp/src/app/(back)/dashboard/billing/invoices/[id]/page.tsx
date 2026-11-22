@@ -1,5 +1,6 @@
 'use client'
 
+import { getApiErrorMessage } from '@lwm/ui'
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import {
@@ -72,8 +73,8 @@ export default function InvoiceViewPage({ params }: InvoiceViewPageProps) {
       toast.success(
         result.valid ? `CFDI vigente ante el SAT (${result.status})` : `CFDI ${result.status} ante el SAT`
       )
-    } catch {
-      toast.error('Error al validar el CFDI con el SAT')
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Error al validar el CFDI con el SAT'))
     } finally {
       setValidatingSat(false)
     }
@@ -104,8 +105,8 @@ export default function InvoiceViewPage({ params }: InvoiceViewPageProps) {
     try {
       const url = previewPrefactura(resolvedParams.id)
       window.open(url, '_blank')
-    } catch {
-      toast.error('Error al generar la vista previa de la prefactura')
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Error al generar la vista previa de la prefactura'))
     } finally {
       setPrefacturaLoading(null)
     }
@@ -123,8 +124,8 @@ export default function InvoiceViewPage({ params }: InvoiceViewPageProps) {
       a.click()
       window.URL.revokeObjectURL(url)
       document.body.removeChild(a)
-    } catch {
-      toast.error('Error al descargar la prefactura')
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Error al descargar la prefactura'))
     } finally {
       setPrefacturaLoading(null)
     }

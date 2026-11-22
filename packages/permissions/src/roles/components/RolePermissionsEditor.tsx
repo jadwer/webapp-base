@@ -7,6 +7,7 @@
  * la relationship `permissions` (unico canal de sync que soporta el backend).
  */
 
+import { getApiErrorMessage } from '@lwm/ui'
 import React, { useEffect, useMemo, useState } from 'react'
 import type { Permission, Role } from '../types/role'
 import { rolesService } from '../services/rolesService'
@@ -48,8 +49,8 @@ export function RolePermissionsEditor({ role, permissions, onSaved }: RolePermis
         permissions: ids,
       })
       onSaved?.(ids)
-    } catch {
-      setError('No se pudieron guardar los permisos. Intenta de nuevo.')
+    } catch (err) {
+      setError(getApiErrorMessage(err, 'No se pudieron guardar los permisos. Intenta de nuevo.'))
     } finally {
       setSaving(false)
     }

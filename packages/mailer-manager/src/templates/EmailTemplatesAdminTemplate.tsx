@@ -6,7 +6,7 @@ import { useEmailTemplates, useEmailTemplateActions } from '../hooks/useEmailTem
 import { emailTemplateService } from '../services/emailTemplateService'
 import SendTestDialog from '../components/SendTestDialog'
 import PreviewDialog from '../components/PreviewDialog'
-import { toast } from '@lwm/ui'
+import { toast, getApiErrorMessage } from '@lwm/ui'
 import type { EmailTemplate, EmailTemplateFilters, EmailTemplatePreview } from '../types/emailTemplate'
 
 const STATUS_BADGES: Record<string, { label: string; className: string }> = {
@@ -37,8 +37,8 @@ export default function EmailTemplatesAdminTemplate() {
       await remove(template.id)
       toast.success('Template eliminado')
       mutate()
-    } catch {
-      toast.error('Error al eliminar')
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Error al eliminar'))
     }
   }
 
@@ -47,8 +47,8 @@ export default function EmailTemplatesAdminTemplate() {
     try {
       const preview = await emailTemplateService.preview(template.id)
       setPreviewData(preview)
-    } catch {
-      toast.error('Error al cargar vista previa')
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Error al cargar vista previa'))
     } finally {
       setPreviewLoading(false)
     }

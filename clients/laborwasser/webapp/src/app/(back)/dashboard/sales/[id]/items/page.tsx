@@ -58,7 +58,7 @@ export default function SalesOrderItemsPage({ params }: PageProps) {
                 onClick={() => setShowAddModal(true)}
               >
                 <i className="bi bi-plus-circle me-2"></i>
-                Agregar Item
+                Agregar partida
               </button>
             </div>
           </div>
@@ -127,7 +127,7 @@ export default function SalesOrderItemsPage({ params }: PageProps) {
                   <table className="table table-striped table-hover mb-0">
                     <thead className="table-dark">
                       <tr>
-                        <th>ID Item</th>
+                        <th>ID de partida</th>
                         <th>Producto ID</th>
                         <th>Cantidad</th>
                         <th>Precio Unitario</th>

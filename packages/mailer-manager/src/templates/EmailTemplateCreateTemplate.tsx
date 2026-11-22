@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useEmailTemplateActions } from '../hooks/useEmailTemplates'
-import { toast } from '@lwm/ui'
+import { toast, getApiErrorMessage } from '@lwm/ui'
 import type { EmailTemplateCategory } from '../types/emailTemplate'
 
 export default function EmailTemplateCreateTemplate() {
@@ -48,10 +48,10 @@ export default function EmailTemplateCreateTemplate() {
         category: category || undefined,
         status: 'draft',
       })
-      toast.success('Template creado. Abre el editor para disenar el contenido.')
+      toast.success('Plantilla creada. Abre el editor para diseñar el contenido.')
       router.push(`/dashboard/mailer-manager/${template.id}/edit`)
-    } catch {
-      toast.error('Error al crear el template')
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Error al crear el template'))
     }
   }
 

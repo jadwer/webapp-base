@@ -11,7 +11,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useAuth } from '@/modules/auth'
 import { myOrdersService } from '@/modules/sales'
-import { formatDateOnly } from '@lwm/ui'
+import { formatDateOnly, getApiErrorMessage } from '@lwm/ui'
 
 interface SalesOrder {
   id: string
@@ -65,8 +65,8 @@ export default function MyOrdersPage() {
         })
 
         setOrders(ordersData)
-      } catch {
-        setError('Error al cargar tus pedidos')
+      } catch (err) {
+        setError(getApiErrorMessage(err, 'Error al cargar tus pedidos'))
       } finally {
         setIsLoading(false)
       }
@@ -163,7 +163,7 @@ export default function MyOrdersPage() {
                     <th>No. Orden</th>
                     <th>Fecha</th>
                     <th>Entrega Est.</th>
-                    <th>Items</th>
+                    <th>Partidas</th>
                     <th className="text-end">Total</th>
                     <th>Estado</th>
                     <th></th>

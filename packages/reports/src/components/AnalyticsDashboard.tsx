@@ -18,7 +18,7 @@ export function AnalyticsDashboard() {
   return (
     <div className="analytics-dashboard">
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <h4 className="mb-0">Dashboard de Analytics</h4>
+        <h4 className="mb-0">Tablero de indicadores</h4>
         <div className="text-muted small">
           Ultima actualizacion: {new Date().toLocaleString('es-MX')}
         </div>

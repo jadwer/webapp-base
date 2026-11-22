@@ -1,5 +1,6 @@
 'use client'
 
+import { getApiErrorMessage } from '@lwm/ui'
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { invoiceSeriesService, CFDI_TYPE_LABELS, SOURCE_TYPE_LABELS } from '@/modules/billing'
 import type { InvoiceSeries, CreateInvoiceSeriesRequest, UpdateInvoiceSeriesRequest } from '@/modules/billing'
@@ -39,8 +40,8 @@ export default function InvoiceSeriesSettingsPage() {
       ])
       setSeries(seriesData)
       setCompanySetting(cs)
-    } catch {
-      toast.error('Error al cargar las series de facturación')
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Error al cargar las series de facturación'))
     } finally {
       setLoading(false)
     }

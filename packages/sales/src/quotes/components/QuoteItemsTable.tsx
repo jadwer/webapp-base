@@ -287,7 +287,7 @@ export function QuoteItemsTable({
 
     try {
       await mutations.update.mutateAsync({ id: itemId, data })
-      toast.success('Item actualizado')
+      toast.success('Partida actualizada')
       setEditingId(null)
       setEditValues(null)
       setEditErrors({})
@@ -300,7 +300,7 @@ export function QuoteItemsTable({
   const handleDelete = async (itemId: string) => {
     try {
       await mutations.delete.mutateAsync(itemId)
-      toast.success('Item eliminado')
+      toast.success('Partida eliminada')
       onItemsChanged?.()
     } catch (err) {
       toast.error(extractApiErrorMessage(err, 'Error al eliminar el item'))

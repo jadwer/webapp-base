@@ -21,6 +21,16 @@ export const getApiErrorMessage = (error: unknown, fallback: string): string => 
       if (typeof data.error === 'string' && data.error) return data.error
     }
   }
-  if (error instanceof Error && error.message) return error.message
+  // Regla 9: los mensajes genericos de axios vienen en ingles; se explican en espanol.
+  const status = (error as { response?: { status?: number } } | null)?.response?.status
+  if (status === 401) return 'La sesión expiró; vuelve a iniciar sesión.'
+  if (status === 403) return 'No tienes permiso para esta acción.'
+  if (status) return `${fallback} (error ${status})`
+  if (error instanceof Error && error.message) {
+    if (error.message === 'Network Error') return `${fallback}: no hay conexión con el servidor`
+    if (/^timeout of \d+ms exceeded$/.test(error.message)) return `${fallback}: el servidor tardó demasiado en responder`
+    if (/^Request failed with status code/.test(error.message)) return fallback
+    return error.message
+  }
   return fallback
 }

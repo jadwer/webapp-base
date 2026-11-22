@@ -6,7 +6,7 @@ import { useEmailTemplates } from '../hooks/useEmailTemplates'
 import { systemEmailService } from '../services/systemEmailService'
 import SendTestDialog from '../components/SendTestDialog'
 import PreviewDialog from '../components/PreviewDialog'
-import { toast } from '@lwm/ui'
+import { toast, getApiErrorMessage } from '@lwm/ui'
 import type { SystemEmail, SystemEmailFilters, SystemEmailPreview } from '../types/systemEmail'
 
 const MODULE_COLORS: Record<string, string> = {
@@ -35,8 +35,8 @@ export default function SystemEmailsTemplate() {
       await toggleEnabled(se)
       toast.success(`${se.name}: ${se.isEnabled ? 'Deshabilitado' : 'Habilitado'}`)
       mutate()
-    } catch {
-      toast.error('Error al cambiar estado')
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Error al cambiar estado'))
     }
   }
 
@@ -45,8 +45,8 @@ export default function SystemEmailsTemplate() {
       await assignTemplate(se.id, templateId || null)
       toast.success(templateId ? 'Template asignado' : 'Template removido')
       mutate()
-    } catch {
-      toast.error('Error al asignar template')
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Error al asignar template'))
     }
   }
 
@@ -55,8 +55,8 @@ export default function SystemEmailsTemplate() {
     try {
       const preview = await systemEmailService.preview(se.id)
       setPreviewData(preview)
-    } catch {
-      toast.error('Error al cargar vista previa')
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Error al cargar vista previa'))
     } finally {
       setPreviewLoading(false)
     }
@@ -70,7 +70,7 @@ export default function SystemEmailsTemplate() {
             <i className="bi bi-gear me-2"></i>
             Emails del Sistema
           </h1>
-          <p className="text-muted mb-0">Configura que emails se envian, cuales no, y asigna templates personalizados</p>
+          <p className="text-muted mb-0">Configura qué correos se envían y asigna plantillas personalizadas</p>
         </div>
       </div>
 

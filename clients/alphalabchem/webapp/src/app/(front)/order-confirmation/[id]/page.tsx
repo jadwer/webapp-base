@@ -7,6 +7,7 @@
 
 'use client'
 
+import { getApiErrorMessage } from '@lwm/ui'
 import { useState, useEffect, use } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -124,8 +125,8 @@ export default function OrderConfirmationPage({ params }: OrderConfirmationPageP
             }
           })
         })
-      } catch {
-        setError('No se pudo cargar la información del pedido')
+      } catch (err) {
+        setError(getApiErrorMessage(err, 'No se pudo cargar la información del pedido'))
       } finally {
         setIsLoading(false)
       }

@@ -12,7 +12,7 @@ import { quoteService, quoteItemService } from '../services'
 import { salesService } from '../../services'
 import { OperationsMenu, type OperationsMenuItem } from '../../components/OperationsMenu'
 import { exportQuoteItemsCsv } from '../../utils/exportCsv'
-import { toast, isPastDateOnly } from '@lwm/ui'
+import { toast, isPastDateOnly, getApiErrorMessage } from '@lwm/ui'
 import { extractApiErrorMessage } from '@lwm/products'
 import { ConfirmModal, ConfirmModalHandle } from '@lwm/ui'
 import { formatDateOnly } from '../../utils/dates'
@@ -84,8 +84,8 @@ export function QuotesTable({ quotes, isLoading, onQuoteUpdated }: QuotesTablePr
     setActionLoading(quote.id)
     try {
       await quoteService.downloadPdf(quote.id)
-    } catch {
-      toast.error('Error al descargar el PDF')
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Error al descargar el PDF'))
     } finally {
       setActionLoading(null)
     }
@@ -103,8 +103,8 @@ export function QuotesTable({ quotes, isLoading, onQuoteUpdated }: QuotesTablePr
       }
       exportQuoteItemsCsv(quote.quoteNumber, items)
       toast.success('Partidas exportadas')
-    } catch {
-      toast.error('Error al exportar las partidas')
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Error al exportar las partidas'))
     } finally {
       setActionLoading(null)
     }
@@ -144,8 +144,8 @@ export function QuotesTable({ quotes, isLoading, onQuoteUpdated }: QuotesTablePr
       await mutations.delete.mutateAsync(quoteId)
       toast.success('Cotización eliminada')
       onQuoteUpdated?.()
-    } catch {
-      toast.error('Error al eliminar la cotización')
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Error al eliminar la cotización'))
     }
   }
 
@@ -297,7 +297,7 @@ export function QuotesTable({ quotes, isLoading, onQuoteUpdated }: QuotesTablePr
               <th>Cliente</th>
               <th>Fecha</th>
               <th>Vigencia</th>
-              <th>Items</th>
+              <th>Partidas</th>
               <th className="text-end">Total</th>
               <th>Estado</th>
               <th className="text-end">Operaciones</th>

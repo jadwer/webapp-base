@@ -21,7 +21,7 @@ import { ContactDocuments } from './ContactDocuments'
 import { ContactPeople } from './ContactPeople'
 import { ContactCommercialFields } from './ContactCommercialFields'
 import { PhoneListInput } from './PhoneListInput'
-import { Button, EmailChipsInput, singleEmailError } from '@lwm/ui'
+import { Button, EmailChipsInput, singleEmailError, getApiErrorMessage } from '@lwm/ui'
 import { Input } from '@lwm/ui'
 import { useContactAddresses, useContactDocuments, useContactPeople } from '../hooks'
 import { useContactCatalogs } from '../hooks/useContactCatalogs'
@@ -406,10 +406,7 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
               }
             } catch (error: unknown) {
               // Continue with other documents even if one fails
-              const errorMessage = typeof error === 'object' && error !== null && 'response' in error
-                ? String((error as Record<string, unknown>).response)
-                : error instanceof Error ? error.message : String(error)
-              toast.error(`Error subiendo ${document.originalFilename}: ${errorMessage}`)
+              toast.error(getApiErrorMessage(error, `No se pudo subir ${document.originalFilename}`))
             }
           }
         }
@@ -453,8 +450,8 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
       // Call API to update existing address
       try {
         await contactAddressesService.update(id, updatedAddress)
-      } catch {
-        toast.error('Error al actualizar la dirección')
+      } catch (err) {
+        toast.error(getApiErrorMessage(err, 'Error al actualizar la dirección'))
       }
     }
   }
@@ -467,8 +464,8 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
       // Call API to delete existing address
       try {
         await contactAddressesService.delete(id)
-      } catch {
-        toast.error('Error al eliminar la dirección')
+      } catch (err) {
+        toast.error(getApiErrorMessage(err, 'Error al eliminar la dirección'))
       }
     }
   }
@@ -510,8 +507,8 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
       // Call API to delete existing document
       try {
         await contactDocumentsService.delete(id)
-      } catch {
-        toast.error('Error al eliminar el documento')
+      } catch (err) {
+        toast.error(getApiErrorMessage(err, 'Error al eliminar el documento'))
       }
     }
   }
@@ -528,8 +525,8 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
       // Call API to verify existing document
       try {
         await contactDocumentsService.verify(id)
-      } catch {
-        toast.error('Error al verificar el documento')
+      } catch (err) {
+        toast.error(getApiErrorMessage(err, 'Error al verificar el documento'))
       }
     }
   }
@@ -556,8 +553,8 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
       // Call API to update existing person
       try {
         await contactPeopleService.update(id, updatedPerson)
-      } catch {
-        toast.error('Error al actualizar la persona')
+      } catch (err) {
+        toast.error(getApiErrorMessage(err, 'Error al actualizar la persona'))
       }
     }
   }
@@ -570,8 +567,8 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
       // Call API to delete existing person
       try {
         await contactPeopleService.delete(id)
-      } catch {
-        toast.error('Error al eliminar la persona')
+      } catch (err) {
+        toast.error(getApiErrorMessage(err, 'Error al eliminar la persona'))
       }
     }
   }

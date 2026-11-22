@@ -13,6 +13,7 @@
  * el menu apunta aqui.
  */
 
+import { getApiErrorMessage } from '@lwm/ui'
 import { useState, useEffect, useCallback, useRef } from 'react'
 import {
   documentLegendsService,
@@ -80,8 +81,8 @@ function DocumentLegendsTab() {
       }
       setLegends(byType)
       setPlaceholders(placeholderList)
-    } catch {
-      toast.error('Error al cargar las leyendas de documentos')
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Error al cargar las leyendas de documentos'))
     } finally {
       setLoading(false)
     }
