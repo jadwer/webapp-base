@@ -1,1 +1,0 @@
-export { PorQueComprar } from './PorQueComprar'

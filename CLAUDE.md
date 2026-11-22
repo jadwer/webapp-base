@@ -1,114 +1,60 @@
-# LWM Codebase Monorepo - Guía para Claude
+# webapp-base: guia para Claude
 
-Este es el monorepo `lwm-codebase`: el master vivo de la arquitectura WordPress-style.
-Contiene el template Next.js base + los packages `@lwm/*` publicados a GitHub Packages.
+Monorepo pnpm del frontend del ERP (Next.js 15 + React 19, Bootstrap 5 + SASS). Backend en
+`../api-base/`. Rumbo, estado de prod y pendientes: `../ROADMAP.md`, `../PROMPT.md` y
+`../roadmap/pendientes.yaml` (carpeta `base/` del workspace, fuera de este repo).
 
-> Repo de cliente (consumidor de packages): vive en `clients/<name>/` aparte. NO en este repo.
-> Backend: `../api-base/` (template Laravel separado, no es monorepo).
+## Reglas
 
----
-
-## Críticas reglas (heredadas de webapp-base original)
-
-- NUNCA ejecutar `git commit` ni `git push` automáticamente. Solo entregar el texto del mensaje para ejecución manual.
-- NO emojis en commits ni en respuestas. Tono profesional.
-- NO atribución "Generated with Claude" ni "Co-Authored-By".
-- NO regenerar módulos existentes.
-- Conventional Commits cuando aplique (`feat:`, `fix:`, `docs:`, `test:`, `chore:`).
-
----
+- Commits y push solo con instruccion de Gabino. Sin emojis, sin guion largo, sin
+  atribucion ("Generated with Claude", "Co-Authored-By"). Conventional Commits.
+- Rama de trabajo: `feat/rediseno-cotizaciones`. `refactor/wp-style` y `master` son
+  historicas: no se trabaja ni se despliega de ahi.
+- No regenerar modulos existentes. El backend es la fuente de verdad: listas, catalogos y
+  enums se consumen del backend, no se duplican aqui.
+- Todo texto que ve el usuario va en espanol, incluidos los errores; un error de
+  validacion se muestra con su detalle (`getApiErrorMessage` de `@lwm/ui`), nunca un aviso
+  generico.
+- Un cambio en una pantalla del tenant de LaborWasser se replica en AlphaLab y en la
+  plantilla: `npm run check:parity` lo vigila y el hook de push lo corre.
 
 ## Estructura
 
 ```
-webapp-base/  (este monorepo, slug GitHub mantenido)
-├── apps/
-│   └── template/          # Next.js 15 demo del template (ex-webapp-base raíz)
-├── packages/
-│   ├── ui/                # @lwm/ui - design system
-│   ├── auth/              # @lwm/auth - Sanctum + role guards
-│   ├── app-config/        # @lwm/app-config - AppSettings runtime
-│   ├── products/          # @lwm/products
-│   ├── contacts/          # @lwm/contacts
-│   ├── sales/             # @lwm/sales
-│   ├── ecommerce/         # @lwm/ecommerce
-│   ├── page-builder/      # @lwm/page-builder
-│   ├── mailer-manager/    # @lwm/mailer-manager
-│   ├── permissions/       # @lwm/permissions
-│   └── types/             # @lwm/types - shared TS types
-├── legacy_files/          # documentos históricos pre-refactor
-├── package.json           # root, name "lwm-codebase", scripts agregadores
-├── pnpm-workspace.yaml
-├── tsconfig.base.json
-├── .changeset/            # Changesets config (semver + publish)
-├── .npmrc                 # @lwm scope → GitHub Packages
-└── CLAUDE.md              # este archivo
+webapp-base/
+├── apps/template/            # plantilla Next.js (demo marca blanca); aqui corre vitest
+├── clients/laborwasser/      # tenant de LaborWasser (lo que esta en prod)
+├── clients/alphalabchem/     # tenant de AlphaLab
+├── packages/                 # 24 packages @lwm/* consumidos con workspace:*
+│   accounting app-config audit auth billing commissions contacts crm ecommerce finance
+│   guide hr inventory mailer-manager page-builder permissions primitives products
+│   purchase reports sales system-health types ui
+└── scripts/                  # verify.sh, check-parity.sh (los usa .githooks/pre-push)
 ```
 
----
+Los packages no se publican a ningun registro: viven en el workspace y se empaquetan con
+el build del tenant. Las piezas del rediseno (`LwSurface`, `LwPageTitle`, `LwKpiCard`,
+`LwStatusPill`, `LwTableWrap`, `LwPagination`, `LwResultModal`, `ConfirmModal`) estan en
+`@lwm/ui`.
 
-## Comandos clave
+## Comandos
 
 ```bash
-# Dev del template Next.js (igual que antes del refactor):
-pnpm dev
-
-# Build de todo (template + packages):
-pnpm build
-
-# Build solo packages (skip template):
-pnpm build:packages
-
-# Tests del template:
-pnpm test:template
-
-# Tests de todos los packages + template:
-pnpm test
-
-# Crear changeset cuando modificas un package:
-pnpm changeset
-
-# Aplicar versiones pendientes:
-pnpm version
-
-# Publicar a GitHub Packages:
-pnpm release
+pnpm dev                                   # plantilla en localhost:3000
+pnpm build:template                        # build de la plantilla
+cd apps/template && npx vitest run         # todas las pruebas (la suite del tenant no corre)
+pnpm --filter @lwm/sales test              # pruebas de un package
+npm run check:parity                       # paridad entre tenants
+scripts/verify.sh                          # lo que corre el hook antes del push
+fuser -k 3000/tcp && rm -rf apps/template/.next   # liberar el puerto y limpiar
 ```
 
----
+Build y despliegue de dev y de prod: `../scripts/ops/build-dev.sh`, `build-prod.sh`,
+`deploy_front.sh`; procedimiento en `../docs/RUNBOOK_RELEASE.md`. El build necesita
+`.env.production` del tenant o el bundle llama rutas relativas.
 
-## Publicación a GitHub Packages
+## AtomoPlatform es otro proyecto
 
-1. Crear PAT en GitHub con scopes `write:packages`, `read:packages`, `repo`.
-2. Local: `echo "//npm.pkg.github.com/:_authToken=YOUR_PAT" >> ~/.npmrc`
-3. CI: settear secret `NPM_TOKEN` en repo settings.
-
-El registry para `@lwm` ya está configurado en `.npmrc` del monorepo:
-```
-@lwm:registry=https://npm.pkg.github.com
-```
-
----
-
-## Política de hotfixes durante el refactor
-
-- Hotfix urgente a producción LWM → branch `master` (NO `refactor/wp-style`).
-- Refactor activo → branch `refactor/wp-style`.
-- Tag de retorno garantizado: `v1-stable-pre-refactor` (en este repo y en `api-base`).
-
----
-
-## Aislamiento de AtomoPlatform
-
-Este monorepo NO se mezcla con AtomoPlatform (`/home/jadwer/dev/AtomoSoluciones/AtomoPlatform/`).
-
-| Ecosistema | Stack | npm scope | Registry |
-|---|---|---|---|
-| **LWM Codebase (este)** | Next.js 15 + Bootstrap 5 + SASS | `@lwm/*` | GitHub Packages |
-| **AtomoPlatform** | Vite + Radix + CSS Modules | `@atomo/*` | Verdaccio |
-
----
-
-## Plan completo
-
-`/home/jadwer/.claude/plans/zesty-snacking-dijkstra.md`
+`~/dev/AtomoSoluciones/AtomoPlatform/` (Vite + Radix, `@atomo/*`, Verdaccio) no se mezcla
+con este monorepo. Lo unico compartido es `@lwm/guide`, que consume el backend de
+`atomo/guide`.

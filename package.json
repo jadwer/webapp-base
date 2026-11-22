@@ -18,9 +18,6 @@
     "lint": "pnpm -r lint",
     "typecheck": "pnpm -r typecheck",
     "clean": "pnpm -r exec rm -rf dist .next .turbo node_modules/.cache",
-    "changeset": "changeset",
-    "version": "changeset version",
-    "release": "pnpm build:packages && changeset publish",
     "check:parity": "bash scripts/check-parity.sh"
   },
   "devDependencies": {
