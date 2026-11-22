@@ -5,6 +5,7 @@ import { appSettingsService, type AppSettingValue, type AppSettingsGrouped } fro
 import { FaqSettingEditor, type FaqEntry } from '@/modules/app-config'
 import axiosClient from '@/lib/axiosClient'
 import { toast } from '@/lib/toast'
+import { extractApiErrorMessage } from '@/modules/products'
 
 interface EditingState {
   key: string
@@ -79,8 +80,8 @@ export default function AppConfigPage() {
     try {
       const data = await appSettingsService.getAll()
       setSettings(data)
-    } catch {
-      toast.error('Error al cargar la configuración')
+    } catch (err) {
+      toast.error(extractApiErrorMessage(err, 'No se pudo cargar la configuración'))
     } finally {
       setLoading(false)
     }
@@ -121,8 +122,8 @@ export default function AppConfigPage() {
 
       setEditing(null)
       toast.success('Configuración actualizada')
-    } catch {
-      toast.error('Error al guardar la configuración')
+    } catch (err) {
+      toast.error(extractApiErrorMessage(err, 'No se pudo guardar la configuración'))
     } finally {
       setSaving(false)
     }
@@ -145,8 +146,8 @@ export default function AppConfigPage() {
         return next
       })
       toast.success('Preguntas frecuentes actualizadas')
-    } catch {
-      toast.error('Error al guardar las preguntas frecuentes')
+    } catch (err) {
+      toast.error(extractApiErrorMessage(err, 'No se pudieron guardar las preguntas frecuentes'))
     } finally {
       setSaving(false)
     }
@@ -173,8 +174,8 @@ export default function AppConfigPage() {
       })
 
       toast.success('Configuración actualizada')
-    } catch {
-      toast.error('Error al guardar la configuración')
+    } catch (err) {
+      toast.error(extractApiErrorMessage(err, 'No se pudo guardar la configuración'))
     } finally {
       setSaving(false)
     }
