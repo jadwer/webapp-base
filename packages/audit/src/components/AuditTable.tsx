@@ -115,9 +115,9 @@ export default function AuditTable({
                     </span>
                     {subjectName ? (
                       <span className="text-dark fw-medium">{subjectName}</span>
-                    ) : (
+                    ) : audit.auditableId ? (
                       <code className="small text-muted">#{audit.auditableId}</code>
-                    )}
+                    ) : null}
                   </div>
                 </td>
                 <td>

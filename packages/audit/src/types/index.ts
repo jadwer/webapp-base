@@ -24,7 +24,7 @@ export interface Audit {
   id: string
   event: AuditEvent
   userId: number | null
-  auditableType: string
+  auditableType: string | null
   auditableId: number
   oldValues: Record<string, unknown> | null
   newValues: Record<string, unknown> | null
@@ -192,7 +192,9 @@ export const EVENT_ICONS: Record<AuditEvent, string> = {
  * Format entity type for display
  * "Modules\\User\\Models\\User" -> "Usuario" or "User" if not mapped
  */
-export function formatAuditableType(type: string): string {
+export function formatAuditableType(type: string | null | undefined): string {
+  // Los registros de sesion (entrar, salir, intento fallido) no tienen tipo.
+  if (!type) return 'Sesión'
   return AUDITABLE_TYPE_LABELS[type] || type.split('\\').pop() || type
 }
 
