@@ -33,12 +33,18 @@ export interface LocalCartPageControllerOptions {
   onCheckout?: () => void
   /** Cotizacion creada desde el carrito (el cliente la manda a su analitica). */
   onQuoteCreated?: (quoteId: string) => void
+  /** Cotizacion sin registro generada (folio si el backend lo devolvio). */
+  onGuestQuoteCreated?: (folio: string | null) => void
+  /** El visitante con sesion paso del carrito al pago. */
+  onBeginCheckout?: () => void
 }
 
 export function useLocalCartPageController({
   checkoutUrl = '/checkout',
   onCheckout,
   onQuoteCreated,
+  onGuestQuoteCreated,
+  onBeginCheckout,
 }: LocalCartPageControllerOptions = {}) {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -120,13 +126,14 @@ export function useLocalCartPageController({
     try {
       const folio = await cartQuotePdfService.requestFormalQuote(guestQuote, items)
       setShowGuestQuoteModal(false)
+      onGuestQuoteCreated?.(folio ?? null)
       toast.success(folio ? `Cotización ${folio} descargada. Ventas ya la recibió y te contactará.` : 'Cotización descargada. Ventas ya la recibió y te contactará.')
     } catch (error) {
       setGuestQuoteError(await quoteRequestErrorMessage(error, 'No se pudo generar la cotización. Intenta de nuevo en unos minutos.'))
     } finally {
       setIsRequestingQuote(false)
     }
-  }, [guestQuote, items])
+  }, [guestQuote, items, onGuestQuoteCreated])
 
   // POST /quotes/from-cart (sync previo del carrito local a la API)
   const handleRequestQuote = useCallback(async () => {
@@ -190,6 +197,7 @@ export function useLocalCartPageController({
       const apiCart = await shoppingCartService.localSync.syncLocalCartToAPI(items)
       shoppingCartService.localSync.saveCartIdForCheckout(apiCart.id)
       toast.success('¡Carrito listo!')
+      onBeginCheckout?.()
       // NO limpiar el carrito local aqui: se limpia al confirmar la orden.
       if (onCheckout) onCheckout()
       else router.push(checkoutUrl)
@@ -202,7 +210,7 @@ export function useLocalCartPageController({
       toast.error('Error al preparar el carrito. Por favor intenta de nuevo.')
       setIsSyncingToCheckout(false)
     }
-  }, [items, isAuthenticated, onCheckout, checkoutUrl, router, checkoutBlockedReason])
+  }, [items, isAuthenticated, onCheckout, onBeginCheckout, checkoutUrl, router, checkoutBlockedReason])
 
   // Auto-checkout al volver del login (action=checkout)
   useEffect(() => {

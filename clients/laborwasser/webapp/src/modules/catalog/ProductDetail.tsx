@@ -14,7 +14,7 @@
  * package queda intacto para los demas tenants.
  */
 
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import {
@@ -25,7 +25,7 @@ import {
 } from '@lwm/ecommerce'
 import { useTrackProductView } from '@lwm/ecommerce'
 import { toast } from '@lwm/ui'
-import { trackAddToCart, trackEvent } from '@/lib/analytics'
+import { trackAddToCart, trackEvent, trackViewItem } from '@/lib/analytics'
 import { QUOTE_ONLY_LABEL, requiresQuote } from '@lwm/products/pricing'
 import { LandingProductCard } from '../landing/components/LandingProductCard'
 import { optimizedImage } from '@/lib/images'
@@ -67,6 +67,13 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, initial
 
   // Contador de vistas (mismo endpoint de siempre)
   useTrackProductView(productId)
+
+  // GA4 view_item: una vez por producto cargado.
+  const viewedId = product?.id
+  useEffect(() => {
+    if (product) trackViewItem(product)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [viewedId])
 
   const handleAddToCart = useCallback(() => {
     if (!product) return

@@ -184,7 +184,10 @@ const MyQuotesTab: React.FC = () => {
 const CartContent: React.FC = () => {
   const controller = useLocalCartPageController({
     checkoutUrl: '/checkout',
-    onQuoteCreated: (quoteId) => trackEvent('generate_lead', { quote_id: quoteId }),
+    onQuoteCreated: (quoteId) => trackEvent('generate_lead', { quote_id: quoteId, method: 'cuenta' }),
+    // J2: la cotizacion sin registro tambien es un prospecto (antes no se media).
+    onGuestQuoteCreated: (folio) => trackEvent('generate_lead', { quote_number: folio ?? undefined, method: 'sin_registro' }),
+    onBeginCheckout: () => trackEvent('begin_checkout', { currency: 'MXN' }),
   })
   const {
     items,

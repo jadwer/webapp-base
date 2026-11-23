@@ -24,6 +24,9 @@ export type BusinessEvent =
   | 'sign_up'
   | 'generate_lead'
   | 'purchase'
+  // Embudo de la tienda (22-11-2026): ficha vista e inicio de pago.
+  | 'view_item'
+  | 'begin_checkout'
 
 type Gtag = (command: 'event', name: string, params?: Record<string, unknown>) => void
 
@@ -58,5 +61,15 @@ export function trackAddToCart(product: EnhancedPublicProduct, quantity = 1): vo
     currency: 'MXN',
     value: price * quantity,
     items: [{ item_id: product.attributes?.sku || product.id, item_name: product.displayName, price, quantity }],
+  })
+}
+
+/** Ficha de producto vista (una vez por producto cargado). */
+export function trackViewItem(product: EnhancedPublicProduct): void {
+  const price = product.attributes?.price ?? 0
+  trackEvent('view_item', {
+    currency: 'MXN',
+    value: price,
+    items: [{ item_id: product.attributes?.sku || product.id, item_name: product.displayName, price }],
   })
 }
