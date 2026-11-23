@@ -899,22 +899,6 @@ function AdminDashboard() {
           </div>
         </div>
 
-        <div className="col-md-4">
-          <div className="card shadow-sm border-0 h-100">
-            <div className="card-body d-flex align-items-center">
-              <i className="bi bi-palette display-5 text-primary me-3" aria-hidden="true"></i>
-              <div>
-                <h5 className="card-title mb-1">
-                  <a href="/dashboard/design-system" className="text-decoration-none">
-                    Design System
-                  </a>
-                </h5>
-                <p className="card-text text-muted small">Componentes y estilos de la interfaz</p>
-                <span className="badge bg-primary">Componentes</span>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
     </main>
   )
