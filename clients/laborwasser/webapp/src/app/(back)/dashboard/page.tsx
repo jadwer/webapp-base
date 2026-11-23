@@ -136,12 +136,22 @@ function AdminDashboard() {
   const formatNumber = (num: number) => numberFormatter.format(num)
 
   // Calculate accounting metrics
-  const totalAssets = balanceGeneral?.totals?.total_assets || 0
-  const totalRevenue = salesReports?.data?.total_sales || 0
-  const totalPurchases = purchaseReports?.data?.total_purchases || 0
-  const netIncome = estadoResultados?.data?.net_income || (totalRevenue - totalPurchases)
-  const salesOrders = salesReports?.data?.total_orders || 0
-  const purchaseOrders = purchaseReports?.data?.total_orders || 0
+  // Los reportes responden JSON:API: los valores van en data[0].attributes
+  // (antes se leian de otra forma y los cuatro indicadores salian en $0).
+  const reportAttributes = (report: unknown): Record<string, unknown> => {
+    const data = (report as { data?: unknown } | undefined)?.data
+    const first = Array.isArray(data) ? data[0] : data
+    return ((first as { attributes?: Record<string, unknown> } | undefined)?.attributes) ?? {}
+  }
+  const summaryOf = (report: unknown) => (reportAttributes(report).summary as Record<string, unknown> | undefined) ?? {}
+  const amount = (value: unknown) => Number(value) || 0
+  const totalAssets = amount(reportAttributes(balanceGeneral).totalAssets)
+  const totalRevenue = amount(summaryOf(salesReports).total_sales)
+  const totalPurchases = amount(summaryOf(purchaseReports).total_purchases)
+  const incomeAttributes = reportAttributes(estadoResultados)
+  const netIncome = incomeAttributes.netIncome != null ? amount(incomeAttributes.netIncome) : totalRevenue - totalPurchases
+  const salesOrders = amount(summaryOf(salesReports).total_orders)
+  const purchaseOrders = amount(summaryOf(purchaseReports).total_orders)
 
   // Calculate billing metrics
   const totalInvoices = invoices?.length || 0

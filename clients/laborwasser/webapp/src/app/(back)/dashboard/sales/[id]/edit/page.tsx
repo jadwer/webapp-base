@@ -59,8 +59,11 @@ export default function EditSalesOrderPage({ params }: PageProps) {
     setSubmitError(null)
 
     try {
+      // El estatus cambia con las acciones del pedido: no viaja en la edicion.
+      const { status: _status, ...editable } = formData
+      void _status
       const orderData = {
-        ...formData,
+        ...editable,
         contactId: parseInt(formData.contactId)
       }
 

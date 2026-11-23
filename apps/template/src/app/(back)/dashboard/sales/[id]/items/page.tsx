@@ -18,13 +18,6 @@ export default function SalesOrderItemsPage({ params }: PageProps) {
 
   const { salesOrderItems, isLoading, error, mutate } = useSalesOrderItems(resolvedParams.id)
 
-  // Debug: Check what data we're actually receiving
-  console.log('🔍 [Debug] Sales Order Items Raw Data:', salesOrderItems)
-  if (salesOrderItems && salesOrderItems.length > 0) {
-    console.log('🔍 [Debug] First Item Fields:', Object.keys(salesOrderItems[0]))
-    console.log('🔍 [Debug] First Item Data:', salesOrderItems[0])
-  }
-
   const filteredItems = salesOrderItems?.filter((item) =>
     searchTerm === '' ||
     item.productId?.toString().includes(searchTerm) ||

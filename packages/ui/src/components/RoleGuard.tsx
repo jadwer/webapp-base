@@ -42,12 +42,6 @@ export default function RoleGuard({
         role.toLowerCase() === userRole
       )
 
-      console.log('🔐 RoleGuard Debug:', {
-        userRole,
-        allowedRoles,
-        hasPermission,
-        user: user.name
-      })
 
       if (!hasPermission) {
         router.replace(fallbackRoute)
