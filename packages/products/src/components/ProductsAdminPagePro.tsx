@@ -12,7 +12,8 @@
 import React, { useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { ConfirmModal, LwSurface, LwPageTitle, LwPagination, LwTableWrap, LwStatusPill, LwIconButton, toast, type ConfirmModalHandle } from '@lwm/ui'
+import { ConfirmModal, LwSurface, LwPageTitle, LwPagination, LwTableWrap, LwStatusPill, LwIconButton, toast, saveBlobAs, getBlobErrorMessage, type ConfirmModalHandle } from '@lwm/ui'
+import { axiosClient } from '@lwm/auth'
 import { useProducts, useProductMutations, useBrands, useCategories, useUnits } from '../hooks'
 import { useProductsUIStore, useProductsFilters, useProductsPage, useProductsViewMode } from '../store/productsUIStore'
 import { BulkAssignCategoryDialog } from './BulkAssignCategoryDialog'
@@ -69,6 +70,27 @@ export const ProductsAdminPagePro = React.memo(() => {
   const { setFilters, setPage, setViewMode, clearFilters } = useProductsUIStore()
   const [searchTerm, setSearchTerm] = useState(filters.name ?? '')
   const [updatedAt, setUpdatedAt] = useState(() => new Date())
+
+  // Exporta todo el catalogo que cumple los filtros, con las claves SAT (PRO-21).
+  const [exporting, setExporting] = useState(false)
+  const exportToExcel = async () => {
+    setExporting(true)
+    try {
+      const params: Record<string, string> = {}
+      const term = filters.name || filters.sku
+      if (term) params['filter[search]'] = term
+      if (filters.categoryId) params['filter[category_id]'] = String(filters.categoryId)
+      if (filters.brandId) params['filter[brand_id]'] = String(filters.brandId)
+      if (filters.unitId) params['filter[unit_id]'] = String(filters.unitId)
+      if (filters.pricingType) params['filter[pricing_type]'] = String(filters.pricingType)
+      const response = await axiosClient.get('/api/v1/products/export', { params, responseType: 'blob', timeout: 180000 })
+      saveBlobAs(response.data as Blob, `productos-${new Date().toISOString().slice(0, 10)}.xlsx`)
+    } catch (err) {
+      toast.error(await getBlobErrorMessage(err, 'No se pudo exportar el catálogo'))
+    } finally {
+      setExporting(false)
+    }
+  }
 
   const { brands } = useBrands({ page: { number: 1, size: 200 } })
   const { categories } = useCategories({ page: { number: 1, size: 200 } })
@@ -140,6 +162,9 @@ export const ProductsAdminPagePro = React.memo(() => {
           subtitle={<>Administra los productos del sistema y web {total != null ? <span className="small text-muted ms-1">{total.toLocaleString('es-MX')} productos {hasFilters ? 'con estos filtros' : 'en total'}</span> : null}</>}
           actions={
             <>
+              <button type="button" className="btn btn-outline-primary" onClick={exportToExcel} disabled={exporting} data-testid="products-export">
+                <i className="bi bi-file-earmark-excel me-1" aria-hidden="true" /> {exporting ? 'Exportando...' : 'Exportar a Excel'}
+              </button>
               <button type="button" className="btn btn-primary" onClick={() => setAssignOpen(true)}>
                 <i className="bi bi-diagram-3 me-1" aria-hidden="true" /> Reasignar categoría por marca
               </button>

@@ -119,7 +119,7 @@ export const OrdersAdminPage = React.memo(() => {
   }, [deleteEcommerceOrder])
 
   const handleCreateNew = React.useCallback(() => {
-    navigation.push('/dashboard/ecommerce/orders/create')
+    navigation.push('/dashboard/sales/create')
   }, [navigation])
 
   // Format currency
@@ -153,7 +153,7 @@ export const OrdersAdminPage = React.memo(() => {
             onClick={handleCreateNew}
           >
             <i className="bi bi-plus-lg me-2" />
-            Nueva Orden
+            Nuevo pedido
           </Button>
         </div>
       </div>

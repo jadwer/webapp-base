@@ -3,12 +3,12 @@
 import { Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { useAuthRedirect } from '@/hooks/useAuthRedirect'
-import { LoginTemplate } from '@/modules/auth'
+import { LoginTemplate, safeRedirect } from '@/modules/auth'
 import { DemoLoginCards } from '@/modules/demo'
 
 function LoginContent() {
   const searchParams = useSearchParams()
-  const redirect = searchParams.get('redirect') || '/dashboard'
+  const redirect = safeRedirect(searchParams.get('redirect'))
   const { shouldShowLogin } = useAuthRedirect()
 
   // Mostrar loading hasta que sepamos si mostrar login o redirigir

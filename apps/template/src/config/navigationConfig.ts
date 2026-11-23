@@ -232,19 +232,6 @@ export const adminNavigation: NavigationSection = {
     },
 
     // Catálogo Público
-    {
-      key: 'catalog',
-      label: 'Catálogo Público',
-      icon: 'bi-grid-3x3-gap',
-      activePathPrefixes: ['/dashboard/catalog'],
-      permissions: [],
-      items: [
-        { href: '/dashboard/catalog', label: 'Gestión', icon: 'bi-grid-3x3-gap', permissions: ['products.index'] },
-        { href: '/dashboard/catalog/featured', label: 'Productos Destacados', icon: 'bi-star', permissions: ['products.index'] },
-        { href: '/dashboard/catalog/offers', label: 'Ofertas', icon: 'bi-percent', permissions: ['products.index'] },
-        { href: '/dashboard/catalog/settings', label: 'Configuración', icon: 'bi-gear', permissions: ['products.index'] },
-      ],
-    },
 
     // E-commerce
     {
@@ -256,7 +243,6 @@ export const adminNavigation: NavigationSection = {
       items: [
         { href: '/dashboard/ecommerce', label: 'Panel de comercio electrónico', icon: 'bi-speedometer2', permissions: ['sales-orders.index'] },
         { href: '/dashboard/ecommerce/orders', label: 'Órdenes', icon: 'bi-bag-check', permissions: ['sales-orders.index'] },
-        { href: '/dashboard/ecommerce/orders/create', label: 'Nueva Orden', icon: 'bi-plus-circle', permissions: ['sales-orders.store'] },
       ],
     },
 

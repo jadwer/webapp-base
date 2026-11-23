@@ -64,9 +64,9 @@ describe('useNavigation', () => {
       expect(result.current.topLinks).toHaveLength(1)
     })
 
-    it('sees all 17 groups', () => {
+    it('sees all 16 groups', () => {
       const { result } = renderHook(() => useNavigation())
-      expect(result.current.groups).toHaveLength(17)
+      expect(result.current.groups).toHaveLength(16)
     })
 
     it('sees all disabled modules', () => {

@@ -1,8 +1,14 @@
 import { RegisterForm } from '../components/RegisterForm';
+import { withRedirect } from '../lib/redirect';
 import Link from "next/link";
 import styles from '../styles/AuthTemplate.module.scss';
 
-export default function RegisterTemplate() {
+interface Props {
+  /** Pagina a la que iba el visitante; viaja al inicio de sesion tras registrarse. */
+  redirect?: string | null
+}
+
+export default function RegisterTemplate({ redirect }: Props = {}) {
   return (
     <div className={styles.authContainer}>
       <div className={styles.authCard}>
@@ -15,13 +21,13 @@ export default function RegisterTemplate() {
         </div>
         
         <div className={styles.authForm}>
-          <RegisterForm />
+          <RegisterForm redirect={redirect} />
         </div>
         
         <div className={styles.authFooter}>
           <p>
             ¿Ya tienes una cuenta?{" "}
-            <Link href="/auth/login">
+            <Link href={withRedirect('/auth/login', redirect)}>
               ¡Inicia sesión aquí!
             </Link>
           </p>

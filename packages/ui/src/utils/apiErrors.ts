@@ -34,3 +34,29 @@ export const getApiErrorMessage = (error: unknown, fallback: string): string => 
   }
   return fallback
 }
+
+/** Guarda en el navegador un archivo recibido como blob (exportaciones a Excel, PDF). */
+export const saveBlobAs = (blob: Blob, filename: string): void => {
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = filename
+  document.body.appendChild(link)
+  link.click()
+  link.remove()
+  URL.revokeObjectURL(url)
+}
+
+/** El error de una descarga llega como blob: se lee su JSON para mostrar el motivo. */
+export const getBlobErrorMessage = async (error: unknown, fallback: string): Promise<string> => {
+  const data = (error as { response?: { data?: unknown } } | null)?.response?.data
+  if (data instanceof Blob) {
+    try {
+      const parsed = JSON.parse(await data.text()) as { errors?: { detail?: string }[]; message?: string; error?: string }
+      return parsed.errors?.[0]?.detail || parsed.message || parsed.error || fallback
+    } catch {
+      return fallback
+    }
+  }
+  return getApiErrorMessage(error, fallback)
+}

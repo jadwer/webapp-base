@@ -252,7 +252,6 @@ export const adminNavigation: NavigationSection = {
       items: [
         { href: '/dashboard/ecommerce', label: 'Panel de comercio electrónico', icon: 'bi-speedometer2', permissions: ['sales-orders.index'] },
         { href: '/dashboard/ecommerce/orders', label: 'Órdenes', icon: 'bi-bag-check', permissions: ['sales-orders.index'] },
-        { href: '/dashboard/ecommerce/orders/create', label: 'Nueva Orden', icon: 'bi-plus-circle', permissions: ['sales-orders.store'] },
       ],
     },
 

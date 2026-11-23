@@ -109,6 +109,19 @@ function initialFormData(contact: ContactParsed | undefined, roleContext: Contac
   }
 }
 
+/**
+ * Refresca las listas del contacto tras guardar. Las pestañas leen llaves
+ * distintas (`contact`, `contact-addresses`, `contact-documents`,
+ * `contact-people`); antes solo se revalidaba `contact` y la pestaña seguia
+ * mostrando lo anterior (CON-11).
+ */
+const CONTACT_CACHE_KEYS = ['contact', 'contact-addresses', 'contact-documents', 'contact-people']
+async function revalidateContactCaches(contactId: string | number | null | undefined): Promise<void> {
+  if (contactId == null) return
+  const { mutate } = await import('swr')
+  await mutate((key) => Array.isArray(key) && CONTACT_CACHE_KEYS.includes(String(key[0])) && String(key[1]) === String(contactId))
+}
+
 export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
   contact,
   onSubmit,
@@ -411,14 +424,7 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
           }
         }
 
-        // Invalidate SWR cache for the created contact to ensure fresh data on view
-        const { mutate } = await import('swr')
-
-        // Invalidate the specific contact with includes
-        mutate(['contact', relatedContactId, ['contactAddresses', 'contactDocuments', 'contactPeople']])
-
-        // Also invalidate general contact cache
-        mutate(key => Array.isArray(key) && key[0] === 'contact' && key[1] === relatedContactId)
+        await revalidateContactCaches(relatedContactId)
       }
 
     } catch (error) {
@@ -450,6 +456,7 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
       // Call API to update existing address
       try {
         await contactAddressesService.update(id, updatedAddress)
+        await revalidateContactCaches(contact?.id)
       } catch (err) {
         toast.error(getApiErrorMessage(err, 'Error al actualizar la dirección'))
       }
@@ -464,6 +471,7 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
       // Call API to delete existing address
       try {
         await contactAddressesService.delete(id)
+        await revalidateContactCaches(contact?.id)
       } catch (err) {
         toast.error(getApiErrorMessage(err, 'Error al eliminar la dirección'))
       }
@@ -507,6 +515,7 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
       // Call API to delete existing document
       try {
         await contactDocumentsService.delete(id)
+        await revalidateContactCaches(contact?.id)
       } catch (err) {
         toast.error(getApiErrorMessage(err, 'Error al eliminar el documento'))
       }
@@ -525,6 +534,7 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
       // Call API to verify existing document
       try {
         await contactDocumentsService.verify(id)
+        await revalidateContactCaches(contact?.id)
       } catch (err) {
         toast.error(getApiErrorMessage(err, 'Error al verificar el documento'))
       }
@@ -553,6 +563,7 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
       // Call API to update existing person
       try {
         await contactPeopleService.update(id, updatedPerson)
+        await revalidateContactCaches(contact?.id)
       } catch (err) {
         toast.error(getApiErrorMessage(err, 'Error al actualizar la persona'))
       }
@@ -567,6 +578,7 @@ export const ContactFormTabs: React.FC<ContactFormTabsProps> = ({
       // Call API to delete existing person
       try {
         await contactPeopleService.delete(id)
+        await revalidateContactCaches(contact?.id)
       } catch (err) {
         toast.error(getApiErrorMessage(err, 'Error al eliminar la persona'))
       }

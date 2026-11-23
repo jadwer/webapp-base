@@ -8,6 +8,7 @@ import {
 } from '../schemas/register.schema';
 import { useAuth } from '../lib/auth';
 import { handleApiErrors } from '../lib/handleApiErrors';
+import { withRedirect } from '../lib/redirect';
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { StatusMessage, Input } from '@lwm/primitives';
@@ -16,9 +17,11 @@ import styles from '../styles/LoginForm.module.scss';
 export interface RegisterFormProps {
   /** Cuenta creada (el cliente la manda a su analitica). */
   onRegistered?: () => void
+  /** Pagina a la que iba el visitante (BUG-03): se conserva al volver al inicio de sesion. */
+  redirect?: string | null
 }
 
-export function RegisterForm({ onRegistered }: RegisterFormProps = {}) {
+export function RegisterForm({ onRegistered, redirect }: RegisterFormProps = {}) {
   const { register: registerUser } = useAuth({
     middleware: "guest",
     redirectIfAuthenticated: "/dashboard",
@@ -74,7 +77,7 @@ export function RegisterForm({ onRegistered }: RegisterFormProps = {}) {
         setStatus("Registro exitoso. Revisa tu correo para activar tu cuenta.");
         setStatusType("success");
         onRegistered?.();
-        setTimeout(() => router.replace("/auth/login?registered=true"), 4000);
+        setTimeout(() => router.replace(withRedirect("/auth/login?registered=true", redirect)), 4000);
         return; // Don't re-enable form after success
       }
     } catch (error) {

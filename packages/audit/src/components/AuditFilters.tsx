@@ -1,9 +1,10 @@
 'use client'
 
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Input } from '@lwm/ui'
 import type { AuditFilters as AuditFiltersType, AuditEvent } from '../types'
 import { EVENT_LABELS, AUDITABLE_TYPE_LABELS } from '../types'
+import { auditService } from '../services/auditService'
 
 interface AuditFiltersProps {
   filters: AuditFiltersType
@@ -21,19 +22,25 @@ const EVENT_OPTIONS: { value: AuditEvent | ''; label: string }[] = [
   { value: 'login_failed', label: EVENT_LABELS.login_failed },
 ]
 
-const AUDITABLE_TYPE_OPTIONS = [
-  { value: '', label: 'Todos los módulos' },
-  ...Object.entries(AUDITABLE_TYPE_LABELS).map(([value, label]) => ({
-    value,
-    label,
-  })),
-]
+// Respaldo si el backend no responde: la lista real la sirve /api/v1/audit-types.
+const FALLBACK_TYPE_OPTIONS = Object.entries(AUDITABLE_TYPE_LABELS).map(([value, label]) => ({ value, label }))
 
 export default function AuditFilters({
   filters,
   onFilterChange,
   onReset,
 }: AuditFiltersProps) {
+  const [typeOptions, setTypeOptions] = useState(FALLBACK_TYPE_OPTIONS)
+  useEffect(() => {
+    let alive = true
+    auditService.getTypes().then((types) => {
+      if (alive && types.length > 0) setTypeOptions(types)
+    }).catch(() => {
+      // Se queda la lista de respaldo.
+    })
+    return () => { alive = false }
+  }, [])
+
   const handleChange = (field: keyof AuditFiltersType, value: string) => {
     onFilterChange({
       ...filters,
@@ -80,13 +87,14 @@ export default function AuditFilters({
           </div>
 
           <div className="col-md-3">
-            <label className="form-label">Módulo</label>
+            <label className="form-label">Tipo de registro</label>
             <select
               className="form-select"
               value={filters.auditableType || ''}
               onChange={(e) => handleChange('auditableType', e.target.value)}
             >
-              {AUDITABLE_TYPE_OPTIONS.map((opt) => (
+              <option value="">Todos los tipos</option>
+              {typeOptions.map((opt) => (
                 <option key={opt.value} value={opt.value}>
                   {opt.label}
                 </option>

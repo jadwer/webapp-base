@@ -127,6 +127,12 @@ export const auditService = {
   /**
    * Get all audits with optional filters
    */
+  /** Tipos con registros en la bitacora, con su etiqueta (los sirve el backend). */
+  async getTypes(): Promise<{ value: string; label: string }[]> {
+    const response = await axiosClient.get<{ data: { value: string; label: string }[] }>('/api/v1/audit-types')
+    return response.data.data ?? []
+  },
+
   async getAll(
     filters?: AuditFilters,
     sort: string = '-createdAt',

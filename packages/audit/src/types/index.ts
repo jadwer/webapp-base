@@ -99,8 +99,9 @@ export interface AuditSingleJsonApiResponse {
   data: AuditJsonApiResource
 }
 
-// Entity type mapping for display
-// Complete list from backend: 37 of 74 models (50%) are audited
+// Etiquetas de respaldo. El filtro de la pantalla toma los tipos del backend
+// (GET /api/v1/audit-types); esta lista solo se usa si esa llamada falla y para
+// nombrar un tipo dentro de la tabla.
 export const AUDITABLE_TYPE_LABELS: Record<string, string> = {
   // Product Module
   'Modules\\Product\\Models\\Product': 'Producto',
@@ -112,15 +113,15 @@ export const AUDITABLE_TYPE_LABELS: Record<string, string> = {
   // Contacts Module
   'Modules\\Contacts\\Models\\Contact': 'Contacto',
   // Sales Module
-  'Modules\\Sales\\Models\\SalesOrder': 'Orden de Venta',
-  'Modules\\Sales\\Models\\SalesOrderItem': 'Item de Venta',
-  'Modules\\Sales\\Models\\SalesQuote': 'Cotización',
+  'Modules\\Sales\\Models\\SalesOrder': 'Pedido',
+  'Modules\\Sales\\Models\\SalesOrderItem': 'Partida de pedido',
+  'Modules\\Sales\\Models\\Quote': 'Cotización',
   // Purchase Module
   'Modules\\Purchase\\Models\\PurchaseOrder': 'Orden de Compra',
-  'Modules\\Purchase\\Models\\PurchaseOrderItem': 'Item de Compra',
+  'Modules\\Purchase\\Models\\PurchaseOrderItem': 'Partida de orden de compra',
   // Inventory Module
   'Modules\\Inventory\\Models\\Warehouse': 'Almacén',
-  'Modules\\Inventory\\Models\\Stock': 'Stock',
+  'Modules\\Inventory\\Models\\Stock': 'Existencia',
   'Modules\\Inventory\\Models\\InventoryMovement': 'Movimiento de Inventario',
   // Billing Module
   'Modules\\Billing\\Models\\CFDIInvoice': 'Factura CFDI',
@@ -133,7 +134,7 @@ export const AUDITABLE_TYPE_LABELS: Record<string, string> = {
   // CRM Module
   'Modules\\CRM\\Models\\Lead': 'Lead',
   'Modules\\CRM\\Models\\Opportunity': 'Oportunidad',
-  'Modules\\CRM\\Models\\Campaign': 'Campana',
+  'Modules\\CRM\\Models\\Campaign': 'Campaña',
   'Modules\\CRM\\Models\\Activity': 'Actividad',
   // Finance Module
   'Modules\\Finance\\Models\\APInvoice': 'Factura por Pagar',

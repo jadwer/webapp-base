@@ -28,6 +28,7 @@ export { default as ProfileLayout } from './templates/ProfileLayout'
 // HOOKS & SERVICES
 // ============================================
 export { useAuth } from './lib/auth'
+export { safeRedirect, withRedirect, DEFAULT_AUTH_REDIRECT } from './lib/redirect'
 export {
   getCurrentUser,
   changePassword,

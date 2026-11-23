@@ -15,8 +15,8 @@ describe('navigationConfig', () => {
       expect(adminNavigation.topLinks).toHaveLength(1)
     })
 
-    it('has 17 groups (poda UX 2026-09: comisiones en Ventas; Page Builder y Correos en Configuración)', () => {
-      expect(adminNavigation.groups).toHaveLength(17)
+    it('has 16 groups (2026-11: fuera Catálogo Público; poda UX 2026-09: comisiones en Ventas; Page Builder y Correos en Configuración)', () => {
+      expect(adminNavigation.groups).toHaveLength(16)
     })
 
     it('has 6 disabled modules', () => {
@@ -90,7 +90,7 @@ describe('navigationConfig', () => {
       expect(keys).toContain('reports')
       expect(keys).toContain('billing')
       expect(keys).toContain('crm')
-      expect(keys).toContain('catalog')
+      expect(keys).not.toContain('catalog')
       expect(keys).toContain('ecommerce')
       expect(keys).toContain('hr')
       expect(keys).toContain('settings')

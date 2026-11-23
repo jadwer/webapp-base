@@ -402,14 +402,14 @@ const CartContent: React.FC = () => {
       </Modal>
 
       {/* Cotizar sin registro (junta 2026-11-12, J2) */}
-      <Modal show={showGuestQuoteModal} onHide={() => !isRequestingQuote && setShowGuestQuoteModal(false)} title="Solicitar cotización">
+      <Modal show={showGuestQuoteModal} onHide={() => !isRequestingQuote && setShowGuestQuoteModal(false)} title="Generar cotización">
         <GuestQuoteRequestFields value={guestQuote} onChange={setGuestQuote} disabled={isRequestingQuote} error={guestQuoteError} />
         <div className="d-flex gap-2 justify-content-end mt-3">
           <button type="button" className="btn lw-btn lw-btn-accent-outline" onClick={() => setShowGuestQuoteModal(false)} disabled={isRequestingQuote}>
             Cancelar
           </button>
           <button type="button" className="btn lw-btn lw-btn-accent" onClick={handleSubmitGuestQuote} disabled={isRequestingQuote}>
-            {isRequestingQuote ? 'Generando...' : 'Descargar cotización'}
+            {isRequestingQuote ? 'Generando...' : 'Generar cotización'}
           </button>
         </div>
       </Modal>

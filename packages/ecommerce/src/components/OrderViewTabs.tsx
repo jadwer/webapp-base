@@ -78,6 +78,15 @@ export const OrderViewTabs = React.memo<OrderViewTabsProps>(({
             </Button>
             <Button
               variant="primary"
+              buttonStyle="outline"
+              onClick={() => navigation.push(`/dashboard/sales/${order.id}`)}
+              title="Confirmar, surtir, facturar o cancelar se hace desde el pedido"
+            >
+              <i className="bi bi-box-arrow-up-right me-2" />
+              Abrir en Pedidos
+            </Button>
+            <Button
+              variant="primary"
               onClick={() => window.print()}
             >
               <i className="bi bi-printer me-2" />

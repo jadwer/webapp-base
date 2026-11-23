@@ -10,7 +10,7 @@ import { Suspense } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuthRedirect } from '@/hooks/useAuthRedirect'
-import { LoginForm } from '@/modules/auth'
+import { LoginForm, safeRedirect, withRedirect } from '@/modules/auth'
 import { AuthSplitLayout } from '@/modules/auth-ui'
 
 function AuthLoading({ label }: { label: string }) {
@@ -29,7 +29,7 @@ function AuthLoading({ label }: { label: string }) {
 function LoginContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const redirect = searchParams.get('redirect') || '/dashboard'
+  const redirect = safeRedirect(searchParams.get('redirect'))
   const { shouldShowLogin } = useAuthRedirect()
 
   // Mostrar loading hasta saber si mostrar login o redirigir (misma logica
@@ -41,7 +41,7 @@ function LoginContent() {
       title="Bienvenido de nuevo"
       subtitle="Comencemos ingresando tus datos"
       aside={<Link href="/auth/forgot-password">¿Olvidaste tu contraseña?</Link>}
-      footer={<p>¿No tienes una cuenta? <Link href="/auth/register">¡Regístrate aquí!</Link></p>}
+      footer={<p>¿No tienes una cuenta? <Link href={withRedirect('/auth/register', redirect)}>¡Regístrate aquí!</Link></p>}
     >
       <LoginForm redirect={redirect} onLoginSuccess={() => router.replace(redirect)} />
     </AuthSplitLayout>

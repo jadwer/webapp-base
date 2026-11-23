@@ -415,7 +415,7 @@ export const LocalCartPage: React.FC<LocalCartPageProps> = ({
       <Modal
         show={showGuestQuoteModal}
         onHide={() => setShowGuestQuoteModal(false)}
-        title="Solicitar cotización"
+        title="Generar cotización"
         closable={!isRequestingQuote}
         closeButton={!isRequestingQuote}
         footer={
@@ -424,7 +424,7 @@ export const LocalCartPage: React.FC<LocalCartPageProps> = ({
               Cancelar
             </button>
             <Button variant="success" onClick={handleSubmitGuestQuote} disabled={isRequestingQuote}>
-              {isRequestingQuote ? 'Generando...' : 'Descargar cotización'}
+              {isRequestingQuote ? 'Generando...' : 'Generar cotización'}
             </Button>
           </>
         }

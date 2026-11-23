@@ -429,7 +429,7 @@ describe('LocalCartPage', () => {
       render(<LocalCartPage />)
       await user.click(screen.getByText('Generar Cotización'))
       await fillGuest(user)
-      await user.click(screen.getByRole('button', { name: 'Descargar cotización' }))
+      await user.click(screen.getByRole('button', { name: 'Generar cotización' }))
 
       await waitFor(() => {
         expect(cartQuotePdfService.requestFormalQuote).toHaveBeenCalledWith(
@@ -453,7 +453,7 @@ describe('LocalCartPage', () => {
       render(<LocalCartPage />)
       await user.click(screen.getByText('Generar Cotización'))
       await fillGuest(user)
-      await user.click(screen.getByRole('button', { name: 'Descargar cotización' }))
+      await user.click(screen.getByRole('button', { name: 'Generar cotización' }))
 
       expect(await screen.findByText('El campo correo debe ser una dirección de correo válida.')).toBeInTheDocument()
       expect(mockPush).not.toHaveBeenCalled()

@@ -11,8 +11,8 @@
 import React, { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { LwSurface, LwPageTitle, LwKpiCard, LwPagination, LwTableWrap, LwStatusPill, LwIconButton, formatCurrency, formatDateOnly } from '@lwm/ui'
-import { BranchFilter } from '@lwm/auth'
+import { LwSurface, LwPageTitle, LwKpiCard, LwPagination, LwTableWrap, LwStatusPill, LwIconButton, formatCurrency, formatDateOnly, saveBlobAs, getBlobErrorMessage, toast } from '@lwm/ui'
+import { BranchFilter, axiosClient } from '@lwm/auth'
 import { usePurchaseOrders, usePurchaseOrdersCount, usePurchaseReports } from '../hooks'
 import { PURCHASE_STATUS_OPTIONS, purchaseStatusLabel, purchaseStatusTone, isPurchaseOrderClosed, type PurchaseStatusKey } from '../utils/status'
 import { etaStatus, localTodayYmd } from '../utils/eta'
@@ -44,6 +44,25 @@ export const PurchaseOrdersAdminPage: React.FC = () => {
     ...(quick === 'receipt' && { pendingReceipt: true }),
   }
   const { purchaseOrders, meta, isLoading, error } = usePurchaseOrders(filters, { page, pageSize: perPage })
+
+  // Exporta TODO lo que cumple los filtros del listado, no solo la pagina (COM-16).
+  const [exporting, setExporting] = useState(false)
+  const exportToExcel = async () => {
+    setExporting(true)
+    try {
+      const params: Record<string, string> = {}
+      if (filters.search) params['filter[search]'] = filters.search
+      if (filters.status) params['filter[status]'] = String(filters.status)
+      if (filters.branchId) params['filter[branch]'] = String(filters.branchId)
+      if (filters.pendingReceipt) params['filter[pending_receipt]'] = 'true'
+      const response = await axiosClient.get('/api/v1/purchase-orders/export', { params, responseType: 'blob' })
+      saveBlobAs(response.data as Blob, `ordenes-de-compra-${new Date().toISOString().slice(0, 10)}.xlsx`)
+    } catch (err) {
+      toast.error(await getBlobErrorMessage(err, 'No se pudo exportar el listado'))
+    } finally {
+      setExporting(false)
+    }
+  }
   const pageMeta = (meta as { page?: { total?: number; lastPage?: number; currentPage?: number } })?.page
 
   const total = usePurchaseOrdersCount(branchId ? { branchId } : undefined)
@@ -67,6 +86,9 @@ export const PurchaseOrdersAdminPage: React.FC = () => {
           subtitle="Administra las órdenes de compra y relaciones con proveedores"
           actions={
             <>
+              <button type="button" className="btn btn-outline-primary" onClick={exportToExcel} disabled={exporting} data-testid="purchase-export">
+                <i className="bi bi-file-earmark-excel me-1" aria-hidden="true" /> {exporting ? 'Exportando...' : 'Exportar a Excel'}
+              </button>
               <Link href={`${BASE}/pending-receipt`} className="btn btn-outline-primary">
                 <i className="bi bi-box-arrow-in-down me-1" aria-hidden="true" /> Por recibir
               </Link>

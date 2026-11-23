@@ -1,5 +1,6 @@
 'use client'
 
+import { withRedirect } from '../lib/redirect'
 import { useRouter } from 'next/navigation'
 import { LoginForm } from '../components/LoginForm'
 import Link from 'next/link'
@@ -43,7 +44,7 @@ export default function LoginTemplate({ redirect }: Props) {
           </p>
           <p>
             ¿No tienes una cuenta?{' '}
-            <Link href="/auth/register">
+            <Link href={withRedirect('/auth/register', redirect)}>
               ¡Regístrate aquí!
             </Link>
           </p>
