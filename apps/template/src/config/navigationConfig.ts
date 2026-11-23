@@ -301,13 +301,13 @@ export const adminNavigation: NavigationSection = {
       key: 'system',
       label: 'Sistema',
       icon: 'bi-gear-wide-connected',
-      activePathPrefixes: ['/dashboard/audit', '/dashboard/system-health', '/dashboard/diagnostic', '/dashboard/design-system'],
+      // Diagnostico y Design System salieron del menu (PLA-12, 2026-11-22): son
+      // herramientas de desarrollo; siguen accesibles por URL.
+      activePathPrefixes: ['/dashboard/audit', '/dashboard/system-health'],
       permissions: [],
       items: [
         { href: '/dashboard/audit', label: 'Auditoría', icon: 'bi-journal-text', permissions: ['audit.index'] },
         { href: '/dashboard/system-health', label: 'Estado del Sistema', icon: 'bi-heart-pulse', permissions: ['system-health.index'] },
-        { href: '/dashboard/diagnostic', label: 'Diagnóstico', icon: 'bi-bug', permissions: [] },
-        { href: '/dashboard/design-system', label: 'Design System', icon: 'bi-palette', permissions: [] },
       ],
     },
   ],
